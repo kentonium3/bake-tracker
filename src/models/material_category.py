@@ -67,8 +67,6 @@ class MaterialCategory(BaseModel):
         result = super().to_dict(include_relationships)
 
         if include_relationships:
-            result["subcategories"] = [
-                s.to_dict(False) for s in self.subcategories
-            ]
+            result["subcategories"] = [s.to_dict(False) for s in self.subcategories]
 
         return result

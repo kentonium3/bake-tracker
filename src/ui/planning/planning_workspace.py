@@ -34,12 +34,7 @@ class StalePlanBanner(ctk.CTkFrame):
     Implements FR-040: Stale plan warning banner.
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        on_recalculate: callable,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, on_recalculate: callable, **kwargs):
         """Initialize StalePlanBanner.
 
         Args:
@@ -288,12 +283,7 @@ class PlanningWorkspace(ctk.CTkFrame):
     Calculate -> Shop -> Produce -> Assemble phases.
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        event_id: Optional[int] = None,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, event_id: Optional[int] = None, **kwargs):
         """Initialize PlanningWorkspace.
 
         Args:
@@ -343,10 +333,7 @@ class PlanningWorkspace(ctk.CTkFrame):
         self.stale_banner.grid(row=0, column=0, sticky="ew", pady=(0, 10))
 
         # View container (row 1)
-        self.view_container = ctk.CTkFrame(
-            self.content_container,
-            fg_color="transparent"
-        )
+        self.view_container = ctk.CTkFrame(self.content_container, fg_color="transparent")
         self.view_container.grid(row=1, column=0, sticky="nsew")
         self.view_container.grid_columnconfigure(0, weight=1)
         self.view_container.grid_rowconfigure(0, weight=1)
@@ -538,6 +525,7 @@ class PlanningWorkspace(ctk.CTkFrame):
         """
         # Map service PhaseStatus to sidebar PhaseStatus
         from src.services.planning import PhaseStatus as ServicePhaseStatus
+
         status_map = {
             ServicePhaseStatus.NOT_STARTED: PhaseStatus.NOT_STARTED,
             ServicePhaseStatus.IN_PROGRESS: PhaseStatus.IN_PROGRESS,
@@ -553,11 +541,9 @@ class PlanningWorkspace(ctk.CTkFrame):
                 "production": PlanPhase.PRODUCE,
                 "assembly": PlanPhase.ASSEMBLE,
             }
-            sidebar_phase = phase_map.get(phase.value if hasattr(phase, 'value') else phase)
+            sidebar_phase = phase_map.get(phase.value if hasattr(phase, "value") else phase)
             if sidebar_phase:
-                statuses[sidebar_phase] = status_map.get(
-                    service_status, PhaseStatus.NOT_STARTED
-                )
+                statuses[sidebar_phase] = status_map.get(service_status, PhaseStatus.NOT_STARTED)
 
         self.sidebar.update_all_statuses(statuses)
 
@@ -601,7 +587,7 @@ class PlanningWorkspace(ctk.CTkFrame):
 
         # Update all views with new event
         for phase, view in self._views.items():
-            if hasattr(view, 'set_event'):
+            if hasattr(view, "set_event"):
                 view.set_event(event_id)
 
         self._load_plan_data()
@@ -614,5 +600,5 @@ class PlanningWorkspace(ctk.CTkFrame):
         # Refresh current view
         if self.current_phase in self._views:
             view = self._views[self.current_phase]
-            if hasattr(view, 'refresh'):
+            if hasattr(view, "refresh"):
                 view.refresh()

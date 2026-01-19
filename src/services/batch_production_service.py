@@ -66,17 +66,13 @@ class FinishedUnitRecipeMismatchError(Exception):
     def __init__(self, finished_unit_id: int, recipe_id: int):
         self.finished_unit_id = finished_unit_id
         self.recipe_id = recipe_id
-        super().__init__(
-            f"FinishedUnit {finished_unit_id} does not belong to Recipe {recipe_id}"
-        )
+        super().__init__(f"FinishedUnit {finished_unit_id} does not belong to Recipe {recipe_id}")
 
 
 class InsufficientInventoryError(Exception):
     """Raised when there is insufficient inventory for production."""
 
-    def __init__(
-        self, ingredient_slug: str, needed: Decimal, available: Decimal, unit: str
-    ):
+    def __init__(self, ingredient_slug: str, needed: Decimal, available: Decimal, unit: str):
         self.ingredient_slug = ingredient_slug
         self.needed = needed
         self.available = available
@@ -346,7 +342,7 @@ def record_batch_production(
             recipe_id=recipe_id,
             scale_factor=scale_factor,
             production_run_id=temp_production_run.id,
-            session=session
+            session=session,
         )
         snapshot_id = snapshot["id"]
 
@@ -567,9 +563,7 @@ def get_production_run(
         ProductionRunNotFoundError: If production run doesn't exist
     """
     with session_scope() as session:
-        query = session.query(ProductionRun).filter(
-            ProductionRun.id == production_run_id
-        )
+        query = session.query(ProductionRun).filter(ProductionRun.id == production_run_id)
 
         query = query.options(
             joinedload(ProductionRun.recipe),
@@ -788,9 +782,7 @@ def import_production_history(
 
                 # Check for duplicate by UUID if provided
                 if run_uuid:
-                    existing = (
-                        session.query(ProductionRun).filter_by(uuid=run_uuid).first()
-                    )
+                    existing = session.query(ProductionRun).filter_by(uuid=run_uuid).first()
                     if existing:
                         if skip_duplicates:
                             skipped += 1
@@ -808,9 +800,7 @@ def import_production_history(
 
                 # Resolve finished_unit by slug
                 fu_slug = run_data.get("finished_unit_slug")
-                finished_unit = (
-                    session.query(FinishedUnit).filter_by(slug=fu_slug).first()
-                )
+                finished_unit = session.query(FinishedUnit).filter_by(slug=fu_slug).first()
                 if not finished_unit:
                     errors.append(f"FinishedUnit not found: {fu_slug}")
                     continue
@@ -863,9 +853,7 @@ def import_production_history(
                 imported += 1
 
             except Exception as e:
-                errors.append(
-                    f"Error importing {run_data.get('uuid', 'unknown')}: {str(e)}"
-                )
+                errors.append(f"Error importing {run_data.get('uuid', 'unknown')}: {str(e)}")
 
     return {
         "imported": imported,

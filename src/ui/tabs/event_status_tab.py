@@ -44,18 +44,11 @@ class EventStatusTab(ctk.CTkFrame):
         header.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
 
         title = ctk.CTkLabel(
-            header,
-            text="Event Status Overview",
-            font=ctk.CTkFont(size=16, weight="bold")
+            header, text="Event Status Overview", font=ctk.CTkFont(size=16, weight="bold")
         )
         title.pack(side="left")
 
-        refresh_btn = ctk.CTkButton(
-            header,
-            text="Refresh",
-            width=80,
-            command=self.refresh
-        )
+        refresh_btn = ctk.CTkButton(header, text="Refresh", width=80, command=self.refresh)
         refresh_btn.pack(side="right")
 
     def _create_event_list(self) -> None:
@@ -137,27 +130,37 @@ class EventStatusTab(ctk.CTkFrame):
                     # Format date
                     date_str = str(event.event_date) if event.event_date else "TBD"
 
-                    self.tree.insert("", "end", values=(
-                        event.name,
-                        date_str,
-                        f"{shopping}%",
-                        f"{production}%",
-                        f"{assembly}%",
-                        f"{packaging}%",
-                        f"{overall}%",
-                    ), tags=(tag,))
+                    self.tree.insert(
+                        "",
+                        "end",
+                        values=(
+                            event.name,
+                            date_str,
+                            f"{shopping}%",
+                            f"{production}%",
+                            f"{assembly}%",
+                            f"{packaging}%",
+                            f"{overall}%",
+                        ),
+                        tags=(tag,),
+                    )
 
                 except Exception:
                     # Insert with error indication
-                    self.tree.insert("", "end", values=(
-                        event.name,
-                        str(event.event_date) if event.event_date else "TBD",
-                        "?",
-                        "?",
-                        "?",
-                        "?",
-                        "?",
-                    ), tags=("not_started",))
+                    self.tree.insert(
+                        "",
+                        "end",
+                        values=(
+                            event.name,
+                            str(event.event_date) if event.event_date else "TBD",
+                            "?",
+                            "?",
+                            "?",
+                            "?",
+                            "?",
+                        ),
+                        tags=("not_started",),
+                    )
 
         except Exception:
             # Show error in empty state

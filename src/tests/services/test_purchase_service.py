@@ -263,9 +263,7 @@ class TestGetLastPriceAtSupplier:
         assert result["unit_price"] == "8.9900"  # Costco price, not Wegmans
         assert result["supplier_id"] == costco_supplier.id
 
-    def test_works_without_session_parameter(
-        self, engine, test_ingredient, costco_supplier
-    ):
+    def test_works_without_session_parameter(self, engine, test_ingredient, costco_supplier):
         """Function works when no session parameter is provided."""
         # This test verifies the session_scope() fallback path
         # However, we need to monkey-patch the database module for this to work
@@ -311,9 +309,7 @@ class TestGetLastPriceAnySupplier:
         assert "Wegmans" in result["supplier_name"]
         assert "Westwood" in result["supplier_name"]
 
-    def test_returns_none_when_no_history(
-        self, session, product_with_no_purchases
-    ):
+    def test_returns_none_when_no_history(self, session, product_with_no_purchases):
         """Returns None when product has no purchase history."""
         result = get_last_price_any_supplier(
             product_id=product_with_no_purchases.id,
@@ -322,9 +318,7 @@ class TestGetLastPriceAnySupplier:
 
         assert result is None
 
-    def test_returns_price_from_single_supplier(
-        self, session, product_with_costco_purchases
-    ):
+    def test_returns_price_from_single_supplier(self, session, product_with_costco_purchases):
         """Returns price when only one supplier has history."""
         result = get_last_price_any_supplier(
             product_id=product_with_costco_purchases.id,
@@ -349,9 +343,7 @@ class TestGetLastPriceAnySupplier:
         expected_name = costco_supplier.display_name
         assert result["supplier_name"] == expected_name
 
-    def test_returns_dict_with_all_required_fields(
-        self, session, product_with_costco_purchases
-    ):
+    def test_returns_dict_with_all_required_fields(self, session, product_with_costco_purchases):
         """Verify all required fields are in return dict."""
         result = get_last_price_any_supplier(
             product_id=product_with_costco_purchases.id,
@@ -370,9 +362,7 @@ class TestGetLastPriceAnySupplier:
         assert isinstance(result["supplier_id"], int)
         assert isinstance(result["supplier_name"], str)
 
-    def test_purchase_date_is_iso_format(
-        self, session, product_with_costco_purchases
-    ):
+    def test_purchase_date_is_iso_format(self, session, product_with_costco_purchases):
         """Verify purchase_date is in ISO format string."""
         result = get_last_price_any_supplier(
             product_id=product_with_costco_purchases.id,
@@ -558,9 +548,7 @@ def purchase_fully_consumed(session, test_product, costco_supplier):
 class TestGetPurchasesFiltered:
     """Tests for get_purchases_filtered function."""
 
-    def test_returns_purchases_default_30_days(
-        self, session, purchase_with_inventory
-    ):
+    def test_returns_purchases_default_30_days(self, session, purchase_with_inventory):
         """Returns purchases from last 30 days by default."""
         result = get_purchases_filtered(session=session)
 
@@ -616,9 +604,7 @@ class TestGetPurchasesFiltered:
         for p in result:
             assert p["supplier_name"] == "Costco"
 
-    def test_filters_by_search_query(
-        self, session, purchase_with_inventory
-    ):
+    def test_filters_by_search_query(self, session, purchase_with_inventory):
         """Returns purchases matching search query (product name)."""
         result = get_purchases_filtered(
             search_query="King Arthur",
@@ -639,16 +625,12 @@ class TestGetPurchasesFiltered:
 
         assert result == []
 
-    def test_includes_remaining_inventory(
-        self, session, purchase_with_inventory
-    ):
+    def test_includes_remaining_inventory(self, session, purchase_with_inventory):
         """Result includes calculated remaining inventory."""
         result = get_purchases_filtered(session=session)
 
         # Find our test purchase
-        test_purchase = next(
-            p for p in result if p["id"] == purchase_with_inventory.id
-        )
+        test_purchase = next(p for p in result if p["id"] == purchase_with_inventory.id)
         assert "remaining_inventory" in test_purchase
         assert test_purchase["remaining_inventory"] == Decimal("10.0")
 
@@ -670,9 +652,7 @@ class TestGetPurchasesFiltered:
 class TestGetRemainingInventory:
     """Tests for get_remaining_inventory function."""
 
-    def test_returns_quantity_unconsumed(
-        self, session, purchase_with_inventory
-    ):
+    def test_returns_quantity_unconsumed(self, session, purchase_with_inventory):
         """Returns remaining quantity for unconsumed purchase."""
         result = get_remaining_inventory(
             purchase_id=purchase_with_inventory.id,
@@ -681,9 +661,7 @@ class TestGetRemainingInventory:
 
         assert result == Decimal("10.0")
 
-    def test_returns_quantity_partially_consumed(
-        self, session, purchase_partially_consumed
-    ):
+    def test_returns_quantity_partially_consumed(self, session, purchase_partially_consumed):
         """Returns remaining quantity for partially consumed purchase."""
         result = get_remaining_inventory(
             purchase_id=purchase_partially_consumed.id,
@@ -692,9 +670,7 @@ class TestGetRemainingInventory:
 
         assert result == Decimal("10.0")  # 15 total - 5 consumed = 10 remaining
 
-    def test_returns_zero_fully_consumed(
-        self, session, purchase_fully_consumed
-    ):
+    def test_returns_zero_fully_consumed(self, session, purchase_fully_consumed):
         """Returns zero for fully consumed purchase."""
         result = get_remaining_inventory(
             purchase_id=purchase_fully_consumed.id,
@@ -712,9 +688,7 @@ class TestGetRemainingInventory:
 class TestCanEditPurchase:
     """Tests for can_edit_purchase function."""
 
-    def test_allows_edit_no_consumption(
-        self, session, purchase_with_inventory
-    ):
+    def test_allows_edit_no_consumption(self, session, purchase_with_inventory):
         """Allows quantity edit when no consumption."""
         allowed, reason = can_edit_purchase(
             purchase_id=purchase_with_inventory.id,
@@ -725,9 +699,7 @@ class TestCanEditPurchase:
         assert allowed is True
         assert reason == ""
 
-    def test_allows_edit_above_consumed(
-        self, session, purchase_partially_consumed
-    ):
+    def test_allows_edit_above_consumed(self, session, purchase_partially_consumed):
         """Allows quantity edit when new qty >= consumed."""
         # Partially consumed has 5 units consumed (1 package consumed)
         allowed, reason = can_edit_purchase(
@@ -739,9 +711,7 @@ class TestCanEditPurchase:
         assert allowed is True
         assert reason == ""
 
-    def test_blocks_edit_below_consumed(
-        self, session, purchase_partially_consumed
-    ):
+    def test_blocks_edit_below_consumed(self, session, purchase_partially_consumed):
         """Blocks quantity edit when new qty < consumed."""
         # Partially consumed has 5 units consumed
         # package_unit_quantity is 5, so 1 package = 5 units
@@ -769,9 +739,7 @@ class TestCanEditPurchase:
 class TestCanDeletePurchase:
     """Tests for can_delete_purchase function."""
 
-    def test_allows_delete_no_depletions(
-        self, session, purchase_with_inventory
-    ):
+    def test_allows_delete_no_depletions(self, session, purchase_with_inventory):
         """Allows deletion when no inventory has been consumed."""
         allowed, reason = can_delete_purchase(
             purchase_id=purchase_with_inventory.id,
@@ -781,9 +749,7 @@ class TestCanDeletePurchase:
         assert allowed is True
         assert reason == ""
 
-    def test_blocks_delete_has_depletions(
-        self, session, purchase_partially_consumed
-    ):
+    def test_blocks_delete_has_depletions(self, session, purchase_partially_consumed):
         """Blocks deletion when inventory has been consumed."""
         allowed, reason = can_delete_purchase(
             purchase_id=purchase_partially_consumed.id,
@@ -795,9 +761,7 @@ class TestCanDeletePurchase:
         assert "already used" in reason
         assert "Chocolate Chip Cookies" in reason
 
-    def test_blocks_delete_fully_consumed(
-        self, session, purchase_fully_consumed
-    ):
+    def test_blocks_delete_fully_consumed(self, session, purchase_fully_consumed):
         """Blocks deletion for fully consumed purchase."""
         allowed, reason = can_delete_purchase(
             purchase_id=purchase_fully_consumed.id,
@@ -816,9 +780,7 @@ class TestCanDeletePurchase:
 class TestUpdatePurchase:
     """Tests for update_purchase function."""
 
-    def test_updates_price_recalculates_costs(
-        self, session, purchase_with_inventory
-    ):
+    def test_updates_price_recalculates_costs(self, session, purchase_with_inventory):
         """Price change recalculates unit_cost on inventory items."""
         original_price = purchase_with_inventory.unit_price
 
@@ -832,15 +794,15 @@ class TestUpdatePurchase:
         assert updated.unit_price != original_price
 
         # Verify inventory item unit_cost was updated
-        inventory_item = session.query(InventoryItem).filter(
-            InventoryItem.purchase_id == purchase_with_inventory.id
-        ).first()
+        inventory_item = (
+            session.query(InventoryItem)
+            .filter(InventoryItem.purchase_id == purchase_with_inventory.id)
+            .first()
+        )
         # New unit_cost = 12.99 / 5 = 2.598
         assert abs(inventory_item.unit_cost - 2.598) < 0.001
 
-    def test_updates_quantity_adjusts_inventory(
-        self, session, purchase_with_inventory
-    ):
+    def test_updates_quantity_adjusts_inventory(self, session, purchase_with_inventory):
         """Quantity change adjusts inventory item quantity."""
         updated = update_purchase(
             purchase_id=purchase_with_inventory.id,
@@ -851,15 +813,15 @@ class TestUpdatePurchase:
         assert updated.quantity_purchased == 3
 
         # Verify inventory item quantity was updated
-        inventory_item = session.query(InventoryItem).filter(
-            InventoryItem.purchase_id == purchase_with_inventory.id
-        ).first()
+        inventory_item = (
+            session.query(InventoryItem)
+            .filter(InventoryItem.purchase_id == purchase_with_inventory.id)
+            .first()
+        )
         # New quantity = 3 packages * 5 units = 15
         assert inventory_item.quantity == 15.0
 
-    def test_rejects_product_change(
-        self, session, purchase_with_inventory, test_ingredient
-    ):
+    def test_rejects_product_change(self, session, purchase_with_inventory, test_ingredient):
         """Raises ValueError when trying to change product_id."""
         other_product = Product(
             ingredient_id=test_ingredient.id,
@@ -879,9 +841,7 @@ class TestUpdatePurchase:
 
         assert "Cannot change product_id" in str(exc_info.value)
 
-    def test_rejects_quantity_below_consumed(
-        self, session, purchase_partially_consumed
-    ):
+    def test_rejects_quantity_below_consumed(self, session, purchase_partially_consumed):
         """Raises ValueError when new quantity < consumed."""
         # Partially consumed has 5 units consumed (1 package worth)
         with pytest.raises(ValueError) as exc_info:
@@ -893,9 +853,7 @@ class TestUpdatePurchase:
 
         assert "Cannot reduce below" in str(exc_info.value)
 
-    def test_updates_notes(
-        self, session, purchase_with_inventory
-    ):
+    def test_updates_notes(self, session, purchase_with_inventory):
         """Updates notes field."""
         updated = update_purchase(
             purchase_id=purchase_with_inventory.id,
@@ -905,9 +863,7 @@ class TestUpdatePurchase:
 
         assert updated.notes == "Updated note"
 
-    def test_updates_supplier(
-        self, session, purchase_with_inventory, wegmans_supplier
-    ):
+    def test_updates_supplier(self, session, purchase_with_inventory, wegmans_supplier):
         """Updates supplier_id field."""
         updated = update_purchase(
             purchase_id=purchase_with_inventory.id,
@@ -930,9 +886,7 @@ class TestUpdatePurchase:
 class TestGetPurchaseUsageHistory:
     """Tests for get_purchase_usage_history function."""
 
-    def test_returns_depletions_with_details(
-        self, session, purchase_partially_consumed
-    ):
+    def test_returns_depletions_with_details(self, session, purchase_partially_consumed):
         """Returns depletion history with recipe details."""
         result = get_purchase_usage_history(
             purchase_id=purchase_partially_consumed.id,
@@ -947,9 +901,7 @@ class TestGetPurchaseUsageHistory:
         assert depletion["quantity_used"] == Decimal("5.0")
         assert "cost" in depletion
 
-    def test_returns_empty_when_no_depletions(
-        self, session, purchase_with_inventory
-    ):
+    def test_returns_empty_when_no_depletions(self, session, purchase_with_inventory):
         """Returns empty list when no consumption history."""
         result = get_purchase_usage_history(
             purchase_id=purchase_with_inventory.id,
@@ -958,9 +910,7 @@ class TestGetPurchaseUsageHistory:
 
         assert result == []
 
-    def test_orders_by_date_ascending(
-        self, session, test_product, costco_supplier
-    ):
+    def test_orders_by_date_ascending(self, session, test_product, costco_supplier):
         """Results are ordered by depleted_at ASC."""
         # Create a purchase with multiple depletions
         purchase = Purchase(

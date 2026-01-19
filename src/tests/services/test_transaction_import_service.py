@@ -160,21 +160,23 @@ class TestImportPurchasesCreatesRecords:
         create_purchase_file,
     ):
         """Verify Purchase record is created with correct data."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "created_at": "2026-01-12T14:30:00Z",
-            "source": "bt_mobile",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 2,
-                    "notes": "Weekly shopping",
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "created_at": "2026-01-12T14:30:00Z",
+                "source": "bt_mobile",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 2,
+                        "notes": "Weekly shopping",
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -201,18 +203,20 @@ class TestImportPurchasesCreatesRecords:
         create_purchase_file,
     ):
         """Verify InventoryItem record is created and linked to Purchase."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 2,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 2,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -239,30 +243,32 @@ class TestImportPurchasesCreatesRecords:
         create_purchase_file,
     ):
         """Verify multiple purchases in one file are all processed."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-10T10:00:00Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                },
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-11T11:00:00Z",
-                    "unit_price": 8.49,
-                    "quantity_purchased": 2,
-                },
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T12:00:00Z",
-                    "unit_price": 7.49,
-                    "quantity_purchased": 3,
-                },
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-10T10:00:00Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                    },
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-11T11:00:00Z",
+                        "unit_price": 8.49,
+                        "quantity_purchased": 2,
+                    },
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T12:00:00Z",
+                        "unit_price": 7.49,
+                        "quantity_purchased": 3,
+                    },
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -292,18 +298,20 @@ class TestImportPurchasesRejectsNegativeQuantity:
         create_purchase_file,
     ):
         """Verify negative quantity is rejected with proper error."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": -2,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": -2,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -321,18 +329,20 @@ class TestImportPurchasesRejectsNegativeQuantity:
         create_purchase_file,
     ):
         """Verify zero quantity is rejected with proper error."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 0,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 0,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -356,18 +366,20 @@ class TestImportPurchasesRejectsUnknownProduct:
         create_purchase_file,
     ):
         """Verify unknown product slug produces actionable error."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": "nonexistent_product_slug",
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": "nonexistent_product_slug",
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -385,17 +397,19 @@ class TestImportPurchasesRejectsUnknownProduct:
         create_purchase_file,
     ):
         """Verify missing product_slug field produces proper error."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -433,18 +447,20 @@ class TestImportPurchasesSkipsDuplicates:
             session.add(existing_purchase)
 
         # Try to import same purchase
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,  # Different quantity
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,  # Different quantity
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -476,18 +492,20 @@ class TestImportPurchasesSkipsDuplicates:
             session.add(existing_purchase)
 
         # Import with different date
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-13T14:15:23Z",  # Different date
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-13T14:15:23Z",  # Different date
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -515,18 +533,20 @@ class TestImportPurchasesSkipsDuplicates:
             session.add(existing_purchase)
 
         # Import with different price
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 8.49,  # Different price
-                    "quantity_purchased": 1,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 8.49,  # Different price
+                        "quantity_purchased": 1,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -550,18 +570,20 @@ class TestImportPurchasesDryRun:
         create_purchase_file,
     ):
         """Verify dry_run=True does not create records in database."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 2,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 2,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path, dry_run=True)
 
@@ -594,19 +616,21 @@ class TestImportPurchasesSupplierResolution:
         create_purchase_file,
     ):
         """Verify existing supplier is found and linked."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                    "supplier": "Costco",  # Matches sample_supplier_for_purchase
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                        "supplier": "Costco",  # Matches sample_supplier_for_purchase
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -624,19 +648,21 @@ class TestImportPurchasesSupplierResolution:
         create_purchase_file,
     ):
         """Verify new supplier is created if not found."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                    "supplier": "New Store Name",
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                        "supplier": "New Store Name",
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -659,20 +685,22 @@ class TestImportPurchasesSupplierResolution:
         create_purchase_file,
     ):
         """Verify default supplier from file header is used."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "supplier": "Header Supplier",  # Default supplier in header
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                    # No per-purchase supplier
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "supplier": "Header Supplier",  # Default supplier in header
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                        # No per-purchase supplier
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -692,20 +720,22 @@ class TestImportPurchasesSupplierResolution:
         create_purchase_file,
     ):
         """Verify per-purchase supplier takes precedence over header."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "supplier": "Header Supplier",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 7.99,
-                    "quantity_purchased": 1,
-                    "supplier": "Override Supplier",  # Per-purchase
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "supplier": "Header Supplier",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 7.99,
+                        "quantity_purchased": 1,
+                        "supplier": "Override Supplier",  # Per-purchase
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -732,9 +762,7 @@ class TestImportPurchasesFileValidation:
         assert result.failed == 1
         assert "File not found" in result.errors[0]["message"]
 
-    def test_import_invalid_json(
-        self, test_db, cleanup_transaction_data, create_purchase_file
-    ):
+    def test_import_invalid_json(self, test_db, cleanup_transaction_data, create_purchase_file):
         """Verify proper error for invalid JSON."""
         # Create file with invalid JSON manually
         fd, path = tempfile.mkstemp(suffix=".json")
@@ -753,11 +781,13 @@ class TestImportPurchasesFileValidation:
         self, test_db, cleanup_transaction_data, create_purchase_file
     ):
         """Verify proper error for wrong import_type."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",  # Wrong type
-            "purchases": [],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",  # Wrong type
+                "purchases": [],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -768,11 +798,13 @@ class TestImportPurchasesFileValidation:
         self, test_db, cleanup_transaction_data, create_purchase_file
     ):
         """Verify warning for empty purchases array."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -832,18 +864,20 @@ class TestImportPurchasesUpdatesAverageCost:
         create_purchase_file,
     ):
         """Verify InventoryItem has correct unit_cost from purchase."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-12T14:15:23Z",
-                    "unit_price": 12.99,
-                    "quantity_purchased": 3,
-                }
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-12T14:15:23Z",
+                        "unit_price": 12.99,
+                        "quantity_purchased": 3,
+                    }
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
@@ -862,33 +896,33 @@ class TestImportPurchasesUpdatesAverageCost:
         create_purchase_file,
     ):
         """Verify each purchase creates its own InventoryItem with correct cost."""
-        file_path = create_purchase_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "purchases": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-10T10:00:00Z",
-                    "unit_price": 10.00,
-                    "quantity_purchased": 2,
-                },
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "purchased_at": "2026-01-11T11:00:00Z",
-                    "unit_price": 12.00,
-                    "quantity_purchased": 3,
-                },
-            ],
-        })
+        file_path = create_purchase_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",
+                "purchases": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-10T10:00:00Z",
+                        "unit_price": 10.00,
+                        "quantity_purchased": 2,
+                    },
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "purchased_at": "2026-01-11T11:00:00Z",
+                        "unit_price": 12.00,
+                        "quantity_purchased": 3,
+                    },
+                ],
+            }
+        )
 
         result = import_purchases(file_path)
 
         assert result.successful == 2
 
         with session_scope() as session:
-            items = session.query(InventoryItem).order_by(
-                InventoryItem.purchase_date
-            ).all()
+            items = session.query(InventoryItem).order_by(InventoryItem.purchase_date).all()
             assert len(items) == 2
 
             # First item: $10 x 2
@@ -990,21 +1024,23 @@ class TestImportAdjustmentsDecreasesInventory:
         create_adjustment_file,
     ):
         """Verify adjustment import decreases inventory quantities."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "created_at": "2026-01-12T09:15:00Z",
-            "source": "bt_mobile",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                    "notes": "Found mold, discarding",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "created_at": "2026-01-12T09:15:00Z",
+                "source": "bt_mobile",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                        "notes": "Found mold, discarding",
+                    }
+                ],
+            }
+        )
 
         # Before adjustment: total = 25.0
         result = import_adjustments(file_path)
@@ -1014,9 +1050,12 @@ class TestImportAdjustmentsDecreasesInventory:
 
         # Verify inventory decreased
         with session_scope() as session:
-            items = session.query(InventoryItem).filter(
-                InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-            ).order_by(InventoryItem.purchase_date.asc()).all()
+            items = (
+                session.query(InventoryItem)
+                .filter(InventoryItem.product_id == sample_inventory_for_adjustment["product_id"])
+                .order_by(InventoryItem.purchase_date.asc())
+                .all()
+            )
 
             total_quantity = sum(i.quantity for i in items)
             # 25 - 5 = 20
@@ -1040,18 +1079,20 @@ class TestImportAdjustmentsRejectsPositiveQuantity:
         create_adjustment_file,
     ):
         """Verify positive quantity is rejected with clear error."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": 5.0,  # POSITIVE - should be rejected
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": 5.0,  # POSITIVE - should be rejected
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1070,18 +1111,20 @@ class TestImportAdjustmentsRejectsPositiveQuantity:
         create_adjustment_file,
     ):
         """Verify zero quantity is rejected with clear error."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": 0,  # ZERO - should be rejected
-                    "reason_code": "correction",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": 0,  # ZERO - should be rejected
+                        "reason_code": "correction",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1109,18 +1152,20 @@ class TestImportAdjustmentsReasonCode:
         """Verify missing reason_code defaults to 'correction'."""
         from src.models.inventory_depletion import InventoryDepletion
 
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    # No reason_code - should default to "correction"
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        # No reason_code - should default to "correction"
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1142,18 +1187,20 @@ class TestImportAdjustmentsReasonCode:
         create_adjustment_file,
     ):
         """Verify invalid reason_code is rejected."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    "reason_code": "invalid_reason",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        "reason_code": "invalid_reason",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1175,26 +1222,32 @@ class TestImportAdjustmentsReasonCode:
             # Need to reset inventory for each test iteration
             with session_scope() as session:
                 # Add back inventory if depleted
-                items = session.query(InventoryItem).filter(
-                    InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-                ).all()
+                items = (
+                    session.query(InventoryItem)
+                    .filter(
+                        InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
+                    )
+                    .all()
+                )
                 for item in items:
                     if item.quantity < 10:
                         item.quantity = 10.0
 
-            file_path = create_adjustment_file({
-                "schema_version": "4.0",
-                "import_type": "adjustments",
-                "adjustments": [
-                    {
-                        "product_slug": sample_inventory_for_adjustment["product_slug"],
-                        "adjusted_at": "2026-01-12T09:10:12Z",
-                        "quantity": -1.0,
-                        "reason_code": reason_code,
-                        "notes": f"Test {reason_code}" if reason_code == "other" else None,
-                    }
-                ],
-            })
+            file_path = create_adjustment_file(
+                {
+                    "schema_version": "4.0",
+                    "import_type": "adjustments",
+                    "adjustments": [
+                        {
+                            "product_slug": sample_inventory_for_adjustment["product_slug"],
+                            "adjusted_at": "2026-01-12T09:10:12Z",
+                            "quantity": -1.0,
+                            "reason_code": reason_code,
+                            "notes": f"Test {reason_code}" if reason_code == "other" else None,
+                        }
+                    ],
+                }
+            )
 
             result = import_adjustments(file_path)
 
@@ -1216,25 +1269,31 @@ class TestImportAdjustmentsReasonCode:
         for reason_code in uppercase_codes:
             # Reset inventory for each test iteration
             with session_scope() as session:
-                items = session.query(InventoryItem).filter(
-                    InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-                ).all()
+                items = (
+                    session.query(InventoryItem)
+                    .filter(
+                        InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
+                    )
+                    .all()
+                )
                 for item in items:
                     if item.quantity < 10:
                         item.quantity = 10.0
 
-            file_path = create_adjustment_file({
-                "schema_version": "4.0",
-                "import_type": "adjustments",
-                "adjustments": [
-                    {
-                        "product_slug": sample_inventory_for_adjustment["product_slug"],
-                        "adjusted_at": "2026-01-12T09:10:12Z",
-                        "quantity": -1.0,
-                        "reason_code": reason_code,  # Uppercase
-                    }
-                ],
-            })
+            file_path = create_adjustment_file(
+                {
+                    "schema_version": "4.0",
+                    "import_type": "adjustments",
+                    "adjustments": [
+                        {
+                            "product_slug": sample_inventory_for_adjustment["product_slug"],
+                            "adjusted_at": "2026-01-12T09:10:12Z",
+                            "quantity": -1.0,
+                            "reason_code": reason_code,  # Uppercase
+                        }
+                    ],
+                }
+            )
 
             result = import_adjustments(file_path)
 
@@ -1260,18 +1319,20 @@ class TestImportAdjustmentsPreventsNegativeInventory:
     ):
         """Verify adjustment exceeding available inventory is rejected."""
         # Total inventory is 25.0, try to adjust -30.0
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -30.0,  # Exceeds available (25.0)
-                    "reason_code": "waste",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -30.0,  # Exceeds available (25.0)
+                        "reason_code": "waste",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1291,18 +1352,20 @@ class TestImportAdjustmentsPreventsNegativeInventory:
     ):
         """Verify adjustment exactly matching available inventory is allowed."""
         # Total inventory is 25.0, adjust exactly -25.0
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -25.0,  # Exactly matches available
-                    "reason_code": "correction",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -25.0,  # Exactly matches available
+                        "reason_code": "correction",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1311,9 +1374,11 @@ class TestImportAdjustmentsPreventsNegativeInventory:
 
         # Verify inventory is now 0
         with session_scope() as session:
-            items = session.query(InventoryItem).filter(
-                InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-            ).all()
+            items = (
+                session.query(InventoryItem)
+                .filter(InventoryItem.product_id == sample_inventory_for_adjustment["product_id"])
+                .all()
+            )
             total_quantity = sum(i.quantity for i in items)
             assert total_quantity == 0.0
 
@@ -1337,27 +1402,32 @@ class TestImportAdjustmentsUsesFIFO:
         """Verify FIFO: adjustment reduces oldest inventory item first."""
         # Inventory: older=10.0 (Jan 5), newer=15.0 (Jan 10)
         # Adjust -8.0 should reduce older from 10 to 2
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -8.0,
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -8.0,
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
         assert result.successful == 1
 
         with session_scope() as session:
-            items = session.query(InventoryItem).filter(
-                InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-            ).order_by(InventoryItem.purchase_date.asc()).all()
+            items = (
+                session.query(InventoryItem)
+                .filter(InventoryItem.product_id == sample_inventory_for_adjustment["product_id"])
+                .order_by(InventoryItem.purchase_date.asc())
+                .all()
+            )
 
             # Older item should be reduced from 10 to 2
             assert items[0].quantity == 2.0
@@ -1375,27 +1445,32 @@ class TestImportAdjustmentsUsesFIFO:
         """Verify FIFO spans multiple items when needed."""
         # Inventory: older=10.0 (Jan 5), newer=15.0 (Jan 10)
         # Adjust -12.0 should deplete older (10) and take 2 from newer
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -12.0,
-                    "reason_code": "waste",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -12.0,
+                        "reason_code": "waste",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
         assert result.successful == 1
 
         with session_scope() as session:
-            items = session.query(InventoryItem).filter(
-                InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-            ).order_by(InventoryItem.purchase_date.asc()).all()
+            items = (
+                session.query(InventoryItem)
+                .filter(InventoryItem.product_id == sample_inventory_for_adjustment["product_id"])
+                .order_by(InventoryItem.purchase_date.asc())
+                .all()
+            )
 
             # Older item should be fully depleted (0)
             assert items[0].quantity == 0.0
@@ -1420,19 +1495,21 @@ class TestImportAdjustmentsCreatesDepletionRecords:
         create_adjustment_file,
     ):
         """Verify InventoryDepletion records are created for audit trail."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                    "notes": "Found mold",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                        "notes": "Found mold",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1458,28 +1535,28 @@ class TestImportAdjustmentsCreatesDepletionRecords:
     ):
         """Verify multiple depletion records when FIFO spans items."""
         # Adjust -12.0 spans two items
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -12.0,
-                    "reason_code": "waste",
-                    "notes": "Burned batch",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -12.0,
+                        "reason_code": "waste",
+                        "notes": "Burned batch",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
         assert result.successful == 1
 
         with session_scope() as session:
-            depletions = session.query(InventoryDepletion).order_by(
-                InventoryDepletion.id
-            ).all()
+            depletions = session.query(InventoryDepletion).order_by(InventoryDepletion.id).all()
 
             # Should have 2 depletion records (one per inventory item)
             assert len(depletions) == 2
@@ -1501,18 +1578,20 @@ class TestImportAdjustmentsCreatesDepletionRecords:
         create_adjustment_file,
     ):
         """Verify depletion cost is calculated from unit_cost."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1541,18 +1620,20 @@ class TestImportAdjustmentsDryRun:
         create_adjustment_file,
     ):
         """Verify dry_run=True does not modify database."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path, dry_run=True)
 
@@ -1562,9 +1643,11 @@ class TestImportAdjustmentsDryRun:
 
         # But inventory should be unchanged
         with session_scope() as session:
-            items = session.query(InventoryItem).filter(
-                InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
-            ).all()
+            items = (
+                session.query(InventoryItem)
+                .filter(InventoryItem.product_id == sample_inventory_for_adjustment["product_id"])
+                .all()
+            )
             total_quantity = sum(i.quantity for i in items)
             assert total_quantity == 25.0  # Unchanged
 
@@ -1590,17 +1673,19 @@ class TestImportAdjustmentsFileValidation:
         create_adjustment_file,
     ):
         """Verify wrong import_type is rejected."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "purchases",  # Wrong type
-            "adjustments": [
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "purchases",  # Wrong type
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1616,18 +1701,20 @@ class TestImportAdjustmentsFileValidation:
         create_adjustment_file,
     ):
         """Verify 'inventory_updates' import_type is accepted."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "inventory_updates",  # Alternative valid type
-            "inventory_updates": [  # Alternative key name
-                {
-                    "product_slug": sample_inventory_for_adjustment["product_slug"],
-                    "adjusted_at": "2026-01-12T09:10:12Z",
-                    "quantity": -5.0,
-                    "reason_code": "correction",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "inventory_updates",  # Alternative valid type
+                "inventory_updates": [  # Alternative key name
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -5.0,
+                        "reason_code": "correction",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1641,17 +1728,19 @@ class TestImportAdjustmentsFileValidation:
         create_adjustment_file,
     ):
         """Verify unknown product_slug produces error."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": "nonexistent_product",
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": "nonexistent_product",
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 
@@ -1666,17 +1755,19 @@ class TestImportAdjustmentsFileValidation:
         create_adjustment_file,
     ):
         """Verify product with no inventory produces error."""
-        file_path = create_adjustment_file({
-            "schema_version": "4.0",
-            "import_type": "adjustments",
-            "adjustments": [
-                {
-                    "product_slug": sample_product_for_purchase["slug"],
-                    "quantity": -5.0,
-                    "reason_code": "spoilage",
-                }
-            ],
-        })
+        file_path = create_adjustment_file(
+            {
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_product_for_purchase["slug"],
+                        "quantity": -5.0,
+                        "reason_code": "spoilage",
+                    }
+                ],
+            }
+        )
 
         result = import_adjustments(file_path)
 

@@ -284,6 +284,7 @@ class CatalogImportDialog(ctk.CTkToplevel):
             )
         except Exception as e:
             import traceback
+
             error_details = (
                 f"An unexpected error occurred:\n\n"
                 f"{type(e).__name__}: {str(e)}\n\n"

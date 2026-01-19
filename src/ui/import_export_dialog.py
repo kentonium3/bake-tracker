@@ -92,13 +92,15 @@ def _check_import_risks(import_data: Dict, is_coordinated: bool = False) -> Dict
                         name += f" ({p.package_size})"
                     sample_names.append(name)
 
-                cascade_risks.append({
-                    "parent_entity": "ingredients",
-                    "child_entity": "products",
-                    "child_count": product_count,
-                    "sample_names": sample_names,
-                    "warning": "Products and their inventory items will be permanently deleted.",
-                })
+                cascade_risks.append(
+                    {
+                        "parent_entity": "ingredients",
+                        "child_entity": "products",
+                        "child_count": product_count,
+                        "sample_names": sample_names,
+                        "warning": "Products and their inventory items will be permanently deleted.",
+                    }
+                )
 
         # Check 2: Materials without MaterialProducts (CASCADE)
         has_materials = "materials" in entities_in_import
@@ -115,13 +117,15 @@ def _check_import_risks(import_data: Dict, is_coordinated: bool = False) -> Dict
                     name = f"{mp.brand or 'Generic'} {mat_name}"
                     sample_names.append(name)
 
-                cascade_risks.append({
-                    "parent_entity": "materials",
-                    "child_entity": "material_products",
-                    "child_count": mp_count,
-                    "sample_names": sample_names,
-                    "warning": "Material products will be permanently deleted.",
-                })
+                cascade_risks.append(
+                    {
+                        "parent_entity": "materials",
+                        "child_entity": "material_products",
+                        "child_count": mp_count,
+                        "sample_names": sample_names,
+                        "warning": "Material products will be permanently deleted.",
+                    }
+                )
 
         # =====================================================================
         # RESTRICT CHECKS (import will fail)
@@ -134,19 +138,13 @@ def _check_import_risks(import_data: Dict, is_coordinated: bool = False) -> Dict
 
         if has_ingredients and not has_recipes:
             # Find all ingredients currently referenced by recipes
-            recipe_ingredient_ids = (
-                session.query(RecipeIngredient.ingredient_id)
-                .distinct()
-                .all()
-            )
+            recipe_ingredient_ids = session.query(RecipeIngredient.ingredient_id).distinct().all()
             recipe_ingredient_ids = {ri[0] for ri in recipe_ingredient_ids}
 
             if recipe_ingredient_ids:
                 # Get those ingredients
                 referenced_ingredients = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.id.in_(recipe_ingredient_ids))
-                    .all()
+                    session.query(Ingredient).filter(Ingredient.id.in_(recipe_ingredient_ids)).all()
                 )
 
                 # Check which ones are NOT in the import file
@@ -190,21 +188,23 @@ def _check_import_risks(import_data: Dict, is_coordinated: bool = False) -> Dict
                     for recipes in ingredient_recipe_map.values():
                         all_affected_recipes.update(recipes)
 
-                    restrict_risks.append({
-                        "constraint_type": "RESTRICT",
-                        "parent_entity": "ingredients",
-                        "referencing_entity": "recipes",
-                        "missing_count": len(missing_ingredients),
-                        "missing_details": missing_details,
-                        "affected_recipes": sorted(all_affected_recipes)[:10],
-                        "total_affected_recipes": len(all_affected_recipes),
-                        "warning": "Import will FAIL - database blocks deletion of ingredients used by recipes.",
-                        "remediation": [
-                            "Add missing ingredients to your import file",
-                            "Include recipes in the import (they'll be replaced too)",
-                            "Delete affected recipes from database before import",
-                        ],
-                    })
+                    restrict_risks.append(
+                        {
+                            "constraint_type": "RESTRICT",
+                            "parent_entity": "ingredients",
+                            "referencing_entity": "recipes",
+                            "missing_count": len(missing_ingredients),
+                            "missing_details": missing_details,
+                            "affected_recipes": sorted(all_affected_recipes)[:10],
+                            "total_affected_recipes": len(all_affected_recipes),
+                            "warning": "Import will FAIL - database blocks deletion of ingredients used by recipes.",
+                            "remediation": [
+                                "Add missing ingredients to your import file",
+                                "Include recipes in the import (they'll be replaced too)",
+                                "Delete affected recipes from database before import",
+                            ],
+                        }
+                    )
 
     return {
         "cascade_risks": cascade_risks,
@@ -301,11 +301,15 @@ class ImportRiskWarningDialog(ctk.CTkToplevel):
         rec_frame.pack(fill="x", padx=20, pady=10)
 
         if self.restrict_risks:
-            rec_text = ("Recommendation: Cancel and fix the issues above.\n"
-                       "The import will fail at the database level if you proceed.")
+            rec_text = (
+                "Recommendation: Cancel and fix the issues above.\n"
+                "The import will fail at the database level if you proceed."
+            )
         else:
-            rec_text = ("Recommendation: Cancel and create an import file that includes\n"
-                       "both parent and child entities together.")
+            rec_text = (
+                "Recommendation: Cancel and create an import file that includes\n"
+                "both parent and child entities together."
+            )
 
         rec_label = ctk.CTkLabel(
             rec_frame,
@@ -483,6 +487,7 @@ def _get_logs_dir() -> Path:
         logger.warning(f"Could not create logs directory {logs_dir}: {e}")
         # Fall back to temp directory
         import tempfile
+
         logs_dir = Path(tempfile.gettempdir()) / "bake_tracker_logs"
         logs_dir.mkdir(parents=True, exist_ok=True)
     return logs_dir
@@ -767,6 +772,7 @@ def _write_import_log(
         logger.error(f"Failed to write import log to {log_file}: {e}")
         # Try temp directory as fallback
         import tempfile
+
         fallback_file = Path(tempfile.gettempdir()) / f"import_{timestamp}.log"
         try:
             with open(fallback_file, "w", encoding="utf-8") as f:
@@ -976,9 +982,21 @@ class ImportDialog(ctk.CTkToplevel):
         purposes = [
             ("backup", "Backup Restore", "Restore complete system from backup (replaces all data)"),
             ("catalog", "Catalog Data", "Add or update ingredients, products, recipes, materials"),
-            ("purchases", "Purchases", "Import purchase transactions (from BT Mobile or spreadsheet)"),
-            ("adjustments", "Inventory", "Import inventory adjustments (spoilage, waste, corrections)"),
-            ("context_rich", "Context-Rich", "Import AI-augmented files (aug_*.json) with preprocessing"),
+            (
+                "purchases",
+                "Purchases",
+                "Import purchase transactions (from BT Mobile or spreadsheet)",
+            ),
+            (
+                "adjustments",
+                "Inventory",
+                "Import inventory adjustments (spoilage, waste, corrections)",
+            ),
+            (
+                "context_rich",
+                "Context-Rich",
+                "Import AI-augmented files (aug_*.json) with preprocessing",
+            ),
         ]
 
         for value, label, desc in purposes:
@@ -1170,8 +1188,8 @@ class ImportDialog(ctk.CTkToplevel):
         info_label = ctk.CTkLabel(
             self.options_frame,
             text="Context-rich imports update existing records with\n"
-                 "AI-augmented editable fields. Records not found\n"
-                 "in the database will be skipped (not created).",
+            "AI-augmented editable fields. Records not found\n"
+            "in the database will be skipped (not created).",
             font=ctk.CTkFont(size=12),
             justify="left",
         )
@@ -1181,7 +1199,7 @@ class ImportDialog(ctk.CTkToplevel):
         format_label = ctk.CTkLabel(
             self.options_frame,
             text="Context-rich files (aug_*.json) include metadata\n"
-                 "indicating which fields are editable vs. computed.",
+            "indicating which fields are editable vs. computed.",
             font=ctk.CTkFont(size=11),
             text_color="gray",
         )
@@ -1268,9 +1286,18 @@ class ImportDialog(ctk.CTkToplevel):
                 entity_parts = []
                 if result.raw_data:
                     # Build per-entity counts
-                    entity_order = ["suppliers", "ingredients", "products", "recipes",
-                                    "materials", "material_products", "finished_goods",
-                                    "packages", "recipients", "events"]
+                    entity_order = [
+                        "suppliers",
+                        "ingredients",
+                        "products",
+                        "recipes",
+                        "materials",
+                        "material_products",
+                        "finished_goods",
+                        "packages",
+                        "recipients",
+                        "events",
+                    ]
                     for entity in entity_order:
                         if entity in result.raw_data and isinstance(result.raw_data[entity], list):
                             count = len(result.raw_data[entity])
@@ -1328,16 +1355,17 @@ class ImportDialog(ctk.CTkToplevel):
 
         # Check if this is a coordinated backup (manifest.json)
         file_path = Path(self.file_path)
-        is_coordinated = (
-            file_path.name == "manifest.json" or
-            (file_path.is_dir() and (file_path / "manifest.json").exists())
+        is_coordinated = file_path.name == "manifest.json" or (
+            file_path.is_dir() and (file_path / "manifest.json").exists()
         )
 
         # Load file data to check for cascade risks
         try:
             if is_coordinated:
                 # Load manifest to get entity list
-                manifest_path = file_path if file_path.name == "manifest.json" else file_path / "manifest.json"
+                manifest_path = (
+                    file_path if file_path.name == "manifest.json" else file_path / "manifest.json"
+                )
                 with open(manifest_path, "r", encoding="utf-8") as f:
                     manifest_data = json.load(f)
                 # Extract entity types from manifest files list
@@ -1397,15 +1425,15 @@ class ImportDialog(ctk.CTkToplevel):
                     f"from {result['files_imported']} entity files.",
                     "",
                 ]
-                if result['entity_counts']:
+                if result["entity_counts"]:
                     summary_lines.append("Records by entity:")
-                    for entity, count in result['entity_counts'].items():
+                    for entity, count in result["entity_counts"].items():
                         summary_lines.append(f"  {entity}: {count}")
 
-                if result['errors']:
+                if result["errors"]:
                     summary_lines.append("")
                     summary_lines.append("Errors:")
-                    for err in result['errors'][:5]:
+                    for err in result["errors"][:5]:
                         summary_lines.append(f"  - {err}")
 
                 summary_text = "\n".join(summary_lines)
@@ -1483,6 +1511,7 @@ class ImportDialog(ctk.CTkToplevel):
 
             # FR-012: Run schema validation before import
             import json
+
             with open(self.file_path, "r", encoding="utf-8") as f:
                 raw_data = json.load(f)
 
@@ -1540,8 +1569,11 @@ class ImportDialog(ctk.CTkToplevel):
                 summary_text = result.get_summary()
 
             log_path = _write_import_log(
-                self.file_path, result, summary_text,
-                purpose="catalog", mode=mode,
+                self.file_path,
+                result,
+                summary_text,
+                purpose="catalog",
+                mode=mode,
             )
 
             self.result = result
@@ -1569,6 +1601,7 @@ class ImportDialog(ctk.CTkToplevel):
 
             # Load the context-rich file
             import json
+
             with open(self.file_path, "r", encoding="utf-8") as f:
                 raw_data = json.load(f)
 
@@ -1588,7 +1621,7 @@ class ImportDialog(ctk.CTkToplevel):
                 messagebox.showerror(
                     "Invalid Format",
                     "Context-rich file missing 'export_type' field.\n\n"
-                    "Expected format: {\"export_type\": \"ingredients\", \"records\": [...]}",
+                    'Expected format: {"export_type": "ingredients", "records": [...]}',
                     parent=self,
                 )
                 return
@@ -2036,7 +2069,7 @@ class ExportDialog(ctk.CTkToplevel):
         purpose = ctk.CTkLabel(
             tab,
             text="Create a complete backup of all data for disaster recovery\n"
-                 "or migration to another system.",
+            "or migration to another system.",
             font=ctk.CTkFont(size=13),
             wraplength=450,
             justify="center",
@@ -2176,7 +2209,7 @@ class ExportDialog(ctk.CTkToplevel):
         info_label = ctk.CTkLabel(
             tab,
             text="Exported files include _meta section indicating which\n"
-                 "fields are editable vs. computed (readonly).",
+            "fields are editable vs. computed (readonly).",
             font=ctk.CTkFont(size=11),
             text_color="gray",
         )
@@ -2186,7 +2219,7 @@ class ExportDialog(ctk.CTkToplevel):
         purpose = ctk.CTkLabel(
             tab,
             text="Export data with full context (hierarchy paths, computed values)\n"
-                 "for AI tools to augment and return.",
+            "for AI tools to augment and return.",
             font=ctk.CTkFont(size=13),
             wraplength=450,
             justify="center",
@@ -2448,13 +2481,15 @@ class ExportDialog(ctk.CTkToplevel):
             for entity_key, result in results:
                 summary_lines.append(f"  {entity_key}: {result.record_count} records")
 
-            summary_lines.extend([
-                "",
-                f"Export directory:\n{dir_path}",
-                "",
-                "These files can be edited (e.g., by AI tools)",
-                "and re-imported to update the database.",
-            ])
+            summary_lines.extend(
+                [
+                    "",
+                    f"Export directory:\n{dir_path}",
+                    "",
+                    "These files can be edited (e.g., by AI tools)",
+                    "and re-imported to update the database.",
+                ]
+            )
 
             messagebox.showinfo(
                 "Export Complete",

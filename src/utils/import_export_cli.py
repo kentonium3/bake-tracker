@@ -174,12 +174,14 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
         if has_ingredients and not has_products:
             product_count = session.query(Product).count()
             if product_count > 0:
-                cascade_risks.append({
-                    "parent_entity": "ingredients",
-                    "child_entity": "products",
-                    "child_count": product_count,
-                    "warning": "Products and their inventory items will be permanently deleted.",
-                })
+                cascade_risks.append(
+                    {
+                        "parent_entity": "ingredients",
+                        "child_entity": "products",
+                        "child_count": product_count,
+                        "warning": "Products and their inventory items will be permanently deleted.",
+                    }
+                )
 
         # CASCADE Check 2: Materials without MaterialProducts
         has_materials = "materials" in entities_in_import
@@ -188,12 +190,14 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
         if has_materials and not has_material_products:
             mp_count = session.query(MaterialProduct).count()
             if mp_count > 0:
-                cascade_risks.append({
-                    "parent_entity": "materials",
-                    "child_entity": "material_products",
-                    "child_count": mp_count,
-                    "warning": "Material products will be permanently deleted.",
-                })
+                cascade_risks.append(
+                    {
+                        "parent_entity": "materials",
+                        "child_entity": "material_products",
+                        "child_count": mp_count,
+                        "warning": "Material products will be permanently deleted.",
+                    }
+                )
 
         # RESTRICT Check: Ingredients referenced by recipes
         # RecipeIngredient has ondelete="RESTRICT" on ingredient_id FK
@@ -214,10 +218,7 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
 
             # Find ingredients in DB that are referenced by recipes
             referenced_ingredients = (
-                session.query(Ingredient)
-                .join(RecipeIngredient)
-                .distinct()
-                .all()
+                session.query(Ingredient).join(RecipeIngredient).distinct().all()
             )
 
             if referenced_ingredients:
@@ -225,7 +226,8 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
                 if import_ingredient_slugs is not None:
                     # For single-file imports, check what's missing
                     missing_ingredients = [
-                        ing for ing in referenced_ingredients
+                        ing
+                        for ing in referenced_ingredients
                         if ing.slug not in import_ingredient_slugs
                     ]
                 else:
@@ -245,22 +247,26 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
                         recipe_names = [r[0] for r in recipes_using]
                         ingredient_recipe_map[ing.name] = recipe_names
 
-                    restrict_risks.append({
-                        "risk_type": "ingredient_recipe",
-                        "entity": "ingredients",
-                        "blocking_entity": "recipes",
-                        "missing_count": len(missing_ingredients),
-                        "blocking_count": len(set(
-                            r for recipes in ingredient_recipe_map.values() for r in recipes
-                        )),
-                        "details": ingredient_recipe_map,
-                        "warning": "Import will fail - database RESTRICT constraint prevents deleting ingredients used by recipes.",
-                        "remediation": [
-                            "Add the missing ingredients to your import file",
-                            "Include the recipes entity in the import (replaces recipes too)",
-                            "Delete the affected recipes from the database before import",
-                        ],
-                    })
+                    restrict_risks.append(
+                        {
+                            "risk_type": "ingredient_recipe",
+                            "entity": "ingredients",
+                            "blocking_entity": "recipes",
+                            "missing_count": len(missing_ingredients),
+                            "blocking_count": len(
+                                set(
+                                    r for recipes in ingredient_recipe_map.values() for r in recipes
+                                )
+                            ),
+                            "details": ingredient_recipe_map,
+                            "warning": "Import will fail - database RESTRICT constraint prevents deleting ingredients used by recipes.",
+                            "remediation": [
+                                "Add the missing ingredients to your import file",
+                                "Include the recipes entity in the import (replaces recipes too)",
+                                "Delete the affected recipes from the database before import",
+                            ],
+                        }
+                    )
 
     return {"cascade_risks": cascade_risks, "restrict_risks": restrict_risks}
 
@@ -391,19 +397,19 @@ def export_materials(output_file: str) -> int:
 
     try:
         with session_scope() as session:
-            materials = session.query(Material).options(
-                joinedload(Material.subcategory)
-            ).all()
+            materials = session.query(Material).options(joinedload(Material.subcategory)).all()
 
             records = []
             for m in materials:
-                records.append({
-                    "uuid": str(m.uuid) if m.uuid else None,
-                    "subcategory_slug": m.subcategory.slug if m.subcategory else None,
-                    "slug": m.slug,
-                    "display_name": m.display_name,
-                    "description": m.description,
-                })
+                records.append(
+                    {
+                        "uuid": str(m.uuid) if m.uuid else None,
+                        "subcategory_slug": m.subcategory.slug if m.subcategory else None,
+                        "slug": m.slug,
+                        "display_name": m.display_name,
+                        "description": m.description,
+                    }
+                )
 
             data = {
                 "version": "1.0",
@@ -433,24 +439,30 @@ def export_material_products(output_file: str) -> int:
 
     try:
         with session_scope() as session:
-            products = session.query(MaterialProduct).options(
-                joinedload(MaterialProduct.material),
-                joinedload(MaterialProduct.supplier),
-            ).all()
+            products = (
+                session.query(MaterialProduct)
+                .options(
+                    joinedload(MaterialProduct.material),
+                    joinedload(MaterialProduct.supplier),
+                )
+                .all()
+            )
 
             records = []
             for p in products:
-                records.append({
-                    "uuid": str(p.uuid) if p.uuid else None,
-                    "material_slug": p.material.slug if p.material else None,
-                    "supplier_slug": p.supplier.slug if p.supplier else None,
-                    "brand": p.brand,
-                    "product_name": p.product_name,
-                    "package_size": p.package_size,
-                    "package_unit": p.package_unit,
-                    "price": float(p.price) if p.price else None,
-                    "upc": p.upc,
-                })
+                records.append(
+                    {
+                        "uuid": str(p.uuid) if p.uuid else None,
+                        "material_slug": p.material.slug if p.material else None,
+                        "supplier_slug": p.supplier.slug if p.supplier else None,
+                        "brand": p.brand,
+                        "product_name": p.product_name,
+                        "package_size": p.package_size,
+                        "package_unit": p.package_unit,
+                        "price": float(p.price) if p.price else None,
+                        "upc": p.upc,
+                    }
+                )
 
             data = {
                 "version": "1.0",
@@ -483,12 +495,14 @@ def export_material_categories(output_file: str) -> int:
 
             records = []
             for c in categories:
-                records.append({
-                    "uuid": str(c.uuid) if c.uuid else None,
-                    "name": c.name,
-                    "slug": c.slug,
-                    "description": c.description,
-                })
+                records.append(
+                    {
+                        "uuid": str(c.uuid) if c.uuid else None,
+                        "name": c.name,
+                        "slug": c.slug,
+                        "description": c.description,
+                    }
+                )
 
             data = {
                 "version": "1.0",
@@ -518,19 +532,23 @@ def export_material_subcategories(output_file: str) -> int:
 
     try:
         with session_scope() as session:
-            subcategories = session.query(MaterialSubcategory).options(
-                joinedload(MaterialSubcategory.category)
-            ).all()
+            subcategories = (
+                session.query(MaterialSubcategory)
+                .options(joinedload(MaterialSubcategory.category))
+                .all()
+            )
 
             records = []
             for s in subcategories:
-                records.append({
-                    "uuid": str(s.uuid) if s.uuid else None,
-                    "category_slug": s.category.slug if s.category else None,
-                    "name": s.name,
-                    "slug": s.slug,
-                    "description": s.description,
-                })
+                records.append(
+                    {
+                        "uuid": str(s.uuid) if s.uuid else None,
+                        "category_slug": s.category.slug if s.category else None,
+                        "name": s.name,
+                        "slug": s.slug,
+                        "description": s.description,
+                    }
+                )
 
             data = {
                 "version": "1.0",
@@ -563,19 +581,21 @@ def export_suppliers(output_file: str) -> int:
 
             records = []
             for s in suppliers:
-                records.append({
-                    "uuid": str(s.uuid) if s.uuid else None,
-                    "name": s.name,
-                    "slug": s.slug,
-                    "supplier_type": s.supplier_type,
-                    "website_url": s.website_url,
-                    "street_address": s.street_address,
-                    "city": s.city,
-                    "state": s.state,
-                    "zip_code": s.zip_code,
-                    "notes": s.notes,
-                    "is_active": s.is_active,
-                })
+                records.append(
+                    {
+                        "uuid": str(s.uuid) if s.uuid else None,
+                        "name": s.name,
+                        "slug": s.slug,
+                        "supplier_type": s.supplier_type,
+                        "website_url": s.website_url,
+                        "street_address": s.street_address,
+                        "city": s.city,
+                        "state": s.state,
+                        "zip_code": s.zip_code,
+                        "notes": s.notes,
+                        "is_active": s.is_active,
+                    }
+                )
 
             data = {
                 "version": "1.0",
@@ -606,10 +626,14 @@ def export_purchases(output_file: str) -> int:
 
     try:
         with session_scope() as session:
-            purchases = session.query(Purchase).options(
-                joinedload(Purchase.product).joinedload(Product.ingredient),
-                joinedload(Purchase.supplier),
-            ).all()
+            purchases = (
+                session.query(Purchase)
+                .options(
+                    joinedload(Purchase.product).joinedload(Product.ingredient),
+                    joinedload(Purchase.supplier),
+                )
+                .all()
+            )
 
             records = []
             for p in purchases:
@@ -618,17 +642,19 @@ def export_purchases(output_file: str) -> int:
                 if p.product and p.product.ingredient:
                     product_slug = f"{p.product.ingredient.slug}:{p.product.slug}"
 
-                records.append({
-                    "uuid": str(p.uuid) if p.uuid else None,
-                    "product_slug": product_slug,
-                    "supplier_slug": p.supplier.slug if p.supplier else None,
-                    "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
-                    "quantity": p.quantity,
-                    "unit_price": float(p.unit_price) if p.unit_price else None,
-                    "total_price": float(p.total_price) if p.total_price else None,
-                    "store_location": p.store_location,
-                    "notes": p.notes,
-                })
+                records.append(
+                    {
+                        "uuid": str(p.uuid) if p.uuid else None,
+                        "product_slug": product_slug,
+                        "supplier_slug": p.supplier.slug if p.supplier else None,
+                        "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
+                        "quantity": p.quantity,
+                        "unit_price": float(p.unit_price) if p.unit_price else None,
+                        "total_price": float(p.total_price) if p.total_price else None,
+                        "store_location": p.store_location,
+                        "notes": p.notes,
+                    }
+                )
 
             data = {
                 "version": "1.0",
@@ -678,13 +704,15 @@ def import_all(input_file: str, mode: str = "merge", force: bool = False):
                 print("\nERROR: Import will fail due to RESTRICT constraint!")
                 print("=" * 60)
                 for risk in restrict_risks:
-                    print(f"\n  {risk['missing_count']} ingredients are used by {risk['blocking_count']} recipes")
+                    print(
+                        f"\n  {risk['missing_count']} ingredients are used by {risk['blocking_count']} recipes"
+                    )
                     print(f"  {risk['warning']}")
                     print("\n  Missing ingredients and their recipes:")
-                    for ing_name, recipe_names in risk['details'].items():
+                    for ing_name, recipe_names in risk["details"].items():
                         print(f"    • {ing_name} → used by: {', '.join(recipe_names)}")
                     print("\n  To fix (choose one):")
-                    for i, remedy in enumerate(risk['remediation'], 1):
+                    for i, remedy in enumerate(risk["remediation"], 1):
                         print(f"    {i}. {remedy}")
                 print("\n" + "=" * 60)
                 return 1
@@ -966,13 +994,15 @@ def restore_cmd(backup_dir: str, force: bool = False) -> int:
                 print("\nERROR: Restore will fail due to RESTRICT constraint!")
                 print("=" * 60)
                 for risk in restrict_risks:
-                    print(f"\n  {risk['missing_count']} ingredients are used by {risk['blocking_count']} recipes")
+                    print(
+                        f"\n  {risk['missing_count']} ingredients are used by {risk['blocking_count']} recipes"
+                    )
                     print(f"  {risk['warning']}")
                     print("\n  Missing ingredients and their recipes:")
-                    for ing_name, recipe_names in risk['details'].items():
+                    for ing_name, recipe_names in risk["details"].items():
                         print(f"    • {ing_name} → used by: {', '.join(recipe_names)}")
                     print("\n  To fix (choose one):")
-                    for i, remedy in enumerate(risk['remediation'], 1):
+                    for i, remedy in enumerate(risk["remediation"], 1):
                         print(f"    {i}. {remedy}")
                 print("\n" + "=" * 60)
                 return 1
@@ -982,7 +1012,9 @@ def restore_cmd(backup_dir: str, force: bool = False) -> int:
                 print("\nERROR: Restore rejected due to cascade delete risk!")
                 print("=" * 60)
                 for risk in cascade_risks:
-                    print(f"\n  Backup contains {risk['parent_entity']} but not {risk['child_entity']}:")
+                    print(
+                        f"\n  Backup contains {risk['parent_entity']} but not {risk['child_entity']}:"
+                    )
                     print(f"  → {risk['child_count']} {risk['child_entity']} will be deleted")
                     print(f"  {risk['warning']}")
                 print("\n" + "=" * 60)
@@ -1049,16 +1081,17 @@ def backup_list_cmd(backups_dir: str = "./backups/") -> int:
                 try:
                     with open(manifest_path, "r", encoding="utf-8") as f:
                         manifest = json.load(f)
-                    backups.append({
-                        "dir": subdir.name,
-                        "path": str(subdir),
-                        "date": manifest.get("export_date", "Unknown"),
-                        "files": len(manifest.get("files", [])),
-                        "records": sum(
-                            f.get("record_count", 0)
-                            for f in manifest.get("files", [])
-                        )
-                    })
+                    backups.append(
+                        {
+                            "dir": subdir.name,
+                            "path": str(subdir),
+                            "date": manifest.get("export_date", "Unknown"),
+                            "files": len(manifest.get("files", [])),
+                            "records": sum(
+                                f.get("record_count", 0) for f in manifest.get("files", [])
+                            ),
+                        }
+                    )
                 except (json.JSONDecodeError, IOError) as e:
                     print(f"Warning: Could not read {manifest_path}: {e}")
 
@@ -1169,8 +1202,13 @@ def aug_export_cmd(entity_type: str, output_path: str = None) -> int:
 
     # The 7 spec-defined aug entity types (excludes inventory, purchases)
     AUG_SPEC_ENTITIES = {
-        "products", "ingredients", "recipes", "materials",
-        "material_products", "finished_units", "finished_goods"
+        "products",
+        "ingredients",
+        "recipes",
+        "materials",
+        "material_products",
+        "finished_units",
+        "finished_goods",
     }
 
     try:
@@ -1324,8 +1362,13 @@ def aug_validate_cmd(file_path: str) -> int:
 
 # Catalog entity types supported by export/import
 CATALOG_ENTITIES = [
-    "suppliers", "ingredients", "products", "recipes",
-    "finished-goods", "materials", "material-products"
+    "suppliers",
+    "ingredients",
+    "products",
+    "recipes",
+    "finished-goods",
+    "materials",
+    "material-products",
 ]
 
 
@@ -1421,6 +1464,7 @@ def catalog_export_cmd(output_dir: str, entities_str: str = None) -> int:
             entity_file = output_path / file_map.get(entity, f"{data_key}.json")
             if entity_file.exists():
                 import json
+
                 with open(entity_file, "r", encoding="utf-8") as f:
                     entity_data = json.load(f)
                     # Handle different export formats
@@ -1432,6 +1476,7 @@ def catalog_export_cmd(output_dir: str, entities_str: str = None) -> int:
                         combined_data[data_key] = entity_data
 
         import json
+
         with open(combined_path, "w", encoding="utf-8") as f:
             json.dump(combined_data, f, indent=2, ensure_ascii=False, default=str)
 
@@ -1493,9 +1538,7 @@ def catalog_import_cmd(
         print("\n" + result.get_summary())
 
         # Check for failures
-        total_failed = sum(
-            counts.failed for counts in result.entity_counts.values()
-        )
+        total_failed = sum(counts.failed for counts in result.entity_counts.values())
         return 0 if total_failed == 0 else 1
 
     except Exception as e:
@@ -1539,7 +1582,12 @@ def catalog_validate_cmd(input_file: str) -> int:
         # Count entities
         entity_counts = {}
         for key, value in data.items():
-            if isinstance(value, list) and key not in ['format', 'version', 'export_date', 'source']:
+            if isinstance(value, list) and key not in [
+                "format",
+                "version",
+                "export_date",
+                "source",
+            ]:
                 entity_counts[key] = len(value)
 
         if entity_counts:
@@ -1637,9 +1685,9 @@ class CLIFKResolver:
 
         if missing.entity_type == "supplier":
             # Pre-fill name from missing value
-            entity_data["name"] = input(
-                f"  Name [{missing.missing_value}]: "
-            ).strip() or missing.missing_value
+            entity_data["name"] = (
+                input(f"  Name [{missing.missing_value}]: ").strip() or missing.missing_value
+            )
             entity_data["city"] = input("  City (required): ").strip()
             entity_data["state"] = input("  State (2-letter, required): ").strip()
             entity_data["zip_code"] = input("  ZIP Code (required): ").strip()
@@ -1650,9 +1698,9 @@ class CLIFKResolver:
 
         elif missing.entity_type == "ingredient":
             # Pre-fill slug from missing value
-            entity_data["slug"] = input(
-                f"  Slug [{missing.missing_value}]: "
-            ).strip() or missing.missing_value
+            entity_data["slug"] = (
+                input(f"  Slug [{missing.missing_value}]: ").strip() or missing.missing_value
+            )
             entity_data["display_name"] = input("  Display name (required): ").strip()
             entity_data["category"] = input("  Category (required): ").strip()
             # Optional fields
@@ -1662,13 +1710,12 @@ class CLIFKResolver:
 
         elif missing.entity_type == "product":
             # Products require ingredient reference
-            entity_data["ingredient_slug"] = input(
-                f"  Ingredient slug [{missing.missing_value}]: "
-            ).strip() or missing.missing_value
+            entity_data["ingredient_slug"] = (
+                input(f"  Ingredient slug [{missing.missing_value}]: ").strip()
+                or missing.missing_value
+            )
             entity_data["brand"] = input("  Brand (optional): ").strip() or None
-            entity_data["package_unit"] = input(
-                "  Package unit (e.g., oz, lb, required): "
-            ).strip()
+            entity_data["package_unit"] = input("  Package unit (e.g., oz, lb, required): ").strip()
             qty = input("  Package unit quantity (required): ").strip()
             try:
                 entity_data["package_unit_quantity"] = float(qty)
@@ -1697,9 +1744,7 @@ class CLIFKResolver:
 
         # Perform fuzzy search
         print(f"\nSearching for similar {missing.entity_type}s...")
-        similar = find_similar_entities(
-            missing.entity_type, missing.missing_value, limit=5
-        )
+        similar = find_similar_entities(missing.entity_type, missing.missing_value, limit=5)
 
         if not similar:
             print("  No similar entities found.")
@@ -2209,19 +2254,28 @@ supported. Use the 'import' command with a complete v3.2 format file.
     export_parser.add_argument("file", help="JSON file path")
 
     # Legacy entity-specific export commands
-    for entity in ["ingredients", "recipes", "finished-goods", "bundles", "packages", "recipients", "events"]:
-        entity_parser = subparsers.add_parser(
-            f"export-{entity}",
-            help=f"Export {entity} only"
-        )
+    for entity in [
+        "ingredients",
+        "recipes",
+        "finished-goods",
+        "bundles",
+        "packages",
+        "recipients",
+        "events",
+    ]:
+        entity_parser = subparsers.add_parser(f"export-{entity}", help=f"Export {entity} only")
         entity_parser.add_argument("file", help="JSON file path")
 
     # F054: Additional entity-specific export commands
-    for entity in ["materials", "material-products", "material-categories", "material-subcategories", "suppliers", "purchases"]:
-        entity_parser = subparsers.add_parser(
-            f"export-{entity}",
-            help=f"Export {entity} only"
-        )
+    for entity in [
+        "materials",
+        "material-products",
+        "material-categories",
+        "material-subcategories",
+        "suppliers",
+        "purchases",
+    ]:
+        entity_parser = subparsers.add_parser(f"export-{entity}", help=f"Export {entity} only")
         entity_parser.add_argument("file", help="JSON file path")
 
     # Legacy import command
@@ -2241,109 +2295,87 @@ supported. Use the 'import' command with a complete v3.2 format file.
 
     # F030: export-complete command
     export_complete_parser = subparsers.add_parser(
-        "export-complete",
-        help="Export complete database with manifest (F030)"
+        "export-complete", help="Export complete database with manifest (F030)"
     )
     export_complete_parser.add_argument(
-        "-o", "--output",
-        dest="output_dir",
-        help="Output directory (default: export_{timestamp})"
+        "-o", "--output", dest="output_dir", help="Output directory (default: export_{timestamp})"
     )
     export_complete_parser.add_argument(
-        "-z", "--zip",
-        dest="create_zip",
-        action="store_true",
-        help="Create ZIP archive"
+        "-z", "--zip", dest="create_zip", action="store_true", help="Create ZIP archive"
     )
 
     # F030: export-view command
     export_view_parser = subparsers.add_parser(
-        "export-view",
-        help="Export denormalized view (F030)"
+        "export-view", help="Export denormalized view (F030)"
     )
     export_view_parser.add_argument(
-        "-t", "--type",
+        "-t",
+        "--type",
         dest="view_type",
         choices=["products", "inventory", "purchases"],
         required=True,
-        help="View type to export"
+        help="View type to export",
     )
     export_view_parser.add_argument(
-        "-o", "--output",
-        dest="output_path",
-        help="Output file path (default: view_{type}.json)"
+        "-o", "--output", dest="output_path", help="Output file path (default: view_{type}.json)"
     )
 
     # F030: validate-export command
     validate_parser = subparsers.add_parser(
-        "validate-export",
-        help="Validate export checksums (F030)"
+        "validate-export", help="Validate export checksums (F030)"
     )
-    validate_parser.add_argument(
-        "export_dir",
-        help="Path to export directory with manifest.json"
-    )
+    validate_parser.add_argument("export_dir", help="Path to export directory with manifest.json")
 
     # F030: import-view command
     import_view_parser = subparsers.add_parser(
-        "import-view",
-        help="Import denormalized view (F030)"
+        "import-view", help="Import denormalized view (F030)"
     )
+    import_view_parser.add_argument("file", help="Input view JSON file path")
     import_view_parser.add_argument(
-        "file",
-        help="Input view JSON file path"
-    )
-    import_view_parser.add_argument(
-        "-m", "--mode",
+        "-m",
+        "--mode",
         dest="import_mode",
         choices=["merge", "skip_existing"],
         default="merge",
-        help="Import mode: 'merge' (default) updates existing and adds new, 'skip_existing' only adds new"
+        help="Import mode: 'merge' (default) updates existing and adds new, 'skip_existing' only adds new",
     )
     import_view_parser.add_argument(
-        "-i", "--interactive",
-        action="store_true",
-        help="Enable interactive FK resolution"
+        "-i", "--interactive", action="store_true", help="Enable interactive FK resolution"
     )
     import_view_parser.add_argument(
-        "-s", "--skip-on-error",
+        "-s",
+        "--skip-on-error",
         dest="skip_on_error",
         action="store_true",
-        help="Skip records with errors instead of failing"
+        help="Skip records with errors instead of failing",
     )
     import_view_parser.add_argument(
-        "-d", "--dry-run",
+        "-d",
+        "--dry-run",
         dest="dry_run",
         action="store_true",
-        help="Preview changes without modifying database"
+        help="Preview changes without modifying database",
     )
 
     # F054: Backup command
     backup_parser = subparsers.add_parser(
-        "backup",
-        help="Create timestamped 16-entity backup with manifest"
+        "backup", help="Create timestamped 16-entity backup with manifest"
     )
     backup_parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         dest="output_dir",
-        help="Output directory (default: ./backups/backup_{timestamp})"
+        help="Output directory (default: ./backups/backup_{timestamp})",
     )
     backup_parser.add_argument(
-        "--zip",
-        dest="create_zip",
-        action="store_true",
-        help="Create compressed ZIP archive"
+        "--zip", dest="create_zip", action="store_true", help="Create compressed ZIP archive"
     )
 
     # F054: Restore command
     restore_parser = subparsers.add_parser(
-        "restore",
-        help="Restore database from backup (WARNING: replaces all data)"
+        "restore", help="Restore database from backup (WARNING: replaces all data)"
     )
-    restore_parser.add_argument(
-        "backup_dir",
-        help="Path to backup directory with manifest.json"
-    )
+    restore_parser.add_argument("backup_dir", help="Path to backup directory with manifest.json")
     restore_parser.add_argument(
         "--force",
         action="store_true",
@@ -2356,114 +2388,106 @@ supported. Use the 'import' command with a complete v3.2 format file.
 
     # F054: Backup-list command
     backup_list_parser = subparsers.add_parser(
-        "backup-list",
-        help="List available backups in a directory"
+        "backup-list", help="List available backups in a directory"
     )
     backup_list_parser.add_argument(
         "--dir",
         dest="backups_dir",
         default="./backups/",
-        help="Directory to scan for backups (default: ./backups/)"
+        help="Directory to scan for backups (default: ./backups/)",
     )
 
     # F054: Backup-validate command
     backup_validate_parser = subparsers.add_parser(
-        "backup-validate",
-        help="Verify backup integrity via checksums"
+        "backup-validate", help="Verify backup integrity via checksums"
     )
     backup_validate_parser.add_argument(
-        "backup_dir",
-        help="Path to backup directory with manifest.json"
+        "backup_dir", help="Path to backup directory with manifest.json"
     )
 
     # F054: Aug-export command (context-rich export for AI workflows)
     aug_export_parser = subparsers.add_parser(
-        "aug-export",
-        help="Export context-rich data for AI workflows (aug_ prefix)"
+        "aug-export", help="Export context-rich data for AI workflows (aug_ prefix)"
     )
     aug_export_parser.add_argument(
-        "-t", "--type",
+        "-t",
+        "--type",
         dest="entity_type",
-        choices=["ingredients", "products", "recipes", "materials",
-                 "material-products", "finished-units", "finished-goods", "all"],
+        choices=[
+            "ingredients",
+            "products",
+            "recipes",
+            "materials",
+            "material-products",
+            "finished-units",
+            "finished-goods",
+            "all",
+        ],
         required=True,
-        help="Entity type to export"
+        help="Entity type to export",
     )
     aug_export_parser.add_argument(
-        "-o", "--output",
-        dest="output_path",
-        help="Output file path (default: aug_{type}.json)"
+        "-o", "--output", dest="output_path", help="Output file path (default: aug_{type}.json)"
     )
 
     # F054: Aug-import command (context-rich import with FK resolution)
     aug_import_parser = subparsers.add_parser(
-        "aug-import",
-        help="Import context-rich data with FK resolution"
+        "aug-import", help="Import context-rich data with FK resolution"
+    )
+    aug_import_parser.add_argument("file", help="Input aug JSON file")
+    aug_import_parser.add_argument(
+        "-i", "--interactive", action="store_true", help="Enable interactive FK resolution"
     )
     aug_import_parser.add_argument(
-        "file",
-        help="Input aug JSON file"
-    )
-    aug_import_parser.add_argument(
-        "-i", "--interactive",
-        action="store_true",
-        help="Enable interactive FK resolution"
-    )
-    aug_import_parser.add_argument(
-        "-s", "--skip-on-error",
+        "-s",
+        "--skip-on-error",
         dest="skip_on_error",
         action="store_true",
-        help="Skip records with errors instead of failing"
+        help="Skip records with errors instead of failing",
     )
 
     # F054: Aug-validate command (validate aug file format)
     aug_validate_parser = subparsers.add_parser(
-        "aug-validate",
-        help="Validate aug file format and schema"
+        "aug-validate", help="Validate aug file format and schema"
     )
-    aug_validate_parser.add_argument(
-        "file",
-        help="Aug JSON file to validate"
-    )
+    aug_validate_parser.add_argument("file", help="Aug JSON file to validate")
 
     # F054: Catalog-export command
     catalog_export_parser = subparsers.add_parser(
-        "catalog-export",
-        help="Export catalog data (7 entity types)"
+        "catalog-export", help="Export catalog data (7 entity types)"
     )
     catalog_export_parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         dest="output_dir",
         default="./catalog_export/",
-        help="Output directory (default: ./catalog_export/)"
+        help="Output directory (default: ./catalog_export/)",
     )
     catalog_export_parser.add_argument(
-        "--entities",
-        dest="entities",
-        help="Comma-separated entity types to export (default: all)"
+        "--entities", dest="entities", help="Comma-separated entity types to export (default: all)"
     )
 
     # F054: Catalog-import command
     catalog_import_parser = subparsers.add_parser(
-        "catalog-import",
-        help="Import catalog data with mode selection"
+        "catalog-import", help="Import catalog data with mode selection"
     )
     catalog_import_parser.add_argument(
-        "input_file",
-        help="Combined catalog JSON file (e.g., catalog.json from catalog-export)"
+        "input_file", help="Combined catalog JSON file (e.g., catalog.json from catalog-export)"
     )
     catalog_import_parser.add_argument(
-        "-m", "--mode",
+        "-m",
+        "--mode",
         dest="import_mode",
         choices=["add", "augment"],
         default="add",
-        help="Import mode: 'add' (default) skip existing, 'augment' update nulls"
+        help="Import mode: 'add' (default) skip existing, 'augment' update nulls",
     )
     catalog_import_parser.add_argument(
-        "-d", "--dry-run",
+        "-d",
+        "--dry-run",
         dest="dry_run",
         action="store_true",
-        help="Preview changes without modifying database"
+        help="Preview changes without modifying database",
     )
     catalog_import_parser.epilog = (
         "Use the catalog.json file created by catalog-export. "
@@ -2472,12 +2496,10 @@ supported. Use the 'import' command with a complete v3.2 format file.
 
     # F054: Catalog-validate command
     catalog_validate_parser = subparsers.add_parser(
-        "catalog-validate",
-        help="Validate catalog file schema"
+        "catalog-validate", help="Validate catalog file schema"
     )
     catalog_validate_parser.add_argument(
-        "input_file",
-        help="Combined catalog JSON file to validate (e.g., catalog.json)"
+        "input_file", help="Combined catalog JSON file to validate (e.g., catalog.json)"
     )
 
     # F059: Material purchase command

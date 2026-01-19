@@ -188,7 +188,9 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
             if parent_ingredient_id is not None:
                 # Validate parent exists
-                parent = session.query(Ingredient).filter(Ingredient.id == parent_ingredient_id).first()
+                parent = (
+                    session.query(Ingredient).filter(Ingredient.id == parent_ingredient_id).first()
+                )
                 if parent is None:
                     raise IngredientNotFound(parent_ingredient_id)
 
@@ -206,7 +208,9 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
             # Validate hierarchy level is valid (0, 1, or 2)
             if hierarchy_level not in (0, 1, 2):
-                raise ServiceValidationError([f"Invalid hierarchy level: {hierarchy_level}. Must be 0, 1, or 2."])
+                raise ServiceValidationError(
+                    [f"Invalid hierarchy level: {hierarchy_level}. Must be 0, 1, or 2."]
+                )
 
             # Create ingredient instance
             fdc_ids = ingredient_data.get("fdc_ids")
@@ -403,7 +407,10 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
 
             # Feature 031: Handle hierarchy field changes
             new_parent_id = ingredient_data.get("parent_ingredient_id")
-            if "parent_ingredient_id" in ingredient_data and new_parent_id != ingredient.parent_ingredient_id:
+            if (
+                "parent_ingredient_id" in ingredient_data
+                and new_parent_id != ingredient.parent_ingredient_id
+            ):
                 # Parent is changing - use move_ingredient logic
                 from . import ingredient_hierarchy_service
 
@@ -411,9 +418,13 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
                     ingredient.id, new_parent_id, session=session
                 )
                 # Remove from ingredient_data so it's not set again below
-                ingredient_data = {k: v for k, v in ingredient_data.items() if k != "parent_ingredient_id"}
+                ingredient_data = {
+                    k: v for k, v in ingredient_data.items() if k != "parent_ingredient_id"
+                }
                 # Also remove hierarchy_level as move_ingredient handles it
-                ingredient_data = {k: v for k, v in ingredient_data.items() if k != "hierarchy_level"}
+                ingredient_data = {
+                    k: v for k, v in ingredient_data.items() if k != "hierarchy_level"
+                }
 
             # Update attributes
             for key, value in ingredient_data.items():
@@ -424,7 +435,12 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
 
     except IngredientNotFoundBySlug:
         raise
-    except (ServiceValidationError, IngredientNotFound, MaxDepthExceededError, CircularReferenceError):
+    except (
+        ServiceValidationError,
+        IngredientNotFound,
+        MaxDepthExceededError,
+        CircularReferenceError,
+    ):
         raise
     except Exception as e:
         raise DatabaseError(f"Failed to update ingredient '{slug}'", original_error=e)
@@ -484,9 +500,7 @@ def delete_ingredient(slug: str) -> bool:
 # =============================================================================
 
 
-def can_delete_ingredient(
-    ingredient_id: int, session=None
-) -> Tuple[bool, str, Dict[str, int]]:
+def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, Dict[str, int]]:
     """Check if ingredient can be deleted.
 
     This function checks all blocking conditions before deletion:
@@ -526,13 +540,13 @@ def can_delete_ingredient(
 
         # Check Product references (blocks deletion)
         product_count = (
-            session.query(Product)
-            .filter(Product.ingredient_id == ingredient_id)
-            .count()
+            session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
         )
         details["products"] = product_count
         if product_count > 0:
-            reasons.append(f"{product_count} product{'s' if product_count != 1 else ''} reference this ingredient")
+            reasons.append(
+                f"{product_count} product{'s' if product_count != 1 else ''} reference this ingredient"
+            )
 
         # Check RecipeIngredient references (blocks deletion)
         recipe_count = (
@@ -542,7 +556,9 @@ def can_delete_ingredient(
         )
         details["recipes"] = recipe_count
         if recipe_count > 0:
-            reasons.append(f"{recipe_count} recipe{'s' if recipe_count != 1 else ''} use this ingredient")
+            reasons.append(
+                f"{recipe_count} recipe{'s' if recipe_count != 1 else ''} use this ingredient"
+            )
 
         # Check child ingredients (blocks deletion)
         child_count = get_child_count(ingredient_id, session=session)
@@ -559,7 +575,9 @@ def can_delete_ingredient(
         details["snapshots"] = snapshot_count
 
         if reasons:
-            reason = "Cannot delete: " + "; ".join(reasons) + ". Reassign or remove references first."
+            reason = (
+                "Cannot delete: " + "; ".join(reasons) + ". Reassign or remove references first."
+            )
             return False, reason, details
 
         return True, "", details
@@ -652,6 +670,7 @@ def delete_ingredient_safe(ingredient_id: int, session=None) -> bool:
         ... except IngredientInUse as e:
         ...     print(f"Cannot delete: {e.details}")
     """
+
     def _delete(session):
         # Verify ingredient exists
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
@@ -666,7 +685,9 @@ def delete_ingredient_safe(ingredient_id: int, session=None) -> bool:
         # Denormalize snapshot records
         denorm_count = _denormalize_snapshot_ingredients(ingredient_id, session)
         if denorm_count > 0:
-            logger.info(f"Denormalized {denorm_count} snapshot records for ingredient {ingredient_id}")
+            logger.info(
+                f"Denormalized {denorm_count} snapshot records for ingredient {ingredient_id}"
+            )
 
         # Delete ingredient (Alias/Crosswalk cascade via DB foreign key constraints)
         session.delete(ingredient)
@@ -853,9 +874,7 @@ def get_distinct_ingredient_categories() -> List[str]:
     """
     with session_scope() as session:
         categories = [
-            row[0] for row in
-            session.query(Ingredient.category).distinct().all()
-            if row[0]
+            row[0] for row in session.query(Ingredient.category).distinct().all() if row[0]
         ]
         return sorted(categories)
 
@@ -868,8 +887,6 @@ def get_all_distinct_categories() -> List[str]:
     """
     with session_scope() as session:
         categories = [
-            row[0] for row in
-            session.query(Ingredient.category).distinct().all()
-            if row[0]
+            row[0] for row in session.query(Ingredient.category).distinct().all() if row[0]
         ]
         return sorted(categories)

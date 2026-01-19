@@ -67,9 +67,13 @@ def get_products(
         '12.99'
     """
     if session is not None:
-        return _get_products_impl(include_hidden, ingredient_id, category, supplier_id, search, session)
+        return _get_products_impl(
+            include_hidden, ingredient_id, category, supplier_id, search, session
+        )
     with session_scope() as session:
-        return _get_products_impl(include_hidden, ingredient_id, category, supplier_id, search, session)
+        return _get_products_impl(
+            include_hidden, ingredient_id, category, supplier_id, search, session
+        )
 
 
 def _get_products_impl(
@@ -103,8 +107,7 @@ def _get_products_impl(
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            (Product.product_name.ilike(search_term)) |
-            (Product.brand.ilike(search_term))
+            (Product.product_name.ilike(search_term)) | (Product.brand.ilike(search_term))
         )
 
     products = query.order_by(Product.product_name).all()
@@ -114,7 +117,11 @@ def _get_products_impl(
     for p in products:
         data = p.to_dict()
         last_purchase = _get_last_purchase(p.id, session)
-        data["last_price"] = float(last_purchase["unit_price"]) if last_purchase and last_purchase["unit_price"] is not None else None
+        data["last_price"] = (
+            float(last_purchase["unit_price"])
+            if last_purchase and last_purchase["unit_price"] is not None
+            else None
+        )
         data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
 
         # Enrich with ingredient info
@@ -161,14 +168,20 @@ def get_product_with_last_price(
         return _get_product_with_last_price_impl(product_id, session)
 
 
-def _get_product_with_last_price_impl(product_id: int, session: Session) -> Optional[Dict[str, Any]]:
+def _get_product_with_last_price_impl(
+    product_id: int, session: Session
+) -> Optional[Dict[str, Any]]:
     """Implementation of get_product_with_last_price."""
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         return None
     data = product.to_dict()
     last_purchase = _get_last_purchase(product_id, session)
-    data["last_price"] = float(last_purchase["unit_price"]) if last_purchase and last_purchase["unit_price"] is not None else None
+    data["last_price"] = (
+        float(last_purchase["unit_price"])
+        if last_purchase and last_purchase["unit_price"] is not None
+        else None
+    )
     data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
 
     # Enrich with ingredient info
@@ -190,9 +203,12 @@ def _get_product_with_last_price_impl(product_id: int, session: Session) -> Opti
 
 def _get_last_purchase(product_id: int, session: Session) -> Optional[Dict[str, Any]]:
     """Internal helper to get most recent purchase for a product."""
-    purchase = session.query(Purchase).filter(
-        Purchase.product_id == product_id
-    ).order_by(Purchase.purchase_date.desc()).first()
+    purchase = (
+        session.query(Purchase)
+        .filter(Purchase.product_id == product_id)
+        .order_by(Purchase.purchase_date.desc())
+        .first()
+    )
     return purchase.to_dict() if purchase else None
 
 
@@ -238,13 +254,29 @@ def create_product(
     """
     if session is not None:
         return _create_product_impl(
-            product_name, ingredient_id, package_unit, package_unit_quantity,
-            preferred_supplier_id, brand, package_type, gtin, upc_code, session
+            product_name,
+            ingredient_id,
+            package_unit,
+            package_unit_quantity,
+            preferred_supplier_id,
+            brand,
+            package_type,
+            gtin,
+            upc_code,
+            session,
         )
     with session_scope() as session:
         return _create_product_impl(
-            product_name, ingredient_id, package_unit, package_unit_quantity,
-            preferred_supplier_id, brand, package_type, gtin, upc_code, session
+            product_name,
+            ingredient_id,
+            package_unit,
+            package_unit_quantity,
+            preferred_supplier_id,
+            brand,
+            package_type,
+            gtin,
+            upc_code,
+            session,
         )
 
 
@@ -287,19 +319,23 @@ def _create_product_impl(
     if gtin:
         duplicate = session.query(Product).filter(Product.gtin == gtin).first()
         if duplicate:
-            raise ValidationError([
-                f"GTIN {gtin} is already used by product '{duplicate.brand}' "
-                f"(ID: {duplicate.id}). GTINs must be unique."
-            ])
+            raise ValidationError(
+                [
+                    f"GTIN {gtin} is already used by product '{duplicate.brand}' "
+                    f"(ID: {duplicate.id}). GTINs must be unique."
+                ]
+            )
 
     # Validate UPC uniqueness
     if upc_code:
         duplicate = session.query(Product).filter(Product.upc_code == upc_code).first()
         if duplicate:
-            raise ValidationError([
-                f"UPC {upc_code} is already used by product '{duplicate.brand}' "
-                f"(ID: {duplicate.id}). UPCs must be unique."
-            ])
+            raise ValidationError(
+                [
+                    f"UPC {upc_code} is already used by product '{duplicate.brand}' "
+                    f"(ID: {duplicate.id}). UPCs must be unique."
+                ]
+            )
 
     product = Product(
         product_name=product_name,
@@ -357,28 +393,36 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
     # Validate GTIN uniqueness (excluding current product)
     new_gtin = kwargs.get("gtin")
     if new_gtin:  # Only check if GTIN is being set to a non-empty value
-        duplicate = session.query(Product).filter(
-            Product.gtin == new_gtin,
-            Product.id != product_id  # Exclude current product
-        ).first()
+        duplicate = (
+            session.query(Product)
+            .filter(Product.gtin == new_gtin, Product.id != product_id)  # Exclude current product
+            .first()
+        )
         if duplicate:
-            raise ValidationError([
-                f"GTIN {new_gtin} is already used by product '{duplicate.brand}' "
-                f"(ID: {duplicate.id}). GTINs must be unique."
-            ])
+            raise ValidationError(
+                [
+                    f"GTIN {new_gtin} is already used by product '{duplicate.brand}' "
+                    f"(ID: {duplicate.id}). GTINs must be unique."
+                ]
+            )
 
     # Validate UPC uniqueness (excluding current product) - same pattern
     new_upc = kwargs.get("upc_code")
     if new_upc:  # Only check if UPC is being set to a non-empty value
-        duplicate = session.query(Product).filter(
-            Product.upc_code == new_upc,
-            Product.id != product_id  # Exclude current product
-        ).first()
+        duplicate = (
+            session.query(Product)
+            .filter(
+                Product.upc_code == new_upc, Product.id != product_id  # Exclude current product
+            )
+            .first()
+        )
         if duplicate:
-            raise ValidationError([
-                f"UPC {new_upc} is already used by product '{duplicate.brand}' "
-                f"(ID: {duplicate.id}). UPCs must be unique."
-            ])
+            raise ValidationError(
+                [
+                    f"UPC {new_upc} is already used by product '{duplicate.brand}' "
+                    f"(ID: {duplicate.id}). UPCs must be unique."
+                ]
+            )
 
     # Feature 031: Validate leaf-only constraint if ingredient_id is being changed
     new_ingredient_id = kwargs.get("ingredient_id")
@@ -404,9 +448,15 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
             )
 
     allowed_fields = {
-        "product_name", "ingredient_id", "package_type", "package_unit",
-        "package_unit_quantity", "preferred_supplier_id", "brand",
-        "gtin", "upc_code"
+        "product_name",
+        "ingredient_id",
+        "package_type",
+        "package_unit",
+        "package_unit_quantity",
+        "preferred_supplier_id",
+        "brand",
+        "gtin",
+        "upc_code",
     }
     for key, value in kwargs.items():
         if key in allowed_fields:
@@ -529,18 +579,14 @@ def _delete_product_impl(product_id: int, session: Session) -> bool:
         raise ProductNotFound(product_id)
 
     # Check for purchases (FR-004)
-    purchase_count = session.query(Purchase).filter(
-        Purchase.product_id == product_id
-    ).count()
+    purchase_count = session.query(Purchase).filter(Purchase.product_id == product_id).count()
     if purchase_count > 0:
-        raise ValueError(
-            f"Cannot delete product with {purchase_count} purchases. Hide instead."
-        )
+        raise ValueError(f"Cannot delete product with {purchase_count} purchases. Hide instead.")
 
     # Check for inventory items (FR-005)
-    inventory_count = session.query(InventoryItem).filter(
-        InventoryItem.product_id == product_id
-    ).count()
+    inventory_count = (
+        session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count()
+    )
     if inventory_count > 0:
         raise ValueError(
             f"Cannot delete product with {inventory_count} inventory items. Hide instead."
@@ -579,9 +625,12 @@ def get_purchase_history(
 
 def _get_purchase_history_impl(product_id: int, session: Session) -> List[Dict[str, Any]]:
     """Implementation of get_purchase_history."""
-    purchases = session.query(Purchase).filter(
-        Purchase.product_id == product_id
-    ).order_by(Purchase.purchase_date.desc()).all()
+    purchases = (
+        session.query(Purchase)
+        .filter(Purchase.product_id == product_id)
+        .order_by(Purchase.purchase_date.desc())
+        .all()
+    )
 
     result = []
     for p in purchases:
@@ -633,13 +682,11 @@ def create_purchase(
     """
     if session is not None:
         return _create_purchase_impl(
-            product_id, supplier_id, purchase_date, unit_price,
-            quantity_purchased, notes, session
+            product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes, session
         )
     with session_scope() as session:
         return _create_purchase_impl(
-            product_id, supplier_id, purchase_date, unit_price,
-            quantity_purchased, notes, session
+            product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes, session
         )
 
 
@@ -832,38 +879,40 @@ def _analyze_product_dependencies_impl(
         raise ProductNotFound(product_id)
 
     # Get all purchases
-    purchases = session.query(Purchase).filter(
-        Purchase.product_id == product_id
-    ).all()
+    purchases = session.query(Purchase).filter(Purchase.product_id == product_id).all()
 
     purchase_details = []
     for p in purchases:
-        purchase_details.append({
-            "id": p.id,
-            "date": str(p.purchase_date) if p.purchase_date else None,
-            "supplier": p.supplier.name if p.supplier else None,
-            "price": float(p.unit_price or 0),
-            "quantity": int(p.quantity_purchased or 0),
-        })
+        purchase_details.append(
+            {
+                "id": p.id,
+                "date": str(p.purchase_date) if p.purchase_date else None,
+                "supplier": p.supplier.name if p.supplier else None,
+                "price": float(p.unit_price or 0),
+                "quantity": int(p.quantity_purchased or 0),
+            }
+        )
 
     # Get inventory items
-    inventory = session.query(InventoryItem).filter(
-        InventoryItem.product_id == product_id
-    ).all()
+    inventory = session.query(InventoryItem).filter(InventoryItem.product_id == product_id).all()
 
     inventory_details = []
     for i in inventory:
-        inventory_details.append({
-            "id": i.id,
-            "qty": float(i.quantity or 0),
-            "location": i.location,
-        })
+        inventory_details.append(
+            {
+                "id": i.id,
+                "qty": float(i.quantity or 0),
+                "location": i.location,
+            }
+        )
 
     # Get recipes using this product's INGREDIENT
     # (Recipes are brand-agnostic, so we check if the ingredient is used)
-    recipe_ingredients = session.query(RecipeIngredient).filter(
-        RecipeIngredient.ingredient_id == product.ingredient_id
-    ).all()
+    recipe_ingredients = (
+        session.query(RecipeIngredient)
+        .filter(RecipeIngredient.ingredient_id == product.ingredient_id)
+        .all()
+    )
 
     recipe_names = []
     for ri in recipe_ingredients:
@@ -958,19 +1007,21 @@ def _force_delete_product_impl(
 
     # Delete in correct order (respect FK constraints)
     # 1. Delete inventory items first (may reference purchases)
-    deleted_inventory = session.query(InventoryItem).filter(
-        InventoryItem.product_id == product_id
-    ).delete(synchronize_session=False)
+    deleted_inventory = (
+        session.query(InventoryItem)
+        .filter(InventoryItem.product_id == product_id)
+        .delete(synchronize_session=False)
+    )
 
     # 2. Delete purchases
-    deleted_purchases = session.query(Purchase).filter(
-        Purchase.product_id == product_id
-    ).delete(synchronize_session=False)
+    deleted_purchases = (
+        session.query(Purchase)
+        .filter(Purchase.product_id == product_id)
+        .delete(synchronize_session=False)
+    )
 
     # 3. Delete the product itself
-    session.query(Product).filter(
-        Product.id == product_id
-    ).delete(synchronize_session=False)
+    session.query(Product).filter(Product.id == product_id).delete(synchronize_session=False)
 
     session.flush()
 
@@ -1017,10 +1068,14 @@ def get_provisional_products(
 
 def _get_provisional_products_impl(session: Session) -> List[Dict[str, Any]]:
     """Implementation of get_provisional_products."""
-    query = session.query(Product).filter(
-        Product.is_provisional == True,
-        Product.is_hidden == False,
-    ).order_by(Product.date_added.desc())  # Most recent first
+    query = (
+        session.query(Product)
+        .filter(
+            Product.is_provisional == True,
+            Product.is_hidden == False,
+        )
+        .order_by(Product.date_added.desc())
+    )  # Most recent first
 
     products = query.all()
 
@@ -1029,7 +1084,11 @@ def _get_provisional_products_impl(session: Session) -> List[Dict[str, Any]]:
     for p in products:
         data = p.to_dict()
         last_purchase = _get_last_purchase(p.id, session)
-        data["last_price"] = float(last_purchase["unit_price"]) if last_purchase and last_purchase["unit_price"] is not None else None
+        data["last_price"] = (
+            float(last_purchase["unit_price"])
+            if last_purchase and last_purchase["unit_price"] is not None
+            else None
+        )
         data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
 
         # Enrich with ingredient info
@@ -1077,10 +1136,15 @@ def get_provisional_count(
 
 def _get_provisional_count_impl(session: Session) -> int:
     """Implementation of get_provisional_count."""
-    return session.query(func.count(Product.id)).filter(
-        Product.is_provisional == True,
-        Product.is_hidden == False,
-    ).scalar() or 0
+    return (
+        session.query(func.count(Product.id))
+        .filter(
+            Product.is_provisional == True,
+            Product.is_hidden == False,
+        )
+        .scalar()
+        or 0
+    )
 
 
 def mark_product_reviewed(

@@ -90,9 +90,13 @@ class FinishedGoodsTab(ctk.CTkFrame):
         """Load recipe categories from database."""
         try:
             with session_scope() as session:
-                categories = session.query(Recipe.category).distinct().filter(
-                    Recipe.category.isnot(None)
-                ).order_by(Recipe.category).all()
+                categories = (
+                    session.query(Recipe.category)
+                    .distinct()
+                    .filter(Recipe.category.isnot(None))
+                    .order_by(Recipe.category)
+                    .all()
+                )
                 return [cat[0] for cat in categories if cat[0]]
         except Exception:
             return []

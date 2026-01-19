@@ -70,7 +70,9 @@ class AvailabilityDisplay(ctk.CTkFrame):
 
         # Scrollable frame for item list
         self._scrollable_frame = ctk.CTkScrollableFrame(self, height=150)
-        self._scrollable_frame.grid(row=1, column=0, sticky="nsew", padx=PADDING_SMALL, pady=PADDING_SMALL)
+        self._scrollable_frame.grid(
+            row=1, column=0, sticky="nsew", padx=PADDING_SMALL, pady=PADDING_SMALL
+        )
         self._scrollable_frame.grid_columnconfigure(0, weight=1)
 
     def set_availability(self, result: Dict[str, Any]) -> None:

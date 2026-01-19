@@ -68,6 +68,7 @@ class PurchaseDashboard(BaseDashboard):
             # Get inventory count for inline stats
             try:
                 from src.services import inventory_item_service
+
                 inventory_items = inventory_item_service.get_all_inventory_items()
                 self._inventory_count = len(inventory_items) if inventory_items else 0
             except Exception:

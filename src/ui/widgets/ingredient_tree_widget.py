@@ -636,6 +636,7 @@ class IngredientTreeWidget(ctk.CTkFrame):
             return self._stub_get_root_ingredients()
 
         from src.services import ingredient_hierarchy_service
+
         return ingredient_hierarchy_service.get_root_ingredients()
 
     def _get_children(self, parent_id: int) -> List[Dict]:
@@ -648,6 +649,7 @@ class IngredientTreeWidget(ctk.CTkFrame):
             return self._stub_get_children(parent_id)
 
         from src.services import ingredient_hierarchy_service
+
         return ingredient_hierarchy_service.get_children(parent_id)
 
     def _get_ancestors(self, ingredient_id: int) -> List[Dict]:
@@ -660,6 +662,7 @@ class IngredientTreeWidget(ctk.CTkFrame):
             return self._stub_get_ancestors(ingredient_id)
 
         from src.services import ingredient_hierarchy_service
+
         return ingredient_hierarchy_service.get_ancestors(ingredient_id)
 
     def _search_ingredients(self, query: str) -> List[Dict]:
@@ -672,6 +675,7 @@ class IngredientTreeWidget(ctk.CTkFrame):
             return self._stub_search_ingredients(query)
 
         from src.services import ingredient_hierarchy_service
+
         results = ingredient_hierarchy_service.search_ingredients(query, limit=50)
         # Add ancestors to each result for tree expansion
         for result in results:

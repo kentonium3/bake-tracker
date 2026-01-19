@@ -333,17 +333,13 @@ def convert_any_units(
     if from_type == "volume" and to_type == "weight":
         if ingredient is None and density_g_per_ml is None:
             return False, 0.0, "Ingredient or density required for volume-to-weight conversion"
-        return convert_volume_to_weight(
-            value, from_unit, to_unit, ingredient, density_g_per_ml
-        )
+        return convert_volume_to_weight(value, from_unit, to_unit, ingredient, density_g_per_ml)
 
     # Weight to volume conversion
     if from_type == "weight" and to_type == "volume":
         if ingredient is None and density_g_per_ml is None:
             return False, 0.0, "Ingredient or density required for weight-to-volume conversion"
-        return convert_weight_to_volume(
-            value, from_unit, to_unit, ingredient, density_g_per_ml
-        )
+        return convert_weight_to_volume(value, from_unit, to_unit, ingredient, density_g_per_ml)
 
     # Incompatible conversion
     return (

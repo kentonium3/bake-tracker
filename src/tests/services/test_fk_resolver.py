@@ -48,6 +48,7 @@ from src.models.product import Product
 def sample_supplier_data():
     """Sample supplier data for creation tests."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     return {
         "name": f"Test Supplier {unique_id}",
@@ -63,6 +64,7 @@ def sample_supplier_data():
 def sample_ingredient_data():
     """Sample ingredient data for creation tests."""
     import uuid
+
     unique_id = str(uuid.uuid4())[:8]
     return {
         "slug": f"test_ingredient_{unique_id}",
@@ -283,6 +285,7 @@ class TestCreateIngredient:
     def test_create_ingredient_success(self, test_db):
         """Test successful ingredient creation."""
         import uuid
+
         unique_id = str(uuid.uuid4())[:8]
         with session_scope() as session:
             data = {
@@ -639,10 +642,7 @@ class TestCollectMissingFks:
 
     def test_sample_records_limited_to_three(self, test_db):
         """Test that sample_records is limited to 3."""
-        records = [
-            {"supplier_name": "Missing Supplier", "id": i}
-            for i in range(10)
-        ]
+        records = [{"supplier_name": "Missing Supplier", "id": i} for i in range(10)]
 
         with session_scope() as session:
             missing = collect_missing_fks(

@@ -65,9 +65,7 @@ def adjustment_test_product(test_db, adjustment_test_ingredient):
 
 
 @pytest.fixture
-def adjustment_test_inventory_item(
-    test_db, adjustment_test_product, adjustment_test_supplier
-):
+def adjustment_test_inventory_item(test_db, adjustment_test_product, adjustment_test_supplier):
     """Create a test inventory item with 10 cups at $0.50/cup."""
     return inventory_item_service.add_to_inventory(
         product_id=adjustment_test_product.id,
@@ -81,9 +79,7 @@ def adjustment_test_inventory_item(
 class TestManualAdjustmentHappyPath:
     """Tests for successful manual adjustments."""
 
-    def test_deplete_with_spoilage_reason(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_deplete_with_spoilage_reason(self, test_db, adjustment_test_inventory_item):
         """Depletion with SPOILAGE reason creates record and updates quantity."""
         initial_qty = adjustment_test_inventory_item.quantity
 
@@ -119,9 +115,7 @@ class TestManualAdjustmentHappyPath:
         assert depletion.depletion_reason == "gift"
         assert depletion.notes == "Gave to neighbor"
 
-    def test_deplete_with_correction_reason(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_deplete_with_correction_reason(self, test_db, adjustment_test_inventory_item):
         """Depletion with CORRECTION reason works correctly."""
         depletion = inventory_item_service.manual_adjustment(
             inventory_item_id=adjustment_test_inventory_item.id,
@@ -131,9 +125,7 @@ class TestManualAdjustmentHappyPath:
 
         assert depletion.depletion_reason == "correction"
 
-    def test_deplete_with_ad_hoc_usage_reason(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_deplete_with_ad_hoc_usage_reason(self, test_db, adjustment_test_inventory_item):
         """Depletion with AD_HOC_USAGE reason works correctly."""
         depletion = inventory_item_service.manual_adjustment(
             inventory_item_id=adjustment_test_inventory_item.id,
@@ -143,9 +135,7 @@ class TestManualAdjustmentHappyPath:
 
         assert depletion.depletion_reason == "ad_hoc_usage"
 
-    def test_deplete_all_available_quantity(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_deplete_all_available_quantity(self, test_db, adjustment_test_inventory_item):
         """Can deplete entire available quantity (result is 0)."""
         initial_qty = Decimal(str(adjustment_test_inventory_item.quantity))
 
@@ -169,9 +159,7 @@ class TestManualAdjustmentHappyPath:
 class TestManualAdjustmentValidation:
     """Tests for validation rules."""
 
-    def test_cannot_deplete_more_than_available(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_cannot_deplete_more_than_available(self, test_db, adjustment_test_inventory_item):
         """Depleting more than available raises ValidationError."""
         with pytest.raises(ServiceValidationError) as exc_info:
             inventory_item_service.manual_adjustment(
@@ -212,9 +200,7 @@ class TestManualAdjustmentValidation:
             )
         assert "notes" in str(exc_info.value).lower()
 
-    def test_other_reason_with_empty_notes_fails(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_other_reason_with_empty_notes_fails(self, test_db, adjustment_test_inventory_item):
         """OTHER reason with empty string notes raises ValidationError."""
         with pytest.raises(ServiceValidationError) as exc_info:
             inventory_item_service.manual_adjustment(
@@ -225,9 +211,7 @@ class TestManualAdjustmentValidation:
             )
         assert "notes" in str(exc_info.value).lower()
 
-    def test_other_reason_with_notes_succeeds(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_other_reason_with_notes_succeeds(self, test_db, adjustment_test_inventory_item):
         """OTHER reason with notes succeeds."""
         depletion = inventory_item_service.manual_adjustment(
             inventory_item_id=adjustment_test_inventory_item.id,
@@ -251,9 +235,7 @@ class TestManualAdjustmentValidation:
 class TestCostCalculation:
     """Tests for cost impact calculation."""
 
-    def test_cost_equals_quantity_times_unit_cost(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_cost_equals_quantity_times_unit_cost(self, test_db, adjustment_test_inventory_item):
         """Cost is calculated as quantity * unit_cost."""
         # item has unit_cost = 0.50
         depletion = inventory_item_service.manual_adjustment(
@@ -308,9 +290,7 @@ class TestDepletionHistory:
         )
         assert history == []
 
-    def test_history_contains_depletion_records(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_history_contains_depletion_records(self, test_db, adjustment_test_inventory_item):
         """History contains created depletion records."""
         # Create a depletion
         inventory_item_service.manual_adjustment(
@@ -327,9 +307,7 @@ class TestDepletionHistory:
         assert len(history) == 1
         assert history[0].notes == "First depletion"
 
-    def test_history_ordered_by_date_desc(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_history_ordered_by_date_desc(self, test_db, adjustment_test_inventory_item):
         """History returns records newest first."""
         # Create multiple depletions
         inventory_item_service.manual_adjustment(
@@ -424,9 +402,7 @@ class TestAuditTrail:
 
         assert depletion.created_at is not None
 
-    def test_depletion_has_depletion_date(
-        self, test_db, adjustment_test_inventory_item
-    ):
+    def test_depletion_has_depletion_date(self, test_db, adjustment_test_inventory_item):
         """Depletion record has depletion_date timestamp."""
         depletion = inventory_item_service.manual_adjustment(
             inventory_item_id=adjustment_test_inventory_item.id,

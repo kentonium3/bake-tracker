@@ -479,7 +479,9 @@ class ProductionDashboardTab(ctk.CTkFrame):
             text="Recent Production Runs",
             font=ctk.CTkFont(size=16, weight="bold"),
         )
-        history_header.grid(row=3, column=0, sticky="w", padx=PADDING_LARGE, pady=(PADDING_MEDIUM, 0))
+        history_header.grid(
+            row=3, column=0, sticky="w", padx=PADDING_LARGE, pady=(PADDING_MEDIUM, 0)
+        )
 
         self.production_table = ProductionHistoryTable(
             self,

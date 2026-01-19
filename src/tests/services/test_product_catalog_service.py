@@ -151,7 +151,9 @@ class TestGetProducts:
 
         assert len(results) == 2
 
-    def test_get_products_filter_by_ingredient(self, session, test_product, test_ingredient, test_ingredient_butter):
+    def test_get_products_filter_by_ingredient(
+        self, session, test_product, test_ingredient, test_ingredient_butter
+    ):
         """Test filtering by ingredient ID (FR-014)."""
         # Create product for different ingredient
         butter_product = Product(
@@ -171,7 +173,9 @@ class TestGetProducts:
         assert len(results) == 1
         assert results[0]["ingredient_id"] == test_ingredient.id
 
-    def test_get_products_filter_by_category(self, session, test_product, test_ingredient, test_ingredient_butter):
+    def test_get_products_filter_by_category(
+        self, session, test_product, test_ingredient, test_ingredient_butter
+    ):
         """Test filtering by ingredient category (FR-015)."""
         butter_product = Product(
             ingredient_id=test_ingredient_butter.id,
@@ -627,7 +631,9 @@ class TestPurchaseHistory:
         assert results[0]["unit_price"] == "12.99"  # More recent
         assert results[1]["unit_price"] == "10.99"  # Older
 
-    def test_get_purchase_history_includes_supplier_info(self, session, test_product, test_supplier):
+    def test_get_purchase_history_includes_supplier_info(
+        self, session, test_product, test_supplier
+    ):
         """Test that purchase history includes supplier details."""
         purchase = Purchase(
             product_id=test_product.id,
@@ -720,7 +726,9 @@ class TestCreatePurchase:
 
         assert "positive" in str(exc_info.value)
 
-    def test_create_purchase_validates_negative_quantity(self, session, test_product, test_supplier):
+    def test_create_purchase_validates_negative_quantity(
+        self, session, test_product, test_supplier
+    ):
         """Test that negative quantity is rejected."""
         with pytest.raises(ValueError) as exc_info:
             product_catalog_service.create_purchase(
@@ -894,9 +902,7 @@ class TestForceDeleteProduct:
         assert len(deps.purchases) == 1
         assert deps.purchases[0]["price"] == 10.0
 
-    def test_analyze_dependencies_with_inventory(
-        self, session, product_with_inventory
-    ):
+    def test_analyze_dependencies_with_inventory(self, session, product_with_inventory):
         """Test analyzing product with inventory items."""
         deps = product_catalog_service.analyze_product_dependencies(
             product_with_inventory.id,
@@ -908,9 +914,7 @@ class TestForceDeleteProduct:
         assert len(deps.inventory_items) == 1
         assert deps.inventory_items[0]["qty"] == 2.0
 
-    def test_analyze_dependencies_used_in_recipe(
-        self, session, product_in_recipe
-    ):
+    def test_analyze_dependencies_used_in_recipe(self, session, product_in_recipe):
         """Test analyzing product whose ingredient is used in recipe."""
         deps = product_catalog_service.analyze_product_dependencies(
             product_in_recipe.id,
@@ -923,9 +927,7 @@ class TestForceDeleteProduct:
         assert deps.deletion_risk_level == "BLOCKED"
         assert "Test Recipe" in deps.recipes
 
-    def test_force_delete_requires_confirmation(
-        self, session, product_with_purchase
-    ):
+    def test_force_delete_requires_confirmation(self, session, product_with_purchase):
         """Test that force delete requires confirmed=True."""
         with pytest.raises(ValueError) as exc_info:
             product_catalog_service.force_delete_product(
@@ -936,9 +938,7 @@ class TestForceDeleteProduct:
 
         assert "confirmed=True" in str(exc_info.value)
 
-    def test_force_delete_blocked_by_recipe(
-        self, session, product_in_recipe
-    ):
+    def test_force_delete_blocked_by_recipe(self, session, product_in_recipe):
         """Test that products used in recipes cannot be force deleted."""
         with pytest.raises(ValueError) as exc_info:
             product_catalog_service.force_delete_product(
@@ -972,16 +972,16 @@ class TestForceDeleteProduct:
         assert session.query(Product).filter(Product.id == product_id).count() == 0
         assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 0
 
-    def test_force_delete_success_with_inventory(
-        self, session, product_with_inventory
-    ):
+    def test_force_delete_success_with_inventory(self, session, product_with_inventory):
         """Test successful force delete of product with inventory."""
         product_id = product_with_inventory.id
 
         # Verify all exist
         assert session.query(Product).filter(Product.id == product_id).count() == 1
         assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 1
-        assert session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count() == 1
+        assert (
+            session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count() == 1
+        )
 
         # Force delete
         deps = product_catalog_service.force_delete_product(
@@ -995,7 +995,9 @@ class TestForceDeleteProduct:
         assert deps.purchase_count == 1
         assert session.query(Product).filter(Product.id == product_id).count() == 0
         assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 0
-        assert session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count() == 0
+        assert (
+            session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count() == 0
+        )
 
     def test_force_delete_not_found(self, session):
         """Test force delete of non-existent product."""
@@ -1010,6 +1012,7 @@ class TestForceDeleteProduct:
 # =============================================================================
 # Feature 031: Leaf-Only Ingredient Validation Tests
 # =============================================================================
+
 
 @pytest.fixture
 def hierarchy_ingredients_catalog(session):
@@ -1080,9 +1083,7 @@ class TestLeafOnlyProductCatalogValidation:
         assert result is not None
         assert result["ingredient_id"] == hierarchy_ingredients_catalog.leaf.id
 
-    def test_create_product_with_non_leaf_fails(
-        self, session, hierarchy_ingredients_catalog
-    ):
+    def test_create_product_with_non_leaf_fails(self, session, hierarchy_ingredients_catalog):
         """Creating product with non-leaf ingredient raises NonLeafIngredientError."""
         from src.services.exceptions import NonLeafIngredientError
 
@@ -1097,9 +1098,7 @@ class TestLeafOnlyProductCatalogValidation:
             )
         assert "Catalog Chocolate" in str(exc_info.value)
 
-    def test_create_product_with_mid_tier_fails(
-        self, session, hierarchy_ingredients_catalog
-    ):
+    def test_create_product_with_mid_tier_fails(self, session, hierarchy_ingredients_catalog):
         """Creating product with mid-tier ingredient raises NonLeafIngredientError."""
         from src.services.exceptions import NonLeafIngredientError
 
@@ -1391,9 +1390,7 @@ class TestProvisionalProducts:
         assert provisional_product.id in ids
         assert regular_product.id not in ids
 
-    def test_get_provisional_products_excludes_hidden(
-        self, session, leaf_ingredient
-    ):
+    def test_get_provisional_products_excludes_hidden(self, session, leaf_ingredient):
         """Should exclude hidden provisional products."""
         # Create a hidden provisional product
         hidden_provisional = Product(
@@ -1411,9 +1408,7 @@ class TestProvisionalProducts:
         ids = [p["id"] for p in results]
         assert hidden_provisional.id not in ids
 
-    def test_get_provisional_products_ordered_by_date_desc(
-        self, session, leaf_ingredient
-    ):
+    def test_get_provisional_products_ordered_by_date_desc(self, session, leaf_ingredient):
         """Should return products ordered by date_added descending."""
         from src.utils.datetime_utils import utc_now
         from datetime import timedelta
@@ -1498,9 +1493,7 @@ class TestProvisionalProducts:
         with pytest.raises(ProductNotFound):
             product_catalog_service.mark_product_reviewed(99999, session=session)
 
-    def test_mark_product_reviewed_returns_updated_product(
-        self, session, provisional_product
-    ):
+    def test_mark_product_reviewed_returns_updated_product(self, session, provisional_product):
         """Should return full product dictionary after update."""
         result = product_catalog_service.mark_product_reviewed(
             provisional_product.id, session=session

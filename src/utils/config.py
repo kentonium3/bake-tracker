@@ -198,6 +198,7 @@ def get_config(environment: Optional[str] = None) -> Config:
         # Singleton exists but caller requested different environment
         # Log warning but don't replace singleton to prevent data loss
         import logging
+
         logger = logging.getLogger(__name__)
         logger.warning(
             f"get_config() called with environment='{environment}' but singleton "

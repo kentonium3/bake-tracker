@@ -83,12 +83,8 @@ class ProductionLoss(BaseModel):
         Index("idx_production_loss_created", "created_at"),
         # Constraints
         CheckConstraint("loss_quantity > 0", name="ck_production_loss_quantity_positive"),
-        CheckConstraint(
-            "per_unit_cost >= 0", name="ck_production_loss_per_unit_cost_non_negative"
-        ),
-        CheckConstraint(
-            "total_loss_cost >= 0", name="ck_production_loss_total_cost_non_negative"
-        ),
+        CheckConstraint("per_unit_cost >= 0", name="ck_production_loss_per_unit_cost_non_negative"),
+        CheckConstraint("total_loss_cost >= 0", name="ck_production_loss_total_cost_non_negative"),
     )
 
     def __repr__(self) -> str:

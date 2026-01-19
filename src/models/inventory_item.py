@@ -55,7 +55,7 @@ class InventoryItem(BaseModel):
         Integer,
         ForeignKey("purchases.id", ondelete="RESTRICT"),
         nullable=True,  # Nullable for migration transition
-        index=True
+        index=True,
     )
 
     # Inventory tracking
@@ -77,9 +77,7 @@ class InventoryItem(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Timestamp
-    last_updated = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_updated = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     product = relationship("Product", back_populates="inventory_items")
@@ -359,7 +357,12 @@ def get_total_quantity_for_ingredient(ingredient_id: int, session) -> float:
     """
     from src.models.product import Product
 
-    items = session.query(InventoryItem).join(Product).filter(Product.ingredient_id == ingredient_id).all()
+    items = (
+        session.query(InventoryItem)
+        .join(Product)
+        .filter(Product.ingredient_id == ingredient_id)
+        .all()
+    )
 
     # TODO: Convert quantities to common unit (recipe_unit)
     # For now, just sum raw quantities

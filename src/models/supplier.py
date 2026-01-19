@@ -17,7 +17,9 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-def _generate_slug_from_name(name: str, supplier_type: str, city: str = None, state: str = None) -> str:
+def _generate_slug_from_name(
+    name: str, supplier_type: str, city: str = None, state: str = None
+) -> str:
     """Generate a slug from supplier name and location.
 
     For physical suppliers: {name}_{city}_{state}
@@ -83,7 +85,7 @@ class Supplier(BaseModel):
     website_url = Column(String(500), nullable=True)
     street_address = Column(String(200), nullable=True)
     city = Column(String(100), nullable=True)  # Required for physical, optional for online
-    state = Column(String(2), nullable=True)   # Required for physical, optional for online
+    state = Column(String(2), nullable=True)  # Required for physical, optional for online
     zip_code = Column(String(10), nullable=True)  # Required for physical, optional for online
     notes = Column(Text, nullable=True)
 
@@ -98,13 +100,10 @@ class Supplier(BaseModel):
         # Enforce 2-letter uppercase state codes (when state is provided)
         CheckConstraint(
             "state IS NULL OR (state = UPPER(state) AND LENGTH(state) = 2)",
-            name="ck_supplier_state_format"
+            name="ck_supplier_state_format",
         ),
         # Enforce valid supplier_type values
-        CheckConstraint(
-            "supplier_type IN ('physical', 'online')",
-            name="ck_supplier_type_valid"
-        ),
+        CheckConstraint("supplier_type IN ('physical', 'online')", name="ck_supplier_type_valid"),
         # Unique index for slug (portable identifier)
         Index("idx_supplier_slug", "slug", unique=True),
         # Index for name + city lookups (e.g., "Costco in Waltham")
@@ -123,11 +122,7 @@ class Supplier(BaseModel):
     def __repr__(self) -> str:
         """String representation of supplier."""
         if self.is_online:
-            return (
-                f"Supplier(id={self.id}, "
-                f"name='{self.name}', "
-                f"type='online')"
-            )
+            return f"Supplier(id={self.id}, " f"name='{self.name}', " f"type='online')"
         return (
             f"Supplier(id={self.id}, "
             f"name='{self.name}', "
@@ -190,8 +185,5 @@ def _generate_slug_before_insert(mapper, connection, target):
     """Auto-generate slug if not provided before inserting a new Supplier."""
     if target.slug is None and target.name:
         target.slug = _generate_slug_from_name(
-            target.name,
-            target.supplier_type or "physical",
-            target.city,
-            target.state
+            target.name, target.supplier_type or "physical", target.city, target.state
         )

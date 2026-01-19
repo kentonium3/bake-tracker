@@ -92,6 +92,10 @@ class MaterialProduct(BaseModel):
     # Provisional products are created with minimal metadata and can be enriched later
     is_provisional = Column(Boolean, nullable=False, default=False, index=True)
 
+    # Feature 059: Provisional product flag for products created via CLI
+    # with minimal information that need enrichment later
+    is_provisional = Column(Boolean, nullable=False, default=False, index=True)
+
     # Additional information
     notes = Column(Text, nullable=True)
 

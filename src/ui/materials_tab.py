@@ -13,10 +13,8 @@ Part of Feature 047: Materials Management System.
 """
 
 import customtkinter as ctk
-import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Optional, List, Dict, Any
-from decimal import Decimal
 from datetime import date
 import unicodedata
 
@@ -27,8 +25,8 @@ from src.services import (
     material_unit_service,
     supplier_service,
 )
-from src.services.exceptions import ValidationError, DatabaseError
-from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
+from src.services.exceptions import ValidationError
+from src.utils.constants import PADDING_MEDIUM
 
 
 def normalize_for_search(text: str) -> str:
@@ -92,10 +90,7 @@ class MaterialsTab(ctk.CTkFrame):
             text="Materials Catalog",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
-        title_label.grid(
-            row=0, column=0, sticky="w",
-            padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5)
-        )
+        title_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
 
     def _create_tabview(self):
         """Create the 3-tab container for Materials, Products, and Units."""
@@ -211,9 +206,7 @@ class MaterialFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Name*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(10, 5)
         )
-        self.name_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., Red Satin Ribbon"
-        )
+        self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Red Satin Ribbon")
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
@@ -250,12 +243,8 @@ class MaterialFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Computed level display (FR-016)
-        ctk.CTkLabel(form_frame, text="Level:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.level_label = ctk.CTkLabel(
-            form_frame, text="L2 - Material", anchor="w"
-        )
+        ctk.CTkLabel(form_frame, text="Level:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.level_label = ctk.CTkLabel(form_frame, text="L2 - Material", anchor="w")
         self.level_label.grid(row=row, column=1, sticky="w", padx=10, pady=5)
         row += 1
 
@@ -295,12 +284,8 @@ class MaterialFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Notes field
-        ctk.CTkLabel(form_frame, text="Notes:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional notes"
-        )
+        ctk.CTkLabel(form_frame, text="Notes:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional notes")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -357,10 +342,7 @@ class MaterialFormDialog(ctk.CTkToplevel):
     def _on_l0_change(self, value: str):
         """Handle L0 category selection change - cascade to L1."""
         if value == "(Select category)" or value not in self._l0_options:
-            self.l1_dropdown.configure(
-                values=["(Select category first)"],
-                state="disabled"
-            )
+            self.l1_dropdown.configure(values=["(Select category first)"], state="disabled")
             self.l1_var.set("(Select category first)")
             self._l1_options = {}
             return
@@ -377,23 +359,14 @@ class MaterialFormDialog(ctk.CTkToplevel):
                     self._l1_options[name] = sub_id
 
             if self._l1_options:
-                self.l1_dropdown.configure(
-                    values=list(self._l1_options.keys()),
-                    state="normal"
-                )
+                self.l1_dropdown.configure(values=list(self._l1_options.keys()), state="normal")
                 self.l1_var.set(list(self._l1_options.keys())[0])
             else:
-                self.l1_dropdown.configure(
-                    values=["(No subcategories)"],
-                    state="disabled"
-                )
+                self.l1_dropdown.configure(values=["(No subcategories)"], state="disabled")
                 self.l1_var.set("(No subcategories)")
         except Exception as e:
             print(f"Error loading subcategories: {e}")
-            self.l1_dropdown.configure(
-                values=["(Error loading)"],
-                state="disabled"
-            )
+            self.l1_dropdown.configure(values=["(Error loading)"], state="disabled")
             self.l1_var.set("(Error loading)")
 
     def _populate_form(self):
@@ -467,8 +440,7 @@ class MaterialFormDialog(ctk.CTkToplevel):
         material_id = self.material.get("id")
 
         if not messagebox.askyesno(
-            "Confirm Delete",
-            f"Are you sure you want to delete '{name}'?\n\nThis cannot be undone."
+            "Confirm Delete", f"Are you sure you want to delete '{name}'?\n\nThis cannot be undone."
         ):
             return
 
@@ -595,17 +567,6 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
 
         row = 0
 
-        # Feature 059: Completeness indicator for provisional products
-        self.completeness_label = ctk.CTkLabel(
-            form_frame,
-            text="",
-            text_color="gray",
-        )
-        self.completeness_label.grid(
-            row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=(5, 10)
-        )
-        row += 1
-
         # Material dropdown (required)
         ctk.CTkLabel(form_frame, text="Material*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(10, 5)
@@ -631,42 +592,24 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Product Name (required) - always editable (spec User Story 4, Acceptance 4)
-        ctk.CTkLabel(form_frame, text="Name*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.name_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., Red Satin Ribbon 50yd"
-        )
+        ctk.CTkLabel(form_frame, text="Name*:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Red Satin Ribbon 50yd")
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
-        row += 1
-
-        # Feature 059: Brand field (required for completeness)
-        ctk.CTkLabel(form_frame, text="Brand*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.brand_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., Michaels, JOANN"
-        )
-        self.brand_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
         # Package Quantity (required)
         ctk.CTkLabel(form_frame, text="Package Qty*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.qty_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., 50"
-        )
+        self.qty_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., 50")
         self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Package Unit (required for completeness)
-        ctk.CTkLabel(form_frame, text="Package Unit*:").grid(
+        # Package Unit (defaults to material's base_unit)
+        ctk.CTkLabel(form_frame, text="Package Unit:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.unit_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., yards"
-        )
+        self.unit_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., yards")
         self.unit_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -686,27 +629,16 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         row += 1
 
         # SKU (optional)
-        ctk.CTkLabel(form_frame, text="SKU:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.sku_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional product SKU"
-        )
+        ctk.CTkLabel(form_frame, text="SKU:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.sku_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional product SKU")
         self.sku_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
         # Notes (optional)
-        ctk.CTkLabel(form_frame, text="Notes:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional notes"
-        )
+        ctk.CTkLabel(form_frame, text="Notes:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional notes")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
-
-        # Feature 059: Bind trace handlers to update completeness indicator
-        self._setup_completeness_tracking()
 
     def _on_material_change(self, value: str):
         """Handle material selection - set default package unit."""
@@ -716,81 +648,6 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             if not self.unit_entry.get():
                 self.unit_entry.delete(0, "end")
                 self.unit_entry.insert(0, base_unit)
-        # Feature 059: Update completeness after material change
-        self._update_completeness_indicator()
-
-    def _setup_completeness_tracking(self):
-        """Feature 059: Set up trace handlers to update completeness in real-time."""
-        # Bind key release events to entry fields
-        self.name_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
-        self.brand_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
-        self.qty_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
-        self.unit_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
-
-        # Material dropdown uses command callback which already calls update
-
-        # Initial update
-        self._update_completeness_indicator()
-
-    def _update_completeness_indicator(self):
-        """Feature 059: Update the completeness status display in real-time."""
-        missing = self._get_missing_fields()
-
-        if missing:
-            missing_text = ", ".join(missing)
-            self.completeness_label.configure(
-                text=f"\u26a0 Missing: {missing_text}",
-                text_color="orange",
-            )
-        else:
-            self.completeness_label.configure(
-                text="\u2713 Product complete",
-                text_color="green",
-            )
-
-    def _get_missing_fields(self) -> list:
-        """Feature 059: Check which required fields are missing for completeness.
-
-        Completeness criteria from spec: name, brand, slug (auto-generated),
-        package_quantity, package_unit, and material_id.
-        Slug is auto-generated from name, so we only check for user-editable fields.
-        """
-        missing = []
-
-        # Check material selection
-        material_name = self.material_var.get()
-        if material_name not in self._materials:
-            missing.append("Material")
-
-        # Check name
-        if not self.name_entry.get().strip():
-            missing.append("Name")
-
-        # Check brand
-        if not self.brand_entry.get().strip():
-            missing.append("Brand")
-
-        # Check package quantity
-        qty_str = self.qty_entry.get().strip()
-        try:
-            qty = float(qty_str)
-            if qty <= 0:
-                missing.append("Package Qty")
-        except (ValueError, TypeError):
-            if qty_str:  # Has a value but not valid
-                missing.append("Package Qty (invalid)")
-            else:
-                missing.append("Package Qty")
-
-        # Check package unit
-        if not self.unit_entry.get().strip():
-            missing.append("Package Unit")
-
-        return missing
-
-    def _is_product_complete(self) -> bool:
-        """Feature 059: Check if all required fields are filled for completeness."""
-        return len(self._get_missing_fields()) == 0
 
     def _create_buttons(self):
         """Create dialog buttons."""
@@ -826,11 +683,6 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         if name:
             self.name_entry.insert(0, name)
 
-        # Feature 059: Set brand
-        brand = self.product.get("brand", "")
-        if brand:
-            self.brand_entry.insert(0, brand)
-
         # Set material
         material_name = self.product.get("material_name", "")
         if material_name and material_name in self._materials:
@@ -861,9 +713,6 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         if notes:
             self.notes_entry.insert(0, notes)
 
-        # Feature 059: Update completeness indicator after populating
-        self._update_completeness_indicator()
-
     def _save(self):
         """Validate and save the product."""
         # Validate material
@@ -893,10 +742,9 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             return
 
         # Get optional fields
-        package_unit = self.unit_entry.get().strip() or self._materials[material_name].get("base_unit", "each")
-
-        # Feature 059: Get brand (required for completeness)
-        brand = self.brand_entry.get().strip() or None
+        package_unit = self.unit_entry.get().strip() or self._materials[material_name].get(
+            "base_unit", "each"
+        )
 
         supplier_name = self.supplier_var.get()
         supplier_id = self._suppliers.get(supplier_name) if supplier_name != "(None)" else None
@@ -904,27 +752,20 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         sku = self.sku_entry.get().strip() or None
         notes = self.notes_entry.get().strip() or None
 
-        # Feature 059: Determine if product should remain provisional
-        # Product is complete when all required fields are present
-        is_complete = self._is_product_complete()
-
         # Build result
         self.result = {
             "name": name,
-            "brand": brand,
             "material_id": material_id,
             "package_quantity": package_quantity,
             "package_unit": package_unit,
             "supplier_id": supplier_id,
             "sku": sku,
             "notes": notes,
-            "is_complete": is_complete,  # Feature 059: Flag for caller to clear is_provisional
         }
 
         # Include ID if editing
         if self.product:
             self.result["id"] = self.product.get("id")
-            self.result["was_provisional"] = self.product.get("is_provisional", False)
 
         self.destroy()
 
@@ -1052,9 +893,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         row += 1
 
         # Purchase Date
-        ctk.CTkLabel(form_frame, text="Date*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
+        ctk.CTkLabel(form_frame, text="Date*:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
         self.date_entry = ctk.CTkEntry(form_frame)
         self.date_entry.insert(0, date.today().isoformat())
         self.date_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
@@ -1064,9 +903,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Packages*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.packages_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Number of packages"
-        )
+        self.packages_entry = ctk.CTkEntry(form_frame, placeholder_text="Number of packages")
         self.packages_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         self.packages_entry.bind("<KeyRelease>", self._update_calculations)
         row += 1
@@ -1075,9 +912,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Total Price*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.price_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="$0.00"
-        )
+        self.price_entry = ctk.CTkEntry(form_frame, placeholder_text="$0.00")
         self.price_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         self.price_entry.bind("<KeyRelease>", self._update_calculations)
         row += 1
@@ -1104,12 +939,8 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         row += 1
 
         # Notes
-        ctk.CTkLabel(form_frame, text="Notes:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional notes"
-        )
+        ctk.CTkLabel(form_frame, text="Notes:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional notes")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
 
     def _update_calculations(self, event=None):
@@ -1117,9 +948,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         try:
             packages = int(self.packages_entry.get().strip())
             total_units = packages * self.package_quantity
-            self.total_units_label.configure(
-                text=f"{total_units:,.1f} {self.package_unit}"
-            )
+            self.total_units_label.configure(text=f"{total_units:,.1f} {self.package_unit}")
         except (ValueError, TypeError):
             self.total_units_label.configure(text="-")
             self.unit_cost_label.configure(text="-")
@@ -1325,9 +1154,7 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Value*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(15, 5)
         )
-        self.value_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Enter value"
-        )
+        self.value_entry = ctk.CTkEntry(form_frame, placeholder_text="Enter value")
         self.value_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(15, 5))
         self.value_entry.bind("<KeyRelease>", self._update_preview)
         row += 1
@@ -1349,9 +1176,7 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Notes:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(15, 5)
         )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Reason for adjustment"
-        )
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Reason for adjustment")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(15, 5))
 
     def _update_preview(self, event=None):
@@ -1365,9 +1190,7 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
             else:  # percentage
                 new_qty = self.current_inventory * (value / 100)
 
-            self.preview_label.configure(
-                text=f"{new_qty:,.1f} {self.base_unit}"
-            )
+            self.preview_label.configure(text=f"{new_qty:,.1f} {self.base_unit}")
         except (ValueError, TypeError):
             self.preview_label.configure(text="-")
 
@@ -1423,7 +1246,6 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
     Dialog for creating or editing a material unit.
 
     Feature 048: Modal dialog for unit management.
-    Feature 059: Enhanced to show inherited unit type and consumption preview.
     """
 
     def __init__(
@@ -1454,8 +1276,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        # Feature 059: Increased height to accommodate unit type display and preview
-        self.geometry("450x450")
+        self.geometry("450x350")
         self.resizable(False, False)
 
         # Center on parent
@@ -1516,7 +1337,6 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         form_frame = ctk.CTkFrame(self)
         form_frame.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
         form_frame.grid_columnconfigure(1, weight=1)
-        self._form_frame = form_frame  # Store reference for dynamic updates
 
         row = 0
 
@@ -1538,20 +1358,9 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             form_frame,
             values=["(Select material)"] + material_names,
             variable=self.material_var,
-            command=self._on_material_selected,  # Feature 059: Wire up handler
             width=250,
         )
         self.material_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=(10, 5))
-        row += 1
-
-        # Feature 059 (T041): Unit type display label - shows inherited type
-        self._unit_type_label = ctk.CTkLabel(
-            form_frame,
-            text="Unit Type: (select material)",
-            font=ctk.CTkFont(size=12),
-            text_color="gray",
-        )
-        self._unit_type_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 5))
         row += 1
 
         # Unit Name (required) - editable when adding, read-only when editing
@@ -1573,47 +1382,25 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             ctk.CTkLabel(form_frame, text="Name*:").grid(
                 row=row, column=0, sticky="w", padx=10, pady=5
             )
-            self.name_entry = ctk.CTkEntry(
-                form_frame, placeholder_text="e.g., Standard Bow"
-            )
+            self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Standard Bow")
             self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Feature 059 (T042): Dynamic quantity label based on unit type
-        self._qty_label = ctk.CTkLabel(form_frame, text="Qty/Unit*:")
-        self._qty_label.grid(row=row, column=0, sticky="w", padx=10, pady=5)
-        self.qty_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Base units consumed per unit"
+        # Quantity per Unit (required)
+        ctk.CTkLabel(form_frame, text="Qty/Unit*:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
         )
+        self.qty_entry = ctk.CTkEntry(form_frame, placeholder_text="Base units consumed per unit")
         self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
-        # Feature 059: Bind quantity changes to update preview
-        self.qty_entry.bind("<KeyRelease>", lambda e: self._update_consumption_preview())
-        row += 1
-
-        # Feature 059 (T043): Consumption preview text
-        self._preview_label = ctk.CTkLabel(
-            form_frame,
-            text="",
-            font=ctk.CTkFont(size=11),
-            text_color="gray",
-            wraplength=380,
-        )
-        self._preview_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=(5, 10))
         row += 1
 
         # Description (optional)
         ctk.CTkLabel(form_frame, text="Description:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.description_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional description"
-        )
+        self.description_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional description")
         self.description_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
-
-        # Feature 059: Initialize state if material is pre-selected
-        if self.material_id:
-            self._on_material_selected(self.material_var.get())
 
     def _create_buttons(self):
         """Create dialog buttons."""
@@ -1648,8 +1435,6 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         material_name = self.unit.get("material_name", "")
         if material_name and material_name in self._materials:
             self.material_var.set(material_name)
-            # Feature 059: Trigger material selection handler to update UI
-            self._on_material_selected(material_name)
 
         # Set quantity per unit
         qty = self.unit.get("quantity_per_unit", "")
@@ -1660,154 +1445,6 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         description = self.unit.get("description", "")
         if description:
             self.description_entry.insert(0, description)
-
-        # Feature 059: Update preview after populating
-        self._update_consumption_preview()
-
-    # =========================================================================
-    # Feature 059: Dynamic UI Update Methods (T041-T045)
-    # =========================================================================
-
-    def _on_material_selected(self, value: str):
-        """
-        Feature 059 (T045): Handle material dropdown selection change.
-
-        Updates all dynamic elements when user selects a different material:
-        - Unit type display label (T041)
-        - Quantity field label (T042)
-        - Consumption preview (T043)
-        - Quantity field lock state for "each" materials (T044)
-        """
-        if not value or value == "(Select material)":
-            # Reset to defaults
-            self._unit_type_label.configure(
-                text="Unit Type: (select material)",
-                text_color="gray",
-            )
-            self._qty_label.configure(text="Qty/Unit*:")
-            self._preview_label.configure(text="")
-            self.qty_entry.configure(state="normal")
-            self.qty_entry.configure(placeholder_text="Base units consumed per unit")
-            return
-
-        # Look up material data
-        material_data = self._materials.get(value)
-        if not material_data:
-            return
-
-        unit_type = material_data.get("base_unit", "each")
-
-        # T041: Update unit type display
-        self._update_unit_type_display(unit_type)
-
-        # T042: Update quantity label
-        self._update_quantity_label(unit_type)
-
-        # T044: Lock/unlock quantity for "each" materials
-        if unit_type == "each":
-            self._set_quantity_locked(True)
-        else:
-            self._set_quantity_locked(False)
-
-        # T043: Update consumption preview
-        self._update_consumption_preview()
-
-    def _update_unit_type_display(self, unit_type: str):
-        """
-        Feature 059 (T041): Update the unit type display label.
-
-        Shows the inherited base_unit_type from the selected Material
-        with a user-friendly description.
-        """
-        type_descriptions = {
-            "each": "each (discrete items)",
-            "linear_cm": "linear_cm (length in centimeters)",
-            "square_cm": "square_cm (area in square centimeters)",
-        }
-        description = type_descriptions.get(unit_type, unit_type)
-        self._unit_type_label.configure(
-            text=f"Unit Type: {description}",
-            text_color=("gray10", "gray90"),  # Dark mode compatible
-        )
-
-    def _update_quantity_label(self, unit_type: str):
-        """
-        Feature 059 (T042): Update the quantity field label based on unit type.
-
-        Makes the label dynamic to help users understand what value to enter.
-        """
-        label_text = {
-            "each": "Qty/Unit (always 1):",
-            "linear_cm": "Length per unit (cm)*:",
-            "square_cm": "Area per unit (cm\u00b2)*:",
-        }
-        self._qty_label.configure(text=label_text.get(unit_type, "Qty/Unit*:"))
-
-    def _update_consumption_preview(self):
-        """
-        Feature 059 (T043): Update the consumption preview text.
-
-        Shows a user-friendly preview of what this unit will consume
-        when used in production.
-        """
-        material_name = self.material_var.get()
-        if not material_name or material_name == "(Select material)":
-            self._preview_label.configure(text="")
-            return
-
-        material_data = self._materials.get(material_name)
-        if not material_data:
-            self._preview_label.configure(text="")
-            return
-
-        unit_type = material_data.get("base_unit", "each")
-
-        # Get quantity value
-        qty_str = self.qty_entry.get().strip()
-        try:
-            quantity = float(qty_str)
-            if quantity <= 0:
-                self._preview_label.configure(text="")
-                return
-        except (ValueError, TypeError):
-            if qty_str:
-                self._preview_label.configure(
-                    text="Enter a valid quantity to see preview",
-                    text_color="orange",
-                )
-            else:
-                self._preview_label.configure(text="")
-            return
-
-        # Build preview text based on unit type
-        if unit_type == "each":
-            preview = f"Each use of this unit will consume 1 {material_name}"
-        elif unit_type == "linear_cm":
-            preview = f"Each use of this unit will consume {quantity:.2f} cm of {material_name}"
-        elif unit_type == "square_cm":
-            preview = f"Each use of this unit will consume {quantity:.2f} cm\u00b2 of {material_name}"
-        else:
-            preview = f"Each use will consume {quantity:.2f} {unit_type} of {material_name}"
-
-        self._preview_label.configure(text=preview, text_color="gray")
-
-    def _set_quantity_locked(self, locked: bool):
-        """
-        Feature 059 (T044): Lock or unlock the quantity field.
-
-        For "each" materials, quantity must always be 1 (discrete items).
-        The field is disabled and auto-filled with 1.
-        """
-        if locked:
-            # Clear and set value to 1, then disable
-            self.qty_entry.delete(0, "end")
-            self.qty_entry.insert(0, "1")
-            self.qty_entry.configure(state="disabled")
-            self.qty_entry.configure(placeholder_text="")
-        else:
-            # Enable the field
-            self.qty_entry.configure(state="normal")
-            self.qty_entry.configure(placeholder_text="Base units consumed per unit")
 
     def _save(self):
         """Validate and save the unit."""
@@ -1830,20 +1467,12 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Error", "Unit name is required.")
             return
 
-        # Feature 059 (T044): Validate quantity per unit with special handling for "each"
-        unit_type = self._materials[material_name].get("base_unit", "each")
+        # Validate quantity per unit
         qty_str = self.qty_entry.get().strip()
         try:
             quantity_per_unit = float(qty_str)
             if quantity_per_unit <= 0:
                 raise ValueError("Must be positive")
-            # Feature 059: Enforce quantity=1 for "each" materials
-            if unit_type == "each" and quantity_per_unit != 1:
-                messagebox.showerror(
-                    "Error",
-                    "Quantity must be 1 for 'each' materials (discrete items)."
-                )
-                return
         except ValueError:
             messagebox.showerror("Error", "Quantity must be a positive number.")
             return
@@ -2022,20 +1651,19 @@ class MaterialsCatalogTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
-            "l0", text="Category (L0)", anchor="w",
-            command=lambda: self._on_header_click("l0")
+            "l0", text="Category (L0)", anchor="w", command=lambda: self._on_header_click("l0")
         )
         self.tree.heading(
-            "l1", text="Subcategory (L1)", anchor="w",
-            command=lambda: self._on_header_click("l1")
+            "l1", text="Subcategory (L1)", anchor="w", command=lambda: self._on_header_click("l1")
         )
         self.tree.heading(
-            "name", text="Material Name", anchor="w",
-            command=lambda: self._on_header_click("name")
+            "name", text="Material Name", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "base_unit", text="Default Unit", anchor="w",
-            command=lambda: self._on_header_click("base_unit")
+            "base_unit",
+            text="Default Unit",
+            anchor="w",
+            command=lambda: self._on_header_click("base_unit"),
         )
 
         # Configure column widths
@@ -2069,8 +1697,11 @@ class MaterialsCatalogTab:
             height=30,
         )
         self.status_label.grid(
-            row=3, column=0, sticky="ew",
-            padx=5, pady=(5, 10),
+            row=3,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
@@ -2159,7 +1790,8 @@ class MaterialsCatalogTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                m for m in filtered
+                m
+                for m in filtered
                 if search_text in normalize_for_search(m.get("name", ""))
                 or search_text in normalize_for_search(m.get("l0_name", ""))
                 or search_text in normalize_for_search(m.get("l1_name", ""))
@@ -2209,7 +1841,8 @@ class MaterialsCatalogTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                m for m in filtered
+                m
+                for m in filtered
                 if search_text in normalize_for_search(m.get("material_name", ""))
                 or search_text in normalize_for_search(m.get("category_name", ""))
                 or search_text in normalize_for_search(m.get("subcategory_name", ""))
@@ -2269,14 +1902,12 @@ class MaterialsCatalogTab:
             # Get subcategories for selected category from the new data structure
             materials_data = getattr(self, "_materials_data", [])
             subcats = [
-                m["subcategory_name"] for m in materials_data
+                m["subcategory_name"]
+                for m in materials_data
                 if m.get("category_name") == value and m.get("subcategory_name")
             ]
             unique_subcats = sorted(set(subcats))
-            self.l1_filter_dropdown.configure(
-                values=["All"] + unique_subcats,
-                state="normal"
-            )
+            self.l1_filter_dropdown.configure(values=["All"] + unique_subcats, state="normal")
             self.l1_filter_var.set("All")
         self._update_display()
 
@@ -2343,11 +1974,7 @@ class MaterialsCatalogTab:
 
     def _add_material(self):
         """Open dialog to add a new material."""
-        dialog = MaterialFormDialog(
-            self.parent_frame,
-            material=None,
-            title="Add Material"
-        )
+        dialog = MaterialFormDialog(self.parent_frame, material=None, title="Add Material")
         if dialog.winfo_exists():
             self.parent_frame.wait_window(dialog)
 
@@ -2388,9 +2015,7 @@ class MaterialsCatalogTab:
             return
 
         dialog = MaterialFormDialog(
-            self.parent_frame,
-            material=material_data,
-            title="Edit Material"
+            self.parent_frame, material=material_data, title="Edit Material"
         )
         if dialog.winfo_exists():
             self.parent_frame.wait_window(dialog)
@@ -2562,10 +2187,9 @@ class MaterialProductsTab:
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns: status, material, name, sku, package, supplier
+        # Define columns: material, name, sku, package, supplier
         # Note: inventory/cost columns removed - these are now tracked in MaterialUnit
-        # Feature 059: Added status column for provisional product indicator
-        columns = ("status", "material", "name", "sku", "package", "supplier")
+        columns = ("material", "name", "sku", "package", "supplier")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -2575,49 +2199,33 @@ class MaterialProductsTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
-            "status", text="Status", anchor="center",
-            command=lambda: self._on_header_click("status")
+            "material",
+            text="Material",
+            anchor="w",
+            command=lambda: self._on_header_click("material"),
         )
         self.tree.heading(
-            "material", text="Material", anchor="w",
-            command=lambda: self._on_header_click("material")
+            "name", text="Product Name", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "name", text="Product Name", anchor="w",
-            command=lambda: self._on_header_click("name")
+            "sku", text="SKU", anchor="w", command=lambda: self._on_header_click("sku")
         )
         self.tree.heading(
-            "sku", text="SKU", anchor="w",
-            command=lambda: self._on_header_click("sku")
+            "package", text="Package", anchor="w", command=lambda: self._on_header_click("package")
         )
         self.tree.heading(
-            "package", text="Package", anchor="w",
-            command=lambda: self._on_header_click("package")
-        )
-        self.tree.heading(
-            "supplier", text="Supplier", anchor="w",
-            command=lambda: self._on_header_click("supplier")
+            "supplier",
+            text="Supplier",
+            anchor="w",
+            command=lambda: self._on_header_click("supplier"),
         )
 
         # Configure column widths
-        # Feature 059: Status column for provisional indicator
-        self.tree.column("status", width=100, minwidth=80, anchor="center")
-        self.tree.column("material", width=160, minwidth=120)
+        self.tree.column("material", width=180, minwidth=120)
         self.tree.column("name", width=200, minwidth=150)
-        self.tree.column("sku", width=100, minwidth=80)
-        self.tree.column("package", width=100, minwidth=80)
-        self.tree.column("supplier", width=130, minwidth=100)
-
-        # Feature 059: Configure tag styles for provisional products
-        # Using both color AND icon/text for accessibility (not color-only)
-        self.tree.tag_configure(
-            "provisional",
-            background="#FFE4B5",  # Moccasin/light orange background
-        )
-        self.tree.tag_configure(
-            "complete",
-            background="",  # Default background
-        )
+        self.tree.column("sku", width=120, minwidth=80)
+        self.tree.column("package", width=120, minwidth=80)
+        self.tree.column("supplier", width=150, minwidth=100)
 
         # Add vertical scrollbar
         y_scrollbar = ttk.Scrollbar(
@@ -2644,8 +2252,11 @@ class MaterialProductsTab:
             height=30,
         )
         self.status_label.grid(
-            row=3, column=0, sticky="ew",
-            padx=5, pady=(5, 10),
+            row=3,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
@@ -2681,35 +2292,33 @@ class MaterialProductsTab:
                             # Inventory is now tracked at MaterialUnit level via FIFO
                             pkg_qty = _get_value(prod, "package_quantity") or 1
                             pkg_unit = _get_value(prod, "package_unit") or mat_base_unit or "each"
-                            products.append({
-                                "id": _get_value(prod, "id"),
-                                "name": _get_value(prod, "name"),
-                                "slug": _get_value(prod, "slug") or "",
-                                "brand": _get_value(prod, "brand") or "",
-                                "material_name": mat_name,
-                                "material_id": mat_id,
-                                "base_unit": mat_base_unit,
-                                "package_quantity": pkg_qty,
-                                "package_unit": pkg_unit,
-                                "package_display": f"{pkg_qty} {pkg_unit}",
-                                "supplier_name": _get_value(prod, "supplier_name") or "",
-                                "supplier_id": _get_value(prod, "supplier_id"),
-                                "sku": _get_value(prod, "sku") or "",
-                                "notes": _get_value(prod, "notes") or "",
-                                "is_provisional": _get_value(prod, "is_provisional") or False,
-                            })
+                            products.append(
+                                {
+                                    "id": _get_value(prod, "id"),
+                                    "name": _get_value(prod, "name"),
+                                    "material_name": mat_name,
+                                    "material_id": mat_id,
+                                    "base_unit": mat_base_unit,
+                                    "package_quantity": pkg_qty,
+                                    "package_unit": pkg_unit,
+                                    "package_display": f"{pkg_qty} {pkg_unit}",
+                                    "supplier_name": _get_value(prod, "supplier_name") or "",
+                                    "supplier_id": _get_value(prod, "supplier_id"),
+                                    "sku": _get_value(prod, "sku") or "",
+                                    "notes": _get_value(prod, "notes") or "",
+                                }
+                            )
         except Exception as e:
             print(f"Error loading products: {e}")
             import traceback
+
             traceback.print_exc()
         return products
 
     def _load_material_dropdown(self):
         """Load materials for filter dropdown."""
         material_names = sorted(set(p["material_name"] for p in self.products))
-        self.material_filter_dropdown.configure(
-            values=["All Materials"] + material_names
-        )
+        self.material_filter_dropdown.configure(values=["All Materials"] + material_names)
 
     def _update_display(self):
         """Update the displayed list based on current filters."""
@@ -2722,24 +2331,14 @@ class MaterialProductsTab:
 
         # Populate grid
         for prod in filtered:
-            # Feature 059: Determine status text and tag
-            is_provisional = prod.get("is_provisional", False)
-            if is_provisional:
-                status_text = "\u26a0 Needs Info"  # Warning sign + text
-                tag = "provisional"
-            else:
-                status_text = "\u2713 Complete"  # Checkmark + text
-                tag = "complete"
-
             values = (
-                status_text,
                 prod.get("material_name", ""),
                 prod.get("name", ""),
                 prod.get("sku", "") or "-",
                 prod.get("package_display", ""),
                 prod.get("supplier_name", "") or "-",
             )
-            self.tree.insert("", "end", iid=str(prod["id"]), values=values, tags=(tag,))
+            self.tree.insert("", "end", iid=str(prod["id"]), values=values)
 
         # Update status
         count = len(filtered)
@@ -2762,14 +2361,11 @@ class MaterialProductsTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                p for p in filtered
-                if search_text in normalize_for_search(p.get("name", ""))
+                p for p in filtered if search_text in normalize_for_search(p.get("name", ""))
             ]
 
         # Apply sorting
-        # Feature 059: Added status column for sorting
         sort_key_map = {
-            "status": "is_provisional",
             "material": "material_name",
             "name": "name",
             "sku": "sku",
@@ -2830,13 +2426,13 @@ class MaterialProductsTab:
         """Enable buttons that require selection."""
         self.edit_button.configure(state="normal")
         self.purchase_button.configure(state="normal")
-        # Feature 058: adjust_button removed - incompatible with FIFO tracking
+        self.adjust_button.configure(state="normal")
 
     def _disable_selection_buttons(self):
         """Disable buttons that require selection."""
         self.edit_button.configure(state="disabled")
         self.purchase_button.configure(state="disabled")
-        # Feature 058: adjust_button removed - incompatible with FIFO tracking
+        self.adjust_button.configure(state="disabled")
 
     def _add_product(self):
         """Open dialog to add a new product."""
@@ -2850,19 +2446,14 @@ class MaterialProductsTab:
 
         if dialog.result:
             try:
-                # Feature 059: Include brand and is_provisional in create
-                # Products created via UI with all fields are not provisional
-                is_provisional = not dialog.result.get("is_complete", False)
                 material_catalog_service.create_product(
                     material_id=dialog.result["material_id"],
                     name=dialog.result["name"],
                     package_quantity=dialog.result["package_quantity"],
                     package_unit=dialog.result["package_unit"],
-                    brand=dialog.result.get("brand"),
                     supplier_id=dialog.result.get("supplier_id"),
                     sku=dialog.result.get("sku"),
                     notes=dialog.result.get("notes"),
-                    is_provisional=is_provisional,
                 )
                 self.refresh()
                 self.update_status(f"Created product: {dialog.result['name']}")
@@ -2897,52 +2488,21 @@ class MaterialProductsTab:
 
         if dialog.result:
             try:
-                # Feature 059: Include brand in update and handle is_provisional clearing
-                was_provisional = dialog.result.get("was_provisional", False)
-                is_complete = dialog.result.get("is_complete", False)
-
-                # Feature 059: If product was provisional and is now complete,
-                # clear the is_provisional flag
-                new_is_provisional = None
-                if was_provisional and is_complete:
-                    new_is_provisional = False
-
                 material_catalog_service.update_product(
                     product_id=dialog.result["id"],
-                    name=dialog.result["name"],
-                    brand=dialog.result.get("brand"),
+                    material_id=dialog.result["material_id"],
+                    package_quantity=dialog.result["package_quantity"],
+                    package_unit=dialog.result["package_unit"],
                     supplier_id=dialog.result.get("supplier_id"),
                     sku=dialog.result.get("sku"),
                     notes=dialog.result.get("notes"),
-                    is_provisional=new_is_provisional,
                 )
-
-                if was_provisional and is_complete:
-                    self.update_status(
-                        f"Updated product: {dialog.result['name']} "
-                        "(Product completed! No longer provisional.)"
-                    )
-                else:
-                    self.update_status(f"Updated product: {dialog.result['name']}")
-
                 self.refresh()
+                self.update_status(f"Updated product: {dialog.result['name']}")
             except ValidationError as e:
                 messagebox.showerror("Error", str(e))
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to update product: {e}")
-
-    def _clear_provisional_flag(self, product_id: int):
-        """Feature 059: Clear is_provisional flag when product is complete."""
-        from src.services.database import session_scope
-        from src.models.material_product import MaterialProduct
-
-        with session_scope() as session:
-            product = session.query(MaterialProduct).filter(
-                MaterialProduct.id == product_id
-            ).first()
-            if product:
-                product.is_provisional = False
-                session.flush()
 
     def _record_purchase(self):
         """Open dialog to record a purchase."""
@@ -2994,7 +2554,7 @@ class MaterialProductsTab:
             "Feature Not Available",
             "Direct inventory adjustment is not available with FIFO tracking.\n\n"
             "To add inventory: Record a new purchase.\n"
-            "To reduce inventory: Use material consumption through assemblies."
+            "To reduce inventory: Use material consumption through assemblies.",
         )
 
     def update_status(self, message: str):
@@ -3127,24 +2687,28 @@ class MaterialUnitsTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
-            "material", text="Material", anchor="w",
-            command=lambda: self._on_header_click("material")
+            "material",
+            text="Material",
+            anchor="w",
+            command=lambda: self._on_header_click("material"),
         )
         self.tree.heading(
-            "name", text="Unit Name", anchor="w",
-            command=lambda: self._on_header_click("name")
+            "name", text="Unit Name", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "qty_per_unit", text="Qty/Unit", anchor="e",
-            command=lambda: self._on_header_click("qty_per_unit")
+            "qty_per_unit",
+            text="Qty/Unit",
+            anchor="e",
+            command=lambda: self._on_header_click("qty_per_unit"),
         )
         self.tree.heading(
-            "available", text="Available", anchor="e",
-            command=lambda: self._on_header_click("available")
+            "available",
+            text="Available",
+            anchor="e",
+            command=lambda: self._on_header_click("available"),
         )
         self.tree.heading(
-            "cost", text="Cost/Unit", anchor="e",
-            command=lambda: self._on_header_click("cost")
+            "cost", text="Cost/Unit", anchor="e", command=lambda: self._on_header_click("cost")
         )
 
         # Configure column widths
@@ -3179,8 +2743,11 @@ class MaterialUnitsTab:
             height=30,
         )
         self.status_label.grid(
-            row=3, column=0, sticky="ew",
-            padx=5, pady=(5, 10),
+            row=3,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
@@ -3225,16 +2792,18 @@ class MaterialUnitsTab:
                                 cost = material_unit_service.get_current_cost(unit_id)
                             except Exception:
                                 cost = None
-                            units.append({
-                                "id": unit_id,
-                                "name": unit_name,
-                                "material_name": mat_name,
-                                "material_id": mat_id,
-                                "quantity_per_unit": qty,
-                                "description": desc,
-                                "available": available,
-                                "cost": cost,
-                            })
+                            units.append(
+                                {
+                                    "id": unit_id,
+                                    "name": unit_name,
+                                    "material_name": mat_name,
+                                    "material_id": mat_id,
+                                    "quantity_per_unit": qty,
+                                    "description": desc,
+                                    "available": available,
+                                    "cost": cost,
+                                }
+                            )
         except Exception as e:
             print(f"Error loading units: {e}")
         return units
@@ -3242,9 +2811,7 @@ class MaterialUnitsTab:
     def _load_material_dropdown(self):
         """Load materials for filter dropdown."""
         material_names = sorted(set(u["material_name"] for u in self.units))
-        self.material_filter_dropdown.configure(
-            values=["All Materials"] + material_names
-        )
+        self.material_filter_dropdown.configure(values=["All Materials"] + material_names)
 
     def _update_display(self):
         """Update the displayed list based on current filters."""
@@ -3292,8 +2859,7 @@ class MaterialUnitsTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                u for u in filtered
-                if search_text in normalize_for_search(u.get("name", ""))
+                u for u in filtered if search_text in normalize_for_search(u.get("name", ""))
             ]
 
         # Apply sorting

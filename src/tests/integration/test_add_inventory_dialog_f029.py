@@ -151,9 +151,7 @@ class TestDropdownBuilders:
     def test_ingredient_dropdown_shows_category_items(self, test_db, test_ingredient):
         """Ingredient dropdown should filter by category."""
         # Add another ingredient in different category
-        ingredient_service.create_ingredient(
-            {"display_name": "Test Milk", "category": "Dairy"}
-        )
+        ingredient_service.create_ingredient({"display_name": "Test Milk", "category": "Dairy"})
 
         session = test_db()
         values = build_ingredient_dropdown_values("Flour", session)

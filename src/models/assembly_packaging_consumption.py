@@ -61,9 +61,7 @@ class AssemblyPackagingConsumption(BaseModel):
     total_cost = Column(Numeric(10, 4), nullable=False)
 
     # Relationships
-    assembly_run = relationship(
-        "AssemblyRun", back_populates="packaging_consumptions"
-    )
+    assembly_run = relationship("AssemblyRun", back_populates="packaging_consumptions")
     product = relationship("Product")
 
     # Constraints and indexes
@@ -72,12 +70,8 @@ class AssemblyPackagingConsumption(BaseModel):
         Index("idx_asm_pkg_consumption_run", "assembly_run_id"),
         Index("idx_asm_pkg_consumption_product", "product_id"),
         # Constraints
-        CheckConstraint(
-            "quantity_consumed > 0", name="ck_asm_pkg_consumption_quantity_positive"
-        ),
-        CheckConstraint(
-            "total_cost >= 0", name="ck_asm_pkg_consumption_total_cost_non_negative"
-        ),
+        CheckConstraint("quantity_consumed > 0", name="ck_asm_pkg_consumption_quantity_positive"),
+        CheckConstraint("total_cost >= 0", name="ck_asm_pkg_consumption_total_cost_non_negative"),
     )
 
     def __repr__(self) -> str:

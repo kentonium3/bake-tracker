@@ -79,9 +79,7 @@ class Recipe(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
-    last_modified = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_modified = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     recipe_ingredients = relationship(
@@ -377,9 +375,7 @@ class RecipeComponent(BaseModel):
     __tablename__ = "recipe_components"
 
     # Foreign keys
-    recipe_id = Column(
-        Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False
-    )
+    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
     component_recipe_id = Column(
         Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False
     )

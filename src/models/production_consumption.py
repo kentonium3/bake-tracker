@@ -59,9 +59,7 @@ class ProductionConsumption(BaseModel):
     total_cost = Column(Numeric(10, 4), nullable=False)
 
     # Relationships
-    production_run = relationship(
-        "ProductionRun", back_populates="consumptions"
-    )
+    production_run = relationship("ProductionRun", back_populates="consumptions")
 
     # Constraints and indexes
     __table_args__ = (
@@ -69,12 +67,8 @@ class ProductionConsumption(BaseModel):
         Index("idx_prod_consumption_run", "production_run_id"),
         Index("idx_prod_consumption_ingredient", "ingredient_slug"),
         # Constraints
-        CheckConstraint(
-            "quantity_consumed > 0", name="ck_prod_consumption_quantity_positive"
-        ),
-        CheckConstraint(
-            "total_cost >= 0", name="ck_prod_consumption_cost_non_negative"
-        ),
+        CheckConstraint("quantity_consumed > 0", name="ck_prod_consumption_quantity_positive"),
+        CheckConstraint("total_cost >= 0", name="ck_prod_consumption_cost_non_negative"),
     )
 
     def __repr__(self) -> str:

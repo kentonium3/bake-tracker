@@ -21,6 +21,7 @@ from src.models import (
     AssemblyPackagingConsumption,
     Event,
 )
+
 # Import AssemblyRun for direct queries in roundtrip tests - already imported above
 from src.models.finished_unit import YieldMode
 from src.models.assembly_type import AssemblyType
@@ -38,6 +39,7 @@ from src.services.database import session_scope
 # Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def recipe_cookies(test_db):
     """Create cookie recipe.
@@ -52,6 +54,7 @@ def recipe_cookies(test_db):
     session.add(recipe)
     session.commit()
     return recipe
+
 
 @pytest.fixture
 def finished_unit_cookie(test_db, recipe_cookies):
@@ -70,6 +73,7 @@ def finished_unit_cookie(test_db, recipe_cookies):
     session.commit()
     return fu
 
+
 @pytest.fixture
 def ingredient_cellophane(test_db):
     """Create cellophane bag ingredient (packaging material)."""
@@ -82,6 +86,7 @@ def ingredient_cellophane(test_db):
     session.add(ingredient)
     session.commit()
     return ingredient
+
 
 @pytest.fixture
 def product_cellophane(test_db, ingredient_cellophane):
@@ -99,6 +104,7 @@ def product_cellophane(test_db, ingredient_cellophane):
     session.commit()
     return product
 
+
 @pytest.fixture
 def inventory_cellophane(test_db, product_cellophane):
     """Create cellophane bag inventory with 50 bags."""
@@ -112,6 +118,7 @@ def inventory_cellophane(test_db, product_cellophane):
     session.add(inv)
     session.commit()
     return inv
+
 
 @pytest.fixture
 def finished_good_gift_bag(test_db, finished_unit_cookie, product_cellophane):
@@ -147,16 +154,17 @@ def finished_good_gift_bag(test_db, finished_unit_cookie, product_cellophane):
     session.commit()
     return fg
 
+
 @pytest.fixture
-def assembly_ready(
-    finished_good_gift_bag, finished_unit_cookie, inventory_cellophane
-):
+def assembly_ready(finished_good_gift_bag, finished_unit_cookie, inventory_cellophane):
     """Complete assembly setup with all required inventory in place."""
     return finished_good_gift_bag
+
 
 # =============================================================================
 # Tests for check_can_assemble
 # =============================================================================
+
 
 class TestCheckCanAssemble:
     """Tests for check_can_assemble() function."""
@@ -173,9 +181,7 @@ class TestCheckCanAssemble:
         assert result["can_assemble"] is True
         assert result["missing"] == []
 
-    def test_insufficient_finished_unit(
-        self, assembly_ready, finished_unit_cookie
-    ):
+    def test_insufficient_finished_unit(self, assembly_ready, finished_unit_cookie):
         """Given insufficient FinishedUnit, returns missing details."""
         fg = assembly_ready
         result = assembly_service.check_can_assemble(
@@ -228,9 +234,11 @@ class TestCheckCanAssemble:
             )
         assert exc_info.value.finished_good_id == 99999
 
+
 # =============================================================================
 # Tests for record_assembly
 # =============================================================================
+
 
 class TestRecordAssembly:
     """Tests for record_assembly() function."""
@@ -285,9 +293,7 @@ class TestRecordAssembly:
             assert len(pkg_consumptions) == 1
             assert pkg_consumptions[0].quantity_consumed == Decimal("5")
 
-    def test_rollback_on_insufficient_fu(
-        self, assembly_ready, finished_unit_cookie
-    ):
+    def test_rollback_on_insufficient_fu(self, assembly_ready, finished_unit_cookie):
         """Insufficient FinishedUnit: entire operation rolls back."""
         fg = assembly_ready
         fg_id = fg.id
@@ -311,15 +317,16 @@ class TestRecordAssembly:
 
         # No AssemblyRun created
         with session_scope() as session:
-            runs = (
-                session.query(AssemblyRun)
-                .filter_by(finished_good_id=fg_id)
-                .all()
-            )
+            runs = session.query(AssemblyRun).filter_by(finished_good_id=fg_id).all()
             assert len(runs) == 0
 
     def test_rollback_on_insufficient_packaging(
-        self, test_db, assembly_ready, inventory_cellophane, product_cellophane, finished_unit_cookie
+        self,
+        test_db,
+        assembly_ready,
+        inventory_cellophane,
+        product_cellophane,
+        finished_unit_cookie,
     ):
         """Insufficient packaging: entire operation rolls back."""
         fg = assembly_ready
@@ -350,11 +357,7 @@ class TestRecordAssembly:
 
         # No AssemblyRun created
         with session_scope() as session:
-            runs = (
-                session.query(AssemblyRun)
-                .filter_by(finished_good_id=fg_id)
-                .all()
-            )
+            runs = session.query(AssemblyRun).filter_by(finished_good_id=fg_id).all()
             assert len(runs) == 0
 
     def test_finished_good_not_found(self, test_db):
@@ -401,9 +404,7 @@ class TestRecordAssembly:
             # Allow small precision difference
             assert abs(run.per_unit_cost - expected_per_unit) < Decimal("0.0001")
 
-    def test_single_assembly(
-        self, assembly_ready, finished_unit_cookie, inventory_cellophane
-    ):
+    def test_single_assembly(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
         """Assembly of single unit works correctly."""
         fg = assembly_ready
         fg_id = fg.id
@@ -430,9 +431,11 @@ class TestRecordAssembly:
             assert len(fu_consumptions) == 1
             assert fu_consumptions[0].quantity_consumed == 12  # 12 cookies per bag
 
+
 # =============================================================================
 # Tests for History Query Functions
 # =============================================================================
+
 
 class TestGetAssemblyHistory:
     """Tests for get_assembly_history() function."""
@@ -485,9 +488,7 @@ class TestGetAssemblyHistory:
         result = assembly_service.get_assembly_history(finished_good_id=99999)
         assert len(result) == 0
 
-    def test_filter_by_date_range(
-        self, assembly_ready, finished_unit_cookie, inventory_cellophane
-    ):
+    def test_filter_by_date_range(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
         """Filters by date range."""
         fg = assembly_ready
         fg_id = fg.id
@@ -512,9 +513,7 @@ class TestGetAssemblyHistory:
         )
         assert len(result) == 0
 
-    def test_include_consumptions(
-        self, assembly_ready, finished_unit_cookie, inventory_cellophane
-    ):
+    def test_include_consumptions(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
         """Include consumption details when requested."""
         fg = assembly_ready
         fg_id = fg.id
@@ -531,9 +530,7 @@ class TestGetAssemblyHistory:
         assert len(result[0]["finished_unit_consumptions"]) == 1
         assert len(result[0]["packaging_consumptions"]) == 1
 
-    def test_pagination(
-        self, assembly_ready, finished_unit_cookie, inventory_cellophane
-    ):
+    def test_pagination(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
         """Supports limit and offset pagination."""
         fg = assembly_ready
         fg_id = fg.id
@@ -553,12 +550,11 @@ class TestGetAssemblyHistory:
         result = assembly_service.get_assembly_history(limit=2, offset=1)
         assert len(result) == 2
 
+
 class TestGetAssemblyRun:
     """Tests for get_assembly_run() function."""
 
-    def test_get_by_id(
-        self, assembly_ready, finished_unit_cookie, inventory_cellophane
-    ):
+    def test_get_by_id(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
         """Returns assembly run by ID with full details."""
         fg = assembly_ready
         fg_id = fg.id
@@ -569,9 +565,7 @@ class TestGetAssemblyRun:
             notes="Test assembly",
         )
 
-        result = assembly_service.get_assembly_run(
-            create_result["assembly_run_id"]
-        )
+        result = assembly_service.get_assembly_run(create_result["assembly_run_id"])
         assert result["id"] == create_result["assembly_run_id"]
         assert result["finished_good_id"] == fg_id
         assert result["quantity_assembled"] == 3
@@ -585,9 +579,11 @@ class TestGetAssemblyRun:
             assembly_service.get_assembly_run(99999)
         assert exc_info.value.assembly_run_id == 99999
 
+
 # =============================================================================
 # Tests for Import/Export Functions
 # =============================================================================
+
 
 class TestExportAssemblyHistory:
     """Tests for export_assembly_history() function."""
@@ -599,9 +595,7 @@ class TestExportAssemblyHistory:
         assert "exported_at" in result
         assert result["assembly_runs"] == []
 
-    def test_export_with_data(
-        self, assembly_ready, finished_unit_cookie, inventory_cellophane
-    ):
+    def test_export_with_data(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
         """Export includes full assembly run data with consumptions."""
         fg = assembly_ready
         fg_id = fg.id
@@ -621,6 +615,7 @@ class TestExportAssemblyHistory:
         assert run["notes"] == "Export test"
         assert len(run["finished_unit_consumptions"]) == 1
         assert len(run["packaging_consumptions"]) == 1
+
 
 class TestImportAssemblyHistory:
     """Tests for import_assembly_history() function."""
@@ -711,9 +706,11 @@ class TestImportAssemblyHistory:
         assert reimp_run["total_component_cost"] == original_run["total_component_cost"]
         assert reimp_run["notes"] == original_run["notes"]
 
+
 # =============================================================================
 # Transaction Atomicity Tests (Bug Fix Verification)
 # =============================================================================
+
 
 class TestAssemblyTransactionAtomicity:
     """Tests verifying that record_assembly is fully atomic.
@@ -821,9 +818,9 @@ class TestAssemblyTransactionAtomicity:
             assert cellophane.quantity < initial_cellophane_qty, "Packaging should be consumed"
 
             # FinishedGood should be incremented
-            assert finished_good.inventory_count == initial_fg_count + 2, (
-                "FinishedGood should be incremented"
-            )
+            assert (
+                finished_good.inventory_count == initial_fg_count + 2
+            ), "FinishedGood should be incremented"
 
         # Verify AssemblyRun exists with correct data
         with session_scope() as session:
@@ -833,19 +830,25 @@ class TestAssemblyTransactionAtomicity:
 
         # Verify consumption ledger records exist
         with session_scope() as session:
-            fu_consumptions = session.query(AssemblyFinishedUnitConsumption).filter_by(
-                assembly_run_id=result["assembly_run_id"]
-            ).all()
-            pkg_consumptions = session.query(AssemblyPackagingConsumption).filter_by(
-                assembly_run_id=result["assembly_run_id"]
-            ).all()
+            fu_consumptions = (
+                session.query(AssemblyFinishedUnitConsumption)
+                .filter_by(assembly_run_id=result["assembly_run_id"])
+                .all()
+            )
+            pkg_consumptions = (
+                session.query(AssemblyPackagingConsumption)
+                .filter_by(assembly_run_id=result["assembly_run_id"])
+                .all()
+            )
             # Should have FU consumption record and packaging consumption record
             assert len(fu_consumptions) >= 1, "Should have FU consumption records"
             assert len(pkg_consumptions) >= 1, "Should have packaging consumption records"
 
+
 # =============================================================================
 # Tests for Event ID Parameter (Feature 016)
 # =============================================================================
+
 
 class TestRecordAssemblyEventId:
     """Tests for record_assembly() with event_id parameter (Feature 016)."""
@@ -854,6 +857,7 @@ class TestRecordAssemblyEventId:
     def event_christmas(self, test_db):
         """Create a Christmas 2024 event for testing."""
         from datetime import date
+
         session = test_db()
         event = Event(
             name="Christmas 2024",

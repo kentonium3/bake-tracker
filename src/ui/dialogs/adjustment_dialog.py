@@ -77,9 +77,7 @@ class AdjustmentDialog(ctk.CTkToplevel):
             # ORM object
             product = self.inventory_item.product
             self.product_name = (
-                product.display_name
-                if hasattr(product, "display_name")
-                else product.product_name
+                product.display_name if hasattr(product, "display_name") else product.product_name
             )
             self.purchase_date = self.inventory_item.purchase_date
             self.current_quantity = Decimal(str(self.inventory_item.quantity))
@@ -91,9 +89,7 @@ class AdjustmentDialog(ctk.CTkToplevel):
                 "product_name", self.inventory_item.get("display_name", "Unknown")
             )
             self.purchase_date = self.inventory_item.get("purchase_date", "N/A")
-            self.current_quantity = Decimal(
-                str(self.inventory_item.get("quantity", 0))
-            )
+            self.current_quantity = Decimal(str(self.inventory_item.get("quantity", 0)))
             self.unit = self.inventory_item.get("package_unit", "units")
             self.unit_cost = Decimal(str(self.inventory_item.get("unit_cost", 0)))
 

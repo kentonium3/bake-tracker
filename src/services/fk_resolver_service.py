@@ -185,9 +185,7 @@ def _create_supplier(data: Dict[str, Any], session: Session) -> int:
     Raises:
         EntityCreationError: If required fields are missing
     """
-    _validate_required_fields(
-        data, ["name", "city", "state", "zip_code"], "supplier"
-    )
+    _validate_required_fields(data, ["name", "city", "state", "zip_code"], "supplier")
 
     # Normalize state to uppercase
     state = data["state"].upper() if data.get("state") else ""
@@ -237,9 +235,7 @@ def _create_ingredient(data: Dict[str, Any], session: Session) -> int:
     Raises:
         EntityCreationError: If required fields are missing
     """
-    _validate_required_fields(
-        data, ["slug", "display_name", "category"], "ingredient"
-    )
+    _validate_required_fields(data, ["slug", "display_name", "category"], "ingredient")
 
     ingredient = Ingredient(
         slug=data["slug"],
@@ -278,9 +274,7 @@ def _create_product(
         EntityCreationError: If required fields are missing
         FKResolutionError: If ingredient_slug cannot be resolved
     """
-    _validate_required_fields(
-        data, ["package_unit", "package_unit_quantity"], "product"
-    )
+    _validate_required_fields(data, ["package_unit", "package_unit_quantity"], "product")
 
     # Resolve ingredient_id if not provided
     if ingredient_id is None:
@@ -288,11 +282,7 @@ def _create_product(
         if not ingredient_slug:
             raise EntityCreationError("product", ["ingredient_slug or ingredient_id"])
 
-        ingredient = (
-            session.query(Ingredient)
-            .filter(Ingredient.slug == ingredient_slug)
-            .first()
-        )
+        ingredient = session.query(Ingredient).filter(Ingredient.slug == ingredient_slug).first()
         if not ingredient:
             raise FKResolutionError(
                 f"Cannot create product: ingredient '{ingredient_slug}' not found"
@@ -496,9 +486,7 @@ def _resolve_missing_fks_impl(
         elif resolution.choice == ResolutionChoice.MAP:
             # Store the mapped ID
             if resolution.mapped_id is not None:
-                mapping[resolution.entity_type][resolution.missing_value] = (
-                    resolution.mapped_id
-                )
+                mapping[resolution.entity_type][resolution.missing_value] = resolution.mapped_id
 
         # SKIP: No mapping entry - records will be skipped during import
 
@@ -590,9 +578,11 @@ def _collect_missing_fks_impl(
                 # Feature 050: Collect both slugs and names for supplier matching
                 # (Import records may use either slug or name in supplier_name field)
                 supplier_values = set()
-                for s in session.query(Supplier.slug, Supplier.name).filter(
-                    Supplier.is_active == True  # noqa: E712
-                ).all():
+                for s in (
+                    session.query(Supplier.slug, Supplier.name)
+                    .filter(Supplier.is_active == True)  # noqa: E712
+                    .all()
+                ):
                     if s.slug:
                         supplier_values.add(s.slug)
                     if s.name:
@@ -610,7 +600,9 @@ def _collect_missing_fks_impl(
                 # For now, we track by a composite string
                 existing["product"] = set()
                 for p in session.query(Product).all():
-                    key = f"{p.ingredient.slug}|{p.brand}|{p.package_unit_quantity}|{p.package_unit}"
+                    key = (
+                        f"{p.ingredient.slug}|{p.brand}|{p.package_unit_quantity}|{p.package_unit}"
+                    )
                     existing["product"].add(key)
 
     # Collect missing values

@@ -35,29 +35,22 @@ class ReportsTab(ctk.CTkFrame):
         container = ctk.CTkFrame(self, fg_color="transparent")
         container.place(relx=0.5, rely=0.5, anchor="center")
 
-        title = ctk.CTkLabel(
-            container,
-            text="Reports",
-            font=ctk.CTkFont(size=24, weight="bold")
-        )
+        title = ctk.CTkLabel(container, text="Reports", font=ctk.CTkFont(size=24, weight="bold"))
         title.pack(pady=(0, 20))
 
         message = ctk.CTkLabel(
             container,
             text="Reporting features are not yet defined.\n\n"
-                 "This tab will be expanded in a future release\n"
-                 "to include customizable reports and analytics.",
+            "This tab will be expanded in a future release\n"
+            "to include customizable reports and analytics.",
             font=ctk.CTkFont(size=14),
-            justify="center"
+            justify="center",
         )
         message.pack()
 
         # Coming soon indicator
         indicator = ctk.CTkLabel(
-            container,
-            text="Coming Soon",
-            font=ctk.CTkFont(size=12),
-            text_color="gray"
+            container, text="Coming Soon", font=ctk.CTkFont(size=12), text_color="gray"
         )
         indicator.pack(pady=(20, 0))
 

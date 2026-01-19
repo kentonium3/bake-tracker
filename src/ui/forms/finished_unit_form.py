@@ -56,7 +56,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         self.title(title)
         self.geometry("600x700")
         self.resizable(False, False)
-        
+
         # Make dialog modal to parent
         self.transient(parent)
 
@@ -87,27 +87,27 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
 
         # Center dialog on parent and make visible
         self.update_idletasks()
-        
+
         # Get parent position and size
         parent_x = parent.winfo_rootx()
         parent_y = parent.winfo_rooty()
         parent_width = parent.winfo_width()
         parent_height = parent.winfo_height()
-        
+
         # Get dialog size
         dialog_width = self.winfo_width()
         dialog_height = self.winfo_height()
-        
+
         # Calculate centered position
         x = parent_x + (parent_width - dialog_width) // 2
         y = parent_y + (parent_height - dialog_height) // 2
-        
+
         # Ensure dialog is on screen
         x = max(0, x)
         y = max(0, y)
-        
+
         self.geometry(f"+{x}+{y}")
-        
+
         # Now make dialog modal - must wait for visibility first
         self.wait_visibility()
         self.grab_set()
@@ -230,9 +230,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
             font=ctk.CTkFont(size=11),
             text_color="gray",
         )
-        required_note.grid(
-            row=row, column=0, columnspan=2, sticky="w", padx=PADDING_MEDIUM, pady=5
-        )
+        required_note.grid(row=row, column=0, columnspan=2, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
     def _create_discrete_fields(self):
         """Create fields for discrete count mode."""
@@ -383,7 +381,11 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
             self.category_combo.set(self.finished_unit.category)
 
         # Yield mode and related fields
-        yield_mode = self.finished_unit.yield_mode.value if self.finished_unit.yield_mode else "discrete_count"
+        yield_mode = (
+            self.finished_unit.yield_mode.value
+            if self.finished_unit.yield_mode
+            else "discrete_count"
+        )
         self.yield_mode_var.set(yield_mode)
         self._on_yield_mode_change(yield_mode)
 
@@ -531,7 +533,9 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
             self.result["portion_description"] = None
         else:
             self.result["batch_percentage"] = float(self.batch_percentage_entry.get().strip())
-            self.result["portion_description"] = self.portion_description_entry.get().strip() or None
+            self.result["portion_description"] = (
+                self.portion_description_entry.get().strip() or None
+            )
             self.result["items_per_batch"] = None
             self.result["item_unit"] = None
 

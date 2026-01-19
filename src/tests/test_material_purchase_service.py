@@ -441,7 +441,9 @@ class TestListPurchases:
         # Most recent first
         assert purchases[0].packages_purchased == 2
 
-    def test_list_by_product(self, db_session, sample_product, sample_product_each, sample_supplier):
+    def test_list_by_product(
+        self, db_session, sample_product, sample_product_each, sample_supplier
+    ):
         """List purchases filtered by product."""
         record_purchase(
             product_id=sample_product.id,

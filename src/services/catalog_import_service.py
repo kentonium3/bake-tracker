@@ -61,12 +61,17 @@ class CatalogImportError(Exception):
 VALID_ENTITIES = {
     # Feature 051: Suppliers must be first (products reference suppliers)
     "suppliers",
-    "ingredients", "products", "recipes",
+    "ingredients",
+    "products",
+    "recipes",
     # Feature 056: FinishedUnits after recipes (they reference recipes)
     "finished_units",
     # Feature 047: Materials Management System
-    "material_categories", "material_subcategories", "materials",
-    "material_products", "material_units",
+    "material_categories",
+    "material_subcategories",
+    "materials",
+    "material_products",
+    "material_units",
 }
 
 
@@ -272,9 +277,7 @@ class CatalogImportResult:
             )
         )
 
-    def add_augment(
-        self, entity_type: str, identifier: str, fields_updated: List[str]
-    ) -> None:
+    def add_augment(self, entity_type: str, identifier: str, fields_updated: List[str]) -> None:
         """Record an augmented record (existing record updated with null fields)."""
         if entity_type in self.entity_counts:
             self.entity_counts[entity_type].augmented += 1
@@ -350,9 +353,7 @@ class CatalogImportResult:
             for warning in self.warnings:
                 lines.append(f"  - {warning}")
         elif self.warnings:
-            lines.append(
-                f"\n{len(self.warnings)} warnings (use detailed report for full list)"
-            )
+            lines.append(f"\n{len(self.warnings)} warnings (use detailed report for full list)")
 
         lines.append("=" * 60)
         return "\n".join(lines)
@@ -381,9 +382,7 @@ class CatalogImportResult:
             lines.append("\nAugmented Records:")
             for detail in self._augment_details:
                 fields = ", ".join(detail["fields_updated"])
-                lines.append(
-                    f"  - {detail['entity_type']}: {detail['identifier']} ({fields})"
-                )
+                lines.append(f"  - {detail['entity_type']}: {detail['identifier']} ({fields})")
 
         return "\n".join(lines)
 
@@ -435,16 +434,12 @@ def _import_suppliers_impl(
 
     # Query existing suppliers for duplicate detection and AUGMENT mode
     existing_suppliers = {
-        row.slug: row
-        for row in session.query(Supplier).filter(Supplier.slug.isnot(None)).all()
+        row.slug: row for row in session.query(Supplier).filter(Supplier.slug.isnot(None)).all()
     }
     existing_slugs = set(existing_suppliers.keys())
 
     # Also track names for slug collision detection
-    existing_names = {
-        row.name: row.slug
-        for row in session.query(Supplier).all()
-    }
+    existing_names = {row.name: row.slug for row in session.query(Supplier).all()}
 
     for item in data:
         name = item.get("name", "")
@@ -588,8 +583,7 @@ def _import_ingredients_impl(
 
     # Query existing ingredients for duplicate detection and AUGMENT mode
     existing_ingredients = {
-        row.slug: row
-        for row in session.query(Ingredient).filter(Ingredient.slug.isnot(None)).all()
+        row.slug: row for row in session.query(Ingredient).filter(Ingredient.slug.isnot(None)).all()
     }
     existing_slugs = set(existing_ingredients.keys())
 
@@ -789,33 +783,29 @@ def _import_products_impl(
     # Build ingredient slug -> id lookup for FK validation
     slug_to_id = {
         row.slug: row.id
-        for row in session.query(Ingredient.slug, Ingredient.id).filter(
-            Ingredient.slug.isnot(None)
-        ).all()
+        for row in session.query(Ingredient.slug, Ingredient.id)
+        .filter(Ingredient.slug.isnot(None))
+        .all()
     }
 
     # Build supplier lookups for resolving preferred_supplier
     # Support: preferred_supplier_id (int), supplier_slug, supplier_name
     from src.models.supplier import Supplier
-    supplier_by_id = {
-        row.id: row.id
-        for row in session.query(Supplier.id).all()
-    }
+
+    supplier_by_id = {row.id: row.id for row in session.query(Supplier.id).all()}
     supplier_slug_to_id = {
         row.slug.lower(): row.id
-        for row in session.query(Supplier.slug, Supplier.id).filter(
-            Supplier.slug.isnot(None)
-        ).all()
+        for row in session.query(Supplier.slug, Supplier.id).filter(Supplier.slug.isnot(None)).all()
     }
     supplier_name_to_id = {
-        row.name.lower(): row.id
-        for row in session.query(Supplier.name, Supplier.id).all()
+        row.name.lower(): row.id for row in session.query(Supplier.name, Supplier.id).all()
     }
 
     # Build existing products lookup for uniqueness check and AUGMENT mode
     # Key: (ingredient_id, brand, package_unit_quantity, package_unit)
     # Value: List of matching products (to detect ambiguity)
     from collections import defaultdict
+
     existing_products_map = defaultdict(list)
     for row in session.query(Product).all():
         key = (row.ingredient_id, row.brand, row.package_unit_quantity, row.package_unit)
@@ -827,7 +817,9 @@ def _import_products_impl(
         brand = item.get("brand")  # Can be None
         package_unit_quantity = item.get("package_unit_quantity")
         package_unit = item.get("package_unit")
-        identifier = f"{brand or 'Generic'} ({ingredient_slug}) {package_unit_quantity} {package_unit}"
+        identifier = (
+            f"{brand or 'Generic'} ({ingredient_slug}) {package_unit_quantity} {package_unit}"
+        )
 
         # Validate required fields (relaxed for AUGMENT mode on existing records)
         if mode == ImportMode.ADD_ONLY.value:
@@ -903,7 +895,7 @@ def _import_products_impl(
             result.add_skip(
                 "products",
                 identifier,
-                f"Ambiguous: {len(matching_products)} products match this key"
+                f"Ambiguous: {len(matching_products)} products match this key",
             )
             continue
 
@@ -1077,18 +1069,15 @@ def _import_recipes_impl(
     # Build ingredient slug -> id lookup for FK validation
     slug_to_id = {
         row.slug: row.id
-        for row in session.query(Ingredient.slug, Ingredient.id).filter(
-            Ingredient.slug.isnot(None)
-        ).all()
+        for row in session.query(Ingredient.slug, Ingredient.id)
+        .filter(Ingredient.slug.isnot(None))
+        .all()
     }
 
     # Build recipe name -> id lookup for collision detection and FK
     # F056: yield_quantity, yield_unit removed from lookup
     existing_recipes = {
-        row.name: {"id": row.id}
-        for row in session.query(
-            Recipe.name, Recipe.id
-        ).all()
+        row.name: {"id": row.id} for row in session.query(Recipe.name, Recipe.id).all()
     }
 
     # Track newly created recipes for component FK resolution within the same import
@@ -1383,10 +1372,7 @@ def _import_finished_units_impl(
     result.mode = mode
 
     # Build recipe name -> id lookup for FK resolution
-    recipe_lookup = {
-        row.name: row.id
-        for row in session.query(Recipe.name, Recipe.id).all()
-    }
+    recipe_lookup = {row.name: row.id for row in session.query(Recipe.name, Recipe.id).all()}
 
     # Build existing finished_units lookup for duplicate detection
     existing_finished_units = {
@@ -1566,10 +1552,7 @@ def _import_material_categories_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    existing_slugs = {
-        row.slug: row
-        for row in session.query(MaterialCategory).all()
-    }
+    existing_slugs = {row.slug: row for row in session.query(MaterialCategory).all()}
 
     for item in data:
         slug = item.get("slug", "")
@@ -1578,7 +1561,9 @@ def _import_material_categories_impl(
 
         if not name:
             result.add_error(
-                "material_categories", identifier, "validation",
+                "material_categories",
+                identifier,
+                "validation",
                 "Missing required field: name",
                 "Add 'name' field to category data",
             )
@@ -1646,15 +1631,9 @@ def _import_material_subcategories_impl(
     result.mode = mode
 
     # Build category slug -> id lookup
-    category_lookup = {
-        row.slug: row.id
-        for row in session.query(MaterialCategory).all()
-    }
+    category_lookup = {row.slug: row.id for row in session.query(MaterialCategory).all()}
 
-    existing_slugs = {
-        row.slug: row
-        for row in session.query(MaterialSubcategory).all()
-    }
+    existing_slugs = {row.slug: row for row in session.query(MaterialSubcategory).all()}
 
     for item in data:
         slug = item.get("slug", "")
@@ -1664,7 +1643,9 @@ def _import_material_subcategories_impl(
 
         if not name:
             result.add_error(
-                "material_subcategories", identifier, "validation",
+                "material_subcategories",
+                identifier,
+                "validation",
                 "Missing required field: name",
                 "Add 'name' field to subcategory data",
             )
@@ -1672,7 +1653,9 @@ def _import_material_subcategories_impl(
 
         if not category_slug:
             result.add_error(
-                "material_subcategories", identifier, "validation",
+                "material_subcategories",
+                identifier,
+                "validation",
                 "Missing required field: category_slug",
                 "Add 'category_slug' referencing an existing category",
             )
@@ -1681,7 +1664,9 @@ def _import_material_subcategories_impl(
         category_id = category_lookup.get(category_slug)
         if category_id is None:
             result.add_error(
-                "material_subcategories", identifier, "fk_missing",
+                "material_subcategories",
+                identifier,
+                "fk_missing",
                 f"Category '{category_slug}' not found",
                 "Import the category first or check the slug spelling",
             )
@@ -1785,7 +1770,9 @@ def _import_materials_impl(
 
         if not name:
             result.add_error(
-                "materials", identifier, "validation",
+                "materials",
+                identifier,
+                "validation",
                 "Missing required field: name or display_name",
                 "Add 'name' or 'display_name' field to material data",
             )
@@ -1886,7 +1873,9 @@ def _import_materials_impl(
 
         if base_unit_type not in valid_base_units:
             result.add_error(
-                "materials", identifier, "validation",
+                "materials",
+                identifier,
+                "validation",
                 f"Invalid base_unit_type: {base_unit_type}",
                 f"Use one of: {', '.join(valid_base_units)}",
             )
@@ -1957,10 +1946,7 @@ def _import_material_products_impl(
     material_by_slug = {row.slug: row.id for row in all_materials}
     material_by_name = {row.name: row.id for row in all_materials}
 
-    supplier_lookup = {
-        row.name.lower(): row.id
-        for row in session.query(Supplier).all()
-    }
+    supplier_lookup = {row.name.lower(): row.id for row in session.query(Supplier).all()}
 
     # Build existing product lookups by (material_id, name) and slug
     existing_products = {}
@@ -1973,16 +1959,14 @@ def _import_material_products_impl(
 
     for item in data:
         # Feature 058: Filter out deprecated fields from old exports
-        deprecated_found = [
-            field for field in MATERIAL_PRODUCT_DEPRECATED_FIELDS
-            if field in item
-        ]
+        deprecated_found = [field for field in MATERIAL_PRODUCT_DEPRECATED_FIELDS if field in item]
         if deprecated_found:
             product_name = item.get("name") or item.get("display_name", "unknown")
             logger.info(
                 "MaterialProduct '%s': ignoring deprecated fields %s "
                 "(now tracked via MaterialInventoryItem FIFO)",
-                product_name, deprecated_found
+                product_name,
+                deprecated_found,
             )
             # Create clean item without deprecated fields
             item = {k: v for k, v in item.items() if k not in MATERIAL_PRODUCT_DEPRECATED_FIELDS}
@@ -1997,7 +1981,9 @@ def _import_material_products_impl(
 
         if not name:
             result.add_error(
-                "material_products", identifier, "validation",
+                "material_products",
+                identifier,
+                "validation",
                 "Missing required field: name or display_name",
                 "Add 'name' or 'display_name' field to product data",
             )
@@ -2013,7 +1999,9 @@ def _import_material_products_impl(
         if material_id is None:
             mat_info = material_slug or material_name or "not specified"
             result.add_error(
-                "material_products", identifier, "fk_missing",
+                "material_products",
+                identifier,
+                "fk_missing",
                 f"Material not found: '{mat_info}'",
                 "Import the material first or check the name/slug",
             )
@@ -2022,9 +2010,7 @@ def _import_material_products_impl(
         # Resolve optional supplier (accept supplier, supplier_name, or supplier_slug)
         supplier_id = None
         supplier_value = (
-            item.get("supplier_slug")
-            or item.get("supplier_name")
-            or item.get("supplier", "")
+            item.get("supplier_slug") or item.get("supplier_name") or item.get("supplier", "")
         )
         if supplier_value:
             supplier_id = supplier_lookup.get(supplier_value.lower())
@@ -2066,7 +2052,9 @@ def _import_material_products_impl(
         quantity_in_base_units = item.get("quantity_in_base_units", package_quantity)
         if not package_unit:
             result.add_error(
-                "material_products", identifier, "validation",
+                "material_products",
+                identifier,
+                "validation",
                 "Missing package_unit or default_unit",
                 "Add 'package_unit' or 'default_unit' field (e.g., 'each', 'linear_inches')",
             )
@@ -2128,15 +2116,9 @@ def _import_material_units_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    material_lookup = {
-        row.slug: row.id
-        for row in session.query(Material).all()
-    }
+    material_lookup = {row.slug: row.id for row in session.query(Material).all()}
 
-    existing_slugs = {
-        row.slug: row
-        for row in session.query(MaterialUnit).all()
-    }
+    existing_slugs = {row.slug: row for row in session.query(MaterialUnit).all()}
 
     for item in data:
         slug = item.get("slug", "")
@@ -2146,7 +2128,9 @@ def _import_material_units_impl(
 
         if not name:
             result.add_error(
-                "material_units", identifier, "validation",
+                "material_units",
+                identifier,
+                "validation",
                 "Missing required field: name",
                 "Add 'name' field to unit data",
             )
@@ -2154,7 +2138,9 @@ def _import_material_units_impl(
 
         if not material_slug:
             result.add_error(
-                "material_units", identifier, "validation",
+                "material_units",
+                identifier,
+                "validation",
                 "Missing required field: material_slug",
                 "Add 'material_slug' referencing an existing material",
             )
@@ -2163,7 +2149,9 @@ def _import_material_units_impl(
         quantity_per_unit = item.get("quantity_per_unit")
         if quantity_per_unit is None or quantity_per_unit <= 0:
             result.add_error(
-                "material_units", identifier, "validation",
+                "material_units",
+                identifier,
+                "validation",
                 "Invalid quantity_per_unit: must be > 0",
                 "Add 'quantity_per_unit' field with positive value",
             )
@@ -2172,7 +2160,9 @@ def _import_material_units_impl(
         material_id = material_lookup.get(material_slug)
         if material_id is None:
             result.add_error(
-                "material_units", identifier, "fk_missing",
+                "material_units",
+                identifier,
+                "fk_missing",
                 f"Material '{material_slug}' not found",
                 "Import the material first or check the slug spelling",
             )
@@ -2324,9 +2314,7 @@ def _import_catalog_impl(
     # Feature 051: Import suppliers first (products reference suppliers)
     if entities is None or "suppliers" in entities:
         if "suppliers" in data:
-            sup_result = import_suppliers(
-                data["suppliers"], mode, dry_run=False, session=session
-            )
+            sup_result = import_suppliers(data["suppliers"], mode, dry_run=False, session=session)
             result.merge(sup_result)
             # Flush to make new suppliers visible to products import queries
             session.flush()
@@ -2354,7 +2342,10 @@ def _import_catalog_impl(
                         supplier_id_to_slug[sup["id"]] = sup["slug"]
 
             prod_result = import_products(
-                data["products"], mode, dry_run=False, session=session,
+                data["products"],
+                mode,
+                dry_run=False,
+                session=session,
                 supplier_id_to_slug=supplier_id_to_slug,
             )
             result.merge(prod_result)
@@ -2362,9 +2353,7 @@ def _import_catalog_impl(
     # Import recipes (depends on ingredients)
     if entities is None or "recipes" in entities:
         if "recipes" in data:
-            recipe_result = import_recipes(
-                data["recipes"], mode, dry_run=False, session=session
-            )
+            recipe_result = import_recipes(data["recipes"], mode, dry_run=False, session=session)
             result.merge(recipe_result)
             # Flush to make new recipes visible to finished_units import queries
             session.flush()
@@ -2419,9 +2408,7 @@ def _import_catalog_impl(
     # Import materials (depends on subcategories)
     if entities is None or "materials" in entities:
         if "materials" in data:
-            mat_result = import_materials(
-                data["materials"], mode, dry_run=False, session=session
-            )
+            mat_result = import_materials(data["materials"], mode, dry_run=False, session=session)
             result.merge(mat_result)
             # Flush to make new materials visible to products/units import queries
             session.flush()

@@ -14,9 +14,7 @@ from src.models.material_category import MaterialCategory
 from src.services.database import session_scope
 
 
-def get_materials_with_parents(
-    category_filter: Optional[str] = None, session=None
-) -> List[Dict]:
+def get_materials_with_parents(category_filter: Optional[str] = None, session=None) -> List[Dict]:
     """
     Get all materials with pre-resolved category and subcategory names.
 
@@ -271,7 +269,9 @@ def get_usage_counts(material_id: int, session=None) -> Dict[str, int]:
 
     def _impl(session):
         product_count = (
-            session.query(MaterialProduct).filter(MaterialProduct.material_id == material_id).count()
+            session.query(MaterialProduct)
+            .filter(MaterialProduct.material_id == material_id)
+            .count()
         )
 
         return {"product_count": product_count}
@@ -282,9 +282,7 @@ def get_usage_counts(material_id: int, session=None) -> Dict[str, int]:
         return _impl(session)
 
 
-def get_aggregated_usage_counts(
-    item_type: str, item_id: int, session=None
-) -> Dict[str, int]:
+def get_aggregated_usage_counts(item_type: str, item_id: int, session=None) -> Dict[str, int]:
     """
     Get aggregated product counts for a material, subcategory, or category.
 
@@ -311,11 +309,7 @@ def get_aggregated_usage_counts(
 
         elif item_type == "subcategory":
             # Get all materials in this subcategory
-            materials = (
-                session.query(Material)
-                .filter(Material.subcategory_id == item_id)
-                .all()
-            )
+            materials = session.query(Material).filter(Material.subcategory_id == item_id).all()
             material_ids = [m.id for m in materials]
 
         elif item_type == "category":
@@ -327,9 +321,7 @@ def get_aggregated_usage_counts(
             )
             for subcat in subcategories:
                 materials = (
-                    session.query(Material)
-                    .filter(Material.subcategory_id == subcat.id)
-                    .all()
+                    session.query(Material).filter(Material.subcategory_id == subcat.id).all()
                 )
                 material_ids.extend([m.id for m in materials])
 
@@ -407,11 +399,7 @@ def add_material(
             raise ValueError(f"Subcategory {subcategory_id} not found")
 
         # Get siblings for uniqueness check
-        siblings = (
-            session.query(Material)
-            .filter(Material.subcategory_id == subcategory_id)
-            .all()
-        )
+        siblings = session.query(Material).filter(Material.subcategory_id == subcategory_id).all()
 
         # Validate unique name
         if not hierarchy_admin_service.validate_unique_sibling_name(siblings, trimmed_name):
@@ -449,9 +437,7 @@ def add_material(
         return result
 
 
-def rename_item(
-    item_type: str, item_id: int, new_name: str, session=None
-) -> Dict:
+def rename_item(item_type: str, item_id: int, new_name: str, session=None) -> Dict:
     """
     Rename a category, subcategory, or material.
 
@@ -475,9 +461,7 @@ def rename_item(
 
     def _impl(session):
         if item_type not in VALID_TYPES:
-            raise ValueError(
-                f"Invalid item type '{item_type}'. Must be one of: {VALID_TYPES}"
-            )
+            raise ValueError(f"Invalid item type '{item_type}'. Must be one of: {VALID_TYPES}")
 
         # Validate name not empty
         if not hierarchy_admin_service.validate_name_not_empty(new_name):
@@ -488,11 +472,7 @@ def rename_item(
 
         # Get entity and siblings based on type
         if item_type == "category":
-            entity = (
-                session.query(MaterialCategory)
-                .filter(MaterialCategory.id == item_id)
-                .first()
-            )
+            entity = session.query(MaterialCategory).filter(MaterialCategory.id == item_id).first()
             if not entity:
                 raise ValueError(f"Category {item_id} not found")
             # Categories are unique globally
@@ -500,9 +480,7 @@ def rename_item(
 
         elif item_type == "subcategory":
             entity = (
-                session.query(MaterialSubcategory)
-                .filter(MaterialSubcategory.id == item_id)
-                .first()
+                session.query(MaterialSubcategory).filter(MaterialSubcategory.id == item_id).first()
             )
             if not entity:
                 raise ValueError(f"Subcategory {item_id} not found")
@@ -548,9 +526,7 @@ def rename_item(
         elif item_type == "subcategory":
             existing = (
                 session.query(MaterialSubcategory)
-                .filter(
-                    MaterialSubcategory.slug == new_slug, MaterialSubcategory.id != item_id
-                )
+                .filter(MaterialSubcategory.slug == new_slug, MaterialSubcategory.id != item_id)
                 .first()
             )
         else:
@@ -623,9 +599,7 @@ def reparent_material(
 
         # Validate unique name in new location
         siblings = (
-            session.query(Material)
-            .filter(Material.subcategory_id == new_subcategory_id)
-            .all()
+            session.query(Material).filter(Material.subcategory_id == new_subcategory_id).all()
         )
 
         if not hierarchy_admin_service.validate_unique_sibling_name(
@@ -685,9 +659,7 @@ def reparent_subcategory(
 
         # Find new category
         new_category = (
-            session.query(MaterialCategory)
-            .filter(MaterialCategory.id == new_category_id)
-            .first()
+            session.query(MaterialCategory).filter(MaterialCategory.id == new_category_id).first()
         )
 
         if not new_category:

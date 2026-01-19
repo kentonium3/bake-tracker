@@ -148,9 +148,7 @@ class TestCreateProductionPlanSnapshot:
 
         assert snapshot.input_hash == input_hash
 
-    def test_snapshot_requires_event(
-        self, test_db, sample_calculation_results
-    ):
+    def test_snapshot_requires_event(self, test_db, sample_calculation_results):
         """Test that snapshot requires a valid event_id."""
         session = test_db()
 
@@ -172,9 +170,7 @@ class TestCreateProductionPlanSnapshot:
 class TestProductionPlanSnapshotHelperMethods:
     """Tests for helper methods that extract data from calculation_results."""
 
-    def test_get_recipe_batches(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_get_recipe_batches(self, test_db, sample_event, sample_calculation_results):
         """Test get_recipe_batches extracts recipe batch data."""
         session = test_db()
 
@@ -198,9 +194,7 @@ class TestProductionPlanSnapshotHelperMethods:
         assert batches[1]["recipe_name"] == "Fudge Brownies"
         assert batches[1]["units_needed"] == 150
 
-    def test_get_shopping_list(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_get_shopping_list(self, test_db, sample_event, sample_calculation_results):
         """Test get_shopping_list extracts shopping list data."""
         session = test_db()
 
@@ -223,9 +217,7 @@ class TestProductionPlanSnapshotHelperMethods:
         assert shopping[0]["to_buy"] == 4.0
         assert shopping[1]["to_buy"] == 0.0  # Butter is sufficient
 
-    def test_get_aggregated_ingredients(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_get_aggregated_ingredients(self, test_db, sample_event, sample_calculation_results):
         """Test get_aggregated_ingredients extracts ingredient data."""
         session = test_db()
 
@@ -271,9 +263,7 @@ class TestProductionPlanSnapshotHelperMethods:
 class TestProductionPlanSnapshotStaleness:
     """Tests for staleness marking and clearing."""
 
-    def test_mark_stale(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_mark_stale(self, test_db, sample_event, sample_calculation_results):
         """Test mark_stale sets is_stale and stale_reason."""
         session = test_db()
 
@@ -298,9 +288,7 @@ class TestProductionPlanSnapshotStaleness:
         assert snapshot.is_stale is True
         assert snapshot.stale_reason == "Recipe 'Chocolate Chip Cookies' modified"
 
-    def test_mark_fresh(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_mark_fresh(self, test_db, sample_event, sample_calculation_results):
         """Test mark_fresh clears is_stale and stale_reason."""
         session = test_db()
 
@@ -328,9 +316,7 @@ class TestProductionPlanSnapshotStaleness:
 class TestProductionPlanSnapshotShoppingStatus:
     """Tests for shopping completion tracking."""
 
-    def test_shopping_complete_default(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_shopping_complete_default(self, test_db, sample_event, sample_calculation_results):
         """Test shopping_complete defaults to False."""
         session = test_db()
 
@@ -349,9 +335,7 @@ class TestProductionPlanSnapshotShoppingStatus:
         assert snapshot.shopping_complete is False
         assert snapshot.shopping_completed_at is None
 
-    def test_mark_shopping_complete(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_mark_shopping_complete(self, test_db, sample_event, sample_calculation_results):
         """Test marking shopping as complete."""
         session = test_db()
 
@@ -378,9 +362,7 @@ class TestProductionPlanSnapshotShoppingStatus:
 class TestEventRelationshipAndCascade:
     """Tests for Event-ProductionPlanSnapshot relationship and cascade delete."""
 
-    def test_event_relationship(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_event_relationship(self, test_db, sample_event, sample_calculation_results):
         """Test that snapshot can access its event."""
         session = test_db()
 
@@ -427,9 +409,7 @@ class TestEventRelationshipAndCascade:
         assert len(sample_event.production_plan_snapshots) == 1
         assert sample_event.production_plan_snapshots[0].id == snapshot.id
 
-    def test_cascade_delete(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_cascade_delete(self, test_db, sample_event, sample_calculation_results):
         """Test that deleting event cascades to delete snapshots."""
         session = test_db()
 
@@ -517,9 +497,7 @@ class TestEventOutputMode:
 class TestProductionPlanSnapshotToDict:
     """Tests for to_dict serialization."""
 
-    def test_to_dict_basic(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_to_dict_basic(self, test_db, sample_event, sample_calculation_results):
         """Test to_dict converts snapshot to dictionary."""
         session = test_db()
 
@@ -544,9 +522,7 @@ class TestProductionPlanSnapshotToDict:
         assert result["is_stale"] is False
         assert result["shopping_complete"] is False
 
-    def test_to_dict_with_relationships(
-        self, test_db, sample_event, sample_calculation_results
-    ):
+    def test_to_dict_with_relationships(self, test_db, sample_event, sample_calculation_results):
         """Test to_dict with include_relationships=True."""
         session = test_db()
 

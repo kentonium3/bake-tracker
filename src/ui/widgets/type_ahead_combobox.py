@@ -42,7 +42,7 @@ class TypeAheadComboBox(ctk.CTkFrame):
         values: Optional[List[str]] = None,
         min_chars: int = 2,
         command: Optional[Callable[[str], None]] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the TypeAheadComboBox.
@@ -64,10 +64,7 @@ class TypeAheadComboBox(ctk.CTkFrame):
 
         # Create embedded combobox
         self._combobox = ctk.CTkComboBox(
-            self,
-            values=self.full_values,
-            command=self._on_select,
-            **kwargs
+            self, values=self.full_values, command=self._on_select, **kwargs
         )
         self._combobox.pack(fill="x", expand=True)
 

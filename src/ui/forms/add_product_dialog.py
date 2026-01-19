@@ -132,7 +132,9 @@ class AddProductDialog(ctk.CTkToplevel):
         try:
             # Feature 032: Load only leaf ingredients (L2) for product assignment
             self.ingredients = ingredient_hierarchy_service.get_leaf_ingredients()
-            self.ingredients_map = {ing.get("display_name", ing.get("name", "?")): ing for ing in self.ingredients}
+            self.ingredients_map = {
+                ing.get("display_name", ing.get("name", "?")): ing for ing in self.ingredients
+            }
 
             # Load active suppliers
             self.suppliers = supplier_service.get_active_suppliers()
@@ -582,7 +584,9 @@ class AddProductDialog(ctk.CTkToplevel):
                         try:
                             ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
                             if ancestors:
-                                path_parts = [a.get("display_name", "?") for a in reversed(ancestors)]
+                                path_parts = [
+                                    a.get("display_name", "?") for a in reversed(ancestors)
+                                ]
                                 self.category_var.set(" -> ".join(path_parts))
                             else:
                                 self.category_var.set("(No parent)")

@@ -24,9 +24,9 @@ STATUS_DISPLAY = {
 
 # Feature 025: Color definitions for status styling
 STATUS_COLORS = {
-    "complete": "#28A745",     # Green - success
-    "partial_loss": "#FFC107", # Amber/orange - warning
-    "total_loss": "#DC3545",   # Red - error
+    "complete": "#28A745",  # Green - success
+    "partial_loss": "#FFC107",  # Amber/orange - warning
+    "total_loss": "#DC3545",  # Red - error
 }
 
 
@@ -45,8 +45,8 @@ class ProductionHistoryTable(DataTable):
         ("Batches", 70),
         ("Yield", 100),
         ("Cost", 90),
-        ("Loss", 60),      # Feature 025: Loss quantity column
-        ("Status", 110),   # Feature 025: Production status column
+        ("Loss", 60),  # Feature 025: Loss quantity column
+        ("Status", 110),  # Feature 025: Production status column
     ]
 
     def __init__(

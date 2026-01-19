@@ -201,9 +201,9 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
         for widget in self.actions_frame.winfo_children():
             widget.destroy()
 
-        ctk.CTkLabel(
-            self.actions_frame, text="Actions", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w", pady=(0, 5))
+        ctk.CTkLabel(self.actions_frame, text="Actions", font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w", pady=(0, 5)
+        )
 
         # Add button
         self.add_btn = ctk.CTkButton(
@@ -523,7 +523,9 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
         if item_type == "material":
             # Material can move to any subcategory (except current)
             material = node.get("material", {})
-            current_subcat_id = material.get("subcategory_id") if isinstance(material, dict) else None
+            current_subcat_id = (
+                material.get("subcategory_id") if isinstance(material, dict) else None
+            )
 
             for cat in tree:
                 for subcat in cat.get("children", []):
@@ -537,7 +539,9 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
         elif item_type == "subcategory":
             # Subcategory can move to any category (except current)
             subcategory = node.get("subcategory", {})
-            current_cat_id = subcategory.get("category_id") if isinstance(subcategory, dict) else None
+            current_cat_id = (
+                subcategory.get("category_id") if isinstance(subcategory, dict) else None
+            )
 
             for cat in tree:
                 if cat["id"] == current_cat_id:
@@ -938,9 +942,9 @@ class RenameDialog(ctk.CTkToplevel):
         current_frame.pack(fill="x", padx=20, pady=10)
 
         ctk.CTkLabel(current_frame, text="Current Name:").pack(anchor="w")
-        ctk.CTkLabel(
-            current_frame, text=current_name, font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w")
+        ctk.CTkLabel(current_frame, text=current_name, font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w"
+        )
 
         # New name input
         name_frame = ctk.CTkFrame(self)
@@ -1027,9 +1031,7 @@ class ReparentDialog(ctk.CTkToplevel):
         item_frame.pack(fill="x", padx=20, pady=10)
 
         ctk.CTkLabel(item_frame, text="Moving:").pack(anchor="w")
-        ctk.CTkLabel(
-            item_frame, text=item_name, font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w")
+        ctk.CTkLabel(item_frame, text=item_name, font=ctk.CTkFont(weight="bold")).pack(anchor="w")
 
         # Current parent
         current_frame = ctk.CTkFrame(self)

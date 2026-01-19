@@ -376,9 +376,7 @@ class TestMainCLI:
             export_complete_cmd(tmpdir)
 
             # Validate via main
-            with mock.patch.object(
-                sys, "argv", ["import_export_cli", "validate-export", tmpdir]
-            ):
+            with mock.patch.object(sys, "argv", ["import_export_cli", "validate-export", tmpdir]):
                 result = main()
 
                 assert result == 0
@@ -738,9 +736,7 @@ class TestImportViewCLIIntegration:
             temp_path = f.name
 
         try:
-            with mock.patch.object(
-                sys, "argv", ["import_export_cli", "import-view", temp_path]
-            ):
+            with mock.patch.object(sys, "argv", ["import_export_cli", "import-view", temp_path]):
                 result = main()
 
             assert result == 0

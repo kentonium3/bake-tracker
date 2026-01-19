@@ -55,6 +55,7 @@ from src.utils.constants import (
     WEIGHT_UNITS,
     PACKAGE_TYPES,
 )
+
 # Feature 055: IngredientTreeWidget removed from this file - tree view moved to Hierarchy Admin
 # The widget is still used in recipe_form.py for ingredient selection
 
@@ -119,9 +120,7 @@ class IngredientsTab(ctk.CTkFrame):
             text="My Ingredients",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
-        title_label.grid(
-            row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5)
-        )
+        title_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
 
     def _create_search_filter(self):
         """Create search and filter controls with cascading hierarchy filters.
@@ -420,8 +419,7 @@ class IngredientsTab(ctk.CTkFrame):
             # Populate L0 (root categories) dropdown
             root_ingredients = ingredient_hierarchy_service.get_root_ingredients()
             self._l0_map = {
-                ing.get("display_name", ing.get("name", "?")): ing
-                for ing in root_ingredients
+                ing.get("display_name", ing.get("name", "?")): ing for ing in root_ingredients
             }
             l0_values = ["All Categories"] + sorted(self._l0_map.keys())
             self.l0_filter_dropdown.configure(values=l0_values)
@@ -699,7 +697,8 @@ class IngredientsTab(ctk.CTkFrame):
                 l0_id = self._l0_map[value].get("id")
                 subcategories = ingredient_hierarchy_service.get_children(l0_id)
                 self._l1_map = {
-                    sub.get("display_name", "?"): sub for sub in subcategories
+                    sub.get("display_name", "?"): sub
+                    for sub in subcategories
                     if sub.get("hierarchy_level") == 1
                 }
                 if self._l1_map:
@@ -1623,7 +1622,9 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 messagebox.showerror("Error", "Ingredient not found")
             except IngredientInUse as e:
                 # F035: Show detailed message with counts
-                self._show_dialog_deletion_blocked_message(e.details if hasattr(e, "details") else {})
+                self._show_dialog_deletion_blocked_message(
+                    e.details if hasattr(e, "details") else {}
+                )
             except DatabaseError as e:
                 messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
 

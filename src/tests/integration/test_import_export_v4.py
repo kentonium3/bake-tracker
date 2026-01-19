@@ -214,7 +214,9 @@ class TestFullRoundTrip:
         # Compare counts
         counts_after = get_entity_counts(session)
         for entity, count in counts_before.items():
-            assert counts_after[entity] == count, f"{entity} count mismatch: expected {count}, got {counts_after[entity]}"
+            assert (
+                counts_after[entity] == count
+            ), f"{entity} count mismatch: expected {count}, got {counts_after[entity]}"
 
     def test_export_contains_version_4(self, test_db, tmp_path):
         """Test export file contains version 4.0 schema."""

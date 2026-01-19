@@ -224,7 +224,9 @@ class TestCategoryOperations:
         assert result is True
         assert get_category(category_id=cat.id, session=db_session) is None
 
-    def test_delete_category_with_children_fails(self, db_session, sample_category, sample_subcategory):
+    def test_delete_category_with_children_fails(
+        self, db_session, sample_category, sample_subcategory
+    ):
         """Cannot delete category with subcategories."""
         with pytest.raises(ValidationError) as exc_info:
             delete_category(sample_category.id, session=db_session)
@@ -298,7 +300,9 @@ class TestSubcategoryOperations:
 
         assert result is True
 
-    def test_delete_subcategory_with_materials_fails(self, db_session, sample_subcategory, sample_material):
+    def test_delete_subcategory_with_materials_fails(
+        self, db_session, sample_subcategory, sample_material
+    ):
         """Cannot delete subcategory with materials."""
         with pytest.raises(ValidationError) as exc_info:
             delete_subcategory(sample_subcategory.id, session=db_session)

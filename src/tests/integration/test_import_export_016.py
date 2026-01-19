@@ -40,6 +40,7 @@ from src.services import import_export_service
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def test_event(test_db):
     """Create a test event."""
@@ -52,6 +53,7 @@ def test_event(test_db):
     session.add(event)
     session.commit()
     return event
+
 
 @pytest.fixture
 def test_ingredient(test_db):
@@ -66,6 +68,7 @@ def test_ingredient(test_db):
     session.commit()
     return ingredient
 
+
 @pytest.fixture
 def test_recipe(test_db, test_ingredient):
     """Create a test recipe.
@@ -79,6 +82,7 @@ def test_recipe(test_db, test_ingredient):
     session.add(recipe)
     session.commit()
     return recipe
+
 
 @pytest.fixture
 def test_finished_unit(test_db, test_recipe):
@@ -95,6 +99,7 @@ def test_finished_unit(test_db, test_recipe):
     session.commit()
     return fu
 
+
 @pytest.fixture
 def test_finished_good(test_db):
     """Create a test finished good."""
@@ -108,6 +113,7 @@ def test_finished_good(test_db):
     session.commit()
     return fg
 
+
 @pytest.fixture
 def test_recipient(test_db):
     """Create a test recipient."""
@@ -116,6 +122,7 @@ def test_recipient(test_db):
     session.add(recipient)
     session.commit()
     return recipient
+
 
 @pytest.fixture
 def test_package(test_db):
@@ -126,16 +133,16 @@ def test_package(test_db):
     session.commit()
     return package
 
+
 # ============================================================================
 # Export Tests
 # ============================================================================
 
+
 class TestExportProductionTargets:
     """Test EventProductionTarget export."""
 
-    def test_export_includes_production_targets(
-        self, test_db, test_event, test_recipe
-    ):
+    def test_export_includes_production_targets(self, test_db, test_event, test_recipe):
         """Export contains event_production_targets with correct data."""
         session = test_db()
 
@@ -166,12 +173,11 @@ class TestExportProductionTargets:
         assert target_data["target_batches"] == 4
         assert target_data["notes"] == "Need for gift boxes"
 
+
 class TestExportAssemblyTargets:
     """Test EventAssemblyTarget export."""
 
-    def test_export_includes_assembly_targets(
-        self, test_db, test_event, test_finished_good
-    ):
+    def test_export_includes_assembly_targets(self, test_db, test_event, test_finished_good):
         """Export contains event_assembly_targets with correct data."""
         session = test_db()
 
@@ -201,6 +207,7 @@ class TestExportAssemblyTargets:
         assert target_data["finished_good_slug"] == "cookie-box-assortment"
         assert target_data["target_quantity"] == 10
         assert target_data["notes"] == "For neighbors"
+
 
 class TestExportProductionRuns:
     """Test ProductionRun export with event_name."""
@@ -269,6 +276,7 @@ class TestExportProductionRuns:
         run_data = data["production_runs"][0]
         assert run_data["event_name"] is None
 
+
 class TestExportFulfillmentStatus:
     """Test EventRecipientPackage fulfillment_status export."""
 
@@ -301,16 +309,16 @@ class TestExportFulfillmentStatus:
         erp_data = data["event_recipient_packages"][0]
         assert erp_data["fulfillment_status"] == "ready"
 
+
 # ============================================================================
 # Import Tests
 # ============================================================================
 
+
 class TestImportProductionTargets:
     """Test EventProductionTarget import."""
 
-    def test_import_creates_production_targets(
-        self, test_db, test_event, test_recipe
-    ):
+    def test_import_creates_production_targets(self, test_db, test_event, test_recipe):
         """Import creates EventProductionTarget records."""
         session = test_db()
 
@@ -332,21 +340,24 @@ class TestImportProductionTargets:
         # Verify
         assert result.successful == 1
 
-        target = session.query(EventProductionTarget).filter_by(
-            event_id=test_event.id,
-            recipe_id=test_recipe.id,
-        ).first()
+        target = (
+            session.query(EventProductionTarget)
+            .filter_by(
+                event_id=test_event.id,
+                recipe_id=test_recipe.id,
+            )
+            .first()
+        )
 
         assert target is not None
         assert target.target_batches == 5
         assert target.notes == "Test import"
 
+
 class TestImportAssemblyTargets:
     """Test EventAssemblyTarget import."""
 
-    def test_import_creates_assembly_targets(
-        self, test_db, test_event, test_finished_good
-    ):
+    def test_import_creates_assembly_targets(self, test_db, test_event, test_finished_good):
         """Import creates EventAssemblyTarget records."""
         session = test_db()
 
@@ -368,13 +379,18 @@ class TestImportAssemblyTargets:
         # Verify
         assert result.successful == 1
 
-        target = session.query(EventAssemblyTarget).filter_by(
-            event_id=test_event.id,
-            finished_good_id=test_finished_good.id,
-        ).first()
+        target = (
+            session.query(EventAssemblyTarget)
+            .filter_by(
+                event_id=test_event.id,
+                finished_good_id=test_finished_good.id,
+            )
+            .first()
+        )
 
         assert target is not None
         assert target.target_quantity == 15
+
 
 class TestImportProductionRuns:
     """Test ProductionRun import with event resolution.
@@ -438,6 +454,7 @@ class TestImportProductionRuns:
         # Import should not crash on null event_name
         # The result may have errors due to missing finished_unit_id
         assert result.total_records == 1
+
 
 class TestImportFulfillmentStatus:
     """Test EventRecipientPackage fulfillment_status import."""

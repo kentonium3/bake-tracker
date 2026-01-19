@@ -145,7 +145,9 @@ class TestCreateRecipeSnapshot:
         assert recipe_data["category"] == "Cookies"
         assert recipe_data["yield_quantity"] == 36  # From FinishedUnit.items_per_batch
         assert recipe_data["yield_unit"] == "cookies"  # From FinishedUnit.item_unit
-        assert recipe_data["yield_description"] == "2-inch cookies"  # From FinishedUnit.display_name
+        assert (
+            recipe_data["yield_description"] == "2-inch cookies"
+        )  # From FinishedUnit.display_name
 
         # Check ingredients_data
         ingredients_data = result["ingredients_data"]
@@ -155,9 +157,7 @@ class TestCreateRecipeSnapshot:
         assert ingredients_data[0]["unit"] == "cups"
         assert ingredients_data[0]["notes"] == "sifted"
 
-    def test_create_snapshot_with_session(
-        self, test_db, sample_recipe, sample_production_run
-    ):
+    def test_create_snapshot_with_session(self, test_db, sample_recipe, sample_production_run):
         """Test that session parameter is used correctly."""
         session = test_db()
 
@@ -178,9 +178,7 @@ class TestCreateRecipeSnapshot:
         snapshot = session.query(RecipeSnapshot).filter_by(id=result["id"]).first()
         assert snapshot is not None
 
-    def test_create_snapshot_scale_factor(
-        self, test_db, sample_recipe, sample_production_run
-    ):
+    def test_create_snapshot_scale_factor(self, test_db, sample_recipe, sample_production_run):
         """Test that scale factor is stored correctly."""
         result = recipe_snapshot_service.create_recipe_snapshot(
             recipe_id=sample_recipe.id,
@@ -199,9 +197,7 @@ class TestGetRecipeSnapshots:
         result = recipe_snapshot_service.get_recipe_snapshots(sample_recipe.id)
         assert result == []
 
-    def test_get_snapshots_ordered(
-        self, test_db, sample_recipe, sample_finished_unit
-    ):
+    def test_get_snapshots_ordered(self, test_db, sample_recipe, sample_finished_unit):
         """Test that snapshots are ordered by date descending."""
         session = test_db()
 
@@ -235,9 +231,7 @@ class TestGetRecipeSnapshots:
         assert snapshots[1]["scale_factor"] == 2.0
         assert snapshots[2]["scale_factor"] == 1.0
 
-    def test_get_snapshots_with_session(
-        self, test_db, sample_recipe, sample_production_run
-    ):
+    def test_get_snapshots_with_session(self, test_db, sample_recipe, sample_production_run):
         """Test that session parameter works correctly."""
         session = test_db()
 
@@ -251,9 +245,7 @@ class TestGetRecipeSnapshots:
         session.commit()
 
         # Get snapshots using the session
-        snapshots = recipe_snapshot_service.get_recipe_snapshots(
-            sample_recipe.id, session=session
-        )
+        snapshots = recipe_snapshot_service.get_recipe_snapshots(sample_recipe.id, session=session)
 
         assert len(snapshots) == 1
 
@@ -261,9 +253,7 @@ class TestGetRecipeSnapshots:
 class TestGetSnapshotByProductionRun:
     """Tests for get_snapshot_by_production_run()."""
 
-    def test_get_by_production_run_found(
-        self, test_db, sample_recipe, sample_production_run
-    ):
+    def test_get_by_production_run_found(self, test_db, sample_recipe, sample_production_run):
         """Test successful retrieval by production run ID."""
         # Create snapshot
         created = recipe_snapshot_service.create_recipe_snapshot(
@@ -273,9 +263,7 @@ class TestGetSnapshotByProductionRun:
         )
 
         # Retrieve by production run
-        result = recipe_snapshot_service.get_snapshot_by_production_run(
-            sample_production_run.id
-        )
+        result = recipe_snapshot_service.get_snapshot_by_production_run(sample_production_run.id)
 
         assert result is not None
         assert result["id"] == created["id"]

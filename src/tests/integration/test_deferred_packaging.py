@@ -182,9 +182,7 @@ class TestDeferredPackagingFullWorkflow:
         5. Verify actual cost reflects assigned item's cost
         """
         # Create ingredient and variants with different costs
-        bag_ingredient = create_ingredient(
-            {"display_name": "Gift Bags Small", "category": "Bags"}
-        )
+        bag_ingredient = create_ingredient({"display_name": "Gift Bags Small", "category": "Bags"})
 
         cheap_product = create_product(
             bag_ingredient.slug,
@@ -322,9 +320,7 @@ class TestDeferredPackagingFullWorkflow:
         test_db.add(package)
         test_db.flush()
 
-        pfg = PackageFinishedGood(
-            package_id=package.id, finished_good_id=fg.id, quantity=1
-        )
+        pfg = PackageFinishedGood(package_id=package.id, finished_good_id=fg.id, quantity=1)
         test_db.add(pfg)
         test_db.flush()
 
@@ -505,9 +501,7 @@ class TestDeferredPackagingEdgeCases:
 
     def test_assembly_bypass_records_flag(self, test_db):
         """Test that assembly completion can bypass with flag recorded."""
-        bag_ingredient = create_ingredient(
-            {"display_name": "Bypass Test Bags", "category": "Bags"}
-        )
+        bag_ingredient = create_ingredient({"display_name": "Bypass Test Bags", "category": "Bags"})
         bag_product = create_product(
             bag_ingredient.slug,
             {
@@ -550,11 +544,7 @@ class TestDeferredPackagingEdgeCases:
         assert result["packaging_bypassed"] is True
 
         # Query the AssemblyRun to verify bypass fields
-        assembly_run = (
-            test_db.query(AssemblyRun)
-            .filter_by(id=result["assembly_run_id"])
-            .first()
-        )
+        assembly_run = test_db.query(AssemblyRun).filter_by(id=result["assembly_run_id"]).first()
         assert assembly_run is not None
         assert assembly_run.packaging_bypassed is True
         assert "will reconcile later" in assembly_run.packaging_bypass_notes

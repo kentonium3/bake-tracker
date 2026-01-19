@@ -89,9 +89,7 @@ class ProductDetailDialog(ctk.CTkToplevel):
             text="Loading...",
             font=ctk.CTkFont(size=20, weight="bold"),
         )
-        self.name_label.grid(
-            row=0, column=0, columnspan=4, padx=15, pady=(15, 5), sticky="w"
-        )
+        self.name_label.grid(row=0, column=0, columnspan=4, padx=15, pady=(15, 5), sticky="w")
 
         # Status indicator (hidden badge)
         self.status_label = ctk.CTkLabel(
@@ -280,9 +278,7 @@ class ProductDetailDialog(ctk.CTkToplevel):
     def _load_product(self):
         """Load product data and purchase history."""
         try:
-            self.product = product_catalog_service.get_product_with_last_price(
-                self.product_id
-            )
+            self.product = product_catalog_service.get_product_with_last_price(self.product_id)
 
             if not self.product:
                 messagebox.showerror(
@@ -441,7 +437,7 @@ class ProductDetailDialog(ctk.CTkToplevel):
         if self.winfo_exists():
             self.grab_set()
 
-            if hasattr(dialog, 'result') and dialog.result:
+            if hasattr(dialog, "result") and dialog.result:
                 self._load_product()  # Refresh after edit
                 self.result = True  # Signal parent to refresh
 
@@ -673,7 +669,9 @@ class ProductDetailDialog(ctk.CTkToplevel):
 
         # Add specific warnings
         if deps.has_valid_purchases:
-            warning_lines.append("  WARNING: Has purchases with price data - cost history will be lost")
+            warning_lines.append(
+                "  WARNING: Has purchases with price data - cost history will be lost"
+            )
         if deps.has_supplier_data:
             warning_lines.append("  WARNING: Has supplier information - this data will be lost")
 

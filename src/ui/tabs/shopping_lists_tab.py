@@ -36,30 +36,25 @@ class ShoppingListsTab(ctk.CTkFrame):
         container.place(relx=0.5, rely=0.5, anchor="center")
 
         title = ctk.CTkLabel(
-            container,
-            text="Shopping Lists",
-            font=ctk.CTkFont(size=24, weight="bold")
+            container, text="Shopping Lists", font=ctk.CTkFont(size=24, weight="bold")
         )
         title.pack(pady=(0, 20))
 
         message = ctk.CTkLabel(
             container,
             text="Shopping list management is not yet implemented.\n\n"
-                 "This tab will allow you to:\n"
-                 "- Create shopping lists for events\n"
-                 "- Track items needed for recipes\n"
-                 "- Manage purchases and inventory updates",
+            "This tab will allow you to:\n"
+            "- Create shopping lists for events\n"
+            "- Track items needed for recipes\n"
+            "- Manage purchases and inventory updates",
             font=ctk.CTkFont(size=14),
-            justify="center"
+            justify="center",
         )
         message.pack()
 
         # Coming soon indicator
         indicator = ctk.CTkLabel(
-            container,
-            text="Coming Soon",
-            font=ctk.CTkFont(size=12),
-            text_color="gray"
+            container, text="Coming Soon", font=ctk.CTkFont(size=12), text_color="gray"
         )
         indicator.pack(pady=(20, 0))
 

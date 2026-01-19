@@ -757,10 +757,14 @@ def get_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
     from src.models.recipe import RecipeIngredient
 
     def _impl(session):
-        product_count = session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
+        product_count = (
+            session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
+        )
 
         recipe_count = (
-            session.query(RecipeIngredient).filter(RecipeIngredient.ingredient_id == ingredient_id).count()
+            session.query(RecipeIngredient)
+            .filter(RecipeIngredient.ingredient_id == ingredient_id)
+            .count()
         )
 
         return {
@@ -793,9 +797,7 @@ def get_aggregated_usage_counts(ingredient_id: int, session=None) -> Dict[str, i
     from src.models.recipe import RecipeIngredient
 
     def _impl(session):
-        ingredient = (
-            session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
-        )
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
 
         if not ingredient:
             return {"product_count": 0, "recipe_count": 0, "descendant_count": 0}
@@ -813,9 +815,7 @@ def get_aggregated_usage_counts(ingredient_id: int, session=None) -> Dict[str, i
             for l1 in l1_children:
                 ingredient_ids.append(l1.id)
                 l2_children = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.parent_ingredient_id == l1.id)
-                    .all()
+                    session.query(Ingredient).filter(Ingredient.parent_ingredient_id == l1.id).all()
                 )
                 ingredient_ids.extend([l2.id for l2 in l2_children])
 
@@ -832,9 +832,7 @@ def get_aggregated_usage_counts(ingredient_id: int, session=None) -> Dict[str, i
 
         # Count products and recipes for all collected IDs
         product_count = (
-            session.query(Product)
-            .filter(Product.ingredient_id.in_(ingredient_ids))
-            .count()
+            session.query(Product).filter(Product.ingredient_id.in_(ingredient_ids)).count()
         )
 
         from sqlalchemy import func
@@ -973,15 +971,11 @@ def add_leaf_ingredient(parent_id: int, name: str, session=None) -> Dict:
             raise ValueError(f"Parent ingredient {parent_id} not found")
 
         if parent.hierarchy_level != 1:
-            raise ValueError(
-                f"Parent must be L1 (level 1), got level {parent.hierarchy_level}"
-            )
+            raise ValueError(f"Parent must be L1 (level 1), got level {parent.hierarchy_level}")
 
         # Get siblings for uniqueness check
         siblings = (
-            session.query(Ingredient)
-            .filter(Ingredient.parent_ingredient_id == parent_id)
-            .all()
+            session.query(Ingredient).filter(Ingredient.parent_ingredient_id == parent_id).all()
         )
 
         # Validate unique name
@@ -1174,9 +1168,7 @@ def reparent_ingredient(ingredient_id: int, new_parent_id: int, session=None) ->
 
         # Validate unique name in new location
         siblings = (
-            session.query(Ingredient)
-            .filter(Ingredient.parent_ingredient_id == new_parent_id)
-            .all()
+            session.query(Ingredient).filter(Ingredient.parent_ingredient_id == new_parent_id).all()
         )
 
         if not hierarchy_admin_service.validate_unique_sibling_name(

@@ -1241,7 +1241,9 @@ class TestGetIngredientWithAncestors:
         """Test that L1 ingredient has empty L0 and L1 is parent."""
         dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
-        result = ingredient_hierarchy_service.get_ingredient_with_ancestors(dark.id, session=test_db)
+        result = ingredient_hierarchy_service.get_ingredient_with_ancestors(
+            dark.id, session=test_db
+        )
 
         assert result is not None
         assert result["l2_name"] == "Dark Chocolate"
@@ -1313,9 +1315,7 @@ class TestGetAggregatedUsageCounts:
 
     def test_l2_returns_direct_counts(self, test_db):
         """Test L2 ingredient returns direct counts only."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
 
         result = ingredient_hierarchy_service.get_aggregated_usage_counts(
             semi_sweet.id, session=test_db
@@ -1327,9 +1327,7 @@ class TestGetAggregatedUsageCounts:
 
     def test_l1_aggregates_l2_children(self, test_db):
         """Test L1 ingredient aggregates counts from L2 children."""
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
         result = ingredient_hierarchy_service.get_aggregated_usage_counts(
             dark_choc.id, session=test_db
@@ -1342,9 +1340,7 @@ class TestGetAggregatedUsageCounts:
 
     def test_l0_aggregates_all_descendants(self, test_db):
         """Test L0 ingredient aggregates counts from L1 and L2 descendants."""
-        chocolate = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
-        )
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
 
         result = ingredient_hierarchy_service.get_aggregated_usage_counts(
             chocolate.id, session=test_db
@@ -1357,9 +1353,7 @@ class TestGetAggregatedUsageCounts:
 
     def test_nonexistent_returns_zeros(self, test_db):
         """Test nonexistent ingredient returns zero counts."""
-        result = ingredient_hierarchy_service.get_aggregated_usage_counts(
-            99999, session=test_db
-        )
+        result = ingredient_hierarchy_service.get_aggregated_usage_counts(99999, session=test_db)
 
         assert result["product_count"] == 0
         assert result["recipe_count"] == 0
@@ -1484,9 +1478,7 @@ class TestRenameIngredient:
 
     def test_rename_ingredient_success(self, test_db):
         """Test renaming an ingredient."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
 
         result = ingredient_hierarchy_service.rename_ingredient(
             ingredient_id=semi_sweet.id, new_name="Extra Dark Chips", session=test_db
@@ -1497,9 +1489,7 @@ class TestRenameIngredient:
 
     def test_rename_ingredient_same_name(self, test_db):
         """Test keeping the same name (should succeed)."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
         original_name = semi_sweet.display_name
 
         result = ingredient_hierarchy_service.rename_ingredient(
@@ -1510,9 +1500,7 @@ class TestRenameIngredient:
 
     def test_rename_ingredient_trims_whitespace(self, test_db):
         """Test that whitespace is trimmed on rename."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
 
         result = ingredient_hierarchy_service.rename_ingredient(
             ingredient_id=semi_sweet.id, new_name="  Trimmed Name  ", session=test_db
@@ -1522,9 +1510,7 @@ class TestRenameIngredient:
 
     def test_rename_ingredient_empty_name(self, test_db):
         """Test error for empty name."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
 
         with pytest.raises(ValueError, match="cannot be empty"):
             ingredient_hierarchy_service.rename_ingredient(
@@ -1540,9 +1526,7 @@ class TestRenameIngredient:
 
     def test_rename_ingredient_duplicate_sibling(self, test_db):
         """Test error when renaming to existing sibling name."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
         bittersweet = (
             test_db.query(Ingredient).filter(Ingredient.slug == "bittersweet-chips").first()
         )
@@ -1567,9 +1551,7 @@ class TestRenameIngredient:
 
     def test_rename_l1_ingredient(self, test_db):
         """Test renaming an L1 (mid-level) ingredient."""
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
         result = ingredient_hierarchy_service.rename_ingredient(
             ingredient_id=dark_choc.id, new_name="Very Dark Chocolate", session=test_db
@@ -1589,15 +1571,9 @@ class TestReparentIngredient:
 
     def test_reparent_l2_to_different_l1(self, test_db):
         """Test moving L2 ingredient to different L1 parent."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
-        milk_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        milk_choc = test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
         original_parent_id = semi_sweet.parent_ingredient_id
 
         # Verify it's currently under dark-chocolate
@@ -1612,9 +1588,7 @@ class TestReparentIngredient:
 
     def test_reparent_l1_to_different_l0(self, test_db):
         """Test moving L1 ingredient to different L0 parent."""
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
         flour = test_db.query(Ingredient).filter(Ingredient.slug == "flour").first()
 
         result = ingredient_hierarchy_service.reparent_ingredient(
@@ -1635,9 +1609,7 @@ class TestReparentIngredient:
 
     def test_reparent_l2_to_l0_fails(self, test_db):
         """Test that L2 cannot move to L0."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
         chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
 
         with pytest.raises(ValueError, match="L2 ingredients can only move to L1"):
@@ -1647,12 +1619,8 @@ class TestReparentIngredient:
 
     def test_reparent_l1_to_l1_fails(self, test_db):
         """Test that L1 cannot move to another L1."""
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
-        milk_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
-        )
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        milk_choc = test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
 
         with pytest.raises(ValueError, match="L1 ingredients can only move to L0"):
             ingredient_hierarchy_service.reparent_ingredient(
@@ -1661,12 +1629,8 @@ class TestReparentIngredient:
 
     def test_reparent_to_same_parent_fails(self, test_db):
         """Test that moving to same parent fails."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
         with pytest.raises(ValueError, match="already under this parent"):
             ingredient_hierarchy_service.reparent_ingredient(
@@ -1683,9 +1647,7 @@ class TestReparentIngredient:
         milk_chips = (
             test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate-chips").first()
         )
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
         result = ingredient_hierarchy_service.reparent_ingredient(
             ingredient_id=milk_chips.id, new_parent_id=dark_choc.id, session=test_db
@@ -1695,9 +1657,7 @@ class TestReparentIngredient:
 
     def test_reparent_ingredient_not_found(self, test_db):
         """Test error when ingredient doesn't exist."""
-        milk_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
-        )
+        milk_choc = test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
 
         with pytest.raises(ValueError, match="not found"):
             ingredient_hierarchy_service.reparent_ingredient(
@@ -1706,9 +1666,7 @@ class TestReparentIngredient:
 
     def test_reparent_parent_not_found(self, test_db):
         """Test error when new parent doesn't exist."""
-        semi_sweet = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        )
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
 
         with pytest.raises(ValueError, match="not found"):
             ingredient_hierarchy_service.reparent_ingredient(
@@ -1718,21 +1676,15 @@ class TestReparentIngredient:
     def test_reparent_last_l2_leaves_l1_empty(self, test_db):
         """Test that reparenting the only L2 under an L1 leaves L1 empty (valid operation)."""
         # Milk Chocolate has only one child (Milk Chocolate Chips)
-        milk_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
-        )
+        milk_choc = test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
         milk_chips = (
             test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate-chips").first()
         )
-        dark_choc = (
-            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        )
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
         # Verify milk_choc has only one child
         children = (
-            test_db.query(Ingredient)
-            .filter(Ingredient.parent_ingredient_id == milk_choc.id)
-            .all()
+            test_db.query(Ingredient).filter(Ingredient.parent_ingredient_id == milk_choc.id).all()
         )
         assert len(children) == 1
 
@@ -1743,9 +1695,7 @@ class TestReparentIngredient:
 
         # Original L1 should now have no children (empty but valid)
         children_after = (
-            test_db.query(Ingredient)
-            .filter(Ingredient.parent_ingredient_id == milk_choc.id)
-            .all()
+            test_db.query(Ingredient).filter(Ingredient.parent_ingredient_id == milk_choc.id).all()
         )
         assert len(children_after) == 0
         assert result["parent_ingredient_id"] == dark_choc.id

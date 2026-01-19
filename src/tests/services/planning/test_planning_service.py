@@ -244,9 +244,7 @@ class TestCalculatePlan:
         plan_id1 = result1["plan_id"]
 
         # Force recalculate
-        result2 = calculate_plan(
-            bundled_setup["event_id"], force_recalculate=True, session=session
-        )
+        result2 = calculate_plan(bundled_setup["event_id"], force_recalculate=True, session=session)
         plan_id2 = result2["plan_id"]
 
         assert plan_id2 > plan_id1
@@ -558,9 +556,7 @@ class TestGetAssemblyChecklist:
         """Test that checklist is returned."""
         session = test_db()
 
-        checklist = get_assembly_checklist(
-            checklist_setup["event_id"], session=session
-        )
+        checklist = get_assembly_checklist(checklist_setup["event_id"], session=session)
 
         assert isinstance(checklist, list)
         assert len(checklist) == 1
@@ -637,9 +633,7 @@ class TestRecordAssemblyConfirmation:
         session = test_db()
 
         with pytest.raises(PlanningError):
-            record_assembly_confirmation(
-                99999, 10, confirmation_setup["event_id"], session=session
-            )
+            record_assembly_confirmation(99999, 10, confirmation_setup["event_id"], session=session)
 
 
 class TestIntegration:

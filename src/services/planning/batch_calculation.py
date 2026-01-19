@@ -76,9 +76,7 @@ def calculate_batches(units_needed: int, yield_per_batch: int) -> int:
     return math.ceil(units_needed / yield_per_batch)
 
 
-def calculate_waste(
-    units_needed: int, batches: int, yield_per_batch: int
-) -> tuple[int, float]:
+def calculate_waste(units_needed: int, batches: int, yield_per_batch: int) -> tuple[int, float]:
     """Calculate waste units and percentage.
 
     Waste is the number of units produced beyond what is needed.
@@ -206,9 +204,7 @@ def explode_bundle_requirements(
 
     # Query Composition records for this FinishedGood (assembly)
     compositions = (
-        session.query(Composition)
-        .filter(Composition.assembly_id == finished_good_id)
-        .all()
+        session.query(Composition).filter(Composition.assembly_id == finished_good_id).all()
     )
 
     for comp in compositions:
@@ -348,13 +344,9 @@ def calculate_event_batch_requirements(
         Returns recipe batch calculations for all component recipes.
     """
     if session is not None:
-        return _calculate_event_batch_requirements_impl(
-            event_bundle_requirements, session
-        )
+        return _calculate_event_batch_requirements_impl(event_bundle_requirements, session)
     with session_scope() as session:
-        return _calculate_event_batch_requirements_impl(
-            event_bundle_requirements, session
-        )
+        return _calculate_event_batch_requirements_impl(event_bundle_requirements, session)
 
 
 def _calculate_event_batch_requirements_impl(
@@ -366,9 +358,7 @@ def _calculate_event_batch_requirements_impl(
     all_unit_quantities: Dict[int, int] = {}
 
     for finished_good_id, quantity in event_bundle_requirements.items():
-        unit_quantities = explode_bundle_requirements(
-            finished_good_id, quantity, session
-        )
+        unit_quantities = explode_bundle_requirements(finished_good_id, quantity, session)
         for unit_id, unit_qty in unit_quantities.items():
             if unit_id in all_unit_quantities:
                 all_unit_quantities[unit_id] += unit_qty

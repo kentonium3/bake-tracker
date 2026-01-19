@@ -98,8 +98,9 @@ class PlanDashboard(BaseDashboard):
 
             # Events needing attention (placeholder logic - events without targets)
             # For now, just count events happening soon (within 7 days)
-            attention_count = len([e for e in upcoming
-                                   if e.event_date and (e.event_date - today).days <= 7])
+            attention_count = len(
+                [e for e in upcoming if e.event_date and (e.event_date - today).days <= 7]
+            )
             self.update_stat("Need Attention", str(attention_count))
 
         except Exception:

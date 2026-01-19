@@ -18,38 +18,57 @@ from src.services import recipe_service, import_export_service, ingredient_servi
 from src.services.exceptions import ValidationError
 from src.models import Recipe, RecipeIngredient, RecipeComponent
 
+
 @pytest.fixture
 def test_ingredient(test_db):
     """Create a test ingredient with pricing."""
     # Ensure 'Flour' root category exists
-    ingredient_service.create_ingredient({"display_name": "Flour (Category)", "category": "Flour", "hierarchy_level": 0, "slug": "flour-category"})
-    return ingredient_service.create_ingredient({
-        "display_name": "Flour",
-        "category": "Flour",
-        "slug": "flour"
-    })
+    ingredient_service.create_ingredient(
+        {
+            "display_name": "Flour (Category)",
+            "category": "Flour",
+            "hierarchy_level": 0,
+            "slug": "flour-category",
+        }
+    )
+    return ingredient_service.create_ingredient(
+        {"display_name": "Flour", "category": "Flour", "slug": "flour"}
+    )
+
 
 @pytest.fixture
 def test_ingredient_sugar(test_db):
     """Create a sugar ingredient."""
     # Ensure 'Sugar' root category exists
-    ingredient_service.create_ingredient({"display_name": "Sugar (Category)", "category": "Sugar", "hierarchy_level": 0, "slug": "sugar-category"})
-    return ingredient_service.create_ingredient({
-        "display_name": "Sugar",
-        "category": "Sugar",
-        "slug": "sugar"
-    })
+    ingredient_service.create_ingredient(
+        {
+            "display_name": "Sugar (Category)",
+            "category": "Sugar",
+            "hierarchy_level": 0,
+            "slug": "sugar-category",
+        }
+    )
+    return ingredient_service.create_ingredient(
+        {"display_name": "Sugar", "category": "Sugar", "slug": "sugar"}
+    )
+
 
 @pytest.fixture
 def test_ingredient_butter(test_db):
     """Create a butter ingredient."""
     # Ensure 'Dairy' root category exists
-    ingredient_service.create_ingredient({"display_name": "Dairy (Category)", "category": "Dairy", "hierarchy_level": 0, "slug": "dairy-category"})
-    return ingredient_service.create_ingredient({
-        "display_name": "Butter",
-        "category": "Dairy",
-        "slug": "butter"
-    })
+    ingredient_service.create_ingredient(
+        {
+            "display_name": "Dairy (Category)",
+            "category": "Dairy",
+            "hierarchy_level": 0,
+            "slug": "dairy-category",
+        }
+    )
+    return ingredient_service.create_ingredient(
+        {"display_name": "Butter", "category": "Dairy", "slug": "butter"}
+    )
+
 
 @pytest.fixture
 def test_ingredient_milk(test_db):
@@ -57,18 +76,25 @@ def test_ingredient_milk(test_db):
     # Ensure 'Dairy' root category exists
     # This will be skipped if Dairy (Category) was already created by test_ingredient_butter
     try:
-        ingredient_service.create_ingredient({"display_name": "Dairy (Category)", "category": "Dairy", "hierarchy_level": 0, "slug": "dairy-category"})
+        ingredient_service.create_ingredient(
+            {
+                "display_name": "Dairy (Category)",
+                "category": "Dairy",
+                "hierarchy_level": 0,
+                "slug": "dairy-category",
+            }
+        )
     except ValidationError:
-        pass # Already exists
-    return ingredient_service.create_ingredient({
-        "display_name": "Milk",
-        "category": "Dairy",
-        "slug": "milk"
-    })
+        pass  # Already exists
+    return ingredient_service.create_ingredient(
+        {"display_name": "Milk", "category": "Dairy", "slug": "milk"}
+    )
+
 
 # =============================================================================
 # T044: Quickstart Checklist Tests
 # =============================================================================
+
 
 class TestQuickstartChecklist:
     """Tests that validate the quickstart.md testing checklist."""
@@ -77,11 +103,11 @@ class TestQuickstartChecklist:
         """Create two simple recipes (A and B)."""
         recipe_a = recipe_service.create_recipe(
             {"name": "Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_b = recipe_service.create_recipe(
             {"name": "Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         assert recipe_a.id is not None
@@ -94,17 +120,15 @@ class TestQuickstartChecklist:
         # Create recipes
         recipe_a = recipe_service.create_recipe(
             {"name": "Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_b = recipe_service.create_recipe(
             {"name": "Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # Add B as component of A with quantity 2
-        component = recipe_service.add_recipe_component(
-            recipe_a.id, recipe_b.id, quantity=2.0
-        )
+        component = recipe_service.add_recipe_component(recipe_a.id, recipe_b.id, quantity=2.0)
 
         assert component is not None
         assert component.recipe_id == recipe_a.id
@@ -121,11 +145,11 @@ class TestQuickstartChecklist:
         # Create recipes
         recipe_a = recipe_service.create_recipe(
             {"name": "Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_b = recipe_service.create_recipe(
             {"name": "Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # Add B as component of A
@@ -142,15 +166,15 @@ class TestQuickstartChecklist:
         # Create recipes A, B, C
         recipe_a = recipe_service.create_recipe(
             {"name": "Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_b = recipe_service.create_recipe(
             {"name": "Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
         recipe_c = recipe_service.create_recipe(
             {"name": "Recipe C", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.25, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.25, "unit": "cup"}],
         )
 
         # A includes B, C includes B
@@ -171,24 +195,28 @@ class TestQuickstartChecklist:
         # Create 4 recipes
         recipe_d = recipe_service.create_recipe(
             {"name": "Recipe D", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}],
         )
         recipe_e = recipe_service.create_recipe(
             {"name": "Recipe E", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}],
         )
         recipe_f = recipe_service.create_recipe(
             {"name": "Recipe F", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}],
         )
         recipe_g = recipe_service.create_recipe(
             {"name": "Recipe G", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.1, "unit": "cup"}],
         )
 
         # Create D -> E -> F (3 levels - level 1, 2, 3)
-        recipe_service.add_recipe_component(recipe_e.id, recipe_f.id, quantity=1.0)  # E includes F (2 levels)
-        recipe_service.add_recipe_component(recipe_d.id, recipe_e.id, quantity=1.0)  # D includes E (3 levels)
+        recipe_service.add_recipe_component(
+            recipe_e.id, recipe_f.id, quantity=1.0
+        )  # E includes F (2 levels)
+        recipe_service.add_recipe_component(
+            recipe_d.id, recipe_e.id, quantity=1.0
+        )  # D includes E (3 levels)
 
         # Now try to add G above D, creating G -> D -> E -> F (4 levels) - should fail
         with pytest.raises(ValidationError) as exc_info:
@@ -201,11 +229,11 @@ class TestQuickstartChecklist:
         # Create recipes
         recipe_a = recipe_service.create_recipe(
             {"name": "Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_b = recipe_service.create_recipe(
             {"name": "Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # Add B as component of A
@@ -222,11 +250,11 @@ class TestQuickstartChecklist:
         # Create recipes
         recipe_a = recipe_service.create_recipe(
             {"name": "Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_b = recipe_service.create_recipe(
             {"name": "Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # Add B as component of A
@@ -243,9 +271,11 @@ class TestQuickstartChecklist:
         deleted = recipe_service.get_recipe_by_name("Recipe B")
         assert deleted is None
 
+
 # =============================================================================
 # T045: 3-Level Nesting End-to-End Tests
 # =============================================================================
+
 
 class TestThreeLevelNesting:
     """Tests for 3-level nesting functionality."""
@@ -256,23 +286,28 @@ class TestThreeLevelNesting:
         """Create hierarchy: Grandchild -> Child -> Parent."""
         # Create Grandchild recipe
         grandchild = recipe_service.create_recipe(
-            {"name": "Grandchild", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            {
+                "name": "Grandchild",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
             [
                 {"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"},
                 {"ingredient_id": test_ingredient_sugar.id, "quantity": 0.5, "unit": "cup"},
-            ]
+            ],
         )
 
         # Create Child recipe
         child = recipe_service.create_recipe(
             {"name": "Child", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_butter.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient_butter.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         # Create Parent recipe
         parent = recipe_service.create_recipe(
             {"name": "Parent", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_milk.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient_milk.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Build hierarchy: Child includes Grandchild, Parent includes Child
@@ -295,19 +330,24 @@ class TestThreeLevelNesting:
         """Verify cost calculation includes all levels."""
         # Create hierarchy
         grandchild = recipe_service.create_recipe(
-            {"name": "Grandchild", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            {
+                "name": "Grandchild",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
             [
                 {"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"},
                 {"ingredient_id": test_ingredient_sugar.id, "quantity": 0.5, "unit": "cup"},
-            ]
+            ],
         )
         child = recipe_service.create_recipe(
             {"name": "Child", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_butter.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient_butter.id, "quantity": 1.0, "unit": "cup"}],
         )
         parent = recipe_service.create_recipe(
             {"name": "Parent", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_milk.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient_milk.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(child.id, grandchild.id, quantity=1.0)
@@ -331,19 +371,24 @@ class TestThreeLevelNesting:
         """Verify shopping list aggregates all ingredients from all levels."""
         # Create hierarchy
         grandchild = recipe_service.create_recipe(
-            {"name": "Grandchild", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            {
+                "name": "Grandchild",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
             [
                 {"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"},
                 {"ingredient_id": test_ingredient_sugar.id, "quantity": 0.5, "unit": "cup"},
-            ]
+            ],
         )
         child = recipe_service.create_recipe(
             {"name": "Child", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_butter.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient_butter.id, "quantity": 1.0, "unit": "cup"}],
         )
         parent = recipe_service.create_recipe(
             {"name": "Parent", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_milk.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient_milk.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(child.id, grandchild.id, quantity=1.0)
@@ -373,9 +418,11 @@ class TestThreeLevelNesting:
         assert butter_entry["total_quantity"] == 2.0  # 1 * 2
         assert milk_entry["total_quantity"] == 2.0  # direct
 
+
 # =============================================================================
 # T046: Import/Export Round-Trip Tests
 # =============================================================================
+
 
 class TestImportExportRoundTrip:
     """Tests for import/export functionality with recipe components."""
@@ -384,17 +431,27 @@ class TestImportExportRoundTrip:
         """Verify export includes component relationships."""
         # Create parent and child recipes
         child = recipe_service.create_recipe(
-            {"name": "Child Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            {
+                "name": "Child Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
         parent = recipe_service.create_recipe(
-            {"name": "Parent Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Parent Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0, notes="Test note")
 
         # Export
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             export_file = f.name
 
         try:
@@ -406,9 +463,7 @@ class TestImportExportRoundTrip:
                 data = json.load(f)
 
             # Find parent recipe in export
-            parent_data = next(
-                r for r in data["recipes"] if r["name"] == "Parent Recipe"
-            )
+            parent_data = next(r for r in data["recipes"] if r["name"] == "Parent Recipe")
             assert "components" in parent_data
             assert len(parent_data["components"]) == 1
             assert parent_data["components"][0]["recipe_name"] == "Child Recipe"
@@ -421,23 +476,38 @@ class TestImportExportRoundTrip:
         """Export then import preserves all component relationships."""
         # Create 3-level hierarchy
         grandchild = recipe_service.create_recipe(
-            {"name": "Grandchild Export", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.25, "unit": "cup"}]
+            {
+                "name": "Grandchild Export",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.25, "unit": "cup"}],
         )
         child = recipe_service.create_recipe(
-            {"name": "Child Export", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient_sugar.id, "quantity": 0.5, "unit": "cup"}]
+            {
+                "name": "Child Export",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient_sugar.id, "quantity": 0.5, "unit": "cup"}],
         )
         parent = recipe_service.create_recipe(
-            {"name": "Parent Export", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Parent Export",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(child.id, grandchild.id, quantity=1.0)
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0, notes="Double batch")
 
         # Export all to v3.2 format
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             export_file = f.name
 
         try:
@@ -477,9 +547,11 @@ class TestImportExportRoundTrip:
         finally:
             os.unlink(export_file)
 
+
 # =============================================================================
 # T047: Backward Compatibility Tests
 # =============================================================================
+
 
 class TestBackwardCompatibility:
     """Tests to ensure existing recipes without components still work."""
@@ -488,8 +560,13 @@ class TestBackwardCompatibility:
         """Recipe without components behaves identically to before feature."""
         # Create simple recipe without components
         recipe = recipe_service.create_recipe(
-            {"name": "Simple Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            {
+                "name": "Simple Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # All operations should work
@@ -503,9 +580,9 @@ class TestBackwardCompatibility:
                 "name": "Updated Simple",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": test_ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": test_ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
         assert updated.name == "Updated Simple"
 
@@ -516,8 +593,13 @@ class TestBackwardCompatibility:
     def test_recipe_cost_without_components_unchanged(self, test_ingredient):
         """Cost calculation unchanged for recipes without components."""
         recipe = recipe_service.create_recipe(
-            {"name": "Cost Test Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            {
+                "name": "Cost Test Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Calculate using new method
@@ -532,11 +614,16 @@ class TestBackwardCompatibility:
     def test_existing_recipe_export_import_without_components(self, test_ingredient):
         """Export/import works for recipes without components."""
         recipe = recipe_service.create_recipe(
-            {"name": "Export Test Simple", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Export Test Simple",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             export_file = f.name
 
         try:
@@ -564,14 +651,21 @@ class TestBackwardCompatibility:
         finally:
             os.unlink(export_file)
 
-    def test_aggregated_ingredients_without_components(self, test_ingredient, test_ingredient_sugar):
+    def test_aggregated_ingredients_without_components(
+        self, test_ingredient, test_ingredient_sugar
+    ):
         """get_aggregated_ingredients works for recipes without components."""
         recipe = recipe_service.create_recipe(
-            {"name": "Aggregation Test", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            {
+                "name": "Aggregation Test",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
             [
                 {"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"},
                 {"ingredient_id": test_ingredient_sugar.id, "quantity": 0.5, "unit": "cup"},
-            ]
+            ],
         )
 
         # Get aggregated - should just return direct ingredients
@@ -582,9 +676,11 @@ class TestBackwardCompatibility:
         assert "Flour" in ingredient_names
         assert "Sugar" in ingredient_names
 
+
 # =============================================================================
 # Additional Edge Case Tests
 # =============================================================================
+
 
 class TestEdgeCases:
     """Additional edge case tests for robustness."""
@@ -592,8 +688,13 @@ class TestEdgeCases:
     def test_cannot_add_recipe_to_itself(self, test_ingredient):
         """Recipe cannot include itself as a component."""
         recipe = recipe_service.create_recipe(
-            {"name": "Self Reference", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Self Reference",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         with pytest.raises(ValidationError):
@@ -602,12 +703,22 @@ class TestEdgeCases:
     def test_cannot_add_same_component_twice(self, test_ingredient):
         """Cannot add same sub-recipe twice to same parent."""
         parent = recipe_service.create_recipe(
-            {"name": "Parent Dup", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Parent Dup",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         child = recipe_service.create_recipe(
-            {"name": "Child Dup", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            {
+                "name": "Child Dup",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # First add succeeds
@@ -622,12 +733,22 @@ class TestEdgeCases:
     def test_quantity_must_be_positive(self, test_ingredient):
         """Batch quantity must be greater than 0."""
         parent = recipe_service.create_recipe(
-            {"name": "Parent Qty", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Parent Qty",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         child = recipe_service.create_recipe(
-            {"name": "Child Qty", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            {
+                "name": "Child Qty",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # Zero quantity should fail
@@ -641,12 +762,22 @@ class TestEdgeCases:
     def test_update_component_quantity(self, test_ingredient):
         """Can update component quantity."""
         parent = recipe_service.create_recipe(
-            {"name": "Parent Update", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Parent Update",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 1.0, "unit": "cup"}],
         )
         child = recipe_service.create_recipe(
-            {"name": "Child Update", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}]
+            {
+                "name": "Child Update",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": test_ingredient.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)

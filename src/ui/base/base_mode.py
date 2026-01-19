@@ -30,12 +30,7 @@ class BaseMode(ctk.CTkFrame, ABC):
         current_tab_index: Currently selected tab index (for state preservation)
     """
 
-    def __init__(
-        self,
-        master: Any,
-        name: str,
-        **kwargs
-    ):
+    def __init__(self, master: Any, name: str, **kwargs):
         """Initialize BaseMode.
 
         Args:

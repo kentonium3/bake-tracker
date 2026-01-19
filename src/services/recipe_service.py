@@ -16,7 +16,14 @@ from sqlalchemy.orm import joinedload
 
 from sqlalchemy import func
 
-from src.models import Recipe, RecipeIngredient, RecipeComponent, Ingredient, ProductionRun, FinishedUnit
+from src.models import (
+    Recipe,
+    RecipeIngredient,
+    RecipeComponent,
+    Ingredient,
+    ProductionRun,
+    FinishedUnit,
+)
 from src.services.database import session_scope
 from src.services.exceptions import (
     RecipeNotFound,
@@ -438,15 +445,15 @@ def delete_recipe(recipe_id: int) -> bool:
 
             # 1. Check if recipe is used as a component in other recipes (blocking condition)
             parent_components = (
-                session.query(RecipeComponent)
-                .filter_by(component_recipe_id=recipe_id)
-                .all()
+                session.query(RecipeComponent).filter_by(component_recipe_id=recipe_id).all()
             )
 
             if parent_components:
                 parent_names = [comp.recipe.name for comp in parent_components if comp.recipe]
                 raise ValidationError(
-                    [f"Cannot delete '{recipe.name}': it is used as a component in: {', '.join(parent_names)}"]
+                    [
+                        f"Cannot delete '{recipe.name}': it is used as a component in: {', '.join(parent_names)}"
+                    ]
                 )
 
             # 2. Check for historical dependencies
@@ -486,6 +493,7 @@ def check_recipe_dependencies(recipe_id: int, session) -> Dict[str, int]:
         "finished_units": session.query(FinishedUnit).filter_by(recipe_id=recipe_id).count(),
     }
     return dependencies
+
 
 # ============================================================================
 # Recipe Ingredient Management
@@ -698,13 +706,15 @@ def get_recipe_with_costs(recipe_id: int) -> Dict:
 
                 comp_cost = comp.quantity * comp_total_cost
 
-                component_costs.append({
-                    "component_recipe": comp.component_recipe,
-                    "quantity": comp.quantity,
-                    "notes": comp.notes,
-                    "unit_cost": comp_total_cost,
-                    "total_cost": comp_cost,
-                })
+                component_costs.append(
+                    {
+                        "component_recipe": comp.component_recipe,
+                        "quantity": comp.quantity,
+                        "notes": comp.notes,
+                        "unit_cost": comp_total_cost,
+                        "total_cost": comp_cost,
+                    }
+                )
 
                 total_component_cost += comp_cost
 
@@ -774,9 +784,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
             recipe = (
                 session.query(Recipe)
                 .options(
-                    joinedload(Recipe.recipe_ingredients).joinedload(
-                        RecipeIngredient.ingredient
-                    )
+                    joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient)
                 )
                 .filter_by(id=recipe_id)
                 .first()
@@ -825,7 +833,9 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                         products = product_service.get_products_for_ingredient(ingredient.slug)
                         if not products:
                             raise ValidationError(
-                                [f"Cannot cost ingredient '{ingredient.display_name}': no products defined"]
+                                [
+                                    f"Cannot cost ingredient '{ingredient.display_name}': no products defined"
+                                ]
                             )
                         preferred_product = products[0]
 
@@ -835,8 +845,10 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                     )
                     if not latest_purchase:
                         raise ValidationError(
-                            [f"Cannot cost product '{preferred_product.brand or ingredient.display_name}': "
-                             f"no purchase history available"]
+                            [
+                                f"Cannot cost product '{preferred_product.brand or ingredient.display_name}': "
+                                f"no purchase history available"
+                            ]
                         )
 
                     # Convert shortfall to package units if needed
@@ -850,7 +862,9 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                         )
                         if not success:
                             raise ValidationError(
-                                [f"Cannot convert shortfall units for '{ingredient.display_name}': {error}"]
+                                [
+                                    f"Cannot convert shortfall units for '{ingredient.display_name}': {error}"
+                                ]
                             )
                         shortfall_in_package_unit = Decimal(str(shortfall_float))
                     else:
@@ -913,9 +927,7 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
             recipe = (
                 session.query(Recipe)
                 .options(
-                    joinedload(Recipe.recipe_ingredients).joinedload(
-                        RecipeIngredient.ingredient
-                    )
+                    joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient)
                 )
                 .filter_by(id=recipe_id)
                 .first()
@@ -951,7 +963,9 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                     products = product_service.get_products_for_ingredient(ingredient.slug)
                     if not products:
                         raise ValidationError(
-                            [f"Cannot cost ingredient '{ingredient.display_name}': no products defined"]
+                            [
+                                f"Cannot cost ingredient '{ingredient.display_name}': no products defined"
+                            ]
                         )
                     preferred_product = products[0]
 
@@ -959,8 +973,10 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                 latest_purchase = purchase_service.get_most_recent_purchase(preferred_product.id)
                 if not latest_purchase:
                     raise ValidationError(
-                        [f"Cannot cost product '{preferred_product.brand or ingredient.display_name}': "
-                         f"no purchase history available"]
+                        [
+                            f"Cannot cost product '{preferred_product.brand or ingredient.display_name}': "
+                            f"no purchase history available"
+                        ]
                     )
 
                 # Convert recipe quantity to package units
@@ -974,8 +990,10 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                     )
                     if not success:
                         raise ValidationError(
-                            [f"Cannot convert units for '{ingredient.display_name}': {error}. "
-                             f"Density data may be required for {recipe_unit} to {package_unit} conversion."]
+                            [
+                                f"Cannot convert units for '{ingredient.display_name}': {error}. "
+                                f"Density data may be required for {recipe_unit} to {package_unit} conversion."
+                            ]
                         )
                     converted_qty = Decimal(str(converted_float))
                 else:
@@ -1140,9 +1158,7 @@ def validate_recipe_has_finished_unit(recipe_id: int, session=None) -> List[str]
 
             if fu.yield_mode == YieldMode.DISCRETE_COUNT:
                 if not fu.item_unit:
-                    fu_errors.append(
-                        f"Yield type '{fu.display_name or 'unnamed'}' missing unit"
-                    )
+                    fu_errors.append(f"Yield type '{fu.display_name or 'unnamed'}' missing unit")
                 if not fu.items_per_batch or fu.items_per_batch <= 0:
                     fu_errors.append(
                         f"Yield type '{fu.display_name or 'unnamed'}' missing quantity"
@@ -1217,9 +1233,7 @@ def _would_create_cycle(parent_id: int, component_id: int, session) -> bool:
 
         # Get all components of current recipe
         components = (
-            session.query(RecipeComponent.component_recipe_id)
-            .filter_by(recipe_id=current)
-            .all()
+            session.query(RecipeComponent.component_recipe_id).filter_by(recipe_id=current).all()
         )
 
         for (comp_id,) in components:
@@ -1252,9 +1266,7 @@ def _get_recipe_depth(recipe_id: int, session, _visited: set = None) -> int:
 
     # Get components
     components = (
-        session.query(RecipeComponent.component_recipe_id)
-        .filter_by(recipe_id=recipe_id)
-        .all()
+        session.query(RecipeComponent.component_recipe_id).filter_by(recipe_id=recipe_id).all()
     )
 
     if not components:
@@ -1268,7 +1280,9 @@ def _get_recipe_depth(recipe_id: int, session, _visited: set = None) -> int:
     return 1 + max_child_depth
 
 
-def _would_exceed_depth(parent_id: int, component_id: int, session, max_depth: int = MAX_RECIPE_NESTING_DEPTH) -> bool:
+def _would_exceed_depth(
+    parent_id: int, component_id: int, session, max_depth: int = MAX_RECIPE_NESTING_DEPTH
+) -> bool:
     """
     Check if adding component would exceed maximum nesting depth.
 
@@ -1302,9 +1316,7 @@ def _would_exceed_depth(parent_id: int, component_id: int, session, max_depth: i
 
         # Find recipes that use this as a component
         parents = (
-            session.query(RecipeComponent.recipe_id)
-            .filter_by(component_recipe_id=recipe_id)
-            .all()
+            session.query(RecipeComponent.recipe_id).filter_by(component_recipe_id=recipe_id).all()
         )
 
         if not parents:
@@ -1381,7 +1393,9 @@ def add_recipe_component(
             # Check depth limit
             if _would_exceed_depth(recipe_id, component_recipe_id, session):
                 raise ValidationError(
-                    [f"Cannot add '{component.name}': would exceed maximum nesting depth of {MAX_RECIPE_NESTING_DEPTH} levels"]
+                    [
+                        f"Cannot add '{component.name}': would exceed maximum nesting depth of {MAX_RECIPE_NESTING_DEPTH} levels"
+                    ]
                 )
 
             # Determine sort_order if not provided
@@ -1708,17 +1722,15 @@ def _get_aggregated_ingredients_impl(
                 }
 
             aggregated[key]["total_quantity"] += qty
-            aggregated[key]["sources"].append({
-                "recipe_name": r.name,
-                "quantity": qty,
-            })
+            aggregated[key]["sources"].append(
+                {
+                    "recipe_name": r.name,
+                    "quantity": qty,
+                }
+            )
 
         # Collect from components
-        components = (
-            session.query(RecipeComponent)
-            .filter_by(recipe_id=r_id)
-            .all()
-        )
+        components = session.query(RecipeComponent).filter_by(recipe_id=r_id).all()
 
         for comp in components:
             component_mult = mult * comp.quantity
@@ -1767,7 +1779,9 @@ def _calculate_recipe_cost_recursive(recipe_id: int, session, visited: set = Non
     components = session.query(RecipeComponent).filter_by(recipe_id=recipe_id).all()
 
     for comp in components:
-        comp_result = _calculate_recipe_cost_recursive(comp.component_recipe_id, session, visited.copy())
+        comp_result = _calculate_recipe_cost_recursive(
+            comp.component_recipe_id, session, visited.copy()
+        )
         component_cost += comp.quantity * comp_result["total_cost"]
 
     return {"total_cost": direct_cost + component_cost}
@@ -1832,13 +1846,17 @@ def calculate_total_cost_with_components(recipe_id: int) -> Dict:
                 unit_cost = comp_result["total_cost"]
                 comp_total = unit_cost * comp.quantity
 
-                component_costs.append({
-                    "component_recipe_id": comp.component_recipe_id,
-                    "component_recipe_name": comp.component_recipe.name if comp.component_recipe else "Unknown",
-                    "quantity": comp.quantity,
-                    "unit_cost": unit_cost,
-                    "total_cost": comp_total,
-                })
+                component_costs.append(
+                    {
+                        "component_recipe_id": comp.component_recipe_id,
+                        "component_recipe_name": (
+                            comp.component_recipe.name if comp.component_recipe else "Unknown"
+                        ),
+                        "quantity": comp.quantity,
+                        "unit_cost": unit_cost,
+                        "total_cost": comp_total,
+                    }
+                )
 
                 total_component_cost += comp_total
 
@@ -1920,7 +1938,7 @@ def create_recipe_variant(
     variant_name: str,
     name: str = None,
     copy_ingredients: bool = True,
-    session=None
+    session=None,
 ) -> dict:
     """
     Create a variant of an existing recipe.
@@ -1957,11 +1975,7 @@ def create_recipe_variant(
 
 
 def _create_recipe_variant_impl(
-    base_recipe_id: int,
-    variant_name: str,
-    name: str,
-    copy_ingredients: bool,
-    session
+    base_recipe_id: int, variant_name: str, name: str, copy_ingredients: bool, session
 ) -> dict:
     """Internal implementation for create_recipe_variant."""
     # Get base recipe
@@ -2072,18 +2086,20 @@ def get_all_recipes_grouped(
             # F056: yield_quantity, yield_unit, yield_description removed
             recipe_dicts = []
             for r in recipes:
-                recipe_dicts.append({
-                    "id": r.id,
-                    "name": r.name,
-                    "category": r.category,
-                    "source": r.source,
-                    "estimated_time_minutes": r.estimated_time_minutes,
-                    "notes": r.notes,
-                    "is_archived": r.is_archived,
-                    "base_recipe_id": r.base_recipe_id,
-                    "variant_name": r.variant_name,
-                    "is_production_ready": r.is_production_ready,
-                })
+                recipe_dicts.append(
+                    {
+                        "id": r.id,
+                        "name": r.name,
+                        "category": r.category,
+                        "source": r.source,
+                        "estimated_time_minutes": r.estimated_time_minutes,
+                        "notes": r.notes,
+                        "is_archived": r.is_archived,
+                        "base_recipe_id": r.base_recipe_id,
+                        "variant_name": r.variant_name,
+                        "is_production_ready": r.is_production_ready,
+                    }
+                )
 
             if group_variants:
                 return _group_recipes_with_variants(recipe_dicts)

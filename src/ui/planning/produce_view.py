@@ -18,12 +18,7 @@ from src.services.planning import (
 class ProgressRow(ctk.CTkFrame):
     """Single row showing progress for a recipe."""
 
-    def __init__(
-        self,
-        parent: Any,
-        progress: ProductionProgress,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, progress: ProductionProgress, **kwargs):
         """Initialize ProgressRow.
 
         Args:
@@ -61,8 +56,10 @@ class ProgressRow(ctk.CTkFrame):
         progress_bar.grid(row=0, column=1, sticky="ew", padx=5, pady=5)
 
         # Progress text
-        progress_text = f"{progress.completed_batches}/{progress.target_batches} " \
-                        f"({progress.progress_percent:.0f}%)"
+        progress_text = (
+            f"{progress.completed_batches}/{progress.target_batches} "
+            f"({progress.progress_percent:.0f}%)"
+        )
         text_label = ctk.CTkLabel(
             self,
             text=progress_text,
@@ -103,11 +100,7 @@ class OverallProgressBar(ctk.CTkFrame):
     """Overall progress display with large progress bar."""
 
     def __init__(
-        self,
-        parent: Any,
-        percent: float,
-        label: str = "Overall Production Progress",
-        **kwargs
+        self, parent: Any, percent: float, label: str = "Overall Production Progress", **kwargs
     ):
         """Initialize OverallProgressBar.
 
@@ -163,12 +156,7 @@ class ProduceView(ctk.CTkFrame):
     Shows production progress with progress bars per recipe.
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        event_id: Optional[int] = None,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, event_id: Optional[int] = None, **kwargs):
         """Initialize ProduceView.
 
         Args:

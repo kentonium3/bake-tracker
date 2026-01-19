@@ -27,6 +27,7 @@ from src.models import (
 from src.models.inventory_snapshot import SnapshotIngredient, InventorySnapshot
 from src.models.ingredient import Ingredient
 
+
 class TestValidateDensityFields:
     """Tests for density field validation."""
 
@@ -126,7 +127,9 @@ class TestValidateDensityFields:
         ]
         for vol_val, vol_unit, wt_val, wt_unit in valid_combos:
             is_valid, error = validate_density_fields(vol_val, vol_unit, wt_val, wt_unit)
-            assert is_valid, f"Expected valid: {vol_val} {vol_unit} = {wt_val} {wt_unit}, got error: {error}"
+            assert (
+                is_valid
+            ), f"Expected valid: {vol_val} {vol_unit} = {wt_val} {wt_unit}, got error: {error}"
 
     def test_validate_density_fields_case_insensitive(self):
         """Unit validation is case insensitive."""
@@ -139,17 +142,20 @@ class TestValidateDensityFields:
 # Feature 031: Hierarchy Validation Tests
 # =============================================================================
 
+
 class TestCreateIngredientHierarchy:
     """Tests for create_ingredient with hierarchy fields."""
 
     def test_create_ingredient_with_valid_parent(self, test_db, hierarchy_ingredients):
         """Create ingredient with valid parent sets correct hierarchy_level."""
         # Create a new leaf under the mid-tier category
-        new_ingredient = create_ingredient({
-            "display_name": "White Chocolate Chips",
-            "category": "Chocolate",
-            "parent_ingredient_id": hierarchy_ingredients.mid.id,
-        })
+        new_ingredient = create_ingredient(
+            {
+                "display_name": "White Chocolate Chips",
+                "category": "Chocolate",
+                "parent_ingredient_id": hierarchy_ingredients.mid.id,
+            }
+        )
         assert new_ingredient.parent_ingredient_id == hierarchy_ingredients.mid.id
         assert new_ingredient.hierarchy_level == 2  # Parent is level 1, so child is level 2
 
@@ -158,11 +164,13 @@ class TestCreateIngredientHierarchy:
         from src.services.exceptions import IngredientNotFound
 
         with pytest.raises(IngredientNotFound):
-            create_ingredient({
-                "display_name": "Orphan Ingredient",
-                "category": "Test",
-                "parent_ingredient_id": 99999,  # Non-existent ID
-            })
+            create_ingredient(
+                {
+                    "display_name": "Orphan Ingredient",
+                    "category": "Test",
+                    "parent_ingredient_id": 99999,  # Non-existent ID
+                }
+            )
 
     def test_create_ingredient_exceeding_max_depth_fails(self, test_db, hierarchy_ingredients):
         """Create ingredient that would exceed max depth (3 levels) raises MaxDepthExceededError."""
@@ -170,18 +178,22 @@ class TestCreateIngredientHierarchy:
 
         # hierarchy_ingredients.leaf1 is level 2; adding child would make level 3
         with pytest.raises(MaxDepthExceededError):
-            create_ingredient({
-                "display_name": "Too Deep Ingredient",
-                "category": "Chocolate",
-                "parent_ingredient_id": hierarchy_ingredients.leaf1.id,
-            })
+            create_ingredient(
+                {
+                    "display_name": "Too Deep Ingredient",
+                    "category": "Chocolate",
+                    "parent_ingredient_id": hierarchy_ingredients.leaf1.id,
+                }
+            )
 
     def test_create_ingredient_without_parent_defaults_to_leaf(self, test_db):
         """Create ingredient without parent defaults hierarchy_level to 2 (leaf)."""
-        ingredient = create_ingredient({
-            "display_name": "Standalone Ingredient",
-            "category": "Other",
-        })
+        ingredient = create_ingredient(
+            {
+                "display_name": "Standalone Ingredient",
+                "category": "Other",
+            }
+        )
         assert ingredient.hierarchy_level == 2
         assert ingredient.parent_ingredient_id is None
 
@@ -193,6 +205,7 @@ class TestUpdateIngredientHierarchy:
         """Update parent_ingredient_id triggers move_ingredient logic."""
         # Create a new mid-tier to move a leaf under
         from src.models.ingredient import Ingredient
+
         session = test_db()
 
         new_mid = Ingredient(
@@ -222,29 +235,25 @@ class TestCreateIngredientFieldNormalization:
     def test_create_ingredient_with_name_field_normalized(self, test_db):
         """Create ingredient with 'name' field normalizes to 'display_name'."""
         # Use 'name' instead of 'display_name'
-        ingredient = create_ingredient({
-            "name": "Test Name Field",
-            "category": "Flour"
-        })
+        ingredient = create_ingredient({"name": "Test Name Field", "category": "Flour"})
         assert ingredient.display_name == "Test Name Field"
         assert ingredient.slug == "test_name_field"
 
     def test_create_ingredient_with_display_name_field_unchanged(self, test_db):
         """Create ingredient with 'display_name' field still works (backward compat)."""
-        ingredient = create_ingredient({
-            "display_name": "Test Display Name",
-            "category": "Sugars"
-        })
+        ingredient = create_ingredient({"display_name": "Test Display Name", "category": "Sugars"})
         assert ingredient.display_name == "Test Display Name"
         assert ingredient.slug == "test_display_name"
 
     def test_create_ingredient_display_name_takes_precedence(self, test_db):
         """When both 'name' and 'display_name' present, display_name takes precedence."""
-        ingredient = create_ingredient({
-            "name": "This Should Be Ignored",
-            "display_name": "This Should Be Used",
-            "category": "Seasonings"
-        })
+        ingredient = create_ingredient(
+            {
+                "name": "This Should Be Ignored",
+                "display_name": "This Should Be Used",
+                "category": "Seasonings",
+            }
+        )
         assert ingredient.display_name == "This Should Be Used"
         assert ingredient.slug == "this_should_be_used"
 
@@ -270,10 +279,9 @@ class TestDeletionProtectionAndSlug:
         session = test_db()
 
         # Arrange: Create an ingredient
-        ingredient = create_ingredient({
-            "display_name": "Test Flour for Product Block",
-            "category": "Flour"
-        })
+        ingredient = create_ingredient(
+            {"display_name": "Test Flour for Product Block", "category": "Flour"}
+        )
 
         # Create a Product referencing this ingredient
         product = Product(
@@ -281,7 +289,7 @@ class TestDeletionProtectionAndSlug:
             brand="Test Brand",
             package_size="5 lb",
             package_unit="lb",
-            package_unit_quantity=5.0
+            package_unit_quantity=5.0,
         )
         session.add(product)
         session.commit()
@@ -312,10 +320,9 @@ class TestDeletionProtectionAndSlug:
         session = test_db()
 
         # Arrange: Create an ingredient
-        ingredient = create_ingredient({
-            "display_name": "Test Vanilla for Recipe Block",
-            "category": "Extracts"
-        })
+        ingredient = create_ingredient(
+            {"display_name": "Test Vanilla for Recipe Block", "category": "Extracts"}
+        )
 
         # Create a Recipe and RecipeIngredient
         # F056: yield_quantity, yield_unit removed from Recipe model
@@ -327,10 +334,7 @@ class TestDeletionProtectionAndSlug:
         session.flush()
 
         recipe_ingredient = RecipeIngredient(
-            recipe_id=recipe.id,
-            ingredient_id=ingredient.id,
-            quantity=1.0,
-            unit="tsp"
+            recipe_id=recipe.id, ingredient_id=ingredient.id, quantity=1.0, unit="tsp"
         )
         session.add(recipe_ingredient)
         session.commit()
@@ -356,11 +360,9 @@ class TestDeletionProtectionAndSlug:
         session = test_db()
 
         # Arrange: Create parent ingredient
-        parent = create_ingredient({
-            "display_name": "Test Parent Category",
-            "category": "Test",
-            "hierarchy_level": 0
-        })
+        parent = create_ingredient(
+            {"display_name": "Test Parent Category", "category": "Test", "hierarchy_level": 0}
+        )
 
         # Create child ingredient referencing the parent
         child = Ingredient(
@@ -368,7 +370,7 @@ class TestDeletionProtectionAndSlug:
             display_name="Test Child Ingredient",
             category="Test",
             hierarchy_level=1,
-            parent_ingredient_id=parent.id
+            parent_ingredient_id=parent.id,
         )
         session.add(child)
         session.commit()
@@ -400,7 +402,7 @@ class TestDeletionProtectionAndSlug:
             display_name="Baking",
             category="Baking",
             hierarchy_level=0,
-            parent_ingredient_id=None
+            parent_ingredient_id=None,
         )
         session.add(l0)
         session.flush()
@@ -410,7 +412,7 @@ class TestDeletionProtectionAndSlug:
             display_name="Flour",
             category="Baking",
             hierarchy_level=1,
-            parent_ingredient_id=l0.id
+            parent_ingredient_id=l0.id,
         )
         session.add(l1)
         session.flush()
@@ -420,24 +422,19 @@ class TestDeletionProtectionAndSlug:
             display_name="All-Purpose",
             category="Baking",
             hierarchy_level=2,
-            parent_ingredient_id=l1.id
+            parent_ingredient_id=l1.id,
         )
         session.add(l2)
         session.flush()
 
         # Create an inventory snapshot
-        snapshot = InventorySnapshot(
-            name="Test Snapshot for Denorm",
-            description="Test snapshot"
-        )
+        snapshot = InventorySnapshot(name="Test Snapshot for Denorm", description="Test snapshot")
         session.add(snapshot)
         session.flush()
 
         # Create snapshot ingredient referencing the leaf ingredient
         snapshot_ingredient = SnapshotIngredient(
-            snapshot_id=snapshot.id,
-            ingredient_id=l2.id,
-            quantity=5.0
+            snapshot_id=snapshot.id, ingredient_id=l2.id, quantity=5.0
         )
         session.add(snapshot_ingredient)
         session.commit()
@@ -449,9 +446,11 @@ class TestDeletionProtectionAndSlug:
         delete_ingredient_safe(l2_id, session=session)
 
         # Assert: Snapshot record should be preserved with denormalized names
-        updated = session.query(SnapshotIngredient).filter(
-            SnapshotIngredient.id == snapshot_ingredient_id
-        ).first()
+        updated = (
+            session.query(SnapshotIngredient)
+            .filter(SnapshotIngredient.id == snapshot_ingredient_id)
+            .first()
+        )
 
         assert updated is not None
         assert updated.ingredient_id is None  # FK should be nullified
@@ -479,25 +478,23 @@ class TestDeletionProtectionAndSlug:
             slug="test-powdered-sugar",
             display_name="Powdered Sugar",
             category="Sugars",
-            hierarchy_level=2
+            hierarchy_level=2,
         )
         session.add(ingredient)
         session.flush()
         ingredient_id = ingredient.id
 
         # Create an alias for the ingredient
-        alias = IngredientAlias(
-            ingredient_id=ingredient_id,
-            alias="Confectioner's Sugar"
-        )
+        alias = IngredientAlias(ingredient_id=ingredient_id, alias="Confectioner's Sugar")
         session.add(alias)
         session.commit()
         alias_id = alias.id
 
         # Verify alias exists
-        assert session.query(IngredientAlias).filter(
-            IngredientAlias.id == alias_id
-        ).first() is not None
+        assert (
+            session.query(IngredientAlias).filter(IngredientAlias.id == alias_id).first()
+            is not None
+        )
 
         # Act: Delete the ingredient directly with session (bypassing ORM relationship handling)
         # This tests the database CASCADE constraint
@@ -505,9 +502,7 @@ class TestDeletionProtectionAndSlug:
         session.commit()
 
         # Assert: Alias should be cascade-deleted by database FK constraint
-        remaining = session.query(IngredientAlias).filter(
-            IngredientAlias.id == alias_id
-        ).first()
+        remaining = session.query(IngredientAlias).filter(IngredientAlias.id == alias_id).first()
         assert remaining is None
 
     # -------------------------------------------------------------------------
@@ -527,10 +522,7 @@ class TestDeletionProtectionAndSlug:
 
         # Arrange: Create an ingredient directly (not via service to avoid caching)
         ingredient = Ingredient(
-            slug="test-honey",
-            display_name="Honey",
-            category="Sweeteners",
-            hierarchy_level=2
+            slug="test-honey", display_name="Honey", category="Sweeteners", hierarchy_level=2
         )
         session.add(ingredient)
         session.flush()
@@ -538,18 +530,19 @@ class TestDeletionProtectionAndSlug:
 
         # Create a crosswalk entry for the ingredient
         crosswalk = IngredientCrosswalk(
-            ingredient_id=ingredient_id,
-            system="FoodOn",
-            code="FOODON_12345"
+            ingredient_id=ingredient_id, system="FoodOn", code="FOODON_12345"
         )
         session.add(crosswalk)
         session.commit()
         crosswalk_id = crosswalk.id
 
         # Verify crosswalk exists
-        assert session.query(IngredientCrosswalk).filter(
-            IngredientCrosswalk.id == crosswalk_id
-        ).first() is not None
+        assert (
+            session.query(IngredientCrosswalk)
+            .filter(IngredientCrosswalk.id == crosswalk_id)
+            .first()
+            is not None
+        )
 
         # Act: Delete the ingredient directly with session (bypassing ORM relationship handling)
         # This tests the database CASCADE constraint
@@ -557,9 +550,11 @@ class TestDeletionProtectionAndSlug:
         session.commit()
 
         # Assert: Crosswalk should be cascade-deleted by database FK constraint
-        remaining = session.query(IngredientCrosswalk).filter(
-            IngredientCrosswalk.id == crosswalk_id
-        ).first()
+        remaining = (
+            session.query(IngredientCrosswalk)
+            .filter(IngredientCrosswalk.id == crosswalk_id)
+            .first()
+        )
         assert remaining is None
 
     # -------------------------------------------------------------------------
@@ -573,10 +568,7 @@ class TestDeletionProtectionAndSlug:
         generated from the display_name using the project's slugification rules.
         """
         # Arrange & Act: Create an ingredient
-        ingredient = create_ingredient({
-            "display_name": "Brown Sugar",
-            "category": "Sugars"
-        })
+        ingredient = create_ingredient({"display_name": "Brown Sugar", "category": "Sugars"})
 
         # Assert: Slug should be auto-generated from display_name
         assert ingredient.slug is not None
@@ -596,28 +588,19 @@ class TestDeletionProtectionAndSlug:
         but not identical names that generate the same base slug.
         """
         # Arrange: Create first ingredient - base slug "vanilla_extract"
-        first = create_ingredient({
-            "display_name": "Vanilla Extract",
-            "category": "Extracts"
-        })
+        first = create_ingredient({"display_name": "Vanilla Extract", "category": "Extracts"})
         assert first.slug == "vanilla_extract"
 
         # Act: Create second ingredient with name that would generate same base slug
         # "Vanilla-Extract" with hyphen becomes "vanilla_extract" base slug
-        second = create_ingredient({
-            "display_name": "Vanilla-Extract",
-            "category": "Extracts"
-        })
+        second = create_ingredient({"display_name": "Vanilla-Extract", "category": "Extracts"})
 
         # Assert: Second should have suffix due to slug collision
         assert second.slug == "vanilla_extract_1"
 
         # Act: Create third ingredient with another variant
         # "Vanilla  Extract" (double space) also becomes "vanilla_extract"
-        third = create_ingredient({
-            "display_name": "Vanilla  Extract",
-            "category": "Extracts"
-        })
+        third = create_ingredient({"display_name": "Vanilla  Extract", "category": "Extracts"})
 
         # Assert: Third should have incremented suffix
         assert third.slug == "vanilla_extract_2"
@@ -633,10 +616,9 @@ class TestDeletionProtectionAndSlug:
         'name' instead of 'display_name', the field should be normalized.
         """
         # Arrange & Act: Use "name" instead of "display_name"
-        ingredient = create_ingredient({
-            "name": "Cinnamon",  # UI-style field name
-            "category": "Spices"
-        })
+        ingredient = create_ingredient(
+            {"name": "Cinnamon", "category": "Spices"}  # UI-style field name
+        )
 
         # Assert: Should work with 'name' field
         assert ingredient.display_name == "Cinnamon"

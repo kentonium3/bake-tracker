@@ -67,9 +67,7 @@ class ProductionExceedsPlannedError(Exception):
         self.recipe_id = recipe_id
         self.planned = planned
         self.would_produce = would_produce
-        super().__init__(
-            f"Production would exceed planned: {would_produce} vs {planned} planned"
-        )
+        super().__init__(f"Production would exceed planned: {would_produce} vs {planned} planned")
 
 
 class InvalidStatusTransitionError(Exception):
@@ -151,9 +149,7 @@ def record_production(
             recipe = (
                 session.query(Recipe)
                 .options(
-                    joinedload(Recipe.recipe_ingredients).joinedload(
-                        RecipeIngredient.ingredient
-                    ),
+                    joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient),
                 )
                 .filter(Recipe.id == recipe_id)
                 .first()
@@ -450,9 +446,7 @@ def update_package_status(
     if new_status == PackageStatus.ASSEMBLED:
         assembly_check = can_assemble_package(assignment_id)
         if not assembly_check["can_assemble"]:
-            raise IncompleteProductionError(
-                assignment_id, assembly_check["missing_recipes"]
-            )
+            raise IncompleteProductionError(assignment_id, assembly_check["missing_recipes"])
 
     # Now perform the update in a fresh session
     try:
@@ -536,9 +530,7 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
 
             for need in recipe_needs:
                 recipe_id = need["recipe_id"]
-                prod = produced_map.get(
-                    recipe_id, {"produced": 0, "actual_cost": Decimal("0")}
-                )
+                prod = produced_map.get(recipe_id, {"produced": 0, "actual_cost": Decimal("0")})
 
                 # Get planned cost from recipe (estimated)
                 recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()

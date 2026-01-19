@@ -59,15 +59,18 @@ from src.models.assembly_type import AssemblyType
 def test_supplier(test_db):
     """Create a test supplier for F028 inventory tracking."""
     from src.services import supplier_service
+
     result = supplier_service.create_supplier(
         name="Test Supplier",
         city="Boston",
         state="MA",
         zip_code="02101",
     )
+
     class SupplierObj:
         def __init__(self, data):
             self.id = data["id"]
+
     return SupplierObj(result)
 
 

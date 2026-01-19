@@ -142,9 +142,7 @@ def sample_material_product(test_db, sample_material, sample_supplier_for_materi
 class TestImportMaterialsAddOnlyCreatesNew:
     """Test import_materials creates new materials in ADD_ONLY mode."""
 
-    def test_import_materials_add_only_creates_new(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_materials_add_only_creates_new(self, test_db, cleanup_material_data):
         """Verify new materials are created with auto-created category/subcategory."""
         data = [
             {
@@ -164,11 +162,7 @@ class TestImportMaterialsAddOnlyCreatesNew:
 
         # Verify material was created in database
         with session_scope() as session:
-            material = (
-                session.query(Material)
-                .filter_by(name="Blue Grosgrain Ribbon")
-                .first()
-            )
+            material = session.query(Material).filter_by(name="Blue Grosgrain Ribbon").first()
             assert material is not None
             assert material.base_unit_type == "linear_cm"
             assert material.description == "A beautiful blue grosgrain ribbon"
@@ -176,22 +170,14 @@ class TestImportMaterialsAddOnlyCreatesNew:
             assert material.slug == "blue-grosgrain-ribbon"
 
             # Verify category and subcategory were auto-created
-            category = (
-                session.query(MaterialCategory).filter_by(name="Ribbons").first()
-            )
+            category = session.query(MaterialCategory).filter_by(name="Ribbons").first()
             assert category is not None
 
-            subcategory = (
-                session.query(MaterialSubcategory)
-                .filter_by(name="Grosgrain")
-                .first()
-            )
+            subcategory = session.query(MaterialSubcategory).filter_by(name="Grosgrain").first()
             assert subcategory is not None
             assert subcategory.category_id == category.id
 
-    def test_import_materials_add_only_with_explicit_slug(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_materials_add_only_with_explicit_slug(self, test_db, cleanup_material_data):
         """Verify explicit slug is used when provided."""
         data = [
             {
@@ -207,11 +193,7 @@ class TestImportMaterialsAddOnlyCreatesNew:
         assert result.entity_counts["materials"].added == 1
 
         with session_scope() as session:
-            material = (
-                session.query(Material)
-                .filter_by(slug="custom-white-box-slug")
-                .first()
-            )
+            material = session.query(Material).filter_by(slug="custom-white-box-slug").first()
             assert material is not None
             assert material.name == "White Box"
 
@@ -232,9 +214,7 @@ class TestImportMaterialsAddOnlyCreatesNew:
         assert result.entity_counts["materials"].added == 1
 
         with session_scope() as session:
-            material = (
-                session.query(Material).filter_by(name="Gift Tag").first()
-            )
+            material = session.query(Material).filter_by(name="Gift Tag").first()
             assert material.base_unit_type == "each"
 
 
@@ -269,11 +249,7 @@ class TestImportMaterialsAddOnlySkipsExisting:
 
         # Verify original material is unchanged
         with session_scope() as session:
-            material = (
-                session.query(Material)
-                .filter_by(slug=sample_material["slug"])
-                .first()
-            )
+            material = session.query(Material).filter_by(slug=sample_material["slug"]).first()
             # Description should still be None (original value)
             assert material.description is None
 
@@ -332,16 +308,10 @@ class TestImportMaterialsAugmentUpdatesNullFields:
 
         # Verify description was updated
         with session_scope() as session:
-            material = (
-                session.query(Material)
-                .filter_by(slug=sample_material["slug"])
-                .first()
-            )
+            material = session.query(Material).filter_by(slug=sample_material["slug"]).first()
             assert material.description == "Newly added description"
 
-    def test_import_materials_augment_skips_no_null_fields(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_materials_augment_skips_no_null_fields(self, test_db, cleanup_material_data):
         """Verify AUGMENT mode skips when no NULL fields to update."""
         # First create a material with description already set
         with session_scope() as session:
@@ -349,9 +319,7 @@ class TestImportMaterialsAugmentUpdatesNullFields:
             session.add(category)
             session.flush()
 
-            subcategory = MaterialSubcategory(
-                category_id=category.id, name="Paper", slug="paper"
-            )
+            subcategory = MaterialSubcategory(category_id=category.id, name="Paper", slug="paper")
             session.add(subcategory)
             session.flush()
 
@@ -383,9 +351,7 @@ class TestImportMaterialsAugmentUpdatesNullFields:
 
         # Verify original description is preserved
         with session_scope() as session:
-            material = (
-                session.query(Material).filter_by(slug="brown-paper-bag").first()
-            )
+            material = session.query(Material).filter_by(slug="brown-paper-bag").first()
             assert material.description == "Already has a description"
 
 
@@ -420,11 +386,7 @@ class TestImportMaterialsAugmentPreservesProtectedFields:
         assert result.entity_counts["materials"].augmented == 1
 
         with session_scope() as session:
-            material = (
-                session.query(Material)
-                .filter_by(slug=sample_material["slug"])
-                .first()
-            )
+            material = session.query(Material).filter_by(slug=sample_material["slug"]).first()
             # Protected fields should be unchanged
             assert material.name == original_name
             assert material.slug == original_slug
@@ -461,11 +423,7 @@ class TestImportMaterialProductsResolvesSlug:
         assert result.entity_counts["material_products"].failed == 0
 
         with session_scope() as session:
-            product = (
-                session.query(MaterialProduct)
-                .filter_by(name="50ft Red Satin Spool")
-                .first()
-            )
+            product = session.query(MaterialProduct).filter_by(name="50ft Red Satin Spool").first()
             assert product is not None
             assert product.material_id == sample_material["id"]
 
@@ -489,9 +447,7 @@ class TestImportMaterialProductsResolvesSlug:
 
         with session_scope() as session:
             product = (
-                session.query(MaterialProduct)
-                .filter_by(name="25ft Red Satin Mini Roll")
-                .first()
+                session.query(MaterialProduct).filter_by(name="25ft Red Satin Mini Roll").first()
             )
             assert product.material_id == sample_material["id"]
 
@@ -501,23 +457,15 @@ class TestImportMaterialProductsResolvesSlug:
         """Verify material_slug takes precedence over material name."""
         # Create another material with similar name
         with session_scope() as session:
-            category = (
-                session.query(MaterialCategory).filter_by(name="Ribbons").first()
-            )
+            category = session.query(MaterialCategory).filter_by(name="Ribbons").first()
             if not category:
                 category = MaterialCategory(name="Ribbons", slug="ribbons")
                 session.add(category)
                 session.flush()
 
-            subcat = (
-                session.query(MaterialSubcategory)
-                .filter_by(name="Satin")
-                .first()
-            )
+            subcat = session.query(MaterialSubcategory).filter_by(name="Satin").first()
             if not subcat:
-                subcat = MaterialSubcategory(
-                    category_id=category.id, name="Satin", slug="satin"
-                )
+                subcat = MaterialSubcategory(category_id=category.id, name="Satin", slug="satin")
                 session.add(subcat)
                 session.flush()
 
@@ -547,11 +495,7 @@ class TestImportMaterialProductsResolvesSlug:
         assert result.entity_counts["material_products"].added == 1
 
         with session_scope() as session:
-            product = (
-                session.query(MaterialProduct)
-                .filter_by(name="Test Product")
-                .first()
-            )
+            product = session.query(MaterialProduct).filter_by(name="Test Product").first()
             # Should use slug match, not name match
             assert product.material_id == other_id
 
@@ -564,9 +508,7 @@ class TestImportMaterialProductsResolvesSlug:
 class TestImportMaterialProductsErrorInvalidSlug:
     """Test import_material_products errors on invalid material_slug."""
 
-    def test_import_material_products_error_invalid_slug(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_material_products_error_invalid_slug(self, test_db, cleanup_material_data):
         """Verify error when material_slug does not exist."""
         data = [
             {
@@ -617,9 +559,7 @@ class TestImportMaterialProductsErrorInvalidSlug:
 class TestImportMaterialsResultCounts:
     """Test ImportResult has correct successful/skipped/failed counts."""
 
-    def test_import_materials_result_counts(
-        self, test_db, sample_material, cleanup_material_data
-    ):
+    def test_import_materials_result_counts(self, test_db, sample_material, cleanup_material_data):
         """Verify ImportResult has accurate counts for mixed operations."""
         data = [
             # Should be added (new material)
@@ -734,9 +674,7 @@ class TestImportMaterialsResultCounts:
         assert result.entity_counts["material_products"].added == 1
         assert result.entity_counts["material_products"].failed == 2
 
-    def test_import_materials_dry_run_no_changes(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_materials_dry_run_no_changes(self, test_db, cleanup_material_data):
         """Verify dry_run=True does not persist changes."""
         data = [
             {
@@ -746,9 +684,7 @@ class TestImportMaterialsResultCounts:
             }
         ]
 
-        result = import_materials(
-            data, mode=ImportMode.ADD_ONLY.value, dry_run=True
-        )
+        result = import_materials(data, mode=ImportMode.ADD_ONLY.value, dry_run=True)
 
         # Should report success but not persist
         assert result.entity_counts["materials"].added == 1
@@ -756,9 +692,7 @@ class TestImportMaterialsResultCounts:
 
         # Verify nothing was actually saved
         with session_scope() as session:
-            material = (
-                session.query(Material).filter_by(name="Dry Run Material").first()
-            )
+            material = session.query(Material).filter_by(name="Dry Run Material").first()
             assert material is None
 
 
@@ -881,9 +815,7 @@ class TestImportMaterialsValidationErrors:
         assert result.errors[0].error_type == "validation"
         assert "name" in result.errors[0].message.lower()
 
-    def test_import_materials_accepts_display_name(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_materials_accepts_display_name(self, test_db, cleanup_material_data):
         """Verify display_name is accepted as fallback for name."""
         data = [
             {
@@ -898,11 +830,7 @@ class TestImportMaterialsValidationErrors:
         assert result.entity_counts["materials"].added == 1
 
         with session_scope() as session:
-            material = (
-                session.query(Material)
-                .filter_by(name="Display Name Material")
-                .first()
-            )
+            material = session.query(Material).filter_by(name="Display Name Material").first()
             assert material is not None
 
     def test_import_material_products_missing_name(
@@ -953,9 +881,7 @@ class TestImportMaterialsValidationErrors:
 class TestImportMaterialsSessionParameter:
     """Test that functions accept session parameter correctly."""
 
-    def test_import_materials_with_session(
-        self, test_db, cleanup_material_data
-    ):
+    def test_import_materials_with_session(self, test_db, cleanup_material_data):
         """Verify import_materials works with passed session."""
         data = [
             {
@@ -966,18 +892,12 @@ class TestImportMaterialsSessionParameter:
         ]
 
         with session_scope() as session:
-            result = import_materials(
-                data, mode=ImportMode.ADD_ONLY.value, session=session
-            )
+            result = import_materials(data, mode=ImportMode.ADD_ONLY.value, session=session)
 
             assert result.entity_counts["materials"].added == 1
 
             # Verify within same session
-            material = (
-                session.query(Material)
-                .filter_by(name="Session Test Material")
-                .first()
-            )
+            material = session.query(Material).filter_by(name="Session Test Material").first()
             assert material is not None
 
     def test_import_material_products_with_session(
@@ -995,15 +915,9 @@ class TestImportMaterialsSessionParameter:
         ]
 
         with session_scope() as session:
-            result = import_material_products(
-                data, mode=ImportMode.ADD_ONLY.value, session=session
-            )
+            result = import_material_products(data, mode=ImportMode.ADD_ONLY.value, session=session)
 
             assert result.entity_counts["material_products"].added == 1
 
-            product = (
-                session.query(MaterialProduct)
-                .filter_by(name="Session Test Product")
-                .first()
-            )
+            product = session.query(MaterialProduct).filter_by(name="Session Test Product").first()
             assert product is not None

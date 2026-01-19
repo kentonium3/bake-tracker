@@ -89,9 +89,7 @@ class IngredientInUse(ServiceException):
             self.details = self.deps  # F035: Alias for UI access
             deps_msg = f"{deps} recipe(s)"
 
-        super().__init__(
-            f"Cannot delete ingredient '{identifier}': used in {deps_msg}"
-        )
+        super().__init__(f"Cannot delete ingredient '{identifier}': used in {deps_msg}")
 
 
 class ValidationError(ServiceException):
@@ -159,8 +157,6 @@ class ProductNotFound(ServiceError):
         super().__init__(f"Product with ID {product_id} not found")
 
 
-
-
 class InventoryItemNotFound(ServiceError):
     """Raised when inventory item cannot be found by ID.
 
@@ -187,7 +183,6 @@ class MaterialInventoryItemNotFoundError(ServiceError):
     def __init__(self, inventory_item_id: int):
         self.inventory_item_id = inventory_item_id
         super().__init__(f"Material inventory item with ID {inventory_item_id} not found")
-
 
 
 class PurchaseNotFound(ServiceError):

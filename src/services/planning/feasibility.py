@@ -120,13 +120,15 @@ def _check_production_feasibility_impl(
             session=session,
         )
 
-        results.append({
-            "recipe_id": target.recipe_id,
-            "recipe_name": recipe_name,
-            "target_batches": target.target_batches,
-            "can_produce": check_result["can_produce"],
-            "missing": check_result["missing"],
-        })
+        results.append(
+            {
+                "recipe_id": target.recipe_id,
+                "recipe_name": recipe_name,
+                "target_batches": target.target_batches,
+                "can_produce": check_result["can_produce"],
+                "missing": check_result["missing"],
+            }
+        )
 
     return results
 
@@ -164,9 +166,7 @@ def _check_assembly_feasibility_impl(
     """Implementation of check_assembly_feasibility."""
     # Query all assembly targets for this event
     targets = (
-        session.query(EventAssemblyTarget)
-        .filter(EventAssemblyTarget.event_id == event_id)
-        .all()
+        session.query(EventAssemblyTarget).filter(EventAssemblyTarget.event_id == event_id).all()
     )
 
     results = []
@@ -174,7 +174,11 @@ def _check_assembly_feasibility_impl(
     for target in targets:
         # Get finished good name
         finished_good = session.get(FinishedGood, target.finished_good_id)
-        fg_name = finished_good.display_name if finished_good else f"FinishedGood {target.finished_good_id}"
+        fg_name = (
+            finished_good.display_name
+            if finished_good
+            else f"FinishedGood {target.finished_good_id}"
+        )
 
         # Calculate how many can actually be assembled
         can_assemble_count = _calculate_max_assemblable(
@@ -199,14 +203,16 @@ def _check_assembly_feasibility_impl(
             session,
         )
 
-        results.append(FeasibilityResult(
-            finished_good_id=target.finished_good_id,
-            finished_good_name=fg_name,
-            target_quantity=target.target_quantity,
-            can_assemble=can_assemble_count,
-            status=status,
-            missing_components=check_result["missing"],
-        ))
+        results.append(
+            FeasibilityResult(
+                finished_good_id=target.finished_good_id,
+                finished_good_name=fg_name,
+                target_quantity=target.target_quantity,
+                can_assemble=can_assemble_count,
+                status=status,
+                missing_components=check_result["missing"],
+            )
+        )
 
     return results
 
@@ -241,9 +247,7 @@ def _calculate_max_assemblable(
     # If not, calculate the maximum based on component availability
     # Get compositions for this finished good
     compositions = (
-        session.query(Composition)
-        .filter(Composition.assembly_id == finished_good_id)
-        .all()
+        session.query(Composition).filter(Composition.assembly_id == finished_good_id).all()
     )
 
     if not compositions:
@@ -407,9 +411,7 @@ def _check_single_assembly_impl(
         )
 
     # Calculate how many can be assembled
-    can_assemble_count = _calculate_max_assemblable(
-        finished_good_id, quantity, session
-    )
+    can_assemble_count = _calculate_max_assemblable(finished_good_id, quantity, session)
 
     # Check full feasibility
     try:

@@ -102,17 +102,13 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
             return True
         except PurchaseNotFound:
             messagebox.showerror(
-                "Error",
-                "Purchase not found. It may have been deleted.",
-                parent=self.master
+                "Error", "Purchase not found. It may have been deleted.", parent=self.master
             )
             self.destroy()
             return False
         except Exception as e:
             messagebox.showerror(
-                "Error",
-                f"Failed to load purchase details: {str(e)}",
-                parent=self.master
+                "Error", f"Failed to load purchase details: {str(e)}", parent=self.master
             )
             self.destroy()
             return False
@@ -139,17 +135,30 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
         product_label = ctk.CTkLabel(
             info_frame,
             text=self.purchase.product.display_name,
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
         )
         product_label.pack(anchor="w", padx=15, pady=(15, 10))
 
         # Details grid
         details = [
-            ("Date:", self.purchase.purchase_date.strftime("%B %d, %Y") if self.purchase.purchase_date else ""),
+            (
+                "Date:",
+                (
+                    self.purchase.purchase_date.strftime("%B %d, %Y")
+                    if self.purchase.purchase_date
+                    else ""
+                ),
+            ),
             ("Supplier:", self.purchase.supplier.name if self.purchase.supplier else "Unknown"),
             ("Quantity:", f"{self.purchase.quantity_purchased} package(s)"),
-            ("Unit Price:", f"${self.purchase.unit_price:.2f}" if self.purchase.unit_price else "$0.00"),
-            ("Total Cost:", f"${self.purchase.total_cost:.2f}" if self.purchase.total_cost else "$0.00"),
+            (
+                "Unit Price:",
+                f"${self.purchase.unit_price:.2f}" if self.purchase.unit_price else "$0.00",
+            ),
+            (
+                "Total Cost:",
+                f"${self.purchase.total_cost:.2f}" if self.purchase.total_cost else "$0.00",
+            ),
         ]
 
         for label, value in details:
@@ -174,9 +183,7 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
         inv_frame = ctk.CTkFrame(self)
 
         ctk.CTkLabel(
-            inv_frame,
-            text="Inventory Tracking",
-            font=ctk.CTkFont(size=14, weight="bold")
+            inv_frame, text="Inventory Tracking", font=ctk.CTkFont(size=14, weight="bold")
         ).pack(anchor="w", padx=15, pady=(15, 10))
 
         # Calculate quantities
@@ -192,7 +199,11 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
         rows = [
             ("Original:", f"{original:.1f} {unit}(s)", None),
             ("Used:", f"{used:.1f} {unit}(s) ({used_pct:.0f}%)", None),
-            ("Remaining:", f"{remaining:.1f} {unit}(s)", self._get_remaining_color(remaining, original)),
+            (
+                "Remaining:",
+                f"{remaining:.1f} {unit}(s)",
+                self._get_remaining_color(remaining, original),
+            ),
         ]
 
         for label, value, color in rows:
@@ -219,17 +230,13 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
         usage_frame = ctk.CTkFrame(self)
 
         ctk.CTkLabel(
-            usage_frame,
-            text="Usage History",
-            font=ctk.CTkFont(size=14, weight="bold")
+            usage_frame, text="Usage History", font=ctk.CTkFont(size=14, weight="bold")
         ).pack(anchor="w", padx=15, pady=(15, 10))
 
         if not self.usage_history:
-            ctk.CTkLabel(
-                usage_frame,
-                text="No usage recorded yet",
-                text_color="gray"
-            ).pack(anchor="w", padx=15, pady=(0, 10))
+            ctk.CTkLabel(usage_frame, text="No usage recorded yet", text_color="gray").pack(
+                anchor="w", padx=15, pady=(0, 10)
+            )
             return usage_frame
 
         # Create container for treeview
@@ -238,12 +245,7 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
 
         # Create treeview for usage
         columns = ("date", "recipe", "quantity", "cost")
-        self.usage_tree = ttk.Treeview(
-            tree_container,
-            columns=columns,
-            show="headings",
-            height=8
-        )
+        self.usage_tree = ttk.Treeview(tree_container, columns=columns, show="headings", height=8)
 
         self.usage_tree.heading("date", text="Date")
         self.usage_tree.heading("recipe", text="Recipe")
@@ -256,11 +258,7 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
         self.usage_tree.column("cost", width=80, anchor="e")
 
         # Scrollbar
-        scrollbar = ttk.Scrollbar(
-            tree_container,
-            orient="vertical",
-            command=self.usage_tree.yview
-        )
+        scrollbar = ttk.Scrollbar(tree_container, orient="vertical", command=self.usage_tree.yview)
         self.usage_tree.configure(yscrollcommand=scrollbar.set)
 
         # Populate (limit to 50)
@@ -273,12 +271,16 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
             if usage.get("cost") is not None:
                 cost_str = f"${usage['cost']:.2f}"
 
-            self.usage_tree.insert("", "end", values=(
-                date_str,
-                usage.get("recipe_name", "Unknown"),
-                f"{usage.get('quantity_used', 0):.1f}",
-                cost_str
-            ))
+            self.usage_tree.insert(
+                "",
+                "end",
+                values=(
+                    date_str,
+                    usage.get("recipe_name", "Unknown"),
+                    f"{usage.get('quantity_used', 0):.1f}",
+                    cost_str,
+                ),
+            )
 
         self.usage_tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -287,7 +289,7 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
             ctk.CTkLabel(
                 usage_frame,
                 text=f"Showing 50 of {len(self.usage_history)} usage records",
-                text_color="gray"
+                text_color="gray",
             ).pack(anchor="w", padx=15, pady=(0, 10))
 
         return usage_frame
@@ -297,19 +299,12 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
 
         edit_btn = ctk.CTkButton(
-            button_frame,
-            text="Edit Purchase",
-            command=self._on_edit_click,
-            width=120
+            button_frame, text="Edit Purchase", command=self._on_edit_click, width=120
         )
         edit_btn.pack(side="left", padx=10)
 
         close_btn = ctk.CTkButton(
-            button_frame,
-            text="Close",
-            command=self.destroy,
-            width=100,
-            fg_color="gray"
+            button_frame, text="Close", command=self.destroy, width=100, fg_color="gray"
         )
         close_btn.pack(side="right", padx=10)
 

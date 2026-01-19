@@ -71,14 +71,24 @@ class MaterialsTab(ctk.CTkFrame):
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         title_label.grid(
-            row=0, column=0, columnspan=2, sticky="w",
-            padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+            row=0,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_LARGE,
+            pady=(PADDING_LARGE, PADDING_MEDIUM),
         )
 
     def _create_left_panel(self):
         """Create the left panel with hierarchy tree."""
         left_frame = ctk.CTkFrame(self)
-        left_frame.grid(row=1, column=0, sticky="nsew", padx=(PADDING_LARGE, PADDING_MEDIUM), pady=PADDING_MEDIUM)
+        left_frame.grid(
+            row=1,
+            column=0,
+            sticky="nsew",
+            padx=(PADDING_LARGE, PADDING_MEDIUM),
+            pady=PADDING_MEDIUM,
+        )
         left_frame.grid_columnconfigure(0, weight=1)
         left_frame.grid_rowconfigure(1, weight=1)
 
@@ -86,10 +96,18 @@ class MaterialsTab(ctk.CTkFrame):
         toolbar = ctk.CTkFrame(left_frame, fg_color="transparent")
         toolbar.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 
-        ctk.CTkButton(toolbar, text="+ Category", command=self._add_category, width=100).pack(side="left", padx=2)
-        ctk.CTkButton(toolbar, text="+ Subcategory", command=self._add_subcategory, width=100).pack(side="left", padx=2)
-        ctk.CTkButton(toolbar, text="+ Material", command=self._add_material, width=100).pack(side="left", padx=2)
-        ctk.CTkButton(toolbar, text="Refresh", command=self.refresh, width=80).pack(side="right", padx=2)
+        ctk.CTkButton(toolbar, text="+ Category", command=self._add_category, width=100).pack(
+            side="left", padx=2
+        )
+        ctk.CTkButton(toolbar, text="+ Subcategory", command=self._add_subcategory, width=100).pack(
+            side="left", padx=2
+        )
+        ctk.CTkButton(toolbar, text="+ Material", command=self._add_material, width=100).pack(
+            side="left", padx=2
+        )
+        ctk.CTkButton(toolbar, text="Refresh", command=self.refresh, width=80).pack(
+            side="right", padx=2
+        )
 
         # Tree view
         tree_container = ctk.CTkFrame(left_frame)
@@ -100,7 +118,9 @@ class MaterialsTab(ctk.CTkFrame):
         self.hierarchy_tree = ttk.Treeview(tree_container, selectmode="browse", show="tree")
         self.hierarchy_tree.grid(row=0, column=0, sticky="nsew")
 
-        scrollbar = ttk.Scrollbar(tree_container, orient="vertical", command=self.hierarchy_tree.yview)
+        scrollbar = ttk.Scrollbar(
+            tree_container, orient="vertical", command=self.hierarchy_tree.yview
+        )
         scrollbar.grid(row=0, column=1, sticky="ns")
         self.hierarchy_tree.configure(yscrollcommand=scrollbar.set)
 
@@ -110,7 +130,13 @@ class MaterialsTab(ctk.CTkFrame):
     def _create_right_panel(self):
         """Create the right panel with details view."""
         right_frame = ctk.CTkFrame(self)
-        right_frame.grid(row=1, column=1, sticky="nsew", padx=(PADDING_MEDIUM, PADDING_LARGE), pady=PADDING_MEDIUM)
+        right_frame.grid(
+            row=1,
+            column=1,
+            sticky="nsew",
+            padx=(PADDING_MEDIUM, PADDING_LARGE),
+            pady=PADDING_MEDIUM,
+        )
         right_frame.grid_columnconfigure(0, weight=1)
         right_frame.grid_rowconfigure(0, weight=0)  # Detail header
         right_frame.grid_rowconfigure(1, weight=1)  # Products list
@@ -134,12 +160,32 @@ class MaterialsTab(ctk.CTkFrame):
         products_toolbar = ctk.CTkFrame(products_frame, fg_color="transparent")
         products_toolbar.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 
-        ctk.CTkLabel(products_toolbar, text="Products", font=ctk.CTkFont(weight="bold")).pack(side="left", padx=5)
-        self.add_product_btn = ctk.CTkButton(products_toolbar, text="+ Product", command=self._add_product, width=80, state="disabled")
+        ctk.CTkLabel(products_toolbar, text="Products", font=ctk.CTkFont(weight="bold")).pack(
+            side="left", padx=5
+        )
+        self.add_product_btn = ctk.CTkButton(
+            products_toolbar,
+            text="+ Product",
+            command=self._add_product,
+            width=80,
+            state="disabled",
+        )
         self.add_product_btn.pack(side="left", padx=5)
-        self.record_purchase_btn = ctk.CTkButton(products_toolbar, text="Record Purchase", command=self._record_purchase, width=120, state="disabled")
+        self.record_purchase_btn = ctk.CTkButton(
+            products_toolbar,
+            text="Record Purchase",
+            command=self._record_purchase,
+            width=120,
+            state="disabled",
+        )
         self.record_purchase_btn.pack(side="left", padx=5)
-        self.adjust_inventory_btn = ctk.CTkButton(products_toolbar, text="Adjust Inventory", command=self._adjust_inventory, width=120, state="disabled")
+        self.adjust_inventory_btn = ctk.CTkButton(
+            products_toolbar,
+            text="Adjust Inventory",
+            command=self._adjust_inventory,
+            width=120,
+            state="disabled",
+        )
         self.adjust_inventory_btn.pack(side="left", padx=5)
 
         # Products tree
@@ -149,7 +195,9 @@ class MaterialsTab(ctk.CTkFrame):
         products_container.grid_rowconfigure(0, weight=1)
 
         columns = ("name", "supplier", "inventory", "unit_cost")
-        self.products_tree = ttk.Treeview(products_container, columns=columns, show="headings", selectmode="browse")
+        self.products_tree = ttk.Treeview(
+            products_container, columns=columns, show="headings", selectmode="browse"
+        )
         self.products_tree.heading("name", text="Name")
         self.products_tree.heading("supplier", text="Supplier")
         self.products_tree.heading("inventory", text="Inventory")
@@ -160,7 +208,9 @@ class MaterialsTab(ctk.CTkFrame):
         self.products_tree.column("unit_cost", width=80)
         self.products_tree.grid(row=0, column=0, sticky="nsew")
 
-        products_scrollbar = ttk.Scrollbar(products_container, orient="vertical", command=self.products_tree.yview)
+        products_scrollbar = ttk.Scrollbar(
+            products_container, orient="vertical", command=self.products_tree.yview
+        )
         products_scrollbar.grid(row=0, column=1, sticky="ns")
         self.products_tree.configure(yscrollcommand=products_scrollbar.set)
         self.products_tree.bind("<<TreeviewSelect>>", self._on_product_select)
@@ -175,8 +225,12 @@ class MaterialsTab(ctk.CTkFrame):
         units_toolbar = ctk.CTkFrame(units_frame, fg_color="transparent")
         units_toolbar.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 
-        ctk.CTkLabel(units_toolbar, text="Material Units", font=ctk.CTkFont(weight="bold")).pack(side="left", padx=5)
-        self.add_unit_btn = ctk.CTkButton(units_toolbar, text="+ Unit", command=self._add_unit, width=80, state="disabled")
+        ctk.CTkLabel(units_toolbar, text="Material Units", font=ctk.CTkFont(weight="bold")).pack(
+            side="left", padx=5
+        )
+        self.add_unit_btn = ctk.CTkButton(
+            units_toolbar, text="+ Unit", command=self._add_unit, width=80, state="disabled"
+        )
         self.add_unit_btn.pack(side="left", padx=5)
 
         # Units tree
@@ -186,7 +240,9 @@ class MaterialsTab(ctk.CTkFrame):
         units_container.grid_rowconfigure(0, weight=1)
 
         unit_columns = ("name", "qty_per_unit", "available", "cost")
-        self.units_tree = ttk.Treeview(units_container, columns=unit_columns, show="headings", selectmode="browse", height=4)
+        self.units_tree = ttk.Treeview(
+            units_container, columns=unit_columns, show="headings", selectmode="browse", height=4
+        )
         self.units_tree.heading("name", text="Name")
         self.units_tree.heading("qty_per_unit", text="Qty/Unit")
         self.units_tree.heading("available", text="Available")
@@ -197,14 +253,18 @@ class MaterialsTab(ctk.CTkFrame):
         self.units_tree.column("cost", width=80)
         self.units_tree.grid(row=0, column=0, sticky="nsew")
 
-        units_scrollbar = ttk.Scrollbar(units_container, orient="vertical", command=self.units_tree.yview)
+        units_scrollbar = ttk.Scrollbar(
+            units_container, orient="vertical", command=self.units_tree.yview
+        )
         units_scrollbar.grid(row=0, column=1, sticky="ns")
         self.units_tree.configure(yscrollcommand=units_scrollbar.set)
 
     def _create_status_bar(self):
         """Create the status bar."""
         self.status_label = ctk.CTkLabel(self, text="Ready", anchor="w")
-        self.status_label.grid(row=2, column=0, columnspan=2, sticky="ew", padx=PADDING_LARGE, pady=5)
+        self.status_label.grid(
+            row=2, column=0, columnspan=2, sticky="ew", padx=PADDING_LARGE, pady=5
+        )
 
     def _show_initial_state(self):
         """Show initial empty state."""
@@ -238,14 +298,18 @@ class MaterialsTab(ctk.CTkFrame):
                 subcats = material_catalog_service.list_subcategories(cat.id)
                 for subcat in subcats:
                     subcat_id = f"subcat_{subcat.id}"
-                    self.hierarchy_tree.insert(cat_id, "end", subcat_id, text=subcat.name, tags=("subcategory",))
+                    self.hierarchy_tree.insert(
+                        cat_id, "end", subcat_id, text=subcat.name, tags=("subcategory",)
+                    )
 
                     materials = material_catalog_service.list_materials(subcat.id)
                     for mat in materials:
                         mat_id = f"mat_{mat.id}"
                         product_count = len(mat.products) if mat.products else 0
                         display_text = f"{mat.name} ({product_count} products)"
-                        self.hierarchy_tree.insert(subcat_id, "end", mat_id, text=display_text, tags=("material",))
+                        self.hierarchy_tree.insert(
+                            subcat_id, "end", mat_id, text=display_text, tags=("material",)
+                        )
 
             self._data_loaded = True
 
@@ -364,8 +428,10 @@ class MaterialsTab(ctk.CTkFrame):
                 unit_cost = f"${prod.weighted_avg_cost:.4f}" if prod.weighted_avg_cost else "-"
 
                 self.products_tree.insert(
-                    "", "end", str(prod.id),
-                    values=(prod.display_name, supplier_name, inventory, unit_cost)
+                    "",
+                    "end",
+                    str(prod.id),
+                    values=(prod.display_name, supplier_name, inventory, unit_cost),
                 )
 
         except Exception as e:
@@ -388,8 +454,10 @@ class MaterialsTab(ctk.CTkFrame):
                     cost_str = "-"
 
                 self.units_tree.insert(
-                    "", "end", str(unit.id),
-                    values=(unit.name, f"{unit.quantity_per_unit:.1f}", str(available), cost_str)
+                    "",
+                    "end",
+                    str(unit.id),
+                    values=(unit.name, f"{unit.quantity_per_unit:.1f}", str(available), cost_str),
                 )
 
         except Exception as e:
@@ -419,7 +487,9 @@ class MaterialsTab(ctk.CTkFrame):
             if not category:
                 return
 
-            dialog = CategoryDialog(self, title="Edit Category", initial_data={"name": category.name})
+            dialog = CategoryDialog(
+                self, title="Edit Category", initial_data={"name": category.name}
+            )
             if dialog.result:
                 material_catalog_service.update_category(category_id, name=dialog.result["name"])
                 self.refresh()
@@ -468,9 +538,13 @@ class MaterialsTab(ctk.CTkFrame):
             if not subcat:
                 return
 
-            dialog = SubcategoryDialog(self, title="Edit Subcategory", initial_data={"name": subcat.name})
+            dialog = SubcategoryDialog(
+                self, title="Edit Subcategory", initial_data={"name": subcat.name}
+            )
             if dialog.result:
-                material_catalog_service.update_subcategory(subcategory_id, name=dialog.result["name"])
+                material_catalog_service.update_subcategory(
+                    subcategory_id, name=dialog.result["name"]
+                )
                 self.refresh()
                 self._set_status(f"Subcategory updated")
         except Exception as e:
@@ -521,8 +595,9 @@ class MaterialsTab(ctk.CTkFrame):
                 return
 
             dialog = MaterialDialog(
-                self, title="Edit Material",
-                initial_data={"name": material.name, "base_unit": material.base_unit}
+                self,
+                title="Edit Material",
+                initial_data={"name": material.name, "base_unit": material.base_unit},
             )
             if dialog.result:
                 material_catalog_service.update_material(material_id, name=dialog.result["name"])
@@ -547,7 +622,11 @@ class MaterialsTab(ctk.CTkFrame):
 
             dialog = ProductDialog(self, title="Add Product", suppliers=supplier_names)
             if dialog.result:
-                supplier_id = supplier_map.get(dialog.result["supplier"]) if dialog.result["supplier"] else None
+                supplier_id = (
+                    supplier_map.get(dialog.result["supplier"])
+                    if dialog.result["supplier"]
+                    else None
+                )
                 material_catalog_service.create_product(
                     material_id=self.selected_material_id,
                     name=dialog.result["name"],
@@ -703,6 +782,7 @@ class CategoryDialog(ctk.CTkToplevel):
 
 class SubcategoryDialog(CategoryDialog):
     """Dialog for creating/editing subcategories (same as category)."""
+
     pass
 
 
@@ -728,7 +808,9 @@ class MaterialDialog(ctk.CTkToplevel):
         # Base Unit
         ctk.CTkLabel(self, text="Base Unit:").pack(padx=20, pady=(10, 5))
         self.unit_var = ctk.StringVar(value=self.BASE_UNITS[0])
-        self.unit_dropdown = ctk.CTkOptionMenu(self, values=self.BASE_UNITS, variable=self.unit_var, width=300)
+        self.unit_dropdown = ctk.CTkOptionMenu(
+            self, values=self.BASE_UNITS, variable=self.unit_var, width=300
+        )
         self.unit_dropdown.pack(padx=20, pady=5)
 
         if initial_data:
@@ -782,7 +864,9 @@ class ProductDialog(ctk.CTkToplevel):
         # Supplier
         ctk.CTkLabel(self, text="Supplier:").pack(padx=20, pady=(10, 5))
         self.supplier_var = ctk.StringVar(value=suppliers[0] if suppliers else "")
-        self.supplier_dropdown = ctk.CTkOptionMenu(self, values=suppliers or ["(none)"], variable=self.supplier_var, width=350)
+        self.supplier_dropdown = ctk.CTkOptionMenu(
+            self, values=suppliers or ["(none)"], variable=self.supplier_var, width=350
+        )
         self.supplier_dropdown.pack(padx=20, pady=5)
 
         # Buttons
@@ -826,7 +910,9 @@ class PurchaseDialog(ctk.CTkToplevel):
         # Supplier
         ctk.CTkLabel(self, text="Supplier:").pack(padx=20, pady=(20, 5))
         self.supplier_var = ctk.StringVar(value=suppliers[0] if suppliers else "")
-        self.supplier_dropdown = ctk.CTkOptionMenu(self, values=suppliers or ["(none)"], variable=self.supplier_var, width=350)
+        self.supplier_dropdown = ctk.CTkOptionMenu(
+            self, values=suppliers or ["(none)"], variable=self.supplier_var, width=350
+        )
         self.supplier_dropdown.pack(padx=20, pady=5)
 
         # Date
@@ -894,8 +980,12 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
         # Mode selection
         ctk.CTkLabel(self, text="Adjustment Type:").pack(padx=20, pady=(20, 5))
         self.mode_var = ctk.StringVar(value="set")
-        ctk.CTkRadioButton(self, text="Set to specific value", variable=self.mode_var, value="set").pack(padx=20, pady=2, anchor="w")
-        ctk.CTkRadioButton(self, text="Set to percentage", variable=self.mode_var, value="percentage").pack(padx=20, pady=2, anchor="w")
+        ctk.CTkRadioButton(
+            self, text="Set to specific value", variable=self.mode_var, value="set"
+        ).pack(padx=20, pady=2, anchor="w")
+        ctk.CTkRadioButton(
+            self, text="Set to percentage", variable=self.mode_var, value="percentage"
+        ).pack(padx=20, pady=2, anchor="w")
 
         # Value
         ctk.CTkLabel(self, text="Value:").pack(padx=20, pady=(10, 5))
@@ -947,7 +1037,9 @@ class UnitDialog(ctk.CTkToplevel):
         self.name_entry.pack(padx=20, pady=5)
 
         # Quantity per unit
-        ctk.CTkLabel(self, text="Quantity per Unit (base units consumed):").pack(padx=20, pady=(10, 5))
+        ctk.CTkLabel(self, text="Quantity per Unit (base units consumed):").pack(
+            padx=20, pady=(10, 5)
+        )
         self.qty_entry = ctk.CTkEntry(self, width=300)
         self.qty_entry.pack(padx=20, pady=5)
 

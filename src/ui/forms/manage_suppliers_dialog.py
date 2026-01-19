@@ -188,15 +188,15 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
 
         try:
             include_inactive = self.show_inactive_var.get()
-            suppliers = supplier_service.get_all_suppliers(
-                include_inactive=include_inactive
-            )
+            suppliers = supplier_service.get_all_suppliers(include_inactive=include_inactive)
 
             for supplier in suppliers:
                 status = "Active" if supplier.get("is_active", True) else "Inactive"
 
                 # Format type display
-                is_online = supplier.get("is_online", False) or supplier.get("supplier_type") == "online"
+                is_online = (
+                    supplier.get("is_online", False) or supplier.get("supplier_type") == "online"
+                )
                 type_display = "Online" if is_online else "Store"
 
                 # Format location/URL display
@@ -214,7 +214,8 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
                     status,
                 )
                 self.tree.insert(
-                    "", "end",
+                    "",
+                    "end",
                     iid=str(supplier["id"]),
                     values=values,
                     tags=("inactive",) if not supplier.get("is_active", True) else (),
@@ -474,9 +475,7 @@ class SupplierFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Name (required)
-        ctk.CTkLabel(self, text="Name *").grid(
-            row=row, column=0, padx=(20, 10), pady=5, sticky="w"
-        )
+        ctk.CTkLabel(self, text="Name *").grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
         self.name_var = ctk.StringVar()
         self.name_entry = ctk.CTkEntry(
             self,
@@ -553,9 +552,7 @@ class SupplierFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Notes (optional)
-        ctk.CTkLabel(self, text="Notes").grid(
-            row=row, column=0, padx=(20, 10), pady=5, sticky="w"
-        )
+        ctk.CTkLabel(self, text="Notes").grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
         self.notes_var = ctk.StringVar()
         self.notes_entry = ctk.CTkEntry(
             self,
@@ -709,9 +706,21 @@ class SupplierFormDialog(ctk.CTkToplevel):
                     supplier_type=self.type_var.get(),
                     website_url=self.url_var.get().strip() or None,
                     street_address=self.street_var.get().strip() or None,
-                    city=self.city_var.get().strip() or None if is_online else self.city_var.get().strip(),
-                    state=self.state_var.get().strip() or None if is_online else self.state_var.get().strip(),
-                    zip_code=self.zip_var.get().strip() or None if is_online else self.zip_var.get().strip(),
+                    city=(
+                        self.city_var.get().strip() or None
+                        if is_online
+                        else self.city_var.get().strip()
+                    ),
+                    state=(
+                        self.state_var.get().strip() or None
+                        if is_online
+                        else self.state_var.get().strip()
+                    ),
+                    zip_code=(
+                        self.zip_var.get().strip() or None
+                        if is_online
+                        else self.zip_var.get().strip()
+                    ),
                     notes=self.notes_var.get().strip() or None,
                 )
                 messagebox.showinfo(

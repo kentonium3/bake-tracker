@@ -21,7 +21,14 @@ from typing import List, Dict, Tuple, Optional
 from sqlalchemy import text, inspect
 
 from src.services.database import get_engine, init_database
-from src.utils.constants import ALL_UNITS, MEASUREMENT_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS, PACKAGE_UNITS
+from src.utils.constants import (
+    ALL_UNITS,
+    MEASUREMENT_UNITS,
+    WEIGHT_UNITS,
+    VOLUME_UNITS,
+    COUNT_UNITS,
+    PACKAGE_UNITS,
+)
 
 
 # Audit configuration: (table_name, column_name, valid_units, alternate_column)
@@ -50,7 +57,7 @@ class AuditFinding:
         self.valid_units = valid_units
 
     def __repr__(self) -> str:
-        return f"  ID {self.record_id}: {self.column} = \"{self.value}\" (not in valid units)"
+        return f'  ID {self.record_id}: {self.column} = "{self.value}" (not in valid units)'
 
 
 def get_table_columns(engine, table_name: str) -> List[str]:
@@ -65,7 +72,7 @@ def audit_unit_column(
     table_name: str,
     column_name: str,
     valid_units: List[str],
-    alternate_column: Optional[str] = None
+    alternate_column: Optional[str] = None,
 ) -> List[AuditFinding]:
     """
     Audit a single unit column for non-standard values using raw SQL.
@@ -120,7 +127,7 @@ def audit_unit_column(
                 column=actual_column,
                 record_id=record_id,
                 value=value,
-                valid_units=valid_units
+                valid_units=valid_units,
             )
             findings.append(finding)
 
@@ -143,7 +150,9 @@ def run_full_audit(engine) -> Dict[str, List[AuditFinding]]:
         # Use ALL_UNITS if no specific list provided
         units_to_check = valid_units if valid_units is not None else ALL_UNITS
 
-        findings = audit_unit_column(engine, table_name, column_name, units_to_check, alternate_column)
+        findings = audit_unit_column(
+            engine, table_name, column_name, units_to_check, alternate_column
+        )
 
         if findings:
             if table_name not in results:
@@ -230,18 +239,15 @@ def run_audit(output_file: Optional[str] = None) -> Tuple[int, str]:
 
 def main():
     """CLI entry point for the audit script."""
-    parser = argparse.ArgumentParser(
-        description="Audit database for non-standard unit values"
-    )
+    parser = argparse.ArgumentParser(description="Audit database for non-standard unit values")
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
-        help="Output file path for the report (default: print to stdout)"
+        help="Output file path for the report (default: print to stdout)",
     )
     parser.add_argument(
-        "--quiet", "-q",
-        action="store_true",
-        help="Only output the count of non-standard units"
+        "--quiet", "-q", action="store_true", help="Only output the count of non-standard units"
     )
 
     args = parser.parse_args()

@@ -100,9 +100,7 @@ def _resolve_supplier(name: str, session: Session) -> Optional[Supplier]:
         return None
 
     # Try to find existing supplier by name (case-insensitive)
-    supplier = session.query(Supplier).filter(
-        Supplier.name.ilike(name)
-    ).first()
+    supplier = session.query(Supplier).filter(Supplier.name.ilike(name)).first()
 
     if not supplier:
         # Create minimal supplier record
@@ -140,11 +138,15 @@ def _is_duplicate_purchase(
     Returns:
         True if duplicate found, False otherwise
     """
-    existing = session.query(Purchase).filter(
-        Purchase.product_id == product_id,
-        Purchase.purchase_date == purchase_date,
-        Purchase.unit_price == unit_price,
-    ).first()
+    existing = (
+        session.query(Purchase)
+        .filter(
+            Purchase.product_id == product_id,
+            Purchase.purchase_date == purchase_date,
+            Purchase.unit_price == unit_price,
+        )
+        .first()
+    )
 
     return existing is not None
 
@@ -160,10 +162,14 @@ def _update_product_average_cost(product: Product, session: Session) -> None:
         product: Product to update
         session: Database session
     """
-    items = session.query(InventoryItem).filter(
-        InventoryItem.product_id == product.id,
-        InventoryItem.quantity > 0,
-    ).all()
+    items = (
+        session.query(InventoryItem)
+        .filter(
+            InventoryItem.product_id == product.id,
+            InventoryItem.quantity > 0,
+        )
+        .all()
+    )
 
     if not items:
         return
@@ -222,9 +228,7 @@ def _resolve_product_by_slug(
         package_unit = parts[3]
 
         # Resolve ingredient first
-        ingredient = session.query(Ingredient).filter(
-            Ingredient.slug == ingredient_slug
-        ).first()
+        ingredient = session.query(Ingredient).filter(Ingredient.slug == ingredient_slug).first()
         if not ingredient:
             return None, f"Ingredient '{ingredient_slug}' not found"
 
@@ -243,7 +247,10 @@ def _resolve_product_by_slug(
         if product:
             return product, None
         else:
-            return None, f"No product found matching: ingredient={ingredient_slug}, brand={brand or 'None'}, qty={package_unit_quantity}, unit={package_unit}"
+            return (
+                None,
+                f"No product found matching: ingredient={ingredient_slug}, brand={brand or 'None'}, qty={package_unit_quantity}, unit={package_unit}",
+            )
 
     # Try as simple product ID
     try:
@@ -266,7 +273,10 @@ def _resolve_product_by_slug(
     if product:
         return product, None
 
-    return None, f"Could not resolve product_slug '{product_slug}'. Expected format: ingredient_slug:brand:qty:unit (e.g., all_purpose_flour:King Arthur:5.0:lb)"
+    return (
+        None,
+        f"Could not resolve product_slug '{product_slug}'. Expected format: ingredient_slug:brand:qty:unit (e.g., all_purpose_flour:King Arthur:5.0:lb)",
+    )
 
 
 def _try_create_provisional_from_slug(
@@ -304,9 +314,7 @@ def _try_create_provisional_from_slug(
     package_unit = parts[3]
 
     # Resolve ingredient - must exist and be a leaf
-    ingredient = session.query(Ingredient).filter(
-        Ingredient.slug == ingredient_slug
-    ).first()
+    ingredient = session.query(Ingredient).filter(Ingredient.slug == ingredient_slug).first()
     if not ingredient:
         return None
 

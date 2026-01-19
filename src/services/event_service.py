@@ -1331,9 +1331,7 @@ class _RawPackagingNeed:
     product_name: Optional[str]  # For generic compositions
 
 
-def _aggregate_packaging(
-    session, event: Event
-) -> tuple[Dict[int, float], Dict[str, float]]:
+def _aggregate_packaging(session, event: Event) -> tuple[Dict[int, float], Dict[str, float]]:
     """
     Aggregate packaging quantities for an event.
 
@@ -1394,9 +1392,7 @@ def _aggregate_packaging(
                     if comp.is_generic and comp.packaging_product:
                         product_name = comp.packaging_product.product_name
                         if product_name:
-                            generic_needs[product_name] = (
-                                generic_needs.get(product_name, 0.0) + qty
-                            )
+                            generic_needs[product_name] = generic_needs.get(product_name, 0.0) + qty
                         else:
                             # Fallback if product_name not set
                             specific_needs[comp.packaging_product_id] = (
@@ -1529,9 +1525,7 @@ def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
 
                 # Get a sample product for ingredient/unit info
                 sample_product = (
-                    session.query(Product)
-                    .filter(Product.product_name == product_name)
-                    .first()
+                    session.query(Product).filter(Product.product_name == product_name).first()
                 )
 
                 ingredient_name = "Unknown"

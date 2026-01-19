@@ -153,9 +153,7 @@ def _check_can_assemble_impl(
 
     # Query Composition for this FinishedGood's components
     compositions = (
-        session.query(Composition)
-        .filter(Composition.assembly_id == finished_good_id)
-        .all()
+        session.query(Composition).filter(Composition.assembly_id == finished_good_id).all()
     )
 
     missing = []
@@ -288,13 +286,27 @@ def record_assembly(
     # Use provided session or create a new one
     if session is not None:
         return _record_assembly_impl(
-            finished_good_id, quantity, assembled_at, notes, event_id,
-            packaging_bypassed, packaging_bypass_notes, material_assignments, session
+            finished_good_id,
+            quantity,
+            assembled_at,
+            notes,
+            event_id,
+            packaging_bypassed,
+            packaging_bypass_notes,
+            material_assignments,
+            session,
         )
     with session_scope() as session:
         return _record_assembly_impl(
-            finished_good_id, quantity, assembled_at, notes, event_id,
-            packaging_bypassed, packaging_bypass_notes, material_assignments, session
+            finished_good_id,
+            quantity,
+            assembled_at,
+            notes,
+            event_id,
+            packaging_bypassed,
+            packaging_bypass_notes,
+            material_assignments,
+            session,
         )
 
 
@@ -323,9 +335,7 @@ def _record_assembly_impl(
 
     # Query Composition for this FinishedGood's components
     compositions = (
-        session.query(Composition)
-        .filter(Composition.assembly_id == finished_good_id)
-        .all()
+        session.query(Composition).filter(Composition.assembly_id == finished_good_id).all()
     )
 
     # Track consumption data
@@ -341,9 +351,7 @@ def _record_assembly_impl(
             if fu:
                 needed = int(comp.component_quantity * quantity)
                 if fu.inventory_count < needed:
-                    raise InsufficientFinishedUnitError(
-                        fu.id, needed, fu.inventory_count
-                    )
+                    raise InsufficientFinishedUnitError(fu.id, needed, fu.inventory_count)
 
                 # F046: Calculate actual cost from FinishedUnit's production history
                 unit_cost = fu.calculate_current_cost()
@@ -399,9 +407,7 @@ def _record_assembly_impl(
                     ingredient_slug, needed, target_unit, dry_run=False, session=session
                 )
                 if not result["satisfied"]:
-                    raise InsufficientPackagingError(
-                        product.id, needed, result["consumed"]
-                    )
+                    raise InsufficientPackagingError(product.id, needed, result["consumed"])
 
                 total_component_cost += result["total_cost"]
                 pkg_consumptions.append(
@@ -417,7 +423,9 @@ def _record_assembly_impl(
     finished_good.inventory_count += quantity
 
     # Calculate per-unit cost
-    per_unit_cost = total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+    per_unit_cost = (
+        total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+    )
 
     # Create AssemblyRun record
     assembly_run = AssemblyRun(
@@ -466,13 +474,15 @@ def _record_assembly_impl(
     )
 
     # Add material costs to total
-    material_cost = sum(
-        c.total_cost for c in material_consumptions
-    ) if material_consumptions else Decimal("0")
+    material_cost = (
+        sum(c.total_cost for c in material_consumptions) if material_consumptions else Decimal("0")
+    )
     total_component_cost += material_cost
 
     # Recalculate per-unit cost with materials included
-    per_unit_cost = total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+    per_unit_cost = (
+        total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+    )
 
     # Update assembly run with final cost totals
     assembly_run.total_component_cost = total_component_cost
@@ -589,9 +599,7 @@ def get_assembly_run(
         AssemblyRunNotFoundError: If assembly run doesn't exist
     """
     with session_scope() as session:
-        query = session.query(AssemblyRun).filter(
-            AssemblyRun.id == assembly_run_id
-        )
+        query = session.query(AssemblyRun).filter(AssemblyRun.id == assembly_run_id)
 
         query = query.options(joinedload(AssemblyRun.finished_good))
         if include_consumptions:
@@ -611,9 +619,7 @@ def get_assembly_run(
         return _assembly_run_to_dict(run, include_consumptions)
 
 
-def _assembly_run_to_dict(
-    run: AssemblyRun, include_consumptions: bool = False
-) -> Dict[str, Any]:
+def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) -> Dict[str, Any]:
     """Convert an AssemblyRun to a dictionary representation."""
     result = {
         "id": run.id,
@@ -777,9 +783,7 @@ def import_assembly_history(
 
                 # Check for duplicate by UUID if provided
                 if run_uuid:
-                    existing = (
-                        session.query(AssemblyRun).filter_by(uuid=run_uuid).first()
-                    )
+                    existing = session.query(AssemblyRun).filter_by(uuid=run_uuid).first()
                     if existing:
                         if skip_duplicates:
                             skipped += 1
@@ -790,9 +794,7 @@ def import_assembly_history(
 
                 # Resolve finished_good by slug
                 fg_slug = run_data.get("finished_good_slug")
-                finished_good = (
-                    session.query(FinishedGood).filter_by(slug=fg_slug).first()
-                )
+                finished_good = session.query(FinishedGood).filter_by(slug=fg_slug).first()
                 if not finished_good:
                     errors.append(f"FinishedGood not found: {fg_slug}")
                     continue
@@ -817,9 +819,7 @@ def import_assembly_history(
                         assembly_run_id=run.id,
                         finished_unit_id=c_data["finished_unit_id"],
                         quantity_consumed=c_data["quantity_consumed"],
-                        unit_cost_at_consumption=Decimal(
-                            c_data["unit_cost_at_consumption"]
-                        ),
+                        unit_cost_at_consumption=Decimal(c_data["unit_cost_at_consumption"]),
                         total_cost=Decimal(c_data["total_cost"]),
                     )
                     session.add(consumption)
@@ -839,9 +839,7 @@ def import_assembly_history(
                 imported += 1
 
             except Exception as e:
-                errors.append(
-                    f"Error importing {run_data.get('uuid', 'unknown')}: {str(e)}"
-                )
+                errors.append(f"Error importing {run_data.get('uuid', 'unknown')}: {str(e)}")
 
     return {
         "imported": imported,
@@ -932,12 +930,14 @@ def _check_packaging_assigned_impl(
         assigned_quantity = 0.0
 
         if assigned_quantity < comp.component_quantity:
-            unassigned.append({
-                "composition_id": comp.id,
-                "product_name": product_name,
-                "required_quantity": comp.component_quantity,
-                "assigned_quantity": assigned_quantity,
-            })
+            unassigned.append(
+                {
+                    "composition_id": comp.id,
+                    "product_name": product_name,
+                    "required_quantity": comp.component_quantity,
+                    "assigned_quantity": assigned_quantity,
+                }
+            )
 
     return {
         "all_assigned": len(unassigned) == 0,

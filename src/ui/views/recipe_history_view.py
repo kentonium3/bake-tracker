@@ -51,7 +51,7 @@ class RecipeHistoryView(ctk.CTkToplevel):
         header = ctk.CTkLabel(
             self,
             text=f"Production History: {self.recipe_name}",
-            font=ctk.CTkFont(size=16, weight="bold")
+            font=ctk.CTkFont(size=16, weight="bold"),
         )
         header.pack(pady=10)
 
@@ -84,18 +84,11 @@ class RecipeHistoryView(ctk.CTkToplevel):
         button_frame.pack(fill="x", padx=20, pady=10)
 
         self.restore_btn = ctk.CTkButton(
-            button_frame,
-            text="Restore as New Recipe",
-            command=self._on_restore,
-            state="disabled"
+            button_frame, text="Restore as New Recipe", command=self._on_restore, state="disabled"
         )
         self.restore_btn.pack(side="left")
 
-        close_btn = ctk.CTkButton(
-            button_frame,
-            text="Close",
-            command=self.destroy
-        )
+        close_btn = ctk.CTkButton(button_frame, text="Close", command=self.destroy)
         close_btn.pack(side="right")
 
     def _load_snapshots(self):
@@ -104,9 +97,7 @@ class RecipeHistoryView(ctk.CTkToplevel):
 
         if not snapshots:
             no_data = ctk.CTkLabel(
-                self.snapshot_listbox,
-                text="No production history yet.",
-                text_color="gray"
+                self.snapshot_listbox, text="No production history yet.", text_color="gray"
             )
             no_data.pack(pady=20)
             return
@@ -145,10 +136,7 @@ class RecipeHistoryView(ctk.CTkToplevel):
 
         # View button
         view_btn = ctk.CTkButton(
-            row,
-            text="View",
-            width=60,
-            command=lambda s=snapshot: self._on_view_snapshot(s)
+            row, text="View", width=60, command=lambda s=snapshot: self._on_view_snapshot(s)
         )
         view_btn.pack(side="right", padx=2)
 
@@ -175,8 +163,8 @@ class RecipeHistoryView(ctk.CTkToplevel):
         details.append(f"Recipe: {recipe_data.get('name', 'N/A')}")
         details.append(f"Category: {recipe_data.get('category', 'N/A')}")
         # F056: yield_quantity/yield_unit are deprecated but may exist in historical snapshots
-        yield_qty = recipe_data.get('yield_quantity')
-        yield_unit = recipe_data.get('yield_unit', '')
+        yield_qty = recipe_data.get("yield_quantity")
+        yield_unit = recipe_data.get("yield_unit", "")
         if yield_qty:
             details.append(f"Yield: {yield_qty} {yield_unit}")
         else:
@@ -203,11 +191,12 @@ class RecipeHistoryView(ctk.CTkToplevel):
 
         # Confirm with user
         from src.ui.widgets.dialogs import show_confirmation
+
         if not show_confirmation(
             "Restore Snapshot",
             "Create a new recipe from this snapshot?\n\n"
             "This will create a copy, not modify the original.",
-            parent=self
+            parent=self,
         ):
             return
 
@@ -217,13 +206,11 @@ class RecipeHistoryView(ctk.CTkToplevel):
             )
 
             from src.ui.widgets.dialogs import show_info
-            show_info(
-                "Recipe Created",
-                f"New recipe created: {result['name']}",
-                parent=self
-            )
+
+            show_info("Recipe Created", f"New recipe created: {result['name']}", parent=self)
             self.destroy()
 
         except Exception as e:
             from src.ui.widgets.dialogs import show_error
+
             show_error("Restore Failed", f"Failed to restore: {e}", parent=self)

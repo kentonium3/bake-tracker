@@ -93,9 +93,7 @@ class ModeManager:
         self._on_mode_change_callback = callback
 
     def set_unsaved_changes_callbacks(
-        self,
-        check_callback: Callable[[], bool],
-        confirm_callback: Callable[[], bool]
+        self, check_callback: Callable[[], bool], confirm_callback: Callable[[], bool]
     ) -> None:
         """Set callbacks for unsaved changes checking.
 
@@ -197,14 +195,14 @@ class ModeManager:
                 button.configure(
                     fg_color=("#3B82F6", "#1D4ED8"),  # Blue
                     hover_color=("#2563EB", "#1E40AF"),
-                    text_color=("white", "white")
+                    text_color=("white", "white"),
                 )
             else:
                 # Inactive mode - muted
                 button.configure(
                     fg_color=("gray75", "gray30"),
                     hover_color=("gray65", "gray40"),
-                    text_color=("gray20", "gray90")
+                    text_color=("gray20", "gray90"),
                 )
 
     def get_mode_index(self, mode_name: str) -> int:

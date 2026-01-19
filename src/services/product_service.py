@@ -668,9 +668,11 @@ def check_product_dependencies(product_id: int) -> Dict[str, int]:
 
     # Feature 011: Check for packaging compositions using this product
     with session_scope() as session:
-        packaging_count = session.query(Composition).filter(
-            Composition.packaging_product_id == product_id
-        ).count()
+        packaging_count = (
+            session.query(Composition)
+            .filter(Composition.packaging_product_id == product_id)
+            .count()
+        )
 
     return {
         "inventory_items": inventory_count,

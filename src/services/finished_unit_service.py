@@ -206,9 +206,7 @@ class FinishedUnitService:
             raise DatabaseError(f"Failed to retrieve FinishedUnits: {e}")
 
     @staticmethod
-    def create_finished_unit(
-        display_name: str, recipe_id: int, **kwargs
-    ) -> FinishedUnit:
+    def create_finished_unit(display_name: str, recipe_id: int, **kwargs) -> FinishedUnit:
         """
         Create a new FinishedUnit.
 

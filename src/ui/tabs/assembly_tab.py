@@ -35,31 +35,24 @@ class AssemblyTab(ctk.CTkFrame):
         container = ctk.CTkFrame(self, fg_color="transparent")
         container.place(relx=0.5, rely=0.5, anchor="center")
 
-        title = ctk.CTkLabel(
-            container,
-            text="Assembly",
-            font=ctk.CTkFont(size=24, weight="bold")
-        )
+        title = ctk.CTkLabel(container, text="Assembly", font=ctk.CTkFont(size=24, weight="bold"))
         title.pack(pady=(0, 20))
 
         message = ctk.CTkLabel(
             container,
             text="Assembly management features are under development.\n\n"
-                 "This tab will allow you to:\n"
-                 "- Create assembly runs from finished units\n"
-                 "- Track finished goods production\n"
-                 "- Manage assembly targets per event",
+            "This tab will allow you to:\n"
+            "- Create assembly runs from finished units\n"
+            "- Track finished goods production\n"
+            "- Manage assembly targets per event",
             font=ctk.CTkFont(size=14),
-            justify="center"
+            justify="center",
         )
         message.pack()
 
         # Coming soon indicator
         indicator = ctk.CTkLabel(
-            container,
-            text="Coming Soon",
-            font=ctk.CTkFont(size=12),
-            text_color="gray"
+            container, text="Coming Soon", font=ctk.CTkFont(size=12), text_color="gray"
         )
         indicator.pack(pady=(20, 0))
 

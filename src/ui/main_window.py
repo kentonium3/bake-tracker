@@ -26,6 +26,7 @@ from src.ui.modes.deliver_mode import DeliverMode
 
 from src.ui.service_integration import check_service_integration_health
 from src.ui.preferences_dialog import PreferencesDialog
+
 # Feature 051: Removed CatalogImportDialog import - now handled by unified ImportDialog
 
 
@@ -108,16 +109,16 @@ class MainWindow(ctk.CTk):
         catalog_menu.add_command(
             label="Ingredient Hierarchy...", command=self._open_ingredient_admin
         )
-        catalog_menu.add_command(
-            label="Material Hierarchy...", command=self._open_material_admin
-        )
+        catalog_menu.add_command(label="Material Hierarchy...", command=self._open_material_admin)
         self.menu_bar.add_cascade(label="Catalog", menu=catalog_menu)
 
         # Tools menu
         tools_menu = tk.Menu(self.menu_bar, tearoff=0)
         tools_menu.add_command(label="Manage Suppliers...", command=self._show_manage_suppliers)
         tools_menu.add_separator()
-        tools_menu.add_command(label="Service Health Check...", command=self._show_service_health_check)
+        tools_menu.add_command(
+            label="Service Health Check...", command=self._show_service_health_check
+        )
         self.menu_bar.add_cascade(label="Tools", menu=tools_menu)
 
         # Help menu
@@ -150,7 +151,7 @@ class MainWindow(ctk.CTk):
                 text=f"{mode_name}\n({shortcut})",
                 font=ctk.CTkFont(size=12),
                 height=40,
-                command=lambda m=mode_name: self._switch_mode(m)
+                command=lambda m=mode_name: self._switch_mode(m),
             )
             btn.grid(row=0, column=idx, padx=5, pady=5, sticky="ew")
             self.mode_manager.register_mode_button(mode_name, btn)

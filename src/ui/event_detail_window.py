@@ -205,9 +205,7 @@ class EventDetailWindow(ctk.CTkToplevel):
         add_btn.pack(side="right", padx=5)
 
         # Container for production target rows
-        self.production_targets_container = ctk.CTkFrame(
-            self.targets_frame, fg_color="transparent"
-        )
+        self.production_targets_container = ctk.CTkFrame(self.targets_frame, fg_color="transparent")
         self.production_targets_container.pack(fill="x", pady=5)
 
     def _create_assembly_targets_section(self):
@@ -232,9 +230,7 @@ class EventDetailWindow(ctk.CTkToplevel):
         add_btn.pack(side="right", padx=5)
 
         # Container for assembly target rows
-        self.assembly_targets_container = ctk.CTkFrame(
-            self.targets_frame, fg_color="transparent"
-        )
+        self.assembly_targets_container = ctk.CTkFrame(self.targets_frame, fg_color="transparent")
         self.assembly_targets_container.pack(fill="x", pady=5)
 
     def _create_progress_row(
@@ -756,9 +752,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                 cost = assignment.calculate_cost()
 
                 # Feature 016: Check if delivered for styling
-                is_delivered = (
-                    assignment.fulfillment_status == FulfillmentStatus.DELIVERED
-                )
+                is_delivered = assignment.fulfillment_status == FulfillmentStatus.DELIVERED
                 text_color = "gray" if is_delivered else None
 
                 row_frame = ctk.CTkFrame(self.assignments_frame, fg_color="transparent")
@@ -771,7 +765,9 @@ class EventDetailWindow(ctk.CTkToplevel):
 
                 row_frame.bind("<Button-1>", make_click_handler(assignment))
 
-                recipient_label = ctk.CTkLabel(row_frame, text=recipient_name, text_color=text_color)
+                recipient_label = ctk.CTkLabel(
+                    row_frame, text=recipient_name, text_color=text_color
+                )
                 recipient_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
                 recipient_label.bind("<Button-1>", make_click_handler(assignment))
 
@@ -779,7 +775,9 @@ class EventDetailWindow(ctk.CTkToplevel):
                 package_label.grid(row=0, column=1, padx=10, pady=5, sticky="w")
                 package_label.bind("<Button-1>", make_click_handler(assignment))
 
-                qty_label = ctk.CTkLabel(row_frame, text=str(assignment.quantity), text_color=text_color)
+                qty_label = ctk.CTkLabel(
+                    row_frame, text=str(assignment.quantity), text_color=text_color
+                )
                 qty_label.grid(row=0, column=2, padx=10, pady=5, sticky="w")
                 qty_label.bind("<Button-1>", make_click_handler(assignment))
 
@@ -804,7 +802,9 @@ class EventDetailWindow(ctk.CTkToplevel):
         self.edit_assignment_button.configure(state="normal")
         self.delete_assignment_button.configure(state="normal")
 
-    def _get_valid_next_statuses(self, current_status: FulfillmentStatus) -> List[FulfillmentStatus]:
+    def _get_valid_next_statuses(
+        self, current_status: FulfillmentStatus
+    ) -> List[FulfillmentStatus]:
         """Get valid next statuses for sequential workflow (Feature 016).
 
         Args:

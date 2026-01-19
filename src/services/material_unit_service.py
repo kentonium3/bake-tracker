@@ -178,11 +178,9 @@ def _delete_unit_impl(
 
     # Check if used in any Composition (once WP05 adds material_unit_id)
     # For now, check if the column exists before querying
-    if hasattr(Composition, 'material_unit_id') and Composition.material_unit_id is not None:
+    if hasattr(Composition, "material_unit_id") and Composition.material_unit_id is not None:
         usage_count = (
-            session.query(Composition)
-            .filter(Composition.material_unit_id == unit_id)
-            .count()
+            session.query(Composition).filter(Composition.material_unit_id == unit_id).count()
         )
         if usage_count > 0:
             raise MaterialUnitInUseError(unit_id, usage_count)
@@ -203,9 +201,7 @@ def _get_available_inventory_impl(
 
     # Get all products for this material
     products = (
-        session.query(MaterialProduct)
-        .filter(MaterialProduct.material_id == unit.material_id)
-        .all()
+        session.query(MaterialProduct).filter(MaterialProduct.material_id == unit.material_id).all()
     )
 
     # Sum inventory across all products using MaterialInventoryItem (F058 FIFO)
@@ -219,9 +215,7 @@ def _get_available_inventory_impl(
             )
             .all()
         )
-        total_inventory += sum(
-            Decimal(str(item.quantity_remaining)) for item in inv_items
-        )
+        total_inventory += sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
 
     # Calculate complete units available (floor)
     if unit.quantity_per_unit <= 0:
@@ -241,9 +235,7 @@ def _get_current_cost_impl(
 
     # Get all products for this material
     products = (
-        session.query(MaterialProduct)
-        .filter(MaterialProduct.material_id == unit.material_id)
-        .all()
+        session.query(MaterialProduct).filter(MaterialProduct.material_id == unit.material_id).all()
     )
 
     if not products:
@@ -296,9 +288,7 @@ def _preview_consumption_impl(
 
     # Get products for this material
     products = (
-        session.query(MaterialProduct)
-        .filter(MaterialProduct.material_id == unit.material_id)
-        .all()
+        session.query(MaterialProduct).filter(MaterialProduct.material_id == unit.material_id).all()
     )
 
     # Build inventory data per product using MaterialInventoryItem (F058 FIFO)
@@ -358,13 +348,15 @@ def _preview_consumption_impl(
 
                 line_cost = Decimal(str(base_units)) * weighted_cost
 
-                allocations.append({
-                    "product_id": product.id,
-                    "product_name": product.display_name,
-                    "base_units_consumed": round(base_units, 2),
-                    "unit_cost": str(weighted_cost.quantize(Decimal("0.0001"))),
-                    "total_cost": str(line_cost.quantize(Decimal("0.01"))),
-                })
+                allocations.append(
+                    {
+                        "product_id": product.id,
+                        "product_name": product.display_name,
+                        "base_units_consumed": round(base_units, 2),
+                        "unit_cost": str(weighted_cost.quantize(Decimal("0.0001"))),
+                        "total_cost": str(line_cost.quantize(Decimal("0.01"))),
+                    }
+                )
 
                 total_cost += line_cost
 
@@ -373,9 +365,17 @@ def _preview_consumption_impl(
         "quantity_needed": quantity_needed,
         "base_units_needed": base_units_needed,
         "available_base_units": total_inv_float,
-        "available_units": math.floor(total_inv_float / unit.quantity_per_unit) if unit.quantity_per_unit > 0 else 0,
+        "available_units": (
+            math.floor(total_inv_float / unit.quantity_per_unit)
+            if unit.quantity_per_unit > 0
+            else 0
+        ),
         "shortage_base_units": shortage,
-        "shortage_units": math.ceil(shortage / unit.quantity_per_unit) if unit.quantity_per_unit > 0 and shortage > 0 else 0,
+        "shortage_units": (
+            math.ceil(shortage / unit.quantity_per_unit)
+            if unit.quantity_per_unit > 0 and shortage > 0
+            else 0
+        ),
         "allocations": allocations,
         "total_cost": str(total_cost.quantize(Decimal("0.01"))),
     }
@@ -421,13 +421,9 @@ def create_unit(
         '6_inch_ribbon'
     """
     if session is not None:
-        return _create_unit_impl(
-            material_id, name, quantity_per_unit, slug, description, session
-        )
+        return _create_unit_impl(material_id, name, quantity_per_unit, slug, description, session)
     with session_scope() as sess:
-        return _create_unit_impl(
-            material_id, name, quantity_per_unit, slug, description, sess
-        )
+        return _create_unit_impl(material_id, name, quantity_per_unit, slug, description, sess)
 
 
 def get_unit(

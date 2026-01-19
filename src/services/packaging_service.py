@@ -634,9 +634,9 @@ def get_pending_requirements(
         if event_id is not None:
             # Get finished_good_ids from EventAssemblyTarget for this event
             from sqlalchemy import select
-            assembly_ids_select = (
-                select(EventAssemblyTarget.finished_good_id)
-                .where(EventAssemblyTarget.event_id == event_id)
+
+            assembly_ids_select = select(EventAssemblyTarget.finished_good_id).where(
+                EventAssemblyTarget.event_id == event_id
             )
             # Get package_ids from EventRecipientPackage for this event
             package_ids_select = (
@@ -646,6 +646,7 @@ def get_pending_requirements(
             )
             # Filter compositions that belong to this event
             from sqlalchemy import or_
+
             query = query.filter(
                 or_(
                     Composition.assembly_id.in_(assembly_ids_select),

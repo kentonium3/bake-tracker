@@ -175,6 +175,7 @@ class HealthCheckService:
         def do_db_check():
             from src.services.database import session_scope
             from sqlalchemy import text
+
             with session_scope() as session:
                 session.execute(text("SELECT 1"))
             return "connected"

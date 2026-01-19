@@ -54,7 +54,7 @@ class RecipeBatchRow(ctk.CTkFrame):
         total_yield: int,
         waste_units: int,
         waste_percent: float,
-        **kwargs
+        **kwargs,
     ):
         """Initialize RecipeBatchRow.
 
@@ -160,7 +160,7 @@ class CalculateView(ctk.CTkFrame):
         parent: Any,
         event_id: Optional[int] = None,
         on_calculated: Optional[Callable] = None,
-        **kwargs
+        **kwargs,
     ):
         """Initialize CalculateView.
 
@@ -213,7 +213,7 @@ class CalculateView(ctk.CTkFrame):
         info_text = ctk.CTkLabel(
             self,
             text="Calculate batch requirements based on event targets. "
-                 "Batches always round up to ensure sufficient production.",
+            "Batches always round up to ensure sufficient production.",
             font=ctk.CTkFont(size=12),
             text_color="gray",
             wraplength=600,
@@ -337,8 +337,7 @@ class CalculateView(ctk.CTkFrame):
         self.summary_frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
         avg_waste = (total_waste / total_yield * 100) if total_yield > 0 else 0
         self.summary_label.configure(
-            text=f"Total: {len(recipe_batches)} recipes | "
-                 f"Average waste: {avg_waste:.1f}%"
+            text=f"Total: {len(recipe_batches)} recipes | " f"Average waste: {avg_waste:.1f}%"
         )
 
     def _show_error(self, message: str) -> None:

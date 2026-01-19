@@ -505,9 +505,7 @@ class TestEdgeCases:
 
     def test_empty_package(self, test_db):
         """Test package with no finished goods."""
-        package = create_package(
-            {"name": "Empty Package", "description": "No contents"}
-        )
+        package = create_package({"name": "Empty Package", "description": "No contents"})
 
         # Cost should be 0
         cost = calculate_package_cost(package.id)

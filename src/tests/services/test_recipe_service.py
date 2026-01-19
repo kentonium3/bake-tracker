@@ -18,7 +18,7 @@ from src.services import (
     ingredient_service,
     product_service,
     inventory_item_service,
-    purchase_service
+    purchase_service,
 )
 from src.services.exceptions import RecipeNotFound, IngredientNotFound, ValidationError
 from src.services.database import session_scope
@@ -58,6 +58,7 @@ def create_purchase_for_fallback_pricing(
         )
         session.add(purchase)
 
+
 class TestCalculateActualCost:
     """Tests for calculate_actual_cost() method."""
 
@@ -65,30 +66,35 @@ class TestCalculateActualCost:
         """Test: FIFO ordering - oldest inventory costs used first."""
         # Setup: Create ingredient and product
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Test FIFO Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Test FIFO Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
 
         # Add two lots with different costs (older lot cheaper)
         # Lot 1: 2 cups at $0.10/cup (older - should be used)
         lot1 = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("2.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Lot 2: 2 cups at $0.12/cup (newer - should NOT be used if qty <= 2)
         lot2 = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("2.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.12"),
-            purchase_date=date(2025, 2, 1)
+            product_id=product.id,
+            quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.12"),
+            purchase_date=date(2025, 2, 1),
         )
 
         # Create recipe needing 2 cups
@@ -97,7 +103,7 @@ class TestCalculateActualCost:
                 "name": "FIFO Test Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act
@@ -113,22 +119,25 @@ class TestCalculateActualCost:
         """Test: Inventory quantities remain unchanged after cost calculation."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Test Inventory Unchanged",
-                "category": "Flour"
-            }
+            {"display_name": "Test Inventory Unchanged", "category": "Flour"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
 
         initial_quantity = Decimal("5.0")
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=initial_quantity,
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=initial_quantity,
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         recipe = recipe_service.create_recipe(
@@ -136,7 +145,7 @@ class TestCalculateActualCost:
                 "name": "Inventory Test Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
         )
 
         # Capture inventory state before
@@ -158,39 +167,45 @@ class TestCalculateActualCost:
         """Test: Multiple ingredients are summed correctly."""
         # Setup: Create two ingredients
         flour = ingredient_service.create_ingredient(
-            {
-                "display_name": "Multi Test Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Multi Test Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {
-                "display_name": "Multi Test Sugar",
-                "category": "Sugar"
-            }
+            {"display_name": "Multi Test Sugar", "category": "Sugar"}
         )
 
         # Create products
         flour_product = product_service.create_product(
             flour.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
         sugar_product = product_service.create_product(
             sugar.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
 
         # Add inventory items
         flour_lot = inventory_item_service.add_to_inventory(
-            product_id=flour_product.id, quantity=Decimal("5.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=flour_product.id,
+            quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         sugar_lot = inventory_item_service.add_to_inventory(
-            product_id=sugar_product.id, quantity=Decimal("5.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.20"),
-            purchase_date=date(2025, 1, 1)
+            product_id=sugar_product.id,
+            quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.20"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe with both ingredients
@@ -202,7 +217,7 @@ class TestCalculateActualCost:
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 * $0.20 = $0.20
-            ]
+            ],
         )
 
         # Act
@@ -240,10 +255,7 @@ class TestCalculateActualCost:
         """Test: When inventory insufficient, uses fallback pricing for shortfall."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Shortfall Test Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Shortfall Test Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
@@ -252,23 +264,25 @@ class TestCalculateActualCost:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(product.id)
 
         # Add only 2 cups to inventory at $0.10/cup
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("2.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create a purchase for fallback pricing at $0.15/cup (without adding inventory)
         create_purchase_for_fallback_pricing(
             product_id=product.id,
             unit_price=Decimal("0.15"),  # $0.15/cup
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe needing 3 cups (1 cup shortfall)
@@ -277,7 +291,7 @@ class TestCalculateActualCost:
                 "name": "Shortfall Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
         )
 
         # Act
@@ -293,15 +307,16 @@ class TestCalculateActualCost:
         """Test: Empty inventory uses 100% fallback pricing."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "No Inventory Flour",
-                "category": "Flour"
-            }
+            {"display_name": "No Inventory Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
         product_service.set_preferred_product(product.id)
 
@@ -309,7 +324,7 @@ class TestCalculateActualCost:
         create_purchase_for_fallback_pricing(
             product_id=product.id,
             unit_price=Decimal("0.20"),  # $0.20/cup
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe needing 3 cups
@@ -318,7 +333,7 @@ class TestCalculateActualCost:
                 "name": "No Inventory Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
         )
 
         # Act
@@ -334,15 +349,16 @@ class TestCalculateActualCost:
         """Test: Raises ValidationError when no purchase history for fallback."""
         # Setup: Ingredient with product but no purchase history and no inventory
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "No History Flour",
-                "category": "Flour"
-            }
+            {"display_name": "No History Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
 
         # Create recipe (no inventory = shortfall, but no purchase history for fallback)
@@ -351,7 +367,7 @@ class TestCalculateActualCost:
                 "name": "No History Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act & Assert
@@ -366,10 +382,7 @@ class TestCalculateActualCost:
         """Test: Raises ValidationError when ingredient has no products configured."""
         # Setup: Ingredient with NO products
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "No Products Flour",
-                "category": "Flour"
-            }
+            {"display_name": "No Products Flour", "category": "Flour"}
         )
 
         # Create recipe with this ingredient (no products, so shortfall can't be priced)
@@ -378,7 +391,7 @@ class TestCalculateActualCost:
                 "name": "No Products Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act & Assert
@@ -391,22 +404,25 @@ class TestCalculateActualCost:
         """Test: Decimal precision maintained in cost calculations."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Precision Test Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Precision Test Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
 
         # Add inventory with precise unit cost
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("10.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.123"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("10.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.123"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe
@@ -415,7 +431,7 @@ class TestCalculateActualCost:
                 "name": "Precision Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
         )
 
         # Act
@@ -430,6 +446,7 @@ class TestCalculateActualCost:
             "0.001"
         ), f"Expected ${expected_cost}, got ${cost}"
 
+
 class TestCalculateEstimatedCost:
     """Tests for calculate_estimated_cost() method."""
 
@@ -437,10 +454,7 @@ class TestCalculateEstimatedCost:
         """Test: Uses preferred product's price when available."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Estimated Test Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Estimated Test Flour", "category": "Flour"}
         )
 
         # Create two products - one preferred, one not
@@ -450,8 +464,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Cheap Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": False
-            }
+                "is_preferred": False,
+            },
         )
         product2 = product_service.create_product(
             ingredient.slug,
@@ -459,8 +473,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Preferred Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(product2.id)
 
@@ -469,13 +483,13 @@ class TestCalculateEstimatedCost:
             product_id=product1.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("0.50"),  # $0.05/cup
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
         purchase_service.record_purchase(
             product_id=product2.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup (preferred)
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe needing 2 cups
@@ -484,7 +498,7 @@ class TestCalculateEstimatedCost:
                 "name": "Preferred Test Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act
@@ -500,10 +514,7 @@ class TestCalculateEstimatedCost:
         """Test: Falls back to any product when no preferred set."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Fallback Test Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Fallback Test Flour", "category": "Flour"}
         )
 
         # Create product WITHOUT setting it as preferred
@@ -514,7 +525,7 @@ class TestCalculateEstimatedCost:
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": False,  # Not preferred
-            }
+            },
         )
 
         # Record purchase
@@ -522,7 +533,7 @@ class TestCalculateEstimatedCost:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe
@@ -531,7 +542,7 @@ class TestCalculateEstimatedCost:
                 "name": "Fallback Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
         )
 
         # Act
@@ -547,16 +558,10 @@ class TestCalculateEstimatedCost:
         """Test: Multiple ingredients are summed correctly."""
         # Setup: Create two ingredients
         flour = ingredient_service.create_ingredient(
-            {
-                "display_name": "Est Multi Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Est Multi Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {
-                "display_name": "Est Multi Sugar",
-                "category": "Sugar"
-            }
+            {"display_name": "Est Multi Sugar", "category": "Sugar"}
         )
 
         # Create products
@@ -566,8 +571,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -577,8 +582,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -587,13 +592,13 @@ class TestCalculateEstimatedCost:
             product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
         purchase_service.record_purchase(
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe with both ingredients
@@ -605,7 +610,7 @@ class TestCalculateEstimatedCost:
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 * $0.20 = $0.20
-            ]
+            ],
         )
 
         # Act
@@ -621,10 +626,7 @@ class TestCalculateEstimatedCost:
         """Test: Inventory items are completely ignored - uses product pricing."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Ignore Inventory Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Ignore Inventory Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
@@ -633,16 +635,18 @@ class TestCalculateEstimatedCost:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(product.id)
 
         # Add inventory items at LOW price ($0.05/cup)
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("10.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.05"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("10.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.05"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Record purchase at HIGHER price ($0.20/cup) - this should be used
@@ -650,7 +654,7 @@ class TestCalculateEstimatedCost:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe
@@ -659,7 +663,7 @@ class TestCalculateEstimatedCost:
                 "name": "Ignore Inventory Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act
@@ -698,15 +702,16 @@ class TestCalculateEstimatedCost:
         """Test: Raises ValidationError when no purchase history exists."""
         # Setup: Ingredient with product but no purchase history
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "No Purchase Est Flour",
-                "category": "Flour"
-            }
+            {"display_name": "No Purchase Est Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
+            {
+                "brand": "Test Brand",
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
+            },
         )
 
         # Create recipe (no purchase history for fallback)
@@ -715,7 +720,7 @@ class TestCalculateEstimatedCost:
                 "name": "No Purchase Est Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act & Assert
@@ -731,10 +736,7 @@ class TestCalculateEstimatedCost:
         """Test: Raises ValidationError when ingredient has no products configured."""
         # Setup: Ingredient with NO products
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "No Products Est Flour",
-                "category": "Flour"
-            }
+            {"display_name": "No Products Est Flour", "category": "Flour"}
         )
 
         # Create recipe with this ingredient (no products)
@@ -743,7 +745,7 @@ class TestCalculateEstimatedCost:
                 "name": "No Products Est Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act & Assert
@@ -752,6 +754,7 @@ class TestCalculateEstimatedCost:
 
         assert "no products" in str(exc_info.value).lower()
 
+
 class TestPartialInventoryScenarios:
     """Tests for partial inventory blended costing scenarios (WP04)."""
 
@@ -759,10 +762,7 @@ class TestPartialInventoryScenarios:
         """Test: When inventory has more than needed, uses only FIFO costs (no fallback)."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Full Coverage Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Full Coverage Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
@@ -771,16 +771,18 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(product.id)
 
         # Add 5 cups to inventory at $0.10/cup (more than needed)
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("5.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Record a purchase for fallback at HIGHER price - should NOT be used
@@ -788,7 +790,7 @@ class TestPartialInventoryScenarios:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - expensive!
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe needing 2 cups (inventory has 5)
@@ -797,7 +799,7 @@ class TestPartialInventoryScenarios:
                 "name": "Full Coverage Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act
@@ -817,22 +819,13 @@ class TestPartialInventoryScenarios:
         # Butter: no coverage (0 of 2 cups)
 
         flour = ingredient_service.create_ingredient(
-            {
-                "display_name": "Mixed Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Mixed Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {
-                "display_name": "Mixed Sugar",
-                "category": "Sugar"
-            }
+            {"display_name": "Mixed Sugar", "category": "Sugar"}
         )
         butter = ingredient_service.create_ingredient(
-            {
-                "display_name": "Mixed Butter",
-                "category": "Dairy"
-            }
+            {"display_name": "Mixed Butter", "category": "Dairy"}
         )
 
         # Create products
@@ -842,8 +835,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -853,8 +846,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -864,24 +857,28 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(butter_product.id)
 
         # Add inventory items
         # Flour: 2 cups at $0.10/cup (partial coverage)
         flour_lot = inventory_item_service.add_to_inventory(
-            product_id=flour_product.id, quantity=Decimal("2.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=flour_product.id,
+            quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Sugar: 5 cups at $0.20/cup (full coverage)
         sugar_lot = inventory_item_service.add_to_inventory(
-            product_id=sugar_product.id, quantity=Decimal("5.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.20"),
-            purchase_date=date(2025, 1, 1)
+            product_id=sugar_product.id,
+            quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.20"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Butter: NO inventory items (zero coverage)
@@ -890,17 +887,17 @@ class TestPartialInventoryScenarios:
         create_purchase_for_fallback_pricing(
             product_id=flour_product.id,
             unit_price=Decimal("0.15"),  # $0.15/cup
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
         create_purchase_for_fallback_pricing(
             product_id=sugar_product.id,
             unit_price=Decimal("0.30"),  # $0.30/cup (won't be used - full coverage)
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
         create_purchase_for_fallback_pricing(
             product_id=butter_product.id,
             unit_price=Decimal("0.50"),  # $0.50/cup (100% fallback)
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe with all three ingredients
@@ -913,7 +910,7 @@ class TestPartialInventoryScenarios:
                 {"ingredient_id": flour.id, "quantity": 3.0, "unit": "cup"},  # 2 FIFO + 1 fallback
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 FIFO only
                 {"ingredient_id": butter.id, "quantity": 2.0, "unit": "cup"},  # 2 fallback only
-            ]
+            ],
         )
 
         # Act
@@ -933,10 +930,7 @@ class TestPartialInventoryScenarios:
         """Test: Boundary condition - inventory has exactly what's needed (no shortfall)."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Exact Coverage Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Exact Coverage Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
@@ -945,16 +939,18 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(product.id)
 
         # Add exactly 3 cups at $0.10/cup
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("3.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("3.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Record expensive fallback (should NOT be used)
@@ -962,7 +958,7 @@ class TestPartialInventoryScenarios:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("10.00"),  # $1.00/cup
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe needing exactly 3 cups
@@ -971,7 +967,7 @@ class TestPartialInventoryScenarios:
                 "name": "Exact Coverage Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
         )
 
         # Act
@@ -987,10 +983,7 @@ class TestPartialInventoryScenarios:
         """Test: Decimal precision maintained in blended cost calculations."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Precision Blend Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Precision Blend Flour", "category": "Flour"}
         )
 
         product = product_service.create_product(
@@ -999,23 +992,25 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(product.id)
 
         # Add 1.5 cups at $0.123/cup (precise value)
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("1.5"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.123"),
-            purchase_date=date(2025, 1, 1)
+            product_id=product.id,
+            quantity=Decimal("1.5"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.123"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create fallback purchase at $0.456/cup (precise value, without adding inventory)
         create_purchase_for_fallback_pricing(
             product_id=product.id,
             unit_price=Decimal("0.456"),  # $0.456/cup
-            purchase_date=date(2025, 1, 15)
+            purchase_date=date(2025, 1, 15),
         )
 
         # Create recipe needing 2.5 cups (1 cup shortfall)
@@ -1024,7 +1019,7 @@ class TestPartialInventoryScenarios:
                 "name": "Precision Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.5, "unit": "cup"}]
+            [{"ingredient_id": ingredient.id, "quantity": 2.5, "unit": "cup"}],
         )
 
         # Act
@@ -1039,6 +1034,7 @@ class TestPartialInventoryScenarios:
         # Verify result is Decimal type
         assert isinstance(cost, Decimal), f"Expected Decimal, got {type(cost)}"
 
+
 class TestEdgeCases:
     """Tests for edge cases and validation (WP05)."""
 
@@ -1046,16 +1042,10 @@ class TestEdgeCases:
         """Test: Zero quantity ingredients contribute $0 to total."""
         # Setup
         flour = ingredient_service.create_ingredient(
-            {
-                "display_name": "Zero Qty Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Zero Qty Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {
-                "display_name": "Zero Qty Sugar",
-                "category": "Sugar"
-            }
+            {"display_name": "Zero Qty Sugar", "category": "Sugar"}
         )
 
         # Create products
@@ -1065,8 +1055,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -1076,16 +1066,18 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(sugar_product.id)
 
         # Add inventory
         flour_lot = inventory_item_service.add_to_inventory(
-            product_id=flour_product.id, quantity=Decimal("5.0"),
-            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
-            purchase_date=date(2025, 1, 1)
+            product_id=flour_product.id,
+            quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id,
+            unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1),
         )
 
         # Record purchase for sugar (in case fallback is needed)
@@ -1093,7 +1085,7 @@ class TestEdgeCases:
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe with flour (2 cups) and sugar (0 cups - zero quantity)
@@ -1105,7 +1097,7 @@ class TestEdgeCases:
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
                 {"ingredient_id": sugar.id, "quantity": 0.0, "unit": "cup"},  # Zero!
-            ]
+            ],
         )
 
         # Act
@@ -1121,16 +1113,10 @@ class TestEdgeCases:
         """Test: Zero quantity ingredients skipped in estimated cost."""
         # Setup
         flour = ingredient_service.create_ingredient(
-            {
-                "display_name": "Est Zero Flour",
-                "category": "Flour"
-            }
+            {"display_name": "Est Zero Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {
-                "display_name": "Est Zero Sugar",
-                "category": "Sugar"
-            }
+            {"display_name": "Est Zero Sugar", "category": "Sugar"}
         )
 
         # Create products
@@ -1140,8 +1126,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -1151,8 +1137,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "package_unit": "cup",
                 "package_unit_quantity": Decimal("10.0"),
-                "is_preferred": True
-            }
+                "is_preferred": True,
+            },
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -1161,13 +1147,13 @@ class TestEdgeCases:
             product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
         purchase_service.record_purchase(
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
-            purchase_date=date(2025, 1, 1)
+            purchase_date=date(2025, 1, 1),
         )
 
         # Create recipe with flour (2 cups) and sugar (0 cups)
@@ -1179,7 +1165,7 @@ class TestEdgeCases:
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
                 {"ingredient_id": sugar.id, "quantity": 0.0, "unit": "cup"},  # Zero!
-            ]
+            ],
         )
 
         # Act
@@ -1197,7 +1183,7 @@ class TestEdgeCases:
         ingredient = ingredient_service.create_ingredient(
             {
                 "display_name": "Saffron Threads",  # Specific name to check in message
-                "category": "Spices"
+                "category": "Spices",
             }
         )
 
@@ -1206,7 +1192,7 @@ class TestEdgeCases:
                 "name": "Error Message Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
+            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}],
         )
 
         # Act & Assert
@@ -1221,15 +1207,16 @@ class TestEdgeCases:
         """Test: ValidationError message mentions purchase history."""
         # Setup: Ingredient with product but no purchases
         ingredient = ingredient_service.create_ingredient(
-            {
-                "display_name": "Rare Spice",
-                "category": "Spices"
-            }
+            {"display_name": "Rare Spice", "category": "Spices"}
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Exotic Brand", "package_unit": "tsp", "package_unit_quantity": Decimal("1.0")}
+            {
+                "brand": "Exotic Brand",
+                "package_unit": "tsp",
+                "package_unit_quantity": Decimal("1.0"),
+            },
         )
 
         recipe = recipe_service.create_recipe(
@@ -1237,7 +1224,7 @@ class TestEdgeCases:
                 "name": "No Purchase Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
+            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}],
         )
 
         # Act & Assert
@@ -1248,9 +1235,11 @@ class TestEdgeCases:
         # The message should mention purchase history
         assert "purchase" in error_message and "history" in error_message
 
+
 # ============================================================================
 # Recipe Component CRUD Tests (Feature 012: Nested Recipes)
 # ============================================================================
+
 
 class TestAddRecipeComponent:
     """Tests for add_recipe_component() method."""
@@ -1431,6 +1420,7 @@ class TestAddRecipeComponent:
         assert comp1.sort_order == 1
         assert comp2.sort_order == 2
 
+
 class TestRemoveRecipeComponent:
     """Tests for remove_recipe_component() method."""
 
@@ -1489,6 +1479,7 @@ class TestRemoveRecipeComponent:
 
         with pytest.raises(RecipeNotFound):
             recipe_service.remove_recipe_component(99999, child.id)
+
 
 class TestUpdateRecipeComponent:
     """Tests for update_recipe_component() method."""
@@ -1592,6 +1583,7 @@ class TestUpdateRecipeComponent:
 
         assert "not found" in str(exc_info.value).lower()
 
+
 class TestGetRecipeComponents:
     """Tests for get_recipe_components() method."""
 
@@ -1652,6 +1644,7 @@ class TestGetRecipeComponents:
         with pytest.raises(RecipeNotFound):
             recipe_service.get_recipe_components(99999)
 
+
 class TestGetRecipesUsingComponent:
     """Tests for get_recipes_using_component() method."""
 
@@ -1704,9 +1697,11 @@ class TestGetRecipesUsingComponent:
         with pytest.raises(RecipeNotFound):
             recipe_service.get_recipes_using_component(99999)
 
+
 # ============================================================================
 # Recipe Component Validation Tests (Feature 012: WP03)
 # ============================================================================
+
 
 class TestCircularReferenceDetection:
     """Tests for circular reference detection (T014, T017, T019)."""
@@ -1808,6 +1803,7 @@ class TestCircularReferenceDetection:
         # Verify both added
         components = recipe_service.get_recipe_components(recipe_a.id)
         assert len(components) == 2
+
 
 class TestDepthLimitEnforcement:
     """Tests for depth limit enforcement (T015, T016, T020)."""
@@ -1944,6 +1940,7 @@ class TestDepthLimitEnforcement:
         components = recipe_service.get_recipe_components(parent.id)
         assert len(components) == 3
 
+
 class TestDeletionProtection:
     """Tests for deletion protection (T018, T021)."""
 
@@ -2059,9 +2056,11 @@ class TestDeletionProtection:
         assert "Multi Parent 1" in error_msg
         assert "Multi Parent 2" in error_msg
 
+
 # ============================================================================
 # Recipe Component Cost & Aggregation Tests (Feature 012: WP04)
 # ============================================================================
+
 
 class TestGetAggregatedIngredients:
     """Tests for get_aggregated_ingredients() (T022, T026)."""
@@ -2085,7 +2084,7 @@ class TestGetAggregatedIngredients:
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},
-            ]
+            ],
         )
 
         result = recipe_service.get_aggregated_ingredients(recipe.id)
@@ -2111,7 +2110,7 @@ class TestGetAggregatedIngredients:
                 "name": "Comp Child Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": butter.id, "quantity": 0.5, "unit": "cup"}]
+            [{"ingredient_id": butter.id, "quantity": 0.5, "unit": "cup"}],
         )
 
         # Create parent recipe with flour
@@ -2120,7 +2119,7 @@ class TestGetAggregatedIngredients:
                 "name": "Comp Parent Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Add child as component with quantity 2.0
@@ -2145,7 +2144,7 @@ class TestGetAggregatedIngredients:
                 "name": "Combine Child",
                 "category": "Cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         # Create parent with 2 cups flour
@@ -2154,7 +2153,7 @@ class TestGetAggregatedIngredients:
                 "name": "Combine Parent",
                 "category": "Cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
@@ -2184,21 +2183,21 @@ class TestGetAggregatedIngredients:
                 "name": "Three Level Grandchild",
                 "category": "Cookies",
             },
-            [{"ingredient_id": salt.id, "quantity": 1.0, "unit": "tsp"}]
+            [{"ingredient_id": salt.id, "quantity": 1.0, "unit": "tsp"}],
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Three Level Child",
                 "category": "Cookies",
             },
-            [{"ingredient_id": butter.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": butter.id, "quantity": 1.0, "unit": "cup"}],
         )
         parent = recipe_service.create_recipe(
             {
                 "name": "Three Level Parent",
                 "category": "Cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(child.id, grandchild.id, quantity=2.0)
@@ -2223,7 +2222,7 @@ class TestGetAggregatedIngredients:
                 "name": "Mult Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         result = recipe_service.get_aggregated_ingredients(recipe.id, multiplier=2.0)
@@ -2238,12 +2237,13 @@ class TestGetAggregatedIngredients:
                 "name": "Empty Aggreg Recipe",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         result = recipe_service.get_aggregated_ingredients(recipe.id)
 
         assert len(result) == 0
+
 
 class TestCalculateTotalCostWithComponents:
     """Tests for calculate_total_cost_with_components() (T023, T027)."""
@@ -2272,14 +2272,14 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Cost Child",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         parent = recipe_service.create_recipe(
             {
                 "name": "Cost Parent",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
@@ -2299,14 +2299,14 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Structure Parent",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Structure Child",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
 
@@ -2337,7 +2337,7 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Per Unit Recipe",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         result = recipe_service.calculate_total_cost_with_components(recipe.id)
@@ -2350,6 +2350,7 @@ class TestCalculateTotalCostWithComponents:
         with pytest.raises(RecipeNotFound):
             recipe_service.calculate_total_cost_with_components(99999)
 
+
 class TestGetRecipeWithCostsComponents:
     """Tests for get_recipe_with_costs() with components (T025)."""
 
@@ -2360,14 +2361,14 @@ class TestGetRecipeWithCostsComponents:
                 "name": "With Costs Parent",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         child = recipe_service.create_recipe(
             {
                 "name": "With Costs Child",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
 
@@ -2386,7 +2387,7 @@ class TestGetRecipeWithCostsComponents:
                 "name": "No Comp Costs",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         result = recipe_service.get_recipe_with_costs(recipe.id)
@@ -2400,6 +2401,7 @@ class TestGetRecipeWithCostsComponents:
 # Feature 031: Leaf-Only Ingredient Validation Tests
 # =============================================================================
 
+
 class TestLeafOnlyIngredientValidation:
     """Tests for leaf-only ingredient enforcement in recipes (Feature 031)."""
 
@@ -2410,7 +2412,7 @@ class TestLeafOnlyIngredientValidation:
                 "name": "Leaf Ingredient Recipe",
                 "category": "Cookies",
             },
-            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}],
         )
         assert recipe is not None
         assert len(recipe.recipe_ingredients) == 1
@@ -2426,7 +2428,7 @@ class TestLeafOnlyIngredientValidation:
                     "name": "Root Ingredient Recipe",
                     "category": "Cookies",
                 },
-                [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
+                [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}],
             )
         assert "Test Chocolate" in str(exc_info.value)
 
@@ -2440,7 +2442,7 @@ class TestLeafOnlyIngredientValidation:
                     "name": "Mid Ingredient Recipe",
                     "category": "Cookies",
                 },
-                [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}]
+                [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}],
             )
         assert "Test Dark Chocolate" in str(exc_info.value)
 
@@ -2451,14 +2453,11 @@ class TestLeafOnlyIngredientValidation:
                 "name": "Add Leaf Test Recipe",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         result = recipe_service.add_ingredient_to_recipe(
-            recipe.id,
-            hierarchy_ingredients.leaf1.id,
-            1.0,
-            "cup"
+            recipe.id, hierarchy_ingredients.leaf1.id, 1.0, "cup"
         )
         assert result is not None
 
@@ -2471,15 +2470,12 @@ class TestLeafOnlyIngredientValidation:
                 "name": "Add Non-Leaf Test Recipe",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         with pytest.raises(NonLeafIngredientError):
             recipe_service.add_ingredient_to_recipe(
-                recipe.id,
-                hierarchy_ingredients.mid.id,
-                1.0,
-                "cup"
+                recipe.id, hierarchy_ingredients.mid.id, 1.0, "cup"
             )
 
     def test_non_leaf_error_includes_suggestions(self, test_db, hierarchy_ingredients):
@@ -2492,7 +2488,7 @@ class TestLeafOnlyIngredientValidation:
                     "name": "Suggestion Test Recipe",
                     "category": "Cookies",
                 },
-                [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}]
+                [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}],
             )
 
         # The error should have suggestions (leaf children of mid-tier)
@@ -2510,7 +2506,7 @@ class TestLeafOnlyIngredientValidation:
                 "name": "Update Non-Leaf Test",
                 "category": "Cookies",
             },
-            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         # Try to update with a non-leaf ingredient
@@ -2521,7 +2517,7 @@ class TestLeafOnlyIngredientValidation:
                     "name": "Updated Recipe",
                     "category": "Cookies",
                 },
-                [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
+                [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}],
             )
 
 
@@ -2536,7 +2532,7 @@ class TestRecipeVariants:
                 "name": "Thumbprint Cookies",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         # Act
@@ -2553,7 +2549,7 @@ class TestRecipeVariants:
                 "name": "Thumbprint Cookies",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         # Create two variants
@@ -2577,12 +2573,7 @@ class TestRecipeVariants:
         """Test: Creates variant linked to base recipe."""
         # Create base recipe
         base = recipe_service.create_recipe(
-            {
-                "name": "Sugar Cookies",
-                "category": "Cookies",
-                "source": "Grandma's Recipe"
-            },
-            []
+            {"name": "Sugar Cookies", "category": "Cookies", "source": "Grandma's Recipe"}, []
         )
 
         # Act
@@ -2610,7 +2601,7 @@ class TestRecipeVariants:
                 "name": "Chocolate Cookies",
                 "category": "Cookies",
             },
-            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act
@@ -2633,7 +2624,7 @@ class TestRecipeVariants:
                 "name": "Chocolate Cookies",
                 "category": "Cookies",
             },
-            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Act
@@ -2652,7 +2643,7 @@ class TestRecipeVariants:
                 "name": "Basic Cookies",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         # Act
@@ -2667,9 +2658,7 @@ class TestRecipeVariants:
     def test_create_recipe_variant_base_not_found(self, test_db):
         """Test: RecipeNotFound raised when base recipe doesn't exist."""
         with pytest.raises(RecipeNotFound):
-            recipe_service.create_recipe_variant(
-                99999, "Test Variant", copy_ingredients=False
-            )
+            recipe_service.create_recipe_variant(99999, "Test Variant", copy_ingredients=False)
 
     def test_variant_orphaned_on_base_delete(self, test_db):
         """Test: Variant's base_recipe_id becomes None when base is deleted."""
@@ -2679,7 +2668,7 @@ class TestRecipeVariants:
                 "name": "Base To Delete",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         variant_result = recipe_service.create_recipe_variant(
             base.id, "Orphan Test", copy_ingredients=False
@@ -2704,7 +2693,7 @@ class TestRecipeVariants:
                 "name": "Thumbprint Cookies",
                 "category": "Cookies",
             },
-            []
+            [],
         )
 
         # Create variants
@@ -2717,7 +2706,7 @@ class TestRecipeVariants:
                 "name": "Brownies",
                 "category": "Bars",
             },
-            []
+            [],
         )
 
         # Act
@@ -2747,7 +2736,7 @@ class TestRecipeVariants:
                 "name": "Test Base",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         recipe_service.create_recipe_variant(base.id, "Test Variant", copy_ingredients=False)
 
@@ -2789,7 +2778,7 @@ class TestRecipeVariants:
                 "name": "Cookie Base",
                 "category": "Cookies",
             },
-            []
+            [],
         )
         recipe_service.create_recipe_variant(base.id, "Vanilla", copy_ingredients=False)
 
@@ -2799,7 +2788,7 @@ class TestRecipeVariants:
                 "name": "Brownies",
                 "category": "Bars",
             },
-            []
+            [],
         )
 
         # Act: Filter by Cookies category
@@ -2827,7 +2816,7 @@ class TestRecipeFinishedUnitValidation:
                 "name": "No Yields Recipe",
                 "category": "Test",
             },
-            []
+            [],
         )
 
         errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
@@ -2856,7 +2845,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Standard Cookies",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=24,
-            item_unit="cookie"
+            item_unit="cookie",
         )
         session.add(fu)
         session.commit()
@@ -2886,7 +2875,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Incomplete Cookies",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=12,
-            item_unit=None  # Missing!
+            item_unit=None,  # Missing!
         )
         session.add(fu)
         session.commit()
@@ -2917,7 +2906,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Incomplete Cookies",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=None,  # Missing!
-            item_unit="cookie"
+            item_unit="cookie",
         )
         session.add(fu)
         session.commit()
@@ -2950,7 +2939,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="",  # Empty
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=12,
-            item_unit="cookie"
+            item_unit="cookie",
         )
         session.add(fu)
         session.commit()
@@ -2982,7 +2971,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Full Cake",
             yield_mode=YieldMode.BATCH_PORTION,
             batch_percentage=Decimal("100.00"),
-            portion_description="9-inch round"
+            portion_description="9-inch round",
         )
         session.add(fu)
         session.commit()
@@ -3012,7 +3001,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Incomplete Cake",
             yield_mode=YieldMode.BATCH_PORTION,
             batch_percentage=None,  # Missing!
-            portion_description="9-inch round"
+            portion_description="9-inch round",
         )
         session.add(fu)
         session.commit()
@@ -3043,7 +3032,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Incomplete",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=12,
-            item_unit=None  # Missing!
+            item_unit=None,  # Missing!
         )
         session.add(fu1)
 
@@ -3054,7 +3043,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Complete Cookies",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=24,
-            item_unit="cookie"
+            item_unit="cookie",
         )
         session.add(fu2)
         session.commit()
@@ -3090,7 +3079,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Incomplete 1",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=12,
-            item_unit=None  # Missing!
+            item_unit=None,  # Missing!
         )
         session.add(fu1)
 
@@ -3100,7 +3089,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Incomplete 2",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=None,  # Missing!
-            item_unit="cookie"
+            item_unit="cookie",
         )
         session.add(fu2)
         session.commit()
@@ -3132,7 +3121,7 @@ class TestRecipeFinishedUnitValidation:
             display_name="Session Test Cookies",
             yield_mode=YieldMode.DISCRETE_COUNT,
             items_per_batch=24,
-            item_unit="cookie"
+            item_unit="cookie",
         )
         session.add(fu)
         session.flush()  # Don't commit yet

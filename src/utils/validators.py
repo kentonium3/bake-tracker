@@ -290,11 +290,15 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     # Note: Full density validation is done in ingredient_service.validate_density_fields()
     # Here we just do basic positive number checks if values are provided
     if data.get("density_volume_value") is not None:
-        is_valid, error = validate_positive_number(data.get("density_volume_value"), "Density volume value")
+        is_valid, error = validate_positive_number(
+            data.get("density_volume_value"), "Density volume value"
+        )
         if not is_valid:
             errors.append(error)
     if data.get("density_weight_value") is not None:
-        is_valid, error = validate_positive_number(data.get("density_weight_value"), "Density weight value")
+        is_valid, error = validate_positive_number(
+            data.get("density_weight_value"), "Density weight value"
+        )
         if not is_valid:
             errors.append(error)
 
@@ -465,7 +469,9 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
         errors.append(error)
 
     # Required: Package quantity (must be positive)
-    is_valid, error = validate_positive_number(data.get("package_unit_quantity"), "Package Quantity")
+    is_valid, error = validate_positive_number(
+        data.get("package_unit_quantity"), "Package Quantity"
+    )
     if not is_valid:
         errors.append(error)
 

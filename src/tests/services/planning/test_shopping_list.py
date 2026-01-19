@@ -127,8 +127,12 @@ class TestShoppingListItem:
 
     def test_dataclass_equality(self):
         """Test dataclass equality comparison."""
-        item1 = ShoppingListItem(1, "flour", "Flour", Decimal("10"), Decimal("5"), Decimal("5"), "cups", False)
-        item2 = ShoppingListItem(1, "flour", "Flour", Decimal("10"), Decimal("5"), Decimal("5"), "cups", False)
+        item1 = ShoppingListItem(
+            1, "flour", "Flour", Decimal("10"), Decimal("5"), Decimal("5"), "cups", False
+        )
+        item2 = ShoppingListItem(
+            1, "flour", "Flour", Decimal("10"), Decimal("5"), Decimal("5"), "cups", False
+        )
         assert item1 == item2
 
 

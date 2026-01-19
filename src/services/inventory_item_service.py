@@ -544,7 +544,9 @@ def update_inventory_item(inventory_item_id: int, item_data: Dict[str, Any]) -> 
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to update inventory item {inventory_item_id}", original_error=e)
+        raise DatabaseError(
+            f"Failed to update inventory item {inventory_item_id}", original_error=e
+        )
 
 
 def update_inventory_supplier(
@@ -608,7 +610,9 @@ def update_inventory_supplier(
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to update inventory supplier for {inventory_item_id}", original_error=e)
+        raise DatabaseError(
+            f"Failed to update inventory supplier for {inventory_item_id}", original_error=e
+        )
 
 
 def update_inventory_quantity(
@@ -657,6 +661,7 @@ def update_inventory_quantity(
         >>> # Method 3: Used 16 oz from a 28 oz/jar item
         >>> update_inventory_quantity(123, amount_used=Decimal("16"), amount_used_unit="oz")
     """
+
     def _do_update(sess: Session) -> InventoryItem:
         item = (
             sess.query(InventoryItem)
@@ -670,7 +675,9 @@ def update_inventory_quantity(
         current_qty = Decimal(str(item.quantity))
         product = item.product
         package_unit = product.package_unit if product else None
-        package_unit_quantity = Decimal(str(product.package_unit_quantity)) if product else Decimal("1")
+        package_unit_quantity = (
+            Decimal(str(product.package_unit_quantity)) if product else Decimal("1")
+        )
 
         # Apply precedence rules
         if remaining_percentage is not None:
@@ -726,8 +733,7 @@ def update_inventory_quantity(
         raise
     except Exception as e:
         raise DatabaseError(
-            f"Failed to update inventory quantity for item {inventory_item_id}",
-            original_error=e
+            f"Failed to update inventory quantity for item {inventory_item_id}", original_error=e
         )
 
 
@@ -758,9 +764,22 @@ def _convert_to_package_units(
 
     # If from_unit is a package type (jar, can, bag, etc.), return directly
     package_types = [
-        'jar', 'jars', 'can', 'cans', 'bag', 'bags',
-        'bottle', 'bottles', 'package', 'packages', 'pkg', 'pkgs',
-        'box', 'boxes', 'container', 'containers',
+        "jar",
+        "jars",
+        "can",
+        "cans",
+        "bag",
+        "bags",
+        "bottle",
+        "bottles",
+        "package",
+        "packages",
+        "pkg",
+        "pkgs",
+        "box",
+        "boxes",
+        "container",
+        "containers",
     ]
     if from_unit.lower() in package_types:
         return amount
@@ -805,7 +824,9 @@ def delete_inventory_item(inventory_item_id: int) -> bool:
     except InventoryItemNotFound:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to delete inventory item {inventory_item_id}", original_error=e)
+        raise DatabaseError(
+            f"Failed to delete inventory item {inventory_item_id}", original_error=e
+        )
 
 
 def get_inventory_value() -> Decimal:
@@ -1111,6 +1132,7 @@ def manual_adjustment(
         InventoryItemNotFound: If inventory_item_id doesn't exist
         ValidationError: If quantity/notes validation fails
     """
+
     def _do_adjustment(sess: Session) -> InventoryDepletion:
         # Validate quantity is positive
         if quantity_to_deplete <= Decimal("0"):
@@ -1133,9 +1155,9 @@ def manual_adjustment(
         # Validate quantity doesn't exceed available
         current_qty = Decimal(str(item.quantity))
         if quantity_to_deplete > current_qty:
-            raise ServiceValidationError([
-                f"Cannot deplete {quantity_to_deplete}: only {current_qty} available"
-            ])
+            raise ServiceValidationError(
+                [f"Cannot deplete {quantity_to_deplete}: only {current_qty} available"]
+            )
 
         # Calculate cost (quantity * unit_cost)
         unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0")
@@ -1181,6 +1203,7 @@ def get_depletion_history(
     Returns:
         List[InventoryDepletion]: Depletion records ordered by depletion_date DESC
     """
+
     def _do_query(sess: Session) -> List[InventoryDepletion]:
         return (
             sess.query(InventoryDepletion)
