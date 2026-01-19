@@ -44,11 +44,9 @@ def _get_categories_from_database() -> List[str]:
     """Load categories from existing ingredients in database."""
     try:
         ingredients = ingredient_service.get_all_ingredients()
-        categories = sorted(set(
-            ing.get("category", "")
-            for ing in ingredients
-            if ing.get("category")
-        ))
+        categories = sorted(
+            set(ing.get("category", "") for ing in ingredients if ing.get("category"))
+        )
         return categories if categories else ["Uncategorized"]
     except Exception:
         return ["Uncategorized"]

@@ -137,9 +137,7 @@ class TestCheckProductionFeasibility:
         """Test with no inventory - production not feasible."""
         session = test_db()
 
-        results = check_production_feasibility(
-            production_setup["event_id"], session=session
-        )
+        results = check_production_feasibility(production_setup["event_id"], session=session)
 
         assert len(results) == 1
         result = results[0]
@@ -173,9 +171,7 @@ class TestCheckProductionFeasibility:
         session.add(inventory)
         session.commit()
 
-        results = check_production_feasibility(
-            production_setup["event_id"], session=session
-        )
+        results = check_production_feasibility(production_setup["event_id"], session=session)
 
         assert len(results) == 1
         result = results[0]
@@ -202,9 +198,7 @@ class TestCheckProductionFeasibility:
         session.add(target2)
         session.commit()
 
-        results = check_production_feasibility(
-            production_setup["event_id"], session=session
-        )
+        results = check_production_feasibility(production_setup["event_id"], session=session)
 
         assert len(results) == 2
         recipe_ids = {r["recipe_id"] for r in results}
@@ -300,9 +294,7 @@ class TestCheckAssemblyFeasibility:
         """Test with no production - status is AWAITING_PRODUCTION."""
         session = test_db()
 
-        results = check_assembly_feasibility(
-            assembly_setup["event_id"], session=session
-        )
+        results = check_assembly_feasibility(assembly_setup["event_id"], session=session)
 
         assert len(results) == 1
         result = results[0]
@@ -322,9 +314,7 @@ class TestCheckAssemblyFeasibility:
         brownie_unit.inventory_count = 150
         session.commit()
 
-        results = check_assembly_feasibility(
-            assembly_setup["event_id"], session=session
-        )
+        results = check_assembly_feasibility(assembly_setup["event_id"], session=session)
 
         assert len(results) == 1
         result = results[0]
@@ -346,9 +336,7 @@ class TestCheckAssemblyFeasibility:
         brownie_unit.inventory_count = 120  # Only enough for 40 bags
         session.commit()
 
-        results = check_assembly_feasibility(
-            assembly_setup["event_id"], session=session
-        )
+        results = check_assembly_feasibility(assembly_setup["event_id"], session=session)
 
         assert len(results) == 1
         result = results[0]
@@ -378,9 +366,7 @@ class TestCheckAssemblyFeasibility:
         session.add(target2)
         session.commit()
 
-        results = check_assembly_feasibility(
-            assembly_setup["event_id"], session=session
-        )
+        results = check_assembly_feasibility(assembly_setup["event_id"], session=session)
 
         assert len(results) == 2
 
@@ -482,8 +468,8 @@ class TestPartialAssemblyCalculation:
         truffle = session.get(FinishedUnit, multi_component_setup["truffle_id"])
 
         cookie.inventory_count = 100  # 25 bags (100/4)
-        brownie.inventory_count = 50   # 25 bags (50/2)
-        truffle.inventory_count = 75   # 25 bags (75/3)
+        brownie.inventory_count = 50  # 25 bags (50/2)
+        truffle.inventory_count = 75  # 25 bags (75/3)
         session.commit()
 
         result = check_single_assembly_feasibility(
@@ -504,7 +490,7 @@ class TestPartialAssemblyCalculation:
         truffle = session.get(FinishedUnit, multi_component_setup["truffle_id"])
 
         cookie.inventory_count = 200  # 50 bags worth
-        brownie.inventory_count = 0    # Zero!
+        brownie.inventory_count = 0  # Zero!
         truffle.inventory_count = 150  # 50 bags worth
         session.commit()
 

@@ -102,9 +102,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
     def _create_header(self):
         """Create the header section with name and category."""
         header_frame = ctk.CTkFrame(self, fg_color="transparent")
-        header_frame.grid(
-            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
-        )
+        header_frame.grid(row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
 
         name_label = ctk.CTkLabel(
             header_frame,
@@ -124,9 +122,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
     def _create_info_section(self):
         """Create the info section with recipe, inventory, and cost."""
         info_frame = ctk.CTkFrame(self)
-        info_frame.grid(
-            row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        info_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
         info_frame.grid_columnconfigure(1, weight=1)
 
         row = 0
@@ -136,9 +132,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
             row=row, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
         recipe_name = (
-            self.finished_unit.recipe.name
-            if self.finished_unit.recipe
-            else "No recipe assigned"
+            self.finished_unit.recipe.name if self.finished_unit.recipe else "No recipe assigned"
         )
         self.recipe_label = ctk.CTkLabel(info_frame, text=recipe_name)
         self.recipe_label.grid(
@@ -165,9 +159,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
             ctk.CTkLabel(info_frame, text="Items/Batch:").grid(
                 row=row, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
             )
-            ctk.CTkLabel(
-                info_frame, text=str(self.finished_unit.items_per_batch)
-            ).grid(
+            ctk.CTkLabel(info_frame, text=str(self.finished_unit.items_per_batch)).grid(
                 row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
             )
 
@@ -201,9 +193,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
     def _create_buttons(self):
         """Create the button row."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(
-            row=4, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
-        )
+        button_frame.grid(row=4, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
 
         # Record Production button
         self.record_btn = ctk.CTkButton(
@@ -307,6 +297,4 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
 
     def _update_info_display(self):
         """Update the info section with current data."""
-        self.inventory_label.configure(
-            text=str(self.finished_unit.inventory_count or 0)
-        )
+        self.inventory_label.configure(text=str(self.finished_unit.inventory_count or 0))

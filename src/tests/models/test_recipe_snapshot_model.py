@@ -76,17 +76,21 @@ class TestCreateRecipeSnapshot:
         """Test creating a recipe snapshot with valid data."""
         session = test_db()
 
-        recipe_data = json.dumps({
-            "name": "Test Thumbprint Cookies",
-            "category": "Cookies",
-            "yield_quantity": 36,
-            "yield_unit": "cookies",
-        })
+        recipe_data = json.dumps(
+            {
+                "name": "Test Thumbprint Cookies",
+                "category": "Cookies",
+                "yield_quantity": 36,
+                "yield_unit": "cookies",
+            }
+        )
 
-        ingredients_data = json.dumps([
-            {"ingredient_name": "Flour", "quantity": 2, "unit": "cups"},
-            {"ingredient_name": "Butter", "quantity": 1, "unit": "cup"},
-        ])
+        ingredients_data = json.dumps(
+            [
+                {"ingredient_name": "Flour", "quantity": 2, "unit": "cups"},
+                {"ingredient_name": "Butter", "quantity": 1, "unit": "cup"},
+            ]
+        )
 
         snapshot = RecipeSnapshot(
             recipe_id=sample_recipe.id,
@@ -188,7 +192,9 @@ class TestSnapshotJsonSerialization:
         parsed = snapshot.get_recipe_data()
         assert parsed == {}
 
-    def test_get_ingredients_data_handles_invalid_json(self, test_db, sample_recipe, sample_production_run):
+    def test_get_ingredients_data_handles_invalid_json(
+        self, test_db, sample_recipe, sample_production_run
+    ):
         """Test get_ingredients_data() handles invalid JSON gracefully."""
         session = test_db()
 
@@ -361,7 +367,9 @@ class TestSnapshotRecipeDeleteBlocked:
 class TestProductionRunSnapshotRelationship:
     """Tests for ProductionRun to RecipeSnapshot relationship."""
 
-    def test_production_run_snapshot_relationship(self, test_db, sample_recipe, sample_production_run):
+    def test_production_run_snapshot_relationship(
+        self, test_db, sample_recipe, sample_production_run
+    ):
         """Test 1:1 relationship between ProductionRun and RecipeSnapshot."""
         session = test_db()
 

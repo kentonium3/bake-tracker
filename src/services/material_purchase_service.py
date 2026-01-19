@@ -396,8 +396,7 @@ def _get_product_inventory_impl(
     # Calculate totals from inventory items
     total_quantity = sum(item.quantity_remaining for item in inventory_items)
     total_value = sum(
-        (Decimal(str(item.quantity_remaining)) * item.cost_per_unit
-         for item in inventory_items),
+        (Decimal(str(item.quantity_remaining)) * item.cost_per_unit for item in inventory_items),
         Decimal("0"),  # Start with Decimal(0) to ensure result is Decimal
     )
 
@@ -470,13 +469,17 @@ def record_purchase(
     """
     if session is not None:
         return _record_purchase_impl(
-            product_id, supplier_id, purchase_date,
-            packages_purchased, package_price, notes, session
+            product_id,
+            supplier_id,
+            purchase_date,
+            packages_purchased,
+            package_price,
+            notes,
+            session,
         )
     with session_scope() as sess:
         return _record_purchase_impl(
-            product_id, supplier_id, purchase_date,
-            packages_purchased, package_price, notes, sess
+            product_id, supplier_id, purchase_date, packages_purchased, package_price, notes, sess
         )
 
 
@@ -513,13 +516,9 @@ def adjust_inventory(
         >>> adjust_inventory(product_id=1, percentage=0.5)
     """
     if session is not None:
-        return _adjust_inventory_impl(
-            product_id, new_quantity, percentage, notes, session
-        )
+        return _adjust_inventory_impl(product_id, new_quantity, percentage, notes, session)
     with session_scope() as sess:
-        return _adjust_inventory_impl(
-            product_id, new_quantity, percentage, notes, sess
-        )
+        return _adjust_inventory_impl(product_id, new_quantity, percentage, notes, sess)
 
 
 def get_purchase(
@@ -566,13 +565,9 @@ def list_purchases(
         List of MaterialPurchase records, ordered by purchase_date desc
     """
     if session is not None:
-        return _list_purchases_impl(
-            product_id, supplier_id, start_date, end_date, limit, session
-        )
+        return _list_purchases_impl(product_id, supplier_id, start_date, end_date, limit, session)
     with session_scope() as sess:
-        return _list_purchases_impl(
-            product_id, supplier_id, start_date, end_date, limit, sess
-        )
+        return _list_purchases_impl(product_id, supplier_id, start_date, end_date, limit, sess)
 
 
 def get_product_inventory(

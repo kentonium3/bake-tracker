@@ -103,9 +103,7 @@ class TestPurchaseToInventoryFlow:
     Reference: Spec User Story 1 - Material Purchase Creates Inventory
     """
 
-    def test_purchase_creates_inventory_item_with_correct_data(
-        self, integration_material_setup
-    ):
+    def test_purchase_creates_inventory_item_with_correct_data(self, integration_material_setup):
         """
         Verify inventory item is created with correct data from purchase.
 
@@ -219,9 +217,7 @@ class TestMultiLotFifoConsumption:
     Reference: Spec User Story 2 - FIFO Consumption of Materials
     """
 
-    def test_spec_scenario_1_consume_from_oldest_lot_only(
-        self, integration_material_setup
-    ):
+    def test_spec_scenario_1_consume_from_oldest_lot_only(self, integration_material_setup):
         """
         Spec Acceptance Scenario 1:
 
@@ -303,9 +299,7 @@ class TestMultiLotFifoConsumption:
             lot_b = session.query(MaterialInventoryItem).filter_by(id=lot_b_id).first()
             assert lot_b.quantity_remaining == 100.0
 
-    def test_spec_scenario_2_consume_across_multiple_lots(
-        self, integration_material_setup
-    ):
+    def test_spec_scenario_2_consume_across_multiple_lots(self, integration_material_setup):
         """
         Spec Acceptance Scenario 2:
 
@@ -416,9 +410,9 @@ class TestCostCalculationAccuracy:
         with session_scope() as session:
             # Create lots with different prices (oldest to newest)
             lots = [
-                (50.0, Decimal("0.05"), 15),   # Oldest, cheapest
-                (50.0, Decimal("0.10"), 10),   # Middle
-                (50.0, Decimal("0.20"), 5),    # Newest, most expensive
+                (50.0, Decimal("0.05"), 15),  # Oldest, cheapest
+                (50.0, Decimal("0.10"), 10),  # Middle
+                (50.0, Decimal("0.20"), 5),  # Newest, most expensive
             ]
 
             for qty, cost, days_ago in lots:
@@ -553,9 +547,9 @@ class TestPatternConsistency:
         required_fields = {
             "material_product_id",  # equivalent to product_id
             "material_purchase_id",  # equivalent to purchase_id
-            "quantity_remaining",    # equivalent to quantity
-            "cost_per_unit",         # equivalent to unit_cost
-            "purchase_date",         # same name
+            "quantity_remaining",  # equivalent to quantity
+            "cost_per_unit",  # equivalent to unit_cost
+            "purchase_date",  # same name
         }
 
         for field in required_fields:
@@ -576,7 +570,7 @@ class TestPatternConsistency:
                 purchase = MaterialPurchase(
                     product_id=data["product_id"],
                     supplier_id=data["supplier_id"],
-                    purchase_date=date.today() - timedelta(days=10 - i*5),  # Oldest first
+                    purchase_date=date.today() - timedelta(days=10 - i * 5),  # Oldest first
                     packages_purchased=1,
                     package_price=Decimal(f"{(i+1)*10}.00"),
                     units_added=100,
@@ -599,8 +593,9 @@ class TestPatternConsistency:
 
         # Verify FIFO order: oldest (earliest date) first
         for i in range(len(lots) - 1):
-            assert lots[i].purchase_date <= lots[i+1].purchase_date, \
-                "FIFO ordering violated: lots not sorted by purchase_date ASC"
+            assert (
+                lots[i].purchase_date <= lots[i + 1].purchase_date
+            ), "FIFO ordering violated: lots not sorted by purchase_date ASC"
 
     def test_both_models_have_base_model_fields(self, test_db):
         """Verify both models inherit BaseModel fields (id, uuid, timestamps)."""

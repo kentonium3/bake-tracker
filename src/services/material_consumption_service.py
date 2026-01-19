@@ -40,6 +40,7 @@ from .material_unit_service import get_current_cost, get_available_inventory
 
 class MaterialConsumptionError(Exception):
     """Base exception for material consumption errors."""
+
     pass
 
 
@@ -94,9 +95,7 @@ def _get_pending_materials_impl(
 
         # Get products for this material
         products = (
-            session.query(MaterialProduct)
-            .filter(MaterialProduct.material_id == material.id)
-            .all()
+            session.query(MaterialProduct).filter(MaterialProduct.material_id == material.id).all()
         )
 
         available_products = []
@@ -121,20 +120,24 @@ def _get_pending_materials_impl(
 
             if product_inv > 0:
                 weighted_cost = product_value / product_inv
-                available_products.append({
-                    "product_id": prod.id,
-                    "name": prod.display_name,
-                    "available_inventory": float(product_inv),
-                    "unit_cost": weighted_cost,
-                })
+                available_products.append(
+                    {
+                        "product_id": prod.id,
+                        "name": prod.display_name,
+                        "available_inventory": float(product_inv),
+                        "unit_cost": weighted_cost,
+                    }
+                )
 
-        pending.append({
-            "composition_id": comp.id,
-            "material_id": material.id,
-            "material_name": material.name,
-            "quantity_needed": comp.component_quantity,
-            "available_products": available_products,
-        })
+        pending.append(
+            {
+                "composition_id": comp.id,
+                "material_id": material.id,
+                "material_name": material.name,
+                "quantity_needed": comp.component_quantity,
+                "available_products": available_products,
+            }
+        )
 
     return pending
 
@@ -163,10 +166,7 @@ def _validate_material_availability_impl(
     compositions = (
         session.query(Composition)
         .filter(Composition.assembly_id == finished_good_id)
-        .filter(
-            (Composition.material_unit_id.isnot(None)) |
-            (Composition.material_id.isnot(None))
-        )
+        .filter((Composition.material_unit_id.isnot(None)) | (Composition.material_id.isnot(None)))
         .all()
     )
 
@@ -196,16 +196,18 @@ def _validate_material_availability_impl(
                     f"(need {needed_units} units, have {available_units})"
                 )
 
-            material_requirements.append({
-                "composition_id": comp.id,
-                "is_generic": False,
-                "material_name": unit.name,
-                "units_needed": needed_units,
-                "base_units_needed": base_units_needed,
-                "available_units": available_units,
-                "base_available": base_available,
-                "sufficient": sufficient,
-            })
+            material_requirements.append(
+                {
+                    "composition_id": comp.id,
+                    "is_generic": False,
+                    "material_name": unit.name,
+                    "units_needed": needed_units,
+                    "base_units_needed": base_units_needed,
+                    "available_units": available_units,
+                    "base_available": base_available,
+                    "sufficient": sufficient,
+                }
+            )
 
         elif comp.material_id:
             # Generic Material placeholder - requires assignment (supports split allocation)
@@ -222,15 +224,17 @@ def _validate_material_availability_impl(
                     f"Generic material '{material.name}' (composition {comp.id}) "
                     f"requires product assignment"
                 )
-                material_requirements.append({
-                    "composition_id": comp.id,
-                    "is_generic": True,
-                    "material_name": material.name,
-                    "base_units_needed": base_units_needed,
-                    "available": 0,
-                    "sufficient": False,
-                    "assignment_required": True,
-                })
+                material_requirements.append(
+                    {
+                        "composition_id": comp.id,
+                        "is_generic": True,
+                        "material_name": material.name,
+                        "base_units_needed": base_units_needed,
+                        "available": 0,
+                        "sufficient": False,
+                        "assignment_required": True,
+                    }
+                )
                 continue
 
             # Get the allocations for this composition
@@ -274,9 +278,7 @@ def _validate_material_availability_impl(
                     continue
 
                 if product.material_id != material.id:
-                    errors.append(
-                        f"Product {product_id} is not for material '{material.name}'"
-                    )
+                    errors.append(f"Product {product_id} is not for material '{material.name}'")
                     all_sufficient = False
                     continue
 
@@ -299,23 +301,27 @@ def _validate_material_availability_impl(
                     all_sufficient = False
 
                 total_available += product_inventory
-                allocation_details.append({
-                    "product_id": product_id,
-                    "product_name": product.display_name,
-                    "quantity_to_use": quantity_to_use,
-                    "available": product_inventory,
-                    "sufficient": product_inventory >= quantity_to_use,
-                })
+                allocation_details.append(
+                    {
+                        "product_id": product_id,
+                        "product_name": product.display_name,
+                        "quantity_to_use": quantity_to_use,
+                        "available": product_inventory,
+                        "sufficient": product_inventory >= quantity_to_use,
+                    }
+                )
 
-            material_requirements.append({
-                "composition_id": comp.id,
-                "is_generic": True,
-                "material_name": material.name,
-                "base_units_needed": base_units_needed,
-                "total_available": total_available,
-                "sufficient": all_sufficient,
-                "allocations": allocation_details,
-            })
+            material_requirements.append(
+                {
+                    "composition_id": comp.id,
+                    "is_generic": True,
+                    "material_name": material.name,
+                    "base_units_needed": base_units_needed,
+                    "total_available": total_available,
+                    "sufficient": all_sufficient,
+                    "allocations": allocation_details,
+                }
+            )
 
     return {
         "valid": len(errors) == 0,
@@ -422,10 +428,7 @@ def _record_material_consumption_impl(
     compositions = (
         session.query(Composition)
         .filter(Composition.assembly_id == finished_good_id)
-        .filter(
-            (Composition.material_unit_id.isnot(None)) |
-            (Composition.material_id.isnot(None))
-        )
+        .filter((Composition.material_unit_id.isnot(None)) | (Composition.material_id.isnot(None)))
         .all()
     )
 
@@ -498,7 +501,11 @@ def _record_material_consumption_impl(
 
                 # Use FIFO decrement and get cost from the result
                 fifo_result = _decrement_inventory(product, to_consume, session)
-                unit_cost = fifo_result["total_cost"] / Decimal(str(to_consume)) if to_consume > 0 else Decimal("0")
+                unit_cost = (
+                    fifo_result["total_cost"] / Decimal(str(to_consume))
+                    if to_consume > 0
+                    else Decimal("0")
+                )
                 total_cost = fifo_result["total_cost"]
 
                 # Create consumption record with full snapshot
@@ -560,7 +567,11 @@ def _record_material_consumption_impl(
 
                 # Use FIFO decrement and get cost from the result (F058)
                 fifo_result = _decrement_inventory(product, quantity_to_use, session)
-                unit_cost = fifo_result["total_cost"] / Decimal(str(quantity_to_use)) if quantity_to_use > 0 else Decimal("0")
+                unit_cost = (
+                    fifo_result["total_cost"] / Decimal(str(quantity_to_use))
+                    if quantity_to_use > 0
+                    else Decimal("0")
+                )
                 total_cost = fifo_result["total_cost"]
 
                 # Get inventory_item_id from first breakdown entry if available
@@ -739,13 +750,11 @@ def record_material_consumption(
     """
     if session is not None:
         return _record_material_consumption_impl(
-            assembly_run_id, finished_good_id, assembly_quantity,
-            material_assignments, session
+            assembly_run_id, finished_good_id, assembly_quantity, material_assignments, session
         )
     with session_scope() as sess:
         return _record_material_consumption_impl(
-            assembly_run_id, finished_good_id, assembly_quantity,
-            material_assignments, sess
+            assembly_run_id, finished_good_id, assembly_quantity, material_assignments, sess
         )
 
 
@@ -764,6 +773,7 @@ def get_consumption_history(
     Returns:
         List of consumption records as dicts with snapshot fields
     """
+
     def _impl(sess: Session) -> List[Dict[str, Any]]:
         consumptions = (
             sess.query(MaterialConsumption)

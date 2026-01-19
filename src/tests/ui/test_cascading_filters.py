@@ -219,9 +219,7 @@ def mock_recipe_dialog():
 class TestProductsTabCascading:
     """Tests for Products tab cascading filters."""
 
-    def test_l0_selection_updates_l1_options(
-        self, mock_products_tab, hierarchy_test_data
-    ):
+    def test_l0_selection_updates_l1_options(self, mock_products_tab, hierarchy_test_data):
         """When L0 is selected, L1 should show only children of that L0."""
         # Arrange
         l1_children = [
@@ -229,9 +227,7 @@ class TestProductsTabCascading:
             hierarchy_test_data["l1_sugar"],
         ]
 
-        with patch.object(
-            ingredient_hierarchy_service, "get_children", return_value=l1_children
-        ):
+        with patch.object(ingredient_hierarchy_service, "get_children", return_value=l1_children):
             # Simulate L0 selection
             mock_products_tab.l0_filter_var.get.return_value = "Baking"
 
@@ -244,9 +240,7 @@ class TestProductsTabCascading:
                     sub.get("display_name", "?"): sub for sub in subcategories
                 }
                 l1_values = ["All"] + sorted(mock_products_tab._l1_map.keys())
-                mock_products_tab.l1_filter_dropdown.configure(
-                    values=l1_values, state="normal"
-                )
+                mock_products_tab.l1_filter_dropdown.configure(values=l1_values, state="normal")
 
             # Assert
             assert "Flour" in mock_products_tab._l1_map
@@ -264,16 +258,12 @@ class TestProductsTabCascading:
         mock_products_tab._l2_map = {"Old Item": {"id": 999}}
         l1_children = [hierarchy_test_data["l1_flour"]]
 
-        with patch.object(
-            ingredient_hierarchy_service, "get_children", return_value=l1_children
-        ):
+        with patch.object(ingredient_hierarchy_service, "get_children", return_value=l1_children):
             # Act - simulate L0 change
             value = "Baking"
             if value in mock_products_tab._l0_map:
                 mock_products_tab._l2_map = {}
-                mock_products_tab.l2_filter_dropdown.configure(
-                    values=["All"], state="disabled"
-                )
+                mock_products_tab.l2_filter_dropdown.configure(values=["All"], state="disabled")
                 mock_products_tab.l2_filter_var.set("All")
 
             # Assert
@@ -283,9 +273,7 @@ class TestProductsTabCascading:
                 values=["All"], state="disabled"
             )
 
-    def test_l1_selection_updates_l2_options(
-        self, mock_products_tab, hierarchy_test_data
-    ):
+    def test_l1_selection_updates_l2_options(self, mock_products_tab, hierarchy_test_data):
         """When L1 is selected, L2 should show only children of that L1."""
         # Arrange
         mock_products_tab._l1_map = {"Flour": hierarchy_test_data["l1_flour"]}
@@ -294,21 +282,15 @@ class TestProductsTabCascading:
             hierarchy_test_data["l2_bread_flour"],
         ]
 
-        with patch.object(
-            ingredient_hierarchy_service, "get_children", return_value=l2_children
-        ):
+        with patch.object(ingredient_hierarchy_service, "get_children", return_value=l2_children):
             # Act - simulate L1 selection
             value = "Flour"
             if value in mock_products_tab._l1_map:
                 l1_id = mock_products_tab._l1_map[value].get("id")
                 leaves = ingredient_hierarchy_service.get_children(l1_id)
-                mock_products_tab._l2_map = {
-                    leaf.get("display_name", "?"): leaf for leaf in leaves
-                }
+                mock_products_tab._l2_map = {leaf.get("display_name", "?"): leaf for leaf in leaves}
                 l2_values = ["All"] + sorted(mock_products_tab._l2_map.keys())
-                mock_products_tab.l2_filter_dropdown.configure(
-                    values=l2_values, state="normal"
-                )
+                mock_products_tab.l2_filter_dropdown.configure(values=l2_values, state="normal")
 
             # Assert
             assert "All-Purpose Flour" in mock_products_tab._l2_map
@@ -328,12 +310,8 @@ class TestProductsTabCascading:
         if value == "All Categories":
             mock_products_tab._l1_map = {}
             mock_products_tab._l2_map = {}
-            mock_products_tab.l1_filter_dropdown.configure(
-                values=["All"], state="disabled"
-            )
-            mock_products_tab.l2_filter_dropdown.configure(
-                values=["All"], state="disabled"
-            )
+            mock_products_tab.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            mock_products_tab.l2_filter_dropdown.configure(values=["All"], state="disabled")
             mock_products_tab.l1_filter_var.set("All")
             mock_products_tab.l2_filter_var.set("All")
 
@@ -361,12 +339,8 @@ class TestProductsTabCascading:
             mock_products_tab.l2_filter_var.set("All")
             mock_products_tab._l1_map = {}
             mock_products_tab._l2_map = {}
-            mock_products_tab.l1_filter_dropdown.configure(
-                values=["All"], state="disabled"
-            )
-            mock_products_tab.l2_filter_dropdown.configure(
-                values=["All"], state="disabled"
-            )
+            mock_products_tab.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            mock_products_tab.l2_filter_dropdown.configure(values=["All"], state="disabled")
             mock_products_tab.brand_var.set("All")
             mock_products_tab.supplier_var.set("All")
             mock_products_tab.search_var.set("")
@@ -397,10 +371,7 @@ class TestProductsTabCascading:
             mock_products_tab.l1_filter_dropdown.configure(values=["Test"])
 
         # Assert - no new calls should have been made
-        assert (
-            mock_products_tab.l1_filter_dropdown.configure.call_count
-            == call_count_before
-        )
+        assert mock_products_tab.l1_filter_dropdown.configure.call_count == call_count_before
 
 
 # =============================================================================
@@ -411,16 +382,12 @@ class TestProductsTabCascading:
 class TestInventoryTabCascading:
     """Tests for Inventory tab cascading filters."""
 
-    def test_l0_selection_updates_l1_options(
-        self, mock_inventory_tab, hierarchy_test_data
-    ):
+    def test_l0_selection_updates_l1_options(self, mock_inventory_tab, hierarchy_test_data):
         """When L0 is selected, L1 should show only children of that L0."""
         # Arrange
         l1_children = [hierarchy_test_data["l1_milk"]]
 
-        with patch.object(
-            ingredient_hierarchy_service, "get_children", return_value=l1_children
-        ):
+        with patch.object(ingredient_hierarchy_service, "get_children", return_value=l1_children):
             # Act - simulate L0 selection
             value = "Dairy"
             if value in mock_inventory_tab._l0_map:
@@ -430,26 +397,20 @@ class TestInventoryTabCascading:
                     sub.get("display_name", "?"): sub for sub in subcategories
                 }
                 l1_values = ["All"] + sorted(mock_inventory_tab._l1_map.keys())
-                mock_inventory_tab.l1_filter_dropdown.configure(
-                    values=l1_values, state="normal"
-                )
+                mock_inventory_tab.l1_filter_dropdown.configure(values=l1_values, state="normal")
 
             # Assert
             assert "Milk" in mock_inventory_tab._l1_map
             call_kwargs = mock_inventory_tab.l1_filter_dropdown.configure.call_args[1]
             assert "Milk" in call_kwargs["values"]
 
-    def test_l1_selection_updates_l2_options(
-        self, mock_inventory_tab, hierarchy_test_data
-    ):
+    def test_l1_selection_updates_l2_options(self, mock_inventory_tab, hierarchy_test_data):
         """When L1 is selected, L2 should show only children of that L1."""
         # Arrange
         mock_inventory_tab._l1_map = {"Milk": hierarchy_test_data["l1_milk"]}
         l2_children = [hierarchy_test_data["l2_whole_milk"]]
 
-        with patch.object(
-            ingredient_hierarchy_service, "get_children", return_value=l2_children
-        ):
+        with patch.object(ingredient_hierarchy_service, "get_children", return_value=l2_children):
             # Act - simulate L1 selection
             value = "Milk"
             if value in mock_inventory_tab._l1_map:
@@ -459,9 +420,7 @@ class TestInventoryTabCascading:
                     leaf.get("display_name", "?"): leaf for leaf in leaves
                 }
                 l2_values = ["All"] + sorted(mock_inventory_tab._l2_map.keys())
-                mock_inventory_tab.l2_filter_dropdown.configure(
-                    values=l2_values, state="normal"
-                )
+                mock_inventory_tab.l2_filter_dropdown.configure(values=l2_values, state="normal")
 
             # Assert
             assert "Whole Milk" in mock_inventory_tab._l2_map
@@ -482,12 +441,8 @@ class TestInventoryTabCascading:
             mock_inventory_tab.l2_filter_var.set("All")
             mock_inventory_tab._l1_map = {}
             mock_inventory_tab._l2_map = {}
-            mock_inventory_tab.l1_filter_dropdown.configure(
-                values=["All"], state="disabled"
-            )
-            mock_inventory_tab.l2_filter_dropdown.configure(
-                values=["All"], state="disabled"
-            )
+            mock_inventory_tab.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            mock_inventory_tab.l2_filter_dropdown.configure(values=["All"], state="disabled")
             mock_inventory_tab.brand_var.set("All Brands")
             mock_inventory_tab.search_entry.delete(0, "end")
         finally:
@@ -512,9 +467,7 @@ class TestInventoryTabCascading:
 class TestRecipeIngredientSelection:
     """Tests for recipe L2-only ingredient selection."""
 
-    def test_leaf_selection_enables_select_button(
-        self, mock_recipe_dialog, hierarchy_test_data
-    ):
+    def test_leaf_selection_enables_select_button(self, mock_recipe_dialog, hierarchy_test_data):
         """Selecting an L2 (leaf) ingredient should enable the Select button."""
         # Arrange
         l2_ingredient = hierarchy_test_data["l2_all_purpose_flour"]
@@ -552,9 +505,7 @@ class TestRecipeIngredientSelection:
         assert mock_recipe_dialog._selected_ingredient is None
         mock_recipe_dialog.select_button.configure.assert_called_with(state="disabled")
 
-    def test_l1_selection_also_disabled(
-        self, mock_recipe_dialog, hierarchy_test_data
-    ):
+    def test_l1_selection_also_disabled(self, mock_recipe_dialog, hierarchy_test_data):
         """L1 ingredients should also be blocked from selection."""
         # Arrange
         l1_ingredient = hierarchy_test_data["l1_flour"]

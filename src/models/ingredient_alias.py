@@ -66,6 +66,9 @@ class IngredientAlias(BaseModel):
         result = super().to_dict(include_relationships)
 
         if include_relationships and self.ingredient:
-            result["ingredient"] = {"id": self.ingredient.id, "display_name": self.ingredient.display_name}
+            result["ingredient"] = {
+                "id": self.ingredient.id,
+                "display_name": self.ingredient.display_name,
+            }
 
         return result

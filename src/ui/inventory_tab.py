@@ -31,11 +31,19 @@ def normalize_for_search(text: str) -> str:
     ascii_text = nfkd.encode("ASCII", "ignore").decode("ASCII")
     return ascii_text.lower()
 
+
 from decimal import Decimal, InvalidOperation
-from src.services import inventory_item_service, ingredient_service, product_service, supplier_service, purchase_service, ingredient_hierarchy_service
+from src.services import (
+    inventory_item_service,
+    ingredient_service,
+    product_service,
+    supplier_service,
+    purchase_service,
+    ingredient_hierarchy_service,
+)
 
 # WP10: Units where decimal quantities are unusual
-COUNT_BASED_UNITS = ['count', 'bag', 'box', 'package', 'bottle', 'can', 'jar', 'carton']
+COUNT_BASED_UNITS = ["count", "bag", "box", "package", "bottle", "can", "jar", "carton"]
 from src.services.exceptions import (
     InventoryItemNotFound,
     ValidationError as ServiceValidationError,
@@ -82,7 +90,9 @@ class InventoryTab(ctk.CTkFrame):
         self._l0_map: Dict[str, Dict[str, Any]] = {}  # L0 name -> ingredient dict
         self._l1_map: Dict[str, Dict[str, Any]] = {}  # L1 name -> ingredient dict
         self._l2_map: Dict[str, Dict[str, Any]] = {}  # L2 name -> ingredient dict
-        self._hierarchy_path_cache: Dict[int, Dict[str, str]] = {}  # ingredient_id -> {"l0": ..., "l1": ..., "l2": ...}
+        self._hierarchy_path_cache: Dict[int, Dict[str, str]] = (
+            {}
+        )  # ingredient_id -> {"l0": ..., "l1": ..., "l2": ...}
         # Feature 034: Re-entry guard for cascading filter updates
         self._updating_filters = False
         # Feature 042: Column sort state (tracks reverse=True/False per column)
@@ -273,10 +283,21 @@ class InventoryTab(ctk.CTkFrame):
         self.tree.heading("l0", text="L0", anchor="w", command=lambda: self._sort_tree("l0"))
         self.tree.heading("l1", text="L1", anchor="w", command=lambda: self._sort_tree("l1"))
         self.tree.heading("l2", text="L2", anchor="w", command=lambda: self._sort_tree("l2"))
-        self.tree.heading("product", text="Product", anchor="w", command=lambda: self._sort_tree("product"))
-        self.tree.heading("brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand"))
-        self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w", command=lambda: self._sort_tree("qty_remaining"))
-        self.tree.heading("purchased", text="Purchased", anchor="w", command=lambda: self._sort_tree("purchased"))
+        self.tree.heading(
+            "product", text="Product", anchor="w", command=lambda: self._sort_tree("product")
+        )
+        self.tree.heading(
+            "brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand")
+        )
+        self.tree.heading(
+            "qty_remaining",
+            text="Qty Remaining",
+            anchor="w",
+            command=lambda: self._sort_tree("qty_remaining"),
+        )
+        self.tree.heading(
+            "purchased", text="Purchased", anchor="w", command=lambda: self._sort_tree("purchased")
+        )
 
         # Configure column widths for hierarchy columns
         self.tree.column("l0", width=100, minwidth=80)
@@ -327,7 +348,9 @@ class InventoryTab(ctk.CTkFrame):
 
             # Feature 032: Populate L0 (root categories) dropdown
             root_ingredients = ingredient_hierarchy_service.get_root_ingredients()
-            self._l0_map = {ing.get("display_name", ing.get("name", "?")): ing for ing in root_ingredients}
+            self._l0_map = {
+                ing.get("display_name", ing.get("name", "?")): ing for ing in root_ingredients
+            }
             l0_values = ["All Categories"] + sorted(self._l0_map.keys())
             self.l0_filter_dropdown.configure(values=l0_values)
 
@@ -388,8 +411,9 @@ class InventoryTab(ctk.CTkFrame):
                 ingredient_name = getattr(ingredient, "display_name", "") or ""
                 brand = getattr(product, "brand", "") or ""
                 # Normalize both for comparison
-                if (search_text in normalize_for_search(ingredient_name) or
-                        search_text in normalize_for_search(brand)):
+                if search_text in normalize_for_search(
+                    ingredient_name
+                ) or search_text in normalize_for_search(brand):
                     filtered.append(item)
             self.filtered_items = filtered
 
@@ -411,9 +435,9 @@ class InventoryTab(ctk.CTkFrame):
         self.filtered_items.sort(
             key=lambda item: (
                 getattr(
-                    getattr(getattr(item, "product", None), "ingredient", None),
-                    "display_name", ""
-                ) or ""
+                    getattr(getattr(item, "product", None), "ingredient", None), "display_name", ""
+                )
+                or ""
             ).lower()
         )
 
@@ -628,9 +652,18 @@ class InventoryTab(ctk.CTkFrame):
             self.tree.heading("l0", text="L0", anchor="w", command=lambda: self._sort_tree("l0"))
             self.tree.heading("l1", text="L1", anchor="w", command=lambda: self._sort_tree("l1"))
             self.tree.heading("l2", text="L2", anchor="w", command=lambda: self._sort_tree("l2"))
-            self.tree.heading("product", text="Product", anchor="w", command=lambda: self._sort_tree("product"))
-            self.tree.heading("brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand"))
-            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w", command=lambda: self._sort_tree("qty_remaining"))
+            self.tree.heading(
+                "product", text="Product", anchor="w", command=lambda: self._sort_tree("product")
+            )
+            self.tree.heading(
+                "brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand")
+            )
+            self.tree.heading(
+                "qty_remaining",
+                text="Qty Remaining",
+                anchor="w",
+                command=lambda: self._sort_tree("qty_remaining"),
+            )
             self.tree.column("l0", width=100, minwidth=80)
             self.tree.column("l1", width=100, minwidth=80)
             self.tree.column("l2", width=150, minwidth=100)
@@ -642,14 +675,30 @@ class InventoryTab(ctk.CTkFrame):
                 self._display_aggregate_view()
         else:
             # Reconfigure tree columns for detail view (with Purchased column)
-            self.tree.configure(columns=("l0", "l1", "l2", "product", "brand", "qty_remaining", "purchased"))
+            self.tree.configure(
+                columns=("l0", "l1", "l2", "product", "brand", "qty_remaining", "purchased")
+            )
             self.tree.heading("l0", text="L0", anchor="w", command=lambda: self._sort_tree("l0"))
             self.tree.heading("l1", text="L1", anchor="w", command=lambda: self._sort_tree("l1"))
             self.tree.heading("l2", text="L2", anchor="w", command=lambda: self._sort_tree("l2"))
-            self.tree.heading("product", text="Product", anchor="w", command=lambda: self._sort_tree("product"))
-            self.tree.heading("brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand"))
-            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w", command=lambda: self._sort_tree("qty_remaining"))
-            self.tree.heading("purchased", text="Purchased", anchor="w", command=lambda: self._sort_tree("purchased"))
+            self.tree.heading(
+                "product", text="Product", anchor="w", command=lambda: self._sort_tree("product")
+            )
+            self.tree.heading(
+                "brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand")
+            )
+            self.tree.heading(
+                "qty_remaining",
+                text="Qty Remaining",
+                anchor="w",
+                command=lambda: self._sort_tree("qty_remaining"),
+            )
+            self.tree.heading(
+                "purchased",
+                text="Purchased",
+                anchor="w",
+                command=lambda: self._sort_tree("purchased"),
+            )
             self.tree.column("l0", width=100, minwidth=80)
             self.tree.column("l1", width=100, minwidth=80)
             self.tree.column("l2", width=150, minwidth=100)
@@ -695,17 +744,20 @@ class InventoryTab(ctk.CTkFrame):
             ingredient = getattr(product, "ingredient", None) if product else None
 
             # Sum quantities for this product
-            total_qty = sum(
-                Decimal(str(getattr(item, "quantity", 0) or 0))
-                for item in items
-            )
+            total_qty = sum(Decimal(str(getattr(item, "quantity", 0) or 0)) for item in items)
 
             # Get product details
-            ingredient_name = getattr(ingredient, "display_name", "Unknown") if ingredient else "Unknown"
+            ingredient_name = (
+                getattr(ingredient, "display_name", "Unknown") if ingredient else "Unknown"
+            )
             ingredient_id = getattr(ingredient, "id", None) if ingredient else None
             # Use hierarchy dict from cache, fallback to ingredient name in l0
             default_hierarchy = {"l0": ingredient_name, "l1": "", "l2": ""}
-            hierarchy = self._hierarchy_path_cache.get(ingredient_id, default_hierarchy) if ingredient_id else default_hierarchy
+            hierarchy = (
+                self._hierarchy_path_cache.get(ingredient_id, default_hierarchy)
+                if ingredient_id
+                else default_hierarchy
+            )
             brand = getattr(product, "brand", "") or ""
             product_name = getattr(product, "product_name", "") or ""
             package_qty = getattr(product, "package_unit_quantity", None)
@@ -737,7 +789,7 @@ class InventoryTab(ctk.CTkFrame):
                 if packages == int(packages):
                     pkg_count = str(int(packages))
                 else:
-                    pkg_count = f"{packages:.1f}".rstrip('0').rstrip('.')
+                    pkg_count = f"{packages:.1f}".rstrip("0").rstrip(".")
 
                 pkg_type_text = pkg_type_display if packages == 1 else f"{pkg_type_display}s"
 
@@ -747,7 +799,7 @@ class InventoryTab(ctk.CTkFrame):
                 elif total_amount == int(total_amount):
                     total_text = str(int(total_amount))
                 else:
-                    total_text = f"{total_amount:.1f}".rstrip('0').rstrip('.')
+                    total_text = f"{total_amount:.1f}".rstrip("0").rstrip(".")
 
                 qty_display = f"{pkg_count} {pkg_type_text} ({total_text} {pkg_unit_display})"
             else:
@@ -755,30 +807,43 @@ class InventoryTab(ctk.CTkFrame):
                 if total_qty == int(total_qty):
                     qty_display = str(int(total_qty))
                 else:
-                    qty_display = f"{float(total_qty):.1f}".rstrip('0').rstrip('.')
+                    qty_display = f"{float(total_qty):.1f}".rstrip("0").rstrip(".")
 
-            aggregated.append({
-                'l0': hierarchy["l0"],
-                'l1': hierarchy["l1"],
-                'l2': hierarchy["l2"],
-                'description': description,
-                'brand': brand,
-                'qty_display': qty_display,
-            })
+            aggregated.append(
+                {
+                    "l0": hierarchy["l0"],
+                    "l1": hierarchy["l1"],
+                    "l2": hierarchy["l2"],
+                    "description": description,
+                    "brand": brand,
+                    "qty_display": qty_display,
+                }
+            )
 
         # Sort by hierarchy levels, then product description
-        aggregated.sort(key=lambda x: (x['l0'].lower(), x['l1'].lower(), x['l2'].lower(), x['description'].lower()))
+        aggregated.sort(
+            key=lambda x: (
+                x["l0"].lower(),
+                x["l1"].lower(),
+                x["l2"].lower(),
+                x["description"].lower(),
+            )
+        )
 
         # Populate Treeview - no row limit needed, handles large datasets well
         for item_data in aggregated:
-            self.tree.insert("", "end", values=(
-                item_data['l0'],
-                item_data['l1'],
-                item_data['l2'],
-                item_data['description'],
-                item_data['brand'],
-                item_data['qty_display'],
-            ))
+            self.tree.insert(
+                "",
+                "end",
+                values=(
+                    item_data["l0"],
+                    item_data["l1"],
+                    item_data["l2"],
+                    item_data["description"],
+                    item_data["brand"],
+                    item_data["qty_display"],
+                ),
+            )
 
     def _display_detail_view(self):
         """Display individual inventory items in Treeview (lots)."""
@@ -803,7 +868,11 @@ class InventoryTab(ctk.CTkFrame):
             ingredient_id = getattr(ingredient_obj, "id", None) if ingredient_obj else None
             # Use hierarchy dict from cache, fallback to ingredient name in l0
             default_hierarchy = {"l0": ingredient_name, "l1": "", "l2": ""}
-            hierarchy = self._hierarchy_path_cache.get(ingredient_id, default_hierarchy) if ingredient_id else default_hierarchy
+            hierarchy = (
+                self._hierarchy_path_cache.get(ingredient_id, default_hierarchy)
+                if ingredient_id
+                else default_hierarchy
+            )
             package_qty = getattr(product_obj, "package_unit_quantity", None)
             package_unit = getattr(product_obj, "package_unit", "") or ""
             package_type = getattr(product_obj, "package_type", None) or ""
@@ -836,7 +905,7 @@ class InventoryTab(ctk.CTkFrame):
                 if packages == int(packages):
                     pkg_count = str(int(packages))
                 else:
-                    pkg_count = f"{packages:.1f}".rstrip('0').rstrip('.')
+                    pkg_count = f"{packages:.1f}".rstrip("0").rstrip(".")
 
                 # Handle singular/plural for package type
                 if packages == 1:
@@ -850,7 +919,7 @@ class InventoryTab(ctk.CTkFrame):
                 elif total_amount == int(total_amount):
                     total_text = str(int(total_amount))
                 else:
-                    total_text = f"{total_amount:.1f}".rstrip('0').rstrip('.')
+                    total_text = f"{total_amount:.1f}".rstrip("0").rstrip(".")
 
                 qty_display = f"{pkg_count} {pkg_type_text} ({total_text} {pkg_unit_display})"
             else:
@@ -858,14 +927,22 @@ class InventoryTab(ctk.CTkFrame):
                 if qty_value == int(qty_value):
                     qty_display = str(int(qty_value))
                 else:
-                    qty_display = f"{float(qty_value):.1f}".rstrip('0').rstrip('.')
+                    qty_display = f"{float(qty_value):.1f}".rstrip("0").rstrip(".")
 
             # Purchase date
             purchase_date = getattr(item, "purchase_date", None)
             purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else ""
 
             # Column order: l0, l1, l2, product, brand, qty_remaining, purchased (7 columns)
-            values = (hierarchy["l0"], hierarchy["l1"], hierarchy["l2"], description, brand, qty_display, purchase_str)
+            values = (
+                hierarchy["l0"],
+                hierarchy["l1"],
+                hierarchy["l2"],
+                description,
+                brand,
+                qty_display,
+                purchase_str,
+            )
             item_id = getattr(item, "id", None)
 
             # Use item ID as the tree item ID for easy lookup
@@ -1154,9 +1231,7 @@ class InventoryTab(ctk.CTkFrame):
             return
 
         # Get the selected inventory item
-        item = next(
-            (i for i in self.inventory_items if i.id == self.selected_item_id), None
-        )
+        item = next((i for i in self.inventory_items if i.id == self.selected_item_id), None)
         if not item:
             messagebox.showerror("Error", "Inventory item not found", parent=self)
             return
@@ -1208,20 +1283,14 @@ class InventoryTab(ctk.CTkFrame):
         except ServiceValidationError as e:
             # Extract user-friendly message
             messages = e.messages if hasattr(e, "messages") else [str(e)]
-            messagebox.showerror(
-                "Validation Error", "\n".join(messages), parent=self
-            )
+            messagebox.showerror("Validation Error", "\n".join(messages), parent=self)
 
         except InventoryItemNotFound as e:
-            messagebox.showerror(
-                "Error", f"Inventory item not found: {e}", parent=self
-            )
+            messagebox.showerror("Error", f"Inventory item not found: {e}", parent=self)
             self.refresh()
 
         except Exception as e:
-            messagebox.showerror(
-                "Error", f"An error occurred: {e}", parent=self
-            )
+            messagebox.showerror("Error", f"An error occurred: {e}", parent=self)
 
     def _serialize_inventory_item(self, item) -> dict:
         """Convert an InventoryItem ORM instance to a simple dict for dialog usage."""
@@ -1351,7 +1420,9 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         cat_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
         # Load categories from ingredients
-        categories = sorted(set(ing.get("category", "") for ing in self.ingredients if ing.get("category")))
+        categories = sorted(
+            set(ing.get("category", "") for ing in self.ingredients if ing.get("category"))
+        )
 
         # F029: Apply session memory for category
         default_category = ""
@@ -1494,9 +1565,9 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.price_entry = ctk.CTkEntry(self, textvariable=self.price_var, placeholder_text="0.00")
         self.price_entry.grid(row=row, column=1, padx=10, pady=(10, 0), sticky="ew")
         # WP09: Bind Key to clear hint on manual edit
-        self.price_entry.bind('<Key>', self._on_price_key)
+        self.price_entry.bind("<Key>", self._on_price_key)
         # WP10: Bind FocusOut for price validation
-        self.price_entry.bind('<FocusOut>', self._on_price_focus_out)
+        self.price_entry.bind("<FocusOut>", self._on_price_focus_out)
         row += 1
 
         # F028: Price hint label (shows last paid price)
@@ -1520,7 +1591,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.quantity_entry = ctk.CTkEntry(self, placeholder_text="e.g., 25")
         self.quantity_entry.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
         # WP10: Bind FocusOut for quantity validation
-        self.quantity_entry.bind('<FocusOut>', self._on_quantity_focus_out)
+        self.quantity_entry.bind("<FocusOut>", self._on_quantity_focus_out)
         row += 1
 
         # Calculator section (only for editing mode)
@@ -1691,9 +1762,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         try:
             with session_scope() as session:
                 # Find the ingredient ID
-                ing_obj = session.query(Ingredient).filter_by(
-                    display_name=ingredient_name
-                ).first()
+                ing_obj = session.query(Ingredient).filter_by(display_name=ingredient_name).first()
 
                 if not ing_obj:
                     self.product_combo.reset_values([])
@@ -1745,9 +1814,12 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         # Find product by name from our loaded products
         product = next(
-            (p for p in self.products
-             if p.get("brand") == product_name
-             or self._format_product_display(p) == selected_value.replace("⭐ ", "")),
+            (
+                p
+                for p in self.products
+                if p.get("brand") == product_name
+                or self._format_product_display(p) == selected_value.replace("⭐ ", "")
+            ),
             None,
         )
 
@@ -1797,9 +1869,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Ingredient:").grid(
             row=1, column=0, padx=5, pady=5, sticky="w"
         )
-        self.inline_ingredient_label = ctk.CTkLabel(
-            form_frame, text="", text_color="gray"
-        )
+        self.inline_ingredient_label = ctk.CTkLabel(form_frame, text="", text_color="gray")
         self.inline_ingredient_label.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
         # Product Name (required)
@@ -1812,9 +1882,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.inline_name_entry.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
         # Package Unit + Quantity on same row
-        ctk.CTkLabel(form_frame, text="Package:*").grid(
-            row=3, column=0, padx=5, pady=5, sticky="w"
-        )
+        ctk.CTkLabel(form_frame, text="Package:*").grid(row=3, column=0, padx=5, pady=5, sticky="w")
         package_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
         package_frame.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
 
@@ -1890,9 +1958,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         # Pre-fill ingredient (read-only display)
         if self.selected_ingredient:
-            self.inline_ingredient_label.configure(
-                text=self.selected_ingredient.get("name", "")
-            )
+            self.inline_ingredient_label.configure(text=self.selected_ingredient.get("name", ""))
 
             # Pre-fill unit from category defaults
             category = self.selected_ingredient.get("category", "")
@@ -1919,24 +1985,18 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         # Validate required fields
         name = self.inline_name_entry.get().strip()
         if not name:
-            messagebox.showerror(
-                "Validation Error", "Product name is required", parent=self
-            )
+            messagebox.showerror("Validation Error", "Product name is required", parent=self)
             self.inline_name_entry.focus_set()
             return
 
         unit = self.inline_unit_combo.get().strip()
         if not unit:
-            messagebox.showerror(
-                "Validation Error", "Package unit is required", parent=self
-            )
+            messagebox.showerror("Validation Error", "Package unit is required", parent=self)
             return
 
         qty_str = self.inline_qty_entry.get().strip()
         if not qty_str:
-            messagebox.showerror(
-                "Validation Error", "Package quantity is required", parent=self
-            )
+            messagebox.showerror("Validation Error", "Package quantity is required", parent=self)
             self.inline_qty_entry.focus_set()
             return
 
@@ -1986,9 +2046,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             # Success - rebuild dropdown and select new product
             with session_scope() as session:
                 # Find the ingredient ID
-                ing_obj = session.query(Ingredient).filter_by(
-                    display_name=self.selected_ingredient.get("name")
-                ).first()
+                ing_obj = (
+                    session.query(Ingredient)
+                    .filter_by(display_name=self.selected_ingredient.get("name"))
+                    .first()
+                )
 
                 if ing_obj:
                     product_values = build_product_dropdown_values(ing_obj.id, session)
@@ -1998,13 +2060,15 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.product_combo.set(f"⭐ {name}")
 
             # Update products list for tracking
-            self.products.append({
-                "id": new_product.id,
-                "name": new_product.display_name,
-                "brand": new_product.brand,
-                "package_unit": new_product.package_unit,
-                "package_unit_quantity": new_product.package_unit_quantity,
-            })
+            self.products.append(
+                {
+                    "id": new_product.id,
+                    "name": new_product.display_name,
+                    "brand": new_product.brand,
+                    "package_unit": new_product.package_unit,
+                    "package_unit_quantity": new_product.package_unit_quantity,
+                }
+            )
             self.selected_product = self.products[-1]
 
             # Collapse form
@@ -2056,9 +2120,12 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         product_display = strip_star_prefix(product_display)
 
         product = next(
-            (p for p in self.products
-             if self._format_product_display(p) == product_display
-             or p.get("brand") == product_display),
+            (
+                p
+                for p in self.products
+                if self._format_product_display(p) == product_display
+                or p.get("brand") == product_display
+            ),
             None,
         )
         return product["id"] if product else None
@@ -2103,7 +2170,9 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                     date_str = result["purchase_date"]
                     supplier_name = result["supplier_name"]
                     self.price_var.set(price)
-                    self.price_hint_label.configure(text=f"(last paid: ${price} at {supplier_name} on {date_str})")
+                    self.price_hint_label.configure(
+                        text=f"(last paid: ${price} at {supplier_name} on {date_str})"
+                    )
                 else:
                     # No history
                     self.price_var.set("")
@@ -2212,7 +2281,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "Please select an ingredient", parent=self)
             return
 
-        if not product_display or is_separator(product_display) or is_create_new_option(product_display):
+        if (
+            not product_display
+            or is_separator(product_display)
+            or is_create_new_option(product_display)
+        ):
             messagebox.showerror("Validation Error", "Please select a product", parent=self)
             return
 
@@ -2229,13 +2302,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         # Parse and validate quantity
         # If calculator was used (editing mode), use calculated quantity
-        if is_editing and hasattr(self, '_calc_new_qty') and self._calc_new_qty is not None:
+        if is_editing and hasattr(self, "_calc_new_qty") and self._calc_new_qty is not None:
             quantity = self._calc_new_qty
             # Allow zero for fully consumed items
             if quantity < 0:
-                messagebox.showerror(
-                    "Validation Error", "Quantity cannot be negative", parent=self
-                )
+                messagebox.showerror("Validation Error", "Quantity cannot be negative", parent=self)
                 return
         else:
             try:
@@ -2390,7 +2461,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
     def _on_price_key(self, event):
         """Clear hint when user types in price field (WP09)."""
         # Ignore navigation keys
-        if event.keysym not in ('Tab', 'Return', 'Escape', 'Up', 'Down', 'Left', 'Right'):
+        if event.keysym not in ("Tab", "Return", "Escape", "Up", "Down", "Left", "Right"):
             self.price_hint_label.configure(text="")
 
     # WP10: Validation methods for price and quantity
@@ -2735,8 +2806,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         """
         return messagebox.askyesno(
             "Confirm Decimal Quantity",
-            f"Package quantities are usually whole numbers.\n\n"
-            f"You entered {qty}. Continue?",
+            f"Package quantities are usually whole numbers.\n\n" f"You entered {qty}. Continue?",
             parent=self,
         )
 

@@ -20,12 +20,7 @@ from src.services.planning import (
 class ShoppingListRow(ctk.CTkFrame):
     """Single row in the shopping list table."""
 
-    def __init__(
-        self,
-        parent: Any,
-        item: ShoppingListItem,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, item: ShoppingListItem, **kwargs):
         """Initialize ShoppingListRow.
 
         Args:
@@ -116,12 +111,7 @@ class ShopView(ctk.CTkFrame):
     allows marking shopping as complete.
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        event_id: Optional[int] = None,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, event_id: Optional[int] = None, **kwargs):
         """Initialize ShopView.
 
         Args:
@@ -274,7 +264,7 @@ class ShopView(ctk.CTkFrame):
         total_count = len(self._items)
         self.summary_label.configure(
             text=f"{need_count} items to buy | {total_count - need_count} items in stock | "
-                 f"{total_count} total ingredients"
+            f"{total_count} total ingredients"
         )
 
     def _show_empty_message(self, message: str) -> None:

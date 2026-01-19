@@ -81,9 +81,13 @@ class RecipesTab(ctk.CTkFrame):
         """
         try:
             with session_scope() as session:
-                categories = session.query(Recipe.category).distinct().filter(
-                    Recipe.category.isnot(None)
-                ).order_by(Recipe.category).all()
+                categories = (
+                    session.query(Recipe.category)
+                    .distinct()
+                    .filter(Recipe.category.isnot(None))
+                    .order_by(Recipe.category)
+                    .all()
+                )
                 return [cat[0] for cat in categories if cat[0]]
         except Exception:
             return []
@@ -310,7 +314,9 @@ class RecipesTab(ctk.CTkFrame):
                         "Please edit the recipe to add yield types again.",
                         parent=self,
                     )
-                    self._update_status(f"Added: {new_recipe.name} (yield types failed)", error=True)
+                    self._update_status(
+                        f"Added: {new_recipe.name} (yield types failed)", error=True
+                    )
 
                 self.refresh()
             except Exception as e:
@@ -381,7 +387,9 @@ class RecipesTab(ctk.CTkFrame):
                         "Please edit the recipe to update yield types again.",
                         parent=self,
                     )
-                    self._update_status(f"Updated: {updated_recipe.name} (yield types failed)", error=True)
+                    self._update_status(
+                        f"Updated: {updated_recipe.name} (yield types failed)", error=True
+                    )
 
                 self.refresh()
             except Exception as e:
@@ -505,7 +513,9 @@ class RecipesTab(ctk.CTkFrame):
             if yield_types:
                 details.append("Yield Types:")
                 for yt in yield_types:
-                    details.append(f"  - {yt.display_name}: {yt.items_per_batch} {yt.item_unit}/batch")
+                    details.append(
+                        f"  - {yt.display_name}: {yt.items_per_batch} {yt.item_unit}/batch"
+                    )
             else:
                 details.append("Yield Types: None defined (edit recipe to add)")
 
@@ -519,8 +529,10 @@ class RecipesTab(ctk.CTkFrame):
                 # Show cost per unit for each yield type
                 for yt in yield_types:
                     if yt.items_per_batch and yt.items_per_batch > 0:
-                        cost_per = recipe_data['total_cost'] / yt.items_per_batch
-                        details.append(f"  Cost per {yt.item_unit} ({yt.display_name}): ${cost_per:.4f}")
+                        cost_per = recipe_data["total_cost"] / yt.items_per_batch
+                        details.append(
+                            f"  Cost per {yt.item_unit} ({yt.display_name}): ${cost_per:.4f}"
+                        )
 
             details.append("")
             details.append("Ingredients:")

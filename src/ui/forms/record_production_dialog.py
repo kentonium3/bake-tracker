@@ -128,13 +128,9 @@ class RecordProductionDialog(ctk.CTkToplevel):
         row += 1
 
         # Recipe info
-        recipe_name = (
-            self.finished_unit.recipe.name if self.finished_unit.recipe else "No recipe"
-        )
+        recipe_name = self.finished_unit.recipe.name if self.finished_unit.recipe else "No recipe"
         recipe_label = ctk.CTkLabel(self, text=f"Recipe: {recipe_name}")
-        recipe_label.grid(
-            row=row, column=0, columnspan=2, pady=(0, PADDING_MEDIUM)
-        )
+        recipe_label.grid(row=row, column=0, columnspan=2, pady=(0, PADDING_MEDIUM))
         row += 1
 
         # Feature 016: Event selector
@@ -195,9 +191,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
             row=row, column=0, sticky="e", padx=PADDING_MEDIUM
         )
         self.expected_yield_label = ctk.CTkLabel(self, text="0")
-        self.expected_yield_label.grid(
-            row=row, column=1, sticky="w", padx=PADDING_MEDIUM
-        )
+        self.expected_yield_label.grid(row=row, column=1, sticky="w", padx=PADDING_MEDIUM)
         row += 1
 
         # Actual yield
@@ -217,9 +211,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
             row=row, column=0, sticky="e", padx=PADDING_MEDIUM
         )
         self.loss_quantity_label = ctk.CTkLabel(self, text="0")
-        self.loss_quantity_label.grid(
-            row=row, column=1, sticky="w", padx=PADDING_MEDIUM
-        )
+        self.loss_quantity_label.grid(row=row, column=1, sticky="w", padx=PADDING_MEDIUM)
         row += 1
 
         # Feature 025: Expandable loss details frame
@@ -250,9 +242,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
         row += 1
 
         # Availability display
-        self.availability_display = AvailabilityDisplay(
-            self, title="Ingredient Availability"
-        )
+        self.availability_display = AvailabilityDisplay(self, title="Ingredient Availability")
         self.availability_display.grid(
             row=row,
             column=0,
@@ -365,7 +355,9 @@ class RecordProductionDialog(ctk.CTkToplevel):
         # Feature 025: Include loss info in confirmation
         loss_info = ""
         if loss_qty > 0:
-            category_display = loss_category.value.replace("_", " ").title() if loss_category else "Other"
+            category_display = (
+                loss_category.value.replace("_", " ").title() if loss_category else "Other"
+            )
             loss_info = f"Loss: {loss_qty} units ({category_display})\n"
 
         message = (
@@ -427,9 +419,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
         # Validate batch count
         batch_count = self._get_batch_count()
         if batch_count < 1:
-            show_error(
-                "Validation Error", "Batch count must be at least 1.", parent=self
-            )
+            show_error("Validation Error", "Batch count must be at least 1.", parent=self)
             return False
 
         # Feature 037: Validate scale_factor > 0 (T021)
@@ -453,9 +443,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
         # Validate actual yield
         actual_yield = self._get_actual_yield()
         if actual_yield < 0:
-            show_error(
-                "Validation Error", "Actual yield cannot be negative.", parent=self
-            )
+            show_error("Validation Error", "Actual yield cannot be negative.", parent=self)
             return False
 
         # Feature 025: Validate actual yield <= expected yield
@@ -516,13 +504,9 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 )
             return int(value)
         except ValueError:
-            return self._calculate_expected_yield(
-                self._get_batch_count(), self._get_scale_factor()
-            )
+            return self._calculate_expected_yield(self._get_batch_count(), self._get_scale_factor())
 
-    def _calculate_expected_yield(
-        self, batch_count: int, scale_factor: float = 1.0
-    ) -> int:
+    def _calculate_expected_yield(self, batch_count: int, scale_factor: float = 1.0) -> int:
         """Calculate expected yield based on batch count and scale factor.
 
         Formula: expected = base_yield x scale_factor x num_batches
@@ -662,23 +646,17 @@ class RecordProductionDialog(ctk.CTkToplevel):
         ctk.CTkLabel(self.loss_details_frame, text="Loss Notes:").grid(
             row=1, column=0, sticky="ne", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
-        self.loss_notes_textbox = ctk.CTkTextbox(
-            self.loss_details_frame, height=60, width=300
-        )
+        self.loss_notes_textbox = ctk.CTkTextbox(self.loss_details_frame, height=60, width=300)
         self.loss_notes_textbox.grid(
             row=1, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
 
         # Cost breakdown frame
-        self.cost_breakdown_frame = ctk.CTkFrame(
-            self.loss_details_frame, fg_color="transparent"
-        )
+        self.cost_breakdown_frame = ctk.CTkFrame(self.loss_details_frame, fg_color="transparent")
         self.cost_breakdown_frame.grid(
             row=2, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
-        self.good_units_cost_label = ctk.CTkLabel(
-            self.cost_breakdown_frame, text="", anchor="w"
-        )
+        self.good_units_cost_label = ctk.CTkLabel(self.cost_breakdown_frame, text="", anchor="w")
         self.good_units_cost_label.pack(anchor="w")
         self.lost_units_cost_label = ctk.CTkLabel(
             self.cost_breakdown_frame, text="", anchor="w", text_color="orange"
@@ -736,15 +714,9 @@ class RecordProductionDialog(ctk.CTkToplevel):
         lost_cost = loss * per_unit_cost
         total_cost = good_cost + lost_cost
 
-        self.good_units_cost_label.configure(
-            text=f"Good units ({actual}): ${good_cost:.2f}"
-        )
-        self.lost_units_cost_label.configure(
-            text=f"Lost units ({loss}): ${lost_cost:.2f}"
-        )
-        self.total_cost_label.configure(
-            text=f"Total batch cost: ${total_cost:.2f}"
-        )
+        self.good_units_cost_label.configure(text=f"Good units ({actual}): ${good_cost:.2f}")
+        self.lost_units_cost_label.configure(text=f"Lost units ({loss}): ${lost_cost:.2f}")
+        self.total_cost_label.configure(text=f"Total batch cost: ${total_cost:.2f}")
 
     def _on_yield_changed(self, event=None):
         """Handle actual yield change for loss tracking."""

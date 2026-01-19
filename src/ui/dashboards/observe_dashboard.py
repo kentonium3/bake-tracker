@@ -74,19 +74,11 @@ class ObserveDashboard(BaseDashboard):
         stat_frame.pack(side="left", padx=15)
 
         # Value (larger font)
-        value_label = ctk.CTkLabel(
-            stat_frame,
-            text=value,
-            font=ctk.CTkFont(size=18, weight="bold")
-        )
+        value_label = ctk.CTkLabel(stat_frame, text=value, font=ctk.CTkFont(size=18, weight="bold"))
         value_label.pack()
 
         # Label (smaller)
-        label_widget = ctk.CTkLabel(
-            stat_frame,
-            text=label,
-            font=ctk.CTkFont(size=11)
-        )
+        label_widget = ctk.CTkLabel(stat_frame, text=label, font=ctk.CTkFont(size=11))
         label_widget.pack()
 
         # Progress bar

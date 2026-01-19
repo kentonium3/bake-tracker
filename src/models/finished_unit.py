@@ -275,9 +275,7 @@ class FinishedUnit(BaseModel):
         return result
 
     @classmethod
-    def create_from_finished_good(
-        cls, finished_good_data: dict, slug: str
-    ) -> "FinishedUnit":
+    def create_from_finished_good(cls, finished_good_data: dict, slug: str) -> "FinishedUnit":
         """
         Factory method to create FinishedUnit from existing FinishedGood data.
 

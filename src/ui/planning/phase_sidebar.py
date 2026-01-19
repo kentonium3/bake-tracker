@@ -64,12 +64,7 @@ class StatusIndicator(ctk.CTkLabel):
     - Red warning: Blocked
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        status: PhaseStatus = PhaseStatus.NOT_STARTED,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, status: PhaseStatus = PhaseStatus.NOT_STARTED, **kwargs):
         """Initialize StatusIndicator.
 
         Args:
@@ -83,7 +78,7 @@ class StatusIndicator(ctk.CTkLabel):
             text_color=STATUS_COLORS[status],
             font=ctk.CTkFont(size=16),
             width=24,
-            **kwargs
+            **kwargs,
         )
         self._status = status
 
@@ -99,21 +94,14 @@ class StatusIndicator(ctk.CTkLabel):
             status: New status to display
         """
         self._status = status
-        self.configure(
-            text=STATUS_SYMBOLS[status],
-            text_color=STATUS_COLORS[status]
-        )
+        self.configure(text=STATUS_SYMBOLS[status], text_color=STATUS_COLORS[status])
 
 
 class PhaseButton(ctk.CTkFrame):
     """Navigation button for a planning phase with status indicator."""
 
     def __init__(
-        self,
-        parent: Any,
-        phase: PlanPhase,
-        on_click: Callable[[PlanPhase], None],
-        **kwargs
+        self, parent: Any, phase: PlanPhase, on_click: Callable[[PlanPhase], None], **kwargs
     ):
         """Initialize PhaseButton.
 
@@ -186,12 +174,7 @@ class PhaseSidebar(ctk.CTkFrame):
     on completion status.
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        on_phase_select: Callable[[PlanPhase], None],
-        **kwargs
-    ):
+    def __init__(self, parent: Any, on_phase_select: Callable[[PlanPhase], None], **kwargs):
         """Initialize PhaseSidebar.
 
         Args:

@@ -122,9 +122,13 @@ def convert_to_base_units(
     # Handle "each" type - no conversion needed
     if base_unit_type == "each":
         if from_unit != "each":
-            return False, None, (
-                f"Unit '{from_unit}' is not compatible with base type 'each'. "
-                f"Only 'each' is valid for discrete counts."
+            return (
+                False,
+                None,
+                (
+                    f"Unit '{from_unit}' is not compatible with base type 'each'. "
+                    f"Only 'each' is valid for discrete counts."
+                ),
             )
         return True, quantity, None
 
@@ -170,9 +174,13 @@ def convert_from_base_units(
     # Handle "each" type - no conversion needed
     if base_unit_type == "each":
         if to_unit != "each":
-            return False, None, (
-                f"Unit '{to_unit}' is not compatible with base type 'each'. "
-                f"Only 'each' is valid for discrete counts."
+            return (
+                False,
+                None,
+                (
+                    f"Unit '{to_unit}' is not compatible with base type 'each'. "
+                    f"Only 'each' is valid for discrete counts."
+                ),
             )
         return True, quantity, None
 
@@ -230,9 +238,13 @@ def convert_units(
         return False, None, f"Unknown unit: {to_unit}"
 
     if from_type != to_type:
-        return False, None, (
-            f"Cannot convert between incompatible types: "
-            f"'{from_unit}' ({from_type}) and '{to_unit}' ({to_type})"
+        return (
+            False,
+            None,
+            (
+                f"Cannot convert between incompatible types: "
+                f"'{from_unit}' ({from_type}) and '{to_unit}' ({to_type})"
+            ),
         )
 
     # Convert through base units

@@ -373,9 +373,7 @@ class RecipientHistoryDialog(ctk.CTkToplevel):
     def _create_header(self):
         """Create the header section."""
         header_frame = ctk.CTkFrame(self, fg_color="transparent")
-        header_frame.grid(
-            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
-        )
+        header_frame.grid(row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
 
         ctk.CTkLabel(
             header_frame,
@@ -406,9 +404,7 @@ class RecipientHistoryDialog(ctk.CTkToplevel):
     def _create_buttons(self):
         """Create dialog buttons."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(
-            row=2, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
-        )
+        button_frame.grid(row=2, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
         button_frame.grid_columnconfigure(0, weight=1)
 
         close_button = ctk.CTkButton(
@@ -481,28 +477,24 @@ class RecipientHistoryDialog(ctk.CTkToplevel):
 
         # Event name
         event_name = record["event"].name if record.get("event") else "Unknown"
-        ctk.CTkLabel(
-            row_frame, text=event_name, width=150, anchor="w"
-        ).pack(side="left", padx=5)
+        ctk.CTkLabel(row_frame, text=event_name, width=150, anchor="w").pack(side="left", padx=5)
 
         # Event date
         event_date_str = ""
         if record.get("event") and record["event"].event_date:
             event_date_str = record["event"].event_date.strftime("%Y-%m-%d")
-        ctk.CTkLabel(
-            row_frame, text=event_date_str, width=100, anchor="w"
-        ).pack(side="left", padx=5)
+        ctk.CTkLabel(row_frame, text=event_date_str, width=100, anchor="w").pack(
+            side="left", padx=5
+        )
 
         # Package name
         package_name = record["package"].name if record.get("package") else "Unknown"
-        ctk.CTkLabel(
-            row_frame, text=package_name, width=150, anchor="w"
-        ).pack(side="left", padx=5)
+        ctk.CTkLabel(row_frame, text=package_name, width=150, anchor="w").pack(side="left", padx=5)
 
         # Quantity
-        ctk.CTkLabel(
-            row_frame, text=str(record.get("quantity", 1)), width=50, anchor="w"
-        ).pack(side="left", padx=5)
+        ctk.CTkLabel(row_frame, text=str(record.get("quantity", 1)), width=50, anchor="w").pack(
+            side="left", padx=5
+        )
 
         # Status with color coding
         status = record.get("fulfillment_status", "pending") or "pending"
@@ -520,9 +512,7 @@ class RecipientHistoryDialog(ctk.CTkToplevel):
             anchor="w",
         )
         if bg_color:
-            status_label.configure(
-                fg_color=bg_color, text_color=text_color, corner_radius=3
-            )
+            status_label.configure(fg_color=bg_color, text_color=text_color, corner_radius=3)
         status_label.pack(side="left", padx=5)
 
     def _create_summary(self, history: list):

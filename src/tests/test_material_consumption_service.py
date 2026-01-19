@@ -198,9 +198,7 @@ def fg_with_generic_material(db_session, sample_finished_good, material_with_pro
 class TestGetPendingMaterials:
     """Tests for get_pending_materials function."""
 
-    def test_returns_generic_materials_only(
-        self, db_session, fg_with_generic_material
-    ):
+    def test_returns_generic_materials_only(self, db_session, fg_with_generic_material):
         """Returns list of materials needing resolution."""
         fg = fg_with_generic_material["finished_good"]
         pending = get_pending_materials(fg.id, session=db_session)
@@ -209,16 +207,12 @@ class TestGetPendingMaterials:
         assert pending[0]["material_name"] == "Red Satin"
         assert len(pending[0]["available_products"]) == 2
 
-    def test_returns_empty_for_specific_materials(
-        self, db_session, fg_with_material_unit
-    ):
+    def test_returns_empty_for_specific_materials(self, db_session, fg_with_material_unit):
         """Returns empty list when only specific MaterialUnits used."""
         pending = get_pending_materials(fg_with_material_unit.id, session=db_session)
         assert len(pending) == 0
 
-    def test_returns_product_details(
-        self, db_session, fg_with_generic_material
-    ):
+    def test_returns_product_details(self, db_session, fg_with_generic_material):
         """Pending materials include product availability details."""
         fg = fg_with_generic_material["finished_good"]
         pending = get_pending_materials(fg.id, session=db_session)
@@ -236,9 +230,7 @@ class TestGetPendingMaterials:
 class TestValidateMaterialAvailability:
     """Tests for validate_material_availability function."""
 
-    def test_passes_with_sufficient_inventory(
-        self, db_session, fg_with_material_unit
-    ):
+    def test_passes_with_sufficient_inventory(self, db_session, fg_with_material_unit):
         """Validation passes with sufficient inventory."""
         result = validate_material_availability(
             fg_with_material_unit.id,
@@ -249,9 +241,7 @@ class TestValidateMaterialAvailability:
         assert result["valid"] is True
         assert len(result["errors"]) == 0
 
-    def test_fails_with_insufficient_inventory(
-        self, db_session, fg_with_material_unit
-    ):
+    def test_fails_with_insufficient_inventory(self, db_session, fg_with_material_unit):
         """Validation fails when inventory insufficient."""
         result = validate_material_availability(
             fg_with_material_unit.id,
@@ -263,9 +253,7 @@ class TestValidateMaterialAvailability:
         assert len(result["errors"]) > 0
         assert "insufficient inventory" in result["errors"][0].lower()
 
-    def test_fails_without_assignment_for_generic(
-        self, db_session, fg_with_generic_material
-    ):
+    def test_fails_without_assignment_for_generic(self, db_session, fg_with_generic_material):
         """Validation fails when generic material has no assignment."""
         fg = fg_with_generic_material["finished_good"]
 
@@ -279,9 +267,7 @@ class TestValidateMaterialAvailability:
         assert result["valid"] is False
         assert "requires product assignment" in result["errors"][0]
 
-    def test_passes_with_valid_assignment(
-        self, db_session, fg_with_generic_material
-    ):
+    def test_passes_with_valid_assignment(self, db_session, fg_with_generic_material):
         """Validation passes with valid product assignment."""
         fg = fg_with_generic_material["finished_good"]
         comp = fg_with_generic_material["composition"]
@@ -429,9 +415,7 @@ class TestRecordMaterialConsumption:
 class TestGetConsumptionHistory:
     """Tests for get_consumption_history function."""
 
-    def test_returns_snapshot_data(
-        self, db_session, sample_assembly_run, fg_with_material_unit
-    ):
+    def test_returns_snapshot_data(self, db_session, sample_assembly_run, fg_with_material_unit):
         """History returns snapshot data, not current catalog."""
         record_material_consumption(
             assembly_run_id=sample_assembly_run.id,

@@ -40,13 +40,7 @@ class PlaceholderMode(BaseMode):
     Will be replaced with proper mode implementations.
     """
 
-    def __init__(
-        self,
-        master: Any,
-        name: str,
-        tab_configs: List[Tuple[str, Any]],
-        **kwargs
-    ):
+    def __init__(self, master: Any, name: str, tab_configs: List[Tuple[str, Any]], **kwargs):
         """Initialize PlaceholderMode.
 
         Args:

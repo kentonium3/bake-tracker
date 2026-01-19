@@ -367,11 +367,7 @@ class TestContextRichRoundtrip:
 
         # 6. Verify editable fields updated
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             assert ingredient is not None
 
             # Editable fields should be updated
@@ -416,14 +412,9 @@ class TestContextRichRoundtrip:
 
         # 4. Verify
         with session_scope() as session:
-            material = (
-                session.query(Material).filter_by(slug=sample_material["slug"]).first()
-            )
+            material = session.query(Material).filter_by(slug=sample_material["slug"]).first()
             if material:
-                assert (
-                    material.description
-                    == f"AI-augmented material description {unique_id}"
-                )
+                assert material.description == f"AI-augmented material description {unique_id}"
 
     @pytest.mark.skip(
         reason="Recipe model doesn't have slug field - context-rich import uses slug for lookup"
@@ -469,9 +460,7 @@ class TestContextRichRoundtrip:
 
         # 4. Verify
         with session_scope() as session:
-            recipe = (
-                session.query(Recipe).filter_by(name=sample_recipe["name"]).first()
-            )
+            recipe = session.query(Recipe).filter_by(name=sample_recipe["name"]).first()
             if recipe:
                 assert recipe.notes == f"AI-added recipe notes {unique_id}"
 
@@ -525,11 +514,7 @@ class TestContextRichRoundtrip:
 
         # Verify only editable fields changed
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
 
             # Editable fields updated
             assert ingredient.description == f"Valid update {unique_id}"
@@ -569,11 +554,7 @@ class TestContextRichRoundtrip:
 
         # Verify NO changes made to database
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             # Description should still be original
             assert ingredient.description == sample_ingredient["description"]
             assert ingredient.description != f"Dry run description {unique_id}"
@@ -711,9 +692,7 @@ class TestPurchaseImportIntegration:
         with session_scope() as session:
             initial_total = sum(
                 i.quantity
-                for i in session.query(InventoryItem)
-                .filter_by(product_id=product_id)
-                .all()
+                for i in session.query(InventoryItem).filter_by(product_id=product_id).all()
             )
 
         # Create purchase JSON (includes supplier since Purchase.supplier_id is NOT NULL)
@@ -747,9 +726,7 @@ class TestPurchaseImportIntegration:
         with session_scope() as session:
             new_total = sum(
                 i.quantity
-                for i in session.query(InventoryItem)
-                .filter_by(product_id=product_id)
-                .all()
+                for i in session.query(InventoryItem).filter_by(product_id=product_id).all()
             )
             # New inventory should be initial + purchased amount
             assert new_total == initial_total + 5
@@ -781,9 +758,7 @@ class TestAdjustmentImportIntegration:
         with session_scope() as session:
             initial_total = sum(
                 i.quantity
-                for i in session.query(InventoryItem)
-                .filter_by(product_id=product_id)
-                .all()
+                for i in session.query(InventoryItem).filter_by(product_id=product_id).all()
             )
 
         # Create adjustment JSON
@@ -816,9 +791,7 @@ class TestAdjustmentImportIntegration:
         with session_scope() as session:
             new_total = sum(
                 i.quantity
-                for i in session.query(InventoryItem)
-                .filter_by(product_id=product_id)
-                .all()
+                for i in session.query(InventoryItem).filter_by(product_id=product_id).all()
             )
             # New inventory should be initial - adjusted amount
             assert new_total == initial_total - 3
@@ -894,9 +867,5 @@ class TestErrorHandlingAndRollback:
 
         # Verify valid record was updated
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             assert ingredient.description == f"Valid update {unique_id}"

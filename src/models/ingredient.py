@@ -12,8 +12,16 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import (
-    Column, String, Text, DateTime, Float, JSON, Index,
-    Integer, ForeignKey, CheckConstraint
+    Column,
+    String,
+    Text,
+    DateTime,
+    Float,
+    JSON,
+    Index,
+    Integer,
+    ForeignKey,
+    CheckConstraint,
 )
 from sqlalchemy.orm import relationship, backref
 
@@ -76,9 +84,7 @@ class Ingredient(BaseModel):
     # Hierarchy fields (Feature 031)
     # parent_ingredient_id enables self-referential parent-child relationships
     # Nullable to support root ingredients (level 0) which have no parent
-    parent_ingredient_id = Column(
-        Integer, ForeignKey("ingredients.id"), nullable=True, index=True
-    )
+    parent_ingredient_id = Column(Integer, ForeignKey("ingredients.id"), nullable=True, index=True)
     # hierarchy_level: 0=root category, 1=mid-tier category, 2=leaf (usable in recipes)
     # Default=2 ensures existing ingredients become leaves
     hierarchy_level = Column(Integer, nullable=False, default=2)
@@ -109,9 +115,7 @@ class Ingredient(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
-    last_modified = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_modified = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     products = relationship(
@@ -193,12 +197,14 @@ class Ingredient(BaseModel):
         Returns:
             Density in grams per milliliter, or None if density not specified.
         """
-        if not all([
-            self.density_volume_value,
-            self.density_volume_unit,
-            self.density_weight_value,
-            self.density_weight_unit
-        ]):
+        if not all(
+            [
+                self.density_volume_value,
+                self.density_volume_unit,
+                self.density_weight_value,
+                self.density_weight_unit,
+            ]
+        ):
             return None
 
         # Local import to avoid circular dependency
@@ -206,18 +212,14 @@ class Ingredient(BaseModel):
 
         # Convert volume to ml
         success, ml, _ = convert_standard_units(
-            self.density_volume_value,
-            self.density_volume_unit,
-            "ml"
+            self.density_volume_value, self.density_volume_unit, "ml"
         )
         if not success or ml <= 0:
             return None
 
         # Convert weight to grams
         success, grams, _ = convert_standard_units(
-            self.density_weight_value,
-            self.density_weight_unit,
-            "g"
+            self.density_weight_value, self.density_weight_unit, "g"
         )
         if not success or grams <= 0:
             return None

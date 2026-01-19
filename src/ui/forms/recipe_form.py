@@ -13,6 +13,7 @@ from src.models.recipe import Recipe, RecipeComponent
 from src.models.ingredient import Ingredient
 from src.services import ingredient_crud_service, recipe_service
 from src.services.unit_service import get_units_for_dropdown
+
 # Feature 031: Import hierarchy service for leaf-only filtering
 from src.services import ingredient_hierarchy_service
 from src.utils.constants import (
@@ -423,30 +424,20 @@ class YieldTypeRow(ctk.CTkFrame):
 
         # Name entry (Description)
         self.name_entry = ctk.CTkEntry(
-            self,
-            width=200,
-            placeholder_text="Description (e.g., Large Cookie)"
+            self, width=200, placeholder_text="Description (e.g., Large Cookie)"
         )
         if display_name:
             self.name_entry.insert(0, display_name)
         self.name_entry.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5, sticky="ew")
 
         # Unit entry (Item Unit)
-        self.unit_entry = ctk.CTkEntry(
-            self,
-            width=100,
-            placeholder_text="Unit (e.g., cookie)"
-        )
+        self.unit_entry = ctk.CTkEntry(self, width=100, placeholder_text="Unit (e.g., cookie)")
         if item_unit:
             self.unit_entry.insert(0, item_unit)
         self.unit_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
 
         # Items per batch entry (Quantity)
-        self.quantity_entry = ctk.CTkEntry(
-            self,
-            width=80,
-            placeholder_text="Qty/batch"
-        )
+        self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty/batch")
         if items_per_batch:
             self.quantity_entry.insert(0, str(items_per_batch))
         self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
@@ -537,15 +528,17 @@ class RecipeFormDialog(ctk.CTkToplevel):
             from src.models.ingredient import Ingredient
             from src.services.database import session_scope
             from sqlalchemy.orm import joinedload
+
             with session_scope() as session:
                 leaf_ids = [d.get("id") for d in leaf_dicts if d.get("id")]
                 # Eager-load products relationship to avoid DetachedInstanceError
                 # when get_preferred_product() is called after session closes
-                self.available_ingredients = session.query(Ingredient).options(
-                    joinedload(Ingredient.products)
-                ).filter(
-                    Ingredient.id.in_(leaf_ids)
-                ).all()
+                self.available_ingredients = (
+                    session.query(Ingredient)
+                    .options(joinedload(Ingredient.products))
+                    .filter(Ingredient.id.in_(leaf_ids))
+                    .all()
+                )
         except Exception:
             self.available_ingredients = []
 
@@ -602,9 +595,13 @@ class RecipeFormDialog(ctk.CTkToplevel):
         """
         try:
             with session_scope() as session:
-                categories = session.query(Recipe.category).distinct().filter(
-                    Recipe.category.isnot(None)
-                ).order_by(Recipe.category).all()
+                categories = (
+                    session.query(Recipe.category)
+                    .distinct()
+                    .filter(Recipe.category.isnot(None))
+                    .order_by(Recipe.category)
+                    .all()
+                )
                 cat_list = [cat[0] for cat in categories if cat[0]]
                 return cat_list if cat_list else ["Uncategorized"]
         except Exception:
@@ -1378,12 +1375,14 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 )
                 return None
 
-            yield_types.append({
-                "id": row.finished_unit_id,
-                "display_name": row_name,
-                "item_unit": row_unit,
-                "items_per_batch": items_per_batch,
-            })
+            yield_types.append(
+                {
+                    "id": row.finished_unit_id,
+                    "display_name": row_name,
+                    "item_unit": row_unit,
+                    "items_per_batch": items_per_batch,
+                }
+            )
 
         # Feature 056 - T018: Require at least one complete yield type
         if not yield_types:

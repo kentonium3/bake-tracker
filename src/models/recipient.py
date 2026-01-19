@@ -37,9 +37,7 @@ class Recipient(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
-    last_modified = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_modified = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Indexes
     __table_args__ = (

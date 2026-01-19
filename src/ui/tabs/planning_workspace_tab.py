@@ -19,12 +19,7 @@ from src.services import event_service
 class EventSelector(ctk.CTkFrame):
     """Event selector dropdown for the planning workspace."""
 
-    def __init__(
-        self,
-        parent: Any,
-        on_event_selected: callable,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, on_event_selected: callable, **kwargs):
         """Initialize EventSelector.
 
         Args:

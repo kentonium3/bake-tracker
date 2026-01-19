@@ -22,6 +22,7 @@ from src.models import Purchase
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def flour_ingredient(test_db):
     """Create a flour ingredient with known density for unit conversion."""
@@ -36,6 +37,7 @@ def flour_ingredient(test_db):
             "density_weight_unit": "g",
         }
     )
+
 
 @pytest.fixture
 def sugar_ingredient(test_db):
@@ -52,6 +54,7 @@ def sugar_ingredient(test_db):
         }
     )
 
+
 @pytest.fixture
 def no_product_ingredient(test_db):
     """Create an ingredient with no products configured."""
@@ -61,6 +64,7 @@ def no_product_ingredient(test_db):
             "category": "Spices",
         }
     )
+
 
 @pytest.fixture
 def flour_product_preferred(test_db, flour_ingredient):
@@ -90,6 +94,7 @@ def flour_product_preferred(test_db, flour_ingredient):
 
     return product
 
+
 @pytest.fixture
 def sugar_product_a(test_db, sugar_ingredient):
     """Create a non-preferred sugar product."""
@@ -117,6 +122,7 @@ def sugar_product_a(test_db, sugar_ingredient):
 
     return product
 
+
 @pytest.fixture
 def sugar_product_b(test_db, sugar_ingredient):
     """Create another non-preferred sugar product."""
@@ -143,6 +149,7 @@ def sugar_product_b(test_db, sugar_ingredient):
         session.commit()
 
     return product
+
 
 @pytest.fixture
 def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_product_ingredient):
@@ -186,9 +193,11 @@ def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_product_ingred
 
     return recipe
 
+
 # ============================================================================
 # Tests for shopping list product recommendations
 # ============================================================================
+
 
 class TestShoppingListWithProducts:
     """Integration tests for get_shopping_list() with product data."""
@@ -244,6 +253,7 @@ class TestShoppingListWithProducts:
             "items_count": 0,
             "items_with_shortfall": 0,
         }
+
 
 class TestTotalEstimatedCostCalculation:
     """Tests for total_estimated_cost calculation."""

@@ -92,9 +92,7 @@ def _run_migration_impl(session: Session, dry_run: bool) -> Tuple[int, int]:
 
     # Find items needing migration
     items_to_migrate = (
-        session.query(InventoryItem)
-        .filter(InventoryItem.purchase_id == None)  # noqa: E711
-        .all()
+        session.query(InventoryItem).filter(InventoryItem.purchase_id == None).all()  # noqa: E711
     )
 
     if not items_to_migrate:
@@ -116,9 +114,7 @@ def _run_migration_impl(session: Session, dry_run: bool) -> Tuple[int, int]:
             unit_price = Decimal(str(item.unit_cost))
         else:
             unit_price = Decimal("0.00")
-            logger.warning(
-                f"InventoryItem {item.id} has NULL unit_cost - using $0.00"
-            )
+            logger.warning(f"InventoryItem {item.id} has NULL unit_cost - using $0.00")
             warnings += 1
 
         # Determine purchase_date from existing purchase_date

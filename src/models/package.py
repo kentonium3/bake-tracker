@@ -48,9 +48,7 @@ class Package(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
-    last_modified = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_modified = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     package_finished_goods = relationship(

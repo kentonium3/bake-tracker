@@ -52,9 +52,7 @@ class ProductionRun(BaseModel):
     __tablename__ = "production_runs"
 
     # Foreign keys
-    recipe_id = Column(
-        Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False
-    )
+    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False)
     finished_unit_id = Column(
         Integer, ForeignKey("finished_units.id", ondelete="RESTRICT"), nullable=False
     )
@@ -86,9 +84,7 @@ class ProductionRun(BaseModel):
     loss_quantity = Column(Integer, nullable=False, default=0)
 
     # Cost data
-    total_ingredient_cost = Column(
-        Numeric(10, 4), nullable=False, default=Decimal("0.0000")
-    )
+    total_ingredient_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
     per_unit_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
 
     # Relationships
@@ -134,20 +130,14 @@ class ProductionRun(BaseModel):
         CheckConstraint(
             "expected_yield >= 0", name="ck_production_run_expected_yield_non_negative"
         ),
-        CheckConstraint(
-            "actual_yield >= 0", name="ck_production_run_actual_yield_non_negative"
-        ),
+        CheckConstraint("actual_yield >= 0", name="ck_production_run_actual_yield_non_negative"),
         CheckConstraint(
             "total_ingredient_cost >= 0",
             name="ck_production_run_total_cost_non_negative",
         ),
-        CheckConstraint(
-            "per_unit_cost >= 0", name="ck_production_run_per_unit_cost_non_negative"
-        ),
+        CheckConstraint("per_unit_cost >= 0", name="ck_production_run_per_unit_cost_non_negative"),
         # Feature 025: Loss tracking constraints
-        CheckConstraint(
-            "loss_quantity >= 0", name="ck_production_run_loss_non_negative"
-        ),
+        CheckConstraint("loss_quantity >= 0", name="ck_production_run_loss_non_negative"),
     )
 
     def __repr__(self) -> str:

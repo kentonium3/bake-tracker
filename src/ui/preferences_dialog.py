@@ -145,9 +145,7 @@ class PreferencesDialog(ctk.CTkToplevel):
             "backup",
         )
 
-    def _create_directory_picker(
-        self, parent, label: str, description: str, dir_type: str
-    ):
+    def _create_directory_picker(self, parent, label: str, description: str, dir_type: str):
         """Create a directory picker widget.
 
         Args:

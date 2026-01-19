@@ -44,14 +44,10 @@ def _validate_impl(session: Session) -> Tuple[bool, Dict[str, Any]]:
 
     # Check 1: No NULL purchase_id
     null_purchase_count = (
-        session.query(InventoryItem)
-        .filter(InventoryItem.purchase_id == None)  # noqa: E711
-        .count()
+        session.query(InventoryItem).filter(InventoryItem.purchase_id == None).count()  # noqa: E711
     )
     if null_purchase_count > 0:
-        report["errors"].append(
-            f"FAIL: {null_purchase_count} InventoryItems have NULL purchase_id"
-        )
+        report["errors"].append(f"FAIL: {null_purchase_count} InventoryItems have NULL purchase_id")
     else:
         report["checks"].append("PASS: All InventoryItems have purchase_id")
 
@@ -63,40 +59,30 @@ def _validate_impl(session: Session) -> Tuple[bool, Dict[str, Any]]:
         .count()
     )
     if orphaned > 0:
-        report["errors"].append(
-            f"FAIL: {orphaned} InventoryItems reference non-existent Purchases"
-        )
+        report["errors"].append(f"FAIL: {orphaned} InventoryItems reference non-existent Purchases")
     else:
         report["checks"].append("PASS: All purchase_id references are valid")
 
     # Check 3: Product IDs match
     mismatched = 0
     items_with_purchase = (
-        session.query(InventoryItem)
-        .filter(InventoryItem.purchase_id != None)  # noqa: E711
-        .all()
+        session.query(InventoryItem).filter(InventoryItem.purchase_id != None).all()  # noqa: E711
     )
     for item in items_with_purchase:
         if item.purchase and item.product_id != item.purchase.product_id:
             mismatched += 1
 
     if mismatched > 0:
-        report["errors"].append(
-            f"FAIL: {mismatched} items have product_id mismatch with Purchase"
-        )
+        report["errors"].append(f"FAIL: {mismatched} items have product_id mismatch with Purchase")
     else:
         report["checks"].append("PASS: All product_id values match")
 
     # Check 4: unit_cost populated
     null_unit_cost = (
-        session.query(InventoryItem)
-        .filter(InventoryItem.unit_cost == None)  # noqa: E711
-        .count()
+        session.query(InventoryItem).filter(InventoryItem.unit_cost == None).count()  # noqa: E711
     )
     if null_unit_cost > 0:
-        report["warnings"].append(
-            f"WARNING: {null_unit_cost} InventoryItems have NULL unit_cost"
-        )
+        report["warnings"].append(f"WARNING: {null_unit_cost} InventoryItems have NULL unit_cost")
     else:
         report["checks"].append("PASS: All InventoryItems have unit_cost")
 

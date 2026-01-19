@@ -65,9 +65,7 @@ class EnhancedImportResult:
 
     # Resolution tracking
     resolutions: List[Resolution] = field(default_factory=list)
-    created_entities: Dict[str, int] = field(
-        default_factory=dict
-    )  # {entity_type: count}
+    created_entities: Dict[str, int] = field(default_factory=dict)  # {entity_type: count}
     mapped_entities: Dict[str, int] = field(default_factory=dict)
     skipped_due_to_fk: int = 0
 
@@ -140,9 +138,7 @@ class EnhancedImportResult:
 
     def add_created_entity(self, entity_type: str):
         """Track a created entity during FK resolution."""
-        self.created_entities[entity_type] = (
-            self.created_entities.get(entity_type, 0) + 1
-        )
+        self.created_entities[entity_type] = self.created_entities.get(entity_type, 0) + 1
 
     def add_mapped_entity(self, entity_type: str):
         """Track a mapped entity during FK resolution."""
@@ -392,9 +388,7 @@ def merge_fields(entity: Any, editable_data: Dict[str, Any]) -> bool:
     return updated
 
 
-def _find_entity_by_slug(
-    export_type: str, slug: str, session: Session
-) -> Optional[Any]:
+def _find_entity_by_slug(export_type: str, slug: str, session: Session) -> Optional[Any]:
     """Find an entity by its slug for context-rich import.
 
     Args:
@@ -459,7 +453,9 @@ class ContextRichImportResult:
     def add_not_found(self, slug: str):
         """Record a record that wasn't found in the database."""
         self.not_found += 1
-        self.errors.append({"slug": slug, "reason": "Record not found for merge", "type": "not_found"})
+        self.errors.append(
+            {"slug": slug, "reason": "Record not found for merge", "type": "not_found"}
+        )
 
     def add_error(self, slug: str, error: str):
         """Record an error."""
@@ -590,9 +586,7 @@ def _import_context_rich_impl(
 # ============================================================================
 
 
-def _resolve_fk_by_slug(
-    entity_type: str, slug_value: str, session: Session
-) -> Optional[int]:
+def _resolve_fk_by_slug(entity_type: str, slug_value: str, session: Session) -> Optional[int]:
     """Resolve a foreign key reference by slug/name.
 
     Args:
@@ -633,19 +627,23 @@ def _resolve_fk_by_slug(
             package_unit = parts[3]
 
             # First resolve ingredient
-            ingredient = session.query(Ingredient).filter(
-                Ingredient.slug == ingredient_slug
-            ).first()
+            ingredient = (
+                session.query(Ingredient).filter(Ingredient.slug == ingredient_slug).first()
+            )
             if not ingredient:
                 return None
 
             # Then find product by composite key
-            prod = session.query(Product).filter(
-                Product.ingredient_id == ingredient.id,
-                Product.brand == brand,
-                Product.package_unit == package_unit,
-                Product.package_unit_quantity == package_unit_quantity,
-            ).first()
+            prod = (
+                session.query(Product)
+                .filter(
+                    Product.ingredient_id == ingredient.id,
+                    Product.brand == brand,
+                    Product.package_unit == package_unit,
+                    Product.package_unit_quantity == package_unit_quantity,
+                )
+                .first()
+            )
             return prod.id if prod else None
         return None
 
@@ -690,9 +688,7 @@ def _find_existing_by_slug(
         if ingredient_slug and brand and package_unit and package_unit_quantity:
             # First resolve ingredient
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == ingredient_slug)
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == ingredient_slug).first()
             )
             if ingredient:
                 return (
@@ -762,8 +758,14 @@ def _import_record_merge(
             # If no editable_fields provided, use supplier-specific field list
             if not fields_to_update:
                 fields_to_update = [
-                    "name", "supplier_type", "website_url", "city",
-                    "state", "zip_code", "street_address", "notes"
+                    "name",
+                    "supplier_type",
+                    "website_url",
+                    "city",
+                    "state",
+                    "zip_code",
+                    "street_address",
+                    "notes",
                 ]
 
         # Update fields
@@ -829,9 +831,7 @@ def _create_new_record(
         if entity_type == "ingredient":
             slug = record.get("ingredient_slug") or record.get("slug")
             display_name = (
-                record.get("ingredient_name")
-                or record.get("display_name")
-                or record.get("name")
+                record.get("ingredient_name") or record.get("display_name") or record.get("name")
             )
             category = record.get("ingredient_category") or record.get("category")
 
@@ -909,9 +909,7 @@ def _create_new_record(
                     ingredient_id = fk_mapping["ingredient"][ingredient_slug]
                 else:
                     # Try direct lookup
-                    ingredient_id = _resolve_fk_by_slug(
-                        "ingredient", ingredient_slug, session
-                    )
+                    ingredient_id = _resolve_fk_by_slug("ingredient", ingredient_slug, session)
 
             if not ingredient_id:
                 return ("failed", f"Cannot resolve ingredient: {ingredient_slug}")
@@ -1191,9 +1189,7 @@ def _import_context_rich_export_impl(
     if missing_fks:
         if resolver:
             # Use the resolver callback
-            fk_mapping, resolutions = resolve_missing_fks(
-                missing_fks, resolver, session
-            )
+            fk_mapping, resolutions = resolve_missing_fks(missing_fks, resolver, session)
             result.resolutions = resolutions
 
             # Track resolution stats
@@ -1283,9 +1279,7 @@ def _import_context_rich_export_impl(
                 record, entity_type, editable_fields, fk_mapping, session
             )
         elif mode == "skip_existing":
-            status, error = _import_record_skip_existing(
-                record, entity_type, fk_mapping, session
-            )
+            status, error = _import_record_skip_existing(record, entity_type, fk_mapping, session)
         else:
             result.add_error(entity_type, record_id, f"Unknown mode: {mode}")
             continue
@@ -1314,9 +1308,7 @@ def _import_context_rich_export_impl(
 
     # Write skipped records log if any
     if skipped_records:
-        result.skipped_records_path = _write_skipped_records_log(
-            file_path, skipped_records, mode
-        )
+        result.skipped_records_path = _write_skipped_records_log(file_path, skipped_records, mode)
 
     return result
 
@@ -1356,7 +1348,9 @@ def _export_type_to_entity_type(export_type: str) -> Optional[str]:
 def _get_record_identifier(record: Dict[str, Any], entity_type: str) -> str:
     """Get a human-readable identifier for a record."""
     if entity_type == "ingredient":
-        return record.get("ingredient_slug") or record.get("slug") or str(record.get("id", "unknown"))
+        return (
+            record.get("ingredient_slug") or record.get("slug") or str(record.get("id", "unknown"))
+        )
     elif entity_type == "supplier":
         return record.get("supplier_name") or record.get("name") or str(record.get("id", "unknown"))
     elif entity_type == "product":
@@ -1366,7 +1360,11 @@ def _get_record_identifier(record: Dict[str, Any], entity_type: str) -> str:
     elif entity_type == "inventory_item":
         product_slug = record.get("product_slug", "")
         uuid = record.get("uuid", "")
-        return f"{product_slug} ({uuid[:8]})" if uuid else product_slug or str(record.get("id", "unknown"))
+        return (
+            f"{product_slug} ({uuid[:8]})"
+            if uuid
+            else product_slug or str(record.get("id", "unknown"))
+        )
     elif entity_type == "purchase":
         product_slug = record.get("product_slug", "")
         purchase_date = record.get("purchase_date", "")

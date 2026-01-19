@@ -306,28 +306,16 @@ class TestImportIngredients:
 
         # Verify ingredients exist in database
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour is not None
             assert flour.display_name == "Test All-Purpose Flour"
             assert flour.category == "Flour"
 
-            sugar = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_sugar")
-                .first()
-            )
+            sugar = session.query(Ingredient).filter(Ingredient.slug == "test_sugar").first()
             assert sugar is not None
             assert sugar.category == "Sugar"
 
-            butter = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_butter")
-                .first()
-            )
+            butter = session.query(Ingredient).filter(Ingredient.slug == "test_butter").first()
             assert butter is not None
             assert butter.density_volume_value == 1.0
             assert butter.density_weight_value == 8.0
@@ -373,11 +361,7 @@ class TestImportIngredients:
 
         # Verify existing ingredient unchanged
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "existing_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "existing_flour").first()
             assert flour.display_name == "Existing Flour"  # Not changed!
             assert flour.category == "Flour"  # Not changed!
 
@@ -396,9 +380,7 @@ class TestImportIngredients:
         assert result.has_errors is True
         assert "slug" in result.errors[0].message.lower()
 
-    def test_import_ingredients_validation_missing_category(
-        self, cleanup_test_ingredients
-    ):
+    def test_import_ingredients_validation_missing_category(self, cleanup_test_ingredients):
         """Test that missing category triggers validation error."""
         data = [
             {
@@ -413,9 +395,7 @@ class TestImportIngredients:
         assert result.has_errors is True
         assert "category" in result.errors[0].message.lower()
 
-    def test_import_ingredients_validation_missing_display_name(
-        self, cleanup_test_ingredients
-    ):
+    def test_import_ingredients_validation_missing_display_name(self, cleanup_test_ingredients):
         """Test that missing display_name triggers validation error."""
         data = [
             {
@@ -458,15 +438,11 @@ class TestImportIngredients:
         # Valid ingredients should exist
         with session_scope() as session:
             assert (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
                 is not None
             )
             assert (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_sugar")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "test_sugar").first()
                 is not None
             )
 
@@ -482,11 +458,7 @@ class TestImportIngredients:
 
         # But nothing should be in the database
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour is None
 
     def test_import_ingredients_result_mode_tracking(self, cleanup_test_ingredients):
@@ -545,11 +517,7 @@ class TestImportIngredients:
         assert result.entity_counts["ingredients"].added == 1
 
         with session_scope() as session:
-            butter = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_butter")
-                .first()
-            )
+            butter = session.query(Ingredient).filter(Ingredient.slug == "test_butter").first()
             assert butter.description == "Unsalted butter for baking"
             assert butter.density_volume_value == 1.0
             assert butter.density_volume_unit == "cup"
@@ -572,25 +540,15 @@ class TestImportIngredients:
             assert result.entity_counts["ingredients"].added == 1
 
             # Within the same session, we can query the new ingredient
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour is not None
 
         # After session commits, verify it persisted
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour is not None
 
-    def test_import_ingredients_augment_mode_updates_null_fields(
-        self, cleanup_test_ingredients
-    ):
+    def test_import_ingredients_augment_mode_updates_null_fields(self, cleanup_test_ingredients):
         """Test that AUGMENT mode updates only null fields on existing records."""
         # Pre-create ingredient with some null fields
         with session_scope() as session:
@@ -622,11 +580,7 @@ class TestImportIngredients:
 
         # Verify database updated
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour.density_volume_value == 0.55
             assert flour.density_volume_unit == "cup"
 
@@ -664,11 +618,7 @@ class TestImportIngredients:
 
         # Verify original values preserved
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour.density_volume_value == 0.50  # Original value preserved
             assert flour.density_volume_unit == "cup"  # Original value preserved
 
@@ -691,11 +641,7 @@ class TestImportIngredients:
 
         # Verify created
         with session_scope() as session:
-            flour = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "test_flour")
-                .first()
-            )
+            flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
             assert flour is not None
             assert flour.density_volume_value == 0.55
 
@@ -726,17 +672,11 @@ class TestImportProducts:
         # Verify products exist in database with correct ingredient_id
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
             assert ingredient is not None
 
-            products = (
-                session.query(Product)
-                .filter(Product.ingredient_id == ingredient.id)
-                .all()
-            )
+            products = session.query(Product).filter(Product.ingredient_id == ingredient.id).all()
             assert len(products) == 2
 
             # Verify product details
@@ -919,15 +859,9 @@ class TestImportProducts:
         # But nothing should be in the database
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
-            products = (
-                session.query(Product)
-                .filter(Product.ingredient_id == ingredient.id)
-                .all()
-            )
+            products = session.query(Product).filter(Product.ingredient_id == ingredient.id).all()
             assert len(products) == 0
 
     def test_import_products_with_optional_fields(
@@ -952,15 +886,9 @@ class TestImportProducts:
 
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
-            product = (
-                session.query(Product)
-                .filter(Product.ingredient_id == ingredient.id)
-                .first()
-            )
+            product = session.query(Product).filter(Product.ingredient_id == ingredient.id).first()
             assert product.brand == "Full Featured Brand"
             assert product.package_size == "25 lb"
             assert product.package_type == "bag"
@@ -986,15 +914,9 @@ class TestImportProducts:
 
             # Within the same session, we can query the new product
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
-            product = (
-                session.query(Product)
-                .filter(Product.ingredient_id == ingredient.id)
-                .first()
-            )
+            product = session.query(Product).filter(Product.ingredient_id == ingredient.id).first()
             assert product is not None
             assert product.brand == "Session Test Brand"
 
@@ -1005,9 +927,7 @@ class TestImportProducts:
         # Pre-create product with null upc_code
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
             existing = Product(
                 ingredient_id=ingredient.id,
@@ -1038,9 +958,7 @@ class TestImportProducts:
         # Verify database updated
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
             product = (
                 session.query(Product)
@@ -1057,9 +975,7 @@ class TestImportProducts:
         # Pre-create product with existing upc_code
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
             existing = Product(
                 ingredient_id=ingredient.id,
@@ -1090,9 +1006,7 @@ class TestImportProducts:
         # Verify original value preserved
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
             product = (
                 session.query(Product)
@@ -1125,9 +1039,7 @@ class TestImportProducts:
         # Verify created
         with session_scope() as session:
             ingredient = (
-                session.query(Ingredient)
-                .filter(Ingredient.slug == "product_test_flour")
-                .first()
+                session.query(Ingredient).filter(Ingredient.slug == "product_test_flour").first()
             )
             product = (
                 session.query(Product)
@@ -1200,9 +1112,7 @@ class TestImportRecipes:
         # Verify recipe exists with correct relationships
         with session_scope() as session:
             recipe = (
-                session.query(Recipe)
-                .filter(Recipe.name == "Test Chocolate Chip Cookies")
-                .first()
+                session.query(Recipe).filter(Recipe.name == "Test Chocolate Chip Cookies").first()
             )
             assert recipe is not None
             assert recipe.category == "Cookies"
@@ -1304,7 +1214,11 @@ class TestImportRecipes:
         assert error.error_type == "circular_reference"
         assert "Circular reference detected" in error.message
         # Cycle path should be included
-        assert "Recipe A" in error.message or "Recipe B" in error.message or "Recipe C" in error.message
+        assert (
+            "Recipe A" in error.message
+            or "Recipe B" in error.message
+            or "Recipe C" in error.message
+        )
 
     def test_import_recipes_with_components(
         self, create_test_ingredients_for_recipes, cleanup_test_ingredients
@@ -1458,9 +1372,7 @@ class TestImportRecipes:
         # But nothing should be in the database
         with session_scope() as session:
             recipe = (
-                session.query(Recipe)
-                .filter(Recipe.name == "Test Chocolate Chip Cookies")
-                .first()
+                session.query(Recipe).filter(Recipe.name == "Test Chocolate Chip Cookies").first()
             )
             assert recipe is None
 
@@ -1494,9 +1406,7 @@ class TestImportRecipes:
 
         with session_scope() as session:
             recipe = (
-                session.query(Recipe)
-                .filter(Recipe.name == "Test Chocolate Chip Cookies")
-                .first()
+                session.query(Recipe).filter(Recipe.name == "Test Chocolate Chip Cookies").first()
             )
             assert recipe.source == "Grandma's Recipe Box"
             assert recipe.estimated_time_minutes == 45
@@ -1538,9 +1448,9 @@ def cleanup_test_finished_units(test_db):
     yield
     with session_scope() as session:
         # Delete FinishedUnits first (FK constraint)
-        session.query(FinishedUnit).filter(
-            FinishedUnit.slug.like("fu_test_%")
-        ).delete(synchronize_session=False)
+        session.query(FinishedUnit).filter(FinishedUnit.slug.like("fu_test_%")).delete(
+            synchronize_session=False
+        )
         # Delete test recipes
         session.query(Recipe).filter(
             Recipe.name.in_(["FU Test Recipe", "Legacy Recipe", "No Yield Recipe"])
@@ -1626,11 +1536,7 @@ class TestImportFinishedUnits:
 
         # Verify original unchanged
         with session_scope() as session:
-            fu = (
-                session.query(FinishedUnit)
-                .filter(FinishedUnit.slug == "fu_test_existing")
-                .first()
-            )
+            fu = session.query(FinishedUnit).filter(FinishedUnit.slug == "fu_test_existing").first()
             assert fu.display_name == "Existing FU"  # Not changed
             assert fu.items_per_batch == 12  # Not changed
 
@@ -1749,11 +1655,7 @@ class TestImportFinishedUnits:
 
         # But nothing should be in the database
         with session_scope() as session:
-            fu = (
-                session.query(FinishedUnit)
-                .filter(FinishedUnit.slug == "fu_test_dry_run")
-                .first()
-            )
+            fu = session.query(FinishedUnit).filter(FinishedUnit.slug == "fu_test_dry_run").first()
             assert fu is None
 
 
@@ -1777,6 +1679,7 @@ class TestEnsureRecipeHasFinishedUnit:
 
             # Create a FinishedUnit for the recipe
             from src.models.finished_unit import FinishedUnit, YieldMode
+
             fu = FinishedUnit(
                 recipe_id=recipe.id,
                 slug="recipe_with_fu_cookies",
@@ -1831,16 +1734,10 @@ class TestEnsureRecipeHasFinishedUnit:
             assert created is False
 
             # Verify no FinishedUnit was created
-            fu = (
-                session.query(FinishedUnit)
-                .filter(FinishedUnit.recipe_id == recipe.id)
-                .first()
-            )
+            fu = session.query(FinishedUnit).filter(FinishedUnit.recipe_id == recipe.id).first()
             assert fu is None
 
-    def test_recipe_with_existing_finished_unit_returns_true(
-        self, cleanup_test_finished_units
-    ):
+    def test_recipe_with_existing_finished_unit_returns_true(self, cleanup_test_finished_units):
         """Test that recipe with existing FinishedUnit returns True.
 
         F056: yield_quantity, yield_unit removed from Recipe model.
@@ -1873,11 +1770,7 @@ class TestEnsureRecipeHasFinishedUnit:
             assert has_finished_unit is True
 
             # Verify only one FinishedUnit exists (function doesn't create more)
-            count = (
-                session.query(FinishedUnit)
-                .filter(FinishedUnit.recipe_id == recipe.id)
-                .count()
-            )
+            count = session.query(FinishedUnit).filter(FinishedUnit.recipe_id == recipe.id).count()
             assert count == 1
 
 
@@ -1992,15 +1885,11 @@ class TestImportCatalog:
             # Verify in database
             with session_scope() as session:
                 ingredient = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_flour")
-                    .first()
+                    session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
                 )
                 assert ingredient is not None
                 product = (
-                    session.query(Product)
-                    .filter(Product.ingredient_id == ingredient.id)
-                    .first()
+                    session.query(Product).filter(Product.ingredient_id == ingredient.id).first()
                 )
                 assert product is not None
         finally:
@@ -2010,9 +1899,9 @@ class TestImportCatalog:
         """Test that dry_run makes no database changes."""
         # Get initial counts
         with session_scope() as session:
-            initial_count = session.query(Ingredient).filter(
-                Ingredient.slug.like("catalog_test_%")
-            ).count()
+            initial_count = (
+                session.query(Ingredient).filter(Ingredient.slug.like("catalog_test_%")).count()
+            )
 
         # Create catalog with multiple ingredients
         catalog_data = {
@@ -2038,9 +1927,9 @@ class TestImportCatalog:
 
             # Verify nothing in database
             with session_scope() as session:
-                count = session.query(Ingredient).filter(
-                    Ingredient.slug.like("catalog_test_%")
-                ).count()
+                count = (
+                    session.query(Ingredient).filter(Ingredient.slug.like("catalog_test_%")).count()
+                )
                 assert count == initial_count  # No change
 
             # Actual import - should commit
@@ -2049,16 +1938,16 @@ class TestImportCatalog:
 
             # Verify in database
             with session_scope() as session:
-                count = session.query(Ingredient).filter(
-                    Ingredient.slug.like("catalog_test_%")
-                ).count()
+                count = (
+                    session.query(Ingredient).filter(Ingredient.slug.like("catalog_test_%")).count()
+                )
                 assert count == initial_count + 5
 
             # Cleanup for test fixture
             with session_scope() as session:
-                session.query(Ingredient).filter(
-                    Ingredient.slug.like("catalog_test_%")
-                ).delete(synchronize_session=False)
+                session.query(Ingredient).filter(Ingredient.slug.like("catalog_test_%")).delete(
+                    synchronize_session=False
+                )
         finally:
             os.unlink(temp_path)
 
@@ -2095,16 +1984,8 @@ class TestImportCatalog:
 
             # Verify ingredients in database
             with session_scope() as session:
-                flour = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_flour")
-                    .first()
-                )
-                sugar = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_sugar")
-                    .first()
-                )
+                flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
+                sugar = session.query(Ingredient).filter(Ingredient.slug == "test_sugar").first()
                 assert flour is not None
                 assert sugar is not None
         finally:
@@ -2142,15 +2023,11 @@ class TestImportCatalog:
             # But since we already imported ingredients, let's verify products weren't touched
             with session_scope() as session:
                 ingredient = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_flour")
-                    .first()
+                    session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
                 )
                 assert ingredient is not None
                 products = (
-                    session.query(Product)
-                    .filter(Product.ingredient_id == ingredient.id)
-                    .all()
+                    session.query(Product).filter(Product.ingredient_id == ingredient.id).all()
                 )
                 assert len(products) == 0  # Products not imported
         finally:
@@ -2205,16 +2082,8 @@ class TestCLI:
 
             # Verify records in database
             with session_scope() as session:
-                flour = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_flour")
-                    .first()
-                )
-                sugar = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_sugar")
-                    .first()
-                )
+                flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
+                sugar = session.query(Ingredient).filter(Ingredient.slug == "test_sugar").first()
                 assert flour is not None
                 assert sugar is not None
         finally:
@@ -2267,11 +2136,7 @@ class TestCLI:
 
             # Verify database unchanged
             with session_scope() as session:
-                flour = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_flour")
-                    .first()
-                )
+                flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
                 assert flour is None  # Should NOT exist because dry-run
         finally:
             os.unlink(temp_path)
@@ -2426,11 +2291,7 @@ class TestCLI:
 
             # Verify only ingredients imported
             with session_scope() as session:
-                flour = (
-                    session.query(Ingredient)
-                    .filter(Ingredient.slug == "test_flour")
-                    .first()
-                )
+                flour = session.query(Ingredient).filter(Ingredient.slug == "test_flour").first()
                 assert flour is not None
 
                 # Products should NOT exist (not imported)

@@ -146,9 +146,13 @@ class FinishedUnitsTab(ctk.CTkFrame):
         """Load recipe categories from database."""
         try:
             with session_scope() as session:
-                categories = session.query(Recipe.category).distinct().filter(
-                    Recipe.category.isnot(None)
-                ).order_by(Recipe.category).all()
+                categories = (
+                    session.query(Recipe.category)
+                    .distinct()
+                    .filter(Recipe.category.isnot(None))
+                    .order_by(Recipe.category)
+                    .all()
+                )
                 return [cat[0] for cat in categories if cat[0]]
         except Exception:
             return []
@@ -205,7 +209,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
         )
         self.status_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
-    def _on_search(self, search_text: str, category: Optional[str] = None, recipe_id: Optional[int] = None) -> None:
+    def _on_search(
+        self, search_text: str, category: Optional[str] = None, recipe_id: Optional[int] = None
+    ) -> None:
         """
         Handle search and filter.
 
@@ -270,9 +276,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
             self._open_recipe_edit(finished_unit.recipe_id)
         else:
             show_error(
-                "No Recipe",
-                "This finished unit does not have an associated recipe.",
-                parent=self
+                "No Recipe", "This finished unit does not have an associated recipe.", parent=self
             )
 
     def _open_recipe_edit(self, recipe_id: int):
@@ -290,11 +294,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
         try:
             recipe = recipe_service.get_recipe(recipe_id)
             if not recipe:
-                show_error(
-                    "Recipe Not Found",
-                    "The parent recipe could not be found.",
-                    parent=self
-                )
+                show_error("Recipe Not Found", "The parent recipe could not be found.", parent=self)
                 return
 
             dialog = RecipeFormDialog(self, recipe=recipe, title=f"Edit Recipe: {recipe.name}")
@@ -330,22 +330,14 @@ class FinishedUnitsTab(ctk.CTkFrame):
                     )
                 except Exception as e:
                     logging.exception(f"Failed to save recipe changes: {e}")
-                    show_error(
-                        "Error",
-                        f"Failed to save recipe changes: {str(e)}",
-                        parent=self
-                    )
+                    show_error("Error", f"Failed to save recipe changes: {str(e)}", parent=self)
 
                 # Refresh the finished units list since recipe may have changed
                 self.refresh()
 
         except Exception as e:
             logging.exception("Failed to open recipe edit dialog")
-            show_error(
-                "Error",
-                f"Failed to open recipe: {str(e)}",
-                parent=self
-            )
+            show_error("Error", f"Failed to open recipe: {str(e)}", parent=self)
 
     def _save_yield_types_from_catalog(self, recipe_id: int, yield_types: list):
         """

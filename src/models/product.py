@@ -10,7 +10,19 @@ Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a product
 
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, ForeignKey, Index, UniqueConstraint, CheckConstraint
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    Text,
+    DateTime,
+    Boolean,
+    ForeignKey,
+    Index,
+    UniqueConstraint,
+    CheckConstraint,
+)
 from sqlalchemy.orm import relationship, validates
 
 from .base import BaseModel
@@ -71,8 +83,11 @@ class Product(BaseModel):
     # F057: Unique slug for portability and AI data augmentation
     # Format: ingredient_slug:brand:qty:unit (with collision suffix if needed)
     slug = Column(
-        String(200), nullable=True, unique=True, index=True,
-        comment="Unique human-readable identifier for export/import portability"
+        String(200),
+        nullable=True,
+        unique=True,
+        index=True,
+        comment="Unique human-readable identifier for export/import portability",
     )
 
     supplier = Column(String(200), nullable=True)  # Where to buy
@@ -96,10 +111,7 @@ class Product(BaseModel):
 
     # Feature 027: Supplier reference and visibility
     preferred_supplier_id = Column(
-        Integer,
-        ForeignKey("suppliers.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True
+        Integer, ForeignKey("suppliers.id", ondelete="SET NULL"), nullable=True, index=True
     )
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
 
@@ -109,7 +121,7 @@ class Product(BaseModel):
         default=False,
         nullable=False,
         index=True,
-        comment="True if product was created during purchase entry and needs review"
+        comment="True if product was created during purchase entry and needs review",
     )
 
     # Additional information
@@ -117,21 +129,15 @@ class Product(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
-    last_modified = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_modified = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     ingredient = relationship("Ingredient", back_populates="products")
-    purchases = relationship(
-        "Purchase", back_populates="product", lazy="select"
-    )
+    purchases = relationship("Purchase", back_populates="product", lazy="select")
     inventory_items = relationship(
         "InventoryItem", back_populates="product", cascade="all, delete-orphan", lazy="select"
     )
-    preferred_supplier = relationship(
-        "Supplier", foreign_keys=[preferred_supplier_id]
-    )
+    preferred_supplier = relationship("Supplier", foreign_keys=[preferred_supplier_id])
 
     # Indexes and constraints
     __table_args__ = (
@@ -146,8 +152,12 @@ class Product(BaseModel):
         # Unique constraint to prevent duplicate product variants
         # Note: SQLite treats NULL as distinct, so multiple products with NULL product_name are allowed
         UniqueConstraint(
-            "ingredient_id", "brand", "product_name", "package_size", "package_unit",
-            name="uq_product_variant"
+            "ingredient_id",
+            "brand",
+            "product_name",
+            "package_size",
+            "package_unit",
+            name="uq_product_variant",
         ),
     )
 

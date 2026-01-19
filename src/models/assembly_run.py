@@ -63,9 +63,7 @@ class AssemblyRun(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Cost data
-    total_component_cost = Column(
-        Numeric(10, 4), nullable=False, default=Decimal("0.0000")
-    )
+    total_component_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
     per_unit_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
 
     # Feature 026: Packaging bypass tracking
@@ -94,16 +92,12 @@ class AssemblyRun(BaseModel):
         Index("idx_assembly_run_assembled_at", "assembled_at"),
         Index("idx_assembly_run_event", "event_id"),
         # Constraints
-        CheckConstraint(
-            "quantity_assembled > 0", name="ck_assembly_run_quantity_positive"
-        ),
+        CheckConstraint("quantity_assembled > 0", name="ck_assembly_run_quantity_positive"),
         CheckConstraint(
             "total_component_cost >= 0",
             name="ck_assembly_run_total_cost_non_negative",
         ),
-        CheckConstraint(
-            "per_unit_cost >= 0", name="ck_assembly_run_per_unit_cost_non_negative"
-        ),
+        CheckConstraint("per_unit_cost >= 0", name="ck_assembly_run_per_unit_cost_non_negative"),
     )
 
     def __repr__(self) -> str:

@@ -638,9 +638,7 @@ class TestExportComplete:
             # Verify manifest returned
             assert manifest.version == "1.0"
 
-    def test_export_uses_session_parameter(
-        self, test_db, sample_ingredient, cleanup_test_data
-    ):
+    def test_export_uses_session_parameter(self, test_db, sample_ingredient, cleanup_test_data):
         """Test export works with passed session parameter."""
         with tempfile.TemporaryDirectory() as tmpdir:
             with session_scope() as session:
@@ -672,7 +670,9 @@ class TestValidateExport:
             result = validate_export(tmpdir)
 
             assert result["valid"] is True
-            assert result["files_checked"] == 18  # 6 original + 1 finished_units + 7 material + 4 new (F058)
+            assert (
+                result["files_checked"] == 18
+            )  # 6 original + 1 finished_units + 7 material + 4 new (F058)
             assert result["errors"] == []
 
     def test_validate_export_missing_manifest(self, test_db):
@@ -683,9 +683,7 @@ class TestValidateExport:
             assert result["valid"] is False
             assert "manifest.json not found" in result["errors"][0]
 
-    def test_validate_export_checksum_mismatch(
-        self, test_db, sample_supplier, cleanup_test_data
-    ):
+    def test_validate_export_checksum_mismatch(self, test_db, sample_supplier, cleanup_test_data):
         """Test validation detects checksum mismatch."""
         with tempfile.TemporaryDirectory() as tmpdir:
             export_complete(tmpdir)
@@ -700,9 +698,7 @@ class TestValidateExport:
             assert result["valid"] is False
             assert any("Checksum mismatch" in e for e in result["errors"])
 
-    def test_validate_export_missing_file(
-        self, test_db, sample_supplier, cleanup_test_data
-    ):
+    def test_validate_export_missing_file(self, test_db, sample_supplier, cleanup_test_data):
         """Test validation detects missing file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             export_complete(tmpdir)
@@ -715,9 +711,7 @@ class TestValidateExport:
             assert result["valid"] is False
             assert any("File not found" in e for e in result["errors"])
 
-    def test_validate_export_from_zip(
-        self, test_db, sample_supplier, cleanup_test_data
-    ):
+    def test_validate_export_from_zip(self, test_db, sample_supplier, cleanup_test_data):
         """Test validation works with ZIP file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = Path(tmpdir) / "export_dir"
@@ -727,7 +721,9 @@ class TestValidateExport:
             result = validate_export(str(zip_path))
 
             assert result["valid"] is True
-            assert result["files_checked"] == 18  # 6 original + 1 finished_units + 7 material + 4 new (F058)
+            assert (
+                result["files_checked"] == 18
+            )  # 6 original + 1 finished_units + 7 material + 4 new (F058)
 
 
 # ============================================================================
@@ -814,9 +810,7 @@ class TestExportFinishedGoods:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            fg_entry = next(
-                (f for f in manifest.files if f.entity_type == "finished_goods"), None
-            )
+            fg_entry = next((f for f in manifest.files if f.entity_type == "finished_goods"), None)
             assert fg_entry is not None
             assert fg_entry.record_count == 0
             assert fg_entry.import_order == 15  # F058: Shifted by material_inventory_items
@@ -828,9 +822,7 @@ class TestExportFinishedGoods:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            fg_entry = next(
-                (f for f in manifest.files if f.entity_type == "finished_goods"), None
-            )
+            fg_entry = next((f for f in manifest.files if f.entity_type == "finished_goods"), None)
             assert fg_entry.record_count == 1
 
             # Verify file content
@@ -861,9 +853,7 @@ class TestExportFinishedUnits:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            fu_entry = next(
-                (f for f in manifest.files if f.entity_type == "finished_units"), None
-            )
+            fu_entry = next((f for f in manifest.files if f.entity_type == "finished_units"), None)
             assert fu_entry is not None
             assert fu_entry.record_count == 0
             assert fu_entry.import_order == 5  # After recipes
@@ -875,9 +865,7 @@ class TestExportFinishedUnits:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            fu_entry = next(
-                (f for f in manifest.files if f.entity_type == "finished_units"), None
-            )
+            fu_entry = next((f for f in manifest.files if f.entity_type == "finished_units"), None)
             assert fu_entry.record_count == 1
 
             # Verify file content
@@ -966,9 +954,7 @@ class TestExportFinishedUnits:
                 data = json.load(f)
 
             # Find the minimal_fu record
-            minimal = next(
-                (r for r in data["records"] if r["slug"] == "minimal_fu"), None
-            )
+            minimal = next((r for r in data["records"] if r["slug"] == "minimal_fu"), None)
             assert minimal is not None
 
             # Null fields should be exported as null
@@ -984,9 +970,7 @@ class TestExportEvents:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            event_entry = next(
-                (f for f in manifest.files if f.entity_type == "events"), None
-            )
+            event_entry = next((f for f in manifest.files if f.entity_type == "events"), None)
             assert event_entry is not None
             assert event_entry.record_count == 0
             assert event_entry.import_order == 16  # F058: Shifted by material_inventory_items
@@ -1003,9 +987,7 @@ class TestExportEvents:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            event_entry = next(
-                (f for f in manifest.files if f.entity_type == "events"), None
-            )
+            event_entry = next((f for f in manifest.files if f.entity_type == "events"), None)
             assert event_entry.record_count == 1
 
             # Verify file content
@@ -1043,9 +1025,7 @@ class TestExportProductionRuns:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            pr_entry = next(
-                (f for f in manifest.files if f.entity_type == "production_runs"), None
-            )
+            pr_entry = next((f for f in manifest.files if f.entity_type == "production_runs"), None)
             assert pr_entry is not None
             assert pr_entry.record_count == 0
             assert pr_entry.import_order == 17  # F058: Shifted by material_inventory_items
@@ -1057,9 +1037,7 @@ class TestExportProductionRuns:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            pr_entry = next(
-                (f for f in manifest.files if f.entity_type == "production_runs"), None
-            )
+            pr_entry = next((f for f in manifest.files if f.entity_type == "production_runs"), None)
             assert pr_entry.record_count == 1
 
             # Verify file content
@@ -1133,9 +1111,7 @@ class TestExportInventoryDepletions:
 class TestNewEntitiesEmptyArrays:
     """Tests verifying empty entities export as empty arrays (T008)."""
 
-    def test_all_17_entities_export_with_empty_database(
-        self, test_db, cleanup_test_data
-    ):
+    def test_all_17_entities_export_with_empty_database(self, test_db, cleanup_test_data):
         """Verify all 17 entity types export as empty arrays when DB is empty."""
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
@@ -1152,9 +1128,7 @@ class TestNewEntitiesEmptyArrays:
                 with open(file_path) as f:
                     data = json.load(f)
 
-                assert (
-                    "records" in data
-                ), f"File {file_entry.filename} missing 'records' key"
+                assert "records" in data, f"File {file_entry.filename} missing 'records' key"
                 assert (
                     data["records"] == []
                 ), f"File {file_entry.filename} should have empty records array"

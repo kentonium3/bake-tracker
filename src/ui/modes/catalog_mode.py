@@ -116,19 +116,19 @@ class CatalogMode(BaseMode):
         super().activate()
         # Feature 055: Lazy load data for group tabs on first activation
         if self.ingredients_group:
-            if not getattr(self.ingredients_group, '_data_loaded', False):
+            if not getattr(self.ingredients_group, "_data_loaded", False):
                 self.ingredients_group._data_loaded = True
                 self.after(10, self.ingredients_group.refresh)
         if self.materials_tab:
-            if not getattr(self.materials_tab, '_data_loaded', False):
+            if not getattr(self.materials_tab, "_data_loaded", False):
                 self.materials_tab._data_loaded = True
                 self.after(20, self.materials_tab.refresh)
         if self.recipes_group:
-            if not getattr(self.recipes_group, '_data_loaded', False):
+            if not getattr(self.recipes_group, "_data_loaded", False):
                 self.recipes_group._data_loaded = True
                 self.after(30, self.recipes_group.refresh)
         if self.packaging_group:
-            if not getattr(self.packaging_group, '_data_loaded', False):
+            if not getattr(self.packaging_group, "_data_loaded", False):
                 self.packaging_group._data_loaded = True
                 self.after(40, self.packaging_group.refresh)
 

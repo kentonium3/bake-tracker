@@ -92,9 +92,9 @@ class TestGetAllUnits:
                 current_sort_order = unit.sort_order
             else:
                 # Same category - sort_order should be increasing
-                assert unit.sort_order >= current_sort_order, (
-                    f"Units not ordered by sort_order within category {unit.category}"
-                )
+                assert (
+                    unit.sort_order >= current_sort_order
+                ), f"Units not ordered by sort_order within category {unit.category}"
                 current_sort_order = unit.sort_order
 
     def test_accepts_session_parameter(self, test_db):

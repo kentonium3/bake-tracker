@@ -27,10 +27,16 @@ from src.services.event_service import EventNotFoundError
 from src.services.exceptions import ValidationError
 from src.models import PackageStatus
 
+
 @pytest.fixture
 def setup_production_test_data(test_db):
     """Create test data for production tests."""
-    from src.services import ingredient_service, product_service, inventory_item_service, recipe_service
+    from src.services import (
+        ingredient_service,
+        product_service,
+        inventory_item_service,
+        recipe_service,
+    )
     from src.services import event_service, supplier_service
 
     # Create supplier for inventory
@@ -148,6 +154,7 @@ def setup_production_test_data(test_db):
         "event": event,
     }
 
+
 class TestRecordProduction:
     """Tests for record_production() function."""
 
@@ -158,11 +165,19 @@ class TestRecordProduction:
         # Verify inventory has cost data before testing production
         from src.services import inventory_item_service
         from src.models import InventoryItem
+
         session = test_db()
-        items = session.query(InventoryItem).filter(InventoryItem.product_id == data["flour_product"].id).order_by(InventoryItem.purchase_date).all()
+        items = (
+            session.query(InventoryItem)
+            .filter(InventoryItem.product_id == data["flour_product"].id)
+            .order_by(InventoryItem.purchase_date)
+            .all()
+        )
         print(f"\nInventory items for flour before production:")
         for item in items:
-            print(f"  id={item.id}, qty={item.quantity}, unit_cost={item.unit_cost}, date={item.purchase_date}")
+            print(
+                f"  id={item.id}, qty={item.quantity}, unit_cost={item.unit_cost}, date={item.purchase_date}"
+            )
 
         # Test consume_fifo directly first
         fifo_result = inventory_item_service.consume_fifo(
@@ -171,7 +186,9 @@ class TestRecordProduction:
             target_unit="cup",
             dry_run=True,  # Just test, don't consume
         )
-        print(f"\nFIFO result (dry run): satisfied={fifo_result['satisfied']}, total_cost={fifo_result['total_cost']}")
+        print(
+            f"\nFIFO result (dry run): satisfied={fifo_result['satisfied']}, total_cost={fifo_result['total_cost']}"
+        )
         print(f"  breakdown: {fifo_result['breakdown']}")
 
         # Record 1 batch of cookies (needs 2 cups flour, 1 cup sugar)
@@ -273,6 +290,7 @@ class TestRecordProduction:
 
         assert "all_purpose_flour" in exc_info.value.ingredient_slug
 
+
 class TestGetProductionRecords:
     """Tests for get_production_records() function."""
 
@@ -297,6 +315,7 @@ class TestGetProductionRecords:
         records = get_production_records(data["event"].id)
 
         assert len(records) == 2
+
 
 class TestGetProductionTotal:
     """Tests for get_production_total() function."""
@@ -326,9 +345,11 @@ class TestGetProductionTotal:
         # Total: $1.10 + $2.40 = $3.50
         assert result["total_actual_cost"] == Decimal("3.50")
 
+
 # ============================================================================
 # Fixtures for Package Status Tests
 # ============================================================================
+
 
 @pytest.fixture
 def setup_package_status_test_data(test_db, setup_production_test_data):
@@ -437,9 +458,11 @@ def setup_package_status_test_data(test_db, setup_production_test_data):
         "assignment": erp,
     }
 
+
 # ============================================================================
 # Package Status Management Tests
 # ============================================================================
+
 
 class TestCanAssemblePackage:
     """Tests for can_assemble_package() function."""
@@ -477,6 +500,7 @@ class TestCanAssemblePackage:
         """Test: Raises AssignmentNotFoundError for invalid ID."""
         with pytest.raises(AssignmentNotFoundError):
             can_assemble_package(99999)
+
 
 class TestUpdatePackageStatus:
     """Tests for update_package_status() function."""
@@ -583,9 +607,11 @@ class TestUpdatePackageStatus:
         with pytest.raises(AssignmentNotFoundError):
             update_package_status(99999, PackageStatus.ASSEMBLED)
 
+
 # ============================================================================
 # Progress & Dashboard Tests
 # ============================================================================
+
 
 class TestGetProductionProgress:
     """Tests for get_production_progress() function."""
@@ -665,6 +691,7 @@ class TestGetProductionProgress:
         with pytest.raises(EventNotFoundError):
             get_production_progress(99999)
 
+
 class TestGetDashboardSummary:
     """Tests for get_dashboard_summary() function."""
 
@@ -679,11 +706,10 @@ class TestGetDashboardSummary:
 
         assert len(result) >= 1
         # Find our test event
-        event_summary = next(
-            (e for e in result if e["event_name"] == "Christmas 2024"), None
-        )
+        event_summary = next((e for e in result if e["event_name"] == "Christmas 2024"), None)
         assert event_summary is not None
         assert event_summary["packages_total"] >= 1
+
 
 class TestGetRecipeCostBreakdown:
     """Tests for get_recipe_cost_breakdown() function."""

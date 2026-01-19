@@ -42,6 +42,7 @@ def _normalize_datetime(dt: Optional[datetime]) -> Optional[datetime]:
         return dt.astimezone(timezone.utc).replace(tzinfo=None)
     return dt
 
+
 from src.models import (
     Event,
     EventAssemblyTarget,
@@ -400,9 +401,7 @@ def _plan_to_dict(plan: ProductionPlanSnapshot) -> Dict[str, Any]:
     """Convert a plan snapshot to the standard return format."""
     return {
         "plan_id": plan.id,
-        "calculated_at": (
-            plan.calculated_at.isoformat() if plan.calculated_at else None
-        ),
+        "calculated_at": (plan.calculated_at.isoformat() if plan.calculated_at else None),
         "recipe_batches": plan.get_recipe_batches(),
         "shopping_list": plan.get_shopping_list(),
         "feasibility": [],  # Would need to recalculate for live data
@@ -554,11 +553,7 @@ def _check_staleness_impl(
                 return True, f"Bundle '{fg.display_name}' modified"
 
             # Check compositions (only has created_at)
-            compositions = (
-                session.query(Composition)
-                .filter(Composition.assembly_id == fg.id)
-                .all()
-            )
+            compositions = session.query(Composition).filter(Composition.assembly_id == fg.id).all()
             for comp in compositions:
                 comp_created = _normalize_datetime(comp.created_at)
                 if comp_created and comp_created > calculated_at:
@@ -678,15 +673,9 @@ def _calculate_overall_status(
     phase_statuses: Dict[PlanPhase, PhaseStatus],
 ) -> PhaseStatus:
     """Calculate overall status from phase statuses."""
-    all_complete = all(
-        status == PhaseStatus.COMPLETE for status in phase_statuses.values()
-    )
-    any_in_progress = any(
-        status == PhaseStatus.IN_PROGRESS for status in phase_statuses.values()
-    )
-    any_complete = any(
-        status == PhaseStatus.COMPLETE for status in phase_statuses.values()
-    )
+    all_complete = all(status == PhaseStatus.COMPLETE for status in phase_statuses.values())
+    any_in_progress = any(status == PhaseStatus.IN_PROGRESS for status in phase_statuses.values())
+    any_complete = any(status == PhaseStatus.COMPLETE for status in phase_statuses.values())
 
     if all_complete:
         return PhaseStatus.COMPLETE
@@ -786,9 +775,7 @@ def get_shopping_list(
     Returns:
         List of ShoppingListItem
     """
-    return _get_shopping_list(
-        event_id, include_sufficient=include_sufficient, session=session
-    )
+    return _get_shopping_list(event_id, include_sufficient=include_sufficient, session=session)
 
 
 def mark_shopping_complete(
@@ -951,9 +938,7 @@ def _get_assembly_checklist_impl(
 ) -> List[Dict[str, Any]]:
     """Implementation of get_assembly_checklist."""
     targets = (
-        session.query(EventAssemblyTarget)
-        .filter(EventAssemblyTarget.event_id == event_id)
-        .all()
+        session.query(EventAssemblyTarget).filter(EventAssemblyTarget.event_id == event_id).all()
     )
 
     checklist = []
@@ -975,9 +960,7 @@ def _get_assembly_checklist_impl(
                 "assembled_count": fg.inventory_count or 0,
                 "can_assemble": feasibility.can_assemble,
                 "status": feasibility.status.value,
-                "remaining": max(
-                    0, target.target_quantity - (fg.inventory_count or 0)
-                ),
+                "remaining": max(0, target.target_quantity - (fg.inventory_count or 0)),
             }
         )
 
@@ -1006,13 +989,9 @@ def record_assembly_confirmation(
         Confirmation details
     """
     if session is not None:
-        return _record_assembly_confirmation_impl(
-            finished_good_id, quantity, event_id, session
-        )
+        return _record_assembly_confirmation_impl(finished_good_id, quantity, event_id, session)
     with session_scope() as session:
-        return _record_assembly_confirmation_impl(
-            finished_good_id, quantity, event_id, session
-        )
+        return _record_assembly_confirmation_impl(finished_good_id, quantity, event_id, session)
 
 
 def _record_assembly_confirmation_impl(

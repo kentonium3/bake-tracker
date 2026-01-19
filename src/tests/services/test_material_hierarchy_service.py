@@ -403,7 +403,9 @@ class TestGetAggregatedUsageCounts:
 
     def test_subcategory_aggregates_materials(self, test_db):
         """Test subcategory aggregates counts from all child materials."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         result = material_hierarchy_service.get_aggregated_usage_counts(
             "subcategory", satin.id, session=test_db
@@ -452,7 +454,9 @@ class TestAddMaterial:
     def test_add_material_success(self, test_db):
         """Test adding material under subcategory."""
         # Get a subcategory
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         result = material_hierarchy_service.add_material(
             subcategory_id=satin.id,
@@ -469,7 +473,9 @@ class TestAddMaterial:
 
     def test_add_material_default_unit_type(self, test_db):
         """Test that default unit type is 'each'."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         result = material_hierarchy_service.add_material(
             subcategory_id=satin.id, name="Yellow Satin 1-inch", session=test_db
@@ -479,7 +485,9 @@ class TestAddMaterial:
 
     def test_add_material_trims_whitespace(self, test_db):
         """Test that leading/trailing whitespace is trimmed."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         result = material_hierarchy_service.add_material(
             subcategory_id=satin.id, name="  Purple Satin 1-inch  ", session=test_db
@@ -496,7 +504,9 @@ class TestAddMaterial:
 
     def test_add_material_invalid_unit_type(self, test_db):
         """Test error for invalid unit type."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         with pytest.raises(ValueError, match="Invalid unit type"):
             material_hierarchy_service.add_material(
@@ -508,7 +518,9 @@ class TestAddMaterial:
 
     def test_add_material_duplicate_name(self, test_db):
         """Test error when name already exists in subcategory."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         existing = test_db.query(Material).filter(Material.subcategory_id == satin.id).first()
 
         with pytest.raises(ValueError, match="already exists"):
@@ -518,7 +530,9 @@ class TestAddMaterial:
 
     def test_add_material_empty_name(self, test_db):
         """Test error when name is empty."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         with pytest.raises(ValueError, match="cannot be empty"):
             material_hierarchy_service.add_material(
@@ -527,7 +541,9 @@ class TestAddMaterial:
 
     def test_add_material_whitespace_only_name(self, test_db):
         """Test error when name is whitespace only."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         with pytest.raises(ValueError, match="cannot be empty"):
             material_hierarchy_service.add_material(
@@ -536,7 +552,9 @@ class TestAddMaterial:
 
     def test_add_material_generates_slug(self, test_db):
         """Test that slug is auto-generated from name."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         result = material_hierarchy_service.add_material(
             subcategory_id=satin.id, name="Orange Satin 2-inch", session=test_db
@@ -546,7 +564,9 @@ class TestAddMaterial:
 
     def test_add_material_case_insensitive_duplicate_check(self, test_db):
         """Test that duplicate check is case-insensitive."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         existing = test_db.query(Material).filter(Material.subcategory_id == satin.id).first()
 
         with pytest.raises(ValueError, match="already exists"):
@@ -571,7 +591,9 @@ class TestRenameItem:
 
     def test_rename_subcategory_success(self, test_db):
         """Test renaming a subcategory."""
-        subcat = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        subcat = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         result = material_hierarchy_service.rename_item(
             item_type="subcategory",
@@ -635,7 +657,9 @@ class TestRenameItem:
 
     def test_rename_material_duplicate_in_subcategory(self, test_db):
         """Test error when renaming to existing material name in same subcategory."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         materials = test_db.query(Material).filter(Material.subcategory_id == satin.id).all()
 
         if len(materials) >= 2:
@@ -678,9 +702,13 @@ class TestReparentMaterial:
     def test_reparent_material_success(self, test_db):
         """Test moving material to different subcategory."""
         red_satin = test_db.query(Material).filter(Material.slug == "red-satin-1-inch").first()
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         grosgrain = (
-            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "grosgrain").first()
+            test_db.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.slug == "grosgrain")
+            .first()
         )
 
         # Verify it's currently under satin
@@ -705,9 +733,13 @@ class TestReparentMaterial:
 
     def test_reparent_material_duplicate_name_fails(self, test_db):
         """Test that duplicate name in new subcategory fails."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         grosgrain = (
-            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "grosgrain").first()
+            test_db.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.slug == "grosgrain")
+            .first()
         )
         red_satin = test_db.query(Material).filter(Material.slug == "red-satin-1-inch").first()
 
@@ -729,7 +761,9 @@ class TestReparentMaterial:
     def test_reparent_material_not_found(self, test_db):
         """Test error when material doesn't exist."""
         grosgrain = (
-            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "grosgrain").first()
+            test_db.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.slug == "grosgrain")
+            .first()
         )
 
         with pytest.raises(ValueError, match="not found"):
@@ -750,7 +784,9 @@ class TestReparentMaterial:
         """Test moving material to subcategory in different category."""
         red_satin = test_db.query(Material).filter(Material.slug == "red-satin-1-inch").first()
         window_boxes = (
-            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "window-boxes").first()
+            test_db.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.slug == "window-boxes")
+            .first()
         )
 
         result = material_hierarchy_service.reparent_material(
@@ -765,7 +801,9 @@ class TestReparentSubcategory:
 
     def test_reparent_subcategory_success(self, test_db):
         """Test moving subcategory to different category."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         ribbons = test_db.query(MaterialCategory).filter(MaterialCategory.slug == "ribbons").first()
         boxes = test_db.query(MaterialCategory).filter(MaterialCategory.slug == "boxes").first()
 
@@ -780,7 +818,9 @@ class TestReparentSubcategory:
 
     def test_reparent_subcategory_to_same_category_fails(self, test_db):
         """Test that moving to same category fails."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         with pytest.raises(ValueError, match="already under"):
             material_hierarchy_service.reparent_subcategory(
@@ -789,7 +829,9 @@ class TestReparentSubcategory:
 
     def test_reparent_subcategory_duplicate_name_fails(self, test_db):
         """Test that duplicate name in new category fails."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
         boxes = test_db.query(MaterialCategory).filter(MaterialCategory.slug == "boxes").first()
 
         # Create subcategory with same name under target category
@@ -818,7 +860,9 @@ class TestReparentSubcategory:
 
     def test_reparent_subcategory_category_not_found(self, test_db):
         """Test error when new category doesn't exist."""
-        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        satin = (
+            test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        )
 
         with pytest.raises(ValueError, match="not found"):
             material_hierarchy_service.reparent_subcategory(

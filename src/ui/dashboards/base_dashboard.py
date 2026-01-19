@@ -62,7 +62,7 @@ class BaseDashboard(ctk.CTkFrame, ABC):
             self.header_frame,
             text=self._get_header_text(),
             font=ctk.CTkFont(size=16, weight="bold"),
-            anchor="w"
+            anchor="w",
         )
         self.header_label.pack(side="left", padx=10, pady=8)
 
@@ -213,12 +213,7 @@ class BaseDashboard(ctk.CTkFrame, ABC):
             The created button widget
         """
         self._show_content_frame()
-        button = ctk.CTkButton(
-            self.actions_frame,
-            text=text,
-            width=100,
-            command=callback
-        )
+        button = ctk.CTkButton(self.actions_frame, text=text, width=100, command=callback)
         button.pack(side="left", padx=5)
         return button
 

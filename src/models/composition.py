@@ -99,14 +99,24 @@ class Composition(BaseModel):
     created_at = Column(DateTime, nullable=False, default=utc_now)
 
     # Relationships
-    assembly = relationship("FinishedGood", foreign_keys=[assembly_id], back_populates="components", lazy="joined")
-    package = relationship("Package", foreign_keys=[package_id], back_populates="packaging_compositions", lazy="joined")
+    assembly = relationship(
+        "FinishedGood", foreign_keys=[assembly_id], back_populates="components", lazy="joined"
+    )
+    package = relationship(
+        "Package", foreign_keys=[package_id], back_populates="packaging_compositions", lazy="joined"
+    )
 
-    finished_unit_component = relationship("FinishedUnit", foreign_keys=[finished_unit_id], lazy="joined")
-    finished_good_component = relationship("FinishedGood", foreign_keys=[finished_good_id], lazy="joined")
+    finished_unit_component = relationship(
+        "FinishedUnit", foreign_keys=[finished_unit_id], lazy="joined"
+    )
+    finished_good_component = relationship(
+        "FinishedGood", foreign_keys=[finished_good_id], lazy="joined"
+    )
     packaging_product = relationship("Product", foreign_keys=[packaging_product_id], lazy="joined")
     # Feature 047: Materials Management System
-    material_unit_component = relationship("MaterialUnit", foreign_keys=[material_unit_id], lazy="joined")
+    material_unit_component = relationship(
+        "MaterialUnit", foreign_keys=[material_unit_id], lazy="joined"
+    )
     material_component = relationship("Material", foreign_keys=[material_id], lazy="joined")
 
     # Table constraints and indexes
@@ -148,10 +158,16 @@ class Composition(BaseModel):
         # Unique component within assembly (prevent duplicates)
         UniqueConstraint("assembly_id", "finished_unit_id", name="uq_composition_assembly_unit"),
         UniqueConstraint("assembly_id", "finished_good_id", name="uq_composition_assembly_good"),
-        UniqueConstraint("assembly_id", "packaging_product_id", name="uq_composition_assembly_packaging"),
-        UniqueConstraint("package_id", "packaging_product_id", name="uq_composition_package_packaging"),
+        UniqueConstraint(
+            "assembly_id", "packaging_product_id", name="uq_composition_assembly_packaging"
+        ),
+        UniqueConstraint(
+            "package_id", "packaging_product_id", name="uq_composition_package_packaging"
+        ),
         # Feature 047: Material component uniqueness constraints
-        UniqueConstraint("assembly_id", "material_unit_id", name="uq_composition_assembly_material_unit"),
+        UniqueConstraint(
+            "assembly_id", "material_unit_id", name="uq_composition_assembly_material_unit"
+        ),
         UniqueConstraint("assembly_id", "material_id", name="uq_composition_assembly_material"),
     )
 
@@ -214,11 +230,11 @@ class Composition(BaseModel):
             Component ID or None if no valid component
         """
         return (
-            self.finished_unit_id or
-            self.finished_good_id or
-            self.packaging_product_id or
-            self.material_unit_id or
-            self.material_id
+            self.finished_unit_id
+            or self.finished_good_id
+            or self.packaging_product_id
+            or self.material_unit_id
+            or self.material_id
         )
 
     @property
@@ -360,9 +376,7 @@ class Composition(BaseModel):
 
         # Sum remaining inventory across all FIFO lots (F058)
         total_base_units = sum(
-            item.quantity_remaining
-            for p in products
-            for item in p.inventory_items
+            item.quantity_remaining for p in products for item in p.inventory_items
         )
         quantity_per_unit = self.material_unit_component.quantity_per_unit
 
@@ -432,13 +446,15 @@ class Composition(BaseModel):
         material_specified = self.material_id is not None
 
         # Exactly one should be true (5-way XOR)
-        count = sum([
-            unit_specified,
-            good_specified,
-            packaging_specified,
-            material_unit_specified,
-            material_specified,
-        ])
+        count = sum(
+            [
+                unit_specified,
+                good_specified,
+                packaging_specified,
+                material_unit_specified,
+                material_specified,
+            ]
+        )
         return count == 1
 
     def validate_parent_constraint(self) -> bool:

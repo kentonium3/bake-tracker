@@ -47,6 +47,7 @@ PREF_EXPORT_DIR = "export_directory"
 PREF_LOGS_DIR = "logs_directory"
 PREF_BACKUP_DIR = "backup_directory"
 
+
 # Config file location
 # Use platform-appropriate config directory
 def _get_config_dir() -> Path:
@@ -242,8 +243,7 @@ def get_import_directory() -> Path:
             return stored_path
         else:
             logger.warning(
-                f"Stored import directory '{stored}' is not valid, "
-                f"falling back to default"
+                f"Stored import directory '{stored}' is not valid, " f"falling back to default"
             )
 
     default = _get_default_import_dir()
@@ -299,8 +299,7 @@ def get_export_directory() -> Path:
             return stored_path
         else:
             logger.warning(
-                f"Stored export directory '{stored}' is not valid, "
-                f"falling back to default"
+                f"Stored export directory '{stored}' is not valid, " f"falling back to default"
             )
 
     default = _get_default_export_dir()
@@ -428,8 +427,7 @@ def get_backup_directory() -> Path:
             return stored_path
         else:
             logger.warning(
-                f"Stored backup directory '{stored}' is not valid, "
-                f"falling back to default"
+                f"Stored backup directory '{stored}' is not valid, " f"falling back to default"
             )
 
     default = _get_default_backup_dir()

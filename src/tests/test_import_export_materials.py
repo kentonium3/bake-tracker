@@ -223,11 +223,13 @@ class TestMaterialImportFKResolution:
 
     def test_subcategory_resolves_category_slug(self, db_session, full_material_catalog):
         """Subcategory import resolves category_slug to category_id."""
-        data = [{
-            "name": "Grosgrain",
-            "slug": "grosgrain",
-            "category_slug": "ribbons",  # FK resolution field
-        }]
+        data = [
+            {
+                "name": "Grosgrain",
+                "slug": "grosgrain",
+                "category_slug": "ribbons",  # FK resolution field
+            }
+        ]
 
         result = import_material_subcategories(data, session=db_session)
 
@@ -238,11 +240,13 @@ class TestMaterialImportFKResolution:
 
     def test_subcategory_fails_invalid_category(self, db_session):
         """Subcategory import fails when category not found."""
-        data = [{
-            "name": "Orphan",
-            "slug": "orphan",
-            "category_slug": "nonexistent",
-        }]
+        data = [
+            {
+                "name": "Orphan",
+                "slug": "orphan",
+                "category_slug": "nonexistent",
+            }
+        ]
 
         result = import_material_subcategories(data, session=db_session)
 
@@ -251,13 +255,15 @@ class TestMaterialImportFKResolution:
 
     def test_product_resolves_material_and_supplier(self, db_session, full_material_catalog):
         """Product import resolves material_slug and supplier_name."""
-        data = [{
-            "name": "200ft Roll",
-            "material_slug": "red-satin",
-            "supplier_name": "Test Craft Store",
-            "package_quantity": 2400,
-            "package_unit": "cm",
-        }]
+        data = [
+            {
+                "name": "200ft Roll",
+                "material_slug": "red-satin",
+                "supplier_name": "Test Craft Store",
+                "package_quantity": 2400,
+                "package_unit": "cm",
+            }
+        ]
 
         result = import_material_products(data, session=db_session)
 
@@ -297,9 +303,7 @@ class TestImportExportRoundtrip:
             db_session.query(MaterialCategory).delete()
             db_session.commit()
 
-            result = import_material_categories(
-                export_data["records"], session=db_session
-            )
+            result = import_material_categories(export_data["records"], session=db_session)
 
             assert result.entity_counts["material_categories"].added == original_count
 
@@ -354,11 +358,13 @@ class TestImportErrorHandling:
 
     def test_invalid_base_unit_type_rejected(self, db_session, full_material_catalog):
         """Material with invalid base_unit_type is rejected."""
-        data = [{
-            "name": "Bad Material",
-            "subcategory_slug": "satin",
-            "base_unit_type": "invalid_type",
-        }]
+        data = [
+            {
+                "name": "Bad Material",
+                "subcategory_slug": "satin",
+                "base_unit_type": "invalid_type",
+            }
+        ]
 
         result = import_materials(data, session=db_session)
 
@@ -367,11 +373,13 @@ class TestImportErrorHandling:
 
     def test_missing_package_fields_rejected(self, db_session, full_material_catalog):
         """Product without package fields is rejected."""
-        data = [{
-            "name": "Bad Product",
-            "material_slug": "red-satin",
-            # Missing package_quantity and package_unit
-        }]
+        data = [
+            {
+                "name": "Bad Product",
+                "material_slug": "red-satin",
+                # Missing package_quantity and package_unit
+            }
+        ]
 
         result = import_material_products(data, session=db_session)
 
@@ -379,11 +387,13 @@ class TestImportErrorHandling:
 
     def test_invalid_quantity_per_unit_rejected(self, db_session, full_material_catalog):
         """Unit with invalid quantity_per_unit is rejected."""
-        data = [{
-            "name": "Bad Unit",
-            "material_slug": "red-satin",
-            "quantity_per_unit": 0,  # Invalid
-        }]
+        data = [
+            {
+                "name": "Bad Unit",
+                "material_slug": "red-satin",
+                "quantity_per_unit": 0,  # Invalid
+            }
+        ]
 
         result = import_material_units(data, session=db_session)
 
@@ -418,9 +428,9 @@ class TestMaterialProductDeprecatedFields:
 
             # Verify deprecated fields are NOT present
             for deprecated_field in MATERIAL_PRODUCT_DEPRECATED_FIELDS:
-                assert deprecated_field not in product, (
-                    f"Deprecated field '{deprecated_field}' should not be in export"
-                )
+                assert (
+                    deprecated_field not in product
+                ), f"Deprecated field '{deprecated_field}' should not be in export"
 
             # Verify expected fields ARE present
             assert "name" in product
@@ -431,16 +441,18 @@ class TestMaterialProductDeprecatedFields:
     def test_import_ignores_deprecated_fields(self, db_session, full_material_catalog):
         """Import should succeed when old files contain deprecated fields."""
         # Simulate data from an old export that has deprecated fields
-        data = [{
-            "name": "New Ribbon Roll",
-            "material_slug": "red-satin",
-            "package_quantity": 500,
-            "package_unit": "cm",
-            # Deprecated fields from old exports:
-            "current_inventory": 250,
-            "weighted_avg_cost": "0.10",
-            "inventory_value": "25.00",
-        }]
+        data = [
+            {
+                "name": "New Ribbon Roll",
+                "material_slug": "red-satin",
+                "package_quantity": 500,
+                "package_unit": "cm",
+                # Deprecated fields from old exports:
+                "current_inventory": 250,
+                "weighted_avg_cost": "0.10",
+                "inventory_value": "25.00",
+            }
+        ]
 
         result = import_material_products(data, session=db_session)
 
@@ -449,29 +461,36 @@ class TestMaterialProductDeprecatedFields:
         assert result.entity_counts["material_products"].failed == 0
 
         # Verify the product was created
-        product = (
-            db_session.query(MaterialProduct)
-            .filter_by(name="New Ribbon Roll")
-            .first()
-        )
+        product = db_session.query(MaterialProduct).filter_by(name="New Ribbon Roll").first()
         assert product is not None
         assert product.package_quantity == 500
         assert product.package_unit == "cm"
 
         # Verify deprecated fields are NOT set (model no longer has them)
-        assert not hasattr(product, "current_inventory") or getattr(product, "current_inventory", None) is None
-        assert not hasattr(product, "weighted_avg_cost") or getattr(product, "weighted_avg_cost", None) is None
-        assert not hasattr(product, "inventory_value") or getattr(product, "inventory_value", None) is None
+        assert (
+            not hasattr(product, "current_inventory")
+            or getattr(product, "current_inventory", None) is None
+        )
+        assert (
+            not hasattr(product, "weighted_avg_cost")
+            or getattr(product, "weighted_avg_cost", None) is None
+        )
+        assert (
+            not hasattr(product, "inventory_value")
+            or getattr(product, "inventory_value", None) is None
+        )
 
     def test_import_works_without_deprecated_fields(self, db_session, full_material_catalog):
         """Import should work normally when deprecated fields are absent."""
         # Data without deprecated fields (new export format)
-        data = [{
-            "name": "Another Ribbon Roll",
-            "material_slug": "red-satin",
-            "package_quantity": 300,
-            "package_unit": "cm",
-        }]
+        data = [
+            {
+                "name": "Another Ribbon Roll",
+                "material_slug": "red-satin",
+                "package_quantity": 300,
+                "package_unit": "cm",
+            }
+        ]
 
         result = import_material_products(data, session=db_session)
 
@@ -500,18 +519,12 @@ class TestMaterialProductDeprecatedFields:
             db_session.commit()
 
             # Re-import
-            result = import_material_products(
-                export_data["records"], session=db_session
-            )
+            result = import_material_products(export_data["records"], session=db_session)
 
             assert result.entity_counts["material_products"].added >= 1
 
             # Verify data integrity
-            reimported = (
-                db_session.query(MaterialProduct)
-                .filter_by(name=original_name)
-                .first()
-            )
+            reimported = db_session.query(MaterialProduct).filter_by(name=original_name).first()
             assert reimported is not None
             assert reimported.package_quantity == original_package_qty
             assert reimported.package_unit == original_package_unit
@@ -521,13 +534,15 @@ class TestMaterialProductDeprecatedFields:
         import logging
 
         with caplog.at_level(logging.INFO, logger="src.services.catalog_import_service"):
-            data = [{
-                "name": "Logged Ribbon Roll",
-                "material_slug": "red-satin",
-                "package_quantity": 100,
-                "package_unit": "cm",
-                "current_inventory": 50,  # Deprecated
-            }]
+            data = [
+                {
+                    "name": "Logged Ribbon Roll",
+                    "material_slug": "red-satin",
+                    "package_quantity": 100,
+                    "package_unit": "cm",
+                    "current_inventory": 50,  # Deprecated
+                }
+            ]
 
             import_material_products(data, session=db_session)
 

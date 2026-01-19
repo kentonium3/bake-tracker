@@ -59,9 +59,7 @@ class AssemblyFinishedUnitConsumption(BaseModel):
     total_cost = Column(Numeric(10, 4), nullable=False)
 
     # Relationships
-    assembly_run = relationship(
-        "AssemblyRun", back_populates="finished_unit_consumptions"
-    )
+    assembly_run = relationship("AssemblyRun", back_populates="finished_unit_consumptions")
     finished_unit = relationship("FinishedUnit")
 
     # Constraints and indexes
@@ -70,16 +68,12 @@ class AssemblyFinishedUnitConsumption(BaseModel):
         Index("idx_asm_fu_consumption_run", "assembly_run_id"),
         Index("idx_asm_fu_consumption_unit", "finished_unit_id"),
         # Constraints
-        CheckConstraint(
-            "quantity_consumed > 0", name="ck_asm_fu_consumption_quantity_positive"
-        ),
+        CheckConstraint("quantity_consumed > 0", name="ck_asm_fu_consumption_quantity_positive"),
         CheckConstraint(
             "unit_cost_at_consumption >= 0",
             name="ck_asm_fu_consumption_unit_cost_non_negative",
         ),
-        CheckConstraint(
-            "total_cost >= 0", name="ck_asm_fu_consumption_total_cost_non_negative"
-        ),
+        CheckConstraint("total_cost >= 0", name="ck_asm_fu_consumption_total_cost_non_negative"),
     )
 
     def __repr__(self) -> str:

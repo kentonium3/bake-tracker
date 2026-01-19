@@ -95,7 +95,7 @@ class MakeMode(BaseMode):
         super().activate()
         # Lazy load data for production tab on first activation
         if self.production_tab:
-            if not getattr(self.production_tab, '_data_loaded', False):
+            if not getattr(self.production_tab, "_data_loaded", False):
                 self.production_tab._data_loaded = True
                 self.after(10, self.production_tab.refresh)
 

@@ -407,9 +407,7 @@ class TestExportProductsContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_includes_preferred_supplier(
-        self, test_db, sample_product, cleanup_test_data
-    ):
+    def test_export_includes_preferred_supplier(self, test_db, sample_product, cleanup_test_data):
         """Test export includes preferred supplier name."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -485,9 +483,7 @@ class TestExportProductsContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_uses_session_parameter(
-        self, test_db, sample_product, cleanup_test_data
-    ):
+    def test_export_uses_session_parameter(self, test_db, sample_product, cleanup_test_data):
         """Test export works with passed session parameter."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -529,9 +525,7 @@ class TestExportInventoryContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_with_inventory_item(
-        self, test_db, sample_inventory_item, cleanup_test_data
-    ):
+    def test_export_with_inventory_item(self, test_db, sample_inventory_item, cleanup_test_data):
         """Test export includes inventory data with context fields."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -565,9 +559,7 @@ class TestExportInventoryContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_includes_product_slug(
-        self, test_db, sample_inventory_item, cleanup_test_data
-    ):
+    def test_export_includes_product_slug(self, test_db, sample_inventory_item, cleanup_test_data):
         """Test export includes composite product slug."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -630,9 +622,7 @@ class TestExportPurchasesContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_with_purchase(
-        self, test_db, sample_purchase, cleanup_test_data
-    ):
+    def test_export_with_purchase(self, test_db, sample_purchase, cleanup_test_data):
         """Test export includes purchase data with context fields."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -670,9 +660,7 @@ class TestExportPurchasesContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_includes_total_cost(
-        self, test_db, sample_purchase, cleanup_test_data
-    ):
+    def test_export_includes_total_cost(self, test_db, sample_purchase, cleanup_test_data):
         """Test export includes calculated total cost."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -744,9 +732,7 @@ class TestExportAllContextRich:
             # Purchase was created as dependency for inventory_item
             assert results["purchases"].record_count == 1
 
-    def test_export_all_context_rich_uses_session(
-        self, test_db, sample_product, cleanup_test_data
-    ):
+    def test_export_all_context_rich_uses_session(self, test_db, sample_product, cleanup_test_data):
         """Test export_all_context_rich works with passed session."""
         with tempfile.TemporaryDirectory() as tmpdir:
             with session_scope() as session:
@@ -801,10 +787,18 @@ class TestFieldDefinitions:
     def test_no_overlap_editable_readonly(self):
         """Verify no fields appear in both editable and readonly."""
         products_overlap = set(PRODUCTS_CONTEXT_RICH_EDITABLE) & set(PRODUCTS_CONTEXT_RICH_READONLY)
-        inventory_overlap = set(INVENTORY_CONTEXT_RICH_EDITABLE) & set(INVENTORY_CONTEXT_RICH_READONLY)
-        purchases_overlap = set(PURCHASES_CONTEXT_RICH_EDITABLE) & set(PURCHASES_CONTEXT_RICH_READONLY)
-        ingredients_overlap = set(INGREDIENTS_CONTEXT_RICH_EDITABLE) & set(INGREDIENTS_CONTEXT_RICH_READONLY)
-        materials_overlap = set(MATERIALS_CONTEXT_RICH_EDITABLE) & set(MATERIALS_CONTEXT_RICH_READONLY)
+        inventory_overlap = set(INVENTORY_CONTEXT_RICH_EDITABLE) & set(
+            INVENTORY_CONTEXT_RICH_READONLY
+        )
+        purchases_overlap = set(PURCHASES_CONTEXT_RICH_EDITABLE) & set(
+            PURCHASES_CONTEXT_RICH_READONLY
+        )
+        ingredients_overlap = set(INGREDIENTS_CONTEXT_RICH_EDITABLE) & set(
+            INGREDIENTS_CONTEXT_RICH_READONLY
+        )
+        materials_overlap = set(MATERIALS_CONTEXT_RICH_EDITABLE) & set(
+            MATERIALS_CONTEXT_RICH_READONLY
+        )
         recipes_overlap = set(RECIPES_CONTEXT_RICH_EDITABLE) & set(RECIPES_CONTEXT_RICH_READONLY)
 
         assert len(products_overlap) == 0
@@ -899,9 +893,7 @@ class TestExportIngredientsContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_includes_products_array(
-        self, test_db, sample_product, cleanup_test_data
-    ):
+    def test_export_includes_products_array(self, test_db, sample_product, cleanup_test_data):
         """Test export includes nested products array."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -945,9 +937,7 @@ class TestExportIngredientsContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_includes_average_cost(
-        self, test_db, sample_inventory_item, cleanup_test_data
-    ):
+    def test_export_includes_average_cost(self, test_db, sample_inventory_item, cleanup_test_data):
         """Test export includes computed average cost."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -1169,9 +1159,7 @@ class TestExportRecipesContextRich:
         finally:
             os.unlink(temp_path)
 
-    def test_export_with_recipe(
-        self, test_db, sample_recipe, cleanup_extended_test_data
-    ):
+    def test_export_with_recipe(self, test_db, sample_recipe, cleanup_extended_test_data):
         """Test export includes recipe data."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
@@ -1290,9 +1278,7 @@ class TestExportRecipesContextRich:
 class TestExportAllContextRichExtended:
     """Extended tests for export_all_context_rich including new exports."""
 
-    def test_export_all_context_rich_creates_all_files(
-        self, test_db, cleanup_extended_test_data
-    ):
+    def test_export_all_context_rich_creates_all_files(self, test_db, cleanup_extended_test_data):
         """Test export_all_context_rich creates all nine context-rich files."""
         with tempfile.TemporaryDirectory() as tmpdir:
             results = export_all_context_rich(tmpdir)

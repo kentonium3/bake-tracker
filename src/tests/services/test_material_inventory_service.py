@@ -26,6 +26,7 @@ def supplier(test_db):
     test_db.commit()
     return s
 
+
 @pytest.fixture
 def material_category(test_db):
     mc = MaterialCategory(name="Test Category", slug="test-category")
@@ -33,12 +34,16 @@ def material_category(test_db):
     test_db.commit()
     return mc
 
+
 @pytest.fixture
 def material_subcategory(test_db, material_category):
-    msc = MaterialSubcategory(name="Test Subcategory", slug="test-subcategory", category_id=material_category.id)
+    msc = MaterialSubcategory(
+        name="Test Subcategory", slug="test-subcategory", category_id=material_category.id
+    )
     test_db.add(msc)
     test_db.commit()
     return msc
+
 
 @pytest.fixture
 def material(test_db, material_subcategory):
@@ -52,6 +57,7 @@ def material(test_db, material_subcategory):
     test_db.add(m)
     test_db.commit()
     return m
+
 
 @pytest.fixture
 def material_product(test_db, material, supplier):
@@ -103,65 +109,51 @@ class TestInventoryAdjustment:
     def test_adjust_add(self, test_db, inventory_item):
         """Test adding to inventory."""
         result = adjust_inventory(
-            inventory_item.id, "add", Decimal("25"),
-            notes="Found extra", session=test_db
+            inventory_item.id, "add", Decimal("25"), notes="Found extra", session=test_db
         )
         assert Decimal(str(result["quantity_remaining"])) == Decimal("125")
 
     def test_adjust_subtract(self, test_db, inventory_item):
         """Test subtracting from inventory."""
         result = adjust_inventory(
-            inventory_item.id, "subtract", Decimal("30"),
-            notes="Used untracked", session=test_db
+            inventory_item.id, "subtract", Decimal("30"), notes="Used untracked", session=test_db
         )
         assert Decimal(str(result["quantity_remaining"])) == Decimal("70")
 
     def test_adjust_set(self, test_db, inventory_item):
         """Test setting exact quantity."""
         result = adjust_inventory(
-            inventory_item.id, "set", Decimal("50"),
-            notes="Physical count", session=test_db
+            inventory_item.id, "set", Decimal("50"), notes="Physical count", session=test_db
         )
         assert Decimal(str(result["quantity_remaining"])) == Decimal("50")
 
     def test_adjust_percentage(self, test_db, inventory_item):
         """Test percentage adjustment (50% remaining)."""
         result = adjust_inventory(
-            inventory_item.id, "percentage", Decimal("50"),
-            notes="Half used", session=test_db
+            inventory_item.id, "percentage", Decimal("50"), notes="Half used", session=test_db
         )
         assert Decimal(str(result["quantity_remaining"])) == Decimal("50.00")
 
     def test_adjust_percentage_zero(self, test_db, inventory_item):
         """Test 0% (fully depleted)."""
-        result = adjust_inventory(
-            inventory_item.id, "percentage", Decimal("0"),
-            session=test_db
-        )
+        result = adjust_inventory(inventory_item.id, "percentage", Decimal("0"), session=test_db)
         assert Decimal(str(result["quantity_remaining"])) == Decimal("0")
 
     def test_adjust_negative_result_raises(self, test_db, inventory_item):
         """Test that negative result raises ValidationError."""
         with pytest.raises(ServiceValidationError) as exc:
-            adjust_inventory(
-                inventory_item.id, "subtract", Decimal("200"),
-                session=test_db
-            )
+            adjust_inventory(inventory_item.id, "subtract", Decimal("200"), session=test_db)
         assert "negative quantity" in str(exc.value).lower()
 
     def test_adjust_invalid_percentage_raises(self, test_db, inventory_item):
         """Test that percentage > 100 raises ValidationError."""
         with pytest.raises(ServiceValidationError):
-            adjust_inventory(
-                inventory_item.id, "percentage", Decimal("150"),
-                session=test_db
-            )
+            adjust_inventory(inventory_item.id, "percentage", Decimal("150"), session=test_db)
 
     def test_adjust_notes_stored(self, test_db, inventory_item):
         """Test that adjustment notes are stored."""
         adjust_inventory(
-            inventory_item.id, "set", Decimal("75"),
-            notes="Inventory recount", session=test_db
+            inventory_item.id, "set", Decimal("75"), notes="Inventory recount", session=test_db
         )
         test_db.refresh(inventory_item)
         assert "Inventory recount" in inventory_item.notes

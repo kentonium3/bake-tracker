@@ -379,9 +379,7 @@ def validate_supplier_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_ingredient_schema(
@@ -552,9 +550,7 @@ def validate_ingredient_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_product_schema(
@@ -755,9 +751,7 @@ def validate_product_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_recipe_schema(
@@ -1052,9 +1046,7 @@ def validate_recipe_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 # ============================================================================
@@ -1149,7 +1141,9 @@ def validate_material_category_schema(
 
         # Optional: sort_order (if present, must be integer)
         if "sort_order" in category and category["sort_order"] is not None:
-            if not isinstance(category["sort_order"], int) or isinstance(category["sort_order"], bool):
+            if not isinstance(category["sort_order"], int) or isinstance(
+                category["sort_order"], bool
+            ):
                 errors.append(
                     ValidationError(
                         field=f"{prefix}.sort_order",
@@ -1171,9 +1165,7 @@ def validate_material_category_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_material_subcategory_schema(
@@ -1209,7 +1201,14 @@ def validate_material_subcategory_schema(
         return ValidationResult(valid=False, errors=errors, warnings=warnings)
 
     subcategory_fields = {
-        "name", "slug", "category_slug", "category_id", "description", "sort_order", "id", "uuid"
+        "name",
+        "slug",
+        "category_slug",
+        "category_id",
+        "description",
+        "sort_order",
+        "id",
+        "uuid",
     }
 
     for idx, subcategory in enumerate(subcategories):
@@ -1284,9 +1283,7 @@ def validate_material_subcategory_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_material_schema(
@@ -1322,9 +1319,19 @@ def validate_material_schema(
         return ValidationResult(valid=False, errors=errors, warnings=warnings)
 
     material_fields = {
-        "name", "display_name", "slug", "base_unit_type", "description", "notes",
-        "category", "subcategory_slug", "subcategory_id", "category_slug", "category_id",
-        "id", "uuid",
+        "name",
+        "display_name",
+        "slug",
+        "base_unit_type",
+        "description",
+        "notes",
+        "category",
+        "subcategory_slug",
+        "subcategory_id",
+        "category_slug",
+        "category_id",
+        "id",
+        "uuid",
     }
     valid_base_units = {"each", "linear_inches", "square_inches"}
 
@@ -1346,7 +1353,9 @@ def validate_material_schema(
 
         # Required: name or display_name
         has_name = "name" in material and _is_non_empty_string(material.get("name"))
-        has_display = "display_name" in material and _is_non_empty_string(material.get("display_name"))
+        has_display = "display_name" in material and _is_non_empty_string(
+            material.get("display_name")
+        )
         if not has_name and not has_display:
             errors.append(
                 ValidationError(
@@ -1392,9 +1401,7 @@ def validate_material_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_material_product_schema(
@@ -1430,12 +1437,28 @@ def validate_material_product_schema(
         return ValidationResult(valid=False, errors=errors, warnings=warnings)
 
     product_fields = {
-        "name", "display_name", "slug", "material_slug", "material", "material_id",
-        "brand", "sku", "package_quantity", "package_unit", "quantity_in_base_units",
-        "current_inventory", "weighted_avg_cost", "is_hidden", "notes",
-        "supplier", "supplier_name", "supplier_slug", "supplier_id",
+        "name",
+        "display_name",
+        "slug",
+        "material_slug",
+        "material",
+        "material_id",
+        "brand",
+        "sku",
+        "package_quantity",
+        "package_unit",
+        "quantity_in_base_units",
+        "current_inventory",
+        "weighted_avg_cost",
+        "is_hidden",
+        "notes",
+        "supplier",
+        "supplier_name",
+        "supplier_slug",
+        "supplier_id",
         "default_unit",  # Export format field
-        "id", "uuid",
+        "id",
+        "uuid",
     }
 
     for idx, product in enumerate(products):
@@ -1456,7 +1479,9 @@ def validate_material_product_schema(
 
         # Required: name or display_name
         has_name = "name" in product and _is_non_empty_string(product.get("name"))
-        has_display = "display_name" in product and _is_non_empty_string(product.get("display_name"))
+        has_display = "display_name" in product and _is_non_empty_string(
+            product.get("display_name")
+        )
         if not has_name and not has_display:
             errors.append(
                 ValidationError(
@@ -1568,9 +1593,7 @@ def validate_material_product_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 def validate_material_unit_schema(
@@ -1606,8 +1629,14 @@ def validate_material_unit_schema(
         return ValidationResult(valid=False, errors=errors, warnings=warnings)
 
     unit_fields = {
-        "name", "slug", "material_slug", "material_id", "quantity_per_unit", "description",
-        "id", "uuid",
+        "name",
+        "slug",
+        "material_slug",
+        "material_id",
+        "quantity_per_unit",
+        "description",
+        "id",
+        "uuid",
     }
 
     for idx, unit in enumerate(units):
@@ -1704,9 +1733,7 @@ def validate_material_unit_schema(
                     )
                 )
 
-    return ValidationResult(
-        valid=len(errors) == 0, errors=errors, warnings=warnings
-    )
+    return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
 
 # ============================================================================

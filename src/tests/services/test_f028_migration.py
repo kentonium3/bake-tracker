@@ -161,7 +161,9 @@ def test_supplier(test_db):
 
 
 @pytest.fixture
-def test_inventory_item_with_mismatched_purchase(test_db, test_product, test_product_2, test_supplier):
+def test_inventory_item_with_mismatched_purchase(
+    test_db, test_product, test_product_2, test_supplier
+):
     """Create inventory item linked to purchase with different product_id."""
     # Create purchase for product_2
     purchase = Purchase(
@@ -265,7 +267,9 @@ class TestF028Migration:
 class TestF028Validation:
     """Test suite for validation scripts."""
 
-    def test_validation_passes_after_migration(self, test_db, test_inventory_items_without_purchases):
+    def test_validation_passes_after_migration(
+        self, test_db, test_inventory_items_without_purchases
+    ):
         """Validation passes after successful migration."""
         run_migration(session=test_db)
 
@@ -274,7 +278,9 @@ class TestF028Validation:
         assert success is True
         assert len(report["errors"]) == 0
 
-    def test_validation_fails_with_unlinked_items(self, test_db, test_inventory_items_without_purchases):
+    def test_validation_fails_with_unlinked_items(
+        self, test_db, test_inventory_items_without_purchases
+    ):
         """Validation fails when items lack purchase_id."""
         # Don't run migration
 

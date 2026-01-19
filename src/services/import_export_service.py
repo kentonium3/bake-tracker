@@ -43,7 +43,15 @@ from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
-from src.utils.constants import APP_NAME, APP_VERSION, ALL_UNITS, MEASUREMENT_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS
+from src.utils.constants import (
+    APP_NAME,
+    APP_VERSION,
+    ALL_UNITS,
+    MEASUREMENT_UNITS,
+    WEIGHT_UNITS,
+    VOLUME_UNITS,
+    COUNT_UNITS,
+)
 
 
 # ============================================================================
@@ -119,12 +127,14 @@ class ImportResult:
         self.total_records += 1
         self._ensure_entity(record_type)
         self.entity_counts[record_type]["updated"] += 1
-        self.warnings.append({
-            "record_type": record_type,
-            "record_name": record_name,
-            "warning_type": "updated",
-            "message": message,
-        })
+        self.warnings.append(
+            {
+                "record_type": record_type,
+                "record_name": record_name,
+                "warning_type": "updated",
+                "message": message,
+            }
+        )
 
     def add_error(
         self,
@@ -183,7 +193,12 @@ class ImportResult:
     def _ensure_entity(self, entity_type: str):
         """Ensure entity type exists in entity_counts."""
         if entity_type not in self.entity_counts:
-            self.entity_counts[entity_type] = {"imported": 0, "skipped": 0, "errors": 0, "updated": 0}
+            self.entity_counts[entity_type] = {
+                "imported": 0,
+                "skipped": 0,
+                "errors": 0,
+                "updated": 0,
+            }
 
     def merge(self, other: "ImportResult"):
         """Merge another ImportResult into this one."""
@@ -224,12 +239,14 @@ class ImportResult:
                     lines.append(f"  {entity}: {', '.join(parts)}")
             lines.append("")
 
-        lines.extend([
-            f"Total Records: {self.total_records}",
-            f"Successful:    {self.successful}",
-            f"Skipped:       {self.skipped}",
-            f"Failed:        {self.failed}",
-        ])
+        lines.extend(
+            [
+                f"Total Records: {self.total_records}",
+                f"Successful:    {self.successful}",
+                f"Skipped:       {self.skipped}",
+                f"Failed:        {self.failed}",
+            ]
+        )
 
         if self.errors:
             lines.append("\nErrors:")
@@ -332,12 +349,16 @@ def _validate_density_weight_unit(unit: str, entity_name: str) -> Optional[str]:
     return _validate_unit(unit, WEIGHT_UNITS, entity_name, "density_weight_unit")
 
 
-def _validate_recipe_ingredient_unit(unit: str, recipe_name: str, ingredient_slug: str) -> Optional[str]:
+def _validate_recipe_ingredient_unit(
+    unit: str, recipe_name: str, ingredient_slug: str
+) -> Optional[str]:
     """Validate recipe ingredient unit field (weight, volume, or count)."""
     valid_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
     if unit is None:
         return f"Missing unit for recipe '{recipe_name}' ingredient '{ingredient_slug}'"
-    return _validate_unit(unit, valid_units, f"recipe '{recipe_name}'", f"ingredient '{ingredient_slug}' unit")
+    return _validate_unit(
+        unit, valid_units, f"recipe '{recipe_name}'", f"ingredient '{ingredient_slug}' unit"
+    )
 
 
 # ============================================================================
@@ -461,7 +482,7 @@ def export_recipes_to_json(
                 }
 
                 # Include brand for disambiguation (brand moved to Product in TD-001)
-                if hasattr(ri.ingredient, 'brand') and ri.ingredient.brand:
+                if hasattr(ri.ingredient, "brand") and ri.ingredient.brand:
                     ingredient_data["ingredient_brand"] = ri.ingredient.brand
 
                 if ri.notes:
@@ -796,11 +817,7 @@ def export_finished_units_to_json() -> List[Dict]:
     """
     result = []
     with session_scope() as session:
-        finished_units = (
-            session.query(FinishedUnit)
-            .options(joinedload(FinishedUnit.recipe))
-            .all()
-        )
+        finished_units = session.query(FinishedUnit).options(joinedload(FinishedUnit.recipe)).all()
         for fu in finished_units:
             fu_data = {
                 "slug": fu.slug,
@@ -1219,8 +1236,7 @@ def export_all_to_json(
             if ingredient.parent_ingredient_id is not None:
                 # Look up parent's slug for export (more portable than ID)
                 parent = next(
-                    (i for i in ingredients if i.id == ingredient.parent_ingredient_id),
-                    None
+                    (i for i in ingredients if i.id == ingredient.parent_ingredient_id), None
                 )
                 if parent:
                     ingredient_data["parent_slug"] = parent.slug
@@ -1527,9 +1543,7 @@ def export_all_to_json(
         # Add finished goods (v3.0: assembly-focused, slug-based)
         with session_scope() as session:
             finished_goods = (
-                session.query(FinishedGood)
-                .options(joinedload(FinishedGood.components))
-                .all()
+                session.query(FinishedGood).options(joinedload(FinishedGood.components)).all()
             )
             for fg in finished_goods:
                 fg_data = {
@@ -1612,67 +1626,79 @@ def export_all_to_json(
         with session_scope() as session:
             categories = session.query(MaterialCategory).all()
             for c in categories:
-                export_data["material_categories"].append({
-                    "uuid": str(c.uuid) if c.uuid else None,
-                    "name": c.name,
-                    "slug": c.slug,
-                    "description": c.description,
-                    "sort_order": c.sort_order,
-                })
+                export_data["material_categories"].append(
+                    {
+                        "uuid": str(c.uuid) if c.uuid else None,
+                        "name": c.name,
+                        "slug": c.slug,
+                        "description": c.description,
+                        "sort_order": c.sort_order,
+                    }
+                )
 
         # Add material subcategories
         with session_scope() as session:
-            subcategories = session.query(MaterialSubcategory).options(
-                joinedload(MaterialSubcategory.category)
-            ).all()
+            subcategories = (
+                session.query(MaterialSubcategory)
+                .options(joinedload(MaterialSubcategory.category))
+                .all()
+            )
             for s in subcategories:
-                export_data["material_subcategories"].append({
-                    "uuid": str(s.uuid) if s.uuid else None,
-                    "category_slug": s.category.slug if s.category else None,
-                    "name": s.name,
-                    "slug": s.slug,
-                    "description": s.description,
-                    "sort_order": s.sort_order,
-                })
+                export_data["material_subcategories"].append(
+                    {
+                        "uuid": str(s.uuid) if s.uuid else None,
+                        "category_slug": s.category.slug if s.category else None,
+                        "name": s.name,
+                        "slug": s.slug,
+                        "description": s.description,
+                        "sort_order": s.sort_order,
+                    }
+                )
 
         # Add materials
         with session_scope() as session:
-            materials = session.query(Material).options(
-                joinedload(Material.subcategory)
-            ).all()
+            materials = session.query(Material).options(joinedload(Material.subcategory)).all()
             for m in materials:
-                export_data["materials"].append({
-                    "uuid": str(m.uuid) if m.uuid else None,
-                    "subcategory_slug": m.subcategory.slug if m.subcategory else None,
-                    "name": m.name,
-                    "slug": m.slug,
-                    "base_unit_type": m.base_unit_type,
-                    "description": m.description,
-                })
+                export_data["materials"].append(
+                    {
+                        "uuid": str(m.uuid) if m.uuid else None,
+                        "subcategory_slug": m.subcategory.slug if m.subcategory else None,
+                        "name": m.name,
+                        "slug": m.slug,
+                        "base_unit_type": m.base_unit_type,
+                        "description": m.description,
+                    }
+                )
 
         # Add material products
         with session_scope() as session:
-            mat_products = session.query(MaterialProduct).options(
-                joinedload(MaterialProduct.material),
-                joinedload(MaterialProduct.supplier),
-            ).all()
+            mat_products = (
+                session.query(MaterialProduct)
+                .options(
+                    joinedload(MaterialProduct.material),
+                    joinedload(MaterialProduct.supplier),
+                )
+                .all()
+            )
             for p in mat_products:
                 # Feature 058: Removed current_inventory, weighted_avg_cost, inventory_value
                 # These are now tracked via MaterialInventoryItem (FIFO)
-                export_data["material_products"].append({
-                    "uuid": str(p.uuid) if p.uuid else None,
-                    "material_slug": p.material.slug if p.material else None,
-                    "name": p.name,
-                    "slug": p.slug,
-                    "brand": p.brand,
-                    "package_quantity": p.package_quantity,
-                    "package_unit": p.package_unit,
-                    "quantity_in_base_units": p.quantity_in_base_units,
-                    "supplier_slug": p.supplier.slug if p.supplier else None,
-                    "sku": p.sku,
-                    "is_hidden": p.is_hidden,
-                    "notes": p.notes,
-                })
+                export_data["material_products"].append(
+                    {
+                        "uuid": str(p.uuid) if p.uuid else None,
+                        "material_slug": p.material.slug if p.material else None,
+                        "name": p.name,
+                        "slug": p.slug,
+                        "brand": p.brand,
+                        "package_quantity": p.package_quantity,
+                        "package_unit": p.package_unit,
+                        "quantity_in_base_units": p.quantity_in_base_units,
+                        "supplier_slug": p.supplier.slug if p.supplier else None,
+                        "sku": p.sku,
+                        "is_hidden": p.is_hidden,
+                        "notes": p.notes,
+                    }
+                )
 
         # Filter entities if selective export requested
         if entities is not None:
@@ -1742,18 +1768,28 @@ def export_all_to_json(
         result.add_entity_count("finished_goods", len(export_data["finished_goods"]))
         result.add_entity_count("compositions", len(export_data["compositions"]))
         result.add_entity_count("packages", len(export_data["packages"]))
-        result.add_entity_count("package_finished_goods", len(export_data["package_finished_goods"]))
+        result.add_entity_count(
+            "package_finished_goods", len(export_data["package_finished_goods"])
+        )
         result.add_entity_count("recipients", len(export_data["recipients"]))
         result.add_entity_count("events", len(export_data["events"]))
-        result.add_entity_count("event_recipient_packages", len(export_data["event_recipient_packages"]))
-        result.add_entity_count("event_production_targets", len(export_data["event_production_targets"]))
-        result.add_entity_count("event_assembly_targets", len(export_data["event_assembly_targets"]))
+        result.add_entity_count(
+            "event_recipient_packages", len(export_data["event_recipient_packages"])
+        )
+        result.add_entity_count(
+            "event_production_targets", len(export_data["event_production_targets"])
+        )
+        result.add_entity_count(
+            "event_assembly_targets", len(export_data["event_assembly_targets"])
+        )
         result.add_entity_count("production_records", len(export_data["production_records"]))
         result.add_entity_count("production_runs", len(export_data["production_runs"]))
         result.add_entity_count("assembly_runs", len(export_data["assembly_runs"]))
         # Material entities (Feature 047)
         result.add_entity_count("material_categories", len(export_data["material_categories"]))
-        result.add_entity_count("material_subcategories", len(export_data["material_subcategories"]))
+        result.add_entity_count(
+            "material_subcategories", len(export_data["material_subcategories"])
+        )
         result.add_entity_count("materials", len(export_data["materials"]))
         result.add_entity_count("material_products", len(export_data["material_products"]))
 
@@ -1947,17 +1983,33 @@ def import_compositions_from_json(
 
             # Parent XOR validation: must have exactly one of assembly_id or package_id
             if finished_good_slug and package_name:
-                result.add_error("composition", "unknown", "Composition must have exactly one parent (finished_good_slug or package_name)")
+                result.add_error(
+                    "composition",
+                    "unknown",
+                    "Composition must have exactly one parent (finished_good_slug or package_name)",
+                )
                 continue
             if not finished_good_slug and not package_name:
-                result.add_error("composition", "unknown", "Composition must have exactly one parent (finished_good_slug or package_name)")
+                result.add_error(
+                    "composition",
+                    "unknown",
+                    "Composition must have exactly one parent (finished_good_slug or package_name)",
+                )
                 continue
 
             # Component XOR validation: must have exactly one component type
-            component_refs = [finished_unit_slug, finished_good_component_slug, packaging_ingredient_slug]
+            component_refs = [
+                finished_unit_slug,
+                finished_good_component_slug,
+                packaging_ingredient_slug,
+            ]
             non_null_components = [x for x in component_refs if x is not None]
             if len(non_null_components) != 1:
-                result.add_error("composition", finished_good_slug or package_name, "Composition must have exactly one component type")
+                result.add_error(
+                    "composition",
+                    finished_good_slug or package_name,
+                    "Composition must have exactly one component type",
+                )
                 continue
 
             # Resolve parent reference
@@ -1967,13 +2019,19 @@ def import_compositions_from_json(
             if finished_good_slug:
                 assembly = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
                 if not assembly:
-                    result.add_error("composition", finished_good_slug, f"Assembly not found: {finished_good_slug}")
+                    result.add_error(
+                        "composition",
+                        finished_good_slug,
+                        f"Assembly not found: {finished_good_slug}",
+                    )
                     continue
                 assembly_id = assembly.id
             else:
                 package = session.query(Package).filter_by(name=package_name).first()
                 if not package:
-                    result.add_error("composition", package_name, f"Package not found: {package_name}")
+                    result.add_error(
+                        "composition", package_name, f"Package not found: {package_name}"
+                    )
                     continue
                 package_id = package.id
 
@@ -1987,26 +2045,43 @@ def import_compositions_from_json(
                 # Also try lookup via recipe_slug (slug might reference recipe, not finished_unit)
                 if not fu:
                     from src.models.recipe import Recipe
+
                     # Convert slug to recipe name format
                     recipe_name = finished_unit_slug.replace("_", " ").title()
                     recipe = session.query(Recipe).filter_by(name=recipe_name).first()
                     if recipe:
                         fu = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).first()
                 if not fu:
-                    result.add_error("composition", finished_good_slug or package_name, f"FinishedUnit not found: {finished_unit_slug}")
+                    result.add_error(
+                        "composition",
+                        finished_good_slug or package_name,
+                        f"FinishedUnit not found: {finished_unit_slug}",
+                    )
                     continue
                 finished_unit_id = fu.id
             elif finished_good_component_slug:
-                fg = session.query(FinishedGood).filter_by(slug=finished_good_component_slug).first()
+                fg = (
+                    session.query(FinishedGood).filter_by(slug=finished_good_component_slug).first()
+                )
                 if not fg:
-                    result.add_error("composition", finished_good_slug or package_name, f"FinishedGood component not found: {finished_good_component_slug}")
+                    result.add_error(
+                        "composition",
+                        finished_good_slug or package_name,
+                        f"FinishedGood component not found: {finished_good_component_slug}",
+                    )
                     continue
                 finished_good_id = fg.id
             elif packaging_ingredient_slug:
                 # Feature 011: Resolve packaging product by ingredient slug + brand
-                ingredient = session.query(Ingredient).filter_by(slug=packaging_ingredient_slug).first()
+                ingredient = (
+                    session.query(Ingredient).filter_by(slug=packaging_ingredient_slug).first()
+                )
                 if not ingredient:
-                    result.add_error("composition", finished_good_slug or package_name, f"Packaging ingredient not found: {packaging_ingredient_slug}")
+                    result.add_error(
+                        "composition",
+                        finished_good_slug or package_name,
+                        f"Packaging ingredient not found: {packaging_ingredient_slug}",
+                    )
                     continue
                 # Find product by ingredient and brand
                 product_query = session.query(Product).filter_by(ingredient_id=ingredient.id)
@@ -2014,23 +2089,37 @@ def import_compositions_from_json(
                     product_query = product_query.filter_by(brand=packaging_product_brand)
                 product = product_query.first()
                 if not product:
-                    result.add_error("composition", finished_good_slug or package_name, f"Packaging product not found for ingredient {packaging_ingredient_slug}")
+                    result.add_error(
+                        "composition",
+                        finished_good_slug or package_name,
+                        f"Packaging product not found for ingredient {packaging_ingredient_slug}",
+                    )
                     continue
                 packaging_product_id = product.id
 
             # Check for duplicate
             if skip_duplicates:
-                existing = session.query(Composition).filter_by(
-                    assembly_id=assembly_id,
-                    package_id=package_id,
-                    finished_unit_id=finished_unit_id,
-                    finished_good_id=finished_good_id,
-                    packaging_product_id=packaging_product_id,
-                ).first()
+                existing = (
+                    session.query(Composition)
+                    .filter_by(
+                        assembly_id=assembly_id,
+                        package_id=package_id,
+                        finished_unit_id=finished_unit_id,
+                        finished_good_id=finished_good_id,
+                        packaging_product_id=packaging_product_id,
+                    )
+                    .first()
+                )
                 if existing:
                     parent_name = finished_good_slug or package_name
-                    component_name = finished_unit_slug or finished_good_component_slug or packaging_ingredient_slug
-                    result.add_skip("composition", f"{parent_name}->{component_name}", "Already exists")
+                    component_name = (
+                        finished_unit_slug
+                        or finished_good_component_slug
+                        or packaging_ingredient_slug
+                    )
+                    result.add_skip(
+                        "composition", f"{parent_name}->{component_name}", "Already exists"
+                    )
                     continue
 
             # Create composition
@@ -2064,7 +2153,7 @@ def import_compositions_from_json(
                         result.add_warning(
                             "composition_assignment",
                             f"composition_{comp.id}",
-                            f"Inventory item {inv_item_id} not found - assignment skipped"
+                            f"Inventory item {inv_item_id} not found - assignment skipped",
                         )
                         continue
 
@@ -2077,7 +2166,9 @@ def import_compositions_from_json(
                     session.add(assignment)
 
         except Exception as e:
-            parent_name = record.get("finished_good_slug") or record.get("package_name") or "unknown"
+            parent_name = (
+                record.get("finished_good_slug") or record.get("package_name") or "unknown"
+            )
             result.add_error("composition", parent_name, str(e))
 
     return result
@@ -2106,7 +2197,9 @@ def import_package_finished_goods_from_json(
             quantity = record.get("quantity", 1)
 
             if not package_slug or not finished_good_slug:
-                result.add_error("package_finished_good", "unknown", "Missing package_slug or finished_good_slug")
+                result.add_error(
+                    "package_finished_good", "unknown", "Missing package_slug or finished_good_slug"
+                )
                 continue
 
             # Resolve package reference - Package model doesn't have slug field,
@@ -2114,23 +2207,37 @@ def import_package_finished_goods_from_json(
             package_name = package_slug.replace("_", " ").title()
             package = session.query(Package).filter_by(name=package_name).first()
             if not package:
-                result.add_error("package_finished_good", package_slug, f"Package not found: {package_slug}")
+                result.add_error(
+                    "package_finished_good", package_slug, f"Package not found: {package_slug}"
+                )
                 continue
 
             # Resolve finished good reference
             fg = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
             if not fg:
-                result.add_error("package_finished_good", package_name, f"FinishedGood not found: {finished_good_slug}")
+                result.add_error(
+                    "package_finished_good",
+                    package_name,
+                    f"FinishedGood not found: {finished_good_slug}",
+                )
                 continue
 
             # Check for duplicate
             if skip_duplicates:
-                existing = session.query(PackageFinishedGood).filter_by(
-                    package_id=package.id,
-                    finished_good_id=fg.id,
-                ).first()
+                existing = (
+                    session.query(PackageFinishedGood)
+                    .filter_by(
+                        package_id=package.id,
+                        finished_good_id=fg.id,
+                    )
+                    .first()
+                )
                 if existing:
-                    result.add_skip("package_finished_good", f"{package_name}->{finished_good_slug}", "Already exists")
+                    result.add_skip(
+                        "package_finished_good",
+                        f"{package_name}->{finished_good_slug}",
+                        "Already exists",
+                    )
                     continue
 
             # Create link
@@ -2184,7 +2291,11 @@ def import_production_records_from_json(
                 recipe_name = recipe_slug.replace("_", " ").title()
 
             if not event_name or not recipe_name or not produced_at_str:
-                result.add_error("production_record", event_name or "unknown", "Missing event_name/slug, recipe_name/slug, or produced_at")
+                result.add_error(
+                    "production_record",
+                    event_name or "unknown",
+                    "Missing event_name/slug, recipe_name/slug, or produced_at",
+                )
                 continue
 
             # Parse datetime
@@ -2201,18 +2312,26 @@ def import_production_records_from_json(
             # Resolve recipe reference
             recipe = session.query(Recipe).filter_by(name=recipe_name).first()
             if not recipe:
-                result.add_error("production_record", event_name, f"Recipe not found: {recipe_name}")
+                result.add_error(
+                    "production_record", event_name, f"Recipe not found: {recipe_name}"
+                )
                 continue
 
             # Check for duplicate (by event + recipe + produced_at)
             if skip_duplicates:
-                existing = session.query(ProductionRecord).filter_by(
-                    event_id=event.id,
-                    recipe_id=recipe.id,
-                    produced_at=produced_at,
-                ).first()
+                existing = (
+                    session.query(ProductionRecord)
+                    .filter_by(
+                        event_id=event.id,
+                        recipe_id=recipe.id,
+                        produced_at=produced_at,
+                    )
+                    .first()
+                )
                 if existing:
-                    result.add_skip("production_record", f"{event_name}/{recipe_name}", "Already exists")
+                    result.add_skip(
+                        "production_record", f"{event_name}/{recipe_name}", "Already exists"
+                    )
                     continue
 
             # Create production record
@@ -2264,7 +2383,11 @@ def import_event_recipient_packages_from_json(
             quantity = record.get("quantity", 1)
 
             if not event_slug or not recipient_name or not package_slug:
-                result.add_error("event_recipient_package", "unknown", "Missing event_slug, recipient_name, or package_slug")
+                result.add_error(
+                    "event_recipient_package",
+                    "unknown",
+                    "Missing event_slug, recipient_name, or package_slug",
+                )
                 continue
 
             # Resolve event reference - Event model doesn't have slug field,
@@ -2272,13 +2395,17 @@ def import_event_recipient_packages_from_json(
             event_name = event_slug.replace("_", " ").title()
             event = session.query(Event).filter_by(name=event_name).first()
             if not event:
-                result.add_error("event_recipient_package", event_slug, f"Event not found: {event_slug}")
+                result.add_error(
+                    "event_recipient_package", event_slug, f"Event not found: {event_slug}"
+                )
                 continue
 
             # Resolve recipient reference (uses name directly)
             recipient = session.query(Recipient).filter_by(name=recipient_name).first()
             if not recipient:
-                result.add_error("event_recipient_package", event_slug, f"Recipient not found: {recipient_name}")
+                result.add_error(
+                    "event_recipient_package", event_slug, f"Recipient not found: {recipient_name}"
+                )
                 continue
 
             # Resolve package reference - Package model doesn't have slug field,
@@ -2286,18 +2413,28 @@ def import_event_recipient_packages_from_json(
             package_name = package_slug.replace("_", " ").title()
             package = session.query(Package).filter_by(name=package_name).first()
             if not package:
-                result.add_error("event_recipient_package", event_slug, f"Package not found: {package_slug}")
+                result.add_error(
+                    "event_recipient_package", event_slug, f"Package not found: {package_slug}"
+                )
                 continue
 
             # Check for duplicate
             if skip_duplicates:
-                existing = session.query(EventRecipientPackage).filter_by(
-                    event_id=event.id,
-                    recipient_id=recipient.id,
-                    package_id=package.id,
-                ).first()
+                existing = (
+                    session.query(EventRecipientPackage)
+                    .filter_by(
+                        event_id=event.id,
+                        recipient_id=recipient.id,
+                        package_id=package.id,
+                    )
+                    .first()
+                )
                 if existing:
-                    result.add_skip("event_recipient_package", f"{event_name}/{recipient_name}/{package_name}", "Already exists")
+                    result.add_skip(
+                        "event_recipient_package",
+                        f"{event_name}/{recipient_name}/{package_name}",
+                        "Already exists",
+                    )
                     continue
 
             # Parse status
@@ -2360,29 +2497,41 @@ def import_event_production_targets_from_json(
             target_batches = record.get("target_batches", 0)
 
             if not event_name or not recipe_name:
-                result.add_error("event_production_target", "unknown", "Missing event_name or recipe_name")
+                result.add_error(
+                    "event_production_target", "unknown", "Missing event_name or recipe_name"
+                )
                 continue
 
             # Resolve event reference
             event = session.query(Event).filter_by(name=event_name).first()
             if not event:
-                result.add_error("event_production_target", event_name, f"Event not found: {event_name}")
+                result.add_error(
+                    "event_production_target", event_name, f"Event not found: {event_name}"
+                )
                 continue
 
             # Resolve recipe reference
             recipe = session.query(Recipe).filter_by(name=recipe_name).first()
             if not recipe:
-                result.add_error("event_production_target", event_name, f"Recipe not found: {recipe_name}")
+                result.add_error(
+                    "event_production_target", event_name, f"Recipe not found: {recipe_name}"
+                )
                 continue
 
             # Check for duplicate
             if skip_duplicates:
-                existing = session.query(EventProductionTarget).filter_by(
-                    event_id=event.id,
-                    recipe_id=recipe.id,
-                ).first()
+                existing = (
+                    session.query(EventProductionTarget)
+                    .filter_by(
+                        event_id=event.id,
+                        recipe_id=recipe.id,
+                    )
+                    .first()
+                )
                 if existing:
-                    result.add_skip("event_production_target", f"{event_name}/{recipe_name}", "Already exists")
+                    result.add_skip(
+                        "event_production_target", f"{event_name}/{recipe_name}", "Already exists"
+                    )
                     continue
 
             # Create target
@@ -2427,29 +2576,45 @@ def import_event_assembly_targets_from_json(
             target_quantity = record.get("target_quantity", 0)
 
             if not event_name or not finished_good_slug:
-                result.add_error("event_assembly_target", "unknown", "Missing event_name or finished_good_slug")
+                result.add_error(
+                    "event_assembly_target", "unknown", "Missing event_name or finished_good_slug"
+                )
                 continue
 
             # Resolve event reference
             event = session.query(Event).filter_by(name=event_name).first()
             if not event:
-                result.add_error("event_assembly_target", event_name, f"Event not found: {event_name}")
+                result.add_error(
+                    "event_assembly_target", event_name, f"Event not found: {event_name}"
+                )
                 continue
 
             # Resolve finished good reference
             finished_good = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
             if not finished_good:
-                result.add_error("event_assembly_target", event_name, f"Finished good not found: {finished_good_slug}")
+                result.add_error(
+                    "event_assembly_target",
+                    event_name,
+                    f"Finished good not found: {finished_good_slug}",
+                )
                 continue
 
             # Check for duplicate
             if skip_duplicates:
-                existing = session.query(EventAssemblyTarget).filter_by(
-                    event_id=event.id,
-                    finished_good_id=finished_good.id,
-                ).first()
+                existing = (
+                    session.query(EventAssemblyTarget)
+                    .filter_by(
+                        event_id=event.id,
+                        finished_good_id=finished_good.id,
+                    )
+                    .first()
+                )
                 if existing:
-                    result.add_skip("event_assembly_target", f"{event_name}/{finished_good_slug}", "Already exists")
+                    result.add_skip(
+                        "event_assembly_target",
+                        f"{event_name}/{finished_good_slug}",
+                        "Already exists",
+                    )
                     continue
 
             # Create target
@@ -2584,7 +2749,11 @@ def import_assembly_runs_from_json(
             # Resolve finished good reference
             finished_good = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
             if not finished_good:
-                result.add_error("assembly_run", finished_good_slug, f"Finished good not found: {finished_good_slug}")
+                result.add_error(
+                    "assembly_run",
+                    finished_good_slug,
+                    f"Finished good not found: {finished_good_slug}",
+                )
                 continue
 
             # Parse assembled_at timestamp
@@ -2613,9 +2782,7 @@ def import_assembly_runs_from_json(
     return result
 
 
-def _import_dry_run_preview(
-    data: dict, mode: str, skip_duplicates: bool
-) -> ImportResult:
+def _import_dry_run_preview(data: dict, mode: str, skip_duplicates: bool) -> ImportResult:
     """
     Generate a preview of what an import would do without making changes.
 
@@ -2646,13 +2813,15 @@ def _import_dry_run_preview(
                 if slug:
                     existing = session.query(Supplier).filter_by(slug=slug).first()
                 if not existing and name and city and state:
-                    existing = session.query(Supplier).filter_by(
-                        name=name, city=city, state=state
-                    ).first()
+                    existing = (
+                        session.query(Supplier).filter_by(name=name, city=city, state=state).first()
+                    )
 
                 if existing:
                     if skip_duplicates:
-                        result.add_skip("supplier", f"{name} ({city}, {state})", "Would skip (exists)")
+                        result.add_skip(
+                            "supplier", f"{name} ({city}, {state})", "Would skip (exists)"
+                        )
                     else:
                         # In replace mode, would update
                         result.add_success("supplier")
@@ -2678,14 +2847,18 @@ def _import_dry_run_preview(
                 if skip_duplicates:
                     ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                     if ingredient:
-                        existing = session.query(Product).filter_by(
-                            ingredient_id=ingredient.id,
-                            brand=brand,
-                            product_name=prod.get("product_name"),
-                            package_size=prod.get("package_size"),
-                            package_unit=prod.get("package_unit"),
-                            package_unit_quantity=prod.get("package_unit_quantity"),
-                        ).first()
+                        existing = (
+                            session.query(Product)
+                            .filter_by(
+                                ingredient_id=ingredient.id,
+                                brand=brand,
+                                product_name=prod.get("product_name"),
+                                package_size=prod.get("package_size"),
+                                package_unit=prod.get("package_unit"),
+                                package_unit_quantity=prod.get("package_unit_quantity"),
+                            )
+                            .first()
+                        )
                         if existing:
                             result.add_skip("product", brand, "Would skip (exists)")
                             continue
@@ -2845,15 +3018,13 @@ def import_all_from_json_v4(
                                 ingredient.parent_ingredient_id = parent.id
                             elif ingredient and not parent:
                                 result.add_error(
-                                    "ingredient",
-                                    slug,
-                                    f"Parent slug '{parent_slug}' not found"
+                                    "ingredient", slug, f"Parent slug '{parent_slug}' not found"
                                 )
                         except Exception as e:
                             result.add_error(
                                 "ingredient",
                                 ing.get("slug", "unknown"),
-                                f"Error resolving parent: {str(e)}"
+                                f"Error resolving parent: {str(e)}",
                             )
 
                 session.flush()
@@ -2877,16 +3048,12 @@ def import_all_from_json_v4(
                         # Feature 050: Online suppliers only need name; physical need city/state
                         if not name:
                             result.add_error(
-                                "supplier",
-                                name or "unknown",
-                                "Missing required field: name"
+                                "supplier", name or "unknown", "Missing required field: name"
                             )
                             continue
                         if supplier_type == "physical" and (not city or not state):
                             result.add_error(
-                                "supplier",
-                                name,
-                                "Physical suppliers require city and state"
+                                "supplier", name, "Physical suppliers require city and state"
                             )
                             continue
 
@@ -2894,57 +3061,103 @@ def import_all_from_json_v4(
                             # Feature 050: Prefer slug-based matching, fallback to name+city+state
                             existing = None
                             if import_slug:
-                                existing = session.query(Supplier).filter_by(slug=import_slug).first()
+                                existing = (
+                                    session.query(Supplier).filter_by(slug=import_slug).first()
+                                )
                             if not existing and supplier_type == "physical":
                                 # Fallback to name + city + state (unique supplier locations)
-                                existing = session.query(Supplier).filter_by(
-                                    name=name,
-                                    city=city,
-                                    state=state,
-                                ).first()
+                                existing = (
+                                    session.query(Supplier)
+                                    .filter_by(
+                                        name=name,
+                                        city=city,
+                                        state=state,
+                                    )
+                                    .first()
+                                )
                             if not existing and supplier_type == "online":
                                 # Online suppliers: fallback to name-only matching
-                                existing = session.query(Supplier).filter_by(
-                                    name=name,
-                                    supplier_type="online",
-                                ).first()
+                                existing = (
+                                    session.query(Supplier)
+                                    .filter_by(
+                                        name=name,
+                                        supplier_type="online",
+                                    )
+                                    .first()
+                                )
                             if existing:
                                 # Feature 050: Merge mode - sparse update existing suppliers
                                 # Only update fields explicitly present in import (never slug)
                                 updated_fields = []
-                                if "name" in supplier_data and supplier_data["name"] != existing.name:
+                                if (
+                                    "name" in supplier_data
+                                    and supplier_data["name"] != existing.name
+                                ):
                                     existing.name = supplier_data["name"]
                                     updated_fields.append("name")
-                                if "supplier_type" in supplier_data and supplier_data["supplier_type"] != existing.supplier_type:
+                                if (
+                                    "supplier_type" in supplier_data
+                                    and supplier_data["supplier_type"] != existing.supplier_type
+                                ):
                                     existing.supplier_type = supplier_data["supplier_type"]
                                     updated_fields.append("supplier_type")
-                                if "street_address" in supplier_data and supplier_data.get("street_address") != existing.street_address:
+                                if (
+                                    "street_address" in supplier_data
+                                    and supplier_data.get("street_address")
+                                    != existing.street_address
+                                ):
                                     existing.street_address = supplier_data.get("street_address")
                                     updated_fields.append("street_address")
-                                if "city" in supplier_data and supplier_data["city"] != existing.city:
+                                if (
+                                    "city" in supplier_data
+                                    and supplier_data["city"] != existing.city
+                                ):
                                     existing.city = supplier_data["city"]
                                     updated_fields.append("city")
-                                if "state" in supplier_data and supplier_data["state"] != existing.state:
+                                if (
+                                    "state" in supplier_data
+                                    and supplier_data["state"] != existing.state
+                                ):
                                     existing.state = supplier_data["state"]
                                     updated_fields.append("state")
-                                if "zip_code" in supplier_data and supplier_data.get("zip_code") != existing.zip_code:
+                                if (
+                                    "zip_code" in supplier_data
+                                    and supplier_data.get("zip_code") != existing.zip_code
+                                ):
                                     existing.zip_code = supplier_data.get("zip_code", "")
                                     updated_fields.append("zip_code")
-                                if "website_url" in supplier_data and supplier_data.get("website_url") != existing.website_url:
+                                if (
+                                    "website_url" in supplier_data
+                                    and supplier_data.get("website_url") != existing.website_url
+                                ):
                                     existing.website_url = supplier_data.get("website_url")
                                     updated_fields.append("website_url")
-                                if "notes" in supplier_data and supplier_data.get("notes") != existing.notes:
+                                if (
+                                    "notes" in supplier_data
+                                    and supplier_data.get("notes") != existing.notes
+                                ):
                                     existing.notes = supplier_data.get("notes")
                                     updated_fields.append("notes")
-                                if "is_active" in supplier_data and supplier_data.get("is_active") != existing.is_active:
+                                if (
+                                    "is_active" in supplier_data
+                                    and supplier_data.get("is_active") != existing.is_active
+                                ):
                                     existing.is_active = supplier_data.get("is_active", True)
                                     updated_fields.append("is_active")
                                 # Note: slug is NEVER updated (immutability)
 
                                 if updated_fields:
-                                    result.add_update("supplier", f"{name} ({city or 'online'}, {state or ''})", f"Updated: {', '.join(updated_fields)}")
+                                    result.add_update(
+                                        "supplier",
+                                        f"{name} ({city or 'online'}, {state or ''})",
+                                        f"Updated: {', '.join(updated_fields)}",
+                                    )
                                 else:
-                                    result.add_skip("supplier", f"{name} ({city or 'online'}, {state or ''})", "Already exists (no changes)")
+                                    result.add_skip(
+                                        "supplier",
+                                        f"{name} ({city or 'online'}, {state or ''})",
+                                        "Already exists (no changes)",
+                                    )
                                 # Track mapping for existing suppliers
                                 if old_id:
                                     supplier_id_map[old_id] = existing.id
@@ -3022,14 +3235,18 @@ def import_all_from_json_v4(
                         if skip_duplicates:
                             # Match all 6 fields in UniqueConstraint uq_product_variant
                             # Must include package_unit_quantity to distinguish different sizes
-                            existing = session.query(Product).filter_by(
-                                ingredient_id=ingredient.id,
-                                brand=brand,
-                                product_name=product_name,
-                                package_size=package_size,
-                                package_unit=package_unit,
-                                package_unit_quantity=package_unit_quantity,
-                            ).first()
+                            existing = (
+                                session.query(Product)
+                                .filter_by(
+                                    ingredient_id=ingredient.id,
+                                    brand=brand,
+                                    product_name=product_name,
+                                    package_size=package_size,
+                                    package_unit=package_unit,
+                                    package_unit_quantity=package_unit_quantity,
+                                )
+                                .first()
+                            )
                             if existing:
                                 # Update preferred_supplier_id on existing product if import has one
                                 # Feature 050: Prefer slug-based resolution, fallback to ID
@@ -3041,23 +3258,37 @@ def import_all_from_json_v4(
                                         new_supplier_id = supplier_slug_map.get(supplier_slug)
                                         if not new_supplier_id:
                                             # Try direct database lookup
-                                            sup = session.query(Supplier).filter_by(slug=supplier_slug).first()
+                                            sup = (
+                                                session.query(Supplier)
+                                                .filter_by(slug=supplier_slug)
+                                                .first()
+                                            )
                                             if sup:
                                                 new_supplier_id = sup.id
                                             else:
-                                                logger.warning(f"Supplier slug not found: {supplier_slug}")
+                                                logger.warning(
+                                                    f"Supplier slug not found: {supplier_slug}"
+                                                )
                                     if not new_supplier_id:
                                         # Fallback to ID-based resolution (legacy support)
                                         old_supplier_id = prod_data.get("preferred_supplier_id")
                                         if old_supplier_id:
                                             new_supplier_id = supplier_id_map.get(old_supplier_id)
                                             if new_supplier_id:
-                                                logger.info(f"Using legacy supplier_id fallback: {old_supplier_id}")
+                                                logger.info(
+                                                    f"Using legacy supplier_id fallback: {old_supplier_id}"
+                                                )
                                     if new_supplier_id:
                                         existing.preferred_supplier_id = new_supplier_id
-                                        result.add_success("product")  # Count as success since we updated it
+                                        result.add_success(
+                                            "product"
+                                        )  # Count as success since we updated it
                                         continue
-                                result.add_skip("product", f"{brand} ({package_unit_quantity} {package_unit})", "Already exists")
+                                result.add_skip(
+                                    "product",
+                                    f"{brand} ({package_unit_quantity} {package_unit})",
+                                    "Already exists",
+                                )
                                 continue
 
                         # Validate package_unit
@@ -3074,7 +3305,9 @@ def import_all_from_json_v4(
                             new_supplier_id = supplier_slug_map.get(supplier_slug)
                             if not new_supplier_id:
                                 # Try direct database lookup
-                                existing_supplier = session.query(Supplier).filter_by(slug=supplier_slug).first()
+                                existing_supplier = (
+                                    session.query(Supplier).filter_by(slug=supplier_slug).first()
+                                )
                                 if existing_supplier:
                                     new_supplier_id = existing_supplier.id
                                 else:
@@ -3086,14 +3319,24 @@ def import_all_from_json_v4(
                                 new_supplier_id = supplier_id_map.get(old_supplier_id)
                                 if not new_supplier_id:
                                     # Supplier might already exist with same ID (replace mode)
-                                    existing_supplier = session.query(Supplier).filter_by(id=old_supplier_id).first()
+                                    existing_supplier = (
+                                        session.query(Supplier)
+                                        .filter_by(id=old_supplier_id)
+                                        .first()
+                                    )
                                     if existing_supplier:
                                         new_supplier_id = old_supplier_id
-                                        logger.info(f"Using legacy supplier_id fallback: {old_supplier_id}")
+                                        logger.info(
+                                            f"Using legacy supplier_id fallback: {old_supplier_id}"
+                                        )
                                     else:
-                                        logger.warning(f"Legacy supplier_id not found: {old_supplier_id}")
+                                        logger.warning(
+                                            f"Legacy supplier_id not found: {old_supplier_id}"
+                                        )
                                 else:
-                                    logger.info(f"Using legacy supplier_id fallback: {old_supplier_id}")
+                                    logger.info(
+                                        f"Using legacy supplier_id fallback: {old_supplier_id}"
+                                    )
 
                         product = Product(
                             ingredient_id=ingredient.id,
@@ -3104,7 +3347,9 @@ def import_all_from_json_v4(
                             package_unit=package_unit,
                             package_unit_quantity=prod_data.get("package_unit_quantity"),
                             upc_code=prod_data.get("upc_code"),
-                            preferred=prod_data.get("is_preferred", prod_data.get("preferred", False)),
+                            preferred=prod_data.get(
+                                "is_preferred", prod_data.get("preferred", False)
+                            ),
                             notes=prod_data.get("notes"),
                             # Feature 027: New fields - use mapped supplier ID
                             preferred_supplier_id=new_supplier_id,
@@ -3172,9 +3417,12 @@ def import_all_from_json_v4(
                         try:
                             # Handle both date and datetime formats
                             if "T" in date_str:
-                                purchase_date = dt.fromisoformat(date_str.replace("Z", "+00:00")).date()
+                                purchase_date = dt.fromisoformat(
+                                    date_str.replace("Z", "+00:00")
+                                ).date()
                             else:
                                 from datetime import date as dt_date
+
                                 purchase_date = dt_date.fromisoformat(date_str)
                         except ValueError:
                             result.add_error(
@@ -3219,7 +3467,9 @@ def import_all_from_json_v4(
                         session.add(purchase)
                         result.add_success("purchase")
                     except Exception as e:
-                        result.add_error("purchase", purch_data.get("ingredient_slug", "unknown"), str(e))
+                        result.add_error(
+                            "purchase", purch_data.get("ingredient_slug", "unknown"), str(e)
+                        )
 
             session.flush()
 
@@ -3291,11 +3541,15 @@ def import_all_from_json_v4(
                         # Parse dates
                         purchase_date = None
                         if item_data.get("purchase_date"):
-                            purchase_date = dt.fromisoformat(item_data["purchase_date"].replace("Z", "+00:00"))
+                            purchase_date = dt.fromisoformat(
+                                item_data["purchase_date"].replace("Z", "+00:00")
+                            )
 
                         expiration_date = None
                         if item_data.get("expiration_date"):
-                            expiration_date = dt.fromisoformat(item_data["expiration_date"].replace("Z", "+00:00"))
+                            expiration_date = dt.fromisoformat(
+                                item_data["expiration_date"].replace("Z", "+00:00")
+                            )
 
                         inventory_item = InventoryItem(
                             product_id=product.id,
@@ -3310,7 +3564,9 @@ def import_all_from_json_v4(
                         session.add(inventory_item)
                         result.add_success("inventory_item")
                     except Exception as e:
-                        result.add_error("inventory_item", item_data.get("ingredient_slug", "unknown"), str(e))
+                        result.add_error(
+                            "inventory_item", item_data.get("ingredient_slug", "unknown"), str(e)
+                        )
 
             session.flush()
 
@@ -3378,12 +3634,14 @@ def import_all_from_json_v4(
                                 if unit_error:
                                     invalid_units.append(unit_error)
                                 else:
-                                    validated_ingredients.append({
-                                        "ingredient_id": ingredient.id,
-                                        "quantity": ri_data.get("quantity"),
-                                        "unit": unit,
-                                        "notes": ri_data.get("notes"),
-                                    })
+                                    validated_ingredients.append(
+                                        {
+                                            "ingredient_id": ingredient.id,
+                                            "quantity": ri_data.get("quantity"),
+                                            "unit": unit,
+                                            "notes": ri_data.get("notes"),
+                                        }
+                                    )
                             else:
                                 missing_ingredients.append(ing_slug)
 
@@ -3426,9 +3684,11 @@ def import_all_from_json_v4(
                             name=name,
                             category=recipe_data.get("category"),
                             source=recipe_data.get("source"),
-                            estimated_time_minutes=recipe_data.get("estimated_time_minutes",
-                                                                   recipe_data.get("prep_time_minutes", 0) +
-                                                                   recipe_data.get("cook_time_minutes", 0)),
+                            estimated_time_minutes=recipe_data.get(
+                                "estimated_time_minutes",
+                                recipe_data.get("prep_time_minutes", 0)
+                                + recipe_data.get("cook_time_minutes", 0),
+                            ),
                             notes=recipe_data.get("notes"),
                             # F037 fields
                             base_recipe_id=base_recipe_id,
@@ -3459,14 +3719,24 @@ def import_all_from_json_v4(
 
                             # Check for existing in merge mode
                             if skip_duplicates:
-                                existing_fu = session.query(FinishedUnit).filter_by(slug=fu_slug).first()
+                                existing_fu = (
+                                    session.query(FinishedUnit).filter_by(slug=fu_slug).first()
+                                )
                                 if existing_fu:
-                                    result.add_skip("finished_unit", fu_slug, "Already exists (from recipe import)")
+                                    result.add_skip(
+                                        "finished_unit",
+                                        fu_slug,
+                                        "Already exists (from recipe import)",
+                                    )
                                     continue
 
                             # Convert yield_mode string to enum
                             yield_mode_str = fu_data.get("yield_mode")
-                            yield_mode = YieldMode(yield_mode_str) if yield_mode_str else YieldMode.DISCRETE_COUNT
+                            yield_mode = (
+                                YieldMode(yield_mode_str)
+                                if yield_mode_str
+                                else YieldMode.DISCRETE_COUNT
+                            )
 
                             # Build finished unit with mode-specific fields
                             finished_unit = FinishedUnit(
@@ -3479,13 +3749,18 @@ def import_all_from_json_v4(
                             # Set mode-specific fields based on yield_mode
                             if yield_mode == YieldMode.DISCRETE_COUNT:
                                 if fu_data.get("unit_yield_quantity") is not None:
-                                    finished_unit.items_per_batch = int(fu_data["unit_yield_quantity"])
+                                    finished_unit.items_per_batch = int(
+                                        fu_data["unit_yield_quantity"]
+                                    )
                                 if fu_data.get("unit_yield_unit"):
                                     finished_unit.item_unit = fu_data["unit_yield_unit"]
                             elif yield_mode == YieldMode.BATCH_PORTION:
                                 if fu_data.get("unit_yield_quantity") is not None:
                                     from decimal import Decimal
-                                    finished_unit.batch_percentage = Decimal(str(fu_data["unit_yield_quantity"]))
+
+                                    finished_unit.batch_percentage = Decimal(
+                                        str(fu_data["unit_yield_quantity"])
+                                    )
                                 if fu_data.get("unit_yield_unit"):
                                     finished_unit.portion_description = fu_data["unit_yield_unit"]
 
@@ -3535,9 +3810,9 @@ def import_all_from_json_v4(
                             continue
 
                         # Resolve component recipe by name
-                        component_recipe = session.query(Recipe).filter_by(
-                            name=component_recipe_name
-                        ).first()
+                        component_recipe = (
+                            session.query(Recipe).filter_by(name=component_recipe_name).first()
+                        )
                         if not component_recipe:
                             result.add_error(
                                 "recipe_component",
@@ -3548,10 +3823,14 @@ def import_all_from_json_v4(
 
                         # Check for duplicate
                         if skip_duplicates:
-                            existing = session.query(RecipeComponent).filter_by(
-                                recipe_id=parent_recipe.id,
-                                component_recipe_id=component_recipe.id,
-                            ).first()
+                            existing = (
+                                session.query(RecipeComponent)
+                                .filter_by(
+                                    recipe_id=parent_recipe.id,
+                                    component_recipe_id=component_recipe.id,
+                                )
+                                .first()
+                            )
                             if existing:
                                 result.add_skip(
                                     "recipe_component",
@@ -3618,6 +3897,7 @@ def import_all_from_json_v4(
                                 continue
 
                         from src.models.assembly_type import AssemblyType
+
                         assembly_type_str = fg_data.get("assembly_type", "custom_order")
                         try:
                             assembly_type = AssemblyType(assembly_type_str)
@@ -3684,6 +3964,7 @@ def import_all_from_json_v4(
             # 12. Recipients
             if "recipients" in data:
                 from src.models.recipient import Recipient
+
                 for rec in data["recipients"]:
                     try:
                         name = rec.get("name", "")
@@ -3710,6 +3991,7 @@ def import_all_from_json_v4(
             # Feature 040 / F039: Import output_mode field
             if "events" in data:
                 from src.models.event import Event, OutputMode
+
                 for evt in data["events"]:
                     try:
                         name = evt.get("name", "")
@@ -3721,6 +4003,7 @@ def import_all_from_json_v4(
                                 continue
 
                         from datetime import date
+
                         event_date_str = evt.get("event_date")
                         event_date = date.fromisoformat(event_date_str) if event_date_str else None
 
@@ -4108,7 +4391,7 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
 
     # Read JSON
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         result.add_error("file", file_path, f"Invalid JSON: {e}")
@@ -4116,13 +4399,17 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
 
     # Validate schema
     if data.get("schema_version") != "4.0":
-        result.add_error("file", file_path,
-            f"Unsupported schema version: {data.get('schema_version')}")
+        result.add_error(
+            "file", file_path, f"Unsupported schema version: {data.get('schema_version')}"
+        )
         return result
 
     if data.get("import_type") != "inventory_updates":
-        result.add_error("file", file_path,
-            f"Wrong import type: {data.get('import_type')} (expected 'inventory_updates')")
+        result.add_error(
+            "file",
+            file_path,
+            f"Wrong import type: {data.get('import_type')} (expected 'inventory_updates')",
+        )
         return result
 
     # Process updates
@@ -4137,8 +4424,7 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
             product = session.query(Product).filter_by(upc_code=upc).first()
 
             if not product:
-                result.add_error("inventory_update", upc,
-                    f"No product found with UPC: {upc}")
+                result.add_error("inventory_update", upc, f"No product found with UPC: {upc}")
                 continue
 
             # FIFO: oldest purchase_date first, with remaining quantity
@@ -4151,8 +4437,11 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
             )
 
             if not inventory_item:
-                result.add_error("inventory_update", upc,
-                    f"No inventory with remaining quantity for product: {product.display_name}")
+                result.add_error(
+                    "inventory_update",
+                    upc,
+                    f"No inventory with remaining quantity for product: {product.display_name}",
+                )
                 continue
 
             # Get percentage from update data
@@ -4163,20 +4452,27 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
 
             # Validate percentage range
             if not (0 <= percentage <= 100):
-                result.add_error("inventory_update", upc,
-                    f"Invalid percentage: {percentage} (must be 0-100)")
+                result.add_error(
+                    "inventory_update", upc, f"Invalid percentage: {percentage} (must be 0-100)"
+                )
                 continue
 
             # Get original quantity from linked purchase
             if not inventory_item.purchase_id:
-                result.add_error("inventory_update", upc,
-                    "Cannot calculate percentage - inventory item has no linked purchase")
+                result.add_error(
+                    "inventory_update",
+                    upc,
+                    "Cannot calculate percentage - inventory item has no linked purchase",
+                )
                 continue
 
             purchase = session.get(Purchase, inventory_item.purchase_id)
             if not purchase:
-                result.add_error("inventory_update", upc,
-                    "Cannot calculate percentage - linked purchase not found")
+                result.add_error(
+                    "inventory_update",
+                    upc,
+                    "Cannot calculate percentage - linked purchase not found",
+                )
                 continue
 
             original_quantity = Decimal(str(purchase.quantity_purchased))
@@ -4194,8 +4490,11 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
 
             # Validate no negative inventory
             if new_quantity < 0:
-                result.add_error("inventory_update", upc,
-                    f"Adjustment would result in negative inventory: {new_quantity}")
+                result.add_error(
+                    "inventory_update",
+                    upc,
+                    f"Adjustment would result in negative inventory: {new_quantity}",
+                )
                 continue
 
             # Update quantity (convert to float for model compatibility)
@@ -4212,4 +4511,3 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
             result.successful = 0
 
     return result
-

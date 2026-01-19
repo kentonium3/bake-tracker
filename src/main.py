@@ -121,7 +121,7 @@ def parse_args():
     parser.add_argument(
         "--reset-db",
         action="store_true",
-        help="Delete and recreate the database (WARNING: destroys all data!)"
+        help="Delete and recreate the database (WARNING: destroys all data!)",
     )
     return parser.parse_args()
 

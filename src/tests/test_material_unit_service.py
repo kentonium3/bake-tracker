@@ -453,11 +453,11 @@ class TestPreviewConsumption:
 
         preview = preview_consumption(unit.id, quantity_needed=50, session=db_session)
 
-        assert preview['can_fulfill'] is True
-        assert preview['quantity_needed'] == 50
-        assert preview['base_units_needed'] == 300  # 50 * 6
-        assert preview['shortage_base_units'] == 0
-        assert len(preview['allocations']) == 2  # Both products used
+        assert preview["can_fulfill"] is True
+        assert preview["quantity_needed"] == 50
+        assert preview["base_units_needed"] == 300  # 50 * 6
+        assert preview["shortage_base_units"] == 0
+        assert len(preview["allocations"]) == 2  # Both products used
 
     def test_preview_insufficient_inventory(self, db_session, material_with_products):
         """Preview with insufficient inventory."""
@@ -471,10 +471,10 @@ class TestPreviewConsumption:
         # Try to consume more than available (200 units max)
         preview = preview_consumption(unit.id, quantity_needed=300, session=db_session)
 
-        assert preview['can_fulfill'] is False
-        assert preview['quantity_needed'] == 300
-        assert preview['base_units_needed'] == 1800  # 300 * 6
-        assert preview['shortage_base_units'] == 600  # 1800 - 1200
+        assert preview["can_fulfill"] is False
+        assert preview["quantity_needed"] == 300
+        assert preview["base_units_needed"] == 1800  # 300 * 6
+        assert preview["shortage_base_units"] == 600  # 1800 - 1200
 
     def test_preview_proportional_allocation(self, db_session, material_with_products):
         """Allocations are proportional to inventory."""
@@ -492,9 +492,9 @@ class TestPreviewConsumption:
         # Product A (800/1200 = 66.7%) should get 400 cm
         # Product B (400/1200 = 33.3%) should get 200 cm
 
-        allocations = {a['product_name']: a['base_units_consumed'] for a in preview['allocations']}
-        assert allocations['800cm Roll'] == 400.0  # 66.7% of 600
-        assert allocations['400cm Roll'] == 200.0  # 33.3% of 600
+        allocations = {a["product_name"]: a["base_units_consumed"] for a in preview["allocations"]}
+        assert allocations["800cm Roll"] == 400.0  # 66.7% of 600
+        assert allocations["400cm Roll"] == 200.0  # 33.3% of 600
 
     def test_preview_no_inventory(self, db_session, sample_material):
         """Preview with no inventory."""
@@ -507,9 +507,9 @@ class TestPreviewConsumption:
 
         preview = preview_consumption(unit.id, quantity_needed=10, session=db_session)
 
-        assert preview['can_fulfill'] is False
-        assert preview['available_base_units'] == 0
-        assert len(preview['allocations']) == 0
+        assert preview["can_fulfill"] is False
+        assert preview["available_base_units"] == 0
+        assert len(preview["allocations"]) == 0
 
     def test_preview_unit_not_found(self, db_session):
         """Non-existent unit raises error."""
@@ -531,4 +531,4 @@ class TestPreviewConsumption:
         # Product A: 200 inches at $0.10 = $20
         # Product B: 100 inches at $0.14 = $14
         # Total = $34
-        assert float(preview['total_cost']) == pytest.approx(34.0, rel=0.01)
+        assert float(preview["total_cost"]) == pytest.approx(34.0, rel=0.01)

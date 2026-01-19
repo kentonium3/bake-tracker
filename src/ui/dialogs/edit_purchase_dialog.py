@@ -120,8 +120,12 @@ class EditPurchaseDialog(ctk.CTkToplevel):
                 "package_unit_quantity": Decimal(str(purchase.product.package_unit_quantity)),
                 "purchase_date": purchase.purchase_date,
                 "quantity_purchased": Decimal(str(purchase.quantity_purchased)),
-                "unit_price": Decimal(str(purchase.unit_price)) if purchase.unit_price else Decimal("0"),
-                "total_cost": Decimal(str(purchase.total_cost)) if purchase.total_cost else Decimal("0"),
+                "unit_price": (
+                    Decimal(str(purchase.unit_price)) if purchase.unit_price else Decimal("0")
+                ),
+                "total_cost": (
+                    Decimal(str(purchase.total_cost)) if purchase.total_cost else Decimal("0")
+                ),
                 "supplier_id": purchase.supplier_id,
                 "supplier_name": purchase.supplier.name if purchase.supplier else "",
                 "notes": purchase.notes or "",
@@ -129,20 +133,16 @@ class EditPurchaseDialog(ctk.CTkToplevel):
             return True
         except PurchaseNotFound:
             from tkinter import messagebox
+
             messagebox.showerror(
-                "Error",
-                "Purchase not found. It may have been deleted.",
-                parent=self.master
+                "Error", "Purchase not found. It may have been deleted.", parent=self.master
             )
             self.destroy()
             return False
         except Exception as e:
             from tkinter import messagebox
-            messagebox.showerror(
-                "Error",
-                f"Failed to load purchase: {str(e)}",
-                parent=self.master
-            )
+
+            messagebox.showerror("Error", f"Failed to load purchase: {str(e)}", parent=self.master)
             self.destroy()
             return False
 
@@ -164,8 +164,7 @@ class EditPurchaseDialog(ctk.CTkToplevel):
             self.remaining_qty = get_remaining_inventory(self.purchase_id)
             # Consumed = total purchased units - remaining
             total_units = (
-                self.purchase["quantity_purchased"]
-                * self.purchase["package_unit_quantity"]
+                self.purchase["quantity_purchased"] * self.purchase["package_unit_quantity"]
             )
             self.consumed_qty = total_units - self.remaining_qty
         except Exception:
@@ -176,9 +175,7 @@ class EditPurchaseDialog(ctk.CTkToplevel):
         """Create all dialog widgets."""
         # Title
         self.title_label = ctk.CTkLabel(
-            self,
-            text="Edit Purchase",
-            font=ctk.CTkFont(size=18, weight="bold")
+            self, text="Edit Purchase", font=ctk.CTkFont(size=18, weight="bold")
         )
 
         # Form frame
@@ -186,150 +183,77 @@ class EditPurchaseDialog(ctk.CTkToplevel):
 
         # Product display (read-only) - T029
         self.product_frame = ctk.CTkFrame(self.form_frame, fg_color="transparent")
-        self.product_title_label = ctk.CTkLabel(
-            self.product_frame,
-            text="Product",
-            anchor="w"
-        )
+        self.product_title_label = ctk.CTkLabel(self.product_frame, text="Product", anchor="w")
         self.product_name_label = ctk.CTkLabel(
-            self.product_frame,
-            text="",
-            font=ctk.CTkFont(weight="bold"),
-            anchor="w"
+            self.product_frame, text="", font=ctk.CTkFont(weight="bold"), anchor="w"
         )
         self.product_readonly_hint = ctk.CTkLabel(
             self.product_frame,
             text="(cannot be changed)",
             font=ctk.CTkFont(size=11),
-            text_color="gray"
+            text_color="gray",
         )
 
         # Date entry
-        self.date_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Purchase Date *",
-            anchor="w"
-        )
+        self.date_label = ctk.CTkLabel(self.form_frame, text="Purchase Date *", anchor="w")
         self.date_var = ctk.StringVar()
         self.date_entry = ctk.CTkEntry(
-            self.form_frame,
-            textvariable=self.date_var,
-            width=150,
-            placeholder_text="YYYY-MM-DD"
+            self.form_frame, textvariable=self.date_var, width=150, placeholder_text="YYYY-MM-DD"
         )
         self.date_hint = ctk.CTkLabel(
-            self.form_frame,
-            text="Format: YYYY-MM-DD",
-            font=ctk.CTkFont(size=10),
-            text_color="gray"
+            self.form_frame, text="Format: YYYY-MM-DD", font=ctk.CTkFont(size=10), text_color="gray"
         )
 
         # Quantity entry with consumed info - T030
-        self.qty_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Quantity *",
-            anchor="w"
-        )
+        self.qty_label = ctk.CTkLabel(self.form_frame, text="Quantity *", anchor="w")
         self.qty_var = ctk.StringVar()
-        self.qty_entry = ctk.CTkEntry(
-            self.form_frame,
-            textvariable=self.qty_var,
-            width=100
-        )
-        self.qty_unit_label = ctk.CTkLabel(
-            self.form_frame,
-            text="package(s)",
-            text_color="gray"
-        )
+        self.qty_entry = ctk.CTkEntry(self.form_frame, textvariable=self.qty_var, width=100)
+        self.qty_unit_label = ctk.CTkLabel(self.form_frame, text="package(s)", text_color="gray")
         self.consumed_info_label = ctk.CTkLabel(
-            self.form_frame,
-            text="",
-            font=ctk.CTkFont(size=10),
-            text_color="gray"
+            self.form_frame, text="", font=ctk.CTkFont(size=10), text_color="gray"
         )
 
         # Unit price entry
-        self.price_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Unit Price *",
-            anchor="w"
-        )
+        self.price_label = ctk.CTkLabel(self.form_frame, text="Unit Price *", anchor="w")
         self.price_var = ctk.StringVar()
         self.price_entry = ctk.CTkEntry(
-            self.form_frame,
-            textvariable=self.price_var,
-            width=100,
-            placeholder_text="0.00"
+            self.form_frame, textvariable=self.price_var, width=100, placeholder_text="0.00"
         )
         self.price_hint = ctk.CTkLabel(
-            self.form_frame,
-            text="",
-            font=ctk.CTkFont(size=10),
-            text_color="gray"
+            self.form_frame, text="", font=ctk.CTkFont(size=10), text_color="gray"
         )
 
         # Supplier dropdown
-        self.supplier_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Supplier *",
-            anchor="w"
-        )
+        self.supplier_label = ctk.CTkLabel(self.form_frame, text="Supplier *", anchor="w")
         supplier_names = sorted(self.supplier_map.keys())
         self.supplier_var = ctk.StringVar()
         self.supplier_combo = ctk.CTkComboBox(
-            self.form_frame,
-            variable=self.supplier_var,
-            values=supplier_names,
-            width=250
+            self.form_frame, variable=self.supplier_var, values=supplier_names, width=250
         )
 
         # Notes text area
-        self.notes_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Notes (optional)",
-            anchor="w"
-        )
-        self.notes_text = ctk.CTkTextbox(
-            self.form_frame,
-            height=60,
-            width=350
-        )
+        self.notes_label = ctk.CTkLabel(self.form_frame, text="Notes (optional)", anchor="w")
+        self.notes_text = ctk.CTkTextbox(self.form_frame, height=60, width=350)
 
         # Preview frame - T031
         self.preview_frame = ctk.CTkFrame(self)
         self.preview_title = ctk.CTkLabel(
-            self.preview_frame,
-            text="Changes Preview",
-            font=ctk.CTkFont(size=12, weight="bold")
+            self.preview_frame, text="Changes Preview", font=ctk.CTkFont(size=12, weight="bold")
         )
         self.preview_label = ctk.CTkLabel(
-            self.preview_frame,
-            text="No changes detected",
-            text_color="gray",
-            justify="left"
+            self.preview_frame, text="No changes detected", text_color="gray", justify="left"
         )
 
         # Error label
-        self.error_label = ctk.CTkLabel(
-            self,
-            text="",
-            text_color="red"
-        )
+        self.error_label = ctk.CTkLabel(self, text="", text_color="red")
 
         # Button frame
         self.button_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.cancel_btn = ctk.CTkButton(
-            self.button_frame,
-            text="Cancel",
-            command=self.destroy,
-            width=100,
-            fg_color="gray"
+            self.button_frame, text="Cancel", command=self.destroy, width=100, fg_color="gray"
         )
         self.save_btn = ctk.CTkButton(
-            self.button_frame,
-            text="Save Changes",
-            command=self._on_save,
-            width=120
+            self.button_frame, text="Save Changes", command=self._on_save, width=120
         )
 
     def _layout_widgets(self) -> None:
@@ -355,7 +279,9 @@ class EditPurchaseDialog(ctk.CTkToplevel):
         self.qty_label.grid(row=4, column=0, sticky="w", padx=10, pady=(10, 2))
         self.qty_entry.grid(row=5, column=0, sticky="w", padx=10, pady=(0, 2))
         self.qty_unit_label.grid(row=5, column=1, sticky="w", padx=5, pady=(0, 2))
-        self.consumed_info_label.grid(row=6, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10))
+        self.consumed_info_label.grid(
+            row=6, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10)
+        )
 
         # Price row
         self.price_label.grid(row=7, column=0, sticky="w", padx=10, pady=(10, 2))
@@ -404,10 +330,12 @@ class EditPurchaseDialog(ctk.CTkToplevel):
 
         # Show consumed info
         package_unit_qty = self.purchase["package_unit_quantity"]
-        consumed_packages = self.consumed_qty / package_unit_qty if package_unit_qty else Decimal("0")
+        consumed_packages = (
+            self.consumed_qty / package_unit_qty if package_unit_qty else Decimal("0")
+        )
         self.consumed_info_label.configure(
             text=f"Consumed: {self.consumed_qty:.1f} {package_unit}(s) "
-                 f"(min: {consumed_packages:.1f} packages)"
+            f"(min: {consumed_packages:.1f} packages)"
         )
 
         # Unit price
@@ -498,20 +426,13 @@ class EditPurchaseDialog(ctk.CTkToplevel):
             # Notes change? (check on save, not preview)
 
             if changes:
-                self.preview_label.configure(
-                    text="\n".join(changes),
-                    text_color="blue"
-                )
+                self.preview_label.configure(text="\n".join(changes), text_color="blue")
             else:
-                self.preview_label.configure(
-                    text="No changes detected",
-                    text_color="gray"
-                )
+                self.preview_label.configure(text="No changes detected", text_color="gray")
 
         except Exception:
             self.preview_label.configure(
-                text="Enter valid values to see preview",
-                text_color="orange"
+                text="Enter valid values to see preview", text_color="orange"
             )
 
     def _validate(self) -> tuple:

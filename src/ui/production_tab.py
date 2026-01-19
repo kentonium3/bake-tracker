@@ -109,9 +109,7 @@ class ProductionTab(ctk.CTkFrame):
             summaries = production_service.get_dashboard_summary()
 
             if not summaries:
-                no_data = ctk.CTkLabel(
-                    self.event_list_frame, text="No events with packages found"
-                )
+                no_data = ctk.CTkLabel(self.event_list_frame, text="No events with packages found")
                 no_data.pack(pady=20)
                 return
 
@@ -149,9 +147,7 @@ class ProductionTab(ctk.CTkFrame):
         date_label.pack(anchor="w", padx=10)
 
         # Recipe progress
-        recipe_text = (
-            f"Recipes: {summary['recipes_complete']}/{summary['recipes_total']}"
-        )
+        recipe_text = f"Recipes: {summary['recipes_complete']}/{summary['recipes_total']}"
         recipe_label = ctk.CTkLabel(card, text=recipe_text)
         recipe_label.pack(anchor="w", padx=10)
 
@@ -250,9 +246,7 @@ class ProductionTab(ctk.CTkFrame):
             self._create_package_status_section(scroll_container, event_id, progress)
 
         except Exception as e:
-            error_label = ctk.CTkLabel(
-                self.detail_panel, text=f"Error: {str(e)}", text_color="red"
-            )
+            error_label = ctk.CTkLabel(self.detail_panel, text=f"Error: {str(e)}", text_color="red")
             error_label.pack(pady=20)
 
     def _create_production_form(self, parent, event_id: int, progress: dict):
@@ -275,9 +269,7 @@ class ProductionTab(ctk.CTkFrame):
         recipe_ids = [r["recipe_id"] for r in progress["recipes"]]
 
         if not recipe_names:
-            no_recipes = ctk.CTkLabel(
-                form_frame, text="No recipes found for this event"
-            )
+            no_recipes = ctk.CTkLabel(form_frame, text="No recipes found for this event")
             no_recipes.pack(pady=10)
             return
 
@@ -316,18 +308,14 @@ class ProductionTab(ctk.CTkFrame):
             recipe_id = self._recipe_id_map.get(recipe_name)
 
             if not recipe_id:
-                self.status_label.configure(
-                    text="Please select a recipe", text_color="red"
-                )
+                self.status_label.configure(text="Please select a recipe", text_color="red")
                 return
 
             batches_str = self.batch_entry.get()
             batches = int(batches_str) if batches_str else 1
 
             if batches <= 0:
-                self.status_label.configure(
-                    text="Batches must be greater than 0", text_color="red"
-                )
+                self.status_label.configure(text="Batches must be greater than 0", text_color="red")
                 return
 
             # Check for over-production (T029)
@@ -340,9 +328,7 @@ class ProductionTab(ctk.CTkFrame):
                 f"This will consume pantry inventory via FIFO.\n"
                 f"This action cannot be undone."
             )
-            result = messagebox.askyesno(
-                "Confirm Production", message, icon="warning", parent=self
-            )
+            result = messagebox.askyesno("Confirm Production", message, icon="warning", parent=self)
 
             if not result:
                 return  # User cancelled
@@ -372,9 +358,7 @@ class ProductionTab(ctk.CTkFrame):
             self._handle_production_error(e)
             self.status_label.configure(text=f"Error: {str(e)}", text_color="red")
 
-    def _check_over_production(
-        self, event_id: int, recipe_id: int, new_batches: int
-    ) -> bool:
+    def _check_over_production(self, event_id: int, recipe_id: int, new_batches: int) -> bool:
         """Check if production would exceed planned amount (T029)."""
         from tkinter import messagebox
 
@@ -471,9 +455,7 @@ class ProductionTab(ctk.CTkFrame):
             name = ctk.CTkLabel(row, text=recipe["recipe_name"], width=150, anchor="w")
             name.pack(side="left", padx=5)
 
-            progress_text = (
-                f"{recipe['batches_produced']}/{recipe['batches_required']} batches"
-            )
+            progress_text = f"{recipe['batches_produced']}/{recipe['batches_required']} batches"
             progress = ctk.CTkLabel(row, text=progress_text)
             progress.pack(side="left", padx=5)
 
@@ -530,9 +512,9 @@ class ProductionTab(ctk.CTkFrame):
         delivery_frame = ctk.CTkFrame(section)
         delivery_frame.pack(fill="x", pady=2)
 
-        ctk.CTkLabel(
-            delivery_frame, text=f"Delivered: {delivered}/{total}", width=120
-        ).pack(side="left", padx=5)
+        ctk.CTkLabel(delivery_frame, text=f"Delivered: {delivered}/{total}", width=120).pack(
+            side="left", padx=5
+        )
 
         delivery_bar = ctk.CTkProgressBar(delivery_frame, width=200)
         delivery_bar.set(delivery_pct)
@@ -571,9 +553,7 @@ class ProductionTab(ctk.CTkFrame):
         variance = actual - planned
 
         # Actual cost (larger font)
-        ctk.CTkLabel(
-            section, text=f"Actual Cost: ${actual:.2f}", font=ctk.CTkFont(size=16)
-        ).pack()
+        ctk.CTkLabel(section, text=f"Actual Cost: ${actual:.2f}", font=ctk.CTkFont(size=16)).pack()
 
         # Planned cost
         ctk.CTkLabel(
@@ -658,9 +638,9 @@ class ProductionTab(ctk.CTkFrame):
                 variance = float(recipe.get("variance", 0))
                 variance_pct = recipe.get("variance_percent", 0)
 
-                ctk.CTkLabel(
-                    row, text=recipe.get("recipe_name", ""), width=150, anchor="w"
-                ).pack(side="left", padx=2)
+                ctk.CTkLabel(row, text=recipe.get("recipe_name", ""), width=150, anchor="w").pack(
+                    side="left", padx=2
+                )
                 ctk.CTkLabel(row, text=f"${actual:.2f}", width=70, anchor="e").pack(
                     side="left", padx=2
                 )
@@ -679,9 +659,9 @@ class ProductionTab(ctk.CTkFrame):
                     var_text = "$0.00 (0%)"
                     color = "gray"
 
-                ctk.CTkLabel(
-                    row, text=var_text, width=100, anchor="e", text_color=color
-                ).pack(side="left", padx=2)
+                ctk.CTkLabel(row, text=var_text, width=100, anchor="e", text_color=color).pack(
+                    side="left", padx=2
+                )
 
             # Close button
             close_btn = ctk.CTkButton(popup, text="Close", command=popup.destroy)
@@ -748,9 +728,7 @@ class ProductionTab(ctk.CTkFrame):
                 row,
                 text="Mark Assembled",
                 width=120,
-                command=lambda: self._update_status(
-                    assignment["id"], "assembled", event_id
-                ),
+                command=lambda: self._update_status(assignment["id"], "assembled", event_id),
             )
             assemble_btn.pack(side="right", padx=2)
 
@@ -800,9 +778,7 @@ class ProductionTab(ctk.CTkFrame):
             self._show_error(f"Cannot assemble: Missing production for {missing}")
 
         except InvalidStatusTransitionError as e:
-            self._show_error(
-                f"Cannot change from {e.current.value} to {e.target.value}"
-            )
+            self._show_error(f"Cannot change from {e.current.value} to {e.target.value}")
 
         except Exception as e:
             self._show_error(str(e))

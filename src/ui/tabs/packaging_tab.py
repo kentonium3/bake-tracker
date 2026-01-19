@@ -35,31 +35,24 @@ class PackagingTab(ctk.CTkFrame):
         container = ctk.CTkFrame(self, fg_color="transparent")
         container.place(relx=0.5, rely=0.5, anchor="center")
 
-        title = ctk.CTkLabel(
-            container,
-            text="Packaging",
-            font=ctk.CTkFont(size=24, weight="bold")
-        )
+        title = ctk.CTkLabel(container, text="Packaging", font=ctk.CTkFont(size=24, weight="bold"))
         title.pack(pady=(0, 20))
 
         message = ctk.CTkLabel(
             container,
             text="Packaging management features are under development.\n\n"
-                 "This tab will allow you to:\n"
-                 "- Create gift packages for recipients\n"
-                 "- Track package fulfillment status\n"
-                 "- Manage delivery workflow",
+            "This tab will allow you to:\n"
+            "- Create gift packages for recipients\n"
+            "- Track package fulfillment status\n"
+            "- Manage delivery workflow",
             font=ctk.CTkFont(size=14),
-            justify="center"
+            justify="center",
         )
         message.pack()
 
         # Coming soon indicator
         indicator = ctk.CTkLabel(
-            container,
-            text="Coming Soon",
-            font=ctk.CTkFont(size=12),
-            text_color="gray"
+            container, text="Coming Soon", font=ctk.CTkFont(size=12), text_color="gray"
         )
         indicator.pack(pady=(20, 0))
 

@@ -118,13 +118,11 @@ def record_purchase(
     """
     if session is not None:
         return _record_purchase_impl(
-            product_id, quantity, total_cost, purchase_date,
-            store, receipt_number, notes, session
+            product_id, quantity, total_cost, purchase_date, store, receipt_number, notes, session
         )
     with session_scope() as sess:
         return _record_purchase_impl(
-            product_id, quantity, total_cost, purchase_date,
-            store, receipt_number, notes, sess
+            product_id, quantity, total_cost, purchase_date, store, receipt_number, notes, sess
         )
 
 
@@ -202,7 +200,9 @@ def _record_purchase_impl(
         total_units = Decimal(str(int(quantity))) * package_unit_qty
 
         # Unit cost = price per package / units per package
-        unit_cost = float(unit_price / package_unit_qty) if package_unit_qty > 0 else float(unit_price)
+        unit_cost = (
+            float(unit_price / package_unit_qty) if package_unit_qty > 0 else float(unit_price)
+        )
 
         inventory_item = InventoryItem(
             product_id=product_id,
@@ -880,13 +880,10 @@ def _get_purchases_filtered_impl(
     # "all_time" has no cutoff
 
     # Build query with eager loading
-    query = (
-        session.query(Purchase)
-        .options(
-            joinedload(Purchase.product),
-            joinedload(Purchase.supplier),
-            joinedload(Purchase.inventory_items),
-        )
+    query = session.query(Purchase).options(
+        joinedload(Purchase.product),
+        joinedload(Purchase.supplier),
+        joinedload(Purchase.inventory_items),
     )
 
     # Apply date filter
@@ -901,8 +898,7 @@ def _get_purchases_filtered_impl(
     if search_query:
         search_pattern = f"%{search_query}%"
         query = query.join(Purchase.product).filter(
-            (Product.product_name.ilike(search_pattern))
-            | (Product.brand.ilike(search_pattern))
+            (Product.product_name.ilike(search_pattern)) | (Product.brand.ilike(search_pattern))
         )
 
     # Order by purchase_date DESC
@@ -919,17 +915,19 @@ def _get_purchases_filtered_impl(
             if item.quantity is not None:
                 remaining += Decimal(str(item.quantity))
 
-        result.append({
-            "id": purchase.id,
-            "product_name": purchase.product.display_name if purchase.product else "Unknown",
-            "supplier_name": purchase.supplier.name if purchase.supplier else "Unknown",
-            "purchase_date": purchase.purchase_date,
-            "quantity_purchased": Decimal(str(purchase.quantity_purchased)),
-            "unit_price": purchase.unit_price,
-            "total_cost": purchase.total_cost,
-            "remaining_inventory": remaining,
-            "notes": purchase.notes,
-        })
+        result.append(
+            {
+                "id": purchase.id,
+                "product_name": purchase.product.display_name if purchase.product else "Unknown",
+                "supplier_name": purchase.supplier.name if purchase.supplier else "Unknown",
+                "purchase_date": purchase.purchase_date,
+                "quantity_purchased": Decimal(str(purchase.quantity_purchased)),
+                "unit_price": purchase.unit_price,
+                "total_cost": purchase.total_cost,
+                "remaining_inventory": remaining,
+                "notes": purchase.notes,
+            }
+        )
 
     return result
 
@@ -1140,9 +1138,7 @@ def _can_delete_purchase_impl(
 
     # Query depletions to get production runs
     depletions = (
-        session.query(InventoryDepletion)
-        .filter(InventoryDepletion.id.in_(depletion_ids))
-        .all()
+        session.query(InventoryDepletion).filter(InventoryDepletion.id.in_(depletion_ids)).all()
     )
 
     for depletion in depletions:
@@ -1371,13 +1367,15 @@ def _get_purchase_usage_history_impl(
             # Cost is quantity * unit_cost (stored on depletion)
             cost = Decimal(str(depletion.cost)) if depletion.cost else Decimal("0")
 
-            result.append({
-                "depletion_id": depletion.id,
-                "depleted_at": depletion.depletion_date,
-                "recipe_name": depletion.depletion_reason or "Unknown",
-                "quantity_used": quantity_used,
-                "cost": cost,
-            })
+            result.append(
+                {
+                    "depletion_id": depletion.id,
+                    "depleted_at": depletion.depletion_date,
+                    "recipe_name": depletion.depletion_reason or "Unknown",
+                    "quantity_used": quantity_used,
+                    "cost": cost,
+                }
+            )
 
     # Sort by depleted_at ASC
     result.sort(key=lambda x: x["depleted_at"] if x["depleted_at"] else "")

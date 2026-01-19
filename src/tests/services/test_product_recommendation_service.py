@@ -19,7 +19,7 @@ from src.services.product_service import (
     _calculate_product_cost,
     get_product_recommendation,
     create_product,
-    get_products_for_ingredient
+    get_products_for_ingredient,
 )
 from src.services import ingredient_service
 from src.models import Purchase
@@ -28,19 +28,23 @@ from src.models import Purchase
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def test_supplier(test_db):
     """Create a test supplier for F028."""
     from src.services import supplier_service
+
     result = supplier_service.create_supplier(
         name="Test Supplier",
         city="Boston",
         state="MA",
         zip_code="02101",
     )
+
     class SupplierObj:
         def __init__(self, data):
             self.id = data["id"]
+
     return SupplierObj(result)
 
 
@@ -55,9 +59,10 @@ def flour_ingredient(test_db):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 125.0,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
+
 
 @pytest.fixture
 def flour_product_preferred(test_db, flour_ingredient, test_supplier):
@@ -69,8 +74,8 @@ def flour_product_preferred(test_db, flour_ingredient, test_supplier):
             "package_size": "25 lb bag",
             "package_unit": "lb",
             "package_unit_quantity": Decimal("25.0"),
-            "preferred": True
-        }
+            "preferred": True,
+        },
     )
 
     # Add purchase history for cost data
@@ -87,6 +92,7 @@ def flour_product_preferred(test_db, flour_ingredient, test_supplier):
 
     return product
 
+
 @pytest.fixture
 def flour_product_generic(test_db, flour_ingredient, test_supplier):
     """Create a non-preferred generic flour product."""
@@ -97,8 +103,8 @@ def flour_product_generic(test_db, flour_ingredient, test_supplier):
             "package_size": "5 lb bag",
             "package_unit": "lb",
             "package_unit_quantity": Decimal("5.0"),
-            "preferred": False
-        }
+            "preferred": False,
+        },
     )
 
     # Add purchase history
@@ -115,6 +121,7 @@ def flour_product_generic(test_db, flour_ingredient, test_supplier):
 
     return product
 
+
 @pytest.fixture
 def flour_product_no_purchases(test_db, flour_ingredient):
     """Create a product with no purchase history (cost unknown)."""
@@ -125,23 +132,23 @@ def flour_product_no_purchases(test_db, flour_ingredient):
             "package_size": "10 lb bag",
             "package_unit": "lb",
             "package_unit_quantity": Decimal("10.0"),
-            "preferred": False
-        }
+            "preferred": False,
+        },
     )
+
 
 @pytest.fixture
 def ingredient_no_products(test_db):
     """Create an ingredient with no products configured."""
     return ingredient_service.create_ingredient(
-        {
-            "display_name": "Specialty Ingredient",
-            "category": "Misc"
-        }
+        {"display_name": "Specialty Ingredient", "category": "Misc"}
     )
+
 
 # ============================================================================
 # Tests for get_product_recommendation with preferred product
 # ============================================================================
+
 
 class TestProductRecommendationPreferred:
     """Tests for get_product_recommendation when preferred product exists."""
@@ -151,9 +158,7 @@ class TestProductRecommendationPreferred:
     ):
         """FR-001: Preferred product is recommended with correct status."""
         result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("5"),  # 5 cups shortfall
-            "cup"
+            flour_ingredient.slug, Decimal("5"), "cup"  # 5 cups shortfall
         )
 
         assert result["product_status"] == "preferred"
@@ -164,11 +169,7 @@ class TestProductRecommendationPreferred:
         self, test_db, flour_ingredient, flour_product_preferred
     ):
         """Recommendation includes brand information."""
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("5"),
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("5"), "cup")
 
         assert result["product_recommendation"]["brand"] == "King Arthur"
         assert result["product_recommendation"]["is_preferred"] is True
@@ -177,20 +178,18 @@ class TestProductRecommendationPreferred:
         self, test_db, flour_ingredient, flour_product_preferred
     ):
         """Recommendation includes cost calculations when purchase history exists."""
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("5"),
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("5"), "cup")
 
         rec = result["product_recommendation"]
         assert rec["cost_available"] is True
         assert rec["cost_per_package_unit"] == Decimal("0.72")
         assert rec["total_cost"] is not None
 
+
 # ============================================================================
 # Tests for get_product_recommendation with multiple products (no preferred)
 # ============================================================================
+
 
 class TestProductRecommendationMultiple:
     """Tests for get_product_recommendation when no preferred product exists."""
@@ -200,11 +199,7 @@ class TestProductRecommendationMultiple:
     ):
         """FR-002: All products listed when no preferred product marked."""
         # Ensure no product is preferred
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("5"),
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("5"), "cup")
 
         # Both products created without preferred=True
         # (flour_product_generic has preferred=False, flour_product_no_purchases also False)
@@ -216,11 +211,7 @@ class TestProductRecommendationMultiple:
         self, test_db, flour_ingredient, flour_product_generic, flour_product_no_purchases
     ):
         """Multiple products are sorted cheapest first."""
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("5"),
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("5"), "cup")
 
         # Products with cost should come before products without cost
         all_products = result["all_products"]
@@ -234,29 +225,29 @@ class TestProductRecommendationMultiple:
             for vi in value_indices:
                 assert vi < ni, "Products with cost should come before products without cost"
 
+
 # ============================================================================
 # Tests for get_product_recommendation with no products
 # ============================================================================
+
 
 class TestProductRecommendationNone:
     """Tests for get_product_recommendation when no products configured."""
 
     def test_returns_none_status_when_no_products(self, test_db, ingredient_no_products):
         """FR-003: Handle ingredient with no products."""
-        result = get_product_recommendation(
-            ingredient_no_products.slug,
-            Decimal("5"),
-            "oz"
-        )
+        result = get_product_recommendation(ingredient_no_products.slug, Decimal("5"), "oz")
 
         assert result["product_status"] == "none"
         assert result["product_recommendation"] is None
         assert result["all_products"] == []
         assert result["message"] == "No product configured"
 
+
 # ============================================================================
 # Tests for cost calculation accuracy
 # ============================================================================
+
 
 class TestCostCalculationAccuracy:
     """Tests for cost calculation precision requirements."""
@@ -265,11 +256,7 @@ class TestCostCalculationAccuracy:
         self, test_db, flour_ingredient, flour_product_preferred
     ):
         """SC-002: Cost accurate within $0.01 precision."""
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("10"),  # 10 cups
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("10"), "cup")  # 10 cups
 
         rec = result["product_recommendation"]
 
@@ -285,9 +272,11 @@ class TestCostCalculationAccuracy:
             # Should be more than $0.01/cup
             assert rec["cost_per_recipe_unit"] > Decimal("0.01")
 
+
 # ============================================================================
 # Tests for minimum package rounding
 # ============================================================================
+
 
 class TestMinPackagesRounding:
     """Tests for minimum package calculations."""
@@ -298,11 +287,7 @@ class TestMinPackagesRounding:
         """SC-003: Minimum packages correctly round up for small shortfall."""
         # Shortfall of 10 cups, package is 25 lb (90+ cups)
         # Should still recommend 1 package minimum
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("10"),  # 10 cups
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("10"), "cup")  # 10 cups
 
         rec = result["product_recommendation"]
         assert rec["min_packages"] >= 1
@@ -315,18 +300,18 @@ class TestMinPackagesRounding:
         # 25 lb bag = ~90 cups
         # 100 cups should need 2 bags
         result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("100"),  # 100 cups
-            "cup"
+            flour_ingredient.slug, Decimal("100"), "cup"  # 100 cups
         )
 
         rec = result["product_recommendation"]
         # Should be at least 2 packages (ceil(100/~90) = 2)
         assert rec["min_packages"] >= 1
 
+
 # ============================================================================
 # Tests for edge cases
 # ============================================================================
+
 
 class TestEdgeCases:
     """Tests for edge case handling."""
@@ -341,10 +326,7 @@ class TestEdgeCases:
 
         # Calculate cost directly
         rec = _calculate_product_cost(
-            product_without_purchases,
-            Decimal("5"),
-            "cup",
-            flour_ingredient
+            product_without_purchases, Decimal("5"), "cup", flour_ingredient
         )
 
         assert rec["cost_available"] is False
@@ -354,11 +336,7 @@ class TestEdgeCases:
         self, test_db, flour_ingredient, flour_product_preferred
     ):
         """Edge case: Zero shortfall returns sufficient status."""
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("0"),
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("0"), "cup")
 
         assert result["product_status"] == "sufficient"
         assert result["message"] == "Sufficient stock"
@@ -367,11 +345,7 @@ class TestEdgeCases:
         self, test_db, flour_ingredient, flour_product_preferred
     ):
         """Edge case: Negative shortfall returns sufficient status."""
-        result = get_product_recommendation(
-            flour_ingredient.slug,
-            Decimal("-5"),
-            "cup"
-        )
+        result = get_product_recommendation(flour_ingredient.slug, Decimal("-5"), "cup")
 
         assert result["product_status"] == "sufficient"
 
@@ -393,8 +367,8 @@ class TestEdgeCases:
                 "brand": "Test",
                 "package_size": "1 lb",
                 "package_unit": "lb",
-                "package_unit_quantity": Decimal("1.0")
-            }
+                "package_unit_quantity": Decimal("1.0"),
+            },
         )
 
         # Try to get recommendation - should handle conversion failure gracefully
@@ -412,9 +386,11 @@ class TestEdgeCases:
             # Conversion should fail for count -> lb
             assert rec.get("conversion_error", False) is True
 
+
 # ============================================================================
 # Tests for _calculate_product_cost helper
 # ============================================================================
+
 
 class TestCalculateProductCost:
     """Direct tests for the _calculate_product_cost helper function."""
@@ -424,12 +400,7 @@ class TestCalculateProductCost:
         products = get_products_for_ingredient(flour_ingredient.slug)
         product = products[0]
 
-        rec = _calculate_product_cost(
-            product,
-            Decimal("5"),
-            "cup",
-            flour_ingredient
-        )
+        rec = _calculate_product_cost(product, Decimal("5"), "cup", flour_ingredient)
 
         # Check all expected fields exist
         expected_fields = [
@@ -459,12 +430,7 @@ class TestCalculateProductCost:
         products = get_products_for_ingredient(flour_ingredient.slug)
         preferred = next(p for p in products if p.preferred)
 
-        rec = _calculate_product_cost(
-            preferred,
-            Decimal("5"),
-            "cup",
-            flour_ingredient
-        )
+        rec = _calculate_product_cost(preferred, Decimal("5"), "cup", flour_ingredient)
 
         if rec["cost_available"] and rec["total_cost"]:
             # total_cost = min_packages * package_unit_quantity * cost_per_package_unit

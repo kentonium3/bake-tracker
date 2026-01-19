@@ -222,8 +222,7 @@ class TestSnapshotPreservation:
             .all()
         )
         total_value = sum(
-            Decimal(str(item.quantity_remaining)) * item.cost_per_unit
-            for item in inv_items
+            Decimal(str(item.quantity_remaining)) * item.cost_per_unit for item in inv_items
         )
         total_qty = sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
         original_cost = total_value / total_qty if total_qty > 0 else Decimal("0")
@@ -255,8 +254,7 @@ class TestSnapshotPreservation:
             .all()
         )
         total_value_new = sum(
-            Decimal(str(item.quantity_remaining)) * item.cost_per_unit
-            for item in inv_items_new
+            Decimal(str(item.quantity_remaining)) * item.cost_per_unit for item in inv_items_new
         )
         total_qty_new = sum(Decimal(str(item.quantity_remaining)) for item in inv_items_new)
         new_cost = total_value_new / total_qty_new if total_qty_new > 0 else Decimal("0")

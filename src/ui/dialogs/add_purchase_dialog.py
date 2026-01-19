@@ -133,20 +133,14 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         """Create all dialog widgets."""
         # Title
         self.title_label = ctk.CTkLabel(
-            self,
-            text="Add New Purchase",
-            font=ctk.CTkFont(size=18, weight="bold")
+            self, text="Add New Purchase", font=ctk.CTkFont(size=18, weight="bold")
         )
 
         # Form frame
         self.form_frame = ctk.CTkFrame(self)
 
         # Product selection
-        self.product_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Product *",
-            anchor="w"
-        )
+        self.product_label = ctk.CTkLabel(self.form_frame, text="Product *", anchor="w")
         product_names = sorted(self.product_map.keys())
         self.product_var = ctk.StringVar()
         self.product_combo = ctk.CTkComboBox(
@@ -154,129 +148,69 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             variable=self.product_var,
             values=product_names,
             width=350,
-            command=self._on_product_selected
+            command=self._on_product_selected,
         )
 
         # Date entry
-        self.date_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Purchase Date *",
-            anchor="w"
-        )
+        self.date_label = ctk.CTkLabel(self.form_frame, text="Purchase Date *", anchor="w")
         self.date_var = ctk.StringVar(value=date.today().strftime("%Y-%m-%d"))
         self.date_entry = ctk.CTkEntry(
-            self.form_frame,
-            textvariable=self.date_var,
-            width=150,
-            placeholder_text="YYYY-MM-DD"
+            self.form_frame, textvariable=self.date_var, width=150, placeholder_text="YYYY-MM-DD"
         )
         self.date_hint = ctk.CTkLabel(
-            self.form_frame,
-            text="Format: YYYY-MM-DD",
-            font=ctk.CTkFont(size=10),
-            text_color="gray"
+            self.form_frame, text="Format: YYYY-MM-DD", font=ctk.CTkFont(size=10), text_color="gray"
         )
 
         # Quantity entry
-        self.qty_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Quantity *",
-            anchor="w"
-        )
+        self.qty_label = ctk.CTkLabel(self.form_frame, text="Quantity *", anchor="w")
         self.qty_var = ctk.StringVar(value="1")
-        self.qty_entry = ctk.CTkEntry(
-            self.form_frame,
-            textvariable=self.qty_var,
-            width=100
-        )
-        self.qty_unit_label = ctk.CTkLabel(
-            self.form_frame,
-            text="package(s)",
-            text_color="gray"
-        )
+        self.qty_entry = ctk.CTkEntry(self.form_frame, textvariable=self.qty_var, width=100)
+        self.qty_unit_label = ctk.CTkLabel(self.form_frame, text="package(s)", text_color="gray")
 
         # Unit price entry
-        self.price_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Unit Price *",
-            anchor="w"
-        )
+        self.price_label = ctk.CTkLabel(self.form_frame, text="Unit Price *", anchor="w")
         self.price_var = ctk.StringVar()
         self.price_entry = ctk.CTkEntry(
-            self.form_frame,
-            textvariable=self.price_var,
-            width=100,
-            placeholder_text="0.00"
+            self.form_frame, textvariable=self.price_var, width=100, placeholder_text="0.00"
         )
         self.price_hint = ctk.CTkLabel(
-            self.form_frame,
-            text="",
-            font=ctk.CTkFont(size=10),
-            text_color="gray"
+            self.form_frame, text="", font=ctk.CTkFont(size=10), text_color="gray"
         )
 
         # Supplier dropdown
-        self.supplier_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Supplier *",
-            anchor="w"
-        )
+        self.supplier_label = ctk.CTkLabel(self.form_frame, text="Supplier *", anchor="w")
         supplier_names = sorted(self.supplier_map.keys())
         self.supplier_var = ctk.StringVar()
         self.supplier_combo = ctk.CTkComboBox(
-            self.form_frame,
-            variable=self.supplier_var,
-            values=supplier_names,
-            width=250
+            self.form_frame, variable=self.supplier_var, values=supplier_names, width=250
         )
 
         # Notes text area
-        self.notes_label = ctk.CTkLabel(
-            self.form_frame,
-            text="Notes (optional)",
-            anchor="w"
-        )
-        self.notes_text = ctk.CTkTextbox(
-            self.form_frame,
-            height=60,
-            width=350
-        )
+        self.notes_label = ctk.CTkLabel(self.form_frame, text="Notes (optional)", anchor="w")
+        self.notes_text = ctk.CTkTextbox(self.form_frame, height=60, width=350)
 
         # Preview frame
         self.preview_frame = ctk.CTkFrame(self)
         self.preview_title = ctk.CTkLabel(
-            self.preview_frame,
-            text="Preview",
-            font=ctk.CTkFont(size=12, weight="bold")
+            self.preview_frame, text="Preview", font=ctk.CTkFont(size=12, weight="bold")
         )
         self.preview_label = ctk.CTkLabel(
             self.preview_frame,
             text="Select a product to see preview",
             text_color="gray",
-            justify="left"
+            justify="left",
         )
 
         # Error label
-        self.error_label = ctk.CTkLabel(
-            self,
-            text="",
-            text_color="red"
-        )
+        self.error_label = ctk.CTkLabel(self, text="", text_color="red")
 
         # Button frame
         self.button_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.cancel_btn = ctk.CTkButton(
-            self.button_frame,
-            text="Cancel",
-            command=self.destroy,
-            width=100,
-            fg_color="gray"
+            self.button_frame, text="Cancel", command=self.destroy, width=100, fg_color="gray"
         )
         self.save_btn = ctk.CTkButton(
-            self.button_frame,
-            text="Add Purchase",
-            command=self._on_save,
-            width=120
+            self.button_frame, text="Add Purchase", command=self._on_save, width=120
         )
 
     def _layout_widgets(self) -> None:
@@ -403,8 +337,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
             if not qty_str or not price_str:
                 self.preview_label.configure(
-                    text="Enter quantity and price to see preview",
-                    text_color="gray"
+                    text="Enter quantity and price to see preview", text_color="gray"
                 )
                 return
 
@@ -413,8 +346,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
             if qty <= 0:
                 self.preview_label.configure(
-                    text="Quantity must be greater than 0",
-                    text_color="orange"
+                    text="Quantity must be greater than 0", text_color="orange"
                 )
                 return
 
@@ -439,10 +371,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             self.preview_label.configure(text=preview_text, text_color="green")
 
         except (InvalidOperation, ValueError):
-            self.preview_label.configure(
-                text="Enter valid numbers",
-                text_color="orange"
-            )
+            self.preview_label.configure(text="Enter valid numbers", text_color="orange")
 
     def _validate(self) -> tuple:
         """Validate all form fields.
@@ -526,7 +455,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
                 total_cost=quantity * unit_price,
                 purchase_date=purchase_date,
                 store=supplier["name"],
-                notes=notes
+                notes=notes,
             )
 
             # Callback to refresh list
@@ -554,10 +483,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             return
 
         # Check if search matches any product
-        matches = [
-            name for name in self.product_map.keys()
-            if search_text.lower() in name.lower()
-        ]
+        matches = [name for name in self.product_map.keys() if search_text.lower() in name.lower()]
 
         # Only show "not found" after 3+ characters and no matches
         if not matches and len(search_text) >= 3:
@@ -567,18 +493,16 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
     def _show_not_found(self, search_text: str) -> None:
         """Show 'product not found' message with create option."""
-        if not hasattr(self, 'not_found_frame') or self.not_found_frame is None:
+        if not hasattr(self, "not_found_frame") or self.not_found_frame is None:
             self._create_not_found_widgets()
 
-        self.not_found_label.configure(
-            text=f'"{search_text}" not found in product catalog'
-        )
+        self.not_found_label.configure(text=f'"{search_text}" not found in product catalog')
         self.not_found_frame.pack(after=self.product_combo, fill="x", padx=10, pady=5)
         self._last_search_text = search_text
 
     def _hide_not_found(self) -> None:
         """Hide the 'not found' message."""
-        if hasattr(self, 'not_found_frame') and self.not_found_frame:
+        if hasattr(self, "not_found_frame") and self.not_found_frame:
             self.not_found_frame.pack_forget()
         # Also collapse provisional form if it was expanded
         if self._provisional_expanded:
@@ -588,11 +512,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         """Create the 'product not found' UI components."""
         self.not_found_frame = ctk.CTkFrame(self.form_frame, fg_color="transparent")
 
-        self.not_found_label = ctk.CTkLabel(
-            self.not_found_frame,
-            text="",
-            text_color="orange"
-        )
+        self.not_found_label = ctk.CTkLabel(self.not_found_frame, text="", text_color="orange")
         self.not_found_label.pack(side="left", padx=5)
 
         self.create_provisional_btn = ctk.CTkButton(
@@ -631,7 +551,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         if self._provisional_frame:
             self._provisional_frame.pack_forget()
         self._provisional_expanded = False
-        if hasattr(self, 'create_provisional_btn'):
+        if hasattr(self, "create_provisional_btn"):
             self.create_provisional_btn.configure(text="Create Provisional Product")
         self.geometry("500x600")
 
@@ -774,8 +694,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         try:
             roots = ingredient_hierarchy_service.get_root_ingredients()
             self._prov_l0_map = {
-                ing.get("display_name", ing.get("name", "?")): ing
-                for ing in roots
+                ing.get("display_name", ing.get("name", "?")): ing for ing in roots
             }
             values = ["Select Category"] + sorted(self._prov_l0_map.keys())
             self._prov_l0_dropdown.configure(values=values)
@@ -801,9 +720,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         l0_id = self._prov_l0_map[value].get("id")
         try:
             children = ingredient_hierarchy_service.get_children(l0_id)
-            self._prov_l1_map = {
-                child.get("display_name", "?"): child for child in children
-            }
+            self._prov_l1_map = {child.get("display_name", "?"): child for child in children}
             values = ["Select Subcategory"] + sorted(self._prov_l1_map.keys())
             self._prov_l1_dropdown.configure(values=values, state="normal")
             self._prov_l1_var.set("Select Subcategory")
@@ -830,9 +747,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         l1_id = self._prov_l1_map[value].get("id")
         try:
             children = ingredient_hierarchy_service.get_children(l1_id)
-            self._prov_l2_map = {
-                child.get("display_name", "?"): child for child in children
-            }
+            self._prov_l2_map = {child.get("display_name", "?"): child for child in children}
             values = ["Select Ingredient"] + sorted(self._prov_l2_map.keys())
             self._prov_l2_dropdown.configure(values=values, state="normal")
             self._prov_l2_var.set("Select Ingredient")
@@ -841,7 +756,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
     def _prepopulate_from_search(self) -> None:
         """Attempt to prepopulate fields from the search text."""
-        search_text = getattr(self, '_last_search_text', '').strip()
+        search_text = getattr(self, "_last_search_text", "").strip()
         if not search_text:
             return
 
@@ -962,8 +877,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
         # Show success message briefly
         self.error_label.configure(
-            text=f"Created provisional product: {display_name}",
-            text_color="green"
+            text=f"Created provisional product: {display_name}", text_color="green"
         )
 
         # Focus on quantity field to continue

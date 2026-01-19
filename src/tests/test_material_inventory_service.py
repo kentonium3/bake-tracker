@@ -166,9 +166,11 @@ class TestGetFifoInventory:
         """Verify depleted lots (quantity_remaining < 0.001) are excluded."""
         # Deplete lot A
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             lot_a.quantity_remaining = 0.0
 
         lots = get_fifo_inventory(setup_two_lots["product_id"])
@@ -180,9 +182,11 @@ class TestGetFifoInventory:
         """Verify floating-point dust (< 0.001) is excluded."""
         # Set lot A to near-zero (floating-point dust)
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             lot_a.quantity_remaining = 0.0005  # Below threshold
 
         lots = get_fifo_inventory(setup_two_lots["product_id"])
@@ -208,9 +212,11 @@ class TestCalculateAvailableInventory:
         """Verify depleted lots don't contribute to total."""
         # Deplete lot A
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             lot_a.quantity_remaining = 0.0
 
         available = calculate_available_inventory(setup_two_lots["product_id"])
@@ -252,18 +258,22 @@ class TestConsumeMaterialFifoSingleLot:
 
         # Verify lot A quantity was reduced
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             assert lot_a.quantity_remaining == 70.0  # 100 - 30
 
     def test_dry_run_does_not_modify_inventory(self, setup_two_lots):
         """Verify dry_run mode doesn't change quantities."""
         # Get initial quantity
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             initial_qty = lot_a.quantity_remaining
 
         # Run dry_run consumption
@@ -276,9 +286,11 @@ class TestConsumeMaterialFifoSingleLot:
 
         # Verify quantity unchanged
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             assert lot_a.quantity_remaining == initial_qty
 
         assert result["satisfied"] is True
@@ -292,9 +304,11 @@ class TestConsumeMaterialFifoMultiLot:
         """Spec scenario 2: Lot A (30cm), consume 50cm → 30 from A + 20 from B."""
         # Reduce lot A to 30cm remaining
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             lot_a.quantity_remaining = 30.0
 
         result = consume_material_fifo(
@@ -327,12 +341,16 @@ class TestConsumeMaterialFifoMultiLot:
 
         # Should consume all 100 from A, then 50 from B
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
-            lot_b = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_b_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
+            lot_b = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_b_id"])
+                .first()
+            )
 
             assert lot_a.quantity_remaining < 0.001  # Depleted
             assert lot_b.quantity_remaining == 50.0  # 100 - 50
@@ -413,11 +431,13 @@ class TestValidateInventoryAvailability:
 
     def test_returns_can_fulfill_true_when_sufficient(self, setup_two_lots):
         """Verify can_fulfill=True when inventory meets requirements."""
-        requirements = [{
-            "material_product_id": setup_two_lots["product_id"],
-            "quantity_needed": Decimal("100"),
-            "unit": "cm",
-        }]
+        requirements = [
+            {
+                "material_product_id": setup_two_lots["product_id"],
+                "quantity_needed": Decimal("100"),
+                "unit": "cm",
+            }
+        ]
 
         result = validate_inventory_availability(requirements)
 
@@ -426,11 +446,13 @@ class TestValidateInventoryAvailability:
 
     def test_returns_shortfalls_when_insufficient(self, setup_two_lots):
         """Verify shortfalls reported when inventory insufficient."""
-        requirements = [{
-            "material_product_id": setup_two_lots["product_id"],
-            "quantity_needed": Decimal("300"),  # More than 200 available
-            "unit": "cm",
-        }]
+        requirements = [
+            {
+                "material_product_id": setup_two_lots["product_id"],
+                "quantity_needed": Decimal("300"),  # More than 200 available
+                "unit": "cm",
+            }
+        ]
 
         result = validate_inventory_availability(requirements)
 
@@ -442,24 +464,30 @@ class TestValidateInventoryAvailability:
         """Verify validation doesn't consume inventory (uses dry_run)."""
         # Get initial quantities
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             initial_qty = lot_a.quantity_remaining
 
-        requirements = [{
-            "material_product_id": setup_two_lots["product_id"],
-            "quantity_needed": Decimal("50"),
-            "unit": "cm",
-        }]
+        requirements = [
+            {
+                "material_product_id": setup_two_lots["product_id"],
+                "quantity_needed": Decimal("50"),
+                "unit": "cm",
+            }
+        ]
 
         validate_inventory_availability(requirements)
 
         # Verify quantity unchanged
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             assert lot_a.quantity_remaining == initial_qty
 
 
@@ -485,9 +513,7 @@ class TestGetTotalInventoryValue:
 
     def test_calculates_total_value_for_product(self, setup_two_lots):
         """Verify total value calculation for specific product."""
-        value = get_total_inventory_value(
-            material_product_id=setup_two_lots["product_id"]
-        )
+        value = get_total_inventory_value(material_product_id=setup_two_lots["product_id"])
         # Lot A: 100 * $0.10 = $10.00
         # Lot B: 100 * $0.15 = $15.00
         # Total: $25.00
@@ -514,9 +540,11 @@ class TestImmutabilityBehavior:
         """FR-015: Verify quantity_purchased remains unchanged after consumption."""
         # Get initial quantity_purchased
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             original_qty_purchased = lot_a.quantity_purchased
 
         # Consume some inventory
@@ -528,9 +556,11 @@ class TestImmutabilityBehavior:
 
         # Verify quantity_purchased unchanged (only quantity_remaining changed)
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             assert lot_a.quantity_purchased == original_qty_purchased
             assert lot_a.quantity_remaining == 50.0  # Reduced
 
@@ -538,9 +568,11 @@ class TestImmutabilityBehavior:
         """FR-016: Verify cost_per_unit remains unchanged after consumption."""
         # Get initial cost_per_unit
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             original_cost = lot_a.cost_per_unit
 
         # Consume some inventory
@@ -552,9 +584,11 @@ class TestImmutabilityBehavior:
 
         # Verify cost_per_unit unchanged
         with session_scope() as session:
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             assert lot_a.cost_per_unit == original_cost
 
 
@@ -590,7 +624,9 @@ class TestSessionManagement:
             assert result["satisfied"] is True
 
             # Verify quantity unchanged within same session
-            lot_a = session.query(MaterialInventoryItem).filter_by(
-                id=setup_two_lots["lot_a_id"]
-            ).first()
+            lot_a = (
+                session.query(MaterialInventoryItem)
+                .filter_by(id=setup_two_lots["lot_a_id"])
+                .first()
+            )
             assert lot_a.quantity_remaining == 100.0

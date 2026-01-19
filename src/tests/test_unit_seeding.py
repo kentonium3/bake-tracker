@@ -184,14 +184,22 @@ class TestUnitSeeding:
         session = test_db()
 
         # Weight units should have sort_order 0, 1, 2, 3
-        weight_units = session.query(Unit).filter_by(category="weight").order_by(Unit.sort_order).all()
+        weight_units = (
+            session.query(Unit).filter_by(category="weight").order_by(Unit.sort_order).all()
+        )
         for i, unit in enumerate(weight_units):
-            assert unit.sort_order == i, f"Weight unit {unit.code} has sort_order {unit.sort_order}, expected {i}"
+            assert (
+                unit.sort_order == i
+            ), f"Weight unit {unit.code} has sort_order {unit.sort_order}, expected {i}"
 
         # Volume units should have sort_order 0 through 8
-        volume_units = session.query(Unit).filter_by(category="volume").order_by(Unit.sort_order).all()
+        volume_units = (
+            session.query(Unit).filter_by(category="volume").order_by(Unit.sort_order).all()
+        )
         for i, unit in enumerate(volume_units):
-            assert unit.sort_order == i, f"Volume unit {unit.code} has sort_order {unit.sort_order}, expected {i}"
+            assert (
+                unit.sort_order == i
+            ), f"Volume unit {unit.code} has sort_order {unit.sort_order}, expected {i}"
 
         session.close()
 
@@ -202,4 +210,6 @@ class TestUnitSeeding:
         for code in all_units:
             assert code in UNIT_METADATA, f"Unit '{code}' missing from UNIT_METADATA dictionary"
             metadata = UNIT_METADATA[code]
-            assert len(metadata) == 3, f"Unit '{code}' metadata should have 3 elements (display_name, symbol, un_cefact_code)"
+            assert (
+                len(metadata) == 3
+            ), f"Unit '{code}' metadata should have 3 elements (display_name, symbol, un_cefact_code)"

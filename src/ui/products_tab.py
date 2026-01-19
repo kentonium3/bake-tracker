@@ -359,7 +359,9 @@ class ProductsTab(ctk.CTkFrame):
 
             # Feature 032: Populate L0 (root categories) dropdown
             root_ingredients = ingredient_hierarchy_service.get_root_ingredients()
-            self._l0_map = {ing.get("display_name", ing.get("name", "?")): ing for ing in root_ingredients}
+            self._l0_map = {
+                ing.get("display_name", ing.get("name", "?")): ing for ing in root_ingredients
+            }
             l0_values = ["All Categories"] + sorted(self._l0_map.keys())
             self.l0_filter_dropdown.configure(values=l0_values)
 
@@ -376,11 +378,7 @@ class ProductsTab(ctk.CTkFrame):
 
             # Load all products to extract unique brands
             all_products = product_catalog_service.get_products(include_hidden=True)
-            self.brands = sorted(set(
-                p.get("brand", "")
-                for p in all_products
-                if p.get("brand")
-            ))
+            self.brands = sorted(set(p.get("brand", "") for p in all_products if p.get("brand")))
             brand_values = ["All"] + self.brands
             self.brand_dropdown.configure(values=brand_values)
 
@@ -494,9 +492,7 @@ class ProductsTab(ctk.CTkFrame):
         hidden_count = len([p for p in self.products if p.get("is_hidden")])
 
         if hidden_count > 0 and self.show_hidden_var.get():
-            self.count_label.configure(
-                text=f"{visible_count} products ({hidden_count} hidden)"
-            )
+            self.count_label.configure(text=f"{visible_count} products ({hidden_count} hidden)")
         else:
             self.count_label.configure(text=f"{len(self.products)} products")
 
@@ -1080,7 +1076,9 @@ class ProductsTab(ctk.CTkFrame):
 
         # Add specific warnings
         if deps.has_valid_purchases:
-            warning_lines.append("  WARNING: Has purchases with price data - cost history will be lost")
+            warning_lines.append(
+                "  WARNING: Has purchases with price data - cost history will be lost"
+            )
         if deps.has_supplier_data:
             warning_lines.append("  WARNING: Has supplier information - this data will be lost")
 

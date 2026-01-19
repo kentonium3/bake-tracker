@@ -337,9 +337,7 @@ class UIServiceIntegrator:
             return f"{ctx_prefix}The specified ingredient could not be found."
 
         if isinstance(exception, ProductNotFound):
-            return (
-                f"{ctx_prefix}The product could not be found. It may have been deleted."
-            )
+            return f"{ctx_prefix}The product could not be found. It may have been deleted."
 
         if isinstance(exception, SlugAlreadyExists):
             return f"{ctx_prefix}An ingredient with this name already exists. Please choose a different name."

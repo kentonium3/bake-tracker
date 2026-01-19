@@ -214,9 +214,7 @@ class TestExportSupplierSlug:
         with open(export_path) as f:
             data = json.load(f)
 
-        supplier_data = next(
-            s for s in data["suppliers"] if s["name"] == "Costco"
-        )
+        supplier_data = next(s for s in data["suppliers"] if s["name"] == "Costco")
         assert supplier_data["slug"] == "costco_issaquah_wa"
 
     def test_export_online_supplier_includes_slug(self, test_db):
@@ -240,9 +238,7 @@ class TestExportSupplierSlug:
         with open(export_path) as f:
             data = json.load(f)
 
-        supplier_data = next(
-            s for s in data["suppliers"] if s["name"] == "King Arthur Baking"
-        )
+        supplier_data = next(s for s in data["suppliers"] if s["name"] == "King Arthur Baking")
         assert supplier_data["slug"] == "king_arthur_baking"
         assert supplier_data["supplier_type"] == "online"
         assert supplier_data["website_url"] == "https://www.kingarthurbaking.com"
@@ -251,9 +247,7 @@ class TestExportSupplierSlug:
 class TestExportProductSupplierSlug:
     """Test product export with supplier slug (Feature 050 - T017)."""
 
-    def test_export_product_includes_supplier_slug(
-        self, test_db, test_product, test_supplier
-    ):
+    def test_export_product_includes_supplier_slug(self, test_db, test_product, test_supplier):
         """Product export includes preferred_supplier_slug."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             export_path = f.name
@@ -263,15 +257,11 @@ class TestExportProductSupplierSlug:
         with open(export_path) as f:
             data = json.load(f)
 
-        product_data = next(
-            p for p in data["products"] if p["brand"] == "King Arthur"
-        )
+        product_data = next(p for p in data["products"] if p["brand"] == "King Arthur")
         assert product_data["preferred_supplier_slug"] == "costco_issaquah_wa"
         assert product_data["preferred_supplier_name"] == "Costco (Issaquah, WA)"
 
-    def test_export_product_no_supplier_has_null_slug(
-        self, test_db, test_product_hidden
-    ):
+    def test_export_product_no_supplier_has_null_slug(self, test_db, test_product_hidden):
         """Product without supplier has null slug fields."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             export_path = f.name
@@ -282,9 +272,7 @@ class TestExportProductSupplierSlug:
             data = json.load(f)
 
         # Find the hidden product (no supplier)
-        product_data = next(
-            p for p in data["products"] if p["brand"] == "Generic"
-        )
+        product_data = next(p for p in data["products"] if p["brand"] == "Generic")
         assert product_data["preferred_supplier_slug"] is None
         assert product_data["preferred_supplier_name"] is None
 
@@ -327,9 +315,7 @@ class TestExportProductSupplierSlug:
             data = json.load(f)
 
         # Find the orphan product
-        product_data = next(
-            p for p in data["products"] if p["brand"] == "Orphan"
-        )
+        product_data = next(p for p in data["products"] if p["brand"] == "Orphan")
         # Supplier was deleted, so slug should be null
         assert product_data["preferred_supplier_slug"] is None
         assert product_data["preferred_supplier_name"] is None
@@ -338,9 +324,7 @@ class TestExportProductSupplierSlug:
 class TestExportProducts:
     """Test product export with new fields."""
 
-    def test_export_product_preferred_supplier_id(
-        self, test_db, test_product, test_supplier
-    ):
+    def test_export_product_preferred_supplier_id(self, test_db, test_product, test_supplier):
         """Test that preferred_supplier_id is exported."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             export_path = f.name
@@ -372,9 +356,7 @@ class TestExportProducts:
 class TestExportPurchases:
     """Test purchase export with new fields."""
 
-    def test_export_purchase_with_supplier_id(
-        self, test_db, test_purchase, test_supplier
-    ):
+    def test_export_purchase_with_supplier_id(self, test_db, test_purchase, test_supplier):
         """Test that purchase includes supplier_id FK."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             export_path = f.name
@@ -440,9 +422,7 @@ class TestImportSuppliers:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -475,9 +455,7 @@ class TestImportSuppliers:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -490,9 +468,7 @@ class TestImportSuppliers:
 class TestImportPurchases:
     """Test purchase import with new FK format."""
 
-    def test_import_purchase_with_supplier_id(
-        self, test_db, test_supplier, test_ingredient
-    ):
+    def test_import_purchase_with_supplier_id(self, test_db, test_supplier, test_ingredient):
         """Test importing purchase with supplier_id FK."""
         # First create a product
         session = test_db()
@@ -523,9 +499,7 @@ class TestImportPurchases:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -543,9 +517,7 @@ class TestImportPurchases:
 class TestImportProducts:
     """Test product import with new fields."""
 
-    def test_import_product_with_new_fields(
-        self, test_db, test_supplier, test_ingredient
-    ):
+    def test_import_product_with_new_fields(self, test_db, test_supplier, test_ingredient):
         """Test importing product with preferred_supplier_id and is_hidden."""
         import_data = {
             "version": "3.5",
@@ -566,9 +538,7 @@ class TestImportProducts:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -587,9 +557,7 @@ class TestImportProducts:
 class TestImportInventoryItems:
     """Test inventory item import with purchase_id."""
 
-    def test_import_inventory_item_with_purchase_id(
-        self, test_db, test_purchase, test_product
-    ):
+    def test_import_inventory_item_with_purchase_id(self, test_db, test_purchase, test_product):
         """Test importing inventory item with purchase_id FK."""
         import_data = {
             "version": "3.5",
@@ -610,9 +578,7 @@ class TestImportInventoryItems:
             ],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -671,15 +637,11 @@ class TestRoundTrip:
         assert costco["is_active"] is True
 
         # Verify product data
-        king_arthur = next(
-            p for p in exported_data["products"] if p["brand"] == "King Arthur"
-        )
+        king_arthur = next(p for p in exported_data["products"] if p["brand"] == "King Arthur")
         assert king_arthur["preferred_supplier_id"] == test_supplier.id
         assert king_arthur["is_hidden"] is False
 
-        generic = next(
-            p for p in exported_data["products"] if p["brand"] == "Generic"
-        )
+        generic = next(p for p in exported_data["products"] if p["brand"] == "Generic")
         assert generic["is_hidden"] is True
 
         # Verify purchase data
@@ -733,9 +695,7 @@ class TestImportOrder:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -782,9 +742,7 @@ class TestImportSupplierSlug:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -817,9 +775,7 @@ class TestImportSupplierSlug:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -852,9 +808,7 @@ class TestImportSupplierSlug:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -891,9 +845,7 @@ class TestImportOnlineSupplier:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -927,9 +879,7 @@ class TestImportOnlineSupplier:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -967,9 +917,7 @@ class TestMergeModeSupplierUpdates:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -999,9 +947,7 @@ class TestMergeModeSupplierUpdates:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1040,9 +986,7 @@ class TestImportProductSupplierSlug:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1058,6 +1002,7 @@ class TestImportProductSupplierSlug:
     def test_import_product_missing_supplier_slug_warns(self, test_db, test_ingredient, caplog):
         """Missing supplier slug logs warning, doesn't fail."""
         import logging
+
         caplog.set_level(logging.WARNING)
 
         import_data = {
@@ -1079,9 +1024,7 @@ class TestImportProductSupplierSlug:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1102,9 +1045,12 @@ class TestImportProductSupplierSlug:
 class TestImportLegacyBackwardCompatibility:
     """Test legacy import file backward compatibility (Feature 050 - T027)."""
 
-    def test_import_product_legacy_id_fallback(self, test_db, test_supplier, test_ingredient, caplog):
+    def test_import_product_legacy_id_fallback(
+        self, test_db, test_supplier, test_ingredient, caplog
+    ):
         """Legacy files with supplier_id still work."""
         import logging
+
         caplog.set_level(logging.INFO)
 
         import_data = {
@@ -1127,9 +1073,7 @@ class TestImportLegacyBackwardCompatibility:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1169,9 +1113,7 @@ class TestImportLegacyBackwardCompatibility:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1221,9 +1163,7 @@ class TestDryRunImport:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1259,15 +1199,11 @@ class TestDryRunImport:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
-        import_export_service.import_all_from_json_v4(
-            import_path, mode="merge", dry_run=True
-        )
+        import_export_service.import_all_from_json_v4(import_path, mode="merge", dry_run=True)
 
         # Verify no changes to database
         session = test_db()
@@ -1275,9 +1211,7 @@ class TestDryRunImport:
         assert final_count == initial_count
 
         # Verify the supplier was NOT created
-        not_created = session.query(Supplier).filter_by(
-            name="Should Not Be Created"
-        ).first()
+        not_created = session.query(Supplier).filter_by(name="Should Not Be Created").first()
         assert not_created is None
 
     def test_dry_run_skip_mode_counts(self, test_db, test_supplier):
@@ -1300,9 +1234,7 @@ class TestDryRunImport:
             "inventory_items": [],
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".json", delete=False, mode="w"
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump(import_data, f)
             import_path = f.name
 
@@ -1317,7 +1249,9 @@ class TestDryRunImport:
 class TestRoundTripWithSlugs:
     """Test export -> import round-trip with slug support (Feature 050 - T038)."""
 
-    def test_full_round_trip_with_slugs(self, test_db, test_supplier, test_ingredient, test_product):
+    def test_full_round_trip_with_slugs(
+        self, test_db, test_supplier, test_ingredient, test_product
+    ):
         """Export -> clear DB -> import -> verify associations restored by slug."""
         session = test_db()
 
@@ -1336,15 +1270,11 @@ class TestRoundTripWithSlugs:
             exported_data = json.load(f)
 
         # Verify supplier has slug
-        supplier_export = next(
-            s for s in exported_data["suppliers"] if s["name"] == "Costco"
-        )
+        supplier_export = next(s for s in exported_data["suppliers"] if s["name"] == "Costco")
         assert supplier_export["slug"] == "costco_issaquah_wa"
 
         # Verify product has supplier slug
-        product_export = next(
-            p for p in exported_data["products"] if p["brand"] == "King Arthur"
-        )
+        product_export = next(p for p in exported_data["products"] if p["brand"] == "King Arthur")
         assert product_export["preferred_supplier_slug"] == "costco_issaquah_wa"
 
         # Clear database (simulate fresh environment)
@@ -1358,9 +1288,7 @@ class TestRoundTripWithSlugs:
         assert session.query(Product).count() == 0
 
         # Import back
-        result = import_export_service.import_all_from_json_v4(
-            export_path, mode="replace"
-        )
+        result = import_export_service.import_all_from_json_v4(export_path, mode="replace")
 
         # Verify successful import
         assert result.entity_counts["supplier"]["imported"] >= 1
@@ -1368,15 +1296,11 @@ class TestRoundTripWithSlugs:
 
         # Verify associations restored via slug
         session = test_db()
-        imported_supplier = session.query(Supplier).filter_by(
-            slug="costco_issaquah_wa"
-        ).first()
+        imported_supplier = session.query(Supplier).filter_by(slug="costco_issaquah_wa").first()
         assert imported_supplier is not None
         assert imported_supplier.name == "Costco"
 
-        imported_product = session.query(Product).filter_by(
-            brand="King Arthur"
-        ).first()
+        imported_product = session.query(Product).filter_by(brand="King Arthur").first()
         assert imported_product is not None
         # The key test: product's preferred_supplier_id should point to the
         # imported supplier (resolved via slug, not original ID)

@@ -187,19 +187,21 @@ def _export_suppliers(output_dir: Path, session: Session) -> FileEntry:
 
     records = []
     for s in suppliers:
-        records.append({
-            "uuid": str(s.uuid) if s.uuid else None,
-            "name": s.name,
-            "slug": s.slug,
-            "supplier_type": s.supplier_type,
-            "website_url": s.website_url,
-            "street_address": s.street_address,
-            "city": s.city,
-            "state": s.state,
-            "zip_code": s.zip_code,
-            "notes": s.notes,
-            "is_active": s.is_active,
-        })
+        records.append(
+            {
+                "uuid": str(s.uuid) if s.uuid else None,
+                "name": s.name,
+                "slug": s.slug,
+                "supplier_type": s.supplier_type,
+                "website_url": s.website_url,
+                "street_address": s.street_address,
+                "city": s.city,
+                "state": s.state,
+                "zip_code": s.zip_code,
+                "notes": s.notes,
+                "is_active": s.is_active,
+            }
+        )
 
     return _write_entity_file(output_dir, "suppliers", records)
 
@@ -210,144 +212,166 @@ def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
 
     records = []
     for i in ingredients:
-        records.append({
-            "uuid": str(i.uuid) if i.uuid else None,
-            "slug": i.slug,
-            "display_name": i.display_name,
-            "category": i.category,
-            "description": i.description,
-            "notes": i.notes,
-            # Hierarchy fields (Feature 031)
-            "hierarchy_level": i.hierarchy_level,
-            "parent_slug": i.parent.slug if i.parent else None,
-            # Density fields
-            "density_volume_value": i.density_volume_value,
-            "density_volume_unit": i.density_volume_unit,
-            "density_weight_value": i.density_weight_value,
-            "density_weight_unit": i.density_weight_unit,
-            # Industry standard fields
-            "foodon_id": i.foodon_id,
-            "foodex2_code": i.foodex2_code,
-            "langual_terms": i.langual_terms,
-            "fdc_ids": i.fdc_ids,
-            "moisture_pct": i.moisture_pct,
-            "allergens": i.allergens,
-            # Timestamps
-            "date_added": i.date_added.isoformat() if i.date_added else None,
-            "last_modified": i.last_modified.isoformat() if i.last_modified else None,
-        })
+        records.append(
+            {
+                "uuid": str(i.uuid) if i.uuid else None,
+                "slug": i.slug,
+                "display_name": i.display_name,
+                "category": i.category,
+                "description": i.description,
+                "notes": i.notes,
+                # Hierarchy fields (Feature 031)
+                "hierarchy_level": i.hierarchy_level,
+                "parent_slug": i.parent.slug if i.parent else None,
+                # Density fields
+                "density_volume_value": i.density_volume_value,
+                "density_volume_unit": i.density_volume_unit,
+                "density_weight_value": i.density_weight_value,
+                "density_weight_unit": i.density_weight_unit,
+                # Industry standard fields
+                "foodon_id": i.foodon_id,
+                "foodex2_code": i.foodex2_code,
+                "langual_terms": i.langual_terms,
+                "fdc_ids": i.fdc_ids,
+                "moisture_pct": i.moisture_pct,
+                "allergens": i.allergens,
+                # Timestamps
+                "date_added": i.date_added.isoformat() if i.date_added else None,
+                "last_modified": i.last_modified.isoformat() if i.last_modified else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "ingredients", records)
 
 
 def _export_products(output_dir: Path, session: Session) -> FileEntry:
     """Export all products to JSON file with FK resolution fields."""
-    products = session.query(Product).options(
-        joinedload(Product.ingredient),
-        joinedload(Product.preferred_supplier),
-    ).all()
+    products = (
+        session.query(Product)
+        .options(
+            joinedload(Product.ingredient),
+            joinedload(Product.preferred_supplier),
+        )
+        .all()
+    )
 
     records = []
     for p in products:
-        records.append({
-            "uuid": str(p.uuid) if p.uuid else None,
-            # FK resolved by slug
-            "ingredient_slug": p.ingredient.slug if p.ingredient else None,
-            # Product fields
-            "brand": p.brand,
-            "product_name": p.product_name,
-            "package_size": p.package_size,
-            "package_type": p.package_type,
-            "package_unit": p.package_unit,
-            "package_unit_quantity": p.package_unit_quantity,
-            "upc_code": p.upc_code,
-            "supplier": p.supplier,
-            "supplier_sku": p.supplier_sku,
-            "preferred": p.preferred,
-            # Feature 027 fields
-            "preferred_supplier_slug": (
-                p.preferred_supplier.slug if p.preferred_supplier else None
-            ),
-            "is_hidden": p.is_hidden,
-            # F057: Provisional product flag and slug
-            "is_provisional": p.is_provisional,
-            "slug": p.slug,
-            # Industry standard fields
-            "gtin": p.gtin,
-            "brand_owner": p.brand_owner,
-            "gpc_brick_code": p.gpc_brick_code,
-            "net_content_value": p.net_content_value,
-            "net_content_uom": p.net_content_uom,
-            "country_of_sale": p.country_of_sale,
-            "off_id": p.off_id,
-            "notes": p.notes,
-            # Timestamps
-            "date_added": p.date_added.isoformat() if p.date_added else None,
-            "last_modified": p.last_modified.isoformat() if p.last_modified else None,
-        })
+        records.append(
+            {
+                "uuid": str(p.uuid) if p.uuid else None,
+                # FK resolved by slug
+                "ingredient_slug": p.ingredient.slug if p.ingredient else None,
+                # Product fields
+                "brand": p.brand,
+                "product_name": p.product_name,
+                "package_size": p.package_size,
+                "package_type": p.package_type,
+                "package_unit": p.package_unit,
+                "package_unit_quantity": p.package_unit_quantity,
+                "upc_code": p.upc_code,
+                "supplier": p.supplier,
+                "supplier_sku": p.supplier_sku,
+                "preferred": p.preferred,
+                # Feature 027 fields
+                "preferred_supplier_slug": (
+                    p.preferred_supplier.slug if p.preferred_supplier else None
+                ),
+                "is_hidden": p.is_hidden,
+                # F057: Provisional product flag and slug
+                "is_provisional": p.is_provisional,
+                "slug": p.slug,
+                # Industry standard fields
+                "gtin": p.gtin,
+                "brand_owner": p.brand_owner,
+                "gpc_brick_code": p.gpc_brick_code,
+                "net_content_value": p.net_content_value,
+                "net_content_uom": p.net_content_uom,
+                "country_of_sale": p.country_of_sale,
+                "off_id": p.off_id,
+                "notes": p.notes,
+                # Timestamps
+                "date_added": p.date_added.isoformat() if p.date_added else None,
+                "last_modified": p.last_modified.isoformat() if p.last_modified else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "products", records)
 
 
 def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
     """Export all recipes with ingredients and components to JSON file."""
-    recipes = session.query(Recipe).options(
-        joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient),
-        joinedload(Recipe.recipe_components).joinedload(RecipeComponent.component_recipe),
-    ).all()
+    recipes = (
+        session.query(Recipe)
+        .options(
+            joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient),
+            joinedload(Recipe.recipe_components).joinedload(RecipeComponent.component_recipe),
+        )
+        .all()
+    )
 
     records = []
     for r in recipes:
         # Build ingredient list with FK resolution fields
         ingredients = []
         for ri in r.recipe_ingredients:
-            ingredients.append({
-                "ingredient_slug": ri.ingredient.slug if ri.ingredient else None,
-                "quantity": ri.quantity,
-                "unit": ri.unit,
-                "notes": ri.notes,
-            })
+            ingredients.append(
+                {
+                    "ingredient_slug": ri.ingredient.slug if ri.ingredient else None,
+                    "quantity": ri.quantity,
+                    "unit": ri.unit,
+                    "notes": ri.notes,
+                }
+            )
 
         # Build component list with FK resolution fields
         components = []
         for rc in r.recipe_components:
-            components.append({
-                "component_recipe_name": (
-                    rc.component_recipe.name if rc.component_recipe else None
-                ),
-                "quantity": rc.quantity,
-                "notes": rc.notes,
-                "sort_order": rc.sort_order,
-            })
+            components.append(
+                {
+                    "component_recipe_name": (
+                        rc.component_recipe.name if rc.component_recipe else None
+                    ),
+                    "quantity": rc.quantity,
+                    "notes": rc.notes,
+                    "sort_order": rc.sort_order,
+                }
+            )
 
         # F056: yield_quantity, yield_unit, yield_description removed
         # Yield data is now in FinishedUnit records
-        records.append({
-            "uuid": str(r.uuid) if r.uuid else None,
-            "name": r.name,
-            "category": r.category,
-            "source": r.source,
-            "estimated_time_minutes": r.estimated_time_minutes,
-            "notes": r.notes,
-            "is_archived": r.is_archived,
-            "is_production_ready": r.is_production_ready,
-            # Nested data
-            "ingredients": ingredients,
-            "components": components,
-            # Timestamps
-            "date_added": r.date_added.isoformat() if r.date_added else None,
-            "last_modified": r.last_modified.isoformat() if r.last_modified else None,
-        })
+        records.append(
+            {
+                "uuid": str(r.uuid) if r.uuid else None,
+                "name": r.name,
+                "category": r.category,
+                "source": r.source,
+                "estimated_time_minutes": r.estimated_time_minutes,
+                "notes": r.notes,
+                "is_archived": r.is_archived,
+                "is_production_ready": r.is_production_ready,
+                # Nested data
+                "ingredients": ingredients,
+                "components": components,
+                # Timestamps
+                "date_added": r.date_added.isoformat() if r.date_added else None,
+                "last_modified": r.last_modified.isoformat() if r.last_modified else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "recipes", records)
 
 
 def _export_purchases(output_dir: Path, session: Session) -> FileEntry:
     """Export all purchases to JSON file with FK resolution fields."""
-    purchases = session.query(Purchase).options(
-        joinedload(Purchase.product).joinedload(Product.ingredient),
-        joinedload(Purchase.supplier),
-    ).all()
+    purchases = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.product).joinedload(Product.ingredient),
+            joinedload(Purchase.supplier),
+        )
+        .all()
+    )
 
     records = []
     for p in purchases:
@@ -356,29 +380,35 @@ def _export_purchases(output_dir: Path, session: Session) -> FileEntry:
         if p.product and p.product.ingredient:
             product_slug = f"{p.product.ingredient.slug}:{p.product.brand}:{p.product.package_unit_quantity}:{p.product.package_unit}"
 
-        records.append({
-            "uuid": str(p.uuid) if p.uuid else None,
-            # FK resolved by slugs
-            "product_slug": product_slug,
-            "supplier_slug": p.supplier.slug if p.supplier else None,
-            # Purchase fields
-            "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
-            "unit_price": str(p.unit_price) if p.unit_price else None,
-            "quantity_purchased": p.quantity_purchased,
-            "notes": p.notes,
-            # Timestamps
-            "created_at": p.created_at.isoformat() if p.created_at else None,
-        })
+        records.append(
+            {
+                "uuid": str(p.uuid) if p.uuid else None,
+                # FK resolved by slugs
+                "product_slug": product_slug,
+                "supplier_slug": p.supplier.slug if p.supplier else None,
+                # Purchase fields
+                "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
+                "unit_price": str(p.unit_price) if p.unit_price else None,
+                "quantity_purchased": p.quantity_purchased,
+                "notes": p.notes,
+                # Timestamps
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "purchases", records)
 
 
 def _export_inventory_items(output_dir: Path, session: Session) -> FileEntry:
     """Export all inventory items to JSON file with FK resolution fields."""
-    items = session.query(InventoryItem).options(
-        joinedload(InventoryItem.product).joinedload(Product.ingredient),
-        joinedload(InventoryItem.purchase),
-    ).all()
+    items = (
+        session.query(InventoryItem)
+        .options(
+            joinedload(InventoryItem.product).joinedload(Product.ingredient),
+            joinedload(InventoryItem.purchase),
+        )
+        .all()
+    )
 
     records = []
     for item in items:
@@ -387,22 +417,26 @@ def _export_inventory_items(output_dir: Path, session: Session) -> FileEntry:
         if item.product and item.product.ingredient:
             product_slug = f"{item.product.ingredient.slug}:{item.product.brand}:{item.product.package_unit_quantity}:{item.product.package_unit}"
 
-        records.append({
-            "uuid": str(item.uuid) if item.uuid else None,
-            # FK resolved by slug
-            "product_slug": product_slug,
-            # Inventory fields
-            "quantity": item.quantity,
-            "unit_cost": item.unit_cost,
-            "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
-            "expiration_date": item.expiration_date.isoformat() if item.expiration_date else None,
-            "opened_date": item.opened_date.isoformat() if item.opened_date else None,
-            "location": item.location,
-            "lot_or_batch": item.lot_or_batch,
-            "notes": item.notes,
-            # Timestamps
-            "last_updated": item.last_updated.isoformat() if item.last_updated else None,
-        })
+        records.append(
+            {
+                "uuid": str(item.uuid) if item.uuid else None,
+                # FK resolved by slug
+                "product_slug": product_slug,
+                # Inventory fields
+                "quantity": item.quantity,
+                "unit_cost": item.unit_cost,
+                "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
+                "expiration_date": (
+                    item.expiration_date.isoformat() if item.expiration_date else None
+                ),
+                "opened_date": item.opened_date.isoformat() if item.opened_date else None,
+                "location": item.location,
+                "lot_or_batch": item.lot_or_batch,
+                "notes": item.notes,
+                # Timestamps
+                "last_updated": item.last_updated.isoformat() if item.last_updated else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "inventory_items", records)
 
@@ -418,127 +452,143 @@ def _export_material_categories(output_dir: Path, session: Session) -> FileEntry
 
     records = []
     for c in categories:
-        records.append({
-            "uuid": str(c.uuid) if c.uuid else None,
-            "name": c.name,
-            "slug": c.slug,
-            "description": c.description,
-            "sort_order": c.sort_order,
-        })
+        records.append(
+            {
+                "uuid": str(c.uuid) if c.uuid else None,
+                "name": c.name,
+                "slug": c.slug,
+                "description": c.description,
+                "sort_order": c.sort_order,
+            }
+        )
 
     return _write_entity_file(output_dir, "material_categories", records)
 
 
 def _export_material_subcategories(output_dir: Path, session: Session) -> FileEntry:
     """Export all material subcategories to JSON file with FK resolution."""
-    subcategories = session.query(MaterialSubcategory).options(
-        joinedload(MaterialSubcategory.category)
-    ).all()
+    subcategories = (
+        session.query(MaterialSubcategory).options(joinedload(MaterialSubcategory.category)).all()
+    )
 
     records = []
     for s in subcategories:
-        records.append({
-            "uuid": str(s.uuid) if s.uuid else None,
-            "category_slug": s.category.slug if s.category else None,
-            "name": s.name,
-            "slug": s.slug,
-            "description": s.description,
-            "sort_order": s.sort_order,
-        })
+        records.append(
+            {
+                "uuid": str(s.uuid) if s.uuid else None,
+                "category_slug": s.category.slug if s.category else None,
+                "name": s.name,
+                "slug": s.slug,
+                "description": s.description,
+                "sort_order": s.sort_order,
+            }
+        )
 
     return _write_entity_file(output_dir, "material_subcategories", records)
 
 
 def _export_materials(output_dir: Path, session: Session) -> FileEntry:
     """Export all materials to JSON file with FK resolution."""
-    materials = session.query(Material).options(
-        joinedload(Material.subcategory)
-    ).all()
+    materials = session.query(Material).options(joinedload(Material.subcategory)).all()
 
     records = []
     for m in materials:
-        records.append({
-            "uuid": str(m.uuid) if m.uuid else None,
-            "subcategory_slug": m.subcategory.slug if m.subcategory else None,
-            "name": m.name,
-            "slug": m.slug,
-            "base_unit_type": m.base_unit_type,
-            "description": m.description,
-        })
+        records.append(
+            {
+                "uuid": str(m.uuid) if m.uuid else None,
+                "subcategory_slug": m.subcategory.slug if m.subcategory else None,
+                "name": m.name,
+                "slug": m.slug,
+                "base_unit_type": m.base_unit_type,
+                "description": m.description,
+            }
+        )
 
     return _write_entity_file(output_dir, "materials", records)
 
 
 def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
     """Export all material products to JSON file with FK resolution."""
-    products = session.query(MaterialProduct).options(
-        joinedload(MaterialProduct.material),
-        joinedload(MaterialProduct.supplier),
-    ).all()
+    products = (
+        session.query(MaterialProduct)
+        .options(
+            joinedload(MaterialProduct.material),
+            joinedload(MaterialProduct.supplier),
+        )
+        .all()
+    )
 
     records = []
     for p in products:
         # Feature 058: Removed current_inventory, weighted_avg_cost, inventory_value
         # These are now tracked via MaterialInventoryItem (FIFO)
-        records.append({
-            "uuid": str(p.uuid) if p.uuid else None,
-            "material_slug": p.material.slug if p.material else None,
-            "name": p.name,
-            "slug": p.slug,
-            "brand": p.brand,
-            "package_quantity": p.package_quantity,
-            "package_unit": p.package_unit,
-            "quantity_in_base_units": p.quantity_in_base_units,
-            "supplier_slug": p.supplier.slug if p.supplier else None,
-            "sku": p.sku,
-            "is_hidden": p.is_hidden,
-            "notes": p.notes,
-        })
+        records.append(
+            {
+                "uuid": str(p.uuid) if p.uuid else None,
+                "material_slug": p.material.slug if p.material else None,
+                "name": p.name,
+                "slug": p.slug,
+                "brand": p.brand,
+                "package_quantity": p.package_quantity,
+                "package_unit": p.package_unit,
+                "quantity_in_base_units": p.quantity_in_base_units,
+                "supplier_slug": p.supplier.slug if p.supplier else None,
+                "sku": p.sku,
+                "is_hidden": p.is_hidden,
+                "notes": p.notes,
+            }
+        )
 
     return _write_entity_file(output_dir, "material_products", records)
 
 
 def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
     """Export all material units to JSON file with FK resolution."""
-    units = session.query(MaterialUnit).options(
-        joinedload(MaterialUnit.material)
-    ).all()
+    units = session.query(MaterialUnit).options(joinedload(MaterialUnit.material)).all()
 
     records = []
     for u in units:
-        records.append({
-            "uuid": str(u.uuid) if u.uuid else None,
-            "material_slug": u.material.slug if u.material else None,
-            "name": u.name,
-            "slug": u.slug,
-            "quantity_per_unit": u.quantity_per_unit,
-            "description": u.description,
-        })
+        records.append(
+            {
+                "uuid": str(u.uuid) if u.uuid else None,
+                "material_slug": u.material.slug if u.material else None,
+                "name": u.name,
+                "slug": u.slug,
+                "quantity_per_unit": u.quantity_per_unit,
+                "description": u.description,
+            }
+        )
 
     return _write_entity_file(output_dir, "material_units", records)
 
 
 def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
     """Export all material purchases to JSON file with FK resolution."""
-    purchases = session.query(MaterialPurchase).options(
-        joinedload(MaterialPurchase.product),
-        joinedload(MaterialPurchase.supplier),
-    ).all()
+    purchases = (
+        session.query(MaterialPurchase)
+        .options(
+            joinedload(MaterialPurchase.product),
+            joinedload(MaterialPurchase.supplier),
+        )
+        .all()
+    )
 
     records = []
     for p in purchases:
-        records.append({
-            "uuid": str(p.uuid) if p.uuid else None,
-            "product_slug": p.product.slug if p.product else None,
-            "supplier_slug": p.supplier.slug if p.supplier else None,
-            "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
-            "packages_purchased": p.packages_purchased,
-            "package_price": str(p.package_price) if p.package_price else None,
-            "units_added": p.units_added,
-            "unit_cost": str(p.unit_cost) if p.unit_cost else None,
-            "notes": p.notes,
-            "created_at": p.created_at.isoformat() if p.created_at else None,
-        })
+        records.append(
+            {
+                "uuid": str(p.uuid) if p.uuid else None,
+                "product_slug": p.product.slug if p.product else None,
+                "supplier_slug": p.supplier.slug if p.supplier else None,
+                "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
+                "packages_purchased": p.packages_purchased,
+                "package_price": str(p.package_price) if p.package_price else None,
+                "units_added": p.units_added,
+                "unit_cost": str(p.unit_cost) if p.unit_cost else None,
+                "notes": p.notes,
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "material_purchases", records)
 
@@ -548,25 +598,33 @@ def _export_material_inventory_items(output_dir: Path, session: Session) -> File
 
     Feature 058: MaterialInventoryItem tracks individual inventory lots for FIFO.
     """
-    items = session.query(MaterialInventoryItem).options(
-        joinedload(MaterialInventoryItem.product),
-        joinedload(MaterialInventoryItem.purchase),
-    ).all()
+    items = (
+        session.query(MaterialInventoryItem)
+        .options(
+            joinedload(MaterialInventoryItem.product),
+            joinedload(MaterialInventoryItem.purchase),
+        )
+        .all()
+    )
 
     records = []
     for item in items:
-        records.append({
-            "uuid": str(item.uuid) if item.uuid else None,
-            "product_slug": item.product.slug if item.product else None,
-            "purchase_uuid": str(item.purchase.uuid) if item.purchase and item.purchase.uuid else None,
-            "quantity_purchased": item.quantity_purchased,
-            "quantity_remaining": item.quantity_remaining,
-            "cost_per_unit": str(item.cost_per_unit) if item.cost_per_unit else None,
-            "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
-            "location": item.location,
-            "notes": item.notes,
-            "created_at": item.created_at.isoformat() if item.created_at else None,
-        })
+        records.append(
+            {
+                "uuid": str(item.uuid) if item.uuid else None,
+                "product_slug": item.product.slug if item.product else None,
+                "purchase_uuid": (
+                    str(item.purchase.uuid) if item.purchase and item.purchase.uuid else None
+                ),
+                "quantity_purchased": item.quantity_purchased,
+                "quantity_remaining": item.quantity_remaining,
+                "cost_per_unit": str(item.cost_per_unit) if item.cost_per_unit else None,
+                "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
+                "location": item.location,
+                "notes": item.notes,
+                "created_at": item.created_at.isoformat() if item.created_at else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "material_inventory_items", records)
 
@@ -582,18 +640,20 @@ def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
 
     records = []
     for g in goods:
-        records.append({
-            "uuid": str(g.uuid) if g.uuid else None,
-            "slug": g.slug,
-            "display_name": g.display_name,
-            "description": g.description,
-            "assembly_type": g.assembly_type.value if g.assembly_type else None,
-            "packaging_instructions": g.packaging_instructions,
-            "inventory_count": g.inventory_count,
-            "notes": g.notes,
-            "created_at": g.created_at.isoformat() if g.created_at else None,
-            "updated_at": g.updated_at.isoformat() if g.updated_at else None,
-        })
+        records.append(
+            {
+                "uuid": str(g.uuid) if g.uuid else None,
+                "slug": g.slug,
+                "display_name": g.display_name,
+                "description": g.description,
+                "assembly_type": g.assembly_type.value if g.assembly_type else None,
+                "packaging_instructions": g.packaging_instructions,
+                "inventory_count": g.inventory_count,
+                "notes": g.notes,
+                "created_at": g.created_at.isoformat() if g.created_at else None,
+                "updated_at": g.updated_at.isoformat() if g.updated_at else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "finished_goods", records)
 
@@ -604,113 +664,135 @@ def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
     Feature 056: FinishedUnits are the single source of truth for yield tracking.
     Recipe reference uses recipe.name for lookup during import.
     """
-    units = session.query(FinishedUnit).options(
-        joinedload(FinishedUnit.recipe)
-    ).all()
+    units = session.query(FinishedUnit).options(joinedload(FinishedUnit.recipe)).all()
 
     records = []
     for fu in units:
-        records.append({
-            "uuid": str(fu.uuid) if fu.uuid else None,
-            "slug": fu.slug,
-            "display_name": fu.display_name,
-            # FK resolved by recipe name
-            "recipe_name": fu.recipe.name if fu.recipe else None,
-            "category": fu.category,
-            "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
-            "items_per_batch": fu.items_per_batch,
-            "item_unit": fu.item_unit,
-            "batch_percentage": float(fu.batch_percentage) if fu.batch_percentage else None,
-            "portion_description": fu.portion_description,
-            "inventory_count": fu.inventory_count,
-            "description": fu.description,
-            "notes": fu.notes,
-        })
+        records.append(
+            {
+                "uuid": str(fu.uuid) if fu.uuid else None,
+                "slug": fu.slug,
+                "display_name": fu.display_name,
+                # FK resolved by recipe name
+                "recipe_name": fu.recipe.name if fu.recipe else None,
+                "category": fu.category,
+                "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+                "items_per_batch": fu.items_per_batch,
+                "item_unit": fu.item_unit,
+                "batch_percentage": float(fu.batch_percentage) if fu.batch_percentage else None,
+                "portion_description": fu.portion_description,
+                "inventory_count": fu.inventory_count,
+                "description": fu.description,
+                "notes": fu.notes,
+            }
+        )
 
     return _write_entity_file(output_dir, "finished_units", records)
 
 
 def _export_events(output_dir: Path, session: Session) -> FileEntry:
     """Export all events with production/assembly targets to JSON file."""
-    events = session.query(Event).options(
-        joinedload(Event.production_targets).joinedload(EventProductionTarget.recipe),
-        joinedload(Event.assembly_targets).joinedload(EventAssemblyTarget.finished_good),
-    ).all()
+    events = (
+        session.query(Event)
+        .options(
+            joinedload(Event.production_targets).joinedload(EventProductionTarget.recipe),
+            joinedload(Event.assembly_targets).joinedload(EventAssemblyTarget.finished_good),
+        )
+        .all()
+    )
 
     records = []
     for e in events:
         # Build production targets list
         production_targets = []
         for pt in e.production_targets:
-            production_targets.append({
-                "recipe_name": pt.recipe.name if pt.recipe else None,
-                "target_batches": pt.target_batches,
-                "notes": pt.notes,
-            })
+            production_targets.append(
+                {
+                    "recipe_name": pt.recipe.name if pt.recipe else None,
+                    "target_batches": pt.target_batches,
+                    "notes": pt.notes,
+                }
+            )
 
         # Build assembly targets list
         assembly_targets = []
         for at in e.assembly_targets:
-            assembly_targets.append({
-                "finished_good_slug": at.finished_good.slug if at.finished_good else None,
-                "target_quantity": at.target_quantity,
-                "notes": at.notes,
-            })
+            assembly_targets.append(
+                {
+                    "finished_good_slug": at.finished_good.slug if at.finished_good else None,
+                    "target_quantity": at.target_quantity,
+                    "notes": at.notes,
+                }
+            )
 
-        records.append({
-            "uuid": str(e.uuid) if e.uuid else None,
-            "name": e.name,
-            "event_date": e.event_date.isoformat() if e.event_date else None,
-            "year": e.year,
-            "output_mode": e.output_mode.value if e.output_mode else None,
-            "notes": e.notes,
-            "date_added": e.date_added.isoformat() if e.date_added else None,
-            "last_modified": e.last_modified.isoformat() if e.last_modified else None,
-            # Nested targets
-            "production_targets": production_targets,
-            "assembly_targets": assembly_targets,
-        })
+        records.append(
+            {
+                "uuid": str(e.uuid) if e.uuid else None,
+                "name": e.name,
+                "event_date": e.event_date.isoformat() if e.event_date else None,
+                "year": e.year,
+                "output_mode": e.output_mode.value if e.output_mode else None,
+                "notes": e.notes,
+                "date_added": e.date_added.isoformat() if e.date_added else None,
+                "last_modified": e.last_modified.isoformat() if e.last_modified else None,
+                # Nested targets
+                "production_targets": production_targets,
+                "assembly_targets": assembly_targets,
+            }
+        )
 
     return _write_entity_file(output_dir, "events", records)
 
 
 def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
     """Export all production runs to JSON file with FK resolution."""
-    runs = session.query(ProductionRun).options(
-        joinedload(ProductionRun.recipe),
-        joinedload(ProductionRun.event),
-        joinedload(ProductionRun.finished_unit),
-    ).all()
+    runs = (
+        session.query(ProductionRun)
+        .options(
+            joinedload(ProductionRun.recipe),
+            joinedload(ProductionRun.event),
+            joinedload(ProductionRun.finished_unit),
+        )
+        .all()
+    )
 
     records = []
     for r in runs:
-        records.append({
-            "uuid": str(r.uuid) if r.uuid else None,
-            # FK resolved by names/slugs
-            "recipe_name": r.recipe.name if r.recipe else None,
-            "finished_unit_slug": r.finished_unit.slug if r.finished_unit else None,
-            "event_name": r.event.name if r.event else None,
-            # Production data
-            "num_batches": r.num_batches,
-            "expected_yield": r.expected_yield,
-            "actual_yield": r.actual_yield,
-            "produced_at": r.produced_at.isoformat() if r.produced_at else None,
-            "notes": r.notes,
-            "production_status": r.production_status,
-            "loss_quantity": r.loss_quantity,
-            # Cost data
-            "total_ingredient_cost": str(r.total_ingredient_cost) if r.total_ingredient_cost else None,
-            "per_unit_cost": str(r.per_unit_cost) if r.per_unit_cost else None,
-        })
+        records.append(
+            {
+                "uuid": str(r.uuid) if r.uuid else None,
+                # FK resolved by names/slugs
+                "recipe_name": r.recipe.name if r.recipe else None,
+                "finished_unit_slug": r.finished_unit.slug if r.finished_unit else None,
+                "event_name": r.event.name if r.event else None,
+                # Production data
+                "num_batches": r.num_batches,
+                "expected_yield": r.expected_yield,
+                "actual_yield": r.actual_yield,
+                "produced_at": r.produced_at.isoformat() if r.produced_at else None,
+                "notes": r.notes,
+                "production_status": r.production_status,
+                "loss_quantity": r.loss_quantity,
+                # Cost data
+                "total_ingredient_cost": (
+                    str(r.total_ingredient_cost) if r.total_ingredient_cost else None
+                ),
+                "per_unit_cost": str(r.per_unit_cost) if r.per_unit_cost else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "production_runs", records)
 
 
 def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntry:
     """Export all inventory depletions to JSON file with FK resolution."""
-    depletions = session.query(InventoryDepletion).options(
-        joinedload(InventoryDepletion.inventory_item),
-    ).all()
+    depletions = (
+        session.query(InventoryDepletion)
+        .options(
+            joinedload(InventoryDepletion.inventory_item),
+        )
+        .all()
+    )
 
     records = []
     for d in depletions:
@@ -721,20 +803,22 @@ def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntr
             if product.ingredient:
                 inventory_item_ref = f"{product.ingredient.slug}:{product.brand}:{product.package_unit_quantity}:{product.package_unit}"
 
-        records.append({
-            "uuid": str(d.uuid) if d.uuid else None,
-            # FK resolved by reference
-            "inventory_item_ref": inventory_item_ref,
-            # Depletion data
-            "quantity_depleted": str(d.quantity_depleted) if d.quantity_depleted else None,
-            "depletion_reason": d.depletion_reason,
-            "depletion_date": d.depletion_date.isoformat() if d.depletion_date else None,
-            "notes": d.notes,
-            "cost": str(d.cost) if d.cost else None,
-            # Audit fields
-            "created_by": d.created_by,
-            "created_at": d.created_at.isoformat() if d.created_at else None,
-        })
+        records.append(
+            {
+                "uuid": str(d.uuid) if d.uuid else None,
+                # FK resolved by reference
+                "inventory_item_ref": inventory_item_ref,
+                # Depletion data
+                "quantity_depleted": str(d.quantity_depleted) if d.quantity_depleted else None,
+                "depletion_reason": d.depletion_reason,
+                "depletion_date": d.depletion_date.isoformat() if d.depletion_date else None,
+                "notes": d.notes,
+                "cost": str(d.cost) if d.cost else None,
+                # Audit fields
+                "created_by": d.created_by,
+                "created_at": d.created_at.isoformat() if d.created_at else None,
+            }
+        )
 
     return _write_entity_file(output_dir, "inventory_depletions", records)
 
@@ -853,6 +937,7 @@ def validate_export(export_path: str) -> Dict:
     # Handle ZIP files
     if export_dir.suffix == ".zip":
         import tempfile
+
         with tempfile.TemporaryDirectory() as tmp:
             with zipfile.ZipFile(export_dir, "r") as zf:
                 zf.extractall(tmp)
@@ -1053,6 +1138,7 @@ def _parse_date(date_str: Optional[str]):
     if not date_str:
         return None
     from datetime import date
+
     # Handle both date-only and datetime strings
     date_part = date_str.split("T")[0] if "T" in date_str else date_str
     try:
@@ -1109,6 +1195,7 @@ def _import_entity_records(
                 slug = record.get("slug")
                 if not slug and name:
                     from src.services.material_catalog_service import slugify
+
                     slug = slugify(name)
                 obj = Supplier(
                     name=name,
@@ -1130,9 +1217,9 @@ def _import_entity_records(
                 parent_id = None
                 parent_slug = record.get("parent_slug")
                 if parent_slug:
-                    parent = session.query(Ingredient).filter(
-                        Ingredient.slug == parent_slug
-                    ).first()
+                    parent = (
+                        session.query(Ingredient).filter(Ingredient.slug == parent_slug).first()
+                    )
                     if parent:
                         parent_id = parent.id
 
@@ -1163,9 +1250,9 @@ def _import_entity_records(
             elif entity_type == "products":
                 # Resolve ingredient FK by slug
                 ingredient_slug = record.get("ingredient_slug")
-                ingredient = session.query(Ingredient).filter(
-                    Ingredient.slug == ingredient_slug
-                ).first()
+                ingredient = (
+                    session.query(Ingredient).filter(Ingredient.slug == ingredient_slug).first()
+                )
                 if not ingredient:
                     continue  # Skip if FK not resolved
 
@@ -1173,18 +1260,18 @@ def _import_entity_records(
                 preferred_supplier_id = None
                 supplier_slug = record.get("preferred_supplier_slug")
                 if supplier_slug:
-                    supplier = session.query(Supplier).filter(
-                        Supplier.slug == supplier_slug
-                    ).first()
+                    supplier = (
+                        session.query(Supplier).filter(Supplier.slug == supplier_slug).first()
+                    )
                     if supplier:
                         preferred_supplier_id = supplier.id
                 if not preferred_supplier_id:
                     # Fall back to ID-based resolution (legacy support)
                     old_supplier_id = record.get("preferred_supplier_id")
                     if old_supplier_id:
-                        supplier = session.query(Supplier).filter(
-                            Supplier.id == old_supplier_id
-                        ).first()
+                        supplier = (
+                            session.query(Supplier).filter(Supplier.id == old_supplier_id).first()
+                        )
                         if supplier:
                             preferred_supplier_id = supplier.id
 
@@ -1229,9 +1316,9 @@ def _import_entity_records(
                 # Add recipe ingredients (export uses "ingredients" key)
                 for ri in record.get("ingredients", []):
                     ing_slug = ri.get("ingredient_slug")
-                    ingredient = session.query(Ingredient).filter(
-                        Ingredient.slug == ing_slug
-                    ).first()
+                    ingredient = (
+                        session.query(Ingredient).filter(Ingredient.slug == ing_slug).first()
+                    )
                     if ingredient:
                         ri_obj = RecipeIngredient(
                             recipe_id=obj.id,
@@ -1246,9 +1333,7 @@ def _import_entity_records(
                 for rc in record.get("components", []):
                     # Look up component by name since we may not have slugs
                     comp_name = rc.get("component_recipe_name")
-                    component = session.query(Recipe).filter(
-                        Recipe.name == comp_name
-                    ).first()
+                    component = session.query(Recipe).filter(Recipe.name == comp_name).first()
                     if component:
                         rc_obj = RecipeComponent(
                             recipe_id=obj.id,
@@ -1267,9 +1352,7 @@ def _import_entity_records(
 
                 # Resolve recipe FK by name
                 recipe_name = record.get("recipe_name")
-                recipe = session.query(Recipe).filter(
-                    Recipe.name == recipe_name
-                ).first()
+                recipe = session.query(Recipe).filter(Recipe.name == recipe_name).first()
                 if not recipe:
                     continue  # Skip if recipe not found
 
@@ -1305,21 +1388,27 @@ def _import_entity_records(
                 if product_slug:
                     parts = product_slug.split(":")
                     if len(parts) >= 4:
-                        ingredient = session.query(Ingredient).filter(
-                            Ingredient.slug == parts[0]
-                        ).first()
+                        ingredient = (
+                            session.query(Ingredient).filter(Ingredient.slug == parts[0]).first()
+                        )
                         if ingredient:
-                            product = session.query(Product).filter(
-                                Product.ingredient_id == ingredient.id,
-                                Product.brand == (parts[1] if parts[1] else None),
-                                Product.package_unit == parts[3],
-                            ).first()
+                            product = (
+                                session.query(Product)
+                                .filter(
+                                    Product.ingredient_id == ingredient.id,
+                                    Product.brand == (parts[1] if parts[1] else None),
+                                    Product.package_unit == parts[3],
+                                )
+                                .first()
+                            )
                             if product:
                                 # Resolve supplier FK
                                 supplier_name = record.get("supplier_name")
-                                supplier = session.query(Supplier).filter(
-                                    Supplier.name == supplier_name
-                                ).first()
+                                supplier = (
+                                    session.query(Supplier)
+                                    .filter(Supplier.name == supplier_name)
+                                    .first()
+                                )
                                 if supplier:
                                     obj = Purchase(
                                         product_id=product.id,
@@ -1338,15 +1427,19 @@ def _import_entity_records(
                 if product_slug:
                     parts = product_slug.split(":")
                     if len(parts) >= 4:
-                        ingredient = session.query(Ingredient).filter(
-                            Ingredient.slug == parts[0]
-                        ).first()
+                        ingredient = (
+                            session.query(Ingredient).filter(Ingredient.slug == parts[0]).first()
+                        )
                         if ingredient:
-                            product = session.query(Product).filter(
-                                Product.ingredient_id == ingredient.id,
-                                Product.brand == (parts[1] if parts[1] else None),
-                                Product.package_unit == parts[3],
-                            ).first()
+                            product = (
+                                session.query(Product)
+                                .filter(
+                                    Product.ingredient_id == ingredient.id,
+                                    Product.brand == (parts[1] if parts[1] else None),
+                                    Product.package_unit == parts[3],
+                                )
+                                .first()
+                            )
                             if product:
                                 obj = InventoryItem(
                                     product_id=product.id,
@@ -1371,9 +1464,11 @@ def _import_entity_records(
             elif entity_type == "material_subcategories":
                 # Resolve category FK
                 category_slug = record.get("category_slug")
-                category = session.query(MaterialCategory).filter(
-                    MaterialCategory.slug == category_slug
-                ).first()
+                category = (
+                    session.query(MaterialCategory)
+                    .filter(MaterialCategory.slug == category_slug)
+                    .first()
+                )
                 if category:
                     obj = MaterialSubcategory(
                         category_id=category.id,
@@ -1387,9 +1482,11 @@ def _import_entity_records(
             elif entity_type == "materials":
                 # Resolve subcategory FK
                 subcategory_slug = record.get("subcategory_slug")
-                subcategory = session.query(MaterialSubcategory).filter(
-                    MaterialSubcategory.slug == subcategory_slug
-                ).first()
+                subcategory = (
+                    session.query(MaterialSubcategory)
+                    .filter(MaterialSubcategory.slug == subcategory_slug)
+                    .first()
+                )
                 if subcategory:
                     obj = Material(
                         subcategory_id=subcategory.id,
@@ -1404,17 +1501,15 @@ def _import_entity_records(
             elif entity_type == "material_products":
                 # Resolve material FK
                 material_slug = record.get("material_slug")
-                material = session.query(Material).filter(
-                    Material.slug == material_slug
-                ).first()
+                material = session.query(Material).filter(Material.slug == material_slug).first()
                 if material:
                     # Resolve supplier FK if present
                     supplier_id = None
                     supplier_name = record.get("supplier_name")
                     if supplier_name:
-                        supplier = session.query(Supplier).filter(
-                            Supplier.name == supplier_name
-                        ).first()
+                        supplier = (
+                            session.query(Supplier).filter(Supplier.name == supplier_name).first()
+                        )
                         if supplier:
                             supplier_id = supplier.id
 
@@ -1439,17 +1534,19 @@ def _import_entity_records(
             elif entity_type == "material_purchases":
                 # Resolve product FK
                 product_slug = record.get("product_slug")
-                product = session.query(MaterialProduct).filter(
-                    MaterialProduct.slug == product_slug
-                ).first()
+                product = (
+                    session.query(MaterialProduct)
+                    .filter(MaterialProduct.slug == product_slug)
+                    .first()
+                )
                 if product:
                     # Resolve supplier FK
                     supplier_id = None
                     supplier_slug = record.get("supplier_slug")
                     if supplier_slug:
-                        supplier = session.query(Supplier).filter(
-                            Supplier.slug == supplier_slug
-                        ).first()
+                        supplier = (
+                            session.query(Supplier).filter(Supplier.slug == supplier_slug).first()
+                        )
                         if supplier:
                             supplier_id = supplier.id
 
@@ -1470,17 +1567,21 @@ def _import_entity_records(
             elif entity_type == "material_inventory_items":
                 # Resolve product FK
                 product_slug = record.get("product_slug")
-                product = session.query(MaterialProduct).filter(
-                    MaterialProduct.slug == product_slug
-                ).first()
+                product = (
+                    session.query(MaterialProduct)
+                    .filter(MaterialProduct.slug == product_slug)
+                    .first()
+                )
                 if product:
                     # Resolve purchase FK by UUID
                     purchase_id = None
                     purchase_uuid = record.get("purchase_uuid")
                     if purchase_uuid:
-                        purchase = session.query(MaterialPurchase).filter(
-                            MaterialPurchase.uuid == purchase_uuid
-                        ).first()
+                        purchase = (
+                            session.query(MaterialPurchase)
+                            .filter(MaterialPurchase.uuid == purchase_uuid)
+                            .first()
+                        )
                         if purchase:
                             purchase_id = purchase.id
 
@@ -1499,6 +1600,7 @@ def _import_entity_records(
 
             elif entity_type == "finished_goods":
                 from src.models.finished_good import AssemblyType
+
                 # Parse assembly_type enum
                 assembly_type_str = record.get("assembly_type")
                 assembly_type = None
@@ -1522,6 +1624,7 @@ def _import_entity_records(
 
             elif entity_type == "events":
                 from src.models.event import OutputMode
+
                 # Parse output_mode enum
                 output_mode_str = record.get("output_mode")
                 output_mode = None
@@ -1544,19 +1647,27 @@ def _import_entity_records(
             elif entity_type == "production_runs":
                 # Resolve FKs by name/slug
                 recipe_name = record.get("recipe_name")
-                recipe = session.query(Recipe).filter(
-                    Recipe.name == recipe_name
-                ).first() if recipe_name else None
+                recipe = (
+                    session.query(Recipe).filter(Recipe.name == recipe_name).first()
+                    if recipe_name
+                    else None
+                )
 
                 finished_unit_slug = record.get("finished_unit_slug")
-                finished_unit = session.query(FinishedUnit).filter(
-                    FinishedUnit.slug == finished_unit_slug
-                ).first() if finished_unit_slug else None
+                finished_unit = (
+                    session.query(FinishedUnit)
+                    .filter(FinishedUnit.slug == finished_unit_slug)
+                    .first()
+                    if finished_unit_slug
+                    else None
+                )
 
                 event_name = record.get("event_name")
-                event = session.query(Event).filter(
-                    Event.name == event_name
-                ).first() if event_name else None
+                event = (
+                    session.query(Event).filter(Event.name == event_name).first()
+                    if event_name
+                    else None
+                )
 
                 if recipe:
                     obj = ProductionRun(

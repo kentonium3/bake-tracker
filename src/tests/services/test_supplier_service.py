@@ -852,6 +852,7 @@ class TestMigrateSupplierSlugs:
 
         # Run migration
         from src.services.supplier_service import migrate_supplier_slugs
+
         result = migrate_supplier_slugs(session=session)
 
         # Verify all suppliers got proper slugs
@@ -875,6 +876,7 @@ class TestMigrateSupplierSlugs:
 
         # Run migration
         from src.services.supplier_service import migrate_supplier_slugs
+
         result = migrate_supplier_slugs(session=session)
 
         # Verify slug was regenerated
@@ -906,6 +908,7 @@ class TestMigrateSupplierSlugs:
 
         # Run migration
         from src.services.supplier_service import migrate_supplier_slugs
+
         result = migrate_supplier_slugs(session=session)
 
         # Verify one has the base slug and one has _1 suffix
@@ -931,6 +934,7 @@ class TestMigrateSupplierSlugs:
 
         # Run migration twice
         from src.services.supplier_service import migrate_supplier_slugs
+
         result1 = migrate_supplier_slugs(session=session)
         slug_after_first = supplier.slug
 
@@ -956,6 +960,7 @@ class TestMigrateSupplierSlugs:
 
         # Run migration
         from src.services.supplier_service import migrate_supplier_slugs
+
         result = migrate_supplier_slugs(session=session)
 
         # Verify slug is now proper format
@@ -974,6 +979,7 @@ class TestMigrateSupplierSlugs:
         session.flush()
 
         from src.services.supplier_service import migrate_supplier_slugs
+
         result = migrate_supplier_slugs(session=session)
 
         assert result["migrated"] == 1
@@ -986,46 +992,57 @@ class TestValidateSupplierData:
     def test_validation_requires_name(self):
         """Name is required."""
         from src.services.supplier_service import validate_supplier_data
+
         errors = validate_supplier_data({"name": ""})
         assert "Supplier name is required" in errors
 
     def test_validation_requires_name_not_whitespace(self):
         """Name cannot be just whitespace."""
         from src.services.supplier_service import validate_supplier_data
+
         errors = validate_supplier_data({"name": "   "})
         assert "Supplier name is required" in errors
 
     def test_validation_rejects_invalid_slug_format(self):
         """Invalid slug formats are rejected."""
         from src.services.supplier_service import validate_supplier_data
-        errors = validate_supplier_data({
-            "name": "Test",
-            "slug": "UPPERCASE_NOT_ALLOWED",
-            "city": "Boston",
-            "state": "MA",
-            "zip_code": "02101",
-        })
+
+        errors = validate_supplier_data(
+            {
+                "name": "Test",
+                "slug": "UPPERCASE_NOT_ALLOWED",
+                "city": "Boston",
+                "state": "MA",
+                "zip_code": "02101",
+            }
+        )
         assert any("Invalid slug format" in e for e in errors)
 
     def test_validation_accepts_valid_slug(self):
         """Valid slug format is accepted."""
         from src.services.supplier_service import validate_supplier_data
-        errors = validate_supplier_data({
-            "name": "Test",
-            "slug": "valid_slug_format",
-            "city": "Boston",
-            "state": "MA",
-            "zip_code": "02101",
-        })
+
+        errors = validate_supplier_data(
+            {
+                "name": "Test",
+                "slug": "valid_slug_format",
+                "city": "Boston",
+                "state": "MA",
+                "zip_code": "02101",
+            }
+        )
         assert not any("Invalid slug format" in e for e in errors)
 
     def test_validation_requires_physical_supplier_fields(self):
         """Physical suppliers require city, state, zip_code."""
         from src.services.supplier_service import validate_supplier_data
-        errors = validate_supplier_data({
-            "name": "Test Store",
-            "supplier_type": "physical",
-        })
+
+        errors = validate_supplier_data(
+            {
+                "name": "Test Store",
+                "supplier_type": "physical",
+            }
+        )
         assert "City is required for physical suppliers" in errors
         assert "State is required for physical suppliers" in errors
         assert "ZIP code is required for physical suppliers" in errors
@@ -1033,10 +1050,13 @@ class TestValidateSupplierData:
     def test_validation_online_supplier_no_location_required(self):
         """Online suppliers don't require city/state/zip."""
         from src.services.supplier_service import validate_supplier_data
-        errors = validate_supplier_data({
-            "name": "Online Store",
-            "supplier_type": "online",
-        })
+
+        errors = validate_supplier_data(
+            {
+                "name": "Online Store",
+                "supplier_type": "online",
+            }
+        )
         assert "City is required" not in str(errors)
         assert "State is required" not in str(errors)
         assert "ZIP code is required" not in str(errors)
@@ -1044,21 +1064,27 @@ class TestValidateSupplierData:
     def test_validation_rejects_invalid_supplier_type(self):
         """Invalid supplier_type is rejected."""
         from src.services.supplier_service import validate_supplier_data
-        errors = validate_supplier_data({
-            "name": "Test",
-            "supplier_type": "invalid_type",
-        })
+
+        errors = validate_supplier_data(
+            {
+                "name": "Test",
+                "supplier_type": "invalid_type",
+            }
+        )
         assert "supplier_type must be 'physical' or 'online'" in errors
 
     def test_validation_rejects_invalid_state_length(self):
         """State must be 2 characters."""
         from src.services.supplier_service import validate_supplier_data
-        errors = validate_supplier_data({
-            "name": "Test",
-            "state": "MAS",
-            "city": "Boston",
-            "zip_code": "02101",
-        })
+
+        errors = validate_supplier_data(
+            {
+                "name": "Test",
+                "state": "MAS",
+                "city": "Boston",
+                "zip_code": "02101",
+            }
+        )
         assert "State must be a 2-letter code" in errors
 
 
@@ -1092,6 +1118,7 @@ class TestSlugImmutability:
 
         # Verify slug unchanged in database
         from src.models.supplier import Supplier
+
         db_supplier = session.query(Supplier).get(supplier["id"])
         assert db_supplier.slug == original_slug
 

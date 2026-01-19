@@ -86,9 +86,7 @@ class PurchasesTab(ctk.CTkFrame):
         header_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 5))
 
         title = ctk.CTkLabel(
-            header_frame,
-            text="Purchase History",
-            font=ctk.CTkFont(size=20, weight="bold")
+            header_frame, text="Purchase History", font=ctk.CTkFont(size=20, weight="bold")
         )
         title.pack(anchor="w")
 
@@ -96,7 +94,7 @@ class PurchasesTab(ctk.CTkFrame):
             header_frame,
             text="View, add, and manage your purchases",
             font=ctk.CTkFont(size=12),
-            text_color="gray"
+            text_color="gray",
         )
         subtitle.pack(anchor="w")
 
@@ -108,10 +106,7 @@ class PurchasesTab(ctk.CTkFrame):
 
         # Add Purchase button
         add_btn = ctk.CTkButton(
-            controls_frame,
-            text="+ Add Purchase",
-            command=self._on_add_purchase,
-            width=120
+            controls_frame, text="+ Add Purchase", command=self._on_add_purchase, width=120
         )
         add_btn.grid(row=0, column=0, padx=5, pady=5)
 
@@ -125,7 +120,7 @@ class PurchasesTab(ctk.CTkFrame):
             variable=self.date_range_var,
             values=["Last 30 days", "Last 90 days", "Last year", "All time"],
             command=self._on_filter_change,
-            width=130
+            width=130,
         )
         date_dropdown.grid(row=0, column=2, padx=5, pady=5)
 
@@ -139,7 +134,7 @@ class PurchasesTab(ctk.CTkFrame):
             variable=self.supplier_var,
             values=["All"],
             command=self._on_filter_change,
-            width=150
+            width=150,
         )
         self.supplier_dropdown.grid(row=0, column=4, padx=5, pady=5)
 
@@ -152,17 +147,14 @@ class PurchasesTab(ctk.CTkFrame):
             controls_frame,
             placeholder_text="Search products...",
             textvariable=self.search_var,
-            width=200
+            width=200,
         )
         self.search_entry.grid(row=0, column=6, padx=5, pady=5)
         self.search_entry.bind("<KeyRelease>", self._on_search_change)
 
         # Clear filters button
         clear_btn = ctk.CTkButton(
-            controls_frame,
-            text="Clear",
-            command=self._clear_filters,
-            width=60
+            controls_frame, text="Clear", command=self._clear_filters, width=60
         )
         clear_btn.grid(row=0, column=7, padx=10, pady=5)
 
@@ -180,12 +172,7 @@ class PurchasesTab(ctk.CTkFrame):
 
         # Define columns
         columns = ("date", "product", "supplier", "qty", "price", "total", "remaining")
-        self.tree = ttk.Treeview(
-            list_frame,
-            columns=columns,
-            show="headings",
-            selectmode="browse"
-        )
+        self.tree = ttk.Treeview(list_frame, columns=columns, show="headings", selectmode="browse")
 
         # Column configurations with sortable headers
         col_config = {
@@ -195,33 +182,19 @@ class PurchasesTab(ctk.CTkFrame):
             "qty": ("Qty", 60, "e"),
             "price": ("Unit Price", 80, "e"),
             "total": ("Total", 80, "e"),
-            "remaining": ("Remaining", 80, "e")
+            "remaining": ("Remaining", 80, "e"),
         }
 
         for col, (title, width, anchor) in col_config.items():
             self.tree.heading(
-                col,
-                text=title,
-                anchor=anchor,
-                command=lambda c=col: self._sort_by_column(c)
+                col, text=title, anchor=anchor, command=lambda c=col: self._sort_by_column(c)
             )
             self.tree.column(col, width=width, minwidth=width - 20, anchor=anchor)
 
         # Scrollbars
-        y_scrollbar = ttk.Scrollbar(
-            list_frame,
-            orient="vertical",
-            command=self.tree.yview
-        )
-        x_scrollbar = ttk.Scrollbar(
-            list_frame,
-            orient="horizontal",
-            command=self.tree.xview
-        )
-        self.tree.configure(
-            yscrollcommand=y_scrollbar.set,
-            xscrollcommand=x_scrollbar.set
-        )
+        y_scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=self.tree.yview)
+        x_scrollbar = ttk.Scrollbar(list_frame, orient="horizontal", command=self.tree.xview)
+        self.tree.configure(yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
 
         # Grid layout
         self.tree.grid(row=0, column=0, sticky="nsew")
@@ -242,19 +215,10 @@ class PurchasesTab(ctk.CTkFrame):
     def _create_context_menu(self) -> None:
         """Create right-click context menu."""
         self.context_menu = tk.Menu(self, tearoff=0)
-        self.context_menu.add_command(
-            label="View Details",
-            command=self._on_view_details
-        )
-        self.context_menu.add_command(
-            label="Edit",
-            command=self._on_edit
-        )
+        self.context_menu.add_command(label="View Details", command=self._on_view_details)
+        self.context_menu.add_command(label="Edit", command=self._on_edit)
         self.context_menu.add_separator()
-        self.context_menu.add_command(
-            label="Delete",
-            command=self._on_delete
-        )
+        self.context_menu.add_command(label="Delete", command=self._on_delete)
 
         # Bind right-click (platform-specific)
         self.tree.bind("<Button-3>", self._show_context_menu)  # Windows/Linux
@@ -294,7 +258,7 @@ class PurchasesTab(ctk.CTkFrame):
             "Last 30 days": "last_30_days",
             "Last 90 days": "last_90_days",
             "Last year": "last_year",
-            "All time": "all_time"
+            "All time": "all_time",
         }
         return mapping.get(display_value, "last_30_days")
 
@@ -327,20 +291,14 @@ class PurchasesTab(ctk.CTkFrame):
             search = self.search_var.get().strip() or None
 
             self.purchases = get_purchases_filtered(
-                date_range=date_range,
-                supplier_id=supplier_id,
-                search_query=search
+                date_range=date_range, supplier_id=supplier_id, search_query=search
             )
             self.filtered_purchases = self.purchases.copy()
             self._apply_sort()
             self._refresh_tree()
 
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load purchases: {str(e)}",
-                parent=self
-            )
+            messagebox.showerror("Error", f"Failed to load purchases: {str(e)}", parent=self)
 
     def _apply_sort(self) -> None:
         """Apply current sort to filtered_purchases."""
@@ -355,7 +313,7 @@ class PurchasesTab(ctk.CTkFrame):
             "qty": "quantity_purchased",
             "price": "unit_price",
             "total": "total_cost",
-            "remaining": "remaining_inventory"
+            "remaining": "remaining_inventory",
         }
 
         sort_key = key_map.get(self._sort_column, "purchase_date")
@@ -367,10 +325,7 @@ class PurchasesTab(ctk.CTkFrame):
                 return "" if isinstance(item.get(sort_key, ""), str) else Decimal("0")
             return value
 
-        self.filtered_purchases.sort(
-            key=get_sort_value,
-            reverse=self._sort_reverse
-        )
+        self.filtered_purchases.sort(key=get_sort_value, reverse=self._sort_reverse)
 
     def _sort_by_column(self, column: str) -> None:
         """Sort by clicked column header."""
@@ -393,17 +348,16 @@ class PurchasesTab(ctk.CTkFrame):
         if not self.filtered_purchases:
             # Show empty state message
             self.tree.insert(
-                "",
-                "end",
-                iid="empty",
-                values=("", "No purchases found", "", "", "", "", "")
+                "", "end", iid="empty", values=("", "No purchases found", "", "", "", "", "")
             )
             return
 
         # Insert purchases
         for purchase in self.filtered_purchases:
             purchase_id = purchase["id"]
-            date_str = purchase["purchase_date"].strftime("%Y-%m-%d") if purchase["purchase_date"] else ""
+            date_str = (
+                purchase["purchase_date"].strftime("%Y-%m-%d") if purchase["purchase_date"] else ""
+            )
             qty = f"{purchase['quantity_purchased']:.1f}"
             price = f"${purchase['unit_price']:.2f}" if purchase["unit_price"] else ""
             total = f"${purchase['total_cost']:.2f}" if purchase["total_cost"] else ""
@@ -420,8 +374,8 @@ class PurchasesTab(ctk.CTkFrame):
                     qty,
                     price,
                     total,
-                    remaining
-                )
+                    remaining,
+                ),
             )
 
     def _populate_supplier_dropdown(self) -> None:
@@ -461,6 +415,7 @@ class PurchasesTab(ctk.CTkFrame):
     def _on_add_purchase(self) -> None:
         """Open Add Purchase dialog."""
         from src.ui.dialogs.add_purchase_dialog import AddPurchaseDialog
+
         dialog = AddPurchaseDialog(self, on_save=self._load_purchases)
         dialog.focus()
 
@@ -471,6 +426,7 @@ class PurchasesTab(ctk.CTkFrame):
             return
 
         from src.ui.dialogs.edit_purchase_dialog import EditPurchaseDialog
+
         dialog = EditPurchaseDialog(self, purchase_id, on_save=self._load_purchases)
         dialog.focus()
 
@@ -491,9 +447,7 @@ class PurchasesTab(ctk.CTkFrame):
 
         except PurchaseNotFound:
             messagebox.showerror(
-                "Error",
-                "Purchase not found. It may have been deleted.",
-                parent=self
+                "Error", "Purchase not found. It may have been deleted.", parent=self
             )
             self._load_purchases()
 
@@ -511,7 +465,11 @@ class PurchasesTab(ctk.CTkFrame):
             if usage_history:
                 message += "Usage Details:\n"
                 for usage in usage_history[:5]:
-                    date_str = usage['depleted_at'].strftime('%m/%d/%Y') if usage.get('depleted_at') else ""
+                    date_str = (
+                        usage["depleted_at"].strftime("%m/%d/%Y")
+                        if usage.get("depleted_at")
+                        else ""
+                    )
                     if date_str:
                         message += f"  - {usage['recipe_name']}: {usage['quantity_used']:.1f} ({date_str})\n"
                     else:
@@ -519,7 +477,9 @@ class PurchasesTab(ctk.CTkFrame):
                 if len(usage_history) > 5:
                     message += f"  ... and {len(usage_history) - 5} more\n"
 
-            message += "\nYou can edit this purchase instead, or manually adjust inventory if needed."
+            message += (
+                "\nYou can edit this purchase instead, or manually adjust inventory if needed."
+            )
 
             messagebox.showerror("Cannot Delete", message, parent=self)
 
@@ -527,7 +487,7 @@ class PurchasesTab(ctk.CTkFrame):
             messagebox.showerror(
                 "Cannot Delete",
                 f"This purchase cannot be deleted.\n\nReason: {reason}",
-                parent=self
+                parent=self,
             )
 
     def _show_delete_confirmation_dialog(self, purchase_id: int) -> None:
@@ -545,15 +505,13 @@ class PurchasesTab(ctk.CTkFrame):
 
             if remaining > 0:
                 package_unit = purchase.product.package_unit or "unit"
-                message += f"\nThis will also remove {remaining:.1f} {package_unit}(s) from inventory.\n"
+                message += (
+                    f"\nThis will also remove {remaining:.1f} {package_unit}(s) from inventory.\n"
+                )
 
             message += "\nThis action cannot be undone."
 
-            result = messagebox.askyesno(
-                "Confirm Delete",
-                message,
-                parent=self
-            )
+            result = messagebox.askyesno("Confirm Delete", message, parent=self)
 
             if result:
                 # Re-validate before executing (race condition protection)
@@ -564,34 +522,27 @@ class PurchasesTab(ctk.CTkFrame):
                     messagebox.showerror(
                         "Cannot Delete",
                         f"Purchase can no longer be deleted.\n\nReason: {reason}",
-                        parent=self
+                        parent=self,
                     )
 
         except PurchaseNotFound:
             messagebox.showerror(
-                "Error",
-                "Purchase not found. It may have been deleted.",
-                parent=self
+                "Error", "Purchase not found. It may have been deleted.", parent=self
             )
             self._load_purchases()
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load purchase details: {str(e)}",
-                parent=self
-            )
+            messagebox.showerror("Error", f"Failed to load purchase details: {str(e)}", parent=self)
 
     def _execute_delete(self, purchase_id: int) -> None:
         """Execute the deletion."""
         try:
             from src.services.purchase_service import delete_purchase
+
             delete_purchase(purchase_id)
             self._load_purchases()
         except Exception as e:
             messagebox.showerror(
-                "Delete Failed",
-                f"Failed to delete purchase: {str(e)}",
-                parent=self
+                "Delete Failed", f"Failed to delete purchase: {str(e)}", parent=self
             )
 
     def _on_view_details(self) -> None:
@@ -603,10 +554,12 @@ class PurchasesTab(ctk.CTkFrame):
         def on_edit(pid: int) -> None:
             """Callback to open edit dialog from details view."""
             from src.ui.dialogs.edit_purchase_dialog import EditPurchaseDialog
+
             dialog = EditPurchaseDialog(self, pid, on_save=self._load_purchases)
             dialog.focus()
 
         from src.ui.dialogs.purchase_details_dialog import PurchaseDetailsDialog
+
         dialog = PurchaseDetailsDialog(self, purchase_id, on_edit=on_edit)
         dialog.focus()
 

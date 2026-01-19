@@ -65,8 +65,6 @@ def sample_finished_good(db_session):
     return fg
 
 
-
-
 @pytest.fixture
 def sample_material(db_session):
     """Create a sample material hierarchy for testing."""
@@ -270,9 +268,7 @@ class TestXORConstraint:
         db_session.commit()
         assert comp.id is not None
 
-    def test_xor_allows_only_material(
-        self, db_session, sample_finished_good, sample_material
-    ):
+    def test_xor_allows_only_material(self, db_session, sample_finished_good, sample_material):
         """XOR allows composition with only material_id set."""
         comp = Composition(
             assembly_id=sample_finished_good.id,
@@ -319,9 +315,7 @@ class TestXORConstraint:
         with pytest.raises(IntegrityError):
             db_session.commit()
 
-    def test_xor_rejects_no_component_set(
-        self, db_session, sample_finished_good
-    ):
+    def test_xor_rejects_no_component_set(self, db_session, sample_finished_good):
         """XOR rejects composition with no component type set."""
         comp = Composition(
             assembly_id=sample_finished_good.id,
@@ -384,9 +378,7 @@ class TestMaterialComponentCost:
 class TestCostBreakdown:
     """Tests for get_cost_breakdown() separating cost types."""
 
-    def test_cost_breakdown_returns_dict_structure(
-        self, db_session, sample_finished_good
-    ):
+    def test_cost_breakdown_returns_dict_structure(self, db_session, sample_finished_good):
         """Cost breakdown returns correct dict structure."""
         breakdown = get_cost_breakdown(sample_finished_good.id, session=db_session)
 
@@ -397,9 +389,7 @@ class TestCostBreakdown:
         assert "has_estimated_costs" in breakdown
         assert "component_details" in breakdown
 
-    def test_cost_breakdown_empty_assembly(
-        self, db_session, sample_finished_good
-    ):
+    def test_cost_breakdown_empty_assembly(self, db_session, sample_finished_good):
         """Cost breakdown for empty assembly returns zeros."""
         breakdown = get_cost_breakdown(sample_finished_good.id, session=db_session)
 
@@ -535,9 +525,7 @@ class TestCompositionProperties:
 class TestCompositionRepr:
     """Tests for Composition __repr__ with materials."""
 
-    def test_repr_material_unit(
-        self, db_session, sample_finished_good, sample_material_unit
-    ):
+    def test_repr_material_unit(self, db_session, sample_finished_good, sample_material_unit):
         """__repr__ shows material_unit type for MaterialUnit compositions."""
         comp = Composition.create_material_unit_composition(
             assembly_id=sample_finished_good.id,
@@ -553,9 +541,7 @@ class TestCompositionRepr:
         assert str(sample_material_unit.id) in repr_str
         assert "qty=3" in repr_str
 
-    def test_repr_material_placeholder(
-        self, db_session, sample_finished_good, sample_material
-    ):
+    def test_repr_material_placeholder(self, db_session, sample_finished_good, sample_material):
         """__repr__ shows material type for Material placeholder compositions."""
         comp = Composition.create_material_placeholder_composition(
             assembly_id=sample_finished_good.id,

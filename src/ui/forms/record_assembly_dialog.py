@@ -16,7 +16,12 @@ from src.models.event import Event
 from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import assembly_service, event_service, packaging_service, material_consumption_service
+from src.services import (
+    assembly_service,
+    event_service,
+    packaging_service,
+    material_consumption_service,
+)
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -148,9 +153,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
         row += 1
 
         # Availability display
-        self.availability_display = AvailabilityDisplay(
-            self, title="Component Availability"
-        )
+        self.availability_display = AvailabilityDisplay(self, title="Component Availability")
         self.availability_display.grid(
             row=row,
             column=0,
@@ -352,9 +355,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
             List of pending requirement dicts
         """
         try:
-            pending = packaging_service.get_pending_requirements(
-                assembly_id=self.finished_good.id
-            )
+            pending = packaging_service.get_pending_requirements(assembly_id=self.finished_good.id)
             return pending
         except Exception:
             # Don't block assembly if check fails
@@ -390,9 +391,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
         for req in pending:
             composition_id = req.get("composition_id")
             if composition_id:
-                dialog = PackagingAssignmentDialog(
-                    self, composition_id=composition_id
-                )
+                dialog = PackagingAssignmentDialog(self, composition_id=composition_id)
                 self.wait_window(dialog)
 
     def _on_cancel(self):
@@ -404,9 +403,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
         """Validate inputs before recording."""
         quantity = self._get_quantity()
         if quantity < 1:
-            show_error(
-                "Validation Error", "Quantity must be at least 1.", parent=self
-            )
+            show_error("Validation Error", "Quantity must be at least 1.", parent=self)
             return False
 
         if not self._can_assemble:
@@ -547,10 +544,7 @@ class PendingPackagingDialog(ctk.CTkToplevel):
 
         # Pending items list
         list_frame = ctk.CTkFrame(self)
-        list_frame.grid(
-            row=1, column=0, sticky="nsew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        list_frame.grid(row=1, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
 
         for req in self.pending[:5]:  # Show at most 5
             product_name = req.get("product_name", "Unknown")
@@ -711,16 +705,13 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             header_frame,
             text="Enter the quantity to use from each product.\n"
-                 "You can split across multiple products.",
+            "You can split across multiple products.",
             justify="center",
         ).pack(pady=(PADDING_MEDIUM, 0))
 
         # Scrollable frame for material assignments
         scroll_frame = ctk.CTkScrollableFrame(self)
-        scroll_frame.grid(
-            row=1, column=0, sticky="nsew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        scroll_frame.grid(row=1, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
         scroll_frame.grid_columnconfigure(0, weight=1)
 
         for mat_info in self.pending:
@@ -766,7 +757,9 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
             text=header_text,
             font=ctk.CTkFont(weight="bold"),
             anchor="w",
-        ).grid(row=0, column=0, columnspan=3, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 0))
+        ).grid(
+            row=0, column=0, columnspan=3, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 0)
+        )
 
         # Total needed info
         total_var = ctk.StringVar(value=f"Assigned: 0 / {total_needed:.0f} needed")
@@ -796,7 +789,14 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
                     section,
                     text=prod_text,
                     anchor="w",
-                ).grid(row=row, column=0, columnspan=2, sticky="w", padx=(PADDING_LARGE, PADDING_MEDIUM), pady=2)
+                ).grid(
+                    row=row,
+                    column=0,
+                    columnspan=2,
+                    sticky="w",
+                    padx=(PADDING_LARGE, PADDING_MEDIUM),
+                    pady=2,
+                )
 
                 # Quantity entry
                 entry = ctk.CTkEntry(section, width=80, placeholder_text="0")
@@ -820,7 +820,9 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
                 section,
                 text="No products with inventory available",
                 text_color="#CC0000",
-            ).grid(row=1, column=0, columnspan=3, sticky="w", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+            ).grid(
+                row=1, column=0, columnspan=3, sticky="w", padx=PADDING_LARGE, pady=PADDING_MEDIUM
+            )
 
     def _update_total(self, composition_id: int):
         """Update the total assigned display for a composition."""
@@ -879,9 +881,7 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
                     if mat.get("composition_id") == composition_id:
                         mat_name = mat.get("material_name", "Unknown")
                         break
-                errors.append(
-                    f"{mat_name}: assigned {total_assigned:.0f} but need {needed:.0f}"
-                )
+                errors.append(f"{mat_name}: assigned {total_assigned:.0f} but need {needed:.0f}")
             elif not allocations:
                 mat_name = "Unknown"
                 for mat in self.pending:

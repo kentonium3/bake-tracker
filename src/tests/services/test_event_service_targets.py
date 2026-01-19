@@ -185,9 +185,7 @@ class TestSetProductionTarget:
 class TestGetProductionTargets:
     """Tests for get_production_targets() function."""
 
-    def test_returns_all_targets(
-        self, test_db, event_christmas, recipe_cookies, recipe_brownies
-    ):
+    def test_returns_all_targets(self, test_db, event_christmas, recipe_cookies, recipe_brownies):
         """Returns all targets for the event."""
         event_service.set_production_target(
             event_id=event_christmas.id,
@@ -254,9 +252,7 @@ class TestDeleteProductionTarget:
             )
             assert db_target is None
 
-    def test_returns_false_when_not_found(
-        self, test_db, event_christmas, recipe_cookies
-    ):
+    def test_returns_false_when_not_found(self, test_db, event_christmas, recipe_cookies):
         """Returns False when target not found."""
         result = event_service.delete_production_target(
             event_id=event_christmas.id,
@@ -301,9 +297,7 @@ class TestSetAssemblyTarget:
             assert db_target is not None
             assert db_target.target_quantity == 20
 
-    def test_updates_existing_target(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_updates_existing_target(self, test_db, event_christmas, finished_good_gift_box):
         """Existing target is updated, not duplicated."""
         # Create initial target
         event_service.set_assembly_target(
@@ -336,9 +330,7 @@ class TestSetAssemblyTarget:
             )
             assert count == 1
 
-    def test_validates_positive_target(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_validates_positive_target(self, test_db, event_christmas, finished_good_gift_box):
         """ValueError raised for non-positive target_quantity."""
         with pytest.raises(ValueError) as exc_info:
             event_service.set_assembly_target(
@@ -385,9 +377,7 @@ class TestGetAssemblyTargets:
         result = event_service.get_assembly_targets(event_christmas.id)
         assert result == []
 
-    def test_eager_loads_finished_good(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_eager_loads_finished_good(self, test_db, event_christmas, finished_good_gift_box):
         """FinishedGood relationship is eager loaded."""
         event_service.set_assembly_target(
             event_id=event_christmas.id,
@@ -406,9 +396,7 @@ class TestGetAssemblyTargets:
 class TestDeleteAssemblyTarget:
     """Tests for delete_assembly_target() function."""
 
-    def test_returns_true_when_deleted(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_returns_true_when_deleted(self, test_db, event_christmas, finished_good_gift_box):
         """Returns True when target deleted."""
         event_service.set_assembly_target(
             event_id=event_christmas.id,
@@ -435,9 +423,7 @@ class TestDeleteAssemblyTarget:
             )
             assert db_target is None
 
-    def test_returns_false_when_not_found(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_returns_false_when_not_found(self, test_db, event_christmas, finished_good_gift_box):
         """Returns False when target not found."""
         result = event_service.delete_assembly_target(
             event_id=event_christmas.id,

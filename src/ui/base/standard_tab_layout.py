@@ -69,10 +69,7 @@ class StandardTabLayout(ctk.CTkFrame):
         self.refresh_area.grid(row=0, column=2, sticky="e", padx=5, pady=5)
 
         self._refresh_button = ctk.CTkButton(
-            self.refresh_area,
-            text="Refresh",
-            width=80,
-            command=self._on_refresh
+            self.refresh_area, text="Refresh", width=80, command=self._on_refresh
         )
         self._refresh_button.pack(side="right")
 
@@ -85,7 +82,9 @@ class StandardTabLayout(ctk.CTkFrame):
         search_label = ctk.CTkLabel(self.filter_bar, text="Search:")
         search_label.pack(side="left", padx=(0, 5))
 
-        self._search_entry = ctk.CTkEntry(self.filter_bar, width=200, placeholder_text="Type to search...")
+        self._search_entry = ctk.CTkEntry(
+            self.filter_bar, width=200, placeholder_text="Type to search..."
+        )
         self._search_entry.pack(side="left", padx=(0, 10))
 
     def _create_content_area(self) -> None:
@@ -102,11 +101,7 @@ class StandardTabLayout(ctk.CTkFrame):
         self.status_bar = ctk.CTkFrame(self, fg_color="transparent", height=25)
         self.status_bar.grid(row=3, column=0, columnspan=3, sticky="ew", padx=5, pady=(0, 5))
 
-        self._status_label = ctk.CTkLabel(
-            self.status_bar,
-            text="Ready",
-            anchor="w"
-        )
+        self._status_label = ctk.CTkLabel(self.status_bar, text="Ready", anchor="w")
         self._status_label.pack(side="left", fill="x", expand=True)
 
     def _on_refresh(self) -> None:
@@ -143,7 +138,7 @@ class StandardTabLayout(ctk.CTkFrame):
                 text=config.get("text", "Button"),
                 command=config.get("command"),
                 width=config.get("width", 80),
-                state=config.get("state", "normal")
+                state=config.get("state", "normal"),
             )
             btn.pack(side="left", padx=(0, 5))
             self._action_buttons.append(btn)

@@ -318,9 +318,7 @@ class TestResolveFkBySlug:
     def test_resolve_ingredient_by_slug(self, sample_ingredient):
         """Test resolving ingredient FK by slug."""
         with session_scope() as session:
-            result = _resolve_fk_by_slug(
-                "ingredient", sample_ingredient["slug"], session
-            )
+            result = _resolve_fk_by_slug("ingredient", sample_ingredient["slug"], session)
             assert result == sample_ingredient["id"]
 
     def test_resolve_supplier_by_name(self, sample_supplier):
@@ -567,9 +565,7 @@ class TestImportViewMergeMode:
             product = session.query(Product).filter_by(id=sample_product["id"]).first()
             assert product.product_name == f"Updated Name {unique_id}"
 
-    def test_merge_skips_unchanged_record(
-        self, sample_product, sample_ingredient, tmp_path
-    ):
+    def test_merge_skips_unchanged_record(self, sample_product, sample_ingredient, tmp_path):
         """Test that merge mode skips unchanged records."""
         # Create export file with same data as existing product
         export_data = {
@@ -684,9 +680,7 @@ class TestImportViewDryRun:
 
         assert count_after == count_before
 
-    def test_dry_run_summary_indicates_no_changes(
-        self, view_file_products, sample_ingredient
-    ):
+    def test_dry_run_summary_indicates_no_changes(self, view_file_products, sample_ingredient):
         """Test that dry_run summary indicates no changes were made."""
         result = import_context_rich_export(view_file_products, dry_run=True)
 
@@ -774,9 +768,7 @@ class TestImportViewSkipOnError:
 class TestImportViewFKResolution:
     """Tests for FK resolution integration."""
 
-    def test_import_fails_with_missing_fk_and_no_resolver(
-        self, test_db, view_file_with_missing_fk
-    ):
+    def test_import_fails_with_missing_fk_and_no_resolver(self, test_db, view_file_with_missing_fk):
         """Test that import fails with missing FK and no resolver."""
         result = import_context_rich_export(view_file_with_missing_fk, mode="merge")
 
@@ -936,11 +928,7 @@ class TestImportViewDuplicateHandling:
 
         # Verify the product name is from second (updated) or first (depending on mode logic)
         with session_scope() as session:
-            product = (
-                session.query(Product)
-                .filter_by(brand=f"Dup Brand {unique_id}")
-                .first()
-            )
+            product = session.query(Product).filter_by(brand=f"Dup Brand {unique_id}").first()
             # In merge mode, second record updates the first
             assert product is not None
 
@@ -1235,11 +1223,7 @@ class TestMergeFields:
     def test_merges_editable_fields(self, test_db, sample_ingredient):
         """Test that merge_fields updates entity attributes."""
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             original_name = ingredient.display_name
 
             editable_data = {"description": "Updated description"}
@@ -1252,11 +1236,7 @@ class TestMergeFields:
     def test_returns_false_when_no_changes(self, test_db, sample_ingredient):
         """Test that merge_fields returns False when no changes made."""
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             # Set description to a known value
             ingredient.description = "Same value"
             session.flush()
@@ -1269,11 +1249,7 @@ class TestMergeFields:
     def test_ignores_nonexistent_attributes(self, test_db, sample_ingredient):
         """Test that merge_fields ignores attributes not on entity."""
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
 
             editable_data = {
                 "description": "New description",
@@ -1365,11 +1341,7 @@ class TestImportContextRichView:
 
         # Verify the editable fields were updated
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             assert ingredient.description == f"AI-augmented description {unique_id}"
             assert ingredient.notes == f"AI-added notes {unique_id}"
             # display_name should be unchanged (readonly)
@@ -1403,11 +1375,7 @@ class TestImportContextRichView:
 
         # Verify display_name was NOT changed
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             assert ingredient.display_name == sample_ingredient["display_name"]
             assert ingredient.description == f"Only this should be imported {unique_id}"
 
@@ -1436,9 +1404,7 @@ class TestImportContextRichView:
         assert result.not_found == 1
         assert result.merged == 0
 
-    def test_import_context_rich_dry_run(
-        self, test_db, sample_ingredient, tmp_path, unique_id
-    ):
+    def test_import_context_rich_dry_run(self, test_db, sample_ingredient, tmp_path, unique_id):
         """Test that dry_run mode makes no changes."""
         data = {
             "export_type": "ingredients",
@@ -1464,11 +1430,7 @@ class TestImportContextRichView:
 
         # Verify no actual changes were made
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             # Description should NOT be updated (dry run)
             assert ingredient.description != f"Dry run description {unique_id}"
 
@@ -1488,17 +1450,11 @@ class TestImportContextRichView:
         assert len(result.errors) >= 1
         assert "Expected context-rich" in result.errors[0]["reason"]
 
-    def test_import_context_rich_skips_no_changes(
-        self, test_db, sample_ingredient, tmp_path
-    ):
+    def test_import_context_rich_skips_no_changes(self, test_db, sample_ingredient, tmp_path):
         """Test that records with no changes are tracked as skipped."""
         # First set a description
         with session_scope() as session:
-            ingredient = (
-                session.query(Ingredient)
-                .filter_by(slug=sample_ingredient["slug"])
-                .first()
-            )
+            ingredient = session.query(Ingredient).filter_by(slug=sample_ingredient["slug"]).first()
             ingredient.description = "Existing description"
             session.commit()
 

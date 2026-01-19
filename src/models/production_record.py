@@ -44,12 +44,8 @@ class ProductionRecord(BaseModel):
     __tablename__ = "production_records"
 
     # Foreign keys
-    event_id = Column(
-        Integer, ForeignKey("events.id", ondelete="CASCADE"), nullable=False
-    )
-    recipe_id = Column(
-        Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False
-    )
+    event_id = Column(Integer, ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
+    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False)
 
     # Production data
     batches = Column(Integer, nullable=False)

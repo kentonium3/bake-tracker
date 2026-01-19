@@ -35,6 +35,7 @@ from src.services.import_export_service import (
     import_inventory_updates_from_bt_mobile,
 )
 
+
 class TestExportResult:
     """Tests for ExportResult class enhancements."""
 
@@ -77,6 +78,7 @@ class TestExportResult:
         summary = result.get_summary()
 
         assert "Export failed: Database connection failed" in summary
+
 
 class TestExportFinishedUnitsToJson:
     """Tests for export_finished_units_to_json function."""
@@ -154,6 +156,7 @@ class TestExportFinishedUnitsToJson:
         assert result[0]["batch_percentage"] == 50.00
         assert result[0]["portion_description"] == "9-inch round"
 
+
 class TestExportCompositionsToJson:
     """Tests for export_compositions_to_json function."""
 
@@ -217,6 +220,7 @@ class TestExportCompositionsToJson:
         assert result[0]["finished_good_component_slug"] == "mini_cookie_box"
         assert result[0]["notes"] == "Place at bottom"
 
+
 class TestExportPackageFinishedGoodsToJson:
     """Tests for export_package_finished_goods_to_json function."""
 
@@ -249,6 +253,7 @@ class TestExportPackageFinishedGoodsToJson:
         assert result[0]["package_name"] == "Holiday Gift Box - Large"
         assert result[0]["finished_good_slug"] == "holiday_cookie_box"
         assert result[0]["quantity"] == 2
+
 
 class TestExportProductionRecordsToJson:
     """Tests for export_production_records_to_json function."""
@@ -289,6 +294,7 @@ class TestExportProductionRecordsToJson:
         assert result[0]["actual_cost"] == 25.50
         assert result[0]["notes"] == "Double batch for extra gifts"
 
+
 class TestExportAllToJsonV3Format:
     """Tests for export_all_to_json v3.0 format compliance."""
 
@@ -311,7 +317,7 @@ class TestExportAllToJsonV3Format:
         mock_export_finished_units,
         mock_export_compositions,
         mock_export_pkg_fgs,
-        mock_export_production_records
+        mock_export_production_records,
     ):
         """Test v3.0 header fields in export."""
         # Mock all services to return empty
@@ -379,7 +385,7 @@ class TestExportAllToJsonV3Format:
         mock_export_finished_units,
         mock_export_compositions,
         mock_export_pkg_fgs,
-        mock_export_production_records
+        mock_export_production_records,
     ):
         """Test ExportResult contains per-entity counts."""
         # Mock services
@@ -421,9 +427,11 @@ class TestExportAllToJsonV3Format:
         assert result.error is not None
         assert result.record_count == 0
 
+
 # ============================================================================
 # Import Function Tests
 # ============================================================================
+
 
 class TestImportResult:
     """Tests for ImportResult class enhancements."""
@@ -496,6 +504,7 @@ class TestImportResult:
         assert "1 skipped" in summary
         assert "recipe" in summary
 
+
 class TestImportVersionHandling:
     """Tests for version field handling (ignored by importer)."""
 
@@ -507,7 +516,7 @@ class TestImportVersionHandling:
                 "exported_at": "2025-12-04T00:00:00Z",
                 "application": "bake-tracker",
                 "ingredients": [],
-                "recipes": []
+                "recipes": [],
             }
 
             with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -531,7 +540,7 @@ class TestImportVersionHandling:
             "exported_at": "2025-12-04T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -548,6 +557,7 @@ class TestImportVersionHandling:
                 pytest.fail(f"Missing version should be accepted: {e}")
         finally:
             os.unlink(temp_path)
+
 
 class TestImportModeValidation:
     """Tests for import mode parameter validation."""
@@ -610,6 +620,7 @@ class TestImportModeValidation:
         finally:
             os.unlink(temp_path)
 
+
 class TestImportUserFriendlyErrors:
     """Tests for user-friendly error messages (SC-006)."""
 
@@ -619,6 +630,7 @@ class TestImportUserFriendlyErrors:
 
         assert result.failed > 0 or len(result.errors) > 0
 
+
 # ============================================================================
 # Integration Tests - WP05 (T035-T038)
 # ============================================================================
@@ -627,6 +639,7 @@ import time
 
 # Path to sample data file
 SAMPLE_DATA_PATH = "test_data/sample_data_min.json"
+
 
 class TestSampleDataIntegration:
     """Integration tests for sample data import (T035).
@@ -702,6 +715,7 @@ class TestSampleDataIntegration:
                 assert "quantity" in ing, "Recipe ingredient must have quantity"
                 assert "unit" in ing, "Recipe ingredient must have unit"
 
+
 class TestPerformance:
     """Performance tests (T037) - SC-001 and SC-002."""
 
@@ -732,6 +746,7 @@ class TestPerformance:
         # Sample data should have a reasonable size (not too small, not huge)
         assert total_records >= 50, f"Sample data too small: {total_records} records"
         assert total_records < 10000, f"Sample data too large: {total_records} records"
+
 
 class TestSuccessCriteriaValidation:
     """Tests validating success criteria (T038)."""
@@ -792,6 +807,7 @@ class TestSuccessCriteriaValidation:
         # Should have multiple products for realistic testing
         assert len(data["products"]) >= 10, "Should have multiple products for testing"
 
+
 class TestDensityFieldsImportExport:
     """Tests for 4-field density model in import/export (Feature 010)."""
 
@@ -806,14 +822,14 @@ class TestDensityFieldsImportExport:
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=4.25,
-            density_weight_unit="oz"
+            density_weight_unit="oz",
         )
 
         # Manually build export dict like the export function does
         ingredient_data = {
             "name": ingredient.display_name,
             "slug": ingredient.slug,
-            "category": ingredient.category
+            "category": ingredient.category,
         }
 
         # Add density fields (mirroring export logic)
@@ -841,16 +857,14 @@ class TestDensityFieldsImportExport:
         from src.models.ingredient import Ingredient
 
         ingredient = Ingredient(
-            display_name="Test Ingredient",
-            slug="test-ingredient",
-            category="Other"
+            display_name="Test Ingredient", slug="test-ingredient", category="Other"
         )
 
         # Manually build export dict
         ingredient_data = {
             "name": ingredient.display_name,
             "slug": ingredient.slug,
-            "category": ingredient.category
+            "category": ingredient.category,
         }
 
         # Add density fields only if present
@@ -880,7 +894,7 @@ class TestDensityFieldsImportExport:
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 4.25,
-            "density_weight_unit": "oz"
+            "density_weight_unit": "oz",
         }
 
         # Mimic import logic
@@ -891,7 +905,7 @@ class TestDensityFieldsImportExport:
             density_volume_value=data.get("density_volume_value"),
             density_volume_unit=data.get("density_volume_unit"),
             density_weight_value=data.get("density_weight_value"),
-            density_weight_unit=data.get("density_weight_unit")
+            density_weight_unit=data.get("density_weight_unit"),
         )
 
         # Verify
@@ -919,7 +933,7 @@ class TestDensityFieldsImportExport:
             density_volume_value=data.get("density_volume_value"),
             density_volume_unit=data.get("density_volume_unit"),
             density_weight_value=data.get("density_weight_value"),
-            density_weight_unit=data.get("density_weight_unit")
+            density_weight_unit=data.get("density_weight_unit"),
         )
 
         # Verify density fields are None (not populated from legacy)
@@ -941,14 +955,14 @@ class TestDensityFieldsImportExport:
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=4.25,
-            density_weight_unit="oz"
+            density_weight_unit="oz",
         )
 
         # Export to dict
         exported = {
             "name": original.display_name,
             "slug": original.slug,
-            "category": original.category
+            "category": original.category,
         }
         if original.density_volume_value is not None:
             exported["density_volume_value"] = original.density_volume_value
@@ -967,7 +981,7 @@ class TestDensityFieldsImportExport:
             density_volume_value=exported.get("density_volume_value"),
             density_volume_unit=exported.get("density_volume_unit"),
             density_weight_value=exported.get("density_weight_value"),
-            density_weight_unit=exported.get("density_weight_unit")
+            density_weight_unit=exported.get("density_weight_unit"),
         )
 
         # Verify density matches
@@ -1014,9 +1028,11 @@ class TestDensityFieldsImportExport:
         assert "products" in data
         assert "recipes" in data
 
+
 # ============================================================================
 # Recipe Component Import/Export Tests (Feature 012)
 # ============================================================================
+
 
 class TestRecipeComponentExport:
     """Tests for exporting recipe components (T032)."""
@@ -1037,9 +1053,9 @@ class TestRecipeComponentExport:
                 "name": "Export Child Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         # Create parent recipe
@@ -1048,9 +1064,9 @@ class TestRecipeComponentExport:
                 "name": "Export Parent Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Add child as component
@@ -1087,9 +1103,9 @@ class TestRecipeComponentExport:
                 "name": "Simple Recipe No Components",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         export_file = tmp_path / "export.json"
@@ -1116,9 +1132,9 @@ class TestRecipeComponentExport:
                 "name": "Full Export Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         parent = recipe_service.create_recipe(
@@ -1126,9 +1142,9 @@ class TestRecipeComponentExport:
                 "name": "Full Export Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.5)
@@ -1144,9 +1160,11 @@ class TestRecipeComponentExport:
         assert parent_data["components"][0]["recipe_name"] == "Full Export Child"
         assert parent_data["components"][0]["quantity"] == 1.5
 
+
 # ============================================================================
 # Unit Validation Tests (TD-002)
 # ============================================================================
+
 
 class TestImportUnitValidation:
     """Tests for unit validation during import (TD-002 Technical Debt)."""
@@ -1158,21 +1176,17 @@ class TestImportUnitValidation:
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
-                {
-                    "slug": "valid_unit_flour",
-                    "name": "Valid Unit Flour",
-                    "category": "Flour"
-                }
+                {"slug": "valid_unit_flour", "name": "Valid Unit Flour", "category": "Flour"}
             ],
             "products": [
                 {
                     "ingredient_slug": "valid_unit_flour",
                     "brand": "Test Brand",
                     "package_unit": "lb",
-                    "package_unit_quantity": 5.0
+                    "package_unit_quantity": 5.0,
                 }
             ],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1198,21 +1212,17 @@ class TestImportUnitValidation:
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
-                {
-                    "slug": "invalid_unit_flour",
-                    "name": "Invalid Unit Flour",
-                    "category": "Flour"
-                }
+                {"slug": "invalid_unit_flour", "name": "Invalid Unit Flour", "category": "Flour"}
             ],
             "products": [
                 {
                     "ingredient_slug": "invalid_unit_flour",
                     "brand": "Bad Unit Brand",
                     "package_unit": "invalid_unit_xyz",
-                    "package_unit_quantity": 5.0
+                    "package_unit_quantity": 5.0,
                 }
             ],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1245,11 +1255,11 @@ class TestImportUnitValidation:
                     "density_volume_value": 1.0,
                     "density_volume_unit": "invalid_volume_unit",
                     "density_weight_value": 4.25,
-                    "density_weight_unit": "oz"
+                    "density_weight_unit": "oz",
                 }
             ],
             "products": [],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1260,7 +1270,9 @@ class TestImportUnitValidation:
             result = import_all_from_json_v4(temp_path)
             # Check for ingredient error
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
-            assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_volume_unit"
+            assert (
+                len(ingredient_errors) > 0
+            ), "Expected ingredient error for invalid density_volume_unit"
             error_msg = str(ingredient_errors[0])
             assert "Invalid unit" in error_msg or "density_volume_unit" in error_msg
         except Exception:
@@ -1282,11 +1294,11 @@ class TestImportUnitValidation:
                     "density_volume_value": 1.0,
                     "density_volume_unit": "cup",
                     "density_weight_value": 4.25,
-                    "density_weight_unit": "invalid_weight_unit"
+                    "density_weight_unit": "invalid_weight_unit",
                 }
             ],
             "products": [],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1296,7 +1308,9 @@ class TestImportUnitValidation:
         try:
             result = import_all_from_json_v4(temp_path)
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
-            assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_weight_unit"
+            assert (
+                len(ingredient_errors) > 0
+            ), "Expected ingredient error for invalid density_weight_unit"
             error_msg = str(ingredient_errors[0])
             assert "Invalid unit" in error_msg or "density_weight_unit" in error_msg
         except Exception:
@@ -1311,14 +1325,10 @@ class TestImportUnitValidation:
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
-                {
-                    "slug": "no_density_flour",
-                    "name": "No Density Flour",
-                    "category": "Flour"
-                }
+                {"slug": "no_density_flour", "name": "No Density Flour", "category": "Flour"}
             ],
             "products": [],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1330,7 +1340,9 @@ class TestImportUnitValidation:
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             # Should have no density-related errors
             unit_errors = [e for e in ingredient_errors if "unit" in str(e).lower()]
-            assert len(unit_errors) == 0, f"Expected no unit errors for null density, got: {unit_errors}"
+            assert (
+                len(unit_errors) == 0
+            ), f"Expected no unit errors for null density, got: {unit_errors}"
         except Exception:
             pass
         finally:
@@ -1343,11 +1355,7 @@ class TestImportUnitValidation:
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
-                {
-                    "slug": "recipe_test_flour",
-                    "name": "Recipe Test Flour",
-                    "category": "Flour"
-                }
+                {"slug": "recipe_test_flour", "name": "Recipe Test Flour", "category": "Flour"}
             ],
             "products": [],
             "recipes": [
@@ -1361,11 +1369,11 @@ class TestImportUnitValidation:
                         {
                             "ingredient_slug": "recipe_test_flour",
                             "quantity": 2.0,
-                            "unit": "invalid_recipe_unit"
+                            "unit": "invalid_recipe_unit",
                         }
-                    ]
+                    ],
                 }
-            ]
+            ],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1390,11 +1398,7 @@ class TestImportUnitValidation:
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
-                {
-                    "slug": "good_recipe_flour",
-                    "name": "Good Recipe Flour",
-                    "category": "Flour"
-                }
+                {"slug": "good_recipe_flour", "name": "Good Recipe Flour", "category": "Flour"}
             ],
             "products": [],
             "recipes": [
@@ -1405,14 +1409,10 @@ class TestImportUnitValidation:
                     "yield_quantity": 24,
                     "yield_unit": "cookies",
                     "ingredients": [
-                        {
-                            "ingredient_slug": "good_recipe_flour",
-                            "quantity": 2.0,
-                            "unit": "cup"
-                        }
-                    ]
+                        {"ingredient_slug": "good_recipe_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
                 }
-            ]
+            ],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1423,7 +1423,9 @@ class TestImportUnitValidation:
             result = import_all_from_json_v4(temp_path)
             recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
             unit_errors = [e for e in recipe_errors if "unit" in str(e).lower()]
-            assert len(unit_errors) == 0, f"Expected no unit errors for valid units, got: {unit_errors}"
+            assert (
+                len(unit_errors) == 0
+            ), f"Expected no unit errors for valid units, got: {unit_errors}"
         except Exception as e:
             if "Invalid unit" in str(e):
                 pytest.fail(f"Valid unit 'cup' was rejected: {e}")
@@ -1437,21 +1439,17 @@ class TestImportUnitValidation:
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
-                {
-                    "slug": "error_msg_flour",
-                    "name": "Error Msg Flour",
-                    "category": "Flour"
-                }
+                {"slug": "error_msg_flour", "name": "Error Msg Flour", "category": "Flour"}
             ],
             "products": [
                 {
                     "ingredient_slug": "error_msg_flour",
                     "brand": "Error Test Brand",
                     "package_unit": "badunit",
-                    "package_unit_quantity": 5.0
+                    "package_unit_quantity": 5.0,
                 }
             ],
-            "recipes": []
+            "recipes": [],
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -1464,8 +1462,9 @@ class TestImportUnitValidation:
             if product_errors:
                 error_msg = str(product_errors[0]["message"])
                 # Should include some valid units in the message
-                assert any(unit in error_msg for unit in ["lb", "oz", "cup", "bag"]), \
-                    f"Error message should list valid units, got: {error_msg}"
+                assert any(
+                    unit in error_msg for unit in ["lb", "oz", "cup", "bag"]
+                ), f"Error message should list valid units, got: {error_msg}"
         except Exception:
             pass
         finally:
@@ -1490,9 +1489,9 @@ class TestRecipeComponentImport:
                 "name": "Import Test Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         parent = recipe_service.create_recipe(
@@ -1500,9 +1499,9 @@ class TestRecipeComponentImport:
                 "name": "Import Test Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch"
+                "yield_unit": "batch",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.5, notes="Test import")
@@ -1544,11 +1543,7 @@ class TestRecipeComponentImport:
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",
             "ingredients": [
-                {
-                    "slug": "test_flour",
-                    "display_name": "Test Flour",
-                    "category": "Flour"
-                }
+                {"slug": "test_flour", "display_name": "Test Flour", "category": "Flour"}
             ],
             "products": [],
             "purchases": [],
@@ -1563,9 +1558,7 @@ class TestRecipeComponentImport:
                     "ingredients": [
                         {"ingredient_slug": "test_flour", "quantity": 1.0, "unit": "cup"}
                     ],
-                    "components": [
-                        {"recipe_name": "Non Existent Recipe", "quantity": 1.0}
-                    ]
+                    "components": [{"recipe_name": "Non Existent Recipe", "quantity": 1.0}],
                 }
             ],
             "finished_units": [],
@@ -1580,7 +1573,7 @@ class TestRecipeComponentImport:
             "event_production_targets": [],
             "event_assembly_targets": [],
             "production_runs": [],
-            "assembly_runs": []
+            "assembly_runs": [],
         }
 
         import_file = tmp_path / "missing_component.json"
@@ -1612,13 +1605,23 @@ class TestRecipeComponentImport:
         )
 
         recipe_a = recipe_service.create_recipe(
-            {"name": "Circular Recipe A", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Circular Recipe A",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         recipe_b = recipe_service.create_recipe(
-            {"name": "Circular Recipe B", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Circular Recipe B",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         # A contains B
@@ -1642,9 +1645,7 @@ class TestRecipeComponentImport:
                     "yield_quantity": 1,
                     "yield_unit": "batch",
                     "ingredients": [],
-                    "components": [
-                        {"recipe_name": "Circular Recipe A", "quantity": 1.0}
-                    ]
+                    "components": [{"recipe_name": "Circular Recipe A", "quantity": 1.0}],
                 }
             ],
             "finished_units": [],
@@ -1659,7 +1660,7 @@ class TestRecipeComponentImport:
             "event_production_targets": [],
             "event_assembly_targets": [],
             "production_runs": [],
-            "assembly_runs": []
+            "assembly_runs": [],
         }
 
         import_file = tmp_path / "circular.json"
@@ -1670,10 +1671,7 @@ class TestRecipeComponentImport:
         result = import_all_from_json_v4(str(import_file), mode="merge")
 
         # Should have an error about circular reference
-        error_found = any(
-            "circular" in str(err).lower()
-            for err in result.errors
-        )
+        error_found = any("circular" in str(err).lower() for err in result.errors)
         assert error_found, f"Expected circular reference error, got: {result.errors}"
 
     def test_import_skips_duplicate_components(self, test_db, tmp_path):
@@ -1687,13 +1685,23 @@ class TestRecipeComponentImport:
         )
 
         child = recipe_service.create_recipe(
-            {"name": "Duplicate Child", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
+            {
+                "name": "Duplicate Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
         )
 
         parent = recipe_service.create_recipe(
-            {"name": "Duplicate Parent", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            {
+                "name": "Duplicate Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
@@ -1707,8 +1715,7 @@ class TestRecipeComponentImport:
 
         # Component should be skipped (already exists)
         # result.skipped is a count of skipped items
-        assert result.skipped > 0, \
-            f"Expected some skipped items, got skipped={result.skipped}"
+        assert result.skipped > 0, f"Expected some skipped items, got skipped={result.skipped}"
 
 
 class TestRecipeExportV4:
@@ -1737,7 +1744,7 @@ class TestRecipeExportV4:
                 "yield_unit": "cookies",
                 "is_production_ready": True,
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Export
@@ -1748,9 +1755,7 @@ class TestRecipeExportV4:
         with open(export_file) as f:
             data = json.load(f)
 
-        recipe_data = next(
-            (r for r in data["recipes"] if r["name"] == "V4 Test Cookie"), None
-        )
+        recipe_data = next((r for r in data["recipes"] if r["name"] == "V4 Test Cookie"), None)
         assert recipe_data is not None, "Recipe not found in export"
         assert recipe_data["is_production_ready"] is True
         assert recipe_data["base_recipe_slug"] is None  # Not a variant
@@ -1774,7 +1779,7 @@ class TestRecipeExportV4:
                 "yield_unit": "cookies",
                 "is_production_ready": True,
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Create variant recipe using the recipe_service variant function
@@ -1807,8 +1812,12 @@ class TestRecipeExportV4:
         )
         assert variant_data is not None, "Variant recipe not found"
         # base_recipe_slug should be the base recipe name in slug format
-        expected_slug = "base_thumbprint_cookie"  # "Base Thumbprint Cookie" -> lowercase with underscores
-        assert variant_data["base_recipe_slug"] == expected_slug, f"Expected {expected_slug}, got {variant_data['base_recipe_slug']}"
+        expected_slug = (
+            "base_thumbprint_cookie"  # "Base Thumbprint Cookie" -> lowercase with underscores
+        )
+        assert (
+            variant_data["base_recipe_slug"] == expected_slug
+        ), f"Expected {expected_slug}, got {variant_data['base_recipe_slug']}"
         assert variant_data["variant_name"] == "Raspberry"
 
     def test_export_recipe_with_finished_units(self, tmp_path):
@@ -1830,7 +1839,7 @@ class TestRecipeExportV4:
                 "yield_quantity": 24,
                 "yield_unit": "cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Create FinishedUnit for this recipe
@@ -1854,9 +1863,7 @@ class TestRecipeExportV4:
         with open(export_file) as f:
             data = json.load(f)
 
-        recipe_data = next(
-            (r for r in data["recipes"] if r["name"] == "FU Test Cookie"), None
-        )
+        recipe_data = next((r for r in data["recipes"] if r["name"] == "FU Test Cookie"), None)
         assert recipe_data is not None, "Recipe not found"
         assert "finished_units" in recipe_data
         assert len(recipe_data["finished_units"]) == 1
@@ -1885,7 +1892,7 @@ class TestRecipeExportV4:
                 "yield_quantity": 24,
                 "yield_unit": "cookies",
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
         )
 
         # Export
@@ -1970,7 +1977,11 @@ class TestRecipeImportV4:
         import_data = {
             "version": "4.0",
             "ingredients": [
-                {"display_name": "Variant Import Flour", "slug": "variant_import_flour", "category": "Flour"}
+                {
+                    "display_name": "Variant Import Flour",
+                    "slug": "variant_import_flour",
+                    "category": "Flour",
+                }
             ],
             "recipes": [
                 {
@@ -2064,7 +2075,9 @@ class TestRecipeImportV4:
         # Import
         result = import_all_from_json_v4(str(import_file), mode="replace")
 
-        assert result.successful >= 2, f"Import failed: {result.errors}"  # 1 recipe + 1 finished_unit
+        assert (
+            result.successful >= 2
+        ), f"Import failed: {result.errors}"  # 1 recipe + 1 finished_unit
         assert result.failed == 0
 
         # Verify in database
@@ -2148,7 +2161,11 @@ class TestRecipeImportV4:
         import_data = {
             "version": "4.0",
             "ingredients": [
-                {"display_name": "Invalid Ref Flour", "slug": "invalid_ref_flour", "category": "Flour"}
+                {
+                    "display_name": "Invalid Ref Flour",
+                    "slug": "invalid_ref_flour",
+                    "category": "Flour",
+                }
             ],
             "recipes": [
                 {
@@ -2176,8 +2193,9 @@ class TestRecipeImportV4:
         assert result.failed > 0, "Expected error for invalid base_recipe_slug"
         # Check that error message mentions base recipe not found
         error_messages = [str(e) for e in result.errors]
-        assert any("not found" in msg.lower() or "base recipe" in msg.lower() for msg in error_messages), \
-            f"Expected error message about base recipe, got: {error_messages}"
+        assert any(
+            "not found" in msg.lower() or "base recipe" in msg.lower() for msg in error_messages
+        ), f"Expected error message about base recipe, got: {error_messages}"
 
     def test_import_recipe_roundtrip(self, tmp_path):
         """Test import then verify data matches - verifies F037 fields roundtrip."""
@@ -2292,9 +2310,7 @@ class TestEventExportImportV4:
         with open(export_file) as f:
             data = json.load(f)
 
-        event_data = next(
-            (e for e in data["events"] if e["name"] == "Export Test Event"), None
-        )
+        event_data = next((e for e in data["events"] if e["name"] == "Export Test Event"), None)
         assert event_data is not None, "Event not found in export"
         assert event_data["output_mode"] == "bundled"
 
@@ -2324,9 +2340,7 @@ class TestEventExportImportV4:
         with open(export_file) as f:
             data = json.load(f)
 
-        event_data = next(
-            (e for e in data["events"] if e["name"] == "No Mode Event"), None
-        )
+        event_data = next((e for e in data["events"] if e["name"] == "No Mode Event"), None)
         assert event_data is not None, "Event not found in export"
         assert event_data["output_mode"] is None
 
@@ -2390,8 +2404,9 @@ class TestEventExportImportV4:
 
         assert result.failed > 0, "Expected error for invalid output_mode"
         error_messages = [str(e) for e in result.errors]
-        assert any("invalid" in msg.lower() or "output_mode" in msg.lower() for msg in error_messages), \
-            f"Expected error message about invalid output_mode, got: {error_messages}"
+        assert any(
+            "invalid" in msg.lower() or "output_mode" in msg.lower() for msg in error_messages
+        ), f"Expected error message about invalid output_mode, got: {error_messages}"
 
     def test_import_event_bundled_without_targets_warns(self, tmp_path):
         """Test import event with bundled mode but no assembly targets, verify warning."""
@@ -2421,8 +2436,9 @@ class TestEventExportImportV4:
         assert result.failed == 0, f"Import should succeed: {result.errors}"
         assert len(result.warnings) > 0, "Expected warning for bundled without targets"
         warning_messages = [str(w) for w in result.warnings]
-        assert any("bundled" in msg.lower() or "assembly" in msg.lower() for msg in warning_messages), \
-            f"Expected warning about bundled without assembly targets, got: {warning_messages}"
+        assert any(
+            "bundled" in msg.lower() or "assembly" in msg.lower() for msg in warning_messages
+        ), f"Expected warning about bundled without assembly targets, got: {warning_messages}"
 
     def test_import_event_roundtrip(self, tmp_path):
         """Test import with output_mode then verify data matches."""
@@ -2839,9 +2855,9 @@ class TestInventoryUpdateFromBTMobile:
                 {
                     "upc": "051000127952",
                     "scanned_at": "2026-01-06T14:15:23Z",
-                    "remaining_percentage": 50
+                    "remaining_percentage": 50,
                 }
-            ]
+            ],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -2911,9 +2927,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127953", "remaining_percentage": 0}
-            ]
+            "inventory_updates": [{"upc": "051000127953", "remaining_percentage": 0}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -2983,9 +2997,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127954", "remaining_percentage": 100}
-            ]
+            "inventory_updates": [{"upc": "051000127954", "remaining_percentage": 100}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -2998,7 +3010,9 @@ class TestInventoryUpdateFromBTMobile:
 
         with session_scope() as session:
             updated_item = session.get(InventoryItem, inv_id)
-            assert updated_item.quantity == 10.0, f"Expected quantity=10, got {updated_item.quantity}"
+            assert (
+                updated_item.quantity == 10.0
+            ), f"Expected quantity=10, got {updated_item.quantity}"
 
     def test_import_inventory_update_decimal_rounding(self, test_db, tmp_path):
         """Test that percentage calculations maintain Decimal precision."""
@@ -3054,9 +3068,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127955", "remaining_percentage": 33}
-            ]
+            "inventory_updates": [{"upc": "051000127955", "remaining_percentage": 33}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3070,7 +3082,9 @@ class TestInventoryUpdateFromBTMobile:
         with session_scope() as session:
             updated_item = session.get(InventoryItem, inv_id)
             # 10 * 0.33 = 3.3
-            assert abs(updated_item.quantity - 3.3) < 0.01, f"Expected quantity~3.3, got {updated_item.quantity}"
+            assert (
+                abs(updated_item.quantity - 3.3) < 0.01
+            ), f"Expected quantity~3.3, got {updated_item.quantity}"
 
     def test_import_inventory_update_already_partial(self, test_db, tmp_path):
         """Test update when current_quantity < purchase quantity."""
@@ -3127,9 +3141,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127956", "remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"upc": "051000127956", "remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3222,9 +3234,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127957", "remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"upc": "051000127957", "remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3238,8 +3248,12 @@ class TestInventoryUpdateFromBTMobile:
         with session_scope() as session:
             updated_inv1 = session.get(InventoryItem, inv1_id)
             updated_inv2 = session.get(InventoryItem, inv2_id)
-            assert updated_inv1.quantity == 5.0, f"Expected inv1 quantity=5, got {updated_inv1.quantity}"
-            assert updated_inv2.quantity == 10.0, f"Expected inv2 quantity=10, got {updated_inv2.quantity}"
+            assert (
+                updated_inv1.quantity == 5.0
+            ), f"Expected inv1 quantity=5, got {updated_inv1.quantity}"
+            assert (
+                updated_inv2.quantity == 10.0
+            ), f"Expected inv2 quantity=10, got {updated_inv2.quantity}"
 
     def test_fifo_skips_empty_inventory_items(self, test_db, tmp_path):
         """Test that items with quantity=0 are skipped."""
@@ -3318,9 +3332,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127958", "remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"upc": "051000127958", "remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3334,17 +3346,19 @@ class TestInventoryUpdateFromBTMobile:
         with session_scope() as session:
             updated_inv1 = session.get(InventoryItem, inv1_id)
             updated_inv2 = session.get(InventoryItem, inv2_id)
-            assert updated_inv1.quantity == 0.0, f"inv1 should remain 0, got {updated_inv1.quantity}"
-            assert updated_inv2.quantity == 5.0, f"Expected inv2 quantity=5, got {updated_inv2.quantity}"
+            assert (
+                updated_inv1.quantity == 0.0
+            ), f"inv1 should remain 0, got {updated_inv1.quantity}"
+            assert (
+                updated_inv2.quantity == 5.0
+            ), f"Expected inv2 quantity=5, got {updated_inv2.quantity}"
 
     def test_import_inventory_update_no_product(self, test_db, tmp_path):
         """Test error when UPC does not match any product."""
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "999999999999", "remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"upc": "999999999999", "remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3382,9 +3396,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127959", "remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"upc": "051000127959", "remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3433,9 +3445,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127960", "remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"upc": "051000127960", "remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3496,9 +3506,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127961", "remaining_percentage": 150}
-            ]
+            "inventory_updates": [{"upc": "051000127961", "remaining_percentage": 150}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3513,7 +3521,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "3.5",
             "import_type": "inventory_updates",
-            "inventory_updates": []
+            "inventory_updates": [],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3525,11 +3533,7 @@ class TestInventoryUpdateFromBTMobile:
 
     def test_import_inventory_update_wrong_import_type(self, test_db, tmp_path):
         """Test error for wrong import type."""
-        data = {
-            "schema_version": "4.0",
-            "import_type": "purchases",
-            "inventory_updates": []
-        }
+        data = {"schema_version": "4.0", "import_type": "purchases", "inventory_updates": []}
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
 
@@ -3554,9 +3558,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"remaining_percentage": 50}
-            ]
+            "inventory_updates": [{"remaining_percentage": 50}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))
@@ -3617,9 +3619,7 @@ class TestInventoryUpdateFromBTMobile:
         data = {
             "schema_version": "4.0",
             "import_type": "inventory_updates",
-            "inventory_updates": [
-                {"upc": "051000127962"}
-            ]
+            "inventory_updates": [{"upc": "051000127962"}],
         }
         file_path = tmp_path / "inventory_updates.json"
         file_path.write_text(json.dumps(data))

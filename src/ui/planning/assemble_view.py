@@ -38,13 +38,7 @@ STATUS_LABELS = {
 class AssemblyItemRow(ctk.CTkFrame):
     """Single row in the assembly checklist."""
 
-    def __init__(
-        self,
-        parent: Any,
-        item: dict,
-        on_assemble: callable,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, item: dict, on_assemble: callable, **kwargs):
         """Initialize AssemblyItemRow.
 
         Args:
@@ -146,12 +140,7 @@ class AssemblyItemRow(ctk.CTkFrame):
 class FeasibilitySection(ctk.CTkFrame):
     """Section showing feasibility status for all bundles."""
 
-    def __init__(
-        self,
-        parent: Any,
-        results: list[FeasibilityResult],
-        **kwargs
-    ):
+    def __init__(self, parent: Any, results: list[FeasibilityResult], **kwargs):
         """Initialize FeasibilitySection.
 
         Args:
@@ -230,12 +219,7 @@ class AssembleView(ctk.CTkFrame):
     supports partial assembly.
     """
 
-    def __init__(
-        self,
-        parent: Any,
-        event_id: Optional[int] = None,
-        **kwargs
-    ):
+    def __init__(self, parent: Any, event_id: Optional[int] = None, **kwargs):
         """Initialize AssembleView.
 
         Args:
@@ -371,8 +355,7 @@ class AssembleView(ctk.CTkFrame):
 
         # Summary
         complete_count = sum(
-            1 for item in self._checklist_items
-            if item.get("assembled", 0) >= item.get("target", 0)
+            1 for item in self._checklist_items if item.get("assembled", 0) >= item.get("target", 0)
         )
         summary = ctk.CTkLabel(
             self.checklist_scroll,

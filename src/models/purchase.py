@@ -12,8 +12,16 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy import (
-    Column, Integer, String, Text, Date, DateTime, ForeignKey,
-    Index, CheckConstraint, Numeric
+    Column,
+    Integer,
+    String,
+    Text,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    CheckConstraint,
+    Numeric,
 )
 from sqlalchemy.orm import relationship
 
@@ -52,16 +60,10 @@ class Purchase(BaseModel):
 
     # Foreign keys with RESTRICT delete behavior
     product_id = Column(
-        Integer,
-        ForeignKey("products.id", ondelete="RESTRICT"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     supplier_id = Column(
-        Integer,
-        ForeignKey("suppliers.id", ondelete="RESTRICT"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("suppliers.id", ondelete="RESTRICT"), nullable=False, index=True
     )
 
     # Purchase details

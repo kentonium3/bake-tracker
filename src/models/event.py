@@ -40,6 +40,7 @@ class FulfillmentStatus(str, Enum):
 
     Workflow is sequential: pending -> ready -> delivered
     """
+
     PENDING = "pending"
     READY = "ready"
     DELIVERED = "delivered"
@@ -53,6 +54,7 @@ class OutputMode(str, Enum):
     - BULK_COUNT: Direct FinishedUnit quantities (e.g., "make 300 cookies")
     - BUNDLED: FinishedGood/bundle quantities (e.g., "make 50 gift bags")
     """
+
     BULK_COUNT = "bulk_count"
     BUNDLED = "bundled"
 
@@ -84,9 +86,7 @@ class Event(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
-    last_modified = Column(
-        DateTime, nullable=False, default=utc_now, onupdate=utc_now
-    )
+    last_modified = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     event_recipient_packages = relationship(
@@ -243,17 +243,11 @@ class EventRecipientPackage(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Production status tracking
-    status = Column(
-        SQLEnum(PackageStatus), nullable=False, default=PackageStatus.PENDING
-    )
+    status = Column(SQLEnum(PackageStatus), nullable=False, default=PackageStatus.PENDING)
     delivered_to = Column(String(500), nullable=True)
 
     # Feature 016: Fulfillment status workflow (pending -> ready -> delivered)
-    fulfillment_status = Column(
-        String(20),
-        nullable=False,
-        default=FulfillmentStatus.PENDING.value
-    )
+    fulfillment_status = Column(String(20), nullable=False, default=FulfillmentStatus.PENDING.value)
 
     # Relationships
     event = relationship("Event", back_populates="event_recipient_packages")

@@ -157,50 +157,58 @@ def seed_units() -> None:
         # Seed weight units
         for sort_order, code in enumerate(WEIGHT_UNITS):
             display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
-            units_to_add.append(Unit(
-                code=code,
-                display_name=display_name,
-                symbol=symbol,
-                category="weight",
-                un_cefact_code=un_cefact_code,
-                sort_order=sort_order,
-            ))
+            units_to_add.append(
+                Unit(
+                    code=code,
+                    display_name=display_name,
+                    symbol=symbol,
+                    category="weight",
+                    un_cefact_code=un_cefact_code,
+                    sort_order=sort_order,
+                )
+            )
 
         # Seed volume units
         for sort_order, code in enumerate(VOLUME_UNITS):
             display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
-            units_to_add.append(Unit(
-                code=code,
-                display_name=display_name,
-                symbol=symbol,
-                category="volume",
-                un_cefact_code=un_cefact_code,
-                sort_order=sort_order,
-            ))
+            units_to_add.append(
+                Unit(
+                    code=code,
+                    display_name=display_name,
+                    symbol=symbol,
+                    category="volume",
+                    un_cefact_code=un_cefact_code,
+                    sort_order=sort_order,
+                )
+            )
 
         # Seed count units
         for sort_order, code in enumerate(COUNT_UNITS):
             display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
-            units_to_add.append(Unit(
-                code=code,
-                display_name=display_name,
-                symbol=symbol,
-                category="count",
-                un_cefact_code=un_cefact_code,
-                sort_order=sort_order,
-            ))
+            units_to_add.append(
+                Unit(
+                    code=code,
+                    display_name=display_name,
+                    symbol=symbol,
+                    category="count",
+                    un_cefact_code=un_cefact_code,
+                    sort_order=sort_order,
+                )
+            )
 
         # Seed package units
         for sort_order, code in enumerate(PACKAGE_UNITS):
             display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
-            units_to_add.append(Unit(
-                code=code,
-                display_name=display_name,
-                symbol=symbol,
-                category="package",
-                un_cefact_code=un_cefact_code,
-                sort_order=sort_order,
-            ))
+            units_to_add.append(
+                Unit(
+                    code=code,
+                    display_name=display_name,
+                    symbol=symbol,
+                    category="package",
+                    un_cefact_code=un_cefact_code,
+                    sort_order=sort_order,
+                )
+            )
 
         session.add_all(units_to_add)
         logger.info(f"Seeded {len(units_to_add)} units to reference table")
@@ -226,6 +234,7 @@ def init_database(engine: Optional[Engine] = None) -> None:
     from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
     from ..models import production_record  # noqa: F401  # Feature 008
     from ..models import unit  # noqa: F401  # Feature 022
+
     # Feature 047: Materials Management System
     from ..models import material_category, material_subcategory, material  # noqa: F401
     from ..models import material_product, material_unit  # noqa: F401
@@ -411,6 +420,7 @@ def reset_database(confirm: bool = False) -> None:
 
     # Delete the database file and related SQLite files (WAL, SHM)
     import os
+
     for suffix in ["", "-wal", "-shm"]:
         file_path = str(db_path) + suffix
         if os.path.exists(file_path):

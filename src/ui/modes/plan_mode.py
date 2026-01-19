@@ -71,8 +71,8 @@ class PlanMode(BaseMode):
         """Called when PLAN mode becomes active."""
         super().activate()
         # Refresh events on activation
-        if self.events_tab and hasattr(self.events_tab, 'refresh'):
-            if not getattr(self.events_tab, '_data_loaded', False):
+        if self.events_tab and hasattr(self.events_tab, "refresh"):
+            if not getattr(self.events_tab, "_data_loaded", False):
                 self.events_tab._data_loaded = True
                 self.after(10, self.events_tab.refresh)
 

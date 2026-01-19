@@ -145,12 +145,8 @@ class TestValidationResult:
 
     def test_merge_results(self):
         """Test merging two validation results."""
-        error = ValidationError(
-            field="a.field", message="Error A", record_number=1
-        )
-        warning = ValidationWarning(
-            field="b.field", message="Warning B", record_number=2
-        )
+        error = ValidationError(field="a.field", message="Error A", record_number=1)
+        warning = ValidationWarning(field="b.field", message="Warning B", record_number=2)
 
         result1 = ValidationResult(valid=False, errors=[error], warnings=[])
         result2 = ValidationResult(valid=True, errors=[], warnings=[warning])
@@ -288,11 +284,7 @@ class TestIngredientSchema:
 
     def test_invalid_package_unit_quantity(self):
         """Test negative package_unit_quantity produces error."""
-        data = {
-            "ingredients": [
-                {"display_name": "Flour", "package_unit_quantity": -1}
-            ]
-        }
+        data = {"ingredients": [{"display_name": "Flour", "package_unit_quantity": -1}]}
         result = validate_ingredient_schema(data)
 
         assert result.valid is False
@@ -300,11 +292,7 @@ class TestIngredientSchema:
 
     def test_unknown_package_unit_warning(self):
         """Test unknown package unit produces warning, not error."""
-        data = {
-            "ingredients": [
-                {"display_name": "Flour", "package_unit": "unknown_unit"}
-            ]
-        }
+        data = {"ingredients": [{"display_name": "Flour", "package_unit": "unknown_unit"}]}
         result = validate_ingredient_schema(data)
 
         assert result.valid is True  # Warnings don't fail
@@ -492,11 +480,7 @@ class TestRecipeSchema:
 
     def test_recipe_component_missing_identifier(self):
         """Test recipe component without name or slug produces error."""
-        data = {
-            "recipes": [
-                {"name": "Test Recipe", "components": [{"quantity": 2}]}
-            ]
-        }
+        data = {"recipes": [{"name": "Test Recipe", "components": [{"quantity": 2}]}]}
         result = validate_recipe_schema(data)
 
         assert result.valid is False
@@ -631,11 +615,7 @@ class TestEdgeCases:
 
     def test_string_number_not_valid(self):
         """Test string representation of number is not valid for numeric fields."""
-        data = {
-            "ingredients": [
-                {"display_name": "Test", "package_unit_quantity": "5.0"}
-            ]
-        }
+        data = {"ingredients": [{"display_name": "Test", "package_unit_quantity": "5.0"}]}
         result = validate_ingredient_schema(data)
 
         assert result.valid is False

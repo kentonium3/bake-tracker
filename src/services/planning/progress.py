@@ -229,8 +229,7 @@ def _get_overall_progress_impl(
     if production_targets > 0:
         # Average of individual progress percentages (capped at 100 for average)
         production_percent = round(
-            sum(min(p.progress_percent, 100.0) for p in production_progress)
-            / production_targets,
+            sum(min(p.progress_percent, 100.0) for p in production_progress) / production_targets,
             2,
         )
     else:
@@ -243,8 +242,7 @@ def _get_overall_progress_impl(
     if assembly_targets > 0:
         # Average of individual progress percentages (capped at 100 for average)
         assembly_percent = round(
-            sum(min(a.progress_percent, 100.0) for a in assembly_progress)
-            / assembly_targets,
+            sum(min(a.progress_percent, 100.0) for a in assembly_progress) / assembly_targets,
             2,
         )
     else:

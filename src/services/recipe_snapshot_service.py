@@ -26,14 +26,12 @@ from src.utils.datetime_utils import utc_now
 
 class SnapshotCreationError(Exception):
     """Raised when snapshot creation fails."""
+
     pass
 
 
 def create_recipe_snapshot(
-    recipe_id: int,
-    scale_factor: float,
-    production_run_id: int,
-    session: Session = None
+    recipe_id: int, scale_factor: float, production_run_id: int, session: Session = None
 ) -> dict:
     """
     Create an immutable snapshot of recipe state at production time.
@@ -61,10 +59,7 @@ def create_recipe_snapshot(
 
 
 def _create_recipe_snapshot_impl(
-    recipe_id: int,
-    scale_factor: float,
-    production_run_id: int,
-    session: Session
+    recipe_id: int, scale_factor: float, production_run_id: int, session: Session
 ) -> dict:
     """Internal implementation of snapshot creation."""
     # Load recipe with relationships
@@ -123,7 +118,7 @@ def _create_recipe_snapshot_impl(
         snapshot_date=utc_now(),
         recipe_data=json.dumps(recipe_data),
         ingredients_data=json.dumps(ingredients_data),
-        is_backfilled=False
+        is_backfilled=False,
     )
 
     session.add(snapshot)
@@ -137,7 +132,7 @@ def _create_recipe_snapshot_impl(
         "snapshot_date": snapshot.snapshot_date.isoformat(),
         "recipe_data": recipe_data,
         "ingredients_data": ingredients_data,
-        "is_backfilled": snapshot.is_backfilled
+        "is_backfilled": snapshot.is_backfilled,
     }
 
 
@@ -177,15 +172,14 @@ def _get_recipe_snapshots_impl(recipe_id: int, session: Session) -> list:
             "snapshot_date": s.snapshot_date.isoformat(),
             "recipe_data": s.get_recipe_data(),
             "ingredients_data": s.get_ingredients_data(),
-            "is_backfilled": s.is_backfilled
+            "is_backfilled": s.is_backfilled,
         }
         for s in snapshots
     ]
 
 
 def get_snapshot_by_production_run(
-    production_run_id: int,
-    session: Session = None
+    production_run_id: int, session: Session = None
 ) -> Optional[dict]:
     """
     Get the snapshot associated with a production run.
@@ -205,15 +199,10 @@ def get_snapshot_by_production_run(
 
 
 def _get_snapshot_by_production_run_impl(
-    production_run_id: int,
-    session: Session
+    production_run_id: int, session: Session
 ) -> Optional[dict]:
     """Internal implementation of get_snapshot_by_production_run."""
-    snapshot = (
-        session.query(RecipeSnapshot)
-        .filter_by(production_run_id=production_run_id)
-        .first()
-    )
+    snapshot = session.query(RecipeSnapshot).filter_by(production_run_id=production_run_id).first()
 
     if not snapshot:
         return None
@@ -226,7 +215,7 @@ def _get_snapshot_by_production_run_impl(
         "snapshot_date": snapshot.snapshot_date.isoformat(),
         "recipe_data": snapshot.get_recipe_data(),
         "ingredients_data": snapshot.get_ingredients_data(),
-        "is_backfilled": snapshot.is_backfilled
+        "is_backfilled": snapshot.is_backfilled,
     }
 
 
@@ -263,7 +252,7 @@ def _get_snapshot_by_id_impl(snapshot_id: int, session: Session) -> Optional[dic
         "snapshot_date": snapshot.snapshot_date.isoformat(),
         "recipe_data": snapshot.get_recipe_data(),
         "ingredients_data": snapshot.get_ingredients_data(),
-        "is_backfilled": snapshot.is_backfilled
+        "is_backfilled": snapshot.is_backfilled,
     }
 
 
@@ -330,6 +319,7 @@ def _create_recipe_from_snapshot_impl(snapshot_id: int, session: Session) -> dic
     yield_description = recipe_data.get("yield_description")
     if yield_quantity or yield_unit:
         from src.services.finished_unit_service import FinishedUnitService
+
         fu_display_name = yield_description or f"{new_name} Unit"
         fu_slug = FinishedUnitService._generate_unique_slug(fu_display_name, session)
         fu = FinishedUnit(

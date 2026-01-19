@@ -67,13 +67,11 @@ def get_fifo_inventory(
         >>> lots[0].purchase_date < lots[1].purchase_date  # Oldest first
         True
     """
+
     def _do_query(sess: Session) -> List[MaterialInventoryItem]:
         return (
             sess.query(MaterialInventoryItem)
-            .options(
-                joinedload(MaterialInventoryItem.product)
-                .joinedload(MaterialProduct.material)
-            )
+            .options(joinedload(MaterialInventoryItem.product).joinedload(MaterialProduct.material))
             .filter(
                 MaterialInventoryItem.material_product_id == material_product_id,
                 MaterialInventoryItem.quantity_remaining >= 0.001,  # Avoid float dust
@@ -110,11 +108,10 @@ def calculate_available_inventory(
         >>> available
         Decimal('5000.0')  # 5000 cm available
     """
+
     def _do_sum(sess: Session) -> Decimal:
         lots = get_fifo_inventory(material_product_id, session=sess)
-        return sum(
-            Decimal(str(lot.quantity_remaining)) for lot in lots
-        )
+        return sum(Decimal(str(lot.quantity_remaining)) for lot in lots)
 
     if session is not None:
         return _do_sum(session)
@@ -167,11 +164,15 @@ def consume_material_fifo(
         >>> result["total_cost"]
         Decimal("15.00")
     """
+
     def _do_consume(sess: Session) -> Dict[str, Any]:
         # Get product to determine base_unit_type
-        product = sess.query(MaterialProduct).options(
-            joinedload(MaterialProduct.material)
-        ).filter(MaterialProduct.id == material_product_id).first()
+        product = (
+            sess.query(MaterialProduct)
+            .options(joinedload(MaterialProduct.material))
+            .filter(MaterialProduct.id == material_product_id)
+            .first()
+        )
 
         if not product:
             raise ServiceValidationError([f"Material product {material_product_id} not found"])
@@ -198,7 +199,9 @@ def consume_material_fifo(
                 break
 
             lot_remaining = Decimal(str(lot.quantity_remaining))
-            lot_cost_per_unit = Decimal(str(lot.cost_per_unit)) if lot.cost_per_unit else Decimal("0.0")
+            lot_cost_per_unit = (
+                Decimal(str(lot.cost_per_unit)) if lot.cost_per_unit else Decimal("0.0")
+            )
 
             # Consume up to available amount
             to_consume = min(lot_remaining, remaining_needed)
@@ -220,14 +223,16 @@ def consume_material_fifo(
             else:
                 remaining_in_lot = Decimal(str(lot.quantity_remaining))
 
-            breakdown.append({
-                "inventory_item_id": lot.id,
-                "quantity_consumed": to_consume,
-                "unit": "base_units",  # Always in base units internally
-                "remaining_in_lot": remaining_in_lot,
-                "unit_cost": lot_cost_per_unit,
-                "purchase_date": lot.purchase_date,
-            })
+            breakdown.append(
+                {
+                    "inventory_item_id": lot.id,
+                    "quantity_consumed": to_consume,
+                    "unit": "base_units",  # Always in base units internally
+                    "remaining_in_lot": remaining_in_lot,
+                    "unit_cost": lot_cost_per_unit,
+                    "purchase_date": lot.purchase_date,
+                }
+            )
 
             if not dry_run:
                 sess.flush()
@@ -296,6 +301,7 @@ def validate_inventory_availability(
         >>> result["can_fulfill"]
         True
     """
+
     def _do_validate(sess: Session) -> Dict[str, Any]:
         shortfalls = []
 
@@ -314,13 +320,15 @@ def validate_inventory_availability(
             )
 
             if not result["satisfied"]:
-                shortfalls.append({
-                    "material_product_id": product_id,
-                    "quantity_needed": qty_needed,
-                    "quantity_available": result["consumed"],
-                    "shortfall": result["shortfall"],
-                    "unit": unit,
-                })
+                shortfalls.append(
+                    {
+                        "material_product_id": product_id,
+                        "quantity_needed": qty_needed,
+                        "quantity_available": result["consumed"],
+                        "shortfall": result["shortfall"],
+                        "unit": unit,
+                    }
+                )
 
         return {
             "can_fulfill": len(shortfalls) == 0,
@@ -348,13 +356,11 @@ def get_inventory_by_material(
     Returns:
         List[MaterialInventoryItem]: Inventory items ordered by purchase_date ASC
     """
+
     def _do_query(sess: Session) -> List[MaterialInventoryItem]:
         return (
             sess.query(MaterialInventoryItem)
-            .options(
-                joinedload(MaterialInventoryItem.product)
-                .joinedload(MaterialProduct.material)
-            )
+            .options(joinedload(MaterialInventoryItem.product).joinedload(MaterialProduct.material))
             .join(MaterialProduct)
             .filter(
                 MaterialProduct.material_id == material_id,
@@ -388,15 +394,14 @@ def get_total_inventory_value(
     Returns:
         Decimal: Total inventory value (sum of quantity_remaining * cost_per_unit)
     """
+
     def _do_calculate(sess: Session) -> Decimal:
         query = sess.query(MaterialInventoryItem).filter(
             MaterialInventoryItem.quantity_remaining >= 0.001,
         )
 
         if material_product_id is not None:
-            query = query.filter(
-                MaterialInventoryItem.material_product_id == material_product_id
-            )
+            query = query.filter(MaterialInventoryItem.material_product_id == material_product_id)
 
         items = query.all()
 
@@ -487,8 +492,10 @@ def _adjust_inventory_impl(
     # Validate non-negative
     if new_qty < 0:
         raise ServiceValidationError(
-            [f"Adjustment would result in negative quantity: {new_qty}. "
-            f"Current: {current_qty}, Adjustment: {adjustment_type} {value}"]
+            [
+                f"Adjustment would result in negative quantity: {new_qty}. "
+                f"Current: {current_qty}, Adjustment: {adjustment_type} {value}"
+            ]
         )
 
     # Update the item

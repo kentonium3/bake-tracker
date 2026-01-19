@@ -7,7 +7,12 @@ import pytest
 from decimal import Decimal
 from datetime import date, timedelta
 
-from src.services import ingredient_service, product_service, inventory_item_service, supplier_service
+from src.services import (
+    ingredient_service,
+    product_service,
+    inventory_item_service,
+    supplier_service,
+)
 
 
 @pytest.fixture
@@ -19,9 +24,11 @@ def test_supplier(test_db):
         state="MA",
         zip_code="02101",
     )
+
     class SupplierObj:
         def __init__(self, data):
             self.id = data["id"]
+
     return SupplierObj(result)
 
 
@@ -37,7 +44,7 @@ def test_fifo_multiple_lots_partial_consumption(test_db, test_supplier):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
 
@@ -47,8 +54,8 @@ def test_fifo_multiple_lots_partial_consumption(test_db, test_supplier):
             "brand": "Bob's Red Mill",
             "package_size": "5 lb bag",
             "package_unit": "lb",
-            "package_unit_quantity": Decimal("5.0")
-        }
+            "package_unit_quantity": Decimal("5.0"),
+        },
     )
 
     # Add lot 1: 10.0 lb on 2025-01-01 (oldest)
@@ -117,13 +124,13 @@ def test_fifo_insufficient_inventory(test_db, test_supplier):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
+        {"brand": "Bob's Red Mill", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")},
     )
 
     # Add lot: 10.0 lb (40 cups at 4 cups/lb)
@@ -165,13 +172,13 @@ def test_fifo_exact_consumption(test_db, test_supplier):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Blue Diamond", "package_unit": "lb", "package_unit_quantity": Decimal("3.0")}
+        {"brand": "Blue Diamond", "package_unit": "lb", "package_unit_quantity": Decimal("3.0")},
     )
 
     # Add lot: 5.0 lb (20 cups at 4 cups/lb)
@@ -212,20 +219,20 @@ def test_fifo_ordering_across_multiple_products(test_db, test_supplier):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
 
     # Create product 1
     product1 = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "package_unit": "lb", "package_unit_quantity": Decimal("1.0")}
+        {"brand": "Bob's Red Mill", "package_unit": "lb", "package_unit_quantity": Decimal("1.0")},
     )
 
     # Create product 2
     product2 = product_service.create_product(
         ingredient.slug,
-        {"brand": "Anthony's", "package_unit": "lb", "package_unit_quantity": Decimal("2.0")}
+        {"brand": "Anthony's", "package_unit": "lb", "package_unit_quantity": Decimal("2.0")},
     )
 
     # Add lot from product 1 (older)
@@ -266,13 +273,13 @@ def test_fifo_zero_quantity_lots_ignored(test_db, test_supplier):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Arrowhead Mills", "package_unit": "lb", "package_unit_quantity": Decimal("2.0")}
+        {"brand": "Arrowhead Mills", "package_unit": "lb", "package_unit_quantity": Decimal("2.0")},
     )
 
     # Add lot 1 (will deplete)
@@ -319,7 +326,7 @@ def test_fifo_precision(test_db, test_supplier):
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "package_unit": "oz", "package_unit_quantity": Decimal("24.0")}
+        {"brand": "Bob's Red Mill", "package_unit": "oz", "package_unit_quantity": Decimal("24.0")},
     )
 
     # Add lot: 17.3 oz

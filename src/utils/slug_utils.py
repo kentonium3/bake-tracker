@@ -142,11 +142,7 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
             )
 
 
-def create_slug_for_model(
-    name: str,
-    model_class: type,
-    session: Optional[Session] = None
-) -> str:
+def create_slug_for_model(name: str, model_class: type, session: Optional[Session] = None) -> str:
     """Generate unique slug for any SQLAlchemy model with a slug field.
 
     This is a generalized version of create_slug() that works with any model
@@ -209,9 +205,7 @@ def create_slug_for_model(
         return slug
 
     # Uniqueness checking with auto-increment
-    existing = session.query(model_class).filter(
-        model_class.slug == slug
-    ).first()
+    existing = session.query(model_class).filter(model_class.slug == slug).first()
 
     if not existing:
         return slug
@@ -222,9 +216,7 @@ def create_slug_for_model(
 
     while True:
         candidate_slug = f"{original_slug}_{counter}"
-        existing = session.query(model_class).filter(
-            model_class.slug == candidate_slug
-        ).first()
+        existing = session.query(model_class).filter(model_class.slug == candidate_slug).first()
 
         if not existing:
             return candidate_slug

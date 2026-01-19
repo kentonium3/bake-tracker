@@ -7,7 +7,12 @@ import pytest
 from decimal import Decimal
 from datetime import date, timedelta
 
-from src.services import ingredient_service, product_service, inventory_item_service, supplier_service
+from src.services import (
+    ingredient_service,
+    product_service,
+    inventory_item_service,
+    supplier_service,
+)
 from src.services.exceptions import IngredientNotFoundBySlug, ProductNotFound, ValidationError
 
 
@@ -20,9 +25,11 @@ def test_supplier(test_db):
         state="MA",
         zip_code="02101",
     )
+
     class SupplierObj:
         def __init__(self, data):
             self.id = data["id"]
+
     return SupplierObj(result)
 
 
@@ -37,7 +44,7 @@ def test_complete_inventory_workflow(test_db, test_supplier):
         "density_volume_value": 1.0,
         "density_volume_unit": "cup",
         "density_weight_value": 113.4,
-        "density_weight_unit": "g"
+        "density_weight_unit": "g",
     }
     ingredient = ingredient_service.create_ingredient(ingredient_data)
     assert ingredient.slug == "all_purpose_flour"
@@ -48,7 +55,7 @@ def test_complete_inventory_workflow(test_db, test_supplier):
         "package_size": "25 lb bag",
         "package_unit": "lb",
         "package_unit_quantity": Decimal("25.0"),
-        "preferred": True
+        "preferred": True,
     }
     product = product_service.create_product(ingredient.slug, product_data)
     assert product.preferred is True
@@ -63,7 +70,7 @@ def test_complete_inventory_workflow(test_db, test_supplier):
         unit_price=Decimal("24.99"),
         purchase_date=date.today(),
         expiration_date=date.today() + timedelta(days=365),
-        location="Main Storage"
+        location="Main Storage",
     )
     assert inventory_item.quantity == 25.0
     assert inventory_item.product_id == product.id
@@ -73,12 +80,15 @@ def test_complete_inventory_workflow(test_db, test_supplier):
     totals = inventory_item_service.get_total_quantity(ingredient.slug)
     # Returns dict grouped by unit - should have 25 lb
     assert "lb" in totals, f"Expected 'lb' in totals, got {totals}"
-    assert abs(totals["lb"] - Decimal("25.0")) < Decimal("0.01"), f"Expected 25.0 lb, got {totals['lb']}"
+    assert abs(totals["lb"] - Decimal("25.0")) < Decimal(
+        "0.01"
+    ), f"Expected 25.0 lb, got {totals['lb']}"
 
     # 5. Get preferred product
     preferred = product_service.get_preferred_product(ingredient.slug)
     assert preferred.id == product.id
     assert preferred.preferred is True
+
 
 def test_multiple_products_preferred_toggle(test_db):
     """Test: Create multiple products -> Toggle preferred -> Verify atomicity."""
@@ -93,7 +103,7 @@ def test_multiple_products_preferred_toggle(test_db):
         "package_size": "4 lb bag",
         "package_unit": "lb",
         "package_unit_quantity": Decimal("4.0"),
-        "preferred": True
+        "preferred": True,
     }
     product1 = product_service.create_product(ingredient.slug, product1_data)
     assert product1.preferred is True
@@ -104,7 +114,7 @@ def test_multiple_products_preferred_toggle(test_db):
         "package_size": "5 lb bag",
         "package_unit": "lb",
         "package_unit_quantity": Decimal("5.0"),
-        "preferred": False
+        "preferred": False,
     }
     product2 = product_service.create_product(ingredient.slug, product2_data)
     assert product2.preferred is False
@@ -119,6 +129,7 @@ def test_multiple_products_preferred_toggle(test_db):
     assert products[0].id == product2.id  # Preferred first
     assert products[0].preferred is True
 
+
 def test_inventory_items_filtering(test_db, test_supplier):
     """Test: Add multiple inventory items -> Filter by location and ingredient."""
 
@@ -131,7 +142,7 @@ def test_inventory_items_filtering(test_db, test_supplier):
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g"
+            "density_weight_unit": "g",
         }
     )
 
@@ -141,8 +152,8 @@ def test_inventory_items_filtering(test_db, test_supplier):
             "brand": "Bob's Red Mill",
             "package_size": "5 lb bag",
             "package_unit": "lb",
-            "package_unit_quantity": Decimal("5.0")
-        }
+            "package_unit_quantity": Decimal("5.0"),
+        },
     )
 
     # Add inventory items to different locations
@@ -152,7 +163,7 @@ def test_inventory_items_filtering(test_db, test_supplier):
         supplier_id=test_supplier.id,
         unit_price=Decimal("8.99"),
         purchase_date=date.today() - timedelta(days=30),
-        location="Main Storage"
+        location="Main Storage",
     )
 
     item2 = inventory_item_service.add_to_inventory(
@@ -161,7 +172,7 @@ def test_inventory_items_filtering(test_db, test_supplier):
         supplier_id=test_supplier.id,
         unit_price=Decimal("9.49"),
         purchase_date=date.today() - timedelta(days=15),
-        location="Basement"
+        location="Basement",
     )
 
     item3 = inventory_item_service.add_to_inventory(
@@ -170,7 +181,7 @@ def test_inventory_items_filtering(test_db, test_supplier):
         supplier_id=test_supplier.id,
         unit_price=Decimal("8.99"),
         purchase_date=date.today(),
-        location="Main Storage"
+        location="Main Storage",
     )
 
     # Filter by location
@@ -188,15 +199,16 @@ def test_inventory_items_filtering(test_db, test_supplier):
     totals = inventory_item_service.get_total_quantity(ingredient.slug)
     # Returns dict grouped by unit - should have 18 lb total (5 + 10 + 3)
     assert "lb" in totals, f"Expected 'lb' in totals, got {totals}"
-    assert abs(totals["lb"] - Decimal("18.0")) < Decimal("0.01"), f"Expected 18.0 lb, got {totals['lb']}"
+    assert abs(totals["lb"] - Decimal("18.0")) < Decimal(
+        "0.01"
+    ), f"Expected 18.0 lb, got {totals['lb']}"
+
 
 def test_expiring_items_detection(test_db, test_supplier):
     """Test: Add items with various expiration dates -> Get expiring soon."""
 
     # Setup
-    ingredient = ingredient_service.create_ingredient(
-        {"display_name": "Yeast", "category": "Misc"}
-    )
+    ingredient = ingredient_service.create_ingredient({"display_name": "Yeast", "category": "Misc"})
 
     product = product_service.create_product(
         ingredient.slug,
@@ -204,8 +216,8 @@ def test_expiring_items_detection(test_db, test_supplier):
             "brand": "Red Star",
             "package_size": "4 oz jar",
             "package_unit": "oz",
-            "package_unit_quantity": Decimal("4.0")
-        }
+            "package_unit_quantity": Decimal("4.0"),
+        },
     )
 
     # Add item expiring in 7 days
@@ -215,7 +227,7 @@ def test_expiring_items_detection(test_db, test_supplier):
         supplier_id=test_supplier.id,
         unit_price=Decimal("5.99"),
         purchase_date=date.today() - timedelta(days=60),
-        expiration_date=date.today() + timedelta(days=7)
+        expiration_date=date.today() + timedelta(days=7),
     )
 
     # Add item expiring in 30 days
@@ -225,7 +237,7 @@ def test_expiring_items_detection(test_db, test_supplier):
         supplier_id=test_supplier.id,
         unit_price=Decimal("5.99"),
         purchase_date=date.today() - timedelta(days=30),
-        expiration_date=date.today() + timedelta(days=30)
+        expiration_date=date.today() + timedelta(days=30),
     )
 
     # Add item with no expiration
@@ -234,7 +246,7 @@ def test_expiring_items_detection(test_db, test_supplier):
         quantity=Decimal("1.0"),
         supplier_id=test_supplier.id,
         unit_price=Decimal("5.99"),
-        purchase_date=date.today()
+        purchase_date=date.today(),
     )
 
     # Get items expiring within 14 days
@@ -246,6 +258,7 @@ def test_expiring_items_detection(test_db, test_supplier):
     expiring_60 = inventory_item_service.get_expiring_soon(days=60)
     assert len(expiring_60) == 2
 
+
 def test_ingredient_deletion_blocked_by_products(test_db):
     """Test: Create product -> Attempt to delete ingredient -> Verify blocked."""
 
@@ -256,7 +269,7 @@ def test_ingredient_deletion_blocked_by_products(test_db):
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Rumford", "package_unit": "oz", "package_unit_quantity": Decimal("8.0")}
+        {"brand": "Rumford", "package_unit": "oz", "package_unit_quantity": Decimal("8.0")},
     )
 
     # Attempt to delete ingredient should fail

@@ -13,10 +13,8 @@ Part of Feature 047: Materials Management System.
 """
 
 import customtkinter as ctk
-import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Optional, List, Dict, Any
-from decimal import Decimal
 from datetime import date
 import unicodedata
 
@@ -27,8 +25,8 @@ from src.services import (
     material_unit_service,
     supplier_service,
 )
-from src.services.exceptions import ValidationError, DatabaseError
-from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
+from src.services.exceptions import ValidationError
+from src.utils.constants import PADDING_MEDIUM
 
 
 def normalize_for_search(text: str) -> str:
@@ -92,10 +90,7 @@ class MaterialsTab(ctk.CTkFrame):
             text="Materials Catalog",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
-        title_label.grid(
-            row=0, column=0, sticky="w",
-            padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5)
-        )
+        title_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
 
     def _create_tabview(self):
         """Create the 3-tab container for Materials, Products, and Units."""
@@ -211,9 +206,7 @@ class MaterialFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Name*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(10, 5)
         )
-        self.name_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., Red Satin Ribbon"
-        )
+        self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Red Satin Ribbon")
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
@@ -250,12 +243,8 @@ class MaterialFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Computed level display (FR-016)
-        ctk.CTkLabel(form_frame, text="Level:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.level_label = ctk.CTkLabel(
-            form_frame, text="L2 - Material", anchor="w"
-        )
+        ctk.CTkLabel(form_frame, text="Level:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.level_label = ctk.CTkLabel(form_frame, text="L2 - Material", anchor="w")
         self.level_label.grid(row=row, column=1, sticky="w", padx=10, pady=5)
         row += 1
 
@@ -295,12 +284,8 @@ class MaterialFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Notes field
-        ctk.CTkLabel(form_frame, text="Notes:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional notes"
-        )
+        ctk.CTkLabel(form_frame, text="Notes:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional notes")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -357,10 +342,7 @@ class MaterialFormDialog(ctk.CTkToplevel):
     def _on_l0_change(self, value: str):
         """Handle L0 category selection change - cascade to L1."""
         if value == "(Select category)" or value not in self._l0_options:
-            self.l1_dropdown.configure(
-                values=["(Select category first)"],
-                state="disabled"
-            )
+            self.l1_dropdown.configure(values=["(Select category first)"], state="disabled")
             self.l1_var.set("(Select category first)")
             self._l1_options = {}
             return
@@ -377,23 +359,14 @@ class MaterialFormDialog(ctk.CTkToplevel):
                     self._l1_options[name] = sub_id
 
             if self._l1_options:
-                self.l1_dropdown.configure(
-                    values=list(self._l1_options.keys()),
-                    state="normal"
-                )
+                self.l1_dropdown.configure(values=list(self._l1_options.keys()), state="normal")
                 self.l1_var.set(list(self._l1_options.keys())[0])
             else:
-                self.l1_dropdown.configure(
-                    values=["(No subcategories)"],
-                    state="disabled"
-                )
+                self.l1_dropdown.configure(values=["(No subcategories)"], state="disabled")
                 self.l1_var.set("(No subcategories)")
         except Exception as e:
             print(f"Error loading subcategories: {e}")
-            self.l1_dropdown.configure(
-                values=["(Error loading)"],
-                state="disabled"
-            )
+            self.l1_dropdown.configure(values=["(Error loading)"], state="disabled")
             self.l1_var.set("(Error loading)")
 
     def _populate_form(self):
@@ -467,8 +440,7 @@ class MaterialFormDialog(ctk.CTkToplevel):
         material_id = self.material.get("id")
 
         if not messagebox.askyesno(
-            "Confirm Delete",
-            f"Are you sure you want to delete '{name}'?\n\nThis cannot be undone."
+            "Confirm Delete", f"Are you sure you want to delete '{name}'?\n\nThis cannot be undone."
         ):
             return
 
@@ -620,12 +592,8 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Product Name (required) - always editable (spec User Story 4, Acceptance 4)
-        ctk.CTkLabel(form_frame, text="Name*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.name_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., Red Satin Ribbon 50yd"
-        )
+        ctk.CTkLabel(form_frame, text="Name*:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Red Satin Ribbon 50yd")
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -633,9 +601,7 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Package Qty*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.qty_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., 50"
-        )
+        self.qty_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., 50")
         self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -643,9 +609,7 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Package Unit:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.unit_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., yards"
-        )
+        self.unit_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., yards")
         self.unit_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -665,22 +629,14 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         row += 1
 
         # SKU (optional)
-        ctk.CTkLabel(form_frame, text="SKU:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.sku_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional product SKU"
-        )
+        ctk.CTkLabel(form_frame, text="SKU:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.sku_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional product SKU")
         self.sku_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
         # Notes (optional)
-        ctk.CTkLabel(form_frame, text="Notes:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional notes"
-        )
+        ctk.CTkLabel(form_frame, text="Notes:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional notes")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -786,7 +742,9 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             return
 
         # Get optional fields
-        package_unit = self.unit_entry.get().strip() or self._materials[material_name].get("base_unit", "each")
+        package_unit = self.unit_entry.get().strip() or self._materials[material_name].get(
+            "base_unit", "each"
+        )
 
         supplier_name = self.supplier_var.get()
         supplier_id = self._suppliers.get(supplier_name) if supplier_name != "(None)" else None
@@ -935,9 +893,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         row += 1
 
         # Purchase Date
-        ctk.CTkLabel(form_frame, text="Date*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
+        ctk.CTkLabel(form_frame, text="Date*:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
         self.date_entry = ctk.CTkEntry(form_frame)
         self.date_entry.insert(0, date.today().isoformat())
         self.date_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
@@ -947,9 +903,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Packages*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.packages_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Number of packages"
-        )
+        self.packages_entry = ctk.CTkEntry(form_frame, placeholder_text="Number of packages")
         self.packages_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         self.packages_entry.bind("<KeyRelease>", self._update_calculations)
         row += 1
@@ -958,9 +912,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Total Price*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.price_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="$0.00"
-        )
+        self.price_entry = ctk.CTkEntry(form_frame, placeholder_text="$0.00")
         self.price_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         self.price_entry.bind("<KeyRelease>", self._update_calculations)
         row += 1
@@ -987,12 +939,8 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         row += 1
 
         # Notes
-        ctk.CTkLabel(form_frame, text="Notes:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional notes"
-        )
+        ctk.CTkLabel(form_frame, text="Notes:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional notes")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
 
     def _update_calculations(self, event=None):
@@ -1000,9 +948,7 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         try:
             packages = int(self.packages_entry.get().strip())
             total_units = packages * self.package_quantity
-            self.total_units_label.configure(
-                text=f"{total_units:,.1f} {self.package_unit}"
-            )
+            self.total_units_label.configure(text=f"{total_units:,.1f} {self.package_unit}")
         except (ValueError, TypeError):
             self.total_units_label.configure(text="-")
             self.unit_cost_label.configure(text="-")
@@ -1208,9 +1154,7 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Value*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(15, 5)
         )
-        self.value_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Enter value"
-        )
+        self.value_entry = ctk.CTkEntry(form_frame, placeholder_text="Enter value")
         self.value_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(15, 5))
         self.value_entry.bind("<KeyRelease>", self._update_preview)
         row += 1
@@ -1232,9 +1176,7 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Notes:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(15, 5)
         )
-        self.notes_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Reason for adjustment"
-        )
+        self.notes_entry = ctk.CTkEntry(form_frame, placeholder_text="Reason for adjustment")
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(15, 5))
 
     def _update_preview(self, event=None):
@@ -1248,9 +1190,7 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
             else:  # percentage
                 new_qty = self.current_inventory * (value / 100)
 
-            self.preview_label.configure(
-                text=f"{new_qty:,.1f} {self.base_unit}"
-            )
+            self.preview_label.configure(text=f"{new_qty:,.1f} {self.base_unit}")
         except (ValueError, TypeError):
             self.preview_label.configure(text="-")
 
@@ -1442,9 +1382,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             ctk.CTkLabel(form_frame, text="Name*:").grid(
                 row=row, column=0, sticky="w", padx=10, pady=5
             )
-            self.name_entry = ctk.CTkEntry(
-                form_frame, placeholder_text="e.g., Standard Bow"
-            )
+            self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Standard Bow")
             self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -1452,9 +1390,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Qty/Unit*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.qty_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Base units consumed per unit"
-        )
+        self.qty_entry = ctk.CTkEntry(form_frame, placeholder_text="Base units consumed per unit")
         self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -1462,9 +1398,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Description:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.description_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional description"
-        )
+        self.description_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional description")
         self.description_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -1717,20 +1651,19 @@ class MaterialsCatalogTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
-            "l0", text="Category (L0)", anchor="w",
-            command=lambda: self._on_header_click("l0")
+            "l0", text="Category (L0)", anchor="w", command=lambda: self._on_header_click("l0")
         )
         self.tree.heading(
-            "l1", text="Subcategory (L1)", anchor="w",
-            command=lambda: self._on_header_click("l1")
+            "l1", text="Subcategory (L1)", anchor="w", command=lambda: self._on_header_click("l1")
         )
         self.tree.heading(
-            "name", text="Material Name", anchor="w",
-            command=lambda: self._on_header_click("name")
+            "name", text="Material Name", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "base_unit", text="Default Unit", anchor="w",
-            command=lambda: self._on_header_click("base_unit")
+            "base_unit",
+            text="Default Unit",
+            anchor="w",
+            command=lambda: self._on_header_click("base_unit"),
         )
 
         # Configure column widths
@@ -1764,8 +1697,11 @@ class MaterialsCatalogTab:
             height=30,
         )
         self.status_label.grid(
-            row=3, column=0, sticky="ew",
-            padx=5, pady=(5, 10),
+            row=3,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
@@ -1854,7 +1790,8 @@ class MaterialsCatalogTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                m for m in filtered
+                m
+                for m in filtered
                 if search_text in normalize_for_search(m.get("name", ""))
                 or search_text in normalize_for_search(m.get("l0_name", ""))
                 or search_text in normalize_for_search(m.get("l1_name", ""))
@@ -1904,7 +1841,8 @@ class MaterialsCatalogTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                m for m in filtered
+                m
+                for m in filtered
                 if search_text in normalize_for_search(m.get("material_name", ""))
                 or search_text in normalize_for_search(m.get("category_name", ""))
                 or search_text in normalize_for_search(m.get("subcategory_name", ""))
@@ -1964,14 +1902,12 @@ class MaterialsCatalogTab:
             # Get subcategories for selected category from the new data structure
             materials_data = getattr(self, "_materials_data", [])
             subcats = [
-                m["subcategory_name"] for m in materials_data
+                m["subcategory_name"]
+                for m in materials_data
                 if m.get("category_name") == value and m.get("subcategory_name")
             ]
             unique_subcats = sorted(set(subcats))
-            self.l1_filter_dropdown.configure(
-                values=["All"] + unique_subcats,
-                state="normal"
-            )
+            self.l1_filter_dropdown.configure(values=["All"] + unique_subcats, state="normal")
             self.l1_filter_var.set("All")
         self._update_display()
 
@@ -2038,11 +1974,7 @@ class MaterialsCatalogTab:
 
     def _add_material(self):
         """Open dialog to add a new material."""
-        dialog = MaterialFormDialog(
-            self.parent_frame,
-            material=None,
-            title="Add Material"
-        )
+        dialog = MaterialFormDialog(self.parent_frame, material=None, title="Add Material")
         if dialog.winfo_exists():
             self.parent_frame.wait_window(dialog)
 
@@ -2083,9 +2015,7 @@ class MaterialsCatalogTab:
             return
 
         dialog = MaterialFormDialog(
-            self.parent_frame,
-            material=material_data,
-            title="Edit Material"
+            self.parent_frame, material=material_data, title="Edit Material"
         )
         if dialog.winfo_exists():
             self.parent_frame.wait_window(dialog)
@@ -2269,24 +2199,25 @@ class MaterialProductsTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
-            "material", text="Material", anchor="w",
-            command=lambda: self._on_header_click("material")
+            "material",
+            text="Material",
+            anchor="w",
+            command=lambda: self._on_header_click("material"),
         )
         self.tree.heading(
-            "name", text="Product Name", anchor="w",
-            command=lambda: self._on_header_click("name")
+            "name", text="Product Name", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "sku", text="SKU", anchor="w",
-            command=lambda: self._on_header_click("sku")
+            "sku", text="SKU", anchor="w", command=lambda: self._on_header_click("sku")
         )
         self.tree.heading(
-            "package", text="Package", anchor="w",
-            command=lambda: self._on_header_click("package")
+            "package", text="Package", anchor="w", command=lambda: self._on_header_click("package")
         )
         self.tree.heading(
-            "supplier", text="Supplier", anchor="w",
-            command=lambda: self._on_header_click("supplier")
+            "supplier",
+            text="Supplier",
+            anchor="w",
+            command=lambda: self._on_header_click("supplier"),
         )
 
         # Configure column widths
@@ -2321,8 +2252,11 @@ class MaterialProductsTab:
             height=30,
         )
         self.status_label.grid(
-            row=3, column=0, sticky="ew",
-            padx=5, pady=(5, 10),
+            row=3,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
@@ -2358,32 +2292,33 @@ class MaterialProductsTab:
                             # Inventory is now tracked at MaterialUnit level via FIFO
                             pkg_qty = _get_value(prod, "package_quantity") or 1
                             pkg_unit = _get_value(prod, "package_unit") or mat_base_unit or "each"
-                            products.append({
-                                "id": _get_value(prod, "id"),
-                                "name": _get_value(prod, "name"),
-                                "material_name": mat_name,
-                                "material_id": mat_id,
-                                "base_unit": mat_base_unit,
-                                "package_quantity": pkg_qty,
-                                "package_unit": pkg_unit,
-                                "package_display": f"{pkg_qty} {pkg_unit}",
-                                "supplier_name": _get_value(prod, "supplier_name") or "",
-                                "supplier_id": _get_value(prod, "supplier_id"),
-                                "sku": _get_value(prod, "sku") or "",
-                                "notes": _get_value(prod, "notes") or "",
-                            })
+                            products.append(
+                                {
+                                    "id": _get_value(prod, "id"),
+                                    "name": _get_value(prod, "name"),
+                                    "material_name": mat_name,
+                                    "material_id": mat_id,
+                                    "base_unit": mat_base_unit,
+                                    "package_quantity": pkg_qty,
+                                    "package_unit": pkg_unit,
+                                    "package_display": f"{pkg_qty} {pkg_unit}",
+                                    "supplier_name": _get_value(prod, "supplier_name") or "",
+                                    "supplier_id": _get_value(prod, "supplier_id"),
+                                    "sku": _get_value(prod, "sku") or "",
+                                    "notes": _get_value(prod, "notes") or "",
+                                }
+                            )
         except Exception as e:
             print(f"Error loading products: {e}")
             import traceback
+
             traceback.print_exc()
         return products
 
     def _load_material_dropdown(self):
         """Load materials for filter dropdown."""
         material_names = sorted(set(p["material_name"] for p in self.products))
-        self.material_filter_dropdown.configure(
-            values=["All Materials"] + material_names
-        )
+        self.material_filter_dropdown.configure(values=["All Materials"] + material_names)
 
     def _update_display(self):
         """Update the displayed list based on current filters."""
@@ -2426,8 +2361,7 @@ class MaterialProductsTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                p for p in filtered
-                if search_text in normalize_for_search(p.get("name", ""))
+                p for p in filtered if search_text in normalize_for_search(p.get("name", ""))
             ]
 
         # Apply sorting
@@ -2620,7 +2554,7 @@ class MaterialProductsTab:
             "Feature Not Available",
             "Direct inventory adjustment is not available with FIFO tracking.\n\n"
             "To add inventory: Record a new purchase.\n"
-            "To reduce inventory: Use material consumption through assemblies."
+            "To reduce inventory: Use material consumption through assemblies.",
         )
 
     def update_status(self, message: str):
@@ -2753,24 +2687,28 @@ class MaterialUnitsTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
-            "material", text="Material", anchor="w",
-            command=lambda: self._on_header_click("material")
+            "material",
+            text="Material",
+            anchor="w",
+            command=lambda: self._on_header_click("material"),
         )
         self.tree.heading(
-            "name", text="Unit Name", anchor="w",
-            command=lambda: self._on_header_click("name")
+            "name", text="Unit Name", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "qty_per_unit", text="Qty/Unit", anchor="e",
-            command=lambda: self._on_header_click("qty_per_unit")
+            "qty_per_unit",
+            text="Qty/Unit",
+            anchor="e",
+            command=lambda: self._on_header_click("qty_per_unit"),
         )
         self.tree.heading(
-            "available", text="Available", anchor="e",
-            command=lambda: self._on_header_click("available")
+            "available",
+            text="Available",
+            anchor="e",
+            command=lambda: self._on_header_click("available"),
         )
         self.tree.heading(
-            "cost", text="Cost/Unit", anchor="e",
-            command=lambda: self._on_header_click("cost")
+            "cost", text="Cost/Unit", anchor="e", command=lambda: self._on_header_click("cost")
         )
 
         # Configure column widths
@@ -2805,8 +2743,11 @@ class MaterialUnitsTab:
             height=30,
         )
         self.status_label.grid(
-            row=3, column=0, sticky="ew",
-            padx=5, pady=(5, 10),
+            row=3,
+            column=0,
+            sticky="ew",
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
@@ -2851,16 +2792,18 @@ class MaterialUnitsTab:
                                 cost = material_unit_service.get_current_cost(unit_id)
                             except Exception:
                                 cost = None
-                            units.append({
-                                "id": unit_id,
-                                "name": unit_name,
-                                "material_name": mat_name,
-                                "material_id": mat_id,
-                                "quantity_per_unit": qty,
-                                "description": desc,
-                                "available": available,
-                                "cost": cost,
-                            })
+                            units.append(
+                                {
+                                    "id": unit_id,
+                                    "name": unit_name,
+                                    "material_name": mat_name,
+                                    "material_id": mat_id,
+                                    "quantity_per_unit": qty,
+                                    "description": desc,
+                                    "available": available,
+                                    "cost": cost,
+                                }
+                            )
         except Exception as e:
             print(f"Error loading units: {e}")
         return units
@@ -2868,9 +2811,7 @@ class MaterialUnitsTab:
     def _load_material_dropdown(self):
         """Load materials for filter dropdown."""
         material_names = sorted(set(u["material_name"] for u in self.units))
-        self.material_filter_dropdown.configure(
-            values=["All Materials"] + material_names
-        )
+        self.material_filter_dropdown.configure(values=["All Materials"] + material_names)
 
     def _update_display(self):
         """Update the displayed list based on current filters."""
@@ -2918,8 +2859,7 @@ class MaterialUnitsTab:
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                u for u in filtered
-                if search_text in normalize_for_search(u.get("name", ""))
+                u for u in filtered if search_text in normalize_for_search(u.get("name", ""))
             ]
 
         # Apply sorting

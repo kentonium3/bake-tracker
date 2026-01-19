@@ -46,6 +46,7 @@ def get_all_units(session: Optional[Session] = None) -> List[Unit]:
     Returns:
         List of Unit objects ordered by category then sort_order.
     """
+
     def _impl(sess: Session) -> List[Unit]:
         return sess.query(Unit).order_by(Unit.category, Unit.sort_order).all()
 
@@ -65,13 +66,9 @@ def get_units_by_category(category: str, session: Optional[Session] = None) -> L
     Returns:
         List of Unit objects in the specified category, ordered by sort_order.
     """
+
     def _impl(sess: Session) -> List[Unit]:
-        return (
-            sess.query(Unit)
-            .filter(Unit.category == category)
-            .order_by(Unit.sort_order)
-            .all()
-        )
+        return sess.query(Unit).filter(Unit.category == category).order_by(Unit.sort_order).all()
 
     if session is not None:
         return _impl(session)
@@ -79,9 +76,7 @@ def get_units_by_category(category: str, session: Optional[Session] = None) -> L
         return _impl(sess)
 
 
-def get_units_for_dropdown(
-    categories: List[str], session: Optional[Session] = None
-) -> List[str]:
+def get_units_for_dropdown(categories: List[str], session: Optional[Session] = None) -> List[str]:
     """Get units formatted for CTkComboBox dropdown with category headers.
 
     Returns a list of strings where category headers are formatted as
@@ -99,6 +94,7 @@ def get_units_for_dropdown(
         >>> get_units_for_dropdown(['weight', 'volume'])
         ['-- Weight --', 'oz', 'lb', 'g', 'kg', '-- Volume --', 'tsp', 'tbsp', ...]
     """
+
     def _impl(sess: Session) -> List[str]:
         result = []
         for category in categories:
@@ -106,10 +102,7 @@ def get_units_for_dropdown(
             result.append(f"-- {category.title()} --")
             # Add unit codes for this category
             units = (
-                sess.query(Unit)
-                .filter(Unit.category == category)
-                .order_by(Unit.sort_order)
-                .all()
+                sess.query(Unit).filter(Unit.category == category).order_by(Unit.sort_order).all()
             )
             for unit in units:
                 result.append(unit.code)
@@ -131,6 +124,7 @@ def get_unit_by_code(code: str, session: Optional[Session] = None) -> Optional[U
     Returns:
         Unit object if found, None otherwise.
     """
+
     def _impl(sess: Session) -> Optional[Unit]:
         return sess.query(Unit).filter(Unit.code == code).first()
 

@@ -118,9 +118,7 @@ def validate_supplier_data(supplier_data: Dict[str, Any]) -> List[str]:
     # Slug is auto-generated, but if provided, validate format
     if "slug" in supplier_data and supplier_data["slug"]:
         if not validate_slug_format(supplier_data["slug"]):
-            errors.append(
-                "Invalid slug format: must be lowercase, alphanumeric with underscores"
-            )
+            errors.append("Invalid slug format: must be lowercase, alphanumeric with underscores")
 
     # Validate supplier_type if provided
     supplier_type = supplier_data.get("supplier_type", "physical")
@@ -201,13 +199,11 @@ def create_supplier(
     """
     if session is not None:
         return _create_supplier_impl(
-            name, city, state, zip_code, street_address, notes,
-            supplier_type, website_url, session
+            name, city, state, zip_code, street_address, notes, supplier_type, website_url, session
         )
     with session_scope() as session:
         return _create_supplier_impl(
-            name, city, state, zip_code, street_address, notes,
-            supplier_type, website_url, session
+            name, city, state, zip_code, street_address, notes, supplier_type, website_url, session
         )
 
 
@@ -479,8 +475,14 @@ def _update_supplier_impl(supplier_id: int, session: Session, **kwargs) -> Dict[
 
     # Update allowed fields
     allowed_fields = {
-        "name", "city", "state", "zip_code", "street_address", "notes",
-        "supplier_type", "website_url"
+        "name",
+        "city",
+        "state",
+        "zip_code",
+        "street_address",
+        "notes",
+        "supplier_type",
+        "website_url",
     }
     for key, value in kwargs.items():
         if key in allowed_fields:
@@ -530,9 +532,9 @@ def _deactivate_supplier_impl(supplier_id: int, session: Session) -> Dict[str, A
     supplier.is_active = False
 
     # FR-009: Clear preferred_supplier_id on products
-    affected_products = session.query(Product).filter(
-        Product.preferred_supplier_id == supplier_id
-    ).all()
+    affected_products = (
+        session.query(Product).filter(Product.preferred_supplier_id == supplier_id).all()
+    )
     for product in affected_products:
         product.preferred_supplier_id = None
 
@@ -618,9 +620,7 @@ def _delete_supplier_impl(supplier_id: int, session: Session) -> bool:
         raise SupplierNotFoundError(supplier_id)
 
     # Check for purchases
-    purchase_count = session.query(Purchase).filter(
-        Purchase.supplier_id == supplier_id
-    ).count()
+    purchase_count = session.query(Purchase).filter(Purchase.supplier_id == supplier_id).count()
 
     if purchase_count > 0:
         raise ValueError(
@@ -737,10 +737,11 @@ def _migrate_supplier_slugs_impl(session: Session) -> Dict[str, Any]:
                     if candidate_slug not in assigned_slugs:
                         # Also check database for slugs assigned to other suppliers
                         # we haven't processed yet
-                        existing = session.query(Supplier).filter(
-                            Supplier.slug == candidate_slug,
-                            Supplier.id != supplier.id
-                        ).first()
+                        existing = (
+                            session.query(Supplier)
+                            .filter(Supplier.slug == candidate_slug, Supplier.id != supplier.id)
+                            .first()
+                        )
                         if not existing:
                             supplier.slug = candidate_slug
                             assigned_slugs.add(candidate_slug)
@@ -753,10 +754,11 @@ def _migrate_supplier_slugs_impl(session: Session) -> Dict[str, Any]:
                         break
             else:
                 # Check if another supplier (not yet migrated) has this slug
-                existing = session.query(Supplier).filter(
-                    Supplier.slug == base_slug,
-                    Supplier.id != supplier.id
-                ).first()
+                existing = (
+                    session.query(Supplier)
+                    .filter(Supplier.slug == base_slug, Supplier.id != supplier.id)
+                    .first()
+                )
                 if existing:
                     # The existing supplier will be re-slugged when we process it
                     # We can take this slug

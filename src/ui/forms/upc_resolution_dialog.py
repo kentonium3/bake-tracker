@@ -260,7 +260,8 @@ class UPCResolutionDialog(ctk.CTkToplevel):
         if search_term:
             search_lower = search_term.lower()
             filtered = [
-                p for p in self._products
+                p
+                for p in self._products
                 if search_lower in p.get("display_name", "").lower()
                 or search_lower in (p.get("brand") or "").lower()
                 or search_lower in (p.get("ingredient_name") or "").lower()
@@ -386,9 +387,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
                 session.commit()
 
             self._mapped_count += 1
-            logger.info(
-                f"Mapped UPC {self._current_purchase.get('upc')} to product {product_id}"
-            )
+            logger.info(f"Mapped UPC {self._current_purchase.get('upc')} to product {product_id}")
             self._advance_to_next()
 
         except Exception as e:
@@ -428,7 +427,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
                     # This can happen if AddProductDialog doesn't expose created_product_id
                     messagebox.showinfo(
                         "Product Created",
-                        "Product was created. Please map the UPC to it using the dropdown above."
+                        "Product was created. Please map the UPC to it using the dropdown above.",
                     )
                     self._load_products()  # Refresh product list
             else:
@@ -454,8 +453,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
         remaining = len(self._purchases) - self._current_index
         if remaining > 0:
             if not messagebox.askyesno(
-                "Confirm Close",
-                f"Skip the remaining {remaining} unmatched UPCs and close?"
+                "Confirm Close", f"Skip the remaining {remaining} unmatched UPCs and close?"
             ):
                 return
 
@@ -551,7 +549,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
             f"Resolution complete:\n\n"
             f"  Mapped to existing: {self._mapped_count}\n"
             f"  New products created: {self._created_count}\n"
-            f"  Skipped: {self._skipped_count}"
+            f"  Skipped: {self._skipped_count}",
         )
 
         self.destroy()

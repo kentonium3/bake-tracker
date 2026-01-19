@@ -366,9 +366,7 @@ class TestEachTypeProductPurchase:
 class TestAreaTypeProductPurchase:
     """Test purchases of area type products (square_cm base)."""
 
-    def test_sq_feet_to_sq_cm_conversion(
-        self, db_session, sample_product_sq_feet, sample_supplier
-    ):
+    def test_sq_feet_to_sq_cm_conversion(self, db_session, sample_product_sq_feet, sample_supplier):
         """Square feet purchase converts to square cm correctly."""
         # 2 packages of 25 sq ft = 50 sq ft
         # 50 sq ft * 929.0304 sq cm/sq ft = 46451.52 sq cm
@@ -465,9 +463,7 @@ class TestGetProductInventoryFIFO:
         avg_cost = float(info["weighted_avg_cost"])
         assert 0.0039 < avg_cost < 0.0050
 
-    def test_get_inventory_empty_product(
-        self, db_session, sample_product_feet
-    ):
+    def test_get_inventory_empty_product(self, db_session, sample_product_feet):
         """get_product_inventory returns zero for product with no purchases."""
         info = get_product_inventory(sample_product_feet.id, session=db_session)
 
@@ -537,9 +533,7 @@ class TestPurchaseValidation:
             )
         assert "99999" in str(exc.value)
 
-    def test_purchase_zero_packages(
-        self, db_session, sample_product_feet, sample_supplier
-    ):
+    def test_purchase_zero_packages(self, db_session, sample_product_feet, sample_supplier):
         """Purchase with zero packages raises error."""
         with pytest.raises(ValidationError) as exc:
             record_purchase(
@@ -552,9 +546,7 @@ class TestPurchaseValidation:
             )
         assert "positive" in str(exc.value)
 
-    def test_purchase_negative_price(
-        self, db_session, sample_product_feet, sample_supplier
-    ):
+    def test_purchase_negative_price(self, db_session, sample_product_feet, sample_supplier):
         """Purchase with negative price raises error."""
         with pytest.raises(ValidationError) as exc:
             record_purchase(
@@ -567,9 +559,7 @@ class TestPurchaseValidation:
             )
         assert "negative" in str(exc.value)
 
-    def test_purchase_zero_price_allowed(
-        self, db_session, sample_product_feet, sample_supplier
-    ):
+    def test_purchase_zero_price_allowed(self, db_session, sample_product_feet, sample_supplier):
         """Purchase with zero price (free/donation) is allowed."""
         purchase = record_purchase(
             product_id=sample_product_feet.id,

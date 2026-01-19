@@ -35,21 +35,28 @@ from src.models.assembly_type import AssemblyType
 # Test Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def packaging_ingredient(test_db):
     """Create a packaging ingredient for tests."""
-    return create_ingredient({
-        "display_name": "Test Cellophane Bags",
-        "category": "Bags",
-    })
+    return create_ingredient(
+        {
+            "display_name": "Test Cellophane Bags",
+            "category": "Bags",
+        }
+    )
+
 
 @pytest.fixture
 def food_ingredient(test_db):
     """Create a food ingredient for tests."""
-    return create_ingredient({
-        "display_name": "Test All-Purpose Flour",
-        "category": "Flour",
-    })
+    return create_ingredient(
+        {
+            "display_name": "Test All-Purpose Flour",
+            "category": "Flour",
+        }
+    )
+
 
 @pytest.fixture
 def packaging_product(test_db, packaging_ingredient):
@@ -61,8 +68,9 @@ def packaging_product(test_db, packaging_ingredient):
             "package_size": "100ct",
             "package_unit": "box",
             "package_unit_quantity": 100,
-        }
+        },
     )
+
 
 @pytest.fixture
 def food_product(test_db, food_ingredient):
@@ -74,8 +82,9 @@ def food_product(test_db, food_ingredient):
             "package_size": "5 lb",
             "package_unit": "lb",
             "package_unit_quantity": 5,
-        }
+        },
     )
+
 
 @pytest.fixture
 def finished_good(test_db):
@@ -91,6 +100,7 @@ def finished_good(test_db):
     test_db.flush()
     return fg
 
+
 @pytest.fixture
 def package(test_db):
     """Create a package for tests."""
@@ -102,9 +112,11 @@ def package(test_db):
     test_db.flush()
     return pkg
 
+
 # =============================================================================
 # Test: add_packaging_to_assembly
 # =============================================================================
+
 
 class TestAddPackagingToAssembly:
     """Tests for add_packaging_to_assembly() functionality."""
@@ -191,9 +203,11 @@ class TestAddPackagingToAssembly:
             )
         assert "already exists" in str(excinfo.value)
 
+
 # =============================================================================
 # Test: add_packaging_to_package
 # =============================================================================
+
 
 class TestAddPackagingToPackage:
     """Tests for add_packaging_to_package() functionality."""
@@ -236,9 +250,11 @@ class TestAddPackagingToPackage:
                 quantity=2.0,
             )
 
+
 # =============================================================================
 # Test: get_assembly_packaging / get_package_packaging
 # =============================================================================
+
 
 class TestGetPackaging:
     """Tests for packaging retrieval methods."""
@@ -282,14 +298,18 @@ class TestGetPackaging:
     def test_get_packaging_sorted_by_sort_order(self, test_db, finished_good):
         """Packaging compositions are sorted by sort_order."""
         # Create multiple packaging ingredients
-        ing1 = create_ingredient({
-            "display_name": "Test Ribbon",
-            "category": "Ribbon",
-        })
-        ing2 = create_ingredient({
-            "display_name": "Test Labels",
-            "category": "Labels",
-        })
+        ing1 = create_ingredient(
+            {
+                "display_name": "Test Ribbon",
+                "category": "Ribbon",
+            }
+        )
+        ing2 = create_ingredient(
+            {
+                "display_name": "Test Labels",
+                "category": "Labels",
+            }
+        )
 
         prod1 = create_product(
             ing1.slug,
@@ -298,7 +318,7 @@ class TestGetPackaging:
                 "package_size": "1 roll",
                 "package_unit": "each",
                 "package_unit_quantity": 1,
-            }
+            },
         )
         prod2 = create_product(
             ing2.slug,
@@ -307,7 +327,7 @@ class TestGetPackaging:
                 "package_size": "50 ct",
                 "package_unit": "box",
                 "package_unit_quantity": 50,
-            }
+            },
         )
 
         # Add in reverse order
@@ -330,16 +350,16 @@ class TestGetPackaging:
         assert results[0].sort_order == 5
         assert results[1].sort_order == 10
 
+
 # =============================================================================
 # Test: update_packaging_quantity
 # =============================================================================
 
+
 class TestUpdatePackagingQuantity:
     """Tests for update_packaging_quantity() functionality."""
 
-    def test_update_packaging_quantity_success(
-        self, test_db, finished_good, packaging_product
-    ):
+    def test_update_packaging_quantity_success(self, test_db, finished_good, packaging_product):
         """Successfully update packaging quantity."""
         composition = add_packaging_to_assembly(
             assembly_id=finished_good.id,
@@ -384,9 +404,11 @@ class TestUpdatePackagingQuantity:
         with pytest.raises(ValidationError):
             update_packaging_quantity(999999, 1.0)
 
+
 # =============================================================================
 # Test: remove_packaging
 # =============================================================================
+
 
 class TestRemovePackaging:
     """Tests for remove_packaging() functionality."""
@@ -412,16 +434,16 @@ class TestRemovePackaging:
         result = remove_packaging(999999)
         assert result is False
 
+
 # =============================================================================
 # Test: get_packaging_product_usage_count
 # =============================================================================
 
+
 class TestGetPackagingProductUsageCount:
     """Tests for get_packaging_product_usage_count() functionality."""
 
-    def test_get_usage_count_with_usages(
-        self, test_db, finished_good, package, packaging_product
-    ):
+    def test_get_usage_count_with_usages(self, test_db, finished_good, package, packaging_product):
         """Count includes usages in both assemblies and packages."""
         add_packaging_to_assembly(
             assembly_id=finished_good.id,

@@ -403,7 +403,9 @@ def list_subcategories(
         query = sess.query(MaterialSubcategory)
         if category_id is not None:
             query = query.filter(MaterialSubcategory.category_id == category_id)
-        subcategories = query.order_by(MaterialSubcategory.sort_order, MaterialSubcategory.name).all()
+        subcategories = query.order_by(
+            MaterialSubcategory.sort_order, MaterialSubcategory.name
+        ).all()
         # Convert to dicts before session closes to avoid detachment issues
         return [
             {
@@ -450,9 +452,7 @@ def update_subcategory(
 
     def _impl(sess: Session) -> MaterialSubcategory:
         subcategory = (
-            sess.query(MaterialSubcategory)
-            .filter(MaterialSubcategory.id == subcategory_id)
-            .first()
+            sess.query(MaterialSubcategory).filter(MaterialSubcategory.id == subcategory_id).first()
         )
         if subcategory is None:
             raise ValidationError([f"Subcategory with ID {subcategory_id} not found"])
@@ -496,9 +496,7 @@ def delete_subcategory(subcategory_id: int, session: Optional[Session] = None) -
 
     def _impl(sess: Session) -> bool:
         subcategory = (
-            sess.query(MaterialSubcategory)
-            .filter(MaterialSubcategory.id == subcategory_id)
-            .first()
+            sess.query(MaterialSubcategory).filter(MaterialSubcategory.id == subcategory_id).first()
         )
         if subcategory is None:
             raise ValidationError([f"Subcategory with ID {subcategory_id} not found"])
@@ -569,9 +567,7 @@ def create_material(
     def _impl(sess: Session) -> Material:
         # Verify subcategory exists
         subcategory = (
-            sess.query(MaterialSubcategory)
-            .filter(MaterialSubcategory.id == subcategory_id)
-            .first()
+            sess.query(MaterialSubcategory).filter(MaterialSubcategory.id == subcategory_id).first()
         )
         if subcategory is None:
             raise ValidationError([f"Subcategory with ID {subcategory_id} not found"])
@@ -775,7 +771,7 @@ def delete_material(material_id: int, session: Optional[Session] = None) -> bool
 
         # Check for compositions using this material (generic placeholder)
         # Note: material_id column added to Composition in WP05
-        if hasattr(Composition, 'material_id') and Composition.material_id is not None:
+        if hasattr(Composition, "material_id") and Composition.material_id is not None:
             composition_count = (
                 sess.query(Composition).filter(Composition.material_id == material_id).count()
             )
@@ -868,10 +864,13 @@ def create_product(
     sku: Optional[str] = None,
     slug: Optional[str] = None,
     notes: Optional[str] = None,
+    is_provisional: bool = False,
     session: Optional[Session] = None,
 ) -> MaterialProduct:
     """
     Create product under material. Calculates quantity_in_base_units from package_unit.
+
+    Feature 059: Added is_provisional parameter for provisional product creation via CLI.
 
     Args:
         material_id: Parent material ID
@@ -883,6 +882,7 @@ def create_product(
         sku: Supplier SKU (optional)
         slug: URL-friendly identifier (auto-generated if not provided)
         notes: Optional notes
+        is_provisional: Mark as provisional product needing enrichment (F059)
         session: Optional database session
 
     Returns:
@@ -913,16 +913,16 @@ def create_product(
         if not product_slug:
             base_slug = slugify(name.strip())
             # Ensure uniqueness across all products
-            existing = sess.query(MaterialProduct).filter(
-                MaterialProduct.slug == base_slug
-            ).first()
+            existing = sess.query(MaterialProduct).filter(MaterialProduct.slug == base_slug).first()
             if existing:
                 counter = 1
                 while True:
                     candidate = f"{base_slug}_{counter}"
-                    if not sess.query(MaterialProduct).filter(
-                        MaterialProduct.slug == candidate
-                    ).first():
+                    if (
+                        not sess.query(MaterialProduct)
+                        .filter(MaterialProduct.slug == candidate)
+                        .first()
+                    ):
                         product_slug = candidate
                         break
                     counter += 1
@@ -931,6 +931,7 @@ def create_product(
 
         # Feature 058: Removed current_inventory and weighted_avg_cost
         # (now tracked via MaterialInventoryItem using FIFO)
+        # Feature 059: Added is_provisional for CLI-created products
         product = MaterialProduct(
             material_id=material_id,
             name=name.strip(),
@@ -942,6 +943,7 @@ def create_product(
             quantity_in_base_units=quantity_in_base_units,
             supplier_id=supplier_id,
             notes=notes,
+            is_provisional=is_provisional,
         )
         sess.add(product)
         sess.flush()
@@ -1022,9 +1024,7 @@ def list_products(
                 .all()
             )
             # Sum inventory
-            current_inventory = sum(
-                Decimal(str(item.quantity_remaining)) for item in inv_items
-            )
+            current_inventory = sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
             # Compute weighted average cost
             total_cost = sum(
                 Decimal(str(item.quantity_remaining)) * Decimal(str(item.cost_per_unit))
@@ -1033,23 +1033,25 @@ def list_products(
             weighted_avg_cost = (
                 total_cost / current_inventory if current_inventory > 0 else Decimal("0")
             )
-            result.append({
-                "id": prod.id,
-                "name": prod.name,
-                "slug": prod.slug,
-                "material_id": prod.material_id,
-                "brand": prod.brand,
-                "sku": prod.sku,
-                "package_quantity": prod.package_quantity,
-                "package_unit": prod.package_unit,
-                "quantity_in_base_units": prod.quantity_in_base_units,
-                "supplier_id": prod.supplier_id,
-                "supplier_name": prod.supplier.name if prod.supplier else None,
-                "current_inventory": float(current_inventory),
-                "weighted_avg_cost": float(weighted_avg_cost),
-                "is_hidden": prod.is_hidden,
-                "notes": prod.notes,
-            })
+            result.append(
+                {
+                    "id": prod.id,
+                    "name": prod.name,
+                    "slug": prod.slug,
+                    "material_id": prod.material_id,
+                    "brand": prod.brand,
+                    "sku": prod.sku,
+                    "package_quantity": prod.package_quantity,
+                    "package_unit": prod.package_unit,
+                    "quantity_in_base_units": prod.quantity_in_base_units,
+                    "supplier_id": prod.supplier_id,
+                    "supplier_name": prod.supplier.name if prod.supplier else None,
+                    "current_inventory": float(current_inventory),
+                    "weighted_avg_cost": float(weighted_avg_cost),
+                    "is_hidden": prod.is_hidden,
+                    "notes": prod.notes,
+                }
+            )
         return result
 
     if session is not None:
@@ -1154,9 +1156,7 @@ def delete_product(product_id: int, session: Optional[Session] = None) -> bool:
             )
             .all()
         )
-        current_inventory = sum(
-            Decimal(str(item.quantity_remaining)) for item in inv_items
-        )
+        current_inventory = sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
         if current_inventory > 0:
             raise ValidationError(
                 [

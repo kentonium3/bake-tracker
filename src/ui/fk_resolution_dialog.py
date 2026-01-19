@@ -466,30 +466,22 @@ class CreateEntityDialog(ctk.CTkToplevel):
         # Name (pre-filled)
         ctk.CTkLabel(form_frame, text="Name:*").pack(anchor="w", padx=10, pady=(10, 0))
         self.name_var = ctk.StringVar(value=self.default_value)
-        ctk.CTkEntry(form_frame, textvariable=self.name_var, width=300).pack(
-            padx=10, pady=(0, 5)
-        )
+        ctk.CTkEntry(form_frame, textvariable=self.name_var, width=300).pack(padx=10, pady=(0, 5))
 
         # City
         ctk.CTkLabel(form_frame, text="City:*").pack(anchor="w", padx=10, pady=(5, 0))
         self.city_var = ctk.StringVar()
-        ctk.CTkEntry(form_frame, textvariable=self.city_var, width=300).pack(
-            padx=10, pady=(0, 5)
-        )
+        ctk.CTkEntry(form_frame, textvariable=self.city_var, width=300).pack(padx=10, pady=(0, 5))
 
         # State
-        ctk.CTkLabel(form_frame, text="State (2-letter):*").pack(
-            anchor="w", padx=10, pady=(5, 0)
-        )
+        ctk.CTkLabel(form_frame, text="State (2-letter):*").pack(anchor="w", padx=10, pady=(5, 0))
         self.state_var = ctk.StringVar()
         ctk.CTkEntry(form_frame, textvariable=self.state_var, width=100).pack(
             anchor="w", padx=10, pady=(0, 5)
         )
 
         # ZIP Code
-        ctk.CTkLabel(form_frame, text="ZIP Code:*").pack(
-            anchor="w", padx=10, pady=(5, 0)
-        )
+        ctk.CTkLabel(form_frame, text="ZIP Code:*").pack(anchor="w", padx=10, pady=(5, 0))
         self.zip_var = ctk.StringVar()
         ctk.CTkEntry(form_frame, textvariable=self.zip_var, width=150).pack(
             anchor="w", padx=10, pady=(0, 10)
@@ -537,14 +529,10 @@ class CreateEntityDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "City is required.", parent=self)
             return
         if not state or len(state) != 2:
-            messagebox.showerror(
-                "Validation Error", "State must be a 2-letter code.", parent=self
-            )
+            messagebox.showerror("Validation Error", "State must be a 2-letter code.", parent=self)
             return
         if not zip_code:
-            messagebox.showerror(
-                "Validation Error", "ZIP Code is required.", parent=self
-            )
+            messagebox.showerror("Validation Error", "ZIP Code is required.", parent=self)
             return
 
         self.entity_data = {
@@ -573,32 +561,24 @@ class CreateEntityDialog(ctk.CTkToplevel):
         # Slug (pre-filled)
         ctk.CTkLabel(form_frame, text="Slug:*").pack(anchor="w", padx=10, pady=(10, 0))
         self.slug_var = ctk.StringVar(value=self.default_value)
-        ctk.CTkEntry(form_frame, textvariable=self.slug_var, width=300).pack(
-            padx=10, pady=(0, 5)
-        )
+        ctk.CTkEntry(form_frame, textvariable=self.slug_var, width=300).pack(padx=10, pady=(0, 5))
 
         # Display Name
-        ctk.CTkLabel(form_frame, text="Display Name:*").pack(
-            anchor="w", padx=10, pady=(5, 0)
-        )
+        ctk.CTkLabel(form_frame, text="Display Name:*").pack(anchor="w", padx=10, pady=(5, 0))
         self.display_name_var = ctk.StringVar()
         ctk.CTkEntry(form_frame, textvariable=self.display_name_var, width=300).pack(
             padx=10, pady=(0, 5)
         )
 
         # Category
-        ctk.CTkLabel(form_frame, text="Category:*").pack(
-            anchor="w", padx=10, pady=(5, 0)
-        )
+        ctk.CTkLabel(form_frame, text="Category:*").pack(anchor="w", padx=10, pady=(5, 0))
         self.category_var = ctk.StringVar()
         ctk.CTkEntry(form_frame, textvariable=self.category_var, width=300).pack(
             padx=10, pady=(0, 5)
         )
 
         # Description (optional)
-        ctk.CTkLabel(form_frame, text="Description:").pack(
-            anchor="w", padx=10, pady=(5, 0)
-        )
+        ctk.CTkLabel(form_frame, text="Description:").pack(anchor="w", padx=10, pady=(5, 0))
         self.description_var = ctk.StringVar()
         ctk.CTkEntry(form_frame, textvariable=self.description_var, width=300).pack(
             padx=10, pady=(0, 10)
@@ -643,14 +623,10 @@ class CreateEntityDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "Slug is required.", parent=self)
             return
         if not display_name:
-            messagebox.showerror(
-                "Validation Error", "Display Name is required.", parent=self
-            )
+            messagebox.showerror("Validation Error", "Display Name is required.", parent=self)
             return
         if not category:
-            messagebox.showerror(
-                "Validation Error", "Category is required.", parent=self
-            )
+            messagebox.showerror("Validation Error", "Category is required.", parent=self)
             return
 
         self.entity_data = {
@@ -678,20 +654,16 @@ class CreateEntityDialog(ctk.CTkToplevel):
         form_frame.pack(fill="x", padx=20, pady=10)
 
         # Ingredient Slug (pre-filled)
-        ctk.CTkLabel(form_frame, text="Ingredient Slug:*").pack(
-            anchor="w", padx=10, pady=(10, 0)
-        )
+        ctk.CTkLabel(form_frame, text="Ingredient Slug:*").pack(anchor="w", padx=10, pady=(10, 0))
         self.ingredient_slug_var = ctk.StringVar(value=self.default_value)
-        ctk.CTkEntry(
-            form_frame, textvariable=self.ingredient_slug_var, width=300
-        ).pack(padx=10, pady=(0, 5))
+        ctk.CTkEntry(form_frame, textvariable=self.ingredient_slug_var, width=300).pack(
+            padx=10, pady=(0, 5)
+        )
 
         # Brand
         ctk.CTkLabel(form_frame, text="Brand:").pack(anchor="w", padx=10, pady=(5, 0))
         self.brand_var = ctk.StringVar()
-        ctk.CTkEntry(form_frame, textvariable=self.brand_var, width=300).pack(
-            padx=10, pady=(0, 5)
-        )
+        ctk.CTkEntry(form_frame, textvariable=self.brand_var, width=300).pack(padx=10, pady=(0, 5))
 
         # Package Unit
         ctk.CTkLabel(form_frame, text="Package Unit (e.g., oz, lb):*").pack(
@@ -712,9 +684,7 @@ class CreateEntityDialog(ctk.CTkToplevel):
         )
 
         # Product Name (optional)
-        ctk.CTkLabel(form_frame, text="Product Name:").pack(
-            anchor="w", padx=10, pady=(5, 0)
-        )
+        ctk.CTkLabel(form_frame, text="Product Name:").pack(anchor="w", padx=10, pady=(5, 0))
         self.product_name_var = ctk.StringVar()
         ctk.CTkEntry(form_frame, textvariable=self.product_name_var, width=300).pack(
             padx=10, pady=(0, 10)
@@ -757,14 +727,10 @@ class CreateEntityDialog(ctk.CTkToplevel):
 
         # Validate required fields
         if not ingredient_slug:
-            messagebox.showerror(
-                "Validation Error", "Ingredient Slug is required.", parent=self
-            )
+            messagebox.showerror("Validation Error", "Ingredient Slug is required.", parent=self)
             return
         if not package_unit:
-            messagebox.showerror(
-                "Validation Error", "Package Unit is required.", parent=self
-            )
+            messagebox.showerror("Validation Error", "Package Unit is required.", parent=self)
             return
         if not package_qty_str:
             messagebox.showerror(
