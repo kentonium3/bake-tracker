@@ -595,6 +595,17 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
 
         row = 0
 
+        # Feature 059: Completeness indicator for provisional products
+        self.completeness_label = ctk.CTkLabel(
+            form_frame,
+            text="",
+            text_color="gray",
+        )
+        self.completeness_label.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=(5, 10)
+        )
+        row += 1
+
         # Material dropdown (required)
         ctk.CTkLabel(form_frame, text="Material*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(10, 5)
@@ -629,6 +640,16 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
+        # Feature 059: Brand field (required for completeness)
+        ctk.CTkLabel(form_frame, text="Brand*:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.brand_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="e.g., Michaels, JOANN"
+        )
+        self.brand_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
         # Package Quantity (required)
         ctk.CTkLabel(form_frame, text="Package Qty*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
@@ -639,8 +660,8 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Package Unit (defaults to material's base_unit)
-        ctk.CTkLabel(form_frame, text="Package Unit:").grid(
+        # Package Unit (required for completeness)
+        ctk.CTkLabel(form_frame, text="Package Unit*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
         self.unit_entry = ctk.CTkEntry(
@@ -684,6 +705,9 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
+        # Feature 059: Bind trace handlers to update completeness indicator
+        self._setup_completeness_tracking()
+
     def _on_material_change(self, value: str):
         """Handle material selection - set default package unit."""
         if value in self._materials:
@@ -692,6 +716,81 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             if not self.unit_entry.get():
                 self.unit_entry.delete(0, "end")
                 self.unit_entry.insert(0, base_unit)
+        # Feature 059: Update completeness after material change
+        self._update_completeness_indicator()
+
+    def _setup_completeness_tracking(self):
+        """Feature 059: Set up trace handlers to update completeness in real-time."""
+        # Bind key release events to entry fields
+        self.name_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
+        self.brand_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
+        self.qty_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
+        self.unit_entry.bind("<KeyRelease>", lambda e: self._update_completeness_indicator())
+
+        # Material dropdown uses command callback which already calls update
+
+        # Initial update
+        self._update_completeness_indicator()
+
+    def _update_completeness_indicator(self):
+        """Feature 059: Update the completeness status display in real-time."""
+        missing = self._get_missing_fields()
+
+        if missing:
+            missing_text = ", ".join(missing)
+            self.completeness_label.configure(
+                text=f"\u26a0 Missing: {missing_text}",
+                text_color="orange",
+            )
+        else:
+            self.completeness_label.configure(
+                text="\u2713 Product complete",
+                text_color="green",
+            )
+
+    def _get_missing_fields(self) -> list:
+        """Feature 059: Check which required fields are missing for completeness.
+
+        Completeness criteria from spec: name, brand, slug (auto-generated),
+        package_quantity, package_unit, and material_id.
+        Slug is auto-generated from name, so we only check for user-editable fields.
+        """
+        missing = []
+
+        # Check material selection
+        material_name = self.material_var.get()
+        if material_name not in self._materials:
+            missing.append("Material")
+
+        # Check name
+        if not self.name_entry.get().strip():
+            missing.append("Name")
+
+        # Check brand
+        if not self.brand_entry.get().strip():
+            missing.append("Brand")
+
+        # Check package quantity
+        qty_str = self.qty_entry.get().strip()
+        try:
+            qty = float(qty_str)
+            if qty <= 0:
+                missing.append("Package Qty")
+        except (ValueError, TypeError):
+            if qty_str:  # Has a value but not valid
+                missing.append("Package Qty (invalid)")
+            else:
+                missing.append("Package Qty")
+
+        # Check package unit
+        if not self.unit_entry.get().strip():
+            missing.append("Package Unit")
+
+        return missing
+
+    def _is_product_complete(self) -> bool:
+        """Feature 059: Check if all required fields are filled for completeness."""
+        return len(self._get_missing_fields()) == 0
 
     def _create_buttons(self):
         """Create dialog buttons."""
@@ -727,6 +826,11 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         if name:
             self.name_entry.insert(0, name)
 
+        # Feature 059: Set brand
+        brand = self.product.get("brand", "")
+        if brand:
+            self.brand_entry.insert(0, brand)
+
         # Set material
         material_name = self.product.get("material_name", "")
         if material_name and material_name in self._materials:
@@ -756,6 +860,9 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         notes = self.product.get("notes", "")
         if notes:
             self.notes_entry.insert(0, notes)
+
+        # Feature 059: Update completeness indicator after populating
+        self._update_completeness_indicator()
 
     def _save(self):
         """Validate and save the product."""
@@ -788,26 +895,36 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         # Get optional fields
         package_unit = self.unit_entry.get().strip() or self._materials[material_name].get("base_unit", "each")
 
+        # Feature 059: Get brand (required for completeness)
+        brand = self.brand_entry.get().strip() or None
+
         supplier_name = self.supplier_var.get()
         supplier_id = self._suppliers.get(supplier_name) if supplier_name != "(None)" else None
 
         sku = self.sku_entry.get().strip() or None
         notes = self.notes_entry.get().strip() or None
 
+        # Feature 059: Determine if product should remain provisional
+        # Product is complete when all required fields are present
+        is_complete = self._is_product_complete()
+
         # Build result
         self.result = {
             "name": name,
+            "brand": brand,
             "material_id": material_id,
             "package_quantity": package_quantity,
             "package_unit": package_unit,
             "supplier_id": supplier_id,
             "sku": sku,
             "notes": notes,
+            "is_complete": is_complete,  # Feature 059: Flag for caller to clear is_provisional
         }
 
         # Include ID if editing
         if self.product:
             self.result["id"] = self.product.get("id")
+            self.result["was_provisional"] = self.product.get("is_provisional", False)
 
         self.destroy()
 
@@ -2257,9 +2374,10 @@ class MaterialProductsTab:
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns: material, name, sku, package, supplier
+        # Define columns: status, material, name, sku, package, supplier
         # Note: inventory/cost columns removed - these are now tracked in MaterialUnit
-        columns = ("material", "name", "sku", "package", "supplier")
+        # Feature 059: Added status column for provisional product indicator
+        columns = ("status", "material", "name", "sku", "package", "supplier")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -2268,6 +2386,10 @@ class MaterialProductsTab:
         )
 
         # Configure column headings with click-to-sort
+        self.tree.heading(
+            "status", text="Status", anchor="center",
+            command=lambda: self._on_header_click("status")
+        )
         self.tree.heading(
             "material", text="Material", anchor="w",
             command=lambda: self._on_header_click("material")
@@ -2290,11 +2412,24 @@ class MaterialProductsTab:
         )
 
         # Configure column widths
-        self.tree.column("material", width=180, minwidth=120)
+        # Feature 059: Status column for provisional indicator
+        self.tree.column("status", width=100, minwidth=80, anchor="center")
+        self.tree.column("material", width=160, minwidth=120)
         self.tree.column("name", width=200, minwidth=150)
-        self.tree.column("sku", width=120, minwidth=80)
-        self.tree.column("package", width=120, minwidth=80)
-        self.tree.column("supplier", width=150, minwidth=100)
+        self.tree.column("sku", width=100, minwidth=80)
+        self.tree.column("package", width=100, minwidth=80)
+        self.tree.column("supplier", width=130, minwidth=100)
+
+        # Feature 059: Configure tag styles for provisional products
+        # Using both color AND icon/text for accessibility (not color-only)
+        self.tree.tag_configure(
+            "provisional",
+            background="#FFE4B5",  # Moccasin/light orange background
+        )
+        self.tree.tag_configure(
+            "complete",
+            background="",  # Default background
+        )
 
         # Add vertical scrollbar
         y_scrollbar = ttk.Scrollbar(
@@ -2361,6 +2496,8 @@ class MaterialProductsTab:
                             products.append({
                                 "id": _get_value(prod, "id"),
                                 "name": _get_value(prod, "name"),
+                                "slug": _get_value(prod, "slug") or "",
+                                "brand": _get_value(prod, "brand") or "",
                                 "material_name": mat_name,
                                 "material_id": mat_id,
                                 "base_unit": mat_base_unit,
@@ -2371,6 +2508,7 @@ class MaterialProductsTab:
                                 "supplier_id": _get_value(prod, "supplier_id"),
                                 "sku": _get_value(prod, "sku") or "",
                                 "notes": _get_value(prod, "notes") or "",
+                                "is_provisional": _get_value(prod, "is_provisional") or False,
                             })
         except Exception as e:
             print(f"Error loading products: {e}")
@@ -2396,14 +2534,24 @@ class MaterialProductsTab:
 
         # Populate grid
         for prod in filtered:
+            # Feature 059: Determine status text and tag
+            is_provisional = prod.get("is_provisional", False)
+            if is_provisional:
+                status_text = "\u26a0 Needs Info"  # Warning sign + text
+                tag = "provisional"
+            else:
+                status_text = "\u2713 Complete"  # Checkmark + text
+                tag = "complete"
+
             values = (
+                status_text,
                 prod.get("material_name", ""),
                 prod.get("name", ""),
                 prod.get("sku", "") or "-",
                 prod.get("package_display", ""),
                 prod.get("supplier_name", "") or "-",
             )
-            self.tree.insert("", "end", iid=str(prod["id"]), values=values)
+            self.tree.insert("", "end", iid=str(prod["id"]), values=values, tags=(tag,))
 
         # Update status
         count = len(filtered)
@@ -2431,7 +2579,9 @@ class MaterialProductsTab:
             ]
 
         # Apply sorting
+        # Feature 059: Added status column for sorting
         sort_key_map = {
+            "status": "is_provisional",
             "material": "material_name",
             "name": "name",
             "sku": "sku",
@@ -2492,13 +2642,13 @@ class MaterialProductsTab:
         """Enable buttons that require selection."""
         self.edit_button.configure(state="normal")
         self.purchase_button.configure(state="normal")
-        self.adjust_button.configure(state="normal")
+        # Feature 058: adjust_button removed - incompatible with FIFO tracking
 
     def _disable_selection_buttons(self):
         """Disable buttons that require selection."""
         self.edit_button.configure(state="disabled")
         self.purchase_button.configure(state="disabled")
-        self.adjust_button.configure(state="disabled")
+        # Feature 058: adjust_button removed - incompatible with FIFO tracking
 
     def _add_product(self):
         """Open dialog to add a new product."""
@@ -2512,14 +2662,19 @@ class MaterialProductsTab:
 
         if dialog.result:
             try:
+                # Feature 059: Include brand and is_provisional in create
+                # Products created via UI with all fields are not provisional
+                is_provisional = not dialog.result.get("is_complete", False)
                 material_catalog_service.create_product(
                     material_id=dialog.result["material_id"],
                     name=dialog.result["name"],
                     package_quantity=dialog.result["package_quantity"],
                     package_unit=dialog.result["package_unit"],
+                    brand=dialog.result.get("brand"),
                     supplier_id=dialog.result.get("supplier_id"),
                     sku=dialog.result.get("sku"),
                     notes=dialog.result.get("notes"),
+                    is_provisional=is_provisional,
                 )
                 self.refresh()
                 self.update_status(f"Created product: {dialog.result['name']}")
@@ -2554,21 +2709,52 @@ class MaterialProductsTab:
 
         if dialog.result:
             try:
+                # Feature 059: Include brand in update and handle is_provisional clearing
+                was_provisional = dialog.result.get("was_provisional", False)
+                is_complete = dialog.result.get("is_complete", False)
+
+                # Feature 059: If product was provisional and is now complete,
+                # clear the is_provisional flag
+                new_is_provisional = None
+                if was_provisional and is_complete:
+                    new_is_provisional = False
+
                 material_catalog_service.update_product(
                     product_id=dialog.result["id"],
-                    material_id=dialog.result["material_id"],
-                    package_quantity=dialog.result["package_quantity"],
-                    package_unit=dialog.result["package_unit"],
+                    name=dialog.result["name"],
+                    brand=dialog.result.get("brand"),
                     supplier_id=dialog.result.get("supplier_id"),
                     sku=dialog.result.get("sku"),
                     notes=dialog.result.get("notes"),
+                    is_provisional=new_is_provisional,
                 )
+
+                if was_provisional and is_complete:
+                    self.update_status(
+                        f"Updated product: {dialog.result['name']} "
+                        "(Product completed! No longer provisional.)"
+                    )
+                else:
+                    self.update_status(f"Updated product: {dialog.result['name']}")
+
                 self.refresh()
-                self.update_status(f"Updated product: {dialog.result['name']}")
             except ValidationError as e:
                 messagebox.showerror("Error", str(e))
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to update product: {e}")
+
+    def _clear_provisional_flag(self, product_id: int):
+        """Feature 059: Clear is_provisional flag when product is complete."""
+        from src.services.database import session_scope
+        from src.models.material_product import MaterialProduct
+
+        with session_scope() as session:
+            product = session.query(MaterialProduct).filter(
+                MaterialProduct.id == product_id
+            ).first()
+            if product:
+                product.is_provisional = False
+                session.flush()
 
     def _record_purchase(self):
         """Open dialog to record a purchase."""

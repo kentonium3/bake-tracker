@@ -1070,6 +1070,7 @@ def update_product(
     supplier_id: Optional[int] = None,
     sku: Optional[str] = None,
     is_hidden: Optional[bool] = None,
+    is_provisional: Optional[bool] = None,
     notes: Optional[str] = None,
     slug: Optional[str] = None,
     session: Optional[Session] = None,
@@ -1077,8 +1078,9 @@ def update_product(
     """
     Update product fields. Cannot change package_quantity or package_unit.
 
-    Feature 059: When updating a provisional product, if all required fields
-    become complete, is_provisional is automatically cleared.
+    Feature 059: Added is_provisional parameter for provisional product enrichment.
+    When updating a provisional product, if all required fields become complete,
+    is_provisional is automatically cleared.
 
     Args:
         product_id: Product ID to update
@@ -1087,6 +1089,7 @@ def update_product(
         supplier_id: New supplier ID (optional)
         sku: New SKU (optional)
         is_hidden: Hide/show product (optional)
+        is_provisional: Mark as provisional/complete (optional, F059)
         notes: New notes (optional)
         slug: New slug (optional)
         session: Optional database session
@@ -1119,6 +1122,10 @@ def update_product(
 
         if is_hidden is not None:
             product.is_hidden = is_hidden
+
+        # Feature 059: Allow updating is_provisional flag
+        if is_provisional is not None:
+            product.is_provisional = is_provisional
 
         if notes is not None:
             product.notes = notes
