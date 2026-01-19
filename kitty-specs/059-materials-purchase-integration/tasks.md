@@ -215,7 +215,7 @@
 ### Included Subtasks
 - [x] T037 Add provisional indicator to MaterialProductsTab table (icon or badge column)
 - [x] T038 Show "Needs enrichment" visual indicator for is_provisional=True products
-- [ ] T039 Update product edit dialog to track completeness during editing
+- [x] T039 Update product edit dialog to track completeness during editing
 - [ ] T040 Auto-clear is_provisional flag on save when completeness criteria met
 
 ### Implementation Notes
