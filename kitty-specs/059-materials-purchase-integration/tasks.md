@@ -156,7 +156,7 @@
 - [x] T028 Add live preview calculation (color-coded: gray/green/red)
 - [x] T029 Add notes field (optional, records adjustment reason)
 - [x] T030 Wire to MaterialInventoryService.adjust_inventory() on save
-- [ ] T031 Handle validation (non-negative result, valid percentage)
+- [x] T031 Handle validation (non-negative result, valid percentage)
 
 ### Implementation Notes
 - Follow CTkToplevel dialog patterns from research.md
