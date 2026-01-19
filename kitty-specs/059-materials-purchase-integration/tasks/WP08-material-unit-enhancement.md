@@ -8,12 +8,12 @@ subtasks:
   - "T045"
 title: "MaterialUnit UI Enhancement"
 phase: "Wave 2 - Extended Features"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "13142"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-18T00:00:00Z"
@@ -441,3 +441,4 @@ Manual testing:
 - 2026-01-19T03:13:59Z – claude-opus – shell_pid=9582 – lane=doing – Started implementation via workflow command
 - 2026-01-19T03:22:37Z – claude-opus – shell_pid=9582 – lane=for_review – Ready for review: MaterialUnit dialog now shows inherited unit type, dynamic quantity labels, consumption preview, and locks quantity to 1 for 'each' materials. All 2511 tests pass.
 - 2026-01-19T03:29:16Z – claude-opus – shell_pid=13142 – lane=doing – Started review via workflow command
+- 2026-01-19T03:29:50Z – claude-opus – shell_pid=13142 – lane=done – Review passed: All success criteria met - unit type display, dynamic labels, consumption preview, quantity locking for 'each' materials. Code is well-documented with dark mode support. All 2511 tests pass.
