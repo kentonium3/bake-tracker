@@ -27,8 +27,8 @@ Example Usage:
 """
 
 from typing import Dict, Any, List, Optional
-from decimal import Decimal
-from datetime import date
+from decimal import Decimal, ROUND_HALF_UP
+from datetime import date, datetime
 
 from sqlalchemy.orm import Session, joinedload
 
@@ -37,6 +37,7 @@ from .database import session_scope
 from .exceptions import (
     ValidationError as ServiceValidationError,
     DatabaseError,
+    MaterialInventoryItemNotFoundError,
 )
 from .material_unit_converter import (
     convert_to_base_units,
@@ -412,3 +413,94 @@ def get_total_inventory_value(
     else:
         with session_scope() as sess:
             return _do_calculate(sess)
+
+
+def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
+    """Convert a MaterialInventoryItem to a dictionary."""
+    return item.to_dict()
+
+
+def adjust_inventory(
+    inventory_item_id: int,
+    adjustment_type: str,  # "add", "subtract", "set", "percentage"
+    value: Decimal,
+    notes: Optional[str] = None,
+    session: Optional[Session] = None,
+) -> Dict[str, Any]:
+    """Adjust inventory quantity for a MaterialInventoryItem.
+
+    Args:
+        inventory_item_id: The MaterialInventoryItem ID to adjust
+        adjustment_type: One of "add", "subtract", "set", "percentage"
+            - "add": Add value to current quantity
+            - "subtract": Subtract value from current quantity
+            - "set": Set quantity to exact value
+            - "percentage": Set to percentage of CURRENT quantity (0-100)
+        value: The adjustment value (units for add/subtract/set, percent for percentage)
+        notes: Optional adjustment reason for audit trail
+        session: Optional database session
+
+    Returns:
+        Dict with updated inventory item data
+
+    Raises:
+        MaterialInventoryItemNotFoundError: If item doesn't exist
+        ValidationError: If adjustment would result in negative quantity
+    """
+    if session is not None:
+        return _adjust_inventory_impl(inventory_item_id, adjustment_type, value, notes, session)
+    with session_scope() as sess:
+        return _adjust_inventory_impl(inventory_item_id, adjustment_type, value, notes, sess)
+
+
+def _adjust_inventory_impl(
+    inventory_item_id: int,
+    adjustment_type: str,
+    value: Decimal,
+    notes: Optional[str],
+    session: Session,
+) -> Dict[str, Any]:
+    # Fetch the inventory item
+    item = session.query(MaterialInventoryItem).filter_by(id=inventory_item_id).first()
+    if not item:
+        raise MaterialInventoryItemNotFoundError(inventory_item_id)
+
+    current_qty = Decimal(str(item.quantity_remaining))
+
+    # Calculate new quantity based on adjustment type
+    if adjustment_type == "add":
+        new_qty = current_qty + value
+    elif adjustment_type == "subtract":
+        new_qty = current_qty - value
+    elif adjustment_type == "set":
+        new_qty = value
+    elif adjustment_type == "percentage":
+        # Percentage is 0-100, representing percentage of CURRENT remaining
+        if value < 0 or value > 100:
+            raise ServiceValidationError([f"Percentage must be 0-100, got: {value}"])
+        new_qty = (current_qty * value) / Decimal("100")
+        # Round to reasonable precision (2 decimal places for materials)
+        new_qty = new_qty.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    else:
+        raise ServiceValidationError([f"Invalid adjustment_type: {adjustment_type}"])
+
+    # Validate non-negative
+    if new_qty < 0:
+        raise ServiceValidationError(
+            [f"Adjustment would result in negative quantity: {new_qty}. "
+            f"Current: {current_qty}, Adjustment: {adjustment_type} {value}"]
+        )
+
+    # Update the item
+    item.quantity_remaining = float(new_qty)
+    if notes:
+        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        adjustment_note = f"[{timestamp}] Adjustment ({adjustment_type}): {notes}"
+        if item.notes:
+            item.notes = f"{item.notes}\n{adjustment_note}"
+        else:
+            item.notes = adjustment_note
+
+    session.commit()
+
+    return _inventory_item_to_dict(item)

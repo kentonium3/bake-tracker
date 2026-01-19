@@ -177,6 +177,19 @@ class InventoryItemNotFound(ServiceError):
         super().__init__(f"Inventory item with ID {inventory_item_id} not found")
 
 
+class MaterialInventoryItemNotFoundError(ServiceError):
+    """Raised when material inventory item cannot be found by ID.
+
+    Args:
+        inventory_item_id: The material inventory item ID that was not found
+    """
+
+    def __init__(self, inventory_item_id: int):
+        self.inventory_item_id = inventory_item_id
+        super().__init__(f"Material inventory item with ID {inventory_item_id} not found")
+
+
+
 class PurchaseNotFound(ServiceError):
     """Raised when purchase record cannot be found by ID.
 
