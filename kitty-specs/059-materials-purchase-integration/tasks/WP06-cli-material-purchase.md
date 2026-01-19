@@ -8,7 +8,7 @@ subtasks:
   - "T036"
 title: "CLI Material Purchase Extension"
 phase: "Wave 2 - Extended Features"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "97888"
@@ -616,3 +616,4 @@ python src/utils/import_export_cli.py purchase-material --name "Test" --qty 1 --
 - 2026-01-19T02:36:37Z – claude-opus – shell_pid=97888 – lane=planned – Moved to planned
 - 2026-01-19T02:38:14Z – claude-opus – shell_pid=97888 – lane=doing – Addressing review feedback: Adding is_provisional field
 - 2026-01-19T02:47:54Z – claude-opus – shell_pid=97888 – lane=for_review – Fixed: Added is_provisional field to MaterialProduct model, updated create_product() service, CLI passes is_provisional=True, added test to verify flag. All 2521 tests pass.
+- 2026-01-19T02:53:02Z – claude-opus – shell_pid=97888 – lane=done – Review passed: Fixed is_provisional field - added to model, service, CLI, and tests. All 10 purchase-material tests pass.
