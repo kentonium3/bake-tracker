@@ -652,3 +652,220 @@ class TestHierarchyIntegration:
 
         # Now can delete category (no subcategories)
         delete_category(cat.id, session=db_session)
+
+
+# ============================================================================
+# Provisional Product Tests (Feature 059)
+# ============================================================================
+
+
+@pytest.fixture
+def sample_each_material(test_db, sample_subcategory):
+    """Create a sample material with 'each' base unit type for tests."""
+    session = test_db()
+    return create_material(
+        sample_subcategory.id,
+        "Gift Boxes",
+        "each",
+        session=session,
+    )
+
+
+class TestProvisionalProductLifecycle:
+    """Tests for provisional product creation and enrichment (Feature 059)."""
+
+    def test_create_provisional_product(self, db_session, sample_each_material):
+        """Test creating a product with is_provisional=True."""
+        prod = create_product(
+            sample_each_material.id,
+            "Test Bags",
+            50,
+            "each",
+            is_provisional=True,
+            session=db_session,
+        )
+
+        assert prod.is_provisional is True
+        assert prod.name == "Test Bags"
+
+    def test_create_non_provisional_product_default(self, db_session, sample_each_material):
+        """Test that is_provisional defaults to False."""
+        prod = create_product(
+            sample_each_material.id,
+            "Test Bags",
+            50,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        assert prod.is_provisional is False
+
+    def test_check_completeness_complete_product(self, db_session, sample_each_material):
+        """Test completeness check for a product with all required fields."""
+        from src.services.material_catalog_service import check_provisional_completeness
+
+        prod = create_product(
+            sample_each_material.id,
+            "Complete Product",
+            50,
+            "each",
+            brand="TestBrand",
+            slug="complete_product",
+            session=db_session,
+        )
+
+        is_complete, missing = check_provisional_completeness(prod.id, session=db_session)
+
+        assert is_complete is True
+        assert missing == []
+
+    def test_check_completeness_missing_brand(self, db_session, sample_each_material):
+        """Test completeness check when brand is missing."""
+        from src.services.material_catalog_service import check_provisional_completeness
+
+        prod = create_product(
+            sample_each_material.id,
+            "Incomplete Product",
+            50,
+            "each",
+            # No brand provided
+            session=db_session,
+        )
+
+        is_complete, missing = check_provisional_completeness(prod.id, session=db_session)
+
+        assert is_complete is False
+        assert "brand" in missing
+
+    def test_check_completeness_multiple_missing_fields(self, db_session, sample_each_material):
+        """Test completeness check reports all missing fields."""
+        from src.services.material_catalog_service import check_provisional_completeness
+
+        # Create a minimal provisional product
+        prod = create_product(
+            sample_each_material.id,
+            "Minimal Product",
+            50,
+            "each",
+            is_provisional=True,
+            session=db_session,
+        )
+        # Note: name, material_id, package_quantity, package_unit, and slug are all set
+        # Only brand should be missing
+
+        is_complete, missing = check_provisional_completeness(prod.id, session=db_session)
+
+        assert is_complete is False
+        assert "brand" in missing
+
+    def test_check_completeness_product_not_found(self, db_session):
+        """Test completeness check raises error for non-existent product."""
+        from src.services.material_catalog_service import check_provisional_completeness
+
+        with pytest.raises(ValidationError) as exc_info:
+            check_provisional_completeness(99999, session=db_session)
+
+        assert "not found" in str(exc_info.value).lower()
+
+    def test_auto_promote_on_enrichment(self, db_session, sample_each_material):
+        """Test that provisional product auto-promotes when enriched with all required fields."""
+        # Create provisional product without brand
+        prod = create_product(
+            sample_each_material.id,
+            "Provisional Product",
+            50,
+            "each",
+            is_provisional=True,
+            session=db_session,
+        )
+        assert prod.is_provisional is True
+
+        # Update with brand (completing the product)
+        updated = update_product(prod.id, brand="TestBrand", session=db_session)
+
+        assert updated.is_provisional is False
+
+    def test_no_auto_promote_if_still_incomplete(self, db_session, sample_each_material):
+        """Test that provisional product stays provisional if still incomplete after update."""
+        # Create provisional product without brand
+        prod = create_product(
+            sample_each_material.id,
+            "Provisional Product",
+            50,
+            "each",
+            is_provisional=True,
+            session=db_session,
+        )
+        assert prod.is_provisional is True
+
+        # Update with notes only (not completing the product - brand still missing)
+        updated = update_product(prod.id, notes="Some notes", session=db_session)
+
+        assert updated.is_provisional is True
+
+    def test_non_provisional_not_affected_by_update(self, db_session, sample_each_material):
+        """Test that non-provisional products are not affected by auto-promote logic."""
+        # Create a complete non-provisional product
+        prod = create_product(
+            sample_each_material.id,
+            "Complete Product",
+            50,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+        assert prod.is_provisional is False
+
+        # Update some field
+        updated = update_product(prod.id, name="Renamed Product", session=db_session)
+
+        # Should still be non-provisional
+        assert updated.is_provisional is False
+
+    def test_list_products_includes_provisional_flag(self, db_session, sample_each_material):
+        """Test that list_products includes is_provisional in the returned dict."""
+        # Create one provisional and one complete product
+        create_product(
+            sample_each_material.id,
+            "Provisional",
+            50,
+            "each",
+            is_provisional=True,
+            session=db_session,
+        )
+        create_product(
+            sample_each_material.id,
+            "Complete",
+            50,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        products = list_products(material_id=sample_each_material.id, session=db_session)
+
+        # Both should have is_provisional key
+        assert all("is_provisional" in p for p in products)
+
+        # Find each product by name
+        provisional = next(p for p in products if p["name"] == "Provisional")
+        complete = next(p for p in products if p["name"] == "Complete")
+
+        assert provisional["is_provisional"] is True
+        assert complete["is_provisional"] is False
+
+    def test_update_product_with_slug(self, db_session, sample_each_material):
+        """Test that update_product can update the slug field."""
+        prod = create_product(
+            sample_each_material.id,
+            "Test Product",
+            50,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        updated = update_product(prod.id, slug="custom_slug", session=db_session)
+
+        assert updated.slug == "custom_slug"
