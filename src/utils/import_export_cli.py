@@ -1818,6 +1818,292 @@ def import_view_cmd(
         return 1
 
 
+# ============================================================================
+# F059 Material Purchase CLI Command
+# ============================================================================
+
+
+def lookup_material_product(identifier: str) -> Optional[dict]:
+    """Look up a MaterialProduct by name or slug.
+
+    Args:
+        identifier: Product name or slug to search for
+
+    Returns:
+        Product dict if found, None otherwise
+    """
+    from src.services.material_catalog_service import list_products
+    from src.models.material_product import MaterialProduct
+    from src.services.database import session_scope
+
+    # Try slug lookup first (exact match via direct query)
+    with session_scope() as session:
+        product = (
+            session.query(MaterialProduct)
+            .filter(MaterialProduct.slug == identifier)
+            .first()
+        )
+        if product:
+            # Get material for base_unit_type
+            return {
+                "id": product.id,
+                "name": product.name,
+                "slug": product.slug,
+                "material_id": product.material_id,
+                "brand": product.brand,
+                "package_quantity": product.package_quantity,
+                "package_unit": product.package_unit,
+                "quantity_in_base_units": product.quantity_in_base_units,
+                "is_provisional": product.is_provisional,
+            }
+
+    # Try name lookup (case-insensitive)
+    products = list_products(include_hidden=False)
+    for p in products:
+        if p["name"].lower() == identifier.lower():
+            return p
+
+    # Try partial name match
+    matches = [p for p in products if identifier.lower() in p["name"].lower()]
+    if len(matches) == 1:
+        return matches[0]
+    elif len(matches) > 1:
+        # Multiple matches - return None and let caller handle
+        print(f"Multiple products match '{identifier}':")
+        for i, m in enumerate(matches, 1):
+            print(f"  {i}. {m['name']} ({m.get('brand', 'No brand')})")
+        return None
+
+    return None
+
+
+def validate_new_product_args(args) -> tuple:
+    """Validate arguments for creating a new provisional product.
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not args.name:
+        return False, "Product name is required (--name)"
+    if not args.material_id:
+        return False, "Material ID is required (--material-id)"
+    if not args.package_size:
+        return False, "Package size is required (--package-size)"
+    if not args.package_unit:
+        return False, "Package unit is required (--package-unit)"
+    return True, ""
+
+
+def prompt_for_material() -> Optional[int]:
+    """Interactively prompt user to select a material.
+
+    Returns:
+        Material ID or None if cancelled
+    """
+    from src.services.material_catalog_service import list_materials
+
+    materials = list_materials()
+    if not materials:
+        print("No materials found. Create materials first.")
+        return None
+
+    print("\nAvailable materials:")
+    for i, m in enumerate(materials, 1):
+        print(f"  {i}. {m['name']} ({m['base_unit_type']})")
+
+    try:
+        choice = input("\nSelect material number (or 'q' to quit): ").strip()
+        if choice.lower() == 'q':
+            return None
+        idx = int(choice) - 1
+        if 0 <= idx < len(materials):
+            return materials[idx]['id']
+        print("Invalid selection")
+        return None
+    except (ValueError, KeyboardInterrupt):
+        return None
+
+
+def format_purchase_success(product: dict, purchase_result: dict, created_provisional: bool) -> str:
+    """Format success message for purchase."""
+    lines = []
+
+    if created_provisional:
+        lines.append("=" * 50)
+        lines.append("PROVISIONAL PRODUCT CREATED")
+        lines.append(f"  Name: {product['name']}")
+        lines.append(f"  ID: {product['id']}")
+        lines.append("  (Complete product details in UI to remove provisional status)")
+        lines.append("=" * 50)
+
+    lines.append("")
+    lines.append("PURCHASE RECORDED")
+    lines.append(f"  Product: {product.get('name', 'N/A')}")
+    lines.append(f"  Packages: {purchase_result.get('packages_purchased', 'N/A')}")
+    lines.append(f"  Total Cost: ${float(purchase_result.get('total_cost', 0)):.2f}")
+    lines.append(f"  Units Added: {purchase_result.get('units_added', 'N/A'):.2f}")
+    lines.append(f"  Unit Cost: ${float(purchase_result.get('unit_cost', 0)):.4f}/unit")
+    lines.append(f"  Date: {purchase_result.get('purchase_date', 'today')}")
+
+    return "\n".join(lines)
+
+
+def format_error(error_type: str, message: str, suggestions: list = None) -> str:
+    """Format error message with suggestions."""
+    lines = [f"ERROR: {error_type}", f"  {message}"]
+
+    if suggestions:
+        lines.append("")
+        lines.append("Suggestions:")
+        for s in suggestions:
+            lines.append(f"  - {s}")
+
+    return "\n".join(lines)
+
+
+def handle_material_purchase(args) -> int:
+    """Handle the purchase-material command."""
+    from src.services.material_catalog_service import create_product, list_materials
+    from src.services.material_purchase_service import record_purchase
+    from src.models.supplier import Supplier
+    from src.services.database import session_scope
+    from decimal import Decimal
+    from datetime import date as date_type, datetime
+
+    product = None
+    created_provisional = False
+
+    # Validate mutual exclusivity of --product and --name
+    if args.product and args.name:
+        print(format_error(
+            "Invalid arguments",
+            "Cannot specify both --product and --name",
+            ["Use --product to purchase existing product", "Use --name to create new provisional product"]
+        ))
+        return 1
+
+    if args.product:
+        # Look up existing product
+        product = lookup_material_product(args.product)
+        if not product:
+            print(format_error(
+                "Product not found",
+                f"No product found matching '{args.product}'",
+                ["Use --name to create a new provisional product", "Check product name/slug spelling"]
+            ))
+            return 1
+
+    elif args.name:
+        # Create provisional product
+        is_valid, error = validate_new_product_args(args)
+        if not is_valid:
+            print(format_error("Missing required field", error))
+            return 1
+
+        try:
+            # Generate slug from name
+            slug = args.name.lower().replace(" ", "-")
+            # Remove special characters
+            import re
+            slug = re.sub(r'[^a-z0-9\-]', '', slug)
+            slug = re.sub(r'-+', '-', slug).strip('-')
+
+            product = create_product(
+                material_id=args.material_id,
+                name=args.name,
+                package_quantity=args.package_size,
+                package_unit=args.package_unit,
+                slug=slug,
+                notes="Created as provisional product via CLI",
+                is_provisional=True,
+            )
+            # Convert ORM object to dict
+            product = {
+                "id": product.id,
+                "name": product.name,
+                "slug": product.slug,
+                "material_id": product.material_id,
+                "brand": product.brand,
+                "package_quantity": product.package_quantity,
+                "package_unit": product.package_unit,
+                "quantity_in_base_units": product.quantity_in_base_units,
+                "is_provisional": product.is_provisional,
+            }
+            created_provisional = True
+            print(f"Created provisional product: {product['name']} (ID: {product['id']})")
+
+        except Exception as e:
+            print(format_error("Product creation failed", str(e)))
+            return 1
+
+    else:
+        print(format_error(
+            "Missing argument",
+            "Either --product or --name must be provided",
+            ["--product: Look up existing product by name or slug", "--name: Create new provisional product"]
+        ))
+        return 1
+
+    # Parse purchase date
+    purchase_date = date_type.today()
+    if args.date:
+        try:
+            purchase_date = datetime.strptime(args.date, "%Y-%m-%d").date()
+        except ValueError:
+            print(format_error("Invalid date", "Date format must be YYYY-MM-DD"))
+            return 1
+
+    # Get or create a default supplier for CLI purchases
+    with session_scope() as session:
+        # Look for a "CLI Purchase" or general supplier
+        supplier = session.query(Supplier).filter(
+            Supplier.name.ilike("%cli%")
+        ).first()
+
+        if not supplier:
+            # Try to find any active supplier
+            supplier = session.query(Supplier).filter(
+                Supplier.is_active == True  # noqa: E712
+            ).first()
+
+        if not supplier:
+            print(format_error(
+                "No supplier found",
+                "No active suppliers in database",
+                ["Create a supplier first via the UI or import"]
+            ))
+            return 1
+
+        supplier_id = supplier.id
+
+    # Record the purchase
+    try:
+        purchase = record_purchase(
+            product_id=product["id"],
+            supplier_id=supplier_id,
+            purchase_date=purchase_date,
+            packages_purchased=int(args.qty),
+            package_price=Decimal(str(args.cost / args.qty)),  # Cost per package
+            notes=args.notes,
+        )
+
+        # Build result dict for display
+        purchase_result = {
+            "packages_purchased": int(args.qty),
+            "total_cost": Decimal(str(args.cost)),
+            "units_added": purchase.units_added,
+            "unit_cost": purchase.unit_cost,
+            "purchase_date": purchase_date,
+        }
+
+        print(format_purchase_success(product, purchase_result, created_provisional))
+        return 0
+
+    except Exception as e:
+        print(format_error("Purchase recording failed", str(e)))
+        return 1
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -2194,6 +2480,62 @@ supported. Use the 'import' command with a complete v3.2 format file.
         help="Combined catalog JSON file to validate (e.g., catalog.json)"
     )
 
+    # F059: Material purchase command
+    mat_purchase_parser = subparsers.add_parser(
+        "purchase-material",
+        help="Record a material purchase (creates provisional product if needed)"
+    )
+    mat_purchase_parser.add_argument(
+        "--product",
+        type=str,
+        help="Existing product name or slug (for lookup)"
+    )
+    mat_purchase_parser.add_argument(
+        "--name",
+        type=str,
+        help="New product name (creates provisional product)"
+    )
+    mat_purchase_parser.add_argument(
+        "--material-id",
+        type=int,
+        dest="material_id",
+        help="Material ID to link product to (required for new products)"
+    )
+    mat_purchase_parser.add_argument(
+        "--qty",
+        type=float,
+        required=True,
+        help="Quantity purchased (number of packages)"
+    )
+    mat_purchase_parser.add_argument(
+        "--package-size",
+        type=float,
+        dest="package_size",
+        help="Units per package (required for new products)"
+    )
+    mat_purchase_parser.add_argument(
+        "--package-unit",
+        type=str,
+        dest="package_unit",
+        help="Package unit (e.g., 'each', 'feet', 'yards') - required for new products"
+    )
+    mat_purchase_parser.add_argument(
+        "--cost",
+        type=float,
+        required=True,
+        help="Total cost of purchase"
+    )
+    mat_purchase_parser.add_argument(
+        "--date",
+        type=str,
+        help="Purchase date (YYYY-MM-DD, defaults to today)"
+    )
+    mat_purchase_parser.add_argument(
+        "--notes",
+        type=str,
+        help="Optional notes for the purchase"
+    )
+
     args = parser.parse_args()
 
     if args.command is None:
@@ -2269,6 +2611,8 @@ supported. Use the 'import' command with a complete v3.2 format file.
         return catalog_import_cmd(args.input_file, args.import_mode, args.dry_run)
     elif args.command == "catalog-validate":
         return catalog_validate_cmd(args.input_file)
+    elif args.command == "purchase-material":
+        return handle_material_purchase(args)
     else:
         print(f"Unknown command: {args.command}")
         return 1

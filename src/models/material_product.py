@@ -43,6 +43,7 @@ class MaterialProduct(BaseModel):
         package_unit: Unit of package (e.g., 'feet', 'yards', 'each')
         quantity_in_base_units: Converted quantity in base units (cm)
         is_hidden: Hide from selection lists
+        is_provisional: Product created with minimal info, needs completion (F059)
         notes: User notes
 
     Relationships:
@@ -82,8 +83,10 @@ class MaterialProduct(BaseModel):
     # Feature 058: Removed current_inventory and weighted_avg_cost fields
     # Inventory and costing now tracked via MaterialInventoryItem (FIFO)
 
-    # Visibility
+    # Visibility and status
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
+    # Feature 059: Provisional products created via CLI with minimal info
+    is_provisional = Column(Boolean, nullable=False, default=False, index=True)
 
     # Feature 059: Provisional product support
     # Provisional products are created with minimal metadata and can be enriched later

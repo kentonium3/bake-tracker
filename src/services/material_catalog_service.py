@@ -884,8 +884,7 @@ def create_product(
         sku: Supplier SKU (optional)
         slug: URL-friendly identifier (auto-generated if not provided)
         notes: Optional notes
-        is_provisional: Mark as provisional product (default False). Provisional products
-            can be created with minimal metadata and enriched later through the UI.
+        is_provisional: Mark as provisional product needing enrichment (F059)
         session: Optional database session
 
     Returns:
