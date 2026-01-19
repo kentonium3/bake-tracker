@@ -25,6 +25,11 @@ from src.services.material_inventory_service import (
     validate_inventory_availability,
     get_inventory_by_material,
     get_total_inventory_value,
+    adjust_inventory,
+)
+from src.services.exceptions import (
+    MaterialInventoryItemNotFoundError,
+    ValidationError as ServiceValidationError,
 )
 
 
@@ -594,3 +599,264 @@ class TestSessionManagement:
                 id=setup_two_lots["lot_a_id"]
             ).first()
             assert lot_a.quantity_remaining == 100.0
+
+
+# =============================================================================
+# Feature 059: Inventory Adjustment Tests
+# =============================================================================
+
+
+class TestAdjustInventory:
+    """Tests for adjust_inventory() function - F059."""
+
+    def test_adjust_add(self, setup_two_lots):
+        """Test adding to inventory quantity."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "add",
+            Decimal("25"),
+            notes="Found extra",
+        )
+
+        assert result["quantity_remaining"] == Decimal("125")
+
+        # Verify in database
+        with session_scope() as session:
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            assert item.quantity_remaining == 125.0
+
+    def test_adjust_subtract(self, setup_two_lots):
+        """Test subtracting from inventory quantity."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "subtract",
+            Decimal("30"),
+            notes="Used untracked",
+        )
+
+        assert result["quantity_remaining"] == Decimal("70")
+
+        # Verify in database
+        with session_scope() as session:
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            assert item.quantity_remaining == 70.0
+
+    def test_adjust_set(self, setup_two_lots):
+        """Test setting exact inventory quantity."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "set",
+            Decimal("50"),
+            notes="Physical count",
+        )
+
+        assert result["quantity_remaining"] == Decimal("50")
+
+        # Verify in database
+        with session_scope() as session:
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            assert item.quantity_remaining == 50.0
+
+    def test_adjust_percentage_50(self, setup_two_lots):
+        """Test 50% adjustment (half remaining)."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "percentage",
+            Decimal("50"),
+            notes="Half used",
+        )
+
+        assert result["quantity_remaining"] == Decimal("50.00")
+
+    def test_adjust_percentage_zero(self, setup_two_lots):
+        """Test 0% adjustment (fully depleted)."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "percentage",
+            Decimal("0"),
+        )
+
+        assert result["quantity_remaining"] == Decimal("0")
+
+    def test_adjust_percentage_100(self, setup_two_lots):
+        """Test 100% adjustment (no change)."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "percentage",
+            Decimal("100"),
+        )
+
+        assert result["quantity_remaining"] == Decimal("100.00")
+
+    def test_adjust_negative_result_raises(self, setup_two_lots):
+        """Test that negative result raises ValidationError."""
+        with pytest.raises(ServiceValidationError) as exc:
+            adjust_inventory(
+                setup_two_lots["lot_a_id"],
+                "subtract",
+                Decimal("200"),  # More than available (100)
+            )
+
+        assert "negative quantity" in str(exc.value).lower()
+
+    def test_adjust_invalid_percentage_above_100_raises(self, setup_two_lots):
+        """Test that percentage > 100 raises ValidationError."""
+        with pytest.raises(ServiceValidationError) as exc:
+            adjust_inventory(
+                setup_two_lots["lot_a_id"],
+                "percentage",
+                Decimal("150"),
+            )
+
+        assert "0-100" in str(exc.value)
+
+    def test_adjust_invalid_percentage_below_0_raises(self, setup_two_lots):
+        """Test that percentage < 0 raises ValidationError."""
+        with pytest.raises(ServiceValidationError) as exc:
+            adjust_inventory(
+                setup_two_lots["lot_a_id"],
+                "percentage",
+                Decimal("-10"),
+            )
+
+        assert "0-100" in str(exc.value)
+
+    def test_adjust_invalid_type_raises(self, setup_two_lots):
+        """Test that invalid adjustment_type raises ValidationError."""
+        with pytest.raises(ServiceValidationError) as exc:
+            adjust_inventory(
+                setup_two_lots["lot_a_id"],
+                "multiply",  # Invalid type
+                Decimal("2"),
+            )
+
+        assert "invalid adjustment_type" in str(exc.value).lower()
+
+    def test_adjust_notes_stored(self, setup_two_lots):
+        """Test that adjustment notes are stored with timestamp."""
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "set",
+            Decimal("75"),
+            notes="Inventory recount",
+        )
+
+        with session_scope() as session:
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            assert "Inventory recount" in item.notes
+            assert "Adjustment (set)" in item.notes
+            # Should have timestamp format
+            assert "UTC" in item.notes
+
+    def test_adjust_notes_appended(self, setup_two_lots):
+        """Test that multiple adjustments append notes."""
+        # First adjustment
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "subtract",
+            Decimal("10"),
+            notes="First adjustment",
+        )
+
+        # Second adjustment
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "add",
+            Decimal("5"),
+            notes="Second adjustment",
+        )
+
+        with session_scope() as session:
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            assert "First adjustment" in item.notes
+            assert "Second adjustment" in item.notes
+            # Notes should be on separate lines
+            assert "\n" in item.notes
+
+    def test_adjust_without_notes(self, setup_two_lots):
+        """Test adjustment without notes (notes remain unchanged)."""
+        # First, set initial notes via adjustment
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "set",
+            Decimal("80"),
+            notes="Initial note",
+        )
+
+        # Second adjustment without notes
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "subtract",
+            Decimal("5"),
+            notes=None,  # No notes
+        )
+
+        with session_scope() as session:
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            # Original note should still be there, no new line added
+            assert "Initial note" in item.notes
+            assert item.notes.count("Adjustment") == 1  # Only one adjustment note
+
+    def test_adjust_item_not_found(self, setup_material_hierarchy):
+        """Test adjusting non-existent item raises error."""
+        with pytest.raises(MaterialInventoryItemNotFoundError):
+            adjust_inventory(
+                99999,  # Non-existent ID
+                "set",
+                Decimal("50"),
+            )
+
+    def test_adjust_with_session(self, setup_two_lots):
+        """Test adjustment works with provided session."""
+        with session_scope() as session:
+            result = adjust_inventory(
+                setup_two_lots["lot_a_id"],
+                "subtract",
+                Decimal("20"),
+                notes="Session test",
+                session=session,
+            )
+
+            assert result["quantity_remaining"] == Decimal("80")
+
+            # Verify within same session
+            item = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            assert item.quantity_remaining == 80.0
+
+    def test_adjust_set_to_zero(self, setup_two_lots):
+        """Test setting quantity to exactly zero is allowed."""
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "set",
+            Decimal("0"),
+            notes="Depleted",
+        )
+
+        assert result["quantity_remaining"] == Decimal("0")
+        assert result["is_depleted"] is True
+
+    def test_adjust_decimal_precision(self, setup_two_lots):
+        """Test that percentage adjustments maintain proper decimal precision."""
+        # Start with 100, take 33% remaining
+        result = adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "percentage",
+            Decimal("33"),
+        )
+
+        # Should be 33.00 (rounded to 2 decimal places)
+        assert result["quantity_remaining"] == Decimal("33.00")

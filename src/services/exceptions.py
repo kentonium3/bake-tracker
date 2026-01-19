@@ -263,6 +263,22 @@ class SupplierNotFoundError(ServiceError):
         super().__init__(f"Supplier with ID {supplier_id} not found")
 
 
+class MaterialInventoryItemNotFoundError(ServiceError):
+    """Raised when a material inventory item cannot be found by ID.
+
+    Args:
+        inventory_item_id: The inventory item ID that was not found
+
+    Example:
+        >>> raise MaterialInventoryItemNotFoundError(123)
+        MaterialInventoryItemNotFoundError: Material inventory item with ID 123 not found
+    """
+
+    def __init__(self, inventory_item_id: int):
+        self.inventory_item_id = inventory_item_id
+        super().__init__(f"Material inventory item with ID {inventory_item_id} not found")
+
+
 # Hierarchy Service Exceptions (Feature 031)
 
 

@@ -27,8 +27,8 @@ Example Usage:
 """
 
 from typing import Dict, Any, List, Optional
-from decimal import Decimal, ROUND_HALF_UP
-from datetime import date, datetime
+from decimal import Decimal
+from datetime import date
 
 from sqlalchemy.orm import Session, joinedload
 
@@ -415,37 +415,50 @@ def get_total_inventory_value(
             return _do_calculate(sess)
 
 
-def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
-    """Convert a MaterialInventoryItem to a dictionary."""
-    return item.to_dict()
+# =============================================================================
+# Feature 059: Inventory Adjustment Functions
+# =============================================================================
 
 
 def adjust_inventory(
     inventory_item_id: int,
-    adjustment_type: str,  # "add", "subtract", "set", "percentage"
+    adjustment_type: str,
     value: Decimal,
     notes: Optional[str] = None,
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
-    """Adjust inventory quantity for a MaterialInventoryItem.
+    """
+    Adjust inventory quantity for a MaterialInventoryItem.
+
+    Enables manual corrections for inventory discrepancies through:
+    - "add": Add value to current quantity
+    - "subtract": Subtract value from current quantity
+    - "set": Set quantity to exact value
+    - "percentage": Set to percentage of CURRENT quantity (0-100)
+
+    Notes are timestamped and appended to the item's existing notes
+    for audit trail purposes.
 
     Args:
         inventory_item_id: The MaterialInventoryItem ID to adjust
         adjustment_type: One of "add", "subtract", "set", "percentage"
-            - "add": Add value to current quantity
-            - "subtract": Subtract value from current quantity
-            - "set": Set quantity to exact value
-            - "percentage": Set to percentage of CURRENT quantity (0-100)
         value: The adjustment value (units for add/subtract/set, percent for percentage)
         notes: Optional adjustment reason for audit trail
         session: Optional database session
 
     Returns:
-        Dict with updated inventory item data
+        Dict with updated inventory item data including:
+            - id, quantity_remaining, notes, and other item fields
 
     Raises:
         MaterialInventoryItemNotFoundError: If item doesn't exist
-        ValidationError: If adjustment would result in negative quantity
+        ValidationError: If adjustment_type is invalid, percentage out of range,
+                        or result would be negative
+
+    Example:
+        >>> result = adjust_inventory(123, "subtract", Decimal("10"), notes="Used untracked")
+        >>> result["quantity_remaining"]
+        Decimal('90.00')
     """
     if session is not None:
         return _adjust_inventory_impl(inventory_item_id, adjustment_type, value, notes, session)
@@ -460,12 +473,23 @@ def _adjust_inventory_impl(
     notes: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
+    """Internal implementation of adjust_inventory."""
+    from datetime import datetime, timezone
+    from decimal import ROUND_HALF_UP
+
     # Fetch the inventory item
     item = session.query(MaterialInventoryItem).filter_by(id=inventory_item_id).first()
     if not item:
         raise MaterialInventoryItemNotFoundError(inventory_item_id)
 
     current_qty = Decimal(str(item.quantity_remaining))
+
+    # Validate adjustment_type
+    valid_types = ("add", "subtract", "set", "percentage")
+    if adjustment_type not in valid_types:
+        raise ServiceValidationError(
+            [f"Invalid adjustment_type: '{adjustment_type}'. Must be one of: {', '.join(valid_types)}"]
+        )
 
     # Calculate new quantity based on adjustment type
     if adjustment_type == "add":
@@ -475,26 +499,28 @@ def _adjust_inventory_impl(
     elif adjustment_type == "set":
         new_qty = value
     elif adjustment_type == "percentage":
-        # Percentage is 0-100, representing percentage of CURRENT remaining
+        # Percentage must be 0-100, representing "what percentage remains"
         if value < 0 or value > 100:
-            raise ServiceValidationError([f"Percentage must be 0-100, got: {value}"])
+            raise ServiceValidationError(
+                [f"Percentage must be 0-100, got: {value}"]
+            )
         new_qty = (current_qty * value) / Decimal("100")
         # Round to reasonable precision (2 decimal places for materials)
         new_qty = new_qty.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    else:
-        raise ServiceValidationError([f"Invalid adjustment_type: {adjustment_type}"])
 
-    # Validate non-negative
+    # Validate non-negative result
     if new_qty < 0:
         raise ServiceValidationError(
             [f"Adjustment would result in negative quantity: {new_qty}. "
-            f"Current: {current_qty}, Adjustment: {adjustment_type} {value}"]
+             f"Current: {current_qty}, Adjustment: {adjustment_type} {value}"]
         )
 
-    # Update the item
+    # Update the item quantity
     item.quantity_remaining = float(new_qty)
+
+    # Append adjustment notes with timestamp for audit trail
     if notes:
-        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         adjustment_note = f"[{timestamp}] Adjustment ({adjustment_type}): {notes}"
         if item.notes:
             item.notes = f"{item.notes}\n{adjustment_note}"
@@ -504,3 +530,22 @@ def _adjust_inventory_impl(
     session.commit()
 
     return _inventory_item_to_dict(item)
+
+
+def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
+    """Convert a MaterialInventoryItem to a dictionary representation."""
+    return {
+        "id": item.id,
+        "material_product_id": item.material_product_id,
+        "material_purchase_id": item.material_purchase_id,
+        "quantity_purchased": item.quantity_purchased,
+        "quantity_remaining": Decimal(str(item.quantity_remaining)),
+        "cost_per_unit": item.cost_per_unit,
+        "purchase_date": item.purchase_date,
+        "location": item.location,
+        "notes": item.notes,
+        "is_depleted": item.is_depleted,
+        "quantity_consumed": item.quantity_consumed,
+        "consumption_percentage": item.consumption_percentage,
+        "remaining_value": item.remaining_value,
+    }
