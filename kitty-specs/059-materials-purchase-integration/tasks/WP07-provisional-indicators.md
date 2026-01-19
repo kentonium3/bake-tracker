@@ -7,7 +7,7 @@ subtasks:
   - "T040"
 title: "Provisional Product UI Indicators"
 phase: "Wave 2 - Extended Features"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "5334"
@@ -383,3 +383,4 @@ Manual testing:
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-19T02:57:34Z – claude-opus – shell_pid=5334 – lane=doing – Started implementation via workflow command
+- 2026-01-19T03:10:11Z – claude-opus – shell_pid=5334 – lane=for_review – Ready for review: Added provisional product UI indicators - status column with visual badge, completeness tracking in edit dialog, auto-clear is_provisional on save when complete. All 2511 tests pass.
