@@ -10,12 +10,12 @@ subtasks:
   - "T024"
 title: "Material Inventory Display"
 phase: "Wave 1 - Core UI"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "83783"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies:
   - "WP02"
 history:
@@ -610,3 +610,4 @@ Manual testing:
 - 2026-01-19T01:24:22Z – claude-opus – shell_pid=81785 – lane=doing – Started implementation via workflow command
 - 2026-01-19T01:29:27Z – claude-opus – shell_pid=81785 – lane=for_review – Ready for review: Material Inventory tab with treeview, sorting, filters, item count, empty state. list_inventory_items service method added. 51 tests passing.
 - 2026-01-19T01:31:31Z – claude-opus – shell_pid=83783 – lane=doing – Started review via workflow command
+- 2026-01-19T01:32:34Z – claude-opus – shell_pid=83783 – lane=done – Review passed: Material Inventory tab implemented with treeview, sorting, filters, item count, empty state. list_inventory_items service added. 51 tests passing.
