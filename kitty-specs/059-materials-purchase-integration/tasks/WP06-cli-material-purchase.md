@@ -8,10 +8,10 @@ subtasks:
   - "T036"
 title: "CLI Material Purchase Extension"
 phase: "Wave 2 - Extended Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "93386"
 review_status: ""
 reviewed_by: ""
 dependencies:
@@ -569,3 +569,4 @@ python src/utils/import_export_cli.py purchase-material --name "Test" --qty 1 --
 ## Activity Log
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-19T02:10:38Z – claude-opus – shell_pid=93386 – lane=doing – Started implementation via workflow command
