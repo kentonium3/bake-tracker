@@ -85,7 +85,7 @@
 ### Included Subtasks
 - [x] T011 Add product type radio buttons (Food/Material) at top of form
 - [x] T012 Implement field group show/hide logic (_on_product_type_change handler)
-- [ ] T013 Create material-specific field widgets (MaterialProduct dropdown, package qty fields)
+- [x] T013 Create material-specific field widgets (MaterialProduct dropdown, package qty fields)
 - [ ] T014 Implement real-time calculation for total units and unit cost (trace handlers)
 - [ ] T015 Wire up validation for material fields (product selected, qty > 0, cost >= 0)
 - [ ] T016 Connect to MaterialPurchaseService.record_purchase() on save
