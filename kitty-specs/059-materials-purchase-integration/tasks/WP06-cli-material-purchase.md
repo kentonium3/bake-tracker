@@ -8,11 +8,11 @@ subtasks:
   - "T036"
 title: "CLI Material Purchase Extension"
 phase: "Wave 2 - Extended Features"
-lane: "done"
+lane: "planned"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "97888"
-review_status: "approved"
+review_status: "has_feedback"
 reviewed_by: "Kent Gale"
 dependencies:
   - "WP01"
@@ -37,9 +37,49 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if the work is returned from review.]*
+**Reviewed by**: Kent Gale
+**Status**: ❌ Changes Requested
+**Date**: 2026-01-19
 
----
+## Review Feedback - WP06
+
+**Issue: Missing `is_provisional` field implementation**
+
+The `is_provisional` flag is a core feature requirement from F059 spec, not optional. Both the product and materials product purchase CLI workflows depend on this field to distinguish provisional products from fully-configured ones.
+
+**Required Changes:**
+
+1. **Add `is_provisional` column to MaterialProduct model** (`src/models/material_product.py`):
+   ```python
+   is_provisional = Column(Boolean, nullable=False, default=False, index=True)
+   ```
+
+2. **Update `create_product()` in material_catalog_service.py** to accept `is_provisional` parameter:
+   ```python
+   def create_product(
+       ...
+       is_provisional: bool = False,
+       ...
+   ) -> MaterialProduct:
+   ```
+
+3. **Update CLI handler** to pass `is_provisional=True` when creating via `--name`:
+   ```python
+   product = create_product(
+       material_id=args.material_id,
+       name=args.name,
+       ...
+       is_provisional=True,  # Mark as provisional
+   )
+   ```
+
+4. **Add test** to verify provisional products are created with `is_provisional=True`
+
+**Why This Matters:**
+- UI needs to display provisional indicators (WP07 depends on this)
+- Users need to identify products requiring completion
+- The notes field workaround is not queryable/filterable
+
 
 ## Implementation Command
 
@@ -573,3 +613,4 @@ python src/utils/import_export_cli.py purchase-material --name "Test" --qty 1 --
 - 2026-01-19T02:24:32Z – claude-opus – shell_pid=93386 – lane=for_review – Implementation complete: purchase-material CLI command with product lookup, provisional creation, purchase recording, and output formatting. All 2520 tests pass.
 - 2026-01-19T02:27:23Z – claude-opus – shell_pid=97888 – lane=doing – Started review via workflow command
 - 2026-01-19T02:30:41Z – claude-opus – shell_pid=97888 – lane=done – Review passed: CLI purchase-material command complete with product lookup (slug/name/partial), provisional product creation, service integration, and 9 comprehensive tests. All success criteria met.
+- 2026-01-19T02:36:37Z – claude-opus – shell_pid=97888 – lane=planned – Moved to planned
