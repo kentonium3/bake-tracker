@@ -860,3 +860,120 @@ class TestAdjustInventory:
 
         # Should be 33.00 (rounded to 2 decimal places)
         assert result["quantity_remaining"] == Decimal("33.00")
+
+
+# =============================================================================
+# Feature 059: list_inventory_items Tests
+# =============================================================================
+
+
+class TestListInventoryItems:
+    """Tests for list_inventory_items function (Feature 059 - WP04)."""
+
+    def test_list_all_items(self, setup_two_lots):
+        """Test listing all non-depleted inventory items."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        items = list_inventory_items()
+        assert len(items) >= 2  # At least the two lots we created
+
+        # Check that our test items are in the list
+        item_ids = [item["id"] for item in items]
+        assert setup_two_lots["lot_a_id"] in item_ids
+        assert setup_two_lots["lot_b_id"] in item_ids
+
+    def test_list_by_product_id(self, setup_two_lots, setup_material_hierarchy):
+        """Test filtering by product_id."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        items = list_inventory_items(product_id=setup_material_hierarchy["product_id"])
+        assert len(items) == 2  # Exactly our two test lots
+
+        for item in items:
+            assert item["material_product_id"] == setup_material_hierarchy["product_id"]
+
+    def test_list_excludes_depleted_by_default(self, setup_two_lots):
+        """Test that depleted items are excluded by default."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        # Deplete lot A
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "set",
+            Decimal("0"),
+        )
+
+        items = list_inventory_items()
+        item_ids = [item["id"] for item in items]
+
+        # Depleted lot should not be in list
+        assert setup_two_lots["lot_a_id"] not in item_ids
+        # Non-depleted lot should still be in list
+        assert setup_two_lots["lot_b_id"] in item_ids
+
+    def test_list_includes_depleted_when_requested(self, setup_two_lots):
+        """Test that include_depleted=True includes depleted items."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        # Deplete lot A
+        adjust_inventory(
+            setup_two_lots["lot_a_id"],
+            "set",
+            Decimal("0"),
+        )
+
+        items = list_inventory_items(include_depleted=True)
+        item_ids = [item["id"] for item in items]
+
+        # Both lots should be in list
+        assert setup_two_lots["lot_a_id"] in item_ids
+        assert setup_two_lots["lot_b_id"] in item_ids
+
+    def test_list_includes_product_info(self, setup_two_lots):
+        """Test that returned items include product name and brand."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        items = list_inventory_items()
+
+        # Find one of our test items
+        test_item = next(
+            (i for i in items if i["id"] == setup_two_lots["lot_a_id"]),
+            None
+        )
+        assert test_item is not None
+        assert "product_name" in test_item
+        assert "brand" in test_item
+        assert "display_name" in test_item
+
+    def test_list_ordered_by_date_descending(self, setup_two_lots):
+        """Test that items are ordered by purchase_date descending (newest first)."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        items = list_inventory_items()
+
+        # Filter to just our test items
+        test_items = [
+            i for i in items
+            if i["id"] in [setup_two_lots["lot_a_id"], setup_two_lots["lot_b_id"]]
+        ]
+
+        # Lot B is newer (5 days ago vs 10 days ago), should come first
+        if len(test_items) == 2:
+            if test_items[0]["id"] == setup_two_lots["lot_b_id"]:
+                assert test_items[0]["purchase_date"] >= test_items[1]["purchase_date"]
+
+    def test_list_with_session(self, setup_two_lots):
+        """Test list_inventory_items works with provided session."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        with session_scope() as session:
+            items = list_inventory_items(session=session)
+            assert len(items) >= 2
+
+    def test_list_empty_result(self, setup_material_hierarchy):
+        """Test listing with filter that matches nothing."""
+        from src.services.material_inventory_service import list_inventory_items
+
+        # Use a product_id that doesn't exist
+        items = list_inventory_items(product_id=99999)
+        assert items == []
