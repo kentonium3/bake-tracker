@@ -43,6 +43,7 @@ class MaterialProduct(BaseModel):
         package_unit: Unit of package (e.g., 'feet', 'yards', 'each')
         quantity_in_base_units: Converted quantity in base units (cm)
         is_hidden: Hide from selection lists
+        is_provisional: Product created with minimal info, needs completion (F059)
         notes: User notes
 
     Relationships:
@@ -82,8 +83,10 @@ class MaterialProduct(BaseModel):
     # Feature 058: Removed current_inventory and weighted_avg_cost fields
     # Inventory and costing now tracked via MaterialInventoryItem (FIFO)
 
-    # Visibility
+    # Visibility and status
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
+    # Feature 059: Provisional products created via CLI with minimal info
+    is_provisional = Column(Boolean, nullable=False, default=False, index=True)
 
     # Additional information
     notes = Column(Text, nullable=True)
@@ -117,6 +120,7 @@ class MaterialProduct(BaseModel):
         Index("idx_material_product_supplier", "supplier_id"),
         Index("idx_material_product_slug", "slug"),
         Index("idx_material_product_hidden", "is_hidden"),
+        Index("idx_material_product_provisional", "is_provisional"),
         CheckConstraint("package_quantity > 0", name="ck_material_product_quantity_positive"),
         CheckConstraint(
             "quantity_in_base_units > 0", name="ck_material_product_base_units_positive"

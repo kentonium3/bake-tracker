@@ -868,6 +868,7 @@ def create_product(
     sku: Optional[str] = None,
     slug: Optional[str] = None,
     notes: Optional[str] = None,
+    is_provisional: bool = False,
     session: Optional[Session] = None,
 ) -> MaterialProduct:
     """
@@ -883,6 +884,7 @@ def create_product(
         sku: Supplier SKU (optional)
         slug: URL-friendly identifier (auto-generated if not provided)
         notes: Optional notes
+        is_provisional: Mark as provisional product needing completion (F059)
         session: Optional database session
 
     Returns:
@@ -942,6 +944,7 @@ def create_product(
             quantity_in_base_units=quantity_in_base_units,
             supplier_id=supplier_id,
             notes=notes,
+            is_provisional=is_provisional,
         )
         sess.add(product)
         sess.flush()
@@ -1048,6 +1051,7 @@ def list_products(
                 "current_inventory": float(current_inventory),
                 "weighted_avg_cost": float(weighted_avg_cost),
                 "is_hidden": prod.is_hidden,
+                "is_provisional": prod.is_provisional,
                 "notes": prod.notes,
             })
         return result

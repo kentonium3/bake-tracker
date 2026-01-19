@@ -822,3 +822,320 @@ class TestImportViewCLIIntegration:
 
         finally:
             os.unlink(temp_path)
+
+
+# ============================================================================
+# F059 Material Purchase CLI Tests
+# ============================================================================
+
+
+class TestMaterialPurchaseCLI:
+    """Tests for the purchase-material CLI command (F059)."""
+
+    @pytest.fixture
+    def material_test_data(self, test_db):
+        """Create material test data for purchase-material tests."""
+        from src.models.material import Material
+        from src.models.material_category import MaterialCategory
+        from src.models.material_subcategory import MaterialSubcategory
+        from src.models.material_product import MaterialProduct
+        from src.models.supplier import Supplier
+
+        with session_scope() as session:
+            # Supplier
+            supplier = Supplier(
+                name="CLI Test Supplier",
+                slug="cli-test-supplier",
+                city="Boston",
+                state="MA",
+                zip_code="02101",
+                is_active=True,
+            )
+            session.add(supplier)
+            session.flush()
+
+            # Category
+            category = MaterialCategory(
+                name="Test Category",
+                slug="test_category",
+            )
+            session.add(category)
+            session.flush()
+
+            # Subcategory
+            subcategory = MaterialSubcategory(
+                category_id=category.id,
+                name="Test Subcategory",
+                slug="test_subcategory",
+            )
+            session.add(subcategory)
+            session.flush()
+
+            # Material
+            material = Material(
+                subcategory_id=subcategory.id,
+                name="Test Material",
+                slug="test_material",
+                base_unit_type="each",
+            )
+            session.add(material)
+            session.flush()
+
+            # Product
+            product = MaterialProduct(
+                material_id=material.id,
+                name="Test Product",
+                slug="test-product",
+                package_quantity=10.0,
+                package_unit="each",
+                quantity_in_base_units=10.0,
+            )
+            session.add(product)
+            session.flush()
+
+            return {
+                "supplier_id": supplier.id,
+                "category_id": category.id,
+                "subcategory_id": subcategory.id,
+                "material_id": material.id,
+                "product_id": product.id,
+            }
+
+    def test_purchase_material_help(self, test_db, capsys):
+        """Test that --help shows correct options."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(sys, "argv", ["import_export_cli", "purchase-material", "--help"]):
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+
+        # argparse exits with 0 for --help
+        assert exc_info.value.code == 0
+
+        captured = capsys.readouterr()
+        assert "--product" in captured.out
+        assert "--name" in captured.out
+        assert "--qty" in captured.out
+        assert "--cost" in captured.out
+
+    def test_purchase_existing_product_by_slug(self, test_db, material_test_data, capsys):
+        """Test purchasing an existing product by slug."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--product", "test-product",
+                "--qty", "2",
+                "--cost", "25.00",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        # Should succeed
+        assert result == 0
+        assert "PURCHASE RECORDED" in captured.out
+
+    def test_purchase_missing_product_fails(self, test_db, material_test_data, capsys):
+        """Test that purchasing a non-existent product fails gracefully."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--product", "non-existent-product",
+                "--qty", "1",
+                "--cost", "10.00",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        assert "ERROR" in captured.out
+        assert "not found" in captured.out.lower()
+
+    def test_purchase_no_product_or_name_fails(self, test_db, capsys):
+        """Test that --product or --name is required."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--qty", "1",
+                "--cost", "10.00",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        assert "ERROR" in captured.out
+        assert "--product or --name" in captured.out.lower()
+
+    def test_purchase_both_product_and_name_fails(self, test_db, material_test_data, capsys):
+        """Test that --product and --name are mutually exclusive."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--product", "test-product",
+                "--name", "New Product",
+                "--qty", "1",
+                "--cost", "10.00",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        assert "ERROR" in captured.out
+        assert "cannot specify both" in captured.out.lower()
+
+    def test_create_provisional_product(self, test_db, material_test_data, capsys):
+        """Test creating a provisional product and recording purchase."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--name", "New Test Product",
+                "--material-id", str(material_test_data["material_id"]),
+                "--package-size", "50",
+                "--package-unit", "each",
+                "--qty", "1",
+                "--cost", "15.00",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 0
+        assert "PROVISIONAL PRODUCT CREATED" in captured.out
+        assert "PURCHASE RECORDED" in captured.out
+
+    def test_create_provisional_missing_material_id_fails(self, test_db, capsys):
+        """Test that --material-id is required for new products."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--name", "New Product",
+                "--package-size", "10",
+                "--package-unit", "each",
+                "--qty", "1",
+                "--cost", "10.00",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        assert "ERROR" in captured.out
+        assert "material" in captured.out.lower()
+
+    def test_purchase_with_date(self, test_db, material_test_data, capsys):
+        """Test purchase with custom date."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--product", "test-product",
+                "--qty", "1",
+                "--cost", "10.00",
+                "--date", "2026-01-15",
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 0
+        assert "2026-01-15" in captured.out
+
+    def test_purchase_invalid_date_fails(self, test_db, material_test_data, capsys):
+        """Test that invalid date format fails."""
+        import sys
+        from unittest import mock
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--product", "test-product",
+                "--qty", "1",
+                "--cost", "10.00",
+                "--date", "01/15/2026",  # Wrong format
+            ],
+        ):
+            result = main()
+
+        captured = capsys.readouterr()
+        assert result == 1
+        assert "Invalid date" in captured.out
+
+    def test_provisional_product_has_is_provisional_flag(self, test_db, material_test_data, capsys):
+        """Test that provisional products are created with is_provisional=True."""
+        import sys
+        from unittest import mock
+        from src.models.material_product import MaterialProduct
+
+        with mock.patch.object(
+            sys,
+            "argv",
+            [
+                "import_export_cli",
+                "purchase-material",
+                "--name", "Provisional Flag Test Product",
+                "--material-id", str(material_test_data["material_id"]),
+                "--package-size", "25",
+                "--package-unit", "each",
+                "--qty", "1",
+                "--cost", "10.00",
+            ],
+        ):
+            result = main()
+
+        assert result == 0
+
+        # Verify the product was created with is_provisional=True
+        with session_scope() as session:
+            product = session.query(MaterialProduct).filter(
+                MaterialProduct.name == "Provisional Flag Test Product"
+            ).first()
+            assert product is not None
+            assert product.is_provisional is True
