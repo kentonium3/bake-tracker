@@ -152,7 +152,7 @@
 ### Included Subtasks
 - [x] T025 Create MaterialAdjustmentDialog class (CTkToplevel with modal setup)
 - [x] T026 Implement "each" materials UI (Add/Subtract/Set radio buttons + integer input)
-- [ ] T027 Implement "variable" materials UI (percentage input 0-100)
+- [x] T027 Implement "variable" materials UI (percentage input 0-100)
 - [ ] T028 Add live preview calculation (color-coded: gray/green/red)
 - [ ] T029 Add notes field (optional, records adjustment reason)
 - [ ] T030 Wire to MaterialInventoryService.adjust_inventory() on save
