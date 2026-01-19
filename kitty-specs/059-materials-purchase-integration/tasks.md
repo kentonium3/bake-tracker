@@ -117,7 +117,7 @@
 
 ### Included Subtasks
 - [x] T018 Add Materials tab/section structure to purchases_tab.py
-- [ ] T019 Create ttk.Treeview with required columns (Product, Brand, Date, Qty Purchased, Qty Remaining, Cost/Unit, Value, Actions)
+- [x] T019 Create ttk.Treeview with required columns (Product, Brand, Date, Qty Purchased, Qty Remaining, Cost/Unit, Value, Actions)
 - [ ] T020 Implement column sorting (click header to sort, toggle direction)
 - [ ] T021 [P] Add cascading filters (MaterialProduct dropdown, date range, show depleted checkbox)
 - [ ] T022 [P] Implement item count display (status label)
