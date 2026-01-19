@@ -822,6 +822,18 @@ class PurchasesTab(ctk.CTkFrame):
             text_color="gray",
         )
 
+        # Bind events for materials treeview
+        self._materials_tree.bind("<Double-1>", self._on_materials_double_click)
+        self._materials_tree.bind("<Button-3>", self._show_materials_context_menu)  # Win/Linux
+        self._materials_tree.bind("<Button-2>", self._show_materials_context_menu)  # macOS
+
+        # Create context menu for materials
+        self._materials_context_menu = tk.Menu(self, tearoff=0)
+        self._materials_context_menu.add_command(
+            label="Adjust Quantity",
+            command=self._on_adjust_material,
+        )
+
     def _create_materials_status_bar(self) -> None:
         """Create status bar for Materials section."""
         status_frame = ctk.CTkFrame(self._materials_section_frame, fg_color="transparent")
@@ -1010,3 +1022,52 @@ class PurchasesTab(ctk.CTkFrame):
         if self._tab_var.get() == "materials":
             self._populate_materials_product_filter()
             self._refresh_materials_display()
+
+    # =========================================================================
+    # Materials Context Menu and Adjustment Dialog (Feature 059)
+    # =========================================================================
+
+    def _get_selected_material_item(self) -> Optional[Dict]:
+        """Get the selected material inventory item dict."""
+        selection = self._materials_tree.selection()
+        if not selection:
+            return None
+
+        try:
+            item_id = int(selection[0])
+            # Find the item in our cached list
+            for item in self._materials_items:
+                if item["id"] == item_id:
+                    return item
+        except (ValueError, TypeError):
+            pass
+        return None
+
+    def _show_materials_context_menu(self, event) -> None:
+        """Show context menu at click position."""
+        row_id = self._materials_tree.identify_row(event.y)
+        if row_id:
+            self._materials_tree.selection_set(row_id)
+            try:
+                self._materials_context_menu.tk_popup(event.x_root, event.y_root)
+            finally:
+                self._materials_context_menu.grab_release()
+
+    def _on_materials_double_click(self, event) -> None:
+        """Handle double-click on materials treeview row."""
+        self._on_adjust_material()
+
+    def _on_adjust_material(self) -> None:
+        """Open the Material Adjustment Dialog for the selected item."""
+        item = self._get_selected_material_item()
+        if not item:
+            return
+
+        from src.ui.dialogs.material_adjustment_dialog import MaterialAdjustmentDialog
+
+        dialog = MaterialAdjustmentDialog(
+            self,
+            inventory_item=item,
+            on_save=lambda result: self._refresh_materials_display(),
+        )
+        dialog.focus()

@@ -540,6 +540,11 @@ def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
     brand = product.brand if product else ""
     display_name = product.display_name if product else product_name
 
+    # Get base_unit_type from the material (via product)
+    base_unit_type = "each"  # Default
+    if product and product.material:
+        base_unit_type = product.material.base_unit_type
+
     return {
         "id": item.id,
         "material_product_id": item.material_product_id,
@@ -547,6 +552,7 @@ def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
         "product_name": product_name,
         "brand": brand,
         "display_name": display_name,
+        "base_unit_type": base_unit_type,
         "quantity_purchased": item.quantity_purchased,
         "quantity_remaining": Decimal(str(item.quantity_remaining)),
         "cost_per_unit": item.cost_per_unit,
