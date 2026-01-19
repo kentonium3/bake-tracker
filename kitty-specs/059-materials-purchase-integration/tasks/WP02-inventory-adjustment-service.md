@@ -8,12 +8,12 @@ subtasks:
   - "T010"
 title: "Service Layer - Inventory Adjustment"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "78512"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-18T00:00:00Z"
@@ -437,3 +437,4 @@ Run tests with:
 - 2026-01-19T00:54:21Z – claude-opus – shell_pid=60227 – lane=doing – Re-assigning from Gemini to Claude for re-implementation
 - 2026-01-19T01:01:12Z – claude-opus – shell_pid=60227 – lane=for_review – Ready for review: Inventory adjustment method implemented with 92% coverage
 - 2026-01-19T01:08:01Z – claude-opus – shell_pid=78512 – lane=doing – Started review via workflow command
+- 2026-01-19T01:09:04Z – claude-opus – shell_pid=78512 – lane=done – Review passed: Inventory adjustment (add/subtract/set/percentage) implemented correctly. Timestamped audit notes, proper validation. 43 tests passing, 92.62% coverage.
