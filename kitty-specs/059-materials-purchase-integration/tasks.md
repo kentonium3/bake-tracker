@@ -26,7 +26,7 @@
 - [x] T001 Verify is_provisional column exists in MaterialProduct model (add if missing)
 - [x] T002 Update create_product() to accept is_provisional parameter
 - [x] T003 Add check_provisional_completeness() method to MaterialCatalogService
-- [ ] T004 Update update_product() to auto-clear is_provisional when completeness criteria met
+- [x] T004 Update update_product() to auto-clear is_provisional when completeness criteria met
 - [ ] T005 Write unit tests for provisional product lifecycle
 
 ### Implementation Notes
