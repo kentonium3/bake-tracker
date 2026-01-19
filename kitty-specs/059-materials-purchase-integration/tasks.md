@@ -243,7 +243,7 @@
 ### Included Subtasks
 - [x] T041 Add unit type display label (shows base_unit_type inherited from Material)
 - [x] T042 Make quantity field label dynamic (e.g., "Quantity per unit (in linear_cm):")
-- [ ] T043 Add preview text for consumption (e.g., "This unit will consume 15 cm of Red Ribbon")
+- [x] T043 Add preview text for consumption (e.g., "This unit will consume 15 cm of Red Ribbon")
 - [ ] T044 Lock quantity to 1 for "each" materials (disable entry, set value)
 - [ ] T045 Update _on_material_selected() handler to trigger all above changes
 
