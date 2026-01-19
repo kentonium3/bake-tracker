@@ -187,7 +187,7 @@
 - [x] T033 Implement product lookup (find existing MaterialProduct by name/slug)
 - [x] T034 Implement provisional product creation prompt (material type selection, minimal fields)
 - [x] T035 Wire to MaterialPurchaseService.record_purchase() for purchase recording
-- [ ] T036 Format success/error output (with inventory confirmation)
+- [x] T036 Format success/error output (with inventory confirmation)
 
 ### Implementation Notes
 - Follow existing CLI patterns from research.md
