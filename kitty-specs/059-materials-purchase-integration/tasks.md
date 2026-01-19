@@ -184,7 +184,7 @@
 
 ### Included Subtasks
 - [x] T032 Add "purchase-material" subcommand to argparse in import_export_cli.py
-- [ ] T033 Implement product lookup (find existing MaterialProduct by name/slug)
+- [x] T033 Implement product lookup (find existing MaterialProduct by name/slug)
 - [ ] T034 Implement provisional product creation prompt (material type selection, minimal fields)
 - [ ] T035 Wire to MaterialPurchaseService.record_purchase() for purchase recording
 - [ ] T036 Format success/error output (with inventory confirmation)
