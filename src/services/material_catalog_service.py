@@ -868,6 +868,7 @@ def create_product(
     sku: Optional[str] = None,
     slug: Optional[str] = None,
     notes: Optional[str] = None,
+    is_provisional: bool = False,
     session: Optional[Session] = None,
 ) -> MaterialProduct:
     """
@@ -883,6 +884,8 @@ def create_product(
         sku: Supplier SKU (optional)
         slug: URL-friendly identifier (auto-generated if not provided)
         notes: Optional notes
+        is_provisional: Mark as provisional product (default False). Provisional products
+            can be created with minimal metadata and enriched later through the UI.
         session: Optional database session
 
     Returns:
@@ -942,6 +945,7 @@ def create_product(
             quantity_in_base_units=quantity_in_base_units,
             supplier_id=supplier_id,
             notes=notes,
+            is_provisional=is_provisional,
         )
         sess.add(product)
         sess.flush()
@@ -1048,6 +1052,7 @@ def list_products(
                 "current_inventory": float(current_inventory),
                 "weighted_avg_cost": float(weighted_avg_cost),
                 "is_hidden": prod.is_hidden,
+                "is_provisional": prod.is_provisional,
                 "notes": prod.notes,
             })
         return result
@@ -1067,10 +1072,14 @@ def update_product(
     sku: Optional[str] = None,
     is_hidden: Optional[bool] = None,
     notes: Optional[str] = None,
+    slug: Optional[str] = None,
     session: Optional[Session] = None,
 ) -> MaterialProduct:
     """
     Update product fields. Cannot change package_quantity or package_unit.
+
+    Feature 059: When updating a provisional product, if all required fields
+    become complete, is_provisional is automatically cleared.
 
     Args:
         product_id: Product ID to update
@@ -1080,6 +1089,7 @@ def update_product(
         sku: New SKU (optional)
         is_hidden: Hide/show product (optional)
         notes: New notes (optional)
+        slug: New slug (optional)
         session: Optional database session
 
     Returns:
@@ -1113,6 +1123,15 @@ def update_product(
 
         if notes is not None:
             product.notes = notes
+
+        if slug is not None:
+            product.slug = slug.strip() if slug else None
+
+        # Feature 059: Auto-promote provisional products when complete
+        if product.is_provisional:
+            is_complete, _ = _check_provisional_completeness_impl(product.id, sess)
+            if is_complete:
+                product.is_provisional = False
 
         sess.flush()
         sess.refresh(product)
@@ -1173,3 +1192,90 @@ def delete_product(product_id: int, session: Optional[Session] = None) -> bool:
 
     with session_scope() as sess:
         return _impl(sess)
+
+
+# ============================================================================
+# Provisional Product Support (Feature 059)
+# ============================================================================
+
+
+def check_provisional_completeness(
+    product_id: int,
+    session: Optional[Session] = None,
+) -> tuple:
+    """
+    Check if a product has all required fields to be considered complete.
+
+    Required fields for completeness (per F059 specification):
+    - name (non-empty string)
+    - brand (non-empty string)
+    - slug (non-empty string)
+    - package_quantity (> 0)
+    - package_unit (non-empty string)
+    - material_id (not None)
+
+    Args:
+        product_id: The MaterialProduct ID to check
+        session: Optional database session
+
+    Returns:
+        Tuple of (is_complete, missing_fields):
+            - is_complete: True if all required fields are present
+            - missing_fields: List of field names that are missing/empty
+
+    Raises:
+        ValidationError: If product not found
+    """
+
+    def _impl(sess: Session) -> tuple:
+        product = sess.query(MaterialProduct).filter(MaterialProduct.id == product_id).first()
+        if product is None:
+            raise ValidationError([f"Product with ID {product_id} not found"])
+
+        missing = []
+
+        # Check name (non-empty string)
+        if not product.name or not product.name.strip():
+            missing.append("name")
+
+        # Check brand (non-empty string)
+        if not product.brand or not product.brand.strip():
+            missing.append("brand")
+
+        # Check slug (non-empty string)
+        if not product.slug or not product.slug.strip():
+            missing.append("slug")
+
+        # Check package_quantity (> 0)
+        if product.package_quantity is None or product.package_quantity <= 0:
+            missing.append("package_quantity")
+
+        # Check package_unit (non-empty string)
+        if not product.package_unit or not product.package_unit.strip():
+            missing.append("package_unit")
+
+        # Check material_id (not None)
+        if product.material_id is None:
+            missing.append("material_id")
+
+        return (len(missing) == 0, missing)
+
+    if session is not None:
+        return _impl(session)
+
+    with session_scope() as sess:
+        return _impl(sess)
+
+
+def _check_provisional_completeness_impl(product_id: int, session: Session) -> tuple:
+    """
+    Internal implementation for completeness check (used by update_product).
+
+    Args:
+        product_id: The MaterialProduct ID to check
+        session: Database session (required)
+
+    Returns:
+        Tuple of (is_complete, missing_fields)
+    """
+    return check_provisional_completeness(product_id, session=session)

@@ -85,6 +85,10 @@ class MaterialProduct(BaseModel):
     # Visibility
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
 
+    # Feature 059: Provisional product support
+    # Provisional products are created with minimal metadata and can be enriched later
+    is_provisional = Column(Boolean, nullable=False, default=False, index=True)
+
     # Additional information
     notes = Column(Text, nullable=True)
 
@@ -117,6 +121,7 @@ class MaterialProduct(BaseModel):
         Index("idx_material_product_supplier", "supplier_id"),
         Index("idx_material_product_slug", "slug"),
         Index("idx_material_product_hidden", "is_hidden"),
+        Index("idx_material_product_provisional", "is_provisional"),
         CheckConstraint("package_quantity > 0", name="ck_material_product_quantity_positive"),
         CheckConstraint(
             "quantity_in_base_units > 0", name="ck_material_product_base_units_positive"
