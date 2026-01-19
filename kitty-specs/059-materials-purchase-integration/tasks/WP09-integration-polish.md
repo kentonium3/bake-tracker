@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Integration & Polish
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks:
 - T046
@@ -399,3 +399,4 @@ User Story 6 - MaterialUnit Enhancement:
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-19T03:50:41Z – claude-opus – shell_pid=18602 – lane=doing – Started implementation via workflow command
+- 2026-01-19T04:11:23Z – claude-opus – shell_pid=18602 – lane=for_review – Ready for review: Added is_provisional field to MaterialProduct model, updated create_product() service function. Applied black formatting. All 2511 tests pass.
