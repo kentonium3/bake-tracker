@@ -89,7 +89,7 @@
 - [x] T014 Implement real-time calculation for total units and unit cost (trace handlers)
 - [x] T015 Wire up validation for material fields (product selected, qty > 0, cost >= 0)
 - [x] T016 Connect to MaterialPurchaseService.record_purchase() on save
-- [ ] T017 Add clearing of type-specific fields when switching product type
+- [x] T017 Add clearing of type-specific fields when switching product type
 
 ### Implementation Notes
 - Follow existing form patterns from research.md
