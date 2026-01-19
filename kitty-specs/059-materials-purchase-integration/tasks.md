@@ -245,7 +245,7 @@
 - [x] T042 Make quantity field label dynamic (e.g., "Quantity per unit (in linear_cm):")
 - [x] T043 Add preview text for consumption (e.g., "This unit will consume 15 cm of Red Ribbon")
 - [x] T044 Lock quantity to 1 for "each" materials (disable entry, set value)
-- [ ] T045 Update _on_material_selected() handler to trigger all above changes
+- [x] T045 Update _on_material_selected() handler to trigger all above changes
 
 ### Implementation Notes
 - Gap identified in research.md: base_unit_type loaded but not displayed
