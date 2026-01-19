@@ -273,7 +273,7 @@
 - [x] T046 End-to-end test: Purchase → View → Adjust (manual walkthrough)
 - [x] T047 End-to-end test: CLI provisional → UI enrichment
 - [x] T048 Verify FIFO display order consistency (newest first in UI)
-- [ ] T049 Edge case testing (empty states, validation errors, large quantities)
+- [x] T049 Edge case testing (empty states, validation errors, large quantities)
 - [ ] T050 Code review and cleanup (remove debug code, consistent formatting)
 
 ### Implementation Notes
