@@ -10,12 +10,12 @@ subtasks:
   - "T017"
 title: "Purchase Form - Product Type Selector"
 phase: "Phase 1 - Wave 1"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "70998"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-18T00:00:00Z"
@@ -564,3 +564,4 @@ Manual testing scenarios:
 - 2026-01-19T00:23:32Z – claude-opus – shell_pid=66253 – lane=doing – Started implementation via workflow command
 - 2026-01-19T00:34:20Z – claude-opus – shell_pid=66253 – lane=for_review – All subtasks complete - F059 material purchase form integration implemented
 - 2026-01-19T00:37:52Z – claude-opus – shell_pid=70998 – lane=doing – Started implementation via workflow command
+- 2026-01-19T01:10:21Z – claude-opus – shell_pid=70998 – lane=done – Review passed: Purchase form product type selector implemented. Radio buttons, field show/hide, material widgets, real-time calc, validation, service integration all verified.
