@@ -83,7 +83,7 @@
 **Prompt**: `tasks/WP03-purchase-form-product-type.md`
 
 ### Included Subtasks
-- [ ] T011 Add product type radio buttons (Food/Material) at top of form
+- [x] T011 Add product type radio buttons (Food/Material) at top of form
 - [ ] T012 Implement field group show/hide logic (_on_product_type_change handler)
 - [ ] T013 Create material-specific field widgets (MaterialProduct dropdown, package qty fields)
 - [ ] T014 Implement real-time calculation for total units and unit cost (trace handlers)
