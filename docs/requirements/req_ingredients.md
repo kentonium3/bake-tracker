@@ -688,10 +688,10 @@ Flour (L0)
 
 ## 17. Related Documents
 
-- **Design Specs:** `/docs/design/F031_ingredient_hierarchy.md` (backend architecture)
+- **Design Specs:** `/docs/func-spec/F031_ingredient_hierarchy.md` (backend architecture)
 - **Design Specs:** `/docs/design/_F041_shelf_life_freshness_tracking.md` (shelf life feature)
 - **Requirements:** `/docs/requirements/req_inventory.md` (inventory & expiration tracking)
-- **Bug Reports:** `/docs/bugs/BUG_F032_hierarchy_conceptual_errors.md` (UI fixes needed)
+- **Bug Reports:** `/docs/archive/bugs/BUG_F032_hierarchy_conceptual_errors.md` (UI fixes needed)
 - **Constitution:** `/.kittify/memory/constitution.md` (architectural principles)
 - **Data Model:** `/docs/design/architecture.md` (database schema)
 

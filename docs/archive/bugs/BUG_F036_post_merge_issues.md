@@ -318,7 +318,7 @@ Re-run relevant F036 test cases:
 
 ## Related Documents
 
-- `/docs/design/F033-F036_ingredient_hierarchy_gap_analysis.md` - Phase 2, 3, 4 specifications
+- `/docs/func-spec/F033-F036_ingredient_hierarchy_gap_analysis.md` - Phase 2, 3, 4 specifications
 - `/docs/requirements/req_ingredients.md` - Ingredient hierarchy requirements
 - F034 implementation (check commit history)
 - F036 test results (if documented)

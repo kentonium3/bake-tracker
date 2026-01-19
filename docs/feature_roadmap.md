@@ -364,7 +364,7 @@
 ### TD-006: Deprecate expiration_date Field
 **Status:** OPEN
 **Priority:** Medium
-**Document:** `docs/technical-debt/TD-006_expiration_date_deprecated.md`
+**Document:** `docs/archive/tech-debt/TD-006_expiration_date_deprecated.md`
 **Related:** F0XX Shelf Life & Freshness Tracking
 
 ---

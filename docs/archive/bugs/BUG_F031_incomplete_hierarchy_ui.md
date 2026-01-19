@@ -419,7 +419,7 @@ l1_ingredients = get_children(selected_l0_id) if selected_l0_id else []
 
 ## Related Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/design/F031_ingredient_hierarchy.md` - Original feature spec
+- `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F031_ingredient_hierarchy.md` - Original feature spec
 - `/Users/kentgale/Vaults-repos/bake-tracker/.kittify/memory/constitution.md` - Architectural principles
 
 ---

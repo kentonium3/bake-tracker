@@ -39,7 +39,7 @@ This project uses a hybrid human-AI development workflow:
 ### Phase 2: Specification (AI-Led with User Guidance)
 
 **Claude creates feature specification:**
-- Location: `docs/design/F0XX_feature_name.md`
+- Location: `docs/func-spec/F0XX_feature_name.md`
 - Purpose: Implementation guidance for spec-kitty
 - **Critical balance**: Lightweight on patterns, detailed on UI
 

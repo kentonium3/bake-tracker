@@ -763,9 +763,9 @@ ProvisionalProduct
 ## 17. Related Documents
 
 - **Design Specs:** 
-  - `/docs/design/F040_import_export_v4.md` (AI-assisted purchase import)
-  - `/docs/design/F043_purchases_tab_implementation.md` (UI implementation)
-  - `/docs/design/F049_import_export_phase1.md` (transaction imports)
+  - `/docs/func-spec/F040_import_export_v4.md` (AI-assisted purchase import)
+  - `/docs/func-spec/F043_purchases_tab_implementation.md` (UI implementation)
+  - `/docs/func-spec/F049_import_export_phase1.md` (transaction imports)
 - **Requirements:** 
   - `/docs/requirements/req_products.md` (product catalog dependency)
   - `/docs/requirements/req_inventory.md` (inventory integration)

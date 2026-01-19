@@ -954,7 +954,7 @@ Then: Make mode activates (not Produce)
 
 - **User Testing:** `docs/user_testing/usr_testing_2026_01_07.md` (blocking issues)
 - **Feature Roadmap:** `docs/feature_roadmap.md` (F042-F047 sequence)
-- **Dependencies:** `docs/design/F038_ui_mode_restructure.md` (mode structure)
+- **Dependencies:** `docs/func-spec/F038_ui_mode_restructure.md` (mode structure)
 - **Constitution:** `.kittify/memory/constitution.md` (user-centric design)
 
 ---

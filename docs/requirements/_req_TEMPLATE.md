@@ -325,7 +325,7 @@
 ## 17. Related Documents
 
 - **Design Specs:** `/docs/design/[relevant spec files]`
-- **Bug Reports:** `/docs/bugs/[relevant bug reports]`
+- **Bug Reports:** `/docs/archive/bugs/[relevant bug reports]`
 - **Constitution:** `/.kittify/memory/constitution.md`
 - **Data Model:** `/docs/design/architecture.md`
 

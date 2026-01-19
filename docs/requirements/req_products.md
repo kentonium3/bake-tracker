@@ -495,7 +495,7 @@ Ingredient (L2)
 
 ## 16. Related Documents
 
-- **Design Specs:** `/docs/design/F031_ingredient_hierarchy.md` (cascading selectors architecture)
+- **Design Specs:** `/docs/func-spec/F031_ingredient_hierarchy.md` (cascading selectors architecture)
 - **Bug Reports:** TBD (Product-related bugs to be cataloged)
 - **Constitution:** `/.kittify/memory/constitution.md` (architectural principles)
 - **Data Model:** `/docs/design/architecture.md` (database schema)

@@ -131,7 +131,7 @@ Requirements Document (ingredients)
 ├─ F034_ui_mode_restructure.md         ← 5-mode workflow
 └─ ...
 
-/docs/bugs/
+/docs/archive/bugs/
 ├─ BUG_F032_hierarchy_conceptual_errors.md  ← Fix specification
 └─ ...
 ```

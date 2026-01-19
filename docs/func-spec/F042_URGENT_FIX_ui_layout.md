@@ -416,7 +416,7 @@ If this fix fails or takes >4 hours:
 
 ## Related Documents
 
-- **Parent Feature**: `docs/design/F042_ui_polish_layout_fixes.md` (original spec)
+- **Parent Feature**: `docs/func-spec/F042_ui_polish_layout_fixes.md` (original spec)
 - **User Testing**: `docs/user_testing/usr_testing_2026_01_07.md` (identified issues)
 - **Reference Implementation**: `src/ui/tabs/products_tab.py` (correct pattern)
 - **Screenshots**: User-provided screenshots showing current broken state

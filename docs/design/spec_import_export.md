@@ -1,12 +1,19 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 4.0
+**Version:** 4.2
 **Status:** Current
 
-> **NOTE**: This application only accepts v4.0 format files. Older format versions
+> **NOTE**: This application only accepts v4.0+ format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
+
+### v4.2 (2026-01-19 - Feature 058/059)
+- **Added**: `material_purchases` entity with full schema (FIFO cost capture)
+- **Added**: `material_inventory_items` entity with full schema (FIFO lot tracking)
+- **Added**: `is_provisional` field on `material_products` for CLI provisional workflow
+- **Changed**: Updated entity count from 16 to 17 (added material_inventory_items)
+- **Note**: Material inventory now parallels food inventory with full FIFO support
 
 ### v4.1 (2026-01-12 - Feature 049)
 - **Added**: Complete system backup with all 16 entity types
@@ -99,7 +106,7 @@ This separation allows recipes to reference generic ingredients while tracking s
 
 ## Supported Entity Types
 
-The full backup export includes all 16 entity types:
+The full backup export includes all 17 entity types:
 
 | Entity | Import Order | Dependencies |
 |--------|--------------|--------------|
@@ -115,10 +122,11 @@ The full backup export includes all 16 entity types:
 | material_products | 10 | materials, suppliers |
 | material_units | 11 | materials |
 | material_purchases | 12 | material_products, suppliers |
-| finished_goods | 13 | None |
-| events | 14 | None |
-| production_runs | 15 | recipes, events |
-| inventory_depletions | 16 | inventory_items |
+| material_inventory_items | 13 | material_products, material_purchases |
+| finished_goods | 14 | None |
+| events | 15 | None |
+| production_runs | 16 | recipes, events |
+| inventory_depletions | 17 | inventory_items |
 
 ---
 
@@ -929,6 +937,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
   "package_unit": "count",
   "supplier_slug": "uline",
   "upc_code": "012345678901",
+  "is_provisional": false,
   "notes": "Minimum order 25 units"
 }
 ```
@@ -942,7 +951,96 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `package_unit` | string | **Yes** | Unit of measure |
 | `supplier_slug` | string | No | Preferred supplier |
 | `upc_code` | string | No | UPC barcode |
+| `is_provisional` | boolean | No | True if created via CLI with minimal info, needs enrichment (F059) |
 | `notes` | string | No | User notes |
+
+**Notes**:
+- `is_provisional=true` indicates product was created quickly (e.g., CLI purchase) with minimal info
+- Provisional products display "Needs Info" indicator in UI
+- When all required fields are complete, `is_provisional` auto-clears to false
+
+---
+
+### 23. material_purchases
+
+**Purpose**: Track purchase transactions for materials (FIFO cost capture).
+
+**Schema**:
+
+```json
+{
+  "material_product_slug": "kraft_box_6x6x6:Uline:25:count",
+  "supplier_slug": "uline",
+  "purchase_date": "2026-01-15",
+  "packages_purchased": 2,
+  "package_price": 45.00,
+  "units_added": 50.0,
+  "unit_cost": 1.80,
+  "notes": "Bulk order for holiday season"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `material_product_slug` | string | **Yes** | Composite slug: `{material_slug}:{brand}:{package_qty}:{package_unit}` |
+| `supplier_slug` | string | **Yes** | Reference to supplier |
+| `purchase_date` | date | **Yes** | Date of purchase (ISO 8601) |
+| `packages_purchased` | integer | **Yes** | Number of packages bought (must be > 0) |
+| `package_price` | decimal | **Yes** | Price per package (must be >= 0) |
+| `units_added` | decimal | **Yes** | Total base units added (must be > 0) |
+| `unit_cost` | decimal | **Yes** | Cost per base unit (must be >= 0) |
+| `notes` | string | No | Purchase notes |
+
+**Notes**:
+- This model is **IMMUTABLE** after creation (no updated_at field)
+- Each purchase creates exactly one MaterialInventoryItem (1:1 relationship)
+- `unit_cost` = `(packages_purchased * package_price) / units_added`
+- Base units are metric: cm for linear/area materials, count for "each" materials
+
+---
+
+### 24. material_inventory_items
+
+**Purpose**: FIFO lot tracking for material inventory (parallels InventoryItem for food).
+
+**Schema**:
+
+```json
+{
+  "material_product_slug": "kraft_box_6x6x6:Uline:25:count",
+  "material_purchase_id": 42,
+  "quantity_purchased": 50.0,
+  "quantity_remaining": 35.0,
+  "cost_per_unit": 1.80,
+  "purchase_date": "2026-01-15",
+  "location": "Storage Room A",
+  "notes": "Holiday packaging supplies"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `material_product_slug` | string | **Yes** | Composite slug: `{material_slug}:{brand}:{package_qty}:{package_unit}` |
+| `material_purchase_id` | integer | **Yes** | Reference to creating MaterialPurchase |
+| `quantity_purchased` | decimal | **Yes** | Original quantity in base units (IMMUTABLE) |
+| `quantity_remaining` | decimal | **Yes** | Current quantity in base units (MUTABLE, >= 0) |
+| `cost_per_unit` | decimal | **Yes** | Cost per base unit (IMMUTABLE snapshot) |
+| `purchase_date` | date | **Yes** | Date of purchase (for FIFO ordering) |
+| `location` | string | No | Storage location |
+| `notes` | string | No | User notes |
+
+**Notes**:
+- **FIFO Consumption**: Items consumed in `purchase_date` order (oldest first)
+- All quantities in metric base units (cm for linear/area, count for each)
+- `quantity_remaining` decremented as material is consumed
+- Created automatically when MaterialPurchase is recorded
+- `is_depleted` = `quantity_remaining < 0.001`
+
+**Computed Properties** (available in exports, not on import):
+- `is_depleted`: Boolean indicating if lot is depleted
+- `quantity_consumed`: `quantity_purchased - quantity_remaining`
+- `consumption_percentage`: Percentage of lot consumed (0-100)
+- `remaining_value`: `quantity_remaining * cost_per_unit`
 
 ---
 

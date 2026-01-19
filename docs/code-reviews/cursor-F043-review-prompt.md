@@ -35,7 +35,7 @@ These are the primary changes, but review should extend to any related code, dep
 kitty-specs/042-purchases-tab-crud-operations/spec.md
 kitty-specs/042-purchases-tab-crud-operations/data-model.md
 kitty-specs/042-purchases-tab-crud-operations/plan.md
-docs/design/F043_purchases_tab_implementation.md
+docs/func-spec/F043_purchases_tab_implementation.md
 ```
 
 ## Verification Commands

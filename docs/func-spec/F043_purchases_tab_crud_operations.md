@@ -1195,9 +1195,9 @@ Both create same backend records (Purchase + InventoryItem), but **Purchases tab
 ## 15. Related Documents
 
 - **Requirements:** `docs/requirements/req_inventory.md` Section 3.1 (Purchase Management)
-- **Dependencies:** `docs/design/F028_purchase_tracking_enhanced_costing.md` (Purchase model)
-- **Dependencies:** `docs/design/F029_streamlined_inventory_entry.md` (Add to Pantry dialog)
-- **Dependencies:** `docs/design/F042_ui_polish_layout_fixes.md` (UI layout patterns)
+- **Dependencies:** `docs/func-spec/F028_purchase_tracking_enhanced_costing.md` (Purchase model)
+- **Dependencies:** `docs/func-spec/F029_streamlined_inventory_entry.md` (Add to Pantry dialog)
+- **Dependencies:** `docs/func-spec/F042_ui_polish_layout_fixes.md` (UI layout patterns)
 - **Feature Roadmap:** `docs/feature_roadmap.md` (F043-F047 sequence)
 - **Constitution:** `.kittify/memory/constitution.md` (User-centric design)
 

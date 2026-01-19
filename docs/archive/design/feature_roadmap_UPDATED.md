@@ -152,7 +152,7 @@
 
 **Estimated Effort:** 12-20 hours (2-3 days)
 
-**Design Document:** Embedded in `/docs/design/F033_ingredient_hierarchy_gap_analysis.md` (Phase 2 section)
+**Design Document:** Embedded in `/docs/func-spec/F033_ingredient_hierarchy_gap_analysis.md` (Phase 2 section)
 
 ---
 
@@ -196,7 +196,7 @@
 
 **Estimated Effort:** 10-14 hours (2 days)
 
-**Design Document:** Embedded in `/docs/design/F033_ingredient_hierarchy_gap_analysis.md` (Phase 3 section)
+**Design Document:** Embedded in `/docs/func-spec/F033_ingredient_hierarchy_gap_analysis.md` (Phase 3 section)
 
 ---
 
@@ -242,7 +242,7 @@
 
 **Estimated Effort:** 8-12 hours (1-2 days)
 
-**Design Document:** Embedded in `/docs/design/F033_ingredient_hierarchy_gap_analysis.md` (Phase 4 section)
+**Design Document:** Embedded in `/docs/func-spec/F033_ingredient_hierarchy_gap_analysis.md` (Phase 4 section)
 
 ---
 
@@ -304,7 +304,7 @@
 
 **Impact:** Provides actionable roadmap for completing ingredient hierarchy implementation. Estimated 7-10 working days to reach production-ready state. Serves as specification input for subsequent implementation features.
 
-**Design Document:** `/docs/design/F033_ingredient_hierarchy_gap_analysis.md`
+**Design Document:** `/docs/func-spec/F033_ingredient_hierarchy_gap_analysis.md`
 
 ---
 
@@ -380,7 +380,7 @@
 - Round-trip guarantee: export → import → verify identical
 - Graceful cancellation with transaction integrity
 
-**Design Document:** `docs/design/F030_enhanced_export_import.md`
+**Design Document:** `docs/func-spec/F030_enhanced_export_import.md`
 
 ---
 
@@ -419,7 +419,7 @@ Chocolate (L0)
 
 **Note:** UI implementation completed in F032.
 
-**Design Document:** `docs/design/F031_ingredient_hierarchy.md`
+**Design Document:** `docs/func-spec/F031_ingredient_hierarchy.md`
 
 ---
 
@@ -457,7 +457,7 @@ Chocolate (L0)
 - Improves recipe creation (hierarchical selection guides user to correct ingredient)
 - Enables filtering and reporting by hierarchy level
 
-**Design Document:** `docs/design/F031_ingredient_hierarchy.md`
+**Design Document:** `docs/func-spec/F031_ingredient_hierarchy.md`
 
 ---
 
@@ -520,7 +520,7 @@ Chocolate (L0)
 - Enables scaling workflows ("make 3 batches" in single production run)
 - Supports recipe evolution tracking (version history view)
 
-**Design Document:** `docs/design/F032_recipe_redesign.md`
+**Design Document:** `docs/func-spec/F032_recipe_redesign.md`
 
 ---
 
@@ -555,7 +555,7 @@ Chocolate (L0)
 - Improves state visibility (mode dashboards show status at-a-glance)
 - Standardizes UI patterns (consistent layout reduces relearning)
 
-**Design Document:** `docs/design/F034_ui_mode_restructure.md`
+**Design Document:** `docs/func-spec/F034_ui_mode_restructure.md`
 
 ---
 
@@ -593,7 +593,7 @@ Chocolate (L0)
 - Tracks purchase history ("Last paid $5.99 for flour at Costco on Dec 15")
 - Supports price comparison ("Butter trend: $300 → $450 → $600")
 
-**Design Document:** `docs/design/F035_purchase_workflow_ai_assist.md`
+**Design Document:** `docs/func-spec/F035_purchase_workflow_ai_assist.md`
 
 ---
 
@@ -632,7 +632,7 @@ Chocolate (L0)
 - Planning uses inventory ("Need 50 cookies, already have 30, produce 20 more")
 - Low stock awareness ("Gingerbread cookies running low - 3 remaining")
 
-**Design Document:** `docs/design/F036_finished_goods_inventory.md`
+**Design Document:** `docs/func-spec/F036_finished_goods_inventory.md`
 
 ---
 
@@ -670,7 +670,7 @@ Chocolate (L0)
 - Eliminates repetitive selections (supplier remembered across items)
 - Reduces cognitive load (recent items appear first, type-ahead reduces scrolling)
 
-**Design Document:** `docs/design/F029_streamlined_inventory_entry.md`
+**Design Document:** `docs/func-spec/F029_streamlined_inventory_entry.md`
 
 ---
 
@@ -702,7 +702,7 @@ Chocolate (L0)
 - Price suggestions reduce data entry friction
 - Supplier selection in Add Inventory dialog
 
-**Design Document:** `docs/design/F028_purchase_tracking_enhanced_costing.md`
+**Design Document:** `docs/func-spec/F028_purchase_tracking_enhanced_costing.md`
 
 ---
 
@@ -728,7 +728,7 @@ Chocolate (L0)
 - Provides foundation for purchase tracking (Feature 028)
 - Unblocks user testing with realistic product catalog
 
-**Design Document:** `docs/design/F027_product_catalog_management.md`
+**Design Document:** `docs/func-spec/F027_product_catalog_management.md`
 
 ---
 
@@ -749,7 +749,7 @@ Chocolate (L0)
 - Shopping list shows generic products until materials assigned
 - Dynamic cost estimates (average for generic, actual for assigned)
 
-**Design Document:** `docs/design/F026-deferred-packaging-decisions.md`
+**Design Document:** `docs/func-spec/F026-deferred-packaging-decisions.md`
 
 ---
 
@@ -769,7 +769,7 @@ Chocolate (L0)
 - UI: ProductionHistoryTable shows loss quantity and status columns with color coding
 - Reporting: Loss summaries by category, recipe loss rates, waste cost analysis
 
-**Design Document:** `docs/design/F025_production_loss_tracking.md`
+**Design Document:** `docs/func-spec/F025_production_loss_tracking.md`
 
 ---
 

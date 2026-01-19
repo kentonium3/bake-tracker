@@ -667,7 +667,7 @@ Supplier
 
 ## 16. Related Documents
 
-- **Technical Debt:** `/docs/technical-debt/_TD-009_supplier_slug_portable_identification.md`
+- **Technical Debt:** `/docs/archive/tech-debt/_TD-009_supplier_slug_portable_identification.md`
 - **Design Specs:** `/kitty-specs/0XX-supplier-slug-support/spec.md` (v1.0)
 - **Constitution:** `/.kittify/memory/constitution.md`
 - **Data Model:** Supplier model (`/src/models/supplier.py`), Product model (`/src/models/product.py`)

@@ -1617,8 +1617,8 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 ### 3.12 References
 
 - **Requirements**: docs/requirements/req_materials.md v2.1
-- **F026 Pattern**: docs/design/F026-deferred-packaging-decisions.md
-- **F046 Dependency**: docs/design/F046-finished-goods-bundles-assembly.md
+- **F026 Pattern**: docs/func-spec/F026-deferred-packaging-decisions.md
+- **F046 Dependency**: docs/func-spec/F046-finished-goods-bundles-assembly.md
 - **Constitution**: docs/constitution.md
 
 ---

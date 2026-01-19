@@ -1424,7 +1424,7 @@ And: No longer appears in Finished Units tab
 
 - **Requirements:** `docs/requirements/req_finished_goods.md` Section 5.1
 - **User Testing:** `docs/user_testing/usr_testing_2026_01_07.md` (identified need)
-- **Dependencies:** `docs/design/F037_recipe_redesign.md` (Recipe model)
+- **Dependencies:** `docs/func-spec/F037_recipe_redesign.md` (Recipe model)
 - **Feature Roadmap:** `docs/feature_roadmap.md` (F043-F047 sequence)
 - **Constitution:** `.kittify/memory/constitution.md` (Architecture principles)
 

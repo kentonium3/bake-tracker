@@ -470,7 +470,7 @@ This summary describes the conceptual data entities and their relationships, not
 
 ## 17. Related Documents
 
-- **Design Specs:** `docs/design/F046_finished_goods_bundles_assembly.md`
+- **Design Specs:** `docs/func-spec/F046_finished_goods_bundles_assembly.md`
 - **Requirements:** `req_recipes.md` (recipe → FinishedUnit linkage)
 - **Requirements:** `req_planning.md` (event planning with finished goods)
 

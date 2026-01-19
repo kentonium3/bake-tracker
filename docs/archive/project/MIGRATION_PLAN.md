@@ -64,7 +64,7 @@ Creating a dedicated requirements directory to separate business requirements (W
 
 | Location | Why Not Moving |
 |----------|----------------|
-| `/docs/design/F0XX_*.md` | Feature specifications (HOW), belong in design/ |
+| `/docs/func-spec/F0XX_*.md` | Feature specifications (HOW), belong in design/ |
 | `/docs/design/architecture.md` | System architecture (HOW), belongs in design/ |
 | `/docs/design/schema_*.md` | Schema specs (HOW), belong in design/ |
 | `/docs/design/PHASE2_workflow_ux_redesign.md` | Design spec, not requirements |
@@ -102,10 +102,10 @@ Files that reference moved documents need path updates:
    - Change `requirements_*.md` → `req_*.md`
    - Update directory references
 
-3. `/docs/design/F031_ingredient_hierarchy.md`
+3. `/docs/func-spec/F031_ingredient_hierarchy.md`
    - If it references requirements, update path to `../requirements/req_ingredients.md`
 
-4. `/docs/design/F033_recipe_redesign.md`
+4. `/docs/func-spec/F033_recipe_redesign.md`
    - Will need to reference `../requirements/req_recipes.md` when created
 
 5. Any other design specs that reference requirements docs

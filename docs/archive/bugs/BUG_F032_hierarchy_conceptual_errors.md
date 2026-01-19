@@ -486,7 +486,7 @@ def update_ingredient_hierarchy(
 
 ## Related Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/design/F031_ingredient_hierarchy.md` - Original backend spec
+- `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F031_ingredient_hierarchy.md` - Original backend spec
 - `/Users/kentgale/Vaults-repos/bake-tracker/docs/bugs/BUG_F031_incomplete_hierarchy_ui.md` - Original UI spec (now superseded)
 
 ---

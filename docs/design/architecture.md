@@ -170,12 +170,12 @@ flowchart TB
 
 ### Stage Descriptions
 
-| Stage | Purpose | Key Entities |
-|-------|---------|--------------|
-| **Catalog** | Define reusable templates | Ingredient, Product, Recipe, FinishedUnit, Material, MaterialProduct |
-| **Plan** | Event-based production planning | Event, EventRecipientPackage, EventProductionTarget |
-| **Purchase** | Acquire and track inventory | Purchase, InventoryItem, MaterialPurchase, MaterialInventoryItem |
-| **Make** | Execute production | ProductionRun, AssemblyRun, consumption records |
+| Stage        | Purpose                         | Key Entities                                                         |
+| ------------ | ------------------------------- | -------------------------------------------------------------------- |
+| **Catalog**  | Define reusable templates       | Ingredient, Product, Recipe, FinishedUnit, Material, MaterialProduct |
+| **Plan**     | Event-based production planning | Event, EventRecipientPackage, EventProductionTarget                  |
+| **Purchase** | Acquire and track inventory     | Purchase, InventoryItem, MaterialPurchase, MaterialInventoryItem     |
+| **Make**     | Execute production              | ProductionRun, AssemblyRun, consumption records                      |
 
 ---
 

@@ -68,7 +68,7 @@ Possible next steps:
 
 - Feature 053 (context-rich-export-fixes) was partially created at `.worktrees/053-context-rich-export-fixes/`
 - The feature creation succeeded but spec wasn't written due to workflow interruption
-- Design doc: `docs/design/F053_context_rich_export_fixes.md`
+- Design doc: `docs/func-spec/F053_context_rich_export_fixes.md`
 
 ## Bug Reports Updated
 

@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-09
-**Feature Spec:** `kitty-specs/042-purchases-tab-crud-operations/spec.md` (+ `data-model.md`, `plan.md`, and `docs/design/F043_purchases_tab_implementation.md`)
+**Feature Spec:** `kitty-specs/042-purchases-tab-crud-operations/spec.md` (+ `data-model.md`, `plan.md`, and `docs/func-spec/F043_purchases_tab_implementation.md`)
 
 ## Executive Summary
 This feature implements a real Purchases tab UI (filters/sorting/context menu) and adds a set of CRUD-oriented service functions with solid unit test coverage. Verification passed cleanly, but there are a few high-impact data/ORM/session consistency issues that are very likely to break core workflows at runtime (dialogs) and/or violate the “Purchases drive Inventory” behavior required by the spec.

@@ -1294,7 +1294,7 @@ And: Assembly feasibility shows ✅ can assemble
 - **Requirements:** `docs/requirements/req_planning.md` (core planning requirements)
 - **Requirements:** `docs/requirements/req_finished_goods.md` (Bundle/FinishedGood hierarchy)
 - **Requirements:** `docs/requirements/req_recipes.md` (recipe variants, yield options)
-- **Dependencies:** `docs/design/F037_recipe_redesign.md` (template/snapshot architecture)
+- **Dependencies:** `docs/func-spec/F037_recipe_redesign.md` (template/snapshot architecture)
 - **Dependencies:** `docs/design/_F038_ui_mode_restructure.md` (PLAN mode structure)
 - **Constitution:** `.kittify/memory/constitution.md` (architectural principles)
 

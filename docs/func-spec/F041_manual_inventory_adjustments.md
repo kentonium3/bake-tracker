@@ -791,8 +791,8 @@ And: Adjustment is not applied
 ## 13. Related Documents
 
 - **Requirements:** `docs/requirements/req_inventory.md` Section 3.2 (Manual Adjustments)
-- **Dependencies:** `docs/design/F028_purchase_tracking_enhanced_costing.md` (Purchase system)
-- **Dependencies:** `docs/design/F029_streamlined_inventory_entry.md` (Inventory UI)
+- **Dependencies:** `docs/func-spec/F028_purchase_tracking_enhanced_costing.md` (Purchase system)
+- **Dependencies:** `docs/func-spec/F029_streamlined_inventory_entry.md` (Inventory UI)
 - **Constitution:** `.kittify/memory/constitution.md` (Data integrity principles)
 
 ---

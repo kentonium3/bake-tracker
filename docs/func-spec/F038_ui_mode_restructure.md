@@ -947,7 +947,7 @@ This section clarifies terminology mapping between requirements documents and co
 - `/docs/design/ingredient_hierarchy_architecture.md` - Ingredient hierarchy (used in CATALOG)
 - `/docs/design/recipe_redesign_architecture.md` - Recipe templates (used in CATALOG/PLAN)
 - `/docs/design/PHASE2_workflow_ux_redesign.md` - Phase 2 requirements
-- `/docs/design/F038_TERMINOLOGY_CORRECTION.md` - Terminology alignment (Bundle → FinishedGood)
+- `/docs/func-spec/F038_TERMINOLOGY_CORRECTION.md` - Terminology alignment (Bundle → FinishedGood)
 - `/.kittify/memory/constitution.md` - Architectural principles
 
 ---

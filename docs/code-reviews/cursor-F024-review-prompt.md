@@ -41,7 +41,7 @@ You are a senior software engineer performing an independent code review of Feat
 - `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/data-model.md`
 
 ### Architecture Reference
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/design/F024_unified_import_error_handling.md`
+- `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F024_unified_import_error_handling.md`
 - `/Users/kentgale/Vaults-repos/bake-tracker/docs/research/import_error_handling_architecture.md`
 
 ## Review Checklist
