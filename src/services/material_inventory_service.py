@@ -534,10 +534,19 @@ def _adjust_inventory_impl(
 
 def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
     """Convert a MaterialInventoryItem to a dictionary representation."""
+    # Get product info if available
+    product = item.product
+    product_name = product.name if product else "Unknown"
+    brand = product.brand if product else ""
+    display_name = product.display_name if product else product_name
+
     return {
         "id": item.id,
         "material_product_id": item.material_product_id,
         "material_purchase_id": item.material_purchase_id,
+        "product_name": product_name,
+        "brand": brand,
+        "display_name": display_name,
         "quantity_purchased": item.quantity_purchased,
         "quantity_remaining": Decimal(str(item.quantity_remaining)),
         "cost_per_unit": item.cost_per_unit,
@@ -549,3 +558,67 @@ def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
         "consumption_percentage": item.consumption_percentage,
         "remaining_value": item.remaining_value,
     }
+
+
+# =============================================================================
+# Feature 059: List Inventory Items for UI Display
+# =============================================================================
+
+
+def list_inventory_items(
+    product_id: Optional[int] = None,
+    include_depleted: bool = False,
+    session: Optional[Session] = None,
+) -> List[Dict[str, Any]]:
+    """
+    List all material inventory items with optional filtering.
+
+    Used by the UI to display inventory in a treeview with sorting/filtering.
+
+    Args:
+        product_id: Optional filter by MaterialProduct ID
+        include_depleted: If True, include items with quantity_remaining < 0.001
+        session: Optional database session
+
+    Returns:
+        List of dicts with inventory item data including product info
+
+    Example:
+        >>> items = list_inventory_items(include_depleted=False)
+        >>> for item in items:
+        ...     print(f"{item['product_name']}: {item['quantity_remaining']}")
+    """
+    if session is not None:
+        return _list_inventory_items_impl(product_id, include_depleted, session)
+    with session_scope() as sess:
+        return _list_inventory_items_impl(product_id, include_depleted, sess)
+
+
+def _list_inventory_items_impl(
+    product_id: Optional[int],
+    include_depleted: bool,
+    session: Session,
+) -> List[Dict[str, Any]]:
+    """Internal implementation of list_inventory_items."""
+    query = (
+        session.query(MaterialInventoryItem)
+        .options(
+            joinedload(MaterialInventoryItem.product)
+            .joinedload(MaterialProduct.material)
+        )
+    )
+
+    # Filter by product if specified
+    if product_id is not None:
+        query = query.filter(MaterialInventoryItem.material_product_id == product_id)
+
+    # Filter out depleted items unless requested
+    if not include_depleted:
+        query = query.filter(MaterialInventoryItem.quantity_remaining >= 0.001)
+
+    # Order by purchase_date descending (newest first for UI)
+    query = query.order_by(MaterialInventoryItem.purchase_date.desc())
+
+    items = query.all()
+
+    return [_inventory_item_to_dict(item) for item in items]
