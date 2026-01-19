@@ -8,7 +8,7 @@ subtasks:
   - "T045"
 title: "MaterialUnit UI Enhancement"
 phase: "Wave 2 - Extended Features"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "9582"
@@ -439,3 +439,4 @@ Manual testing:
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-19T03:13:59Z – claude-opus – shell_pid=9582 – lane=doing – Started implementation via workflow command
+- 2026-01-19T03:22:37Z – claude-opus – shell_pid=9582 – lane=for_review – Ready for review: MaterialUnit dialog now shows inherited unit type, dynamic quantity labels, consumption preview, and locks quantity to 1 for 'each' materials. All 2511 tests pass.
