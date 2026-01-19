@@ -1423,6 +1423,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
     Dialog for creating or editing a material unit.
 
     Feature 048: Modal dialog for unit management.
+    Feature 059: Enhanced to show inherited unit type and consumption preview.
     """
 
     def __init__(
@@ -1453,7 +1454,8 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        self.geometry("450x350")
+        # Feature 059: Increased height to accommodate unit type display and preview
+        self.geometry("450x450")
         self.resizable(False, False)
 
         # Center on parent
@@ -1514,6 +1516,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         form_frame = ctk.CTkFrame(self)
         form_frame.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
         form_frame.grid_columnconfigure(1, weight=1)
+        self._form_frame = form_frame  # Store reference for dynamic updates
 
         row = 0
 
@@ -1535,9 +1538,20 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             form_frame,
             values=["(Select material)"] + material_names,
             variable=self.material_var,
+            command=self._on_material_selected,  # Feature 059: Wire up handler
             width=250,
         )
         self.material_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=(10, 5))
+        row += 1
+
+        # Feature 059 (T041): Unit type display label - shows inherited type
+        self._unit_type_label = ctk.CTkLabel(
+            form_frame,
+            text="Unit Type: (select material)",
+            font=ctk.CTkFont(size=12),
+            text_color="gray",
+        )
+        self._unit_type_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 5))
         row += 1
 
         # Unit Name (required) - editable when adding, read-only when editing
@@ -1565,14 +1579,26 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Quantity per Unit (required)
-        ctk.CTkLabel(form_frame, text="Qty/Unit*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
+        # Feature 059 (T042): Dynamic quantity label based on unit type
+        self._qty_label = ctk.CTkLabel(form_frame, text="Qty/Unit*:")
+        self._qty_label.grid(row=row, column=0, sticky="w", padx=10, pady=5)
         self.qty_entry = ctk.CTkEntry(
             form_frame, placeholder_text="Base units consumed per unit"
         )
         self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        # Feature 059: Bind quantity changes to update preview
+        self.qty_entry.bind("<KeyRelease>", lambda e: self._update_consumption_preview())
+        row += 1
+
+        # Feature 059 (T043): Consumption preview text
+        self._preview_label = ctk.CTkLabel(
+            form_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+            wraplength=380,
+        )
+        self._preview_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=(5, 10))
         row += 1
 
         # Description (optional)
@@ -1584,6 +1610,10 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         )
         self.description_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
+
+        # Feature 059: Initialize state if material is pre-selected
+        if self.material_id:
+            self._on_material_selected(self.material_var.get())
 
     def _create_buttons(self):
         """Create dialog buttons."""
@@ -1618,6 +1648,8 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         material_name = self.unit.get("material_name", "")
         if material_name and material_name in self._materials:
             self.material_var.set(material_name)
+            # Feature 059: Trigger material selection handler to update UI
+            self._on_material_selected(material_name)
 
         # Set quantity per unit
         qty = self.unit.get("quantity_per_unit", "")
@@ -1628,6 +1660,154 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         description = self.unit.get("description", "")
         if description:
             self.description_entry.insert(0, description)
+
+        # Feature 059: Update preview after populating
+        self._update_consumption_preview()
+
+    # =========================================================================
+    # Feature 059: Dynamic UI Update Methods (T041-T045)
+    # =========================================================================
+
+    def _on_material_selected(self, value: str):
+        """
+        Feature 059 (T045): Handle material dropdown selection change.
+
+        Updates all dynamic elements when user selects a different material:
+        - Unit type display label (T041)
+        - Quantity field label (T042)
+        - Consumption preview (T043)
+        - Quantity field lock state for "each" materials (T044)
+        """
+        if not value or value == "(Select material)":
+            # Reset to defaults
+            self._unit_type_label.configure(
+                text="Unit Type: (select material)",
+                text_color="gray",
+            )
+            self._qty_label.configure(text="Qty/Unit*:")
+            self._preview_label.configure(text="")
+            self.qty_entry.configure(state="normal")
+            self.qty_entry.configure(placeholder_text="Base units consumed per unit")
+            return
+
+        # Look up material data
+        material_data = self._materials.get(value)
+        if not material_data:
+            return
+
+        unit_type = material_data.get("base_unit", "each")
+
+        # T041: Update unit type display
+        self._update_unit_type_display(unit_type)
+
+        # T042: Update quantity label
+        self._update_quantity_label(unit_type)
+
+        # T044: Lock/unlock quantity for "each" materials
+        if unit_type == "each":
+            self._set_quantity_locked(True)
+        else:
+            self._set_quantity_locked(False)
+
+        # T043: Update consumption preview
+        self._update_consumption_preview()
+
+    def _update_unit_type_display(self, unit_type: str):
+        """
+        Feature 059 (T041): Update the unit type display label.
+
+        Shows the inherited base_unit_type from the selected Material
+        with a user-friendly description.
+        """
+        type_descriptions = {
+            "each": "each (discrete items)",
+            "linear_cm": "linear_cm (length in centimeters)",
+            "square_cm": "square_cm (area in square centimeters)",
+        }
+        description = type_descriptions.get(unit_type, unit_type)
+        self._unit_type_label.configure(
+            text=f"Unit Type: {description}",
+            text_color=("gray10", "gray90"),  # Dark mode compatible
+        )
+
+    def _update_quantity_label(self, unit_type: str):
+        """
+        Feature 059 (T042): Update the quantity field label based on unit type.
+
+        Makes the label dynamic to help users understand what value to enter.
+        """
+        label_text = {
+            "each": "Qty/Unit (always 1):",
+            "linear_cm": "Length per unit (cm)*:",
+            "square_cm": "Area per unit (cm\u00b2)*:",
+        }
+        self._qty_label.configure(text=label_text.get(unit_type, "Qty/Unit*:"))
+
+    def _update_consumption_preview(self):
+        """
+        Feature 059 (T043): Update the consumption preview text.
+
+        Shows a user-friendly preview of what this unit will consume
+        when used in production.
+        """
+        material_name = self.material_var.get()
+        if not material_name or material_name == "(Select material)":
+            self._preview_label.configure(text="")
+            return
+
+        material_data = self._materials.get(material_name)
+        if not material_data:
+            self._preview_label.configure(text="")
+            return
+
+        unit_type = material_data.get("base_unit", "each")
+
+        # Get quantity value
+        qty_str = self.qty_entry.get().strip()
+        try:
+            quantity = float(qty_str)
+            if quantity <= 0:
+                self._preview_label.configure(text="")
+                return
+        except (ValueError, TypeError):
+            if qty_str:
+                self._preview_label.configure(
+                    text="Enter a valid quantity to see preview",
+                    text_color="orange",
+                )
+            else:
+                self._preview_label.configure(text="")
+            return
+
+        # Build preview text based on unit type
+        if unit_type == "each":
+            preview = f"Each use of this unit will consume 1 {material_name}"
+        elif unit_type == "linear_cm":
+            preview = f"Each use of this unit will consume {quantity:.2f} cm of {material_name}"
+        elif unit_type == "square_cm":
+            preview = f"Each use of this unit will consume {quantity:.2f} cm\u00b2 of {material_name}"
+        else:
+            preview = f"Each use will consume {quantity:.2f} {unit_type} of {material_name}"
+
+        self._preview_label.configure(text=preview, text_color="gray")
+
+    def _set_quantity_locked(self, locked: bool):
+        """
+        Feature 059 (T044): Lock or unlock the quantity field.
+
+        For "each" materials, quantity must always be 1 (discrete items).
+        The field is disabled and auto-filled with 1.
+        """
+        if locked:
+            # Clear and set value to 1, then disable
+            self.qty_entry.delete(0, "end")
+            self.qty_entry.insert(0, "1")
+            self.qty_entry.configure(state="disabled")
+            self.qty_entry.configure(placeholder_text="")
+        else:
+            # Enable the field
+            self.qty_entry.configure(state="normal")
+            self.qty_entry.configure(placeholder_text="Base units consumed per unit")
 
     def _save(self):
         """Validate and save the unit."""
@@ -1650,12 +1830,20 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Error", "Unit name is required.")
             return
 
-        # Validate quantity per unit
+        # Feature 059 (T044): Validate quantity per unit with special handling for "each"
+        unit_type = self._materials[material_name].get("base_unit", "each")
         qty_str = self.qty_entry.get().strip()
         try:
             quantity_per_unit = float(qty_str)
             if quantity_per_unit <= 0:
                 raise ValueError("Must be positive")
+            # Feature 059: Enforce quantity=1 for "each" materials
+            if unit_type == "each" and quantity_per_unit != 1:
+                messagebox.showerror(
+                    "Error",
+                    "Quantity must be 1 for 'each' materials (discrete items)."
+                )
+                return
         except ValueError:
             messagebox.showerror("Error", "Quantity must be a positive number.")
             return
