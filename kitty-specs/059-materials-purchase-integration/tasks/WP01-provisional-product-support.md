@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Service Layer - Provisional Product Support"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "59960"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -362,3 +362,4 @@ Run tests with:
 ## Activity Log
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-19T00:02:40Z – claude-opus – shell_pid=59960 – lane=doing – Started implementation via workflow command
