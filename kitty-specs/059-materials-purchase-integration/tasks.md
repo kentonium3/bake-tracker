@@ -57,7 +57,7 @@
 - [x] T007 Implement "each" materials adjustment (direct quantity update via Add/Subtract/Set)
 - [x] T008 Implement "variable" materials adjustment (percentage-based calculation)
 - [x] T009 Add notes field support for adjustment reason tracking
-- [ ] T010 Write unit tests for adjustment scenarios (happy path, edge cases, validation)
+- [x] T010 Write unit tests for adjustment scenarios (happy path, edge cases, validation)
 
 ### Implementation Notes
 - Per clarification: Update existing lot's quantity_remaining directly (no new lot creation)
