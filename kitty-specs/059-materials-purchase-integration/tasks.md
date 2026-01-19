@@ -122,7 +122,7 @@
 - [x] T021 [P] Add cascading filters (MaterialProduct dropdown, date range, show depleted checkbox)
 - [x] T022 [P] Implement item count display (status label)
 - [x] T023 Add empty state message ("No material inventory items...")
-- [ ] T024 Wire up data loading from MaterialInventoryService.list_inventory_items()
+- [x] T024 Wire up data loading from MaterialInventoryService.list_inventory_items()
 
 ### Implementation Notes
 - Follow inventory_tab.py patterns from research.md
