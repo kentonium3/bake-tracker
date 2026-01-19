@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Integration & Polish
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T046
@@ -11,8 +11,8 @@ subtasks:
 - T050
 phase: Final
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "18602"
 review_status: ''
 reviewed_by: ''
 history:
@@ -398,3 +398,4 @@ User Story 6 - MaterialUnit Enhancement:
 ## Activity Log
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-19T03:50:41Z – claude-opus – shell_pid=18602 – lane=doing – Started implementation via workflow command
