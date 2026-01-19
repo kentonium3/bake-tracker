@@ -150,7 +150,7 @@
 **Prompt**: `tasks/WP05-adjustment-dialog.md`
 
 ### Included Subtasks
-- [ ] T025 Create MaterialAdjustmentDialog class (CTkToplevel with modal setup)
+- [x] T025 Create MaterialAdjustmentDialog class (CTkToplevel with modal setup)
 - [ ] T026 Implement "each" materials UI (Add/Subtract/Set radio buttons + integer input)
 - [ ] T027 Implement "variable" materials UI (percentage input 0-100)
 - [ ] T028 Add live preview calculation (color-coded: gray/green/red)
