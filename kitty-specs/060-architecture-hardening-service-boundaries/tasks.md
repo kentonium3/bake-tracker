@@ -57,7 +57,7 @@
 ### Included Subtasks
 - [x] T005 Add `session=None` to `get_production_progress()` (line 1927)
 - [x] T006 [P] Add `session=None` to `get_assembly_progress()` (line 2005)
-- [ ] T007 [P] Add `session=None` to `get_shopping_list()` (line 946)
+- [x] T007 [P] Add `session=None` to `get_shopping_list()` (line 946)
 - [ ] T008 Update event_service tests for session pass-through
 - [ ] T009 Verify backward compatibility (no session still works)
 
