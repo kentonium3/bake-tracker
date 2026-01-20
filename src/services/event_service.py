@@ -943,7 +943,9 @@ def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
     return total
 
 
-def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str, Any]:
+def get_shopping_list(
+    event_id: int, include_packaging: bool = True, session=None
+) -> Dict[str, Any]:
     """
     Calculate ingredients needed with inventory comparison and product recommendations.
 
@@ -955,6 +957,9 @@ def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str
     Args:
         event_id: Event ID
         include_packaging: Whether to include packaging section (default True)
+        session: Optional SQLAlchemy session. If provided, all operations
+                 use this session and caller controls commit/rollback.
+                 If None, method manages its own transaction.
 
     Returns:
         Dict with:
@@ -1002,135 +1007,146 @@ def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str
                     pass
             return result
 
+        # Use provided session or create new one
+        if session is not None:
+            return _get_shopping_list_impl(event_id, include_packaging, recipe_needs, session)
+
         with session_scope() as session:
-            # Aggregate ingredient needs across all recipes
-            ingredient_totals: Dict[int, Decimal] = {}  # ingredient_id -> quantity needed
-            ingredient_info: Dict[int, Dict] = {}  # ingredient_id -> {name, unit, slug}
-
-            for recipe_need in recipe_needs:
-                recipe_id = recipe_need["recipe_id"]
-                batches_needed = recipe_need["batches_needed"]
-
-                # Get recipe with ingredients
-                recipe = (
-                    session.query(Recipe)
-                    .options(
-                        joinedload(Recipe.recipe_ingredients).joinedload(
-                            RecipeIngredient.ingredient
-                        )
-                    )
-                    .filter(Recipe.id == recipe_id)
-                    .first()
-                )
-
-                if not recipe:
-                    continue
-
-                for ri in recipe.recipe_ingredients:
-                    if not ri.ingredient:
-                        continue
-
-                    ing_id = ri.ingredient_id
-                    # Scale quantity by batches needed
-                    qty = Decimal(str(ri.quantity)) * Decimal(str(batches_needed))
-
-                    ingredient_totals[ing_id] = ingredient_totals.get(ing_id, Decimal("0")) + qty
-                    ingredient_info[ing_id] = {
-                        "name": ri.ingredient.display_name,
-                        "unit": ri.unit,
-                        "slug": ri.ingredient.slug,  # Added for product lookup
-                    }
-
-            # Get on-hand quantities from inventory
-            # Import here to avoid circular imports
-            from src.services import inventory_item_service
-            from src.services.product_service import get_product_recommendation
-
-            items = []
-            for ing_id, qty_needed in ingredient_totals.items():
-                info = ingredient_info[ing_id]
-
-                # Get on-hand quantity from inventory service
-                try:
-                    qty_on_hand = Decimal(
-                        str(inventory_item_service.get_ingredient_quantity_on_hand(ing_id))
-                    )
-                except Exception:
-                    qty_on_hand = Decimal("0")
-
-                shortfall = max(Decimal("0"), qty_needed - qty_on_hand)
-
-                item = {
-                    "ingredient_id": ing_id,
-                    "ingredient_name": info["name"],
-                    "ingredient_slug": info["slug"],
-                    "unit": info["unit"],
-                    "quantity_needed": qty_needed,
-                    "quantity_on_hand": qty_on_hand,
-                    "shortfall": shortfall,
-                }
-
-                # Feature 007: Add product recommendations if shortfall > 0
-                if shortfall > 0:
-                    product_data = get_product_recommendation(
-                        info["slug"],
-                        shortfall,
-                        info["unit"],
-                    )
-                    item["product_status"] = product_data["product_status"]
-                    item["product_recommendation"] = product_data.get("product_recommendation")
-                    item["all_products"] = product_data.get("all_products", [])
-                else:
-                    # No shortfall - sufficient stock
-                    item["product_status"] = "sufficient"
-                    item["product_recommendation"] = None
-                    item["all_products"] = []
-
-                items.append(item)
-
-            # Sort by ingredient name
-            items.sort(key=lambda x: x["ingredient_name"])
-
-            # Calculate total estimated cost (T006)
-            total_estimated_cost = _calculate_total_estimated_cost(items)
-
-            result = {
-                "items": items,
-                "total_estimated_cost": total_estimated_cost,
-                "items_count": len(items),
-                "items_with_shortfall": sum(1 for i in items if i["shortfall"] > 0),
-            }
-
-            # Feature 011: Add packaging section if requested
-            # Feature 026: Include generic packaging info
-            if include_packaging:
-                try:
-                    packaging_needs = get_event_packaging_needs(event_id)
-                    if packaging_needs:  # Only add if not empty
-                        result["packaging"] = [
-                            {
-                                "product_id": need.product_id,
-                                "ingredient_name": need.ingredient_name,
-                                "product_name": need.product_display_name,
-                                "total_needed": need.total_needed,
-                                "on_hand": need.on_hand,
-                                "to_buy": need.to_buy,
-                                "unit": need.unit,
-                                # Feature 026: Generic packaging fields
-                                "is_generic": need.is_generic,
-                                "generic_product_name": need.generic_product_name,
-                                "estimated_cost": need.estimated_cost,
-                            }
-                            for need in packaging_needs.values()
-                        ]
-                except EventNotFoundError:
-                    # Event exists (we already checked), so this shouldn't happen
-                    pass
-
-            return result
+            return _get_shopping_list_impl(event_id, include_packaging, recipe_needs, session)
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to generate shopping list: {str(e)}")
+
+
+def _get_shopping_list_impl(
+    event_id: int, include_packaging: bool, recipe_needs: List[Dict], session
+) -> Dict[str, Any]:
+    """Implementation of get_shopping_list using provided session."""
+    # Aggregate ingredient needs across all recipes
+    ingredient_totals: Dict[int, Decimal] = {}  # ingredient_id -> quantity needed
+    ingredient_info: Dict[int, Dict] = {}  # ingredient_id -> {name, unit, slug}
+
+    for recipe_need in recipe_needs:
+        recipe_id = recipe_need["recipe_id"]
+        batches_needed = recipe_need["batches_needed"]
+
+        # Get recipe with ingredients
+        recipe = (
+            session.query(Recipe)
+            .options(
+                joinedload(Recipe.recipe_ingredients).joinedload(
+                    RecipeIngredient.ingredient
+                )
+            )
+            .filter(Recipe.id == recipe_id)
+            .first()
+        )
+
+        if not recipe:
+            continue
+
+        for ri in recipe.recipe_ingredients:
+            if not ri.ingredient:
+                continue
+
+            ing_id = ri.ingredient_id
+            # Scale quantity by batches needed
+            qty = Decimal(str(ri.quantity)) * Decimal(str(batches_needed))
+
+            ingredient_totals[ing_id] = ingredient_totals.get(ing_id, Decimal("0")) + qty
+            ingredient_info[ing_id] = {
+                "name": ri.ingredient.display_name,
+                "unit": ri.unit,
+                "slug": ri.ingredient.slug,  # Added for product lookup
+            }
+
+    # Get on-hand quantities from inventory
+    # Import here to avoid circular imports
+    from src.services import inventory_item_service
+    from src.services.product_service import get_product_recommendation
+
+    items = []
+    for ing_id, qty_needed in ingredient_totals.items():
+        info = ingredient_info[ing_id]
+
+        # Get on-hand quantity from inventory service
+        try:
+            qty_on_hand = Decimal(
+                str(inventory_item_service.get_ingredient_quantity_on_hand(ing_id))
+            )
+        except Exception:
+            qty_on_hand = Decimal("0")
+
+        shortfall = max(Decimal("0"), qty_needed - qty_on_hand)
+
+        item = {
+            "ingredient_id": ing_id,
+            "ingredient_name": info["name"],
+            "ingredient_slug": info["slug"],
+            "unit": info["unit"],
+            "quantity_needed": qty_needed,
+            "quantity_on_hand": qty_on_hand,
+            "shortfall": shortfall,
+        }
+
+        # Feature 007: Add product recommendations if shortfall > 0
+        if shortfall > 0:
+            product_data = get_product_recommendation(
+                info["slug"],
+                shortfall,
+                info["unit"],
+            )
+            item["product_status"] = product_data["product_status"]
+            item["product_recommendation"] = product_data.get("product_recommendation")
+            item["all_products"] = product_data.get("all_products", [])
+        else:
+            # No shortfall - sufficient stock
+            item["product_status"] = "sufficient"
+            item["product_recommendation"] = None
+            item["all_products"] = []
+
+        items.append(item)
+
+    # Sort by ingredient name
+    items.sort(key=lambda x: x["ingredient_name"])
+
+    # Calculate total estimated cost (T006)
+    total_estimated_cost = _calculate_total_estimated_cost(items)
+
+    result = {
+        "items": items,
+        "total_estimated_cost": total_estimated_cost,
+        "items_count": len(items),
+        "items_with_shortfall": sum(1 for i in items if i["shortfall"] > 0),
+    }
+
+    # Feature 011: Add packaging section if requested
+    # Feature 026: Include generic packaging info
+    if include_packaging:
+        try:
+            packaging_needs = get_event_packaging_needs(event_id)
+            if packaging_needs:  # Only add if not empty
+                result["packaging"] = [
+                    {
+                        "product_id": need.product_id,
+                        "ingredient_name": need.ingredient_name,
+                        "product_name": need.product_display_name,
+                        "total_needed": need.total_needed,
+                        "on_hand": need.on_hand,
+                        "to_buy": need.to_buy,
+                        "unit": need.unit,
+                        # Feature 026: Generic packaging fields
+                        "is_generic": need.is_generic,
+                        "generic_product_name": need.generic_product_name,
+                        "estimated_cost": need.estimated_cost,
+                    }
+                    for need in packaging_needs.values()
+                ]
+        except EventNotFoundError:
+            # Event exists (we already checked), so this shouldn't happen
+            pass
+
+    return result
 
 
 def export_shopping_list_csv(event_id: int, file_path: str) -> bool:
@@ -1924,7 +1940,7 @@ def delete_assembly_target(event_id: int, finished_good_id: int) -> bool:
 # ============================================================================
 
 
-def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
+def get_production_progress(event_id: int, session=None) -> List[Dict[str, Any]]:
     """
     Get production progress for all targets in an event.
 
@@ -1933,6 +1949,9 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
 
     Args:
         event_id: Event ID
+        session: Optional SQLAlchemy session. If provided, all operations
+                 use this session and caller controls commit/rollback.
+                 If None, method manages its own transaction.
 
     Returns:
         List of dicts with:
@@ -1944,65 +1963,71 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
         - progress_pct: float (can exceed 100%)
         - is_complete: bool
     """
+    if session is not None:
+        return _get_production_progress_impl(event_id, session)
     try:
         with session_scope() as session:
-            # Get all targets for this event with recipes eager-loaded
-            targets = (
-                session.query(EventProductionTarget)
-                .options(joinedload(EventProductionTarget.recipe))
-                .filter_by(event_id=event_id)
-                .all()
-            )
-
-            if not targets:
-                return []
-
-            # Get all production totals in a single GROUP BY query
-            # This avoids N+1 queries by fetching all production sums at once
-            production_totals = (
-                session.query(
-                    ProductionRun.recipe_id,
-                    func.coalesce(func.sum(ProductionRun.num_batches), 0).label("total_batches"),
-                    func.coalesce(func.sum(ProductionRun.actual_yield), 0).label("total_yield"),
-                )
-                .filter(ProductionRun.event_id == event_id)
-                .group_by(ProductionRun.recipe_id)
-                .all()
-            )
-
-            # Build lookup dict: recipe_id -> (total_batches, total_yield)
-            production_by_recipe = {
-                row.recipe_id: (int(row.total_batches), int(row.total_yield))
-                for row in production_totals
-            }
-
-            # Merge targets with production totals
-            results = []
-            for target in targets:
-                produced_batches, produced_yield = production_by_recipe.get(
-                    target.recipe_id, (0, 0)
-                )
-                progress_pct = (produced_batches / target.target_batches) * 100
-
-                results.append(
-                    {
-                        "recipe_id": target.recipe_id,
-                        "recipe_name": target.recipe.name,
-                        "target_batches": target.target_batches,
-                        "produced_batches": produced_batches,
-                        "produced_yield": produced_yield,
-                        "progress_pct": progress_pct,
-                        "is_complete": produced_batches >= target.target_batches,
-                    }
-                )
-
-            return results
-
+            return _get_production_progress_impl(event_id, session)
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get production progress: {str(e)}")
 
 
-def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
+def _get_production_progress_impl(event_id: int, session) -> List[Dict[str, Any]]:
+    """Implementation of get_production_progress using provided session."""
+    # Get all targets for this event with recipes eager-loaded
+    targets = (
+        session.query(EventProductionTarget)
+        .options(joinedload(EventProductionTarget.recipe))
+        .filter_by(event_id=event_id)
+        .all()
+    )
+
+    if not targets:
+        return []
+
+    # Get all production totals in a single GROUP BY query
+    # This avoids N+1 queries by fetching all production sums at once
+    production_totals = (
+        session.query(
+            ProductionRun.recipe_id,
+            func.coalesce(func.sum(ProductionRun.num_batches), 0).label("total_batches"),
+            func.coalesce(func.sum(ProductionRun.actual_yield), 0).label("total_yield"),
+        )
+        .filter(ProductionRun.event_id == event_id)
+        .group_by(ProductionRun.recipe_id)
+        .all()
+    )
+
+    # Build lookup dict: recipe_id -> (total_batches, total_yield)
+    production_by_recipe = {
+        row.recipe_id: (int(row.total_batches), int(row.total_yield))
+        for row in production_totals
+    }
+
+    # Merge targets with production totals
+    results = []
+    for target in targets:
+        produced_batches, produced_yield = production_by_recipe.get(
+            target.recipe_id, (0, 0)
+        )
+        progress_pct = (produced_batches / target.target_batches) * 100
+
+        results.append(
+            {
+                "recipe_id": target.recipe_id,
+                "recipe_name": target.recipe.name,
+                "target_batches": target.target_batches,
+                "produced_batches": produced_batches,
+                "produced_yield": produced_yield,
+                "progress_pct": progress_pct,
+                "is_complete": produced_batches >= target.target_batches,
+            }
+        )
+
+    return results
+
+
+def get_assembly_progress(event_id: int, session=None) -> List[Dict[str, Any]]:
     """
     Get assembly progress for all targets in an event.
 
@@ -2011,6 +2036,9 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
 
     Args:
         event_id: Event ID
+        session: Optional SQLAlchemy session. If provided, all operations
+                 use this session and caller controls commit/rollback.
+                 If None, method manages its own transaction.
 
     Returns:
         List of dicts with:
@@ -2021,59 +2049,65 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
         - progress_pct: float (can exceed 100%)
         - is_complete: bool
     """
+    if session is not None:
+        return _get_assembly_progress_impl(event_id, session)
     try:
         with session_scope() as session:
-            # Get all targets for this event with finished goods eager-loaded
-            targets = (
-                session.query(EventAssemblyTarget)
-                .options(joinedload(EventAssemblyTarget.finished_good))
-                .filter_by(event_id=event_id)
-                .all()
-            )
-
-            if not targets:
-                return []
-
-            # Get all assembly totals in a single GROUP BY query
-            # This avoids N+1 queries by fetching all assembly sums at once
-            assembly_totals = (
-                session.query(
-                    AssemblyRun.finished_good_id,
-                    func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0).label(
-                        "total_assembled"
-                    ),
-                )
-                .filter(AssemblyRun.event_id == event_id)
-                .group_by(AssemblyRun.finished_good_id)
-                .all()
-            )
-
-            # Build lookup dict: finished_good_id -> total_assembled
-            assembly_by_fg = {
-                row.finished_good_id: int(row.total_assembled) for row in assembly_totals
-            }
-
-            # Merge targets with assembly totals
-            results = []
-            for target in targets:
-                assembled_qty = assembly_by_fg.get(target.finished_good_id, 0)
-                progress_pct = (assembled_qty / target.target_quantity) * 100
-
-                results.append(
-                    {
-                        "finished_good_id": target.finished_good_id,
-                        "finished_good_name": target.finished_good.display_name,
-                        "target_quantity": target.target_quantity,
-                        "assembled_quantity": assembled_qty,
-                        "progress_pct": progress_pct,
-                        "is_complete": assembled_qty >= target.target_quantity,
-                    }
-                )
-
-            return results
-
+            return _get_assembly_progress_impl(event_id, session)
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get assembly progress: {str(e)}")
+
+
+def _get_assembly_progress_impl(event_id: int, session) -> List[Dict[str, Any]]:
+    """Implementation of get_assembly_progress using provided session."""
+    # Get all targets for this event with finished goods eager-loaded
+    targets = (
+        session.query(EventAssemblyTarget)
+        .options(joinedload(EventAssemblyTarget.finished_good))
+        .filter_by(event_id=event_id)
+        .all()
+    )
+
+    if not targets:
+        return []
+
+    # Get all assembly totals in a single GROUP BY query
+    # This avoids N+1 queries by fetching all assembly sums at once
+    assembly_totals = (
+        session.query(
+            AssemblyRun.finished_good_id,
+            func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0).label(
+                "total_assembled"
+            ),
+        )
+        .filter(AssemblyRun.event_id == event_id)
+        .group_by(AssemblyRun.finished_good_id)
+        .all()
+    )
+
+    # Build lookup dict: finished_good_id -> total_assembled
+    assembly_by_fg = {
+        row.finished_good_id: int(row.total_assembled) for row in assembly_totals
+    }
+
+    # Merge targets with assembly totals
+    results = []
+    for target in targets:
+        assembled_qty = assembly_by_fg.get(target.finished_good_id, 0)
+        progress_pct = (assembled_qty / target.target_quantity) * 100
+
+        results.append(
+            {
+                "finished_good_id": target.finished_good_id,
+                "finished_good_name": target.finished_good.display_name,
+                "target_quantity": target.target_quantity,
+                "assembled_quantity": assembled_qty,
+                "progress_pct": progress_pct,
+                "is_complete": assembled_qty >= target.target_quantity,
+            }
+        )
+
+    return results
 
 
 def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
