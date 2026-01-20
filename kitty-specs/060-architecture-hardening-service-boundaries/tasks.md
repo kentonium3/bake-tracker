@@ -88,7 +88,7 @@
 ### Included Subtasks
 - [x] T010 Update `progress.py` to pass session to event service calls (lines 98, 154)
 - [x] T011 Remove `session.commit()` from `shopping_list.py` (lines 223, 266)
-- [ ] T012 Update `feasibility.py` to return cost/assignment blockers distinctly
+- [x] T012 Update `feasibility.py` to return cost/assignment blockers distinctly
 - [ ] T013 Implement `available_to_assemble` via feasibility service
 - [ ] T014 Update planning orchestration tests
 - [ ] T015 Verify shopping list backward compatibility
