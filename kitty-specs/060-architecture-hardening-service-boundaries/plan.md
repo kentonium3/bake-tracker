@@ -1,108 +1,291 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Architecture Hardening - Service Boundaries & Session Management
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `.kittify/templates/commands/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `060-architecture-hardening-service-boundaries` | **Date**: 2026-01-20 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/kitty-specs/060-architecture-hardening-service-boundaries/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Harden foundational architecture by enforcing session ownership discipline across all services, completing planning snapshots with aggregated ingredients, adding assembly ledger for nested finished goods, deprecating the old production service, and enhancing staleness detection for BOM mutations.
+
+**Technical approach**: Apply the mature `nullcontext` session threading pattern from `batch_production_service.py` to all services. Follow dependency-driven work package ordering: session ownership foundation first, then event service normalization (which unblocks planning orchestration), then parallel tracks for snapshots/staleness/assembly/deprecation.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+ (per constitution)
+**Primary Dependencies**: SQLAlchemy 2.x, CustomTkinter (no changes)
+**Storage**: SQLite with WAL mode (no changes)
+**Testing**: pytest with >70% service layer coverage required
+**Target Platform**: Desktop (Windows/Mac/Linux)
+**Project Type**: Single desktop application
+**Performance Goals**: N/A (desktop scale, single user)
+**Constraints**: No database migrations (export/reset/import per constitution)
+**Scale/Scope**: Single user, ~50 services/files affected
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. User-Centric Design | PASS | Internal refactoring improves reliability, no user-facing changes |
+| II. Data Integrity & FIFO Accuracy | PASS | Session atomicity ensures FIFO accuracy; ledger completeness improves audit trail |
+| III. Future-Proof Schema | PASS | Adding `Composition.updated_at` is nullable-friendly; export/reset/import handles schema change |
+| IV. Test-Driven Development | PASS | Each WP includes test requirements; atomicity tests added |
+| V. Layered Architecture Discipline | PASS | Reinforces service layer boundaries; no UI logic changes |
+| VI. Schema Change Strategy | PASS | `Composition.updated_at` addition handled via export/reset/import |
+| VII. Pragmatic Aspiration | PASS | Session ownership supports future web/API wrapping |
+
+**No violations requiring complexity justification.**
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/060-architecture-hardening-service-boundaries/
+├── plan.md              # This file
+├── spec.md              # Feature specification
+├── research.md          # Phase 0 research findings
+├── data-model.md        # Model changes (Composition.updated_at)
+├── checklists/          # Quality checklists
+└── tasks/               # Work package files (generated by /spec-kitty.tasks)
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+### Source Code (affected areas)
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
+│   └── composition.py         # Add updated_at timestamp (FR-021)
 ├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+│   ├── event_service.py       # Add session params to get_*/list_* (FR-7)
+│   ├── production_service.py  # DEPRECATE record_production (FR-4)
+│   └── planning/
+│       ├── planning_service.py  # Aggregated ingredients, staleness (FR-2, FR-6)
+│       ├── progress.py          # Pass session to event service (FR-5)
+│       ├── shopping_list.py     # Remove internal commits (FR-5)
+│       └── feasibility.py       # Cost/assignment blockers (FR-5)
 └── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+    └── services/
+        ├── test_session_atomicity.py    # NEW: Transaction rollback tests
+        ├── test_production_service.py   # Migrate to batch_production
+        └── planning/                    # Update planning tests
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Existing single-project structure. Changes are internal refactoring only.
 
-## Complexity Tracking
+## Research Findings Summary
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+### Gold Standard Pattern (batch_production_service.py)
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+```python
+# Lines 279-281: Elegant session ownership with nullcontext
+cm = nullcontext(session) if session is not None else session_scope()
+with cm as session:
+    # All operations use same session
+    result = inventory_item_service.consume_fifo(..., session=session)
+```
+
+Key elements:
+- Optional `session=None` parameter on all public methods
+- `nullcontext` for elegant conditional session ownership
+- All downstream calls receive session
+- No internal commits when session provided
+- Cost snapshots captured in consumption records
+
+### Services Inventory
+
+| Category | Count | Services |
+|----------|-------|----------|
+| **Correct (no changes)** | 9 | batch_production, assembly, recipe, ingredient, inventory_item, unit, supplier, recipe_snapshot, packaging |
+| **Need session param** | 3 methods | event_service: `get_production_progress()`, `get_assembly_progress()`, `get_shopping_list()` |
+| **Need commit removal** | 2 methods | shopping_list: `mark_shopping_complete()`, `unmark_shopping_complete()` (lines 223, 266) |
+
+### Production Service Callers
+
+| Location | Line | Status |
+|----------|------|--------|
+| `production_tab.py` | 337 | File already marked DEPRECATED |
+| `test_production_service.py` | 14+ refs | Tests need migration |
+| `record_production_dialog.py` | N/A | Already uses batch_production_service |
+
+**Migration risk: LOW** - Only 1 active caller in deprecated file.
+
+### Staleness Detection Gaps
+
+| Mutation Type | Currently Tracked | Status |
+|---------------|-------------------|--------|
+| Event modification | YES | OK |
+| Assembly/Production targets | YES | OK |
+| Recipe modification | YES | OK |
+| FinishedGood modification | YES | OK |
+| Composition.created_at | YES | OK |
+| Composition.updated_at | NO | **Model field missing** |
+| FinishedUnit yield changes | NO | **Not checked** (field exists) |
+| Aggregated ingredients | NO | **TODO placeholder empty** |
+
+## Work Package Decomposition (Dependency-Driven)
+
+### Critical Path
+
+```
+WP01 Session Ownership Foundation
+  │
+  ├──► WP02 Event Service Normalization
+  │      │
+  │      └──► WP03 Planning Orchestration
+  │
+  ├──► WP04 Planning Snapshots (parallel)
+  │
+  ├──► WP05 Staleness Detection (parallel)
+  │
+  ├──► WP06 Assembly Nested FG Ledger (parallel)
+  │
+  └──► WP07 Deprecate Production Service (parallel)
+```
+
+### WP01: Session Ownership Foundation (FR-1)
+
+**Scope**: Establish the session parameter pattern contract and test infrastructure.
+
+**Tasks**:
+1. Create `test_session_atomicity.py` with rollback verification tests
+2. Document the `nullcontext` pattern in code comments
+3. Verify existing correct services match pattern (batch_production, assembly, recipe, ingredient, inventory_item)
+4. Create helper function or decorator for consistent session handling (optional)
+
+**Dependencies**: None (foundational)
+**Estimated files**: 2-3
+**Risk**: Low
+
+### WP02: Event Service Session Normalization (FR-7)
+
+**Scope**: Add session parameter to event service helpers.
+
+**Tasks**:
+1. Add `session=None` to `get_production_progress()` (line 1927)
+2. Add `session=None` to `get_assembly_progress()` (line 2005)
+3. Add `session=None` to `get_shopping_list()` (line 946)
+4. Implement conditional session handling in each
+5. Update tests to verify session pass-through
+
+**Dependencies**: WP01 (pattern established)
+**Estimated files**: 2 (event_service.py, test_event_service.py)
+**Risk**: Low
+
+### WP03: Planning Orchestration Session Discipline (FR-5)
+
+**Scope**: Thread session through planning services.
+
+**Tasks**:
+1. Update `progress.py` to pass session to event service calls (lines 98, 154)
+2. Remove `session.commit()` from `shopping_list.py` (lines 223, 266)
+3. Update `feasibility.py` to return cost/assignment blockers distinctly
+4. Implement `available_to_assemble` via feasibility service
+5. Update planning orchestration tests
+
+**Dependencies**: WP02 (event service accepts session)
+**Estimated files**: 4 (progress.py, shopping_list.py, feasibility.py, tests)
+**Risk**: Medium (multiple files, behavior change)
+
+### WP04: Planning Snapshot Aggregated Ingredients (FR-2)
+
+**Scope**: Complete the TODO at line 293 of planning_service.py.
+
+**Tasks**:
+1. Implement aggregated ingredient calculation using recipe composition
+2. Include slug, display_name, quantity, unit, cost_per_unit
+3. Respect yield ratios from recipe service
+4. Store cost at snapshot time
+5. Add tests for snapshot completeness
+6. Update export/import to include aggregated ingredients
+
+**Dependencies**: WP01 (session pattern for recipe service calls)
+**Estimated files**: 3 (planning_service.py, import_export_service.py, tests)
+**Risk**: Medium (calculation complexity)
+
+### WP05: Staleness Detection Enhancements (FR-6)
+
+**Scope**: Add missing mutation detection.
+
+**Tasks**:
+1. Add `updated_at` to Composition model (line 99 of composition.py)
+2. Add `_get_latest_composition_updated_timestamp()` helper
+3. Add `_get_latest_finished_unit_timestamp()` helper (field exists, just not checked)
+4. Update `_check_staleness_impl()` to call new helpers
+5. Add tests for each mutation type
+6. Document schema change for export/reset/import
+
+**Dependencies**: WP01
+**Estimated files**: 4 (composition.py, planning_service.py, tests, docs)
+**Risk**: Medium (schema change requires export/reset/import)
+
+### WP06: Assembly Nested Finished Goods Ledger (FR-3)
+
+**Scope**: Create consumption records for nested FG consumption.
+
+**Tasks**:
+1. Identify nested FG consumption points in assembly_service.py
+2. Create consumption records with cost snapshot at consumption time
+3. Include lot tracking for nested finished goods
+4. Update export to include nested consumption records
+5. Add tests for ledger completeness
+
+**Dependencies**: WP01 (follows assembly_service pattern)
+**Estimated files**: 3 (assembly_service.py, import_export_service.py, tests)
+**Risk**: Medium (cost snapshot timing)
+
+### WP07: Deprecate Production Service (FR-4)
+
+**Scope**: Remove old production service method.
+
+**Tasks**:
+1. Delete deprecated `production_tab.py` file (already marked for removal)
+2. Remove `record_production()` from production_service.py
+3. Migrate tests to use batch_production_service
+4. Remove unused imports referencing old service
+5. Verify no remaining references in codebase
+
+**Dependencies**: WP01
+**Estimated files**: 4 (production_service.py, production_tab.py, test files)
+**Risk**: Low (single caller in deprecated file)
+
+## Parallelization Strategy
+
+**Sequential (critical path)**:
+- WP01 → WP02 → WP03
+
+**Parallel after WP01**:
+- WP04, WP05, WP06, WP07 can all run in parallel once WP01 completes
+
+**Recommended execution**:
+1. Day 1: WP01 (foundation)
+2. Day 2: WP02 + start WP04, WP05
+3. Day 3: WP03 (needs WP02) + continue WP04, WP05, start WP06, WP07
+4. Day 4: Complete parallel tracks, integration testing
+
+## Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| Session scope confusion | Gold standard pattern documented; code review gate |
+| Aggregated ingredient calculation errors | TDD with known recipe/yield scenarios |
+| Staleness over-triggering | Document which changes should/shouldn't invalidate |
+| Schema change data loss | Export full database before schema change; test import |
+| Test migration breaks | Run both old and new tests during transition |
+
+## Post-Design Constitution Re-Check
+
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. User-Centric Design | PASS | No user-facing changes |
+| II. Data Integrity | PASS | Session atomicity + ledger completeness improves integrity |
+| III. Future-Proof Schema | PASS | Composition.updated_at is standard pattern |
+| IV. TDD | PASS | Each WP has explicit test requirements |
+| V. Layered Architecture | PASS | Service layer hardening |
+| VI. Schema Change Strategy | PASS | Export/reset/import documented |
+| VII. Pragmatic Aspiration | PASS | Foundation for web/API |
+
+---
+
+**Next step**: `/spec-kitty.tasks` to generate work package files
