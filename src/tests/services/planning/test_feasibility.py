@@ -24,6 +24,7 @@ from src.services.planning import (
     FeasibilityStatus,
     FeasibilityResult,
 )
+from src.services.planning.feasibility import BlockerSummary
 from src.models import (
     Event,
     EventProductionTarget,
@@ -56,12 +57,19 @@ class TestFeasibilityResult:
 
     def test_dataclass_fields(self):
         """Verify FeasibilityResult has all required fields."""
+        # Create empty blocker summary for test
+        blockers = BlockerSummary(
+            inventory_blockers=[],
+            cost_blockers=[],
+            assignment_blockers=[],
+        )
         result = FeasibilityResult(
             finished_good_id=1,
             finished_good_name="Test Bundle",
             target_quantity=10,
             can_assemble=5,
             status=FeasibilityStatus.PARTIAL,
+            blockers=blockers,
             missing_components=[{"component_id": 1, "needed": 60, "available": 30}],
         )
 
@@ -71,6 +79,8 @@ class TestFeasibilityResult:
         assert result.can_assemble == 5
         assert result.status == FeasibilityStatus.PARTIAL
         assert len(result.missing_components) == 1
+        assert result.blockers is not None
+        assert result.blockers.total_count == 0
 
 
 class TestCheckProductionFeasibility:

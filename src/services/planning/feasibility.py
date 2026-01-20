@@ -46,6 +46,80 @@ class FeasibilityStatus(Enum):
     AWAITING_PRODUCTION = "awaiting_production"
 
 
+class BlockerType(Enum):
+    """Type of blocker preventing assembly/production.
+
+    Values:
+        INVENTORY: Insufficient stock available
+        COST: Missing cost data for pricing
+        ASSIGNMENT: Component not assigned/configured
+    """
+
+    INVENTORY = "inventory"
+    COST = "cost"
+    ASSIGNMENT = "assignment"
+
+
+@dataclass
+class Blocker:
+    """A single blocker preventing feasibility.
+
+    Attributes:
+        blocker_type: Type of blocker (inventory, cost, assignment)
+        component_type: Type of component ("finished_unit", "finished_good", "packaging")
+        component_id: Database ID of the component
+        component_name: Display name of the component
+        needed: Quantity needed
+        available: Quantity available (for inventory blockers)
+        issue: Description of the issue (for cost/assignment blockers)
+        unit: Unit of measurement (for packaging)
+    """
+
+    blocker_type: BlockerType
+    component_type: str
+    component_id: int
+    component_name: str
+    needed: int
+    available: int = 0
+    issue: Optional[str] = None
+    unit: Optional[str] = None
+
+
+@dataclass
+class BlockerSummary:
+    """Summary of blockers by category.
+
+    Attributes:
+        inventory_blockers: List of inventory shortage blockers
+        cost_blockers: List of missing cost data blockers
+        assignment_blockers: List of unassigned component blockers
+        total_count: Total number of blockers
+        inventory_count: Number of inventory blockers
+        cost_count: Number of cost blockers
+        assignment_count: Number of assignment blockers
+    """
+
+    inventory_blockers: List[Blocker]
+    cost_blockers: List[Blocker]
+    assignment_blockers: List[Blocker]
+
+    @property
+    def total_count(self) -> int:
+        return len(self.inventory_blockers) + len(self.cost_blockers) + len(self.assignment_blockers)
+
+    @property
+    def inventory_count(self) -> int:
+        return len(self.inventory_blockers)
+
+    @property
+    def cost_count(self) -> int:
+        return len(self.cost_blockers)
+
+    @property
+    def assignment_count(self) -> int:
+        return len(self.assignment_blockers)
+
+
 @dataclass
 class FeasibilityResult:
     """Result of assembly feasibility check.
@@ -56,7 +130,8 @@ class FeasibilityResult:
         target_quantity: How many are needed/targeted
         can_assemble: How many CAN be assembled with current inventory
         status: FeasibilityStatus enum value
-        missing_components: List of components that are short
+        blockers: Structured blocker information by category
+        missing_components: List of components that are short (deprecated, for backward compat)
     """
 
     finished_good_id: int
@@ -64,7 +139,68 @@ class FeasibilityResult:
     target_quantity: int
     can_assemble: int
     status: FeasibilityStatus
-    missing_components: List[Dict[str, Any]]
+    blockers: BlockerSummary
+    missing_components: List[Dict[str, Any]]  # Kept for backward compatibility
+
+
+def _categorize_blockers(missing_components: List[Dict[str, Any]]) -> BlockerSummary:
+    """Categorize missing components into blocker types.
+
+    Args:
+        missing_components: List of missing component dicts from assembly_service
+
+    Returns:
+        BlockerSummary with categorized blockers
+    """
+    inventory_blockers = []
+    cost_blockers = []
+    assignment_blockers = []
+
+    for comp in missing_components:
+        component_type = comp.get("component_type", "unknown")
+        component_id = comp.get("component_id", 0)
+        component_name = comp.get("component_name", "Unknown")
+        needed = comp.get("needed", 0)
+        available = comp.get("available", 0)
+        unit = comp.get("unit")
+
+        # Determine blocker type based on the component data
+        # Inventory blocker: has available < needed (shortage)
+        # Assignment blocker: packaging without assignment or zero needed
+        # Cost blocker: future use - currently not tracked by assembly_service
+
+        if available < needed:
+            # Inventory shortage
+            blocker = Blocker(
+                blocker_type=BlockerType.INVENTORY,
+                component_type=component_type,
+                component_id=component_id,
+                component_name=component_name,
+                needed=int(needed) if isinstance(needed, (int, float)) else needed,
+                available=int(available) if isinstance(available, (int, float)) else available,
+                unit=unit,
+            )
+            inventory_blockers.append(blocker)
+        else:
+            # If not inventory shortage but still in missing list,
+            # it might be an assignment issue (e.g., packaging not configured)
+            blocker = Blocker(
+                blocker_type=BlockerType.ASSIGNMENT,
+                component_type=component_type,
+                component_id=component_id,
+                component_name=component_name,
+                needed=int(needed) if isinstance(needed, (int, float)) else needed,
+                available=int(available) if isinstance(available, (int, float)) else available,
+                issue="Component not properly configured",
+                unit=unit,
+            )
+            assignment_blockers.append(blocker)
+
+    return BlockerSummary(
+        inventory_blockers=inventory_blockers,
+        cost_blockers=cost_blockers,
+        assignment_blockers=assignment_blockers,
+    )
 
 
 def check_production_feasibility(
@@ -203,6 +339,9 @@ def _check_assembly_feasibility_impl(
             session,
         )
 
+        # Categorize blockers by type
+        blockers = _categorize_blockers(check_result["missing"])
+
         results.append(
             FeasibilityResult(
                 finished_good_id=target.finished_good_id,
@@ -210,7 +349,8 @@ def _check_assembly_feasibility_impl(
                 target_quantity=target.target_quantity,
                 can_assemble=can_assemble_count,
                 status=status,
-                missing_components=check_result["missing"],
+                blockers=blockers,
+                missing_components=check_result["missing"],  # Backward compat
             )
         )
 
@@ -401,12 +541,18 @@ def _check_single_assembly_impl(
 
     # Handle nonexistent finished good gracefully
     if finished_good is None:
+        empty_blockers = BlockerSummary(
+            inventory_blockers=[],
+            cost_blockers=[],
+            assignment_blockers=[],
+        )
         return FeasibilityResult(
             finished_good_id=finished_good_id,
             finished_good_name=fg_name,
             target_quantity=quantity,
             can_assemble=0,
             status=FeasibilityStatus.CANNOT_ASSEMBLE,
+            blockers=empty_blockers,
             missing_components=[],
         )
 
@@ -420,12 +566,18 @@ def _check_single_assembly_impl(
         )
     except FinishedGoodNotFoundError:
         # Shouldn't happen since we checked above, but handle gracefully
+        empty_blockers = BlockerSummary(
+            inventory_blockers=[],
+            cost_blockers=[],
+            assignment_blockers=[],
+        )
         return FeasibilityResult(
             finished_good_id=finished_good_id,
             finished_good_name=fg_name,
             target_quantity=quantity,
             can_assemble=0,
             status=FeasibilityStatus.CANNOT_ASSEMBLE,
+            blockers=empty_blockers,
             missing_components=[],
         )
 
@@ -434,11 +586,15 @@ def _check_single_assembly_impl(
         can_assemble_count, quantity, check_result, finished_good_id, session
     )
 
+    # Categorize blockers by type
+    blockers = _categorize_blockers(check_result["missing"])
+
     return FeasibilityResult(
         finished_good_id=finished_good_id,
         finished_good_name=fg_name,
         target_quantity=quantity,
         can_assemble=can_assemble_count,
         status=status,
-        missing_components=check_result["missing"],
+        blockers=blockers,
+        missing_components=check_result["missing"],  # Backward compat
     )

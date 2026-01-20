@@ -100,10 +100,8 @@ def _get_shopping_list_impl(
     session: Session,
 ) -> List[ShoppingListItem]:
     """Implementation of get_shopping_list."""
-    # Call the existing event_service function
-    # Note: event_service.get_shopping_list doesn't support session parameter,
-    # so we can't pass it through. This is a known limitation.
-    result = event_service.get_shopping_list(event_id, include_packaging=False)
+    # Call the existing event_service function with session for transactional atomicity
+    result = event_service.get_shopping_list(event_id, include_packaging=False, session=session)
 
     items = []
     for item_data in result.get("items", []):
@@ -220,7 +218,8 @@ def _mark_shopping_complete_impl(event_id: int, session: Session) -> bool:
 
     snapshot.shopping_complete = True
     snapshot.shopping_completed_at = utc_now()
-    session.commit()
+    # Note: Do NOT commit here - let caller control transaction
+    # When called without session, session_scope auto-commits on clean exit
 
     return True
 
@@ -263,7 +262,8 @@ def _unmark_shopping_complete_impl(event_id: int, session: Session) -> bool:
 
     snapshot.shopping_complete = False
     snapshot.shopping_completed_at = None
-    session.commit()
+    # Note: Do NOT commit here - let caller control transaction
+    # When called without session, session_scope auto-commits on clean exit
 
     return True
 

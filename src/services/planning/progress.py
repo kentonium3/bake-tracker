@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from src.services.database import session_scope
 from src.services import event_service
+from src.services.planning import feasibility
 
 
 @dataclass
@@ -93,9 +94,8 @@ def _get_production_progress_impl(
 ) -> List[ProductionProgress]:
     """Implementation of get_production_progress."""
     # Get raw progress data from event_service
-    # Note: event_service.get_production_progress manages its own session
-    # We call it without passing session as it doesn't accept session parameter
-    raw_progress = event_service.get_production_progress(event_id)
+    # Pass session to allow transactional atomicity with caller
+    raw_progress = event_service.get_production_progress(event_id, session=session)
 
     results = []
     for item in raw_progress:
@@ -151,12 +151,22 @@ def _get_assembly_progress_impl(
 ) -> List[AssemblyProgress]:
     """Implementation of get_assembly_progress."""
     # Get raw progress data from event_service
-    raw_progress = event_service.get_assembly_progress(event_id)
+    # Pass session to allow transactional atomicity with caller
+    raw_progress = event_service.get_assembly_progress(event_id, session=session)
+
+    # Get feasibility data to calculate available_to_assemble
+    # Build a lookup dict by finished_good_id for efficiency
+    feasibility_results = feasibility.check_assembly_feasibility(event_id, session=session)
+    feasibility_by_fg_id = {
+        fr.finished_good_id: fr.can_assemble
+        for fr in feasibility_results
+    }
 
     results = []
     for item in raw_progress:
         target = item["target_quantity"]
         assembled = item["assembled_quantity"]
+        finished_good_id = item["finished_good_id"]
 
         # Calculate progress percentage (guard against zero division)
         if target > 0:
@@ -164,13 +174,13 @@ def _get_assembly_progress_impl(
         else:
             progress_percent = 0.0
 
-        # available_to_assemble is not provided by event_service
-        # Set to 0 for now - full feasibility calculation would be needed
-        available_to_assemble = 0
+        # Get available_to_assemble from feasibility service
+        # This shows how many MORE can be assembled with current inventory
+        available_to_assemble = feasibility_by_fg_id.get(finished_good_id, 0)
 
         results.append(
             AssemblyProgress(
-                finished_good_id=item["finished_good_id"],
+                finished_good_id=finished_good_id,
                 finished_good_name=item["finished_good_name"],
                 target_quantity=target,
                 assembled_quantity=assembled,
