@@ -175,7 +175,7 @@ Use the `gemini-parallel-dev` agent for tasks that:
 
 ## Spec-Kitty Workflow Compliance (NON-NEGOTIABLE)
 
-This project uses spec-kitty (v0.10.12+) for feature development. The workflow is AUTHORITATIVE.
+This project uses spec-kitty (v0.11.x) for feature development. The workflow is AUTHORITATIVE.
 
 ### Golden Rule: Follow the Skill Prompts
 
