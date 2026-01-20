@@ -8,7 +8,7 @@ subtasks:
   - "T009"
 title: "Event Service Session Normalization"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "80672"
@@ -373,3 +373,4 @@ def _get_production_progress_impl(event_id: int, session):
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-20T22:26:00Z – claude-opus – shell_pid=80672 – lane=doing – Started implementation via workflow command
+- 2026-01-20T22:40:34Z – claude-opus – shell_pid=80672 – lane=for_review – All subtasks complete: session params added to get_production_progress(), get_assembly_progress(), get_shopping_list(). All 11 session tests pass. Full suite passes (2568 tests).
