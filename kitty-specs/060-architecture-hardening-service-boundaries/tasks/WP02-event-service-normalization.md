@@ -8,10 +8,10 @@ subtasks:
   - "T009"
 title: "Event Service Session Normalization"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "80672"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -372,3 +372,4 @@ def _get_production_progress_impl(event_id: int, session):
 ## Activity Log
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-20T22:26:00Z – claude-opus – shell_pid=80672 – lane=doing – Started implementation via workflow command
