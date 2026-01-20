@@ -91,7 +91,7 @@
 - [x] T012 Update `feasibility.py` to return cost/assignment blockers distinctly
 - [x] T013 Implement `available_to_assemble` via feasibility service
 - [x] T014 Update planning orchestration tests
-- [ ] T015 Verify shopping list backward compatibility
+- [x] T015 Verify shopping list backward compatibility
 
 ### Implementation Notes
 - progress.py line 98 calls `event_service.get_production_progress(event_id)` - add session param
