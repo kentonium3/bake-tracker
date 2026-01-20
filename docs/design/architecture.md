@@ -15,6 +15,57 @@
 
 ---
 
+## Vision & North Star
+
+### Why This Architecture Exists
+
+Bake Tracker is not just a desktop app—it's a **workflow validation platform** for a future AI-assisted SaaS product. Every architectural decision serves dual purposes: solving real problems for today's user while validating patterns that will scale to multi-user, voice/chat-driven interactions.
+
+### Evolution Path
+
+```
+Phase 3 (Current)        Phase 4-5              Phase 6-7 (North Star)
+─────────────────        ──────────            ─────────────────────
+Desktop + SQLite    →    AI-Assisted Mobile  →   Cloud Platform
+Single User              Voice/Chat Input        10K+ Users
+Manual Workflows         Batch JSON "API"        Full API-First
+Local Development        Multi-Developer         Commercial SaaS
+```
+
+### Design Decisions Traced to Vision
+
+| Decision | Current Benefit | Future Benefit |
+|----------|-----------------|----------------|
+| **Definitions vs Instantiations** | Clean separation, accurate costing | Enables shared catalogs vs per-user transactions |
+| **Slug-based FKs** | Stable references in import/export | Localization, multi-tenant isolation |
+| **UUID on all entities** | Unique identifiers | Distributed sync, mobile-server coordination |
+| **JSON Import/Export** | Backup, catalog seeding | Primitive batch API for AI-assisted input |
+| **FIFO with cost snapshots** | Accurate lot tracking | Audit trail, cost analytics at scale |
+| **Service layer isolation** | Testable business logic | API-ready services, no UI coupling |
+| **No migration scripts** | Simple reset/re-import | Avoided version-translation complexity |
+
+### The AI-Forward Principle
+
+> "Solve it manually first, then add AI."
+
+Current manual workflows validate:
+- Data structures that AI will populate (purchases, inventory)
+- Business logic that AI will invoke (FIFO consumption, production recording)
+- Validation rules that catch AI errors before database modification
+
+The JSON import system is the proving ground—a crude batch "API" where AI generates structured data and the app validates/imports it. This pattern will evolve into real-time voice/chat interfaces.
+
+### What This Means for Contributors
+
+When making design decisions:
+
+1. **Prefer patterns that scale** - Even if overkill for single-user, prefer patterns that work at multi-user scale
+2. **Keep services pure** - No UI dependencies, no database assumptions that break with cloud DBs
+3. **Design for AI input** - Validation must catch malformed data; error messages must be AI-parseable
+4. **Maintain export fidelity** - JSON export is the migration path; it must capture everything
+
+---
+
 ## 1. System Overview
 
 Bake Tracker is a desktop application for managing event-based food production: inventory, recipes, finished goods, and gift package planning. Built with Python and CustomTkinter using SQLite for persistence.
