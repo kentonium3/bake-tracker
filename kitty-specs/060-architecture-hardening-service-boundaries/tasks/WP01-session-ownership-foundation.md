@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Session Ownership Foundation"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "72061"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -370,3 +370,4 @@ def record_batch_production(..., session=None):
 ## Activity Log
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-20T17:39:12Z – claude-opus – shell_pid=72061 – lane=doing – Started implementation via workflow command
