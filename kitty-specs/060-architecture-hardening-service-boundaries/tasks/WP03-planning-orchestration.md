@@ -9,10 +9,10 @@ subtasks:
   - "T015"
 title: "Planning Orchestration Session Discipline"
 phase: "Phase 1 - Critical Path"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "86115"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP02"]
@@ -461,3 +461,4 @@ Removing `session.commit()` calls changes behavior for standalone usage. Must ve
 ## Activity Log
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-20T22:45:25Z – claude-opus – shell_pid=86115 – lane=doing – Started implementation via workflow command
