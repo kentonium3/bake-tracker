@@ -28,7 +28,7 @@
 - [x] T001 Create `test_session_atomicity.py` with rollback verification tests
 - [x] T002 Add session ownership pattern documentation to `docs/design/`
 - [x] T003 Audit existing services for pattern compliance (batch_production, assembly, recipe, ingredient, inventory_item)
-- [ ] T004 [P] Create `session_helper.py` utility module with nullcontext pattern (optional)
+- [x] T004 [P] Create `session_helper.py` utility module with nullcontext pattern (optional)
 
 ### Implementation Notes
 - The gold standard pattern is in `batch_production_service.py` lines 279-281
