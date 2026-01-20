@@ -90,7 +90,7 @@
 - [x] T011 Remove `session.commit()` from `shopping_list.py` (lines 223, 266)
 - [x] T012 Update `feasibility.py` to return cost/assignment blockers distinctly
 - [x] T013 Implement `available_to_assemble` via feasibility service
-- [ ] T014 Update planning orchestration tests
+- [x] T014 Update planning orchestration tests
 - [ ] T015 Verify shopping list backward compatibility
 
 ### Implementation Notes
