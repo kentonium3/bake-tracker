@@ -1,112 +1,153 @@
-# Seasonal Baking Tracker
+# Bake Tracker
 
-A desktop application for managing holiday baking inventory, recipes, and gift package planning.
+A desktop application for managing event-based food production: inventory, recipes, finished goods, and gift package planning.
 
 ## Overview
 
-The Seasonal Baking Tracker helps you plan and execute large-scale holiday baking operations by tracking:
-- Ingredient inventory with flexible unit conversions
-- Recipes with automatic cost calculation
-- Gift packages and bundles
-- Recipients and delivery tracking
-- Shopping lists based on planned vs available inventory
-- Production tracking and reporting
+Bake Tracker helps you plan and execute large-scale baking operations by tracking:
+
+- **Ingredients & Products** - Three-tier ingredient taxonomy with brand-specific products
+- **Materials** - Non-food items (boxes, ribbons, labels) with separate inventory tracking
+- **Recipes** - Nested recipe support with automatic cost calculation via FIFO
+- **Finished Goods** - Yield tracking, bundles, and gift packages
+- **Event Planning** - Recipients, package assignments, and production targets
+- **Inventory** - FIFO lot tracking with purchase-linked cost snapshots
+- **Import/Export** - JSON-based backup, catalog seeding, and AI-assisted data entry
+
+**Dual Purpose:** This application serves as both a practical tool for real users AND a workflow validation platform for future AI-assisted SaaS evolution. See [Architecture](docs/design/architecture.md) for the vision and design principles.
 
 ## Technology Stack
 
-- **Python 3.10+**
-- **CustomTkinter** - Modern UI framework
-- **SQLite** - Local database
-- **SQLAlchemy** - ORM
-- **Pandas** - Data manipulation and CSV export
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Language** | Python 3.10+ | Type hints, modern syntax |
+| **UI** | CustomTkinter | Cross-platform desktop widgets |
+| **Database** | SQLite (WAL mode) | Portable single-file storage |
+| **ORM** | SQLAlchemy 2.x | Type-safe database abstraction |
+| **Testing** | pytest | 2,500+ unit and integration tests |
 
 ## Quick Start
 
 ### Installation
 
-1. **Install Python 3.10 or higher** from [python.org](https://python.org)
+```bash
+# Clone the repository
+git clone https://github.com/kentonium3/bake-tracker.git
+cd bake-tracker
 
-2. **Clone the repository**
-   ```bash
-   git clone https://github.com/kentonium3/bake-tracker.git
-   cd bake-tracker
-   ```
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate      # macOS/Linux
+venv\Scripts\activate         # Windows
 
-3. **Create and activate virtual environment**
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate  # Windows
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-4. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+# Run the application
+python src/main.py
+```
 
-5. **Run the application**
-   ```bash
-   python src/main.py
-   ```
+### Running Tests
+
+```bash
+./run-tests.sh                    # All tests
+./run-tests.sh -v                 # Verbose
+./run-tests.sh -k "test_name"     # Specific test
+./run-tests.sh --cov=src          # With coverage
+```
 
 ## Project Structure
 
 ```
 bake-tracker/
-├── src/              # Application source code
-│   ├── models/       # Database models
-│   ├── services/     # Business logic
-│   ├── ui/           # User interface
-│   ├── utils/        # Utilities and helpers
-│   └── tests/        # Test suite
-├── data/             # SQLite database (created at runtime)
-├── docs/             # Documentation
-└── requirements.txt  # Python dependencies
+├── src/
+│   ├── models/           # 42 SQLAlchemy model classes
+│   ├── services/         # 45 business logic modules
+│   ├── ui/               # CustomTkinter components
+│   ├── utils/            # Helpers, unit conversion, CLI
+│   └── tests/            # pytest test suite (2,500+ tests)
+├── docs/
+│   ├── design/           # Architecture, schemas, design specs
+│   ├── func-spec/        # Feature specifications (F0xx documents)
+│   ├── requirements/     # Requirements documents by domain
+│   ├── code-reviews/     # Feature code review artifacts
+│   └── archive/          # Historical bugs, tech debt
+├── kitty-specs/          # Active feature workspaces (spec-kitty)
+├── .kittify/             # Spec-kitty templates and constitution
+├── data/                 # SQLite database (created at runtime)
+└── requirements.txt      # Python dependencies
 ```
 
 ## Documentation
 
-- [Requirements Document](REQUIREMENTS.md) - Full project requirements and specifications
-- [Architecture](docs/ARCHITECTURE.md) - System architecture and design
-- [User Guide](docs/USER_GUIDE.md) - How to use the application
-- [Database Schema](docs/SCHEMA.md) - Database structure and relationships
-- [Changelog](CHANGELOG.md) - Version history
+### Architecture & Design
 
-## Features
+- [Architecture](docs/design/architecture.md) - System overview, design principles, vision
+- [Schema Design](docs/design/schema_v0.6_design.md) - Entity relationships
+- [Import/Export Spec](docs/design/spec_import_export.md) - JSON format specification (v4.2)
 
-### Phase 1: Foundation (MVP)
-- Ingredient inventory management with unit conversions
-- Recipe creation and management
-- Basic user interface
+### Requirements (by Domain)
 
-### Phase 2: Core Planning
-- Bundle and package creation
-- Event planning with recipient assignments
-- Shopping list generation
+- [Ingredients](docs/requirements/req_ingredients.md) - Three-tier taxonomy, products
+- [Materials](docs/requirements/req_materials.md) - Non-food inventory
+- [Recipes](docs/requirements/req_recipes.md) - Nested recipes, snapshots
+- [Inventory](docs/requirements/req_inventory.md) - FIFO tracking
+- [Planning](docs/requirements/req_planning.md) - Events, packages, recipients
 
-### Phase 3: Production Tracking
-- Production recording
-- Package assembly and delivery tracking
-- Planned vs actual reporting
+### Guides
 
-### Phase 4: Polish & Reporting
-- Advanced analytics
-- CSV export
-- UI enhancements
+- [User Guide](docs/user_guide.md) - Application usage
+- [Development Workflow](docs/development_workflow.md) - Contribution process
+- [Feature Roadmap](docs/feature_roadmap.md) - Planned features
 
-## Development Status
+## Development Phases
 
-**Current Phase:** Initial Setup
+| Phase | Status | Focus |
+|-------|--------|-------|
+| **Phase 1-2** | Complete | Foundation, learning app development basics |
+| **Phase 3** | **In Progress** | Locally functional app with professional data modeling |
+| **Phase 4** | Pending | AI-assisted interaction demonstrator (voice/chat input) |
+| **Phase 5** | Planned | Web app port, cloud hosting, multi-user (15-20) |
+| **Phase 6** | Planned | Web platform demonstrator, AI-assisted workflows |
+| **Phase 7** | Aspirational | Commercial prototype, 10K+ users, reskinnable |
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed progress updates.
+See [App Vision](docs/design/app_vision_note.md) for detailed phase descriptions.
+
+## Feature Maturity
+
+| Domain | Feature | Status |
+|--------|---------|--------|
+| **Catalog** | Ingredient/Material Hierarchy | Mature |
+| **Catalog** | Products & MaterialProducts | Mature |
+| **Catalog** | Recipes (nested, snapshots) | Mature |
+| **Inventory** | FIFO Tracking (food & materials) | Mature |
+| **Import/Export** | JSON backup, catalog import | Mature |
+| **Production** | ProductionRuns, cost snapshots | Functional |
+| **Assembly** | Finished Goods, Bundles | Partial |
+| **Planning** | Events, Recipients, Packages | Partial |
+| **Analytics** | Reporting, Dashboards | Planned |
+
+## Development Workflow
+
+This project uses [spec-kitty](https://github.com/your-org/spec-kitty) for documentation-first feature development:
+
+1. `/spec-kitty.specify` - Create feature specification
+2. `/spec-kitty.plan` - Research and design
+3. `/spec-kitty.tasks` - Generate work packages
+4. `/spec-kitty.implement` - TDD implementation
+5. `/spec-kitty.review` - Code review
+6. `/spec-kitty.merge` - Merge and cleanup
+
+Features are developed in isolated git worktrees with multi-agent orchestration support (Claude Code lead, Gemini CLI teammate).
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License - See LICENSE file for details.
 
 ## Contributing
 
-This is a personal project developed with assistance from Claude Code. Issues and suggestions are welcome!
+This project is developed with AI assistance (Claude Code, Gemini CLI). Issues and suggestions welcome!
 
 ## Support
 
-For questions or issues, please create an issue on GitHub.
+For questions or issues, please create an issue on [GitHub](https://github.com/kentonium3/bake-tracker/issues).
