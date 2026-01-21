@@ -229,7 +229,7 @@
 - [x] T034 Remove `record_production()` from `production_service.py`
 - [x] T035 Migrate tests to use `batch_production_service`
 - [x] T036 Remove unused imports referencing old service
-- [ ] T037 Verify no remaining references in codebase
+- [x] T037 Verify no remaining references in codebase
 
 ### Implementation Notes
 - production_tab.py is already marked DEPRECATED (lines 1-15)
