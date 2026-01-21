@@ -8,12 +8,12 @@ subtasks:
   - "T037"
 title: "Deprecate Production Service"
 phase: "Phase 2 - Parallel Track"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "29946"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-20T20:00:00Z"
@@ -459,3 +459,4 @@ ls src/ui/production_tab.py 2>&1 | grep -v "No such file"
 - 2026-01-21T04:29:08Z – claude-opus – shell_pid=24713 – lane=doing – Started implementation via workflow command
 - 2026-01-21T04:44:24Z – claude-opus – shell_pid=24713 – lane=for_review – Removed deprecated production_service.record_production() and production_tab.py. Tests migrated to use direct ProductionRecord creation. All 2549 tests pass.
 - 2026-01-21T04:46:19Z – claude-opus – shell_pid=29946 – lane=doing – Started review via workflow command
+- 2026-01-21T04:53:30Z – claude-opus – shell_pid=29946 – lane=done – Review passed: production_tab.py deleted, record_production() removed, tests migrated with helper function, removal comments added. All 2549 tests pass.
