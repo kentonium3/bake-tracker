@@ -159,7 +159,7 @@
 - [x] T023 Add `_get_latest_composition_updated_timestamp()` helper in planning_service.py
 - [x] T024 Add `_get_latest_finished_unit_timestamp()` helper in planning_service.py
 - [x] T025 Update `_check_staleness_impl()` to call new helpers
-- [ ] T026 Add tests for each mutation type
+- [x] T026 Add tests for each mutation type
 - [ ] T027 Document schema change for export/reset/import
 
 ### Implementation Notes
