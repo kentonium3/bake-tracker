@@ -260,6 +260,7 @@ def _outer_function_impl(..., session):
 
 ## Related Documents
 
+- **Session Ownership Pattern:** `docs/design/session_ownership_pattern.md` - Canonical pattern documentation
 - **Code Review:** `docs/code-reviews/cursor-feat-016-review.md`
 - **Architecture:** `docs/design/architecture.md`
 - **Schema Design:** `docs/design/schema_v0.5_design.md`
