@@ -9,10 +9,10 @@ subtasks:
   - "T027"
 title: "Staleness Detection Enhancements"
 phase: "Phase 2 - Parallel Track"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "10342"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -510,3 +510,4 @@ Depends on WP01 (session pattern established).
 ## Activity Log
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-21T03:44:36Z – claude-opus – shell_pid=10342 – lane=doing – Started implementation via workflow command
