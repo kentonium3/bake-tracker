@@ -9,10 +9,10 @@ subtasks:
   - "T021"
 title: "Planning Snapshot Aggregated Ingredients"
 phase: "Phase 2 - Parallel Track"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "1900"
+shell_pid: "8216"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -532,3 +532,4 @@ Depends on WP01 (session pattern for recipe service calls).
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-21T03:17:51Z – claude-opus – shell_pid=1900 – lane=doing – Started implementation via workflow command
 - 2026-01-21T03:31:09Z – claude-opus – shell_pid=1900 – lane=for_review – Ready for review: Implemented aggregated ingredients in planning snapshots. Added _aggregate_plan_ingredients() helper, populated aggregated_ingredients field, added 7 tests. All 2564 tests pass.
+- 2026-01-21T03:37:58Z – claude-opus – shell_pid=8216 – lane=doing – Started review via workflow command
