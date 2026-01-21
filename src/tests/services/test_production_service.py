@@ -9,7 +9,6 @@ from datetime import date
 
 from src.services import production_service
 from src.services.production_service import (
-    record_production,
     get_production_records,
     get_production_total,
     can_assemble_package,
@@ -25,7 +24,44 @@ from src.services.production_service import (
 )
 from src.services.event_service import EventNotFoundError
 from src.services.exceptions import ValidationError
-from src.models import PackageStatus
+from src.models import PackageStatus, ProductionRecord
+from src.services.database import session_scope
+
+
+def _create_production_record(event_id, recipe_id, batches, actual_cost=Decimal("1.10"), notes=None):
+    """
+    Helper to create ProductionRecord directly for test setup.
+
+    This replaces the removed record_production() function for test purposes.
+    Unlike the old function, this does NOT consume inventory or validate
+    anything - it simply creates a record for testing query functions.
+
+    Args:
+        event_id: Event ID
+        recipe_id: Recipe ID
+        batches: Number of batches
+        actual_cost: Cost to record (default $1.10)
+        notes: Optional notes
+
+    Returns:
+        The created ProductionRecord
+    """
+    with session_scope() as session:
+        record = ProductionRecord(
+            event_id=event_id,
+            recipe_id=recipe_id,
+            batches=batches,
+            actual_cost=actual_cost,
+            notes=notes,
+        )
+        session.add(record)
+        session.commit()
+        session.refresh(record)
+        # Return a copy of values to avoid detached object issues
+        record_id = record.id
+    # Re-query to return attached object (for tests that need it)
+    with session_scope() as session:
+        return session.get(ProductionRecord, record_id)
 
 
 @pytest.fixture
@@ -155,142 +191,6 @@ def setup_production_test_data(test_db):
     }
 
 
-class TestRecordProduction:
-    """Tests for record_production() function."""
-
-    def test_record_production_success(self, test_db, setup_production_test_data):
-        """Test: Recording production consumes inventory and captures cost."""
-        data = setup_production_test_data
-
-        # Verify inventory has cost data before testing production
-        from src.services import inventory_item_service
-        from src.models import InventoryItem
-
-        session = test_db()
-        items = (
-            session.query(InventoryItem)
-            .filter(InventoryItem.product_id == data["flour_product"].id)
-            .order_by(InventoryItem.purchase_date)
-            .all()
-        )
-        print(f"\nInventory items for flour before production:")
-        for item in items:
-            print(
-                f"  id={item.id}, qty={item.quantity}, unit_cost={item.unit_cost}, date={item.purchase_date}"
-            )
-
-        # Test consume_fifo directly first
-        fifo_result = inventory_item_service.consume_fifo(
-            ingredient_slug=data["flour"].slug,
-            quantity_needed=Decimal("2.0"),
-            target_unit="cup",
-            dry_run=True,  # Just test, don't consume
-        )
-        print(
-            f"\nFIFO result (dry run): satisfied={fifo_result['satisfied']}, total_cost={fifo_result['total_cost']}"
-        )
-        print(f"  breakdown: {fifo_result['breakdown']}")
-
-        # Record 1 batch of cookies (needs 2 cups flour, 1 cup sugar)
-        record = record_production(
-            event_id=data["event"].id,
-            recipe_id=data["recipe"].id,
-            batches=1,
-            notes="First batch of cookies",
-        )
-
-        # Verify record was created
-        assert record is not None
-        assert record.id is not None
-        assert record.batches == 1
-        assert record.event_id == data["event"].id
-        assert record.recipe_id == data["recipe"].id
-        assert record.notes == "First batch of cookies"
-
-        # Verify actual cost was captured (should use FIFO - older flour first)
-        # 2 cups flour @ $0.40 = $0.80
-        # 1 cup sugar @ $0.30 = $0.30
-        # Total = $1.10
-        assert record.actual_cost == Decimal("1.10")
-
-    def test_record_production_multiple_batches(self, test_db, setup_production_test_data):
-        """Test: Recording multiple batches multiplies ingredient consumption."""
-        data = setup_production_test_data
-
-        # Record 2 batches (needs 4 cups flour, 2 cups sugar)
-        record = record_production(
-            event_id=data["event"].id,
-            recipe_id=data["recipe"].id,
-            batches=2,
-        )
-
-        assert record.batches == 2
-
-        # 4 cups flour: first 5 @ $0.40 = $2.00 (uses all of first batch, 1 from second... wait)
-        # Actually: 4 cups from first batch @ $0.40 = $1.60
-        # 2 cups sugar @ $0.30 = $0.60
-        # Total = $2.20
-        assert record.actual_cost == Decimal("2.20")
-
-    def test_record_production_fifo_cost_accuracy(self, test_db, setup_production_test_data):
-        """Test: Actual cost matches FIFO consumption (not estimates)."""
-        data = setup_production_test_data
-
-        # Record 3 batches (needs 6 cups flour - should cross into second lot)
-        # First lot: 5 cups @ $0.40 = $2.00
-        # Second lot: 1 cup @ $0.60 = $0.60
-        # Flour total: $2.60
-        # Sugar: 3 cups @ $0.30 = $0.90
-        # Grand total: $3.50
-        record = record_production(
-            event_id=data["event"].id,
-            recipe_id=data["recipe"].id,
-            batches=3,
-        )
-
-        assert record.actual_cost == Decimal("3.50")
-
-    def test_record_production_invalid_batches_zero(self, test_db, setup_production_test_data):
-        """Test: Zero batches raises ValidationError."""
-        data = setup_production_test_data
-
-        with pytest.raises(ValidationError) as exc_info:
-            record_production(event_id=data["event"].id, recipe_id=data["recipe"].id, batches=0)
-
-        assert "Batches must be greater than 0" in str(exc_info.value)
-
-    def test_record_production_invalid_batches_negative(self, test_db, setup_production_test_data):
-        """Test: Negative batches raises ValidationError."""
-        data = setup_production_test_data
-
-        with pytest.raises(ValidationError):
-            record_production(event_id=data["event"].id, recipe_id=data["recipe"].id, batches=-1)
-
-    def test_record_production_event_not_found(self, test_db, setup_production_test_data):
-        """Test: Non-existent event raises EventNotFoundError."""
-        data = setup_production_test_data
-
-        with pytest.raises(EventNotFoundError):
-            record_production(event_id=99999, recipe_id=data["recipe"].id, batches=1)
-
-    def test_record_production_recipe_not_found(self, test_db, setup_production_test_data):
-        """Test: Non-existent recipe raises RecipeNotFoundError."""
-        data = setup_production_test_data
-
-        with pytest.raises(RecipeNotFoundError):
-            record_production(event_id=data["event"].id, recipe_id=99999, batches=1)
-
-    def test_record_production_insufficient_inventory(self, test_db, setup_production_test_data):
-        """Test: Insufficient inventory raises InsufficientInventoryError."""
-        data = setup_production_test_data
-
-        # Try to produce 100 batches (needs 200 cups flour, but only have 15)
-        with pytest.raises(InsufficientInventoryError) as exc_info:
-            record_production(event_id=data["event"].id, recipe_id=data["recipe"].id, batches=100)
-
-        assert "all_purpose_flour" in exc_info.value.ingredient_slug
-
-
 class TestGetProductionRecords:
     """Tests for get_production_records() function."""
 
@@ -306,9 +206,11 @@ class TestGetProductionRecords:
         """Test: Returns all production records for event."""
         data = setup_production_test_data
 
-        # Record multiple productions
-        record_production(event_id=data["event"].id, recipe_id=data["recipe"].id, batches=1)
-        record_production(
+        # Create production records directly (not via removed record_production)
+        _create_production_record(
+            event_id=data["event"].id, recipe_id=data["recipe"].id, batches=1
+        )
+        _create_production_record(
             event_id=data["event"].id, recipe_id=data["recipe"].id, batches=2, notes="Second batch"
         )
 
@@ -333,15 +235,17 @@ class TestGetProductionTotal:
         """Test: Correctly sums batches and costs."""
         data = setup_production_test_data
 
-        # Record two productions
-        record_production(event_id=data["event"].id, recipe_id=data["recipe"].id, batches=1)
-        record_production(event_id=data["event"].id, recipe_id=data["recipe"].id, batches=2)
+        # Create production records directly with known costs
+        _create_production_record(
+            event_id=data["event"].id, recipe_id=data["recipe"].id, batches=1, actual_cost=Decimal("1.10")
+        )
+        _create_production_record(
+            event_id=data["event"].id, recipe_id=data["recipe"].id, batches=2, actual_cost=Decimal("2.40")
+        )
 
         result = get_production_total(data["event"].id, data["recipe"].id)
 
         assert result["batches_produced"] == 3
-        # First call (1 batch): flour 2@$0.40=$0.80 + sugar 1@$0.30=$0.30 = $1.10
-        # Second call (2 batches): flour 4 cups (3@$0.40=$1.20 + 1@$0.60=$0.60)=$1.80 + sugar 2@$0.30=$0.60 = $2.40
         # Total: $1.10 + $2.40 = $3.50
         assert result["total_actual_cost"] == Decimal("3.50")
 
@@ -473,7 +377,7 @@ class TestCanAssemblePackage:
 
         # Package needs: 1 package * 1 cookie box * 12 cookies = 12 cookies
         # Recipe yields 24 per batch, so 1 batch is enough
-        record_production(
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -509,8 +413,8 @@ class TestUpdatePackageStatus:
         """Test: Can transition PENDING -> ASSEMBLED when production complete."""
         data = setup_package_status_test_data
 
-        # Produce enough for the package
-        record_production(
+        # Create production record (enough for the package)
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -525,7 +429,7 @@ class TestUpdatePackageStatus:
         data = setup_package_status_test_data
 
         # First get to ASSEMBLED state
-        record_production(
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -557,7 +461,7 @@ class TestUpdatePackageStatus:
         data = setup_package_status_test_data
 
         # Get to ASSEMBLED state
-        record_production(
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -576,7 +480,7 @@ class TestUpdatePackageStatus:
         data = setup_package_status_test_data
 
         # Get to DELIVERED state
-        record_production(
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -636,8 +540,8 @@ class TestGetProductionProgress:
         """Test: Shows partial progress correctly."""
         data = setup_package_status_test_data
 
-        # Produce 1 batch (enough for this package)
-        record_production(
+        # Create production record (1 batch, enough for this package)
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -654,8 +558,8 @@ class TestGetProductionProgress:
         """Test: Package counts by status are accurate."""
         data = setup_package_status_test_data
 
-        # Produce enough, then assemble
-        record_production(
+        # Create production record, then assemble
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -672,8 +576,8 @@ class TestGetProductionProgress:
         """Test: is_complete True when all packages delivered."""
         data = setup_package_status_test_data
 
-        # Produce, assemble, deliver
-        record_production(
+        # Create production record, assemble, deliver
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
@@ -731,7 +635,7 @@ class TestGetRecipeCostBreakdown:
         """Test: Shows actual costs after production."""
         data = setup_package_status_test_data
 
-        record_production(
+        _create_production_record(
             event_id=data["event"].id,
             recipe_id=data["recipe"].id,
             batches=1,
