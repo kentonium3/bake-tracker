@@ -8,7 +8,7 @@ subtasks:
   - "T032"
 title: "Assembly Nested Finished Goods Ledger"
 phase: "Phase 2 - Parallel Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "17206"
@@ -497,3 +497,4 @@ A nested finished good is when one FinishedGood (e.g., "Gift Basket") contains a
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-21T04:05:06Z – claude-opus – shell_pid=17206 – lane=doing – Started implementation via workflow command
+- 2026-01-21T04:17:08Z – claude-opus – shell_pid=17206 – lane=for_review – Ready for review: Added AssemblyFinishedGoodConsumption model, updated assembly_service to create ledger records, added export/import support, 5 new tests. All 2562 tests pass.
