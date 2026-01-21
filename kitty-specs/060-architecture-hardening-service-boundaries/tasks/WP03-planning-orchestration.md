@@ -9,12 +9,12 @@ subtasks:
   - "T015"
 title: "Planning Orchestration Session Discipline"
 phase: "Phase 1 - Critical Path"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "94225"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP02"]
 history:
   - timestamp: "2026-01-20T20:00:00Z"
@@ -464,3 +464,4 @@ Removing `session.commit()` calls changes behavior for standalone usage. Must ve
 - 2026-01-20T22:45:25Z – claude-opus – shell_pid=86115 – lane=doing – Started implementation via workflow command
 - 2026-01-20T23:03:53Z – claude-opus – shell_pid=86115 – lane=for_review – All subtasks complete: T010-T015 implemented. Session threading in progress/shopping_list, removed auto-commits, added blocker categories to feasibility, available_to_assemble via feasibility. All 2568 tests pass.
 - 2026-01-21T02:45:50Z – claude-opus – shell_pid=94225 – lane=doing – Started review via workflow command
+- 2026-01-21T02:46:55Z – claude-opus – shell_pid=94225 – lane=done – Review passed: Session threading in progress.py, session.commit() removed from shopping_list.py, BlockerType/Blocker/BlockerSummary added to feasibility.py, available_to_assemble via feasibility. All 2568 tests pass.
