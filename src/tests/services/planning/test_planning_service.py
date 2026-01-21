@@ -361,6 +361,128 @@ class TestCheckStaleness:
         assert is_stale is True
         assert "Event modified" in reason
 
+    @pytest.fixture
+    def composition_staleness_setup(self, test_db):
+        """Create event with composition for staleness testing (WP05)."""
+        session = test_db()
+
+        # Create event
+        event = Event(
+            name="Composition Staleness Test",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BUNDLED,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create recipe
+        recipe = Recipe(name="Test Cookies", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        cookie_unit = FinishedUnit(
+            display_name="Cookie",
+            slug="cookie",
+            recipe_id=recipe.id,
+            items_per_batch=48,
+            item_unit="cookies",
+            inventory_count=100,
+        )
+        session.add(cookie_unit)
+        session.flush()
+
+        # Create finished good (bundle)
+        gift_box = FinishedGood(
+            display_name="Cookie Box",
+            slug="cookie-box",
+            assembly_type=AssemblyType.GIFT_BOX,
+            inventory_count=0,
+        )
+        session.add(gift_box)
+        session.flush()
+
+        # Create composition
+        comp = Composition.create_unit_composition(
+            assembly_id=gift_box.id,
+            finished_unit_id=cookie_unit.id,
+            quantity=6,
+        )
+        session.add(comp)
+        session.flush()
+
+        # Create assembly target
+        target = EventAssemblyTarget(
+            event_id=event.id,
+            finished_good_id=gift_box.id,
+            target_quantity=10,
+        )
+        session.add(target)
+        session.flush()
+
+        # Create plan snapshot calculated AFTER everything was created
+        now = utc_now()
+        snapshot = ProductionPlanSnapshot(
+            event_id=event.id,
+            calculated_at=now,
+            requirements_updated_at=now,
+            recipes_updated_at=now,
+            bundles_updated_at=now,
+            calculation_results={"recipe_batches": [], "shopping_list": [], "aggregated_ingredients": []},
+            is_stale=False,
+        )
+        session.add(snapshot)
+        session.commit()
+
+        return {
+            "event_id": event.id,
+            "snapshot_id": snapshot.id,
+            "composition_id": comp.id,
+            "finished_unit_id": cookie_unit.id,
+            "calculated_at": now,
+        }
+
+    def test_composition_update_makes_stale(self, test_db, composition_staleness_setup):
+        """Test that composition modification makes plan stale (WP05 T026)."""
+        session = test_db()
+
+        # Modify the composition after plan was calculated
+        comp = session.get(Composition, composition_staleness_setup["composition_id"])
+        comp.component_quantity = 12  # Change quantity
+        comp.updated_at = composition_staleness_setup["calculated_at"] + timedelta(minutes=5)
+        session.commit()
+
+        is_stale, reason = check_staleness(composition_staleness_setup["event_id"], session=session)
+
+        assert is_stale is True
+        assert "composition modified" in reason.lower()
+
+    def test_finished_unit_yield_change_makes_stale(self, test_db, composition_staleness_setup):
+        """Test that FinishedUnit yield change makes plan stale (WP05 T026)."""
+        session = test_db()
+
+        # Modify the finished unit yield after plan was calculated
+        fu = session.get(FinishedUnit, composition_staleness_setup["finished_unit_id"])
+        fu.items_per_batch = 24  # Change yield from 48 to 24
+        fu.updated_at = composition_staleness_setup["calculated_at"] + timedelta(minutes=5)
+        session.commit()
+
+        is_stale, reason = check_staleness(composition_staleness_setup["event_id"], session=session)
+
+        assert is_stale is True
+        assert "yield" in reason.lower() or "finished unit" in reason.lower()
+
+    def test_composition_fresh_if_unchanged(self, test_db, composition_staleness_setup):
+        """Test that plan stays fresh if composition unchanged (WP05 T026)."""
+        session = test_db()
+
+        # Don't modify anything
+        is_stale, reason = check_staleness(composition_staleness_setup["event_id"], session=session)
+
+        assert is_stale is False
+        assert reason is None
+
 
 class TestGetPlanSummary:
     """Tests for get_plan_summary() function."""

@@ -97,6 +97,7 @@ class Composition(BaseModel):
 
     # Timestamps
     created_at = Column(DateTime, nullable=False, default=utc_now)
+    updated_at = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     assembly = relationship(
