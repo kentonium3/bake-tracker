@@ -9,12 +9,12 @@ subtasks:
   - "T021"
 title: "Planning Snapshot Aggregated Ingredients"
 phase: "Phase 2 - Parallel Track"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "8216"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-20T20:00:00Z"
@@ -533,3 +533,4 @@ Depends on WP01 (session pattern for recipe service calls).
 - 2026-01-21T03:17:51Z – claude-opus – shell_pid=1900 – lane=doing – Started implementation via workflow command
 - 2026-01-21T03:31:09Z – claude-opus – shell_pid=1900 – lane=for_review – Ready for review: Implemented aggregated ingredients in planning snapshots. Added _aggregate_plan_ingredients() helper, populated aggregated_ingredients field, added 7 tests. All 2564 tests pass.
 - 2026-01-21T03:37:58Z – claude-opus – shell_pid=8216 – lane=doing – Started review via workflow command
+- 2026-01-21T03:38:39Z – claude-opus – shell_pid=8216 – lane=done – Review passed: Implementation correctly uses recipe_service.get_aggregated_ingredients() with session threading, captures cost at calculation time from preferred Product, includes all required fields (slug, display_name, quantity, unit, cost_per_unit), handles edge cases (empty plan, no cost data), and includes comprehensive tests. All 2564 tests pass.
