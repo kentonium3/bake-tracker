@@ -226,7 +226,7 @@
 
 ### Included Subtasks
 - [x] T033 Delete deprecated `production_tab.py` file
-- [ ] T034 Remove `record_production()` from `production_service.py`
+- [x] T034 Remove `record_production()` from `production_service.py`
 - [ ] T035 Migrate tests to use `batch_production_service`
 - [ ] T036 Remove unused imports referencing old service
 - [ ] T037 Verify no remaining references in codebase
