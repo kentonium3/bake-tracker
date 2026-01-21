@@ -8,10 +8,10 @@ subtasks:
   - "T032"
 title: "Assembly Nested Finished Goods Ledger"
 phase: "Phase 2 - Parallel Track"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "17206"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -496,3 +496,4 @@ A nested finished good is when one FinishedGood (e.g., "Gift Basket") contains a
 ## Activity Log
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-21T04:05:06Z – claude-opus – shell_pid=17206 – lane=doing – Started implementation via workflow command
