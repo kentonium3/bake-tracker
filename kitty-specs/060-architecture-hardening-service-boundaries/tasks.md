@@ -225,7 +225,7 @@
 **Codex Parallelizable**: YES - after WP01 completes
 
 ### Included Subtasks
-- [ ] T033 Delete deprecated `production_tab.py` file
+- [x] T033 Delete deprecated `production_tab.py` file
 - [ ] T034 Remove `record_production()` from `production_service.py`
 - [ ] T035 Migrate tests to use `batch_production_service`
 - [ ] T036 Remove unused imports referencing old service
