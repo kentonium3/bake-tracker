@@ -8,7 +8,7 @@ subtasks:
   - "T037"
 title: "Deprecate Production Service"
 phase: "Phase 2 - Parallel Track"
-lane: "doing"
+lane: "planned"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "23366"
@@ -455,3 +455,4 @@ ls src/ui/production_tab.py 2>&1 | grep -v "No such file"
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-21T04:24:37Z – claude-opus – shell_pid=23366 – lane=doing – Started implementation via workflow command
+- 2026-01-21T04:25:57Z – claude-opus – shell_pid=23366 – lane=planned – Reverting: worktree created nested inside WP06 worktree
