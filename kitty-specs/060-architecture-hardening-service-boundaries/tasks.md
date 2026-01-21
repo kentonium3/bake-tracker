@@ -122,7 +122,7 @@
 
 ### Included Subtasks
 - [x] T016 Implement aggregated ingredient calculation in `planning_service.py`
-- [ ] T017 Include slug, display_name, quantity, unit, cost_per_unit fields
+- [x] T017 Include slug, display_name, quantity, unit, cost_per_unit fields
 - [ ] T018 Ensure yield ratios respected from recipe service
 - [ ] T019 Snapshot cost at plan calculation time
 - [ ] T020 Add tests for snapshot completeness
