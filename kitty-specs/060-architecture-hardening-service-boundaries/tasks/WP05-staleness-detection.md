@@ -9,10 +9,10 @@ subtasks:
   - "T027"
 title: "Staleness Detection Enhancements"
 phase: "Phase 2 - Parallel Track"
-lane: "done"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "14962"
+shell_pid: "16433"
 review_status: "approved"
 reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
@@ -514,3 +514,4 @@ Depends on WP01 (session pattern established).
 - 2026-01-21T03:52:49Z – claude-opus – shell_pid=10342 – lane=for_review – Ready for review: Added Composition.updated_at, enhanced staleness detection for composition updates and FinishedUnit yield changes, added 3 new tests, documented schema change. All 2560 tests pass.
 - 2026-01-21T03:56:13Z – claude-opus – shell_pid=14962 – lane=doing – Started review via workflow command
 - 2026-01-21T03:57:00Z – claude-opus – shell_pid=14962 – lane=done – Review passed: Composition.updated_at added with onupdate=utc_now, staleness detection enhanced for composition updates and FinishedUnit yield changes, 3 new tests verify mutation detection, schema change documented in docs/migrations/. All 2560 tests pass.
+- 2026-01-21T04:02:26Z – claude-opus – shell_pid=16433 – lane=doing – Started review via workflow command
