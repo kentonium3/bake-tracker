@@ -43,6 +43,8 @@ def _normalize_datetime(dt: Optional[datetime]) -> Optional[datetime]:
     return dt
 
 
+from collections import defaultdict
+
 from src.models import (
     Event,
     EventAssemblyTarget,
@@ -55,6 +57,7 @@ from src.models import (
 )
 from src.models.event import OutputMode
 from src.services.database import session_scope
+from src.services import recipe_service
 from src.utils.datetime_utils import utc_now
 
 # Import from sibling modules
@@ -275,6 +278,9 @@ def _calculate_plan_impl(
     # Get shopping list for the event
     shopping_items = _get_shopping_list(event_id, session=session)
 
+    # Aggregate ingredients across all recipes in the plan (WP04)
+    aggregated_ingredients = _aggregate_plan_ingredients(recipe_batches, session)
+
     # Build calculation results JSON
     calculation_results = {
         "recipe_batches": [
@@ -290,7 +296,7 @@ def _calculate_plan_impl(
             }
             for rb in recipe_batches
         ],
-        "aggregated_ingredients": [],  # TODO: Populate from recipe aggregation
+        "aggregated_ingredients": aggregated_ingredients,
         "shopping_list": [
             {
                 "ingredient_id": item.ingredient_id,
@@ -460,6 +466,105 @@ def _get_latest_bundles_timestamp(
                 latest = fg_ts
 
     return latest
+
+
+def _aggregate_plan_ingredients(
+    recipe_batches: List[RecipeBatchResult],
+    session: Session,
+) -> List[Dict[str, Any]]:
+    """Aggregate ingredients across all recipe batches in the plan.
+
+    For each recipe in the plan, gets aggregated ingredients (including
+    nested sub-recipes) and combines them by ingredient slug.
+
+    Args:
+        recipe_batches: List of RecipeBatchResult from batch calculation
+        session: SQLAlchemy session for transactional atomicity
+
+    Returns:
+        List of aggregated ingredients with structure:
+        [
+            {
+                "ingredient_slug": str,
+                "display_name": str,
+                "quantity": float,
+                "unit": str,
+                "cost_per_unit": float
+            },
+            ...
+        ]
+    """
+    # Aggregate by (ingredient_slug, unit) to handle same ingredient with different units
+    totals: Dict[tuple, Dict[str, Any]] = defaultdict(lambda: {
+        "ingredient_slug": "",
+        "display_name": "",
+        "quantity": 0.0,
+        "unit": "",
+        "cost_per_unit": 0.0,
+        "_cost_sources": [],  # Track for weighted average cost
+    })
+
+    for rb in recipe_batches:
+        # Calculate multiplier: batches needed
+        # get_aggregated_ingredients already handles recipe yield internally
+        multiplier = float(rb.batches)
+
+        try:
+            # Get ingredients for this recipe (includes nested sub-recipes)
+            ingredients = recipe_service.get_aggregated_ingredients(
+                rb.recipe_id, multiplier=multiplier, session=session
+            )
+        except Exception:
+            # Skip if recipe not found or other error
+            continue
+
+        for ing in ingredients:
+            # Get ingredient slug from the ingredient object
+            ingredient_obj = ing.get("ingredient")
+            ingredient_slug = (
+                ingredient_obj.slug if ingredient_obj and ingredient_obj.slug
+                else f"ingredient-{ing.get('ingredient_id', 'unknown')}"
+            )
+            unit = ing.get("unit", "")
+            key = (ingredient_slug, unit)
+
+            totals[key]["ingredient_slug"] = ingredient_slug
+            totals[key]["display_name"] = ing.get("ingredient_name", "Unknown")
+            totals[key]["unit"] = unit
+            totals[key]["quantity"] += float(ing.get("total_quantity", 0))
+
+            # Get cost from ingredient's preferred product (if available)
+            if ingredient_obj:
+                preferred = ingredient_obj.get_preferred_product()
+                if preferred:
+                    cost = preferred.get_current_cost_per_unit()
+                    if cost > 0:
+                        totals[key]["_cost_sources"].append({
+                            "quantity": float(ing.get("total_quantity", 0)),
+                            "cost": cost
+                        })
+
+    # Build final result with weighted average cost
+    result = []
+    for key, data in totals.items():
+        cost_per_unit = 0.0
+        if data["_cost_sources"]:
+            total_qty = sum(s["quantity"] for s in data["_cost_sources"])
+            if total_qty > 0:
+                cost_per_unit = sum(
+                    s["quantity"] * s["cost"] for s in data["_cost_sources"]
+                ) / total_qty
+
+        result.append({
+            "ingredient_slug": data["ingredient_slug"] or "unknown",
+            "display_name": data["display_name"] or data["ingredient_slug"],
+            "quantity": round(data["quantity"], 4),
+            "unit": data["unit"] or "each",
+            "cost_per_unit": round(cost_per_unit, 4),
+        })
+
+    # Sort by display name for consistent ordering
+    return sorted(result, key=lambda x: x["display_name"])
 
 
 # =============================================================================

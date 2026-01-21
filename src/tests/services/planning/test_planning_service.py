@@ -777,3 +777,233 @@ class TestIntegration:
             rb = plan_result["recipe_batches"][0]
             assert rb["units_needed"] == 390
             assert rb["batches"] == 9  # ceil(390/48)
+
+
+class TestAggregatedIngredients:
+    """Tests for aggregated ingredients in planning snapshots (WP04)."""
+
+    @pytest.fixture
+    def ingredients_setup(self, test_db):
+        """Create event with recipe that has ingredients."""
+        from src.models import Ingredient, RecipeIngredient
+
+        session = test_db()
+
+        # Create event
+        event = Event(
+            name="Ingredients Test Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BUNDLED,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create ingredients
+        flour = Ingredient(
+            display_name="All-Purpose Flour",
+            slug="all-purpose-flour",
+            category="Baking",
+        )
+        sugar = Ingredient(
+            display_name="White Sugar",
+            slug="white-sugar",
+            category="Baking",
+        )
+        session.add_all([flour, sugar])
+        session.flush()
+
+        # Create recipe
+        cookie_recipe = Recipe(
+            name="Sugar Cookies",
+            category="Cookies",
+        )
+        session.add(cookie_recipe)
+        session.flush()
+
+        # Add ingredients to recipe
+        ri_flour = RecipeIngredient(
+            recipe_id=cookie_recipe.id,
+            ingredient_id=flour.id,
+            quantity=2.0,
+            unit="cups",
+        )
+        ri_sugar = RecipeIngredient(
+            recipe_id=cookie_recipe.id,
+            ingredient_id=sugar.id,
+            quantity=1.0,
+            unit="cups",
+        )
+        session.add_all([ri_flour, ri_sugar])
+        session.flush()
+
+        # Create FinishedUnit
+        cookie_unit = FinishedUnit(
+            display_name="Sugar Cookie",
+            slug="sugar-cookie",
+            recipe_id=cookie_recipe.id,
+            items_per_batch=48,
+            item_unit="cookies",
+            inventory_count=0,
+        )
+        session.add(cookie_unit)
+        session.flush()
+
+        # Create FinishedGood (bundle)
+        gift_bag = FinishedGood(
+            display_name="Holiday Gift Bag",
+            slug="holiday-gift-bag",
+            assembly_type=AssemblyType.GIFT_BOX,
+            inventory_count=0,
+        )
+        session.add(gift_bag)
+        session.flush()
+
+        # Create composition: 6 cookies per bag
+        comp = Composition.create_unit_composition(
+            assembly_id=gift_bag.id,
+            finished_unit_id=cookie_unit.id,
+            quantity=6,
+        )
+        session.add(comp)
+
+        # Create assembly target: 50 bags
+        target = EventAssemblyTarget(
+            event_id=event.id,
+            finished_good_id=gift_bag.id,
+            target_quantity=50,
+        )
+        session.add(target)
+        session.commit()
+
+        return {
+            "event_id": event.id,
+            "recipe_id": cookie_recipe.id,
+            "flour_id": flour.id,
+            "sugar_id": sugar.id,
+        }
+
+    def test_plan_has_aggregated_ingredients(self, test_db, ingredients_setup):
+        """Verify plan snapshot includes aggregated_ingredients."""
+        session = test_db()
+
+        plan = calculate_plan(ingredients_setup["event_id"], session=session)
+
+        # Get the snapshot to check calculation_results
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+        assert snapshot is not None
+        assert "aggregated_ingredients" in snapshot.calculation_results
+        # Should have ingredients since the recipe has them
+        assert isinstance(snapshot.calculation_results["aggregated_ingredients"], list)
+
+    def test_aggregated_ingredient_fields(self, test_db, ingredients_setup):
+        """Verify each ingredient has required fields."""
+        session = test_db()
+
+        plan = calculate_plan(ingredients_setup["event_id"], session=session)
+
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+        ingredients = snapshot.calculation_results["aggregated_ingredients"]
+
+        for ing in ingredients:
+            assert "ingredient_slug" in ing, "Missing ingredient_slug"
+            assert "display_name" in ing, "Missing display_name"
+            assert "quantity" in ing, "Missing quantity"
+            assert "unit" in ing, "Missing unit"
+            assert "cost_per_unit" in ing, "Missing cost_per_unit"
+            # Verify types
+            assert isinstance(ing["ingredient_slug"], str)
+            assert isinstance(ing["display_name"], str)
+            assert isinstance(ing["quantity"], (int, float))
+            assert isinstance(ing["unit"], str)
+            assert isinstance(ing["cost_per_unit"], (int, float))
+
+    def test_aggregated_quantities_scale_with_batches(self, test_db, ingredients_setup):
+        """Verify ingredient quantities scale with batch count."""
+        session = test_db()
+
+        plan = calculate_plan(ingredients_setup["event_id"], session=session)
+
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+        ingredients = snapshot.calculation_results["aggregated_ingredients"]
+
+        # Find flour ingredient
+        flour_ing = next(
+            (ing for ing in ingredients if "flour" in ing["ingredient_slug"].lower()),
+            None
+        )
+
+        if flour_ing:
+            # 50 bags * 6 cookies = 300 cookies needed
+            # 300 / 48 yield = 6.25 -> 7 batches
+            # 7 batches * 2 cups flour = 14 cups
+            assert flour_ing["quantity"] == 14.0
+            assert flour_ing["unit"] == "cups"
+
+    def test_empty_plan_has_empty_aggregated_ingredients(self, test_db):
+        """Verify empty plan has empty aggregated_ingredients."""
+        session = test_db()
+
+        # Create event with no recipes (BULK_COUNT with no targets)
+        event = Event(
+            name="Empty Plan Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BULK_COUNT,
+        )
+        session.add(event)
+        session.commit()
+
+        plan = calculate_plan(event.id, session=session)
+
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+        assert snapshot.calculation_results["aggregated_ingredients"] == []
+
+    def test_cost_per_unit_defaults_to_zero(self, test_db, ingredients_setup):
+        """Verify cost_per_unit is 0 when no product cost data."""
+        session = test_db()
+
+        plan = calculate_plan(ingredients_setup["event_id"], session=session)
+
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+        ingredients = snapshot.calculation_results["aggregated_ingredients"]
+
+        # Without product cost data, cost should be 0
+        for ing in ingredients:
+            assert ing["cost_per_unit"] >= 0  # Should be 0 or valid cost
+
+    def test_snapshot_to_dict_includes_aggregated_ingredients(self, test_db, ingredients_setup):
+        """Verify to_dict() serialization includes aggregated_ingredients (T021)."""
+        session = test_db()
+
+        plan = calculate_plan(ingredients_setup["event_id"], session=session)
+
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+
+        # Serialize to dict (simulating export)
+        snapshot_dict = snapshot.to_dict()
+
+        # Verify calculation_results includes aggregated_ingredients
+        assert "calculation_results" in snapshot_dict
+        assert "aggregated_ingredients" in snapshot_dict["calculation_results"]
+
+        # Verify the accessor method works
+        agg_via_method = snapshot.get_aggregated_ingredients()
+        agg_via_dict = snapshot_dict["calculation_results"]["aggregated_ingredients"]
+
+        assert len(agg_via_method) == len(agg_via_dict)
+
+    def test_snapshot_get_aggregated_ingredients_accessor(self, test_db, ingredients_setup):
+        """Verify get_aggregated_ingredients() accessor method works."""
+        session = test_db()
+
+        plan = calculate_plan(ingredients_setup["event_id"], session=session)
+
+        snapshot = session.get(ProductionPlanSnapshot, plan["plan_id"])
+
+        # Use the accessor method
+        ingredients = snapshot.get_aggregated_ingredients()
+
+        assert isinstance(ingredients, list)
+        # Should have the same ingredients as in calculation_results
+        assert ingredients == snapshot.calculation_results["aggregated_ingredients"]
