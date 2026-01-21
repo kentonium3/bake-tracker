@@ -27,6 +27,7 @@ from src.models import (
     AssemblyRun,
     AssemblyFinishedUnitConsumption,
     AssemblyPackagingConsumption,
+    AssemblyFinishedGoodConsumption,
     FinishedGood,
     FinishedUnit,
     Composition,
@@ -270,6 +271,7 @@ def record_assembly(
             - "total_component_cost": Decimal
             - "per_unit_cost": Decimal
             - "finished_unit_consumptions": List[Dict]
+            - "finished_good_consumptions": List[Dict] - nested FG consumption records (Feature 060)
             - "packaging_consumptions": List[Dict]
             - "material_consumptions": List[Dict] - material consumption records (Feature 047)
             - "event_id": Optional[int] - linked event ID (Feature 016)
@@ -341,6 +343,7 @@ def _record_assembly_impl(
     # Track consumption data
     total_component_cost = Decimal("0.0000")
     fu_consumptions = []
+    fg_consumptions = []  # Feature 060: Nested FinishedGood consumptions
     pkg_consumptions = []
 
     # Process each component
@@ -371,8 +374,7 @@ def _record_assembly_impl(
 
         elif comp.finished_good_id:
             # FinishedGood component (nested assembly) - decrement inventory_count
-            # KNOWN LIMITATION: No consumption ledger entry is created for nested FGs.
-            # See docs/known_limitations.md for details and future enhancement plan.
+            # Feature 060: Create consumption ledger entry for nested FGs
             nested_fg = session.query(FinishedGood).filter_by(id=comp.finished_good_id).first()
             if nested_fg:
                 needed = int(comp.component_quantity * quantity)
@@ -387,6 +389,16 @@ def _record_assembly_impl(
 
                 nested_fg.inventory_count -= needed
                 total_component_cost += cost
+
+                # Feature 060: Track nested FG consumption for ledger
+                fg_consumptions.append(
+                    {
+                        "finished_good_id": nested_fg.id,
+                        "quantity_consumed": needed,
+                        "unit_cost_at_consumption": unit_cost,
+                        "total_cost": cost,
+                    }
+                )
 
         elif comp.packaging_product_id:
             # Skip packaging consumption if bypass flag is set (Feature 026)
@@ -463,6 +475,17 @@ def _record_assembly_impl(
         )
         session.add(consumption)
 
+    # Feature 060: Create nested FinishedGood consumption ledger records
+    for fg_data in fg_consumptions:
+        consumption = AssemblyFinishedGoodConsumption(
+            assembly_run_id=assembly_run.id,
+            finished_good_id=fg_data["finished_good_id"],
+            quantity_consumed=fg_data["quantity_consumed"],
+            unit_cost_at_consumption=fg_data["unit_cost_at_consumption"],
+            total_cost=fg_data["total_cost"],
+        )
+        session.add(consumption)
+
     # Feature 047: Record material consumption
     # This validates availability, creates MaterialConsumption records, and decrements inventory
     material_consumptions = material_consumption_service.record_material_consumption(
@@ -497,6 +520,7 @@ def _record_assembly_impl(
         "total_component_cost": total_component_cost,
         "per_unit_cost": per_unit_cost,
         "finished_unit_consumptions": fu_consumptions,
+        "finished_good_consumptions": fg_consumptions,  # Feature 060
         "packaging_consumptions": pkg_consumptions,
         "material_consumptions": [c.to_dict() for c in material_consumptions],  # Feature 047
         "event_id": event_id,  # Feature 016
@@ -568,6 +592,10 @@ def get_assembly_history(
                 joinedload(AssemblyRun.packaging_consumptions).joinedload(
                     AssemblyPackagingConsumption.product
                 ),
+                # Feature 060: Eagerly load nested FG consumptions
+                joinedload(AssemblyRun.finished_good_consumptions).joinedload(
+                    AssemblyFinishedGoodConsumption.finished_good
+                ),
             )
 
         # Order and paginate
@@ -609,6 +637,10 @@ def get_assembly_run(
                 ),
                 joinedload(AssemblyRun.packaging_consumptions).joinedload(
                     AssemblyPackagingConsumption.product
+                ),
+                # Feature 060: Eagerly load nested FG consumptions
+                joinedload(AssemblyRun.finished_good_consumptions).joinedload(
+                    AssemblyFinishedGoodConsumption.finished_good
                 ),
             )
 
@@ -670,6 +702,21 @@ def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) 
                     "total_cost": str(c.total_cost),
                 }
                 for c in run.packaging_consumptions
+            ]
+
+        # Feature 060: Nested FinishedGood consumptions
+        if run.finished_good_consumptions:
+            result["finished_good_consumptions"] = [
+                {
+                    "id": c.id,
+                    "uuid": str(c.uuid) if c.uuid else None,
+                    "finished_good_id": c.finished_good_id,
+                    "finished_good_name": c.finished_good.display_name if c.finished_good else None,
+                    "quantity_consumed": c.quantity_consumed,
+                    "unit_cost_at_consumption": str(c.unit_cost_at_consumption),
+                    "total_cost": str(c.total_cost),
+                }
+                for c in run.finished_good_consumptions
             ]
 
     return result
@@ -741,6 +788,18 @@ def export_assembly_history(
                     "total_cost": c["total_cost"],
                 }
                 for c in run.get("packaging_consumptions", [])
+            ],
+            # Feature 060: Export nested FinishedGood consumptions
+            "finished_good_consumptions": [
+                {
+                    "uuid": c.get("uuid"),
+                    "finished_good_id": c["finished_good_id"],
+                    "finished_good_name": c.get("finished_good_name"),
+                    "quantity_consumed": c["quantity_consumed"],
+                    "unit_cost_at_consumption": c["unit_cost_at_consumption"],
+                    "total_cost": c["total_cost"],
+                }
+                for c in run.get("finished_good_consumptions", [])
             ],
         }
         exported_runs.append(exported_run)
@@ -832,6 +891,18 @@ def import_assembly_history(
                         product_id=c_data["product_id"],
                         quantity_consumed=Decimal(c_data["quantity_consumed"]),
                         unit=c_data.get("unit", ""),
+                        total_cost=Decimal(c_data["total_cost"]),
+                    )
+                    session.add(consumption)
+
+                # Feature 060: Create nested FinishedGood consumptions
+                for c_data in run_data.get("finished_good_consumptions", []):
+                    consumption = AssemblyFinishedGoodConsumption(
+                        uuid=c_data.get("uuid"),
+                        assembly_run_id=run.id,
+                        finished_good_id=c_data["finished_good_id"],
+                        quantity_consumed=c_data["quantity_consumed"],
+                        unit_cost_at_consumption=Decimal(c_data["unit_cost_at_consumption"]),
                         total_cost=Decimal(c_data["total_cost"]),
                     )
                     session.add(consumption)

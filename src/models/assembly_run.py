@@ -82,6 +82,12 @@ class AssemblyRun(BaseModel):
         back_populates="assembly_run",
         cascade="all, delete-orphan",
     )
+    # Feature 060: Nested FinishedGood consumption tracking
+    finished_good_consumptions = relationship(
+        "AssemblyFinishedGoodConsumption",
+        back_populates="assembly_run",
+        cascade="all, delete-orphan",
+    )
     # Feature 016: Event relationship
     event = relationship("Event", back_populates="assembly_runs")
 
