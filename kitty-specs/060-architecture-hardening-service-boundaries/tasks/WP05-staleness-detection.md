@@ -9,7 +9,7 @@ subtasks:
   - "T027"
 title: "Staleness Detection Enhancements"
 phase: "Phase 2 - Parallel Track"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "10342"
@@ -511,3 +511,4 @@ Depends on WP01 (session pattern established).
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-21T03:44:36Z – claude-opus – shell_pid=10342 – lane=doing – Started implementation via workflow command
+- 2026-01-21T03:52:49Z – claude-opus – shell_pid=10342 – lane=for_review – Ready for review: Added Composition.updated_at, enhanced staleness detection for composition updates and FinishedUnit yield changes, added 3 new tests, documented schema change. All 2560 tests pass.
