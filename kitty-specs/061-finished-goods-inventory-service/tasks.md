@@ -23,7 +23,7 @@
 - [x] T002 [P] Add inventory_adjustments relationship to FinishedUnit in `src/models/finished_unit.py`
 - [x] T003 [P] Add inventory_adjustments relationship to FinishedGood in `src/models/finished_good.py`
 - [x] T004 [P] Add inventory constants to `src/utils/constants.py`
-- [ ] T005 Create service module skeleton in `src/services/finished_goods_inventory_service.py`
+- [x] T005 Create service module skeleton in `src/services/finished_goods_inventory_service.py`
 
 ### Implementation Notes
 - Follow data-model.md for exact schema definition
