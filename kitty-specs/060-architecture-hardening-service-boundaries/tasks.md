@@ -191,7 +191,7 @@
 **Codex Parallelizable**: YES - after WP01 completes
 
 ### Included Subtasks
-- [ ] T028 Identify nested FG consumption points in `assembly_service.py`
+- [x] T028 Identify nested FG consumption points in `assembly_service.py`
 - [ ] T029 Create consumption records with cost snapshot at consumption time
 - [ ] T030 Include lot tracking for nested finished goods
 - [ ] T031 Update export to include nested consumption records
