@@ -8,12 +8,12 @@ subtasks:
   - "T032"
 title: "Assembly Nested Finished Goods Ledger"
 phase: "Phase 2 - Parallel Track"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "21904"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-20T20:00:00Z"
@@ -499,3 +499,4 @@ A nested finished good is when one FinishedGood (e.g., "Gift Basket") contains a
 - 2026-01-21T04:05:06Z – claude-opus – shell_pid=17206 – lane=doing – Started implementation via workflow command
 - 2026-01-21T04:17:08Z – claude-opus – shell_pid=17206 – lane=for_review – Ready for review: Added AssemblyFinishedGoodConsumption model, updated assembly_service to create ledger records, added export/import support, 5 new tests. All 2562 tests pass.
 - 2026-01-21T04:19:11Z – claude-opus – shell_pid=21904 – lane=doing – Started review via workflow command
+- 2026-01-21T04:20:31Z – claude-opus – shell_pid=21904 – lane=done – Review passed: AssemblyFinishedGoodConsumption model follows existing pattern, cost snapshot captured at consumption time, export/import supports new records, 5 comprehensive tests verify all requirements. All 2562 tests pass.
