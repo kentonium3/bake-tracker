@@ -126,7 +126,7 @@
 - [x] T018 Ensure yield ratios respected from recipe service
 - [x] T019 Snapshot cost at plan calculation time
 - [x] T020 Add tests for snapshot completeness
-- [ ] T021 [P] Update export/import for aggregated ingredients
+- [x] T021 [P] Update export/import for aggregated ingredients
 
 ### Implementation Notes
 - Use `get_aggregated_ingredients()` from recipe_service (already has session param)
