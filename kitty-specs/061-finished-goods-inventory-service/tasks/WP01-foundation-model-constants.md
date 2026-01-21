@@ -8,12 +8,12 @@ subtasks:
   - "T005"
 title: "Foundation - Model and Constants"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "91740"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-21T19:33:38Z"
@@ -330,3 +330,4 @@ assert hasattr(FinishedGood, 'inventory_adjustments')
 - 2026-01-21T19:54:56Z – claude-opus – shell_pid=88715 – lane=doing – Started implementation via workflow command
 - 2026-01-21T20:02:58Z – claude-opus – shell_pid=88715 – lane=for_review – Ready for review: Created FinishedGoodsAdjustment model with CHECK constraints, added inventory_adjustments relationships to FinishedUnit and FinishedGood, added inventory constants, and created service skeleton with 6 function stubs following helper function session pattern. All imports work, all 2581 tests pass.
 - 2026-01-21T20:06:19Z – claude-opus – shell_pid=91740 – lane=doing – Started review via workflow command
+- 2026-01-21T20:07:48Z – claude-opus – shell_pid=91740 – lane=done – Review passed: Model matches data-model.md with correct CHECK constraints (XOR, count consistency, non-negative). Relationships correctly configured with lazy=dynamic. All 6 service functions have correct signatures per plan.md with helper function session pattern. All imports work, 2581 tests pass.
