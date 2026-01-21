@@ -160,7 +160,7 @@
 - [x] T024 Add `_get_latest_finished_unit_timestamp()` helper in planning_service.py
 - [x] T025 Update `_check_staleness_impl()` to call new helpers
 - [x] T026 Add tests for each mutation type
-- [ ] T027 Document schema change for export/reset/import
+- [x] T027 Document schema change for export/reset/import
 
 ### Implementation Notes
 - Composition model change: `updated_at = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)`
