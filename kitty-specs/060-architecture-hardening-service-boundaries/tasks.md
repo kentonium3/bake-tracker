@@ -155,7 +155,7 @@
 **Codex Parallelizable**: YES - after WP01 completes
 
 ### Included Subtasks
-- [ ] T022 Add `updated_at` to Composition model (line 99 of composition.py)
+- [x] T022 Add `updated_at` to Composition model (line 99 of composition.py)
 - [ ] T023 Add `_get_latest_composition_updated_timestamp()` helper in planning_service.py
 - [ ] T024 Add `_get_latest_finished_unit_timestamp()` helper in planning_service.py
 - [ ] T025 Update `_check_staleness_impl()` to call new helpers
