@@ -657,12 +657,46 @@ def _check_staleness_impl(
             if fg_updated and fg_updated > calculated_at:
                 return True, f"Bundle '{fg.display_name}' modified"
 
-            # Check compositions (only has created_at)
+            # Check compositions (created_at and updated_at)
             compositions = session.query(Composition).filter(Composition.assembly_id == fg.id).all()
             for comp in compositions:
                 comp_created = _normalize_datetime(comp.created_at)
                 if comp_created and comp_created > calculated_at:
                     return True, f"Bundle '{fg.display_name}' contents changed"
+                # Check composition updates (WP05 T023)
+                comp_updated = _normalize_datetime(comp.updated_at)
+                if comp_updated and comp_updated > calculated_at:
+                    return True, f"Bundle '{fg.display_name}' composition modified"
+
+    # Check FinishedUnit yield changes (WP05 T024/T025)
+    # Get finished unit IDs from production targets and compositions
+    finished_unit_ids = set()
+
+    # From production targets (if recipe links to finished unit)
+    for target in event.production_targets:
+        recipe = session.get(Recipe, target.recipe_id)
+        if recipe:
+            # Find finished units that use this recipe
+            fus = session.query(FinishedUnit).filter(FinishedUnit.recipe_id == recipe.id).all()
+            for fu in fus:
+                finished_unit_ids.add(fu.id)
+
+    # From assembly compositions
+    for target in event.assembly_targets:
+        compositions = session.query(Composition).filter(
+            Composition.assembly_id == target.finished_good_id,
+            Composition.finished_unit_id.isnot(None)
+        ).all()
+        for comp in compositions:
+            finished_unit_ids.add(comp.finished_unit_id)
+
+    # Check each finished unit for yield changes
+    for fu_id in finished_unit_ids:
+        fu = session.get(FinishedUnit, fu_id)
+        if fu:
+            fu_updated = _normalize_datetime(fu.updated_at)
+            if fu_updated and fu_updated > calculated_at:
+                return True, f"Finished unit '{fu.display_name}' yield changed"
 
     return False, None
 
