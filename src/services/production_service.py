@@ -107,106 +107,11 @@ VALID_TRANSITIONS: Dict[PackageStatus, Set[PackageStatus]] = {
 }
 
 
-def record_production(
-    event_id: int,
-    recipe_id: int,
-    batches: int,
-    notes: Optional[str] = None,
-) -> ProductionRecord:
-    """
-    Record batches of a recipe as produced for an event.
-
-    Consumes inventory via FIFO and captures actual costs.
-
-    Args:
-        event_id: Event to record production for
-        recipe_id: Recipe that was produced
-        batches: Number of batches produced (must be > 0)
-        notes: Optional production notes
-
-    Returns:
-        ProductionRecord with actual FIFO cost
-
-    Raises:
-        ValidationError: If batches <= 0
-        EventNotFoundError: If event doesn't exist
-        RecipeNotFoundError: If recipe doesn't exist
-        InsufficientInventoryError: If inventory lacks ingredients
-    """
-    # Validation
-    if batches <= 0:
-        raise ValidationError(["Batches must be greater than 0"])
-
-    try:
-        with session_scope() as session:
-            # Verify event exists
-            event = session.query(Event).filter(Event.id == event_id).first()
-            if not event:
-                raise EventNotFoundError(event_id)
-
-            # Verify recipe exists and load ingredients
-            # Load ingredient relationship to avoid detached session issues
-            recipe = (
-                session.query(Recipe)
-                .options(
-                    joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient),
-                )
-                .filter(Recipe.id == recipe_id)
-                .first()
-            )
-            if not recipe:
-                raise RecipeNotFoundError(recipe_id)
-
-            # Calculate and consume ingredients
-            total_actual_cost = Decimal("0.0000")
-
-            for ri in recipe.recipe_ingredients:
-                # Get ingredient from recipe ingredient relationship
-                ingredient = ri.ingredient
-                if not ingredient:
-                    continue
-
-                # Calculate quantity for N batches
-                qty_needed = Decimal(str(ri.quantity)) * Decimal(str(batches))
-
-                # Consume via FIFO (actual consumption, not dry run)
-                result = inventory_item_service.consume_fifo(
-                    ingredient_slug=ingredient.slug,
-                    quantity_needed=qty_needed,
-                    target_unit=ri.unit,
-                    dry_run=False,
-                )
-
-                if not result["satisfied"]:
-                    raise InsufficientInventoryError(
-                        ingredient_slug=ingredient.slug,
-                        needed=qty_needed,
-                        available=result["consumed"],
-                    )
-
-                total_actual_cost += result["total_cost"]
-
-            # Create production record
-            record = ProductionRecord(
-                event_id=event_id,
-                recipe_id=recipe_id,
-                batches=batches,
-                actual_cost=total_actual_cost,
-                produced_at=datetime.now(timezone.utc),
-                notes=notes,
-            )
-            session.add(record)
-            session.flush()
-
-            # Reload to ensure all fields populated
-            session.refresh(record)
-            return record
-
-    except (EventNotFoundError, RecipeNotFoundError, InsufficientInventoryError):
-        # Re-raise domain exceptions as-is
-        raise
-    except SQLAlchemyError as e:
-        raise DatabaseError(f"Failed to record production: {str(e)}")
+# REMOVED: record_production() - Feature 060 WP07
+# Was: Record batches of a recipe as produced for an event
+# Replaced by: batch_production_service.record_batch_production()
+# Reason: Lacked session param, recipe snapshot, loss tracking, cost variance
+# See: src/services/batch_production_service.py
 
 
 def get_production_records(event_id: int) -> List[ProductionRecord]:

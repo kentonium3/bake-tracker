@@ -121,8 +121,9 @@ from .package_service import (
 )
 
 # Production services (Feature 008)
+# NOTE: record_production() REMOVED in Feature 060 WP07
+# Use batch_production_service.record_batch_production() instead
 from .production_service import (
-    record_production,
     get_production_records,
     get_production_total,
     can_assemble_package,
@@ -390,8 +391,8 @@ __all__ = [
     "RecipientInUse",
     "RecipientHasAssignmentsError",
     # Production services (Feature 008)
+    # NOTE: record_production REMOVED - use batch_production_service.record_batch_production()
     "production_service",
-    "record_production",
     "get_production_records",
     "get_production_total",
     "can_assemble_package",
