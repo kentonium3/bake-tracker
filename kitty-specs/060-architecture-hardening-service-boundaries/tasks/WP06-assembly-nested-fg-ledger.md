@@ -21,6 +21,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-21T04:20:31Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: "21904"
+    action: "Review passed - Nested FG consumption ledger added"
 ---
 
 # Work Package Prompt: WP06 – Assembly Nested Finished Goods Ledger
