@@ -20,7 +20,7 @@
 
 ### Included Subtasks
 - [x] T001 Create FinishedGoodsAdjustment model in `src/models/finished_goods_adjustment.py`
-- [ ] T002 [P] Add inventory_adjustments relationship to FinishedUnit in `src/models/finished_unit.py`
+- [x] T002 [P] Add inventory_adjustments relationship to FinishedUnit in `src/models/finished_unit.py`
 - [ ] T003 [P] Add inventory_adjustments relationship to FinishedGood in `src/models/finished_good.py`
 - [ ] T004 [P] Add inventory constants to `src/utils/constants.py`
 - [ ] T005 Create service module skeleton in `src/services/finished_goods_inventory_service.py`
