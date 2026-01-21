@@ -8,10 +8,10 @@ subtasks:
   - "T037"
 title: "Deprecate Production Service"
 phase: "Phase 2 - Parallel Track"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "24713"
+shell_pid: "29946"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -458,3 +458,4 @@ ls src/ui/production_tab.py 2>&1 | grep -v "No such file"
 - 2026-01-21T04:25:57Z – claude-opus – shell_pid=23366 – lane=planned – Reverting: worktree created nested inside WP06 worktree
 - 2026-01-21T04:29:08Z – claude-opus – shell_pid=24713 – lane=doing – Started implementation via workflow command
 - 2026-01-21T04:44:24Z – claude-opus – shell_pid=24713 – lane=for_review – Removed deprecated production_service.record_production() and production_tab.py. Tests migrated to use direct ProductionRecord creation. All 2549 tests pass.
+- 2026-01-21T04:46:19Z – claude-opus – shell_pid=29946 – lane=doing – Started review via workflow command
