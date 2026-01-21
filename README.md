@@ -4,7 +4,7 @@ A desktop application for managing event-based food production: inventory, recip
 
 ## Overview
 
-Bake Tracker helps you plan and execute large-scale baking operations by tracking:
+Bake Tracker helps you plan and execute small-scale baking operations by tracking:
 
 - **Ingredients & Products** - Three-tier ingredient taxonomy with brand-specific products
 - **Materials** - Non-food items (boxes, ribbons, labels) with separate inventory tracking
@@ -18,13 +18,13 @@ Bake Tracker helps you plan and execute large-scale baking operations by trackin
 
 ## Technology Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Language** | Python 3.10+ | Type hints, modern syntax |
-| **UI** | CustomTkinter | Cross-platform desktop widgets |
-| **Database** | SQLite (WAL mode) | Portable single-file storage |
-| **ORM** | SQLAlchemy 2.x | Type-safe database abstraction |
-| **Testing** | pytest | 2,500+ unit and integration tests |
+| Component    | Technology        | Purpose                           |
+| ------------ | ----------------- | --------------------------------- |
+| **Language** | Python 3.10+      | Type hints, modern syntax         |
+| **UI**       | CustomTkinter     | Cross-platform desktop widgets    |
+| **Database** | SQLite (WAL mode) | Portable single-file storage      |
+| **ORM**      | SQLAlchemy 2.x    | Type-safe database abstraction    |
+| **Testing**  | pytest            | 2,500+ unit and integration tests |
 
 ## Quick Start
 
@@ -102,30 +102,30 @@ bake-tracker/
 
 ## Development Phases
 
-| Phase | Status | Focus |
-|-------|--------|-------|
-| **Phase 1-2** | Complete | Foundation, learning app development basics |
-| **Phase 3** | **In Progress** | Locally functional app with professional data modeling |
-| **Phase 4** | Pending | AI-assisted interaction demonstrator (voice/chat input) |
-| **Phase 5** | Planned | Web app port, cloud hosting, multi-user (15-20) |
-| **Phase 6** | Planned | Web platform demonstrator, AI-assisted workflows |
-| **Phase 7** | Aspirational | Commercial prototype, 10K+ users, reskinnable |
+| Phase         | Status          | Focus                                                   |
+| ------------- | --------------- | ------------------------------------------------------- |
+| **Phase 1-2** | Complete        | Foundation, learning app development basics             |
+| **Phase 3**   | **In Progress** | Locally functional app with professional data modeling  |
+| **Phase 4**   | Pending         | AI-assisted interaction demonstrator (voice/chat input) |
+| **Phase 5**   | Planned         | Web app port, cloud hosting, multi-user (15-20)         |
+| **Phase 6**   | Planned         | Web platform demonstrator, AI-assisted workflows        |
+| **Phase 7**   | Aspirational    | Commercial prototype, 10K+ users, reskinnable           |
 
 See [App Vision](docs/design/app_vision_note.md) for detailed phase descriptions.
 
 ## Feature Maturity
 
-| Domain | Feature | Status |
-|--------|---------|--------|
-| **Catalog** | Ingredient/Material Hierarchy | Mature |
-| **Catalog** | Products & MaterialProducts | Mature |
-| **Catalog** | Recipes (nested, snapshots) | Mature |
-| **Inventory** | FIFO Tracking (food & materials) | Mature |
-| **Import/Export** | JSON backup, catalog import | Mature |
-| **Production** | ProductionRuns, cost snapshots | Functional |
-| **Assembly** | Finished Goods, Bundles | Partial |
-| **Planning** | Events, Recipients, Packages | Partial |
-| **Analytics** | Reporting, Dashboards | Planned |
+| Domain            | Feature                          | Status     |
+| ----------------- | -------------------------------- | ---------- |
+| **Catalog**       | Ingredient/Material Hierarchy    | Mature     |
+| **Catalog**       | Products & MaterialProducts      | Mature     |
+| **Catalog**       | Recipes (nested, snapshots)      | Mature     |
+| **Inventory**     | FIFO Tracking (food & materials) | Mature     |
+| **Import/Export** | JSON backup, catalog import      | Mature     |
+| **Production**    | ProductionRuns, cost snapshots   | Functional |
+| **Assembly**      | Finished Goods, Bundles          | Partial    |
+| **Planning**      | Events, Recipients, Packages     | Partial    |
+| **Analytics**     | Reporting, Dashboards            | Planned    |
 
 ## Development Workflow
 
