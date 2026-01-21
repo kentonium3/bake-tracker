@@ -9,10 +9,10 @@ subtasks:
   - "T021"
 title: "Planning Snapshot Aggregated Ingredients"
 phase: "Phase 2 - Parallel Track"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "1900"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -530,3 +530,4 @@ Depends on WP01 (session pattern for recipe service calls).
 ## Activity Log
 
 - 2026-01-20T20:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-21T03:17:51Z – claude-opus – shell_pid=1900 – lane=doing – Started implementation via workflow command
