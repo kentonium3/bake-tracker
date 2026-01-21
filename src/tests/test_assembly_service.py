@@ -19,6 +19,7 @@ from src.models import (
     AssemblyRun,
     AssemblyFinishedUnitConsumption,
     AssemblyPackagingConsumption,
+    AssemblyFinishedGoodConsumption,  # Feature 060
     Event,
 )
 
@@ -918,3 +919,220 @@ class TestRecordAssemblyEventId:
             )
 
         assert exc_info.value.event_id == 99999
+
+
+# =============================================================================
+# Feature 060: Nested FinishedGood Consumption Ledger Tests
+# =============================================================================
+
+
+class TestNestedFinishedGoodConsumption:
+    """Tests for nested FinishedGood consumption ledger (Feature 060 WP06)."""
+
+    @pytest.fixture
+    def inner_finished_good(self, test_db, finished_unit_cookie):
+        """Create inner FinishedGood (e.g., 'Cookie Tin' containing cookies)."""
+        session = test_db()
+        inner_fg = FinishedGood(
+            slug="cookie-tin",
+            display_name="Cookie Tin",
+            assembly_type=AssemblyType.VARIETY_PACK,
+            inventory_count=10,  # Start with some assembled inventory
+        )
+        session.add(inner_fg)
+        session.flush()
+
+        # Inner FG contains 6 cookies
+        comp = Composition(
+            assembly_id=inner_fg.id,
+            finished_unit_id=finished_unit_cookie.id,
+            component_quantity=6,
+            sort_order=1,
+        )
+        session.add(comp)
+        session.commit()
+        return inner_fg
+
+    @pytest.fixture
+    def outer_finished_good(self, test_db, inner_finished_good):
+        """Create outer FinishedGood (e.g., 'Gift Basket' containing Cookie Tins)."""
+        session = test_db()
+        outer_fg = FinishedGood(
+            slug="gift-basket",
+            display_name="Gift Basket",
+            assembly_type=AssemblyType.GIFT_BOX,
+            inventory_count=0,
+        )
+        session.add(outer_fg)
+        session.flush()
+
+        # Outer FG contains 2 Cookie Tins (nested FinishedGood)
+        comp = Composition(
+            assembly_id=outer_fg.id,
+            finished_good_id=inner_finished_good.id,
+            component_quantity=2,
+            sort_order=1,
+        )
+        session.add(comp)
+        session.commit()
+        return outer_fg
+
+    def test_nested_fg_creates_consumption_record(
+        self, test_db, outer_finished_good, inner_finished_good
+    ):
+        """Assembly with nested FG creates consumption ledger record (WP06 T029)."""
+        from src.models import AssemblyFinishedGoodConsumption
+
+        outer_fg = outer_finished_good
+        inner_fg = inner_finished_good
+        inner_fg_id = inner_fg.id
+
+        # Assemble 3 gift baskets (needs 6 cookie tins, have 10)
+        result = assembly_service.record_assembly(
+            finished_good_id=outer_fg.id,
+            quantity=3,
+        )
+
+        # Verify nested FG consumption in result
+        assert "finished_good_consumptions" in result
+        assert len(result["finished_good_consumptions"]) == 1
+        fg_consumption = result["finished_good_consumptions"][0]
+        assert fg_consumption["finished_good_id"] == inner_fg_id
+        assert fg_consumption["quantity_consumed"] == 6  # 3 baskets * 2 tins each
+
+        # Verify database record created
+        with session_scope() as session:
+            consumptions = (
+                session.query(AssemblyFinishedGoodConsumption)
+                .filter_by(assembly_run_id=result["assembly_run_id"])
+                .all()
+            )
+            assert len(consumptions) == 1
+            assert consumptions[0].finished_good_id == inner_fg_id
+            assert consumptions[0].quantity_consumed == 6
+
+    def test_nested_fg_cost_snapshot(
+        self, test_db, outer_finished_good, inner_finished_good
+    ):
+        """Cost is captured at consumption time, not calculated later (WP06 T029)."""
+        from src.models import AssemblyFinishedGoodConsumption
+
+        outer_fg = outer_finished_good
+
+        # Record assembly
+        result = assembly_service.record_assembly(
+            finished_good_id=outer_fg.id,
+            quantity=1,
+        )
+
+        # Verify cost was snapshotted
+        with session_scope() as session:
+            consumption = (
+                session.query(AssemblyFinishedGoodConsumption)
+                .filter_by(assembly_run_id=result["assembly_run_id"])
+                .first()
+            )
+            assert consumption is not None
+            assert consumption.unit_cost_at_consumption is not None
+            assert consumption.total_cost is not None
+            # total_cost should equal unit_cost * quantity
+            expected_total = consumption.unit_cost_at_consumption * consumption.quantity_consumed
+            assert consumption.total_cost == expected_total
+
+    def test_nested_fg_inventory_decremented(
+        self, test_db, outer_finished_good, inner_finished_good
+    ):
+        """Inner FinishedGood inventory is decremented when consumed."""
+        outer_fg = outer_finished_good
+        inner_fg_id = inner_finished_good.id
+        initial_inner_count = inner_finished_good.inventory_count  # 10
+
+        # Assemble 2 gift baskets (needs 4 cookie tins)
+        assembly_service.record_assembly(
+            finished_good_id=outer_fg.id,
+            quantity=2,
+        )
+
+        # Verify inner FG inventory decremented
+        with session_scope() as session:
+            inner_fg = session.query(FinishedGood).filter_by(id=inner_fg_id).first()
+            assert inner_fg.inventory_count == initial_inner_count - 4
+
+    def test_nested_fg_get_assembly_run_includes_consumptions(
+        self, test_db, outer_finished_good, inner_finished_good
+    ):
+        """get_assembly_run includes nested FG consumptions when include_consumptions=True."""
+        outer_fg = outer_finished_good
+
+        result = assembly_service.record_assembly(
+            finished_good_id=outer_fg.id,
+            quantity=1,
+        )
+
+        # Retrieve with include_consumptions
+        run_details = assembly_service.get_assembly_run(
+            result["assembly_run_id"],
+            include_consumptions=True,
+        )
+
+        assert "finished_good_consumptions" in run_details
+        assert len(run_details["finished_good_consumptions"]) == 1
+        fg_consumption = run_details["finished_good_consumptions"][0]
+        assert fg_consumption["finished_good_name"] == "Cookie Tin"
+        assert fg_consumption["quantity_consumed"] == 2
+
+    def test_nested_fg_export_import_roundtrip(
+        self, test_db, outer_finished_good, inner_finished_good
+    ):
+        """Export/import preserves nested FG consumption records (WP06 T031)."""
+        from src.models import AssemblyRun, AssemblyFinishedGoodConsumption
+
+        outer_fg = outer_finished_good
+
+        # Create assembly
+        result = assembly_service.record_assembly(
+            finished_good_id=outer_fg.id,
+            quantity=1,
+        )
+        original_run_id = result["assembly_run_id"]
+
+        # Export
+        exported = assembly_service.export_assembly_history(
+            finished_good_id=outer_fg.id,
+        )
+
+        assert len(exported["assembly_runs"]) == 1
+        exported_run = exported["assembly_runs"][0]
+        assert "finished_good_consumptions" in exported_run
+        assert len(exported_run["finished_good_consumptions"]) == 1
+
+        # Clear database records
+        with session_scope() as session:
+            session.query(AssemblyFinishedGoodConsumption).filter_by(
+                assembly_run_id=original_run_id
+            ).delete()
+            session.query(AssemblyRun).filter_by(id=original_run_id).delete()
+
+        # Import
+        import_result = assembly_service.import_assembly_history(
+            exported,
+            skip_duplicates=False,
+        )
+
+        assert import_result["imported"] == 1
+        assert import_result["errors"] == []
+
+        # Verify imported records include nested FG consumptions
+        with session_scope() as session:
+            runs = session.query(AssemblyRun).filter_by(
+                finished_good_id=outer_fg.id
+            ).all()
+            assert len(runs) == 1
+
+            consumptions = (
+                session.query(AssemblyFinishedGoodConsumption)
+                .filter_by(assembly_run_id=runs[0].id)
+                .all()
+            )
+            assert len(consumptions) == 1
+            assert consumptions[0].quantity_consumed == 2

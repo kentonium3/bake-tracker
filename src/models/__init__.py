@@ -47,6 +47,7 @@ from .assembly_run import AssemblyRun  # Feature 013
 from .recipe_snapshot import RecipeSnapshot  # Feature 037
 from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
 from .assembly_packaging_consumption import AssemblyPackagingConsumption  # Feature 013
+from .assembly_finished_good_consumption import AssemblyFinishedGoodConsumption  # Feature 060
 from .unit import Unit  # Feature 022
 
 # Feature 047: Materials Management System
@@ -106,6 +107,7 @@ __all__ = [
     "AssemblyRun",
     "AssemblyFinishedUnitConsumption",
     "AssemblyPackagingConsumption",
+    "AssemblyFinishedGoodConsumption",  # Feature 060
     # Production loss tracking Feature 025
     "ProductionLoss",
     "ProductionStatus",
