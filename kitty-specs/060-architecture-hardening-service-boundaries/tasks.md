@@ -157,7 +157,7 @@
 ### Included Subtasks
 - [x] T022 Add `updated_at` to Composition model (line 99 of composition.py)
 - [x] T023 Add `_get_latest_composition_updated_timestamp()` helper in planning_service.py
-- [ ] T024 Add `_get_latest_finished_unit_timestamp()` helper in planning_service.py
+- [x] T024 Add `_get_latest_finished_unit_timestamp()` helper in planning_service.py
 - [ ] T025 Update `_check_staleness_impl()` to call new helpers
 - [ ] T026 Add tests for each mutation type
 - [ ] T027 Document schema change for export/reset/import
