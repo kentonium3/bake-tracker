@@ -195,7 +195,7 @@
 - [x] T029 Create consumption records with cost snapshot at consumption time
 - [x] T030 Include lot tracking for nested finished goods
 - [x] T031 Update export to include nested consumption records
-- [ ] T032 Add tests for ledger completeness
+- [x] T032 Add tests for ledger completeness
 
 ### Implementation Notes
 - Follow pattern from packaging consumption (lines 456-464 of assembly_service.py)
