@@ -177,18 +177,6 @@ class FinishedUnit(BaseModel):
 
         return 0.0
 
-    def is_available(self, quantity: int = 1) -> bool:
-        """
-        Check if the specified quantity is available in inventory.
-
-        Args:
-            quantity: Quantity needed
-
-        Returns:
-            True if available, False otherwise
-        """
-        return self.inventory_count >= quantity
-
     def calculate_current_cost(self) -> Decimal:
         """
         Calculate current average cost per unit from production history.
@@ -215,24 +203,6 @@ class FinishedUnit(BaseModel):
             return Decimal("0.0000")
 
         return (total_cost / Decimal(str(total_yield))).quantize(Decimal("0.0001"))
-
-    def update_inventory(self, quantity_change: int) -> bool:
-        """
-        Update inventory count with the specified change.
-
-        Args:
-            quantity_change: Positive or negative change to inventory
-
-        Returns:
-            True if successful, False if would result in negative inventory
-        """
-        new_count = self.inventory_count + quantity_change
-        if new_count < 0:
-            return False
-
-        self.inventory_count = new_count
-        self.updated_at = utc_now()  # Update timestamp
-        return True
 
     def validate_discrete_count_fields(self) -> list[str]:
         """
