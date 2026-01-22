@@ -277,7 +277,7 @@
 - [x] T044 Add required `session` param to: `get_production_progress`, `get_dashboard_summary`
 - [x] T045 Add required `session` param to: `get_recipe_cost_breakdown`, `get_event_assignments`
 - [x] T046 Remove internal `session_scope()` from all functions
-- [ ] T047 Update UI callers in production dashboard and planning views
+- [x] T047 Update UI callers in production dashboard and planning views
 - [ ] T048 Update tests
 
 ### Implementation Notes
