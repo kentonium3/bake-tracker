@@ -8,12 +8,12 @@ subtasks:
   - "T035"
 title: "Event Service Remaining Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "codex"
 shell_pid: "65344"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-22T15:30:43Z"
@@ -152,3 +152,4 @@ grep -r "clone_event\|get_event_packaging\|get_recipient_history" src/ui/ --incl
 - 2026-01-22T20:35:54Z – codex – shell_pid=65344 – lane=doing – Started implementation via workflow command
 - 2026-01-22T20:59:03Z – codex – shell_pid=65344 – lane=for_review – Ready for review: require session for remaining event service ops (shopping list, export, clone, packaging, history), thread session through helpers/UI/tests, update planning wrapper; targeted tests pass
 - 2026-01-22T21:01:27Z – codex – shell_pid=65344 – lane=doing – Started review via workflow command
+- 2026-01-22T21:05:29Z – codex – shell_pid=65344 – lane=done – Review passed: sessions required for remaining event service ops; UI/tests updated; targeted service tests pass
