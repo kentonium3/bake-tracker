@@ -175,7 +175,7 @@
 - [x] T020 Remove update_inventory() method from FinishedUnit model
 - [x] T021 Remove is_available() method from FinishedGood model
 - [x] T022 Remove update_inventory() method from FinishedGood model
-- [ ] T023 Register FinishedGoodsAdjustment in `src/models/__init__.py`
+- [x] T023 Register FinishedGoodsAdjustment in `src/models/__init__.py`
 
 ### Implementation Notes
 - KEEP: calculate_current_cost(), calculate_batches_needed(), can_assemble(), get_component_breakdown()
