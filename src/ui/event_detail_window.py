@@ -28,6 +28,7 @@ from src.ui.widgets.dialogs import (
     show_success,
 )
 from src.ui.forms.assignment_form import AssignmentFormDialog
+from src.ui.utils import ui_session
 
 
 class EventDetailWindow(ctk.CTkToplevel):
@@ -630,13 +631,15 @@ class EventDetailWindow(ctk.CTkToplevel):
         result = dialog.get_result()
         if result:
             try:
-                event_service.assign_package_to_recipient(
-                    self.event.id,
-                    result["recipient_id"],
-                    result["package_id"],
-                    result.get("quantity", 1),
-                    result.get("notes"),
-                )
+                with ui_session() as session:
+                    event_service.assign_package_to_recipient(
+                        self.event.id,
+                        result["recipient_id"],
+                        result["package_id"],
+                        result.get("quantity", 1),
+                        result.get("notes"),
+                        session=session,
+                    )
                 show_success("Success", "Package assigned successfully", parent=self)
                 self.refresh()
             except Exception as e:
@@ -658,12 +661,14 @@ class EventDetailWindow(ctk.CTkToplevel):
         result = dialog.get_result()
         if result:
             try:
-                event_service.update_assignment(
-                    self.selected_assignment.id,
-                    result["package_id"],
-                    result.get("quantity", 1),
-                    result.get("notes"),
-                )
+                with ui_session() as session:
+                    event_service.update_assignment(
+                        self.selected_assignment.id,
+                        result["package_id"],
+                        result.get("quantity", 1),
+                        result.get("notes"),
+                        session=session,
+                    )
                 show_success("Success", "Assignment updated successfully", parent=self)
                 self.refresh()
             except Exception as e:
@@ -686,7 +691,8 @@ class EventDetailWindow(ctk.CTkToplevel):
             return
 
         try:
-            event_service.remove_assignment(self.selected_assignment.id)
+            with ui_session() as session:
+                event_service.remove_assignment(self.selected_assignment.id, session=session)
             show_success("Success", "Assignment removed successfully", parent=self)
             self.selected_assignment = None
             self.refresh()
@@ -712,7 +718,8 @@ class EventDetailWindow(ctk.CTkToplevel):
 
         # Get assignments
         try:
-            assignments = event_service.get_event_assignments(self.event.id)
+            with ui_session() as session:
+                assignments = event_service.get_event_assignments(self.event.id, session=session)
 
             if not assignments:
                 label = ctk.CTkLabel(
