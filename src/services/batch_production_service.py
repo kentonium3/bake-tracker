@@ -37,6 +37,7 @@ from src.services.database import session_scope
 from src.services import inventory_item_service
 from src.services.recipe_service import get_aggregated_ingredients
 from src.services import recipe_snapshot_service  # Feature 037
+from src.services import finished_goods_inventory_service as fg_inv  # Feature 061
 
 
 # =============================================================================
@@ -396,8 +397,15 @@ def record_batch_production(
                 }
             )
 
-        # Increment FinishedUnit inventory (same session, atomic with consumption)
-        finished_unit.inventory_count += actual_yield
+        # Increment FinishedUnit inventory with audit trail (Feature 061)
+        fg_inv.adjust_inventory(
+            item_type="finished_unit",
+            item_id=finished_unit_id,
+            quantity=actual_yield,
+            reason="production",
+            notes=f"Production run #{temp_production_run.id}",
+            session=session,
+        )
 
         # Calculate per-unit cost (handle division by zero)
         if actual_yield > 0:
