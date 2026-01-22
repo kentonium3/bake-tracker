@@ -9,7 +9,7 @@ subtasks:
   - "T010"
 title: "Event Service CRUD Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "75488"
@@ -409,3 +409,4 @@ def test_create_event():
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T16:03:47Z – claude-opus – shell_pid=75488 – lane=doing – Started implementation via workflow command
+- 2026-01-22T16:24:56Z – claude-opus – shell_pid=75488 – lane=for_review – All 8 CRUD functions updated with required session param, tests passing
