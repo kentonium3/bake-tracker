@@ -16,6 +16,7 @@ from datetime import date
 from src.services.event_service import get_shopping_list
 from src.services import ingredient_service, recipe_service, event_service
 from src.services.product_service import create_product
+from src.services.database import session_scope
 from src.models import Purchase
 
 # ============================================================================
@@ -211,7 +212,8 @@ class TestShoppingListWithProducts:
             year=2024,
         )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         # Verify structure
         assert isinstance(result, dict)
@@ -229,7 +231,8 @@ class TestShoppingListWithProducts:
             year=2024,
         )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         # Empty event should still have correct structure
         assert result["items"] == []
@@ -245,7 +248,8 @@ class TestShoppingListWithProducts:
             year=2024,
         )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert result == {
             "items": [],
@@ -266,7 +270,8 @@ class TestTotalEstimatedCostCalculation:
             year=2024,
         )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert isinstance(result["total_estimated_cost"], Decimal)
 
@@ -278,6 +283,7 @@ class TestTotalEstimatedCostCalculation:
             year=2024,
         )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert result["total_estimated_cost"] == Decimal("0.00")

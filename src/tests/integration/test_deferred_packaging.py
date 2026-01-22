@@ -43,6 +43,7 @@ from src.services.packaging_service import (
 from src.services.assembly_service import record_assembly
 from src.services.ingredient_service import create_ingredient
 from src.services.product_service import create_product
+from src.services.database import session_scope
 from src.models import (
     FinishedGood,
     Package,
@@ -340,7 +341,8 @@ class TestDeferredPackagingFullWorkflow:
         )
 
         # Get packaging needs - should show generic item
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Should have a generic entry for ribbon
         generic_key = "generic_Satin Ribbon 1in"

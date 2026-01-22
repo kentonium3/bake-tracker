@@ -24,6 +24,7 @@ from src.ui.widgets.dialogs import (
 )
 from src.ui.forms.event_form import EventFormDialog
 from src.ui.event_detail_window import EventDetailWindow
+from src.ui.utils import ui_session
 
 
 class EventsTab(ctk.CTkFrame):
@@ -268,9 +269,14 @@ class EventsTab(ctk.CTkFrame):
         result = dialog.get_result()
         if result:
             try:
-                event_service.clone_event(
-                    self.selected_event.id, result["name"], result["year"], result["event_date"]
-                )
+                with ui_session() as session:
+                    event_service.clone_event(
+                        self.selected_event.id,
+                        result["name"],
+                        result["year"],
+                        result["event_date"],
+                        session=session,
+                    )
                 show_success(
                     "Success", f"Event '{result['name']}' cloned successfully", parent=self
                 )

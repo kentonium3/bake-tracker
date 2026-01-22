@@ -22,6 +22,7 @@ from src.services.event_service import (
 from src.services.composition_service import add_packaging_to_assembly, add_packaging_to_package
 from src.services.ingredient_service import create_ingredient
 from src.services.product_service import create_product
+from src.services.database import session_scope
 from src.models import (
     FinishedGood,
     FinishedUnit,
@@ -160,7 +161,8 @@ class TestPackagingBOMFlow:
         )
 
         # 6. Generate shopping list and verify packaging
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert "packaging" in result, "Shopping list should include packaging section"
         packaging = result["packaging"]
@@ -200,7 +202,8 @@ class TestPackagingBOMFlow:
         test_db.flush()
 
         # Re-generate shopping list
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
         packaging = result["packaging"]
         pkg_by_id = {p["product_id"]: p for p in packaging}
 
@@ -237,7 +240,8 @@ class TestPackagingBOMFlow:
         )
 
         # Get shopping list
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         # No packaging section should be present
         assert "packaging" not in result
@@ -288,7 +292,8 @@ class TestPackagingBOMFlow:
             )
 
         # Get packaging needs
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Total packages: 1 + 2 + 3 = 6
         # Total bags: 2.0 per package * 6 packages = 12.0
@@ -590,7 +595,8 @@ class TestPackagingEdgeCases:
         )
 
         # Calculate packaging needs
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # FG: 2 * 1 * 3 = 6, Package: 1 * 3 = 3, Total: 9
         # Feature 026: Keys are now "specific_{product_id}" for specific products

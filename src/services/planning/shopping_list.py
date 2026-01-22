@@ -101,7 +101,11 @@ def _get_shopping_list_impl(
 ) -> List[ShoppingListItem]:
     """Implementation of get_shopping_list."""
     # Call the existing event_service function with session for transactional atomicity
-    result = event_service.get_shopping_list(event_id, include_packaging=False, session=session)
+    result = event_service.get_shopping_list(
+        event_id,
+        session=session,
+        include_packaging=False,
+    )
 
     items = []
     for item_data in result.get("items", []):

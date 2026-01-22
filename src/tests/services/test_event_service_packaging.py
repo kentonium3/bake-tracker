@@ -30,6 +30,7 @@ from src.services.composition_service import (
 )
 from src.services.ingredient_service import create_ingredient
 from src.services.product_service import create_product
+from src.services.database import session_scope
 from src.models import (
     FinishedGood,
     Package,
@@ -151,13 +152,15 @@ class TestGetEventPackagingNeeds:
 
     def test_get_packaging_needs_empty_event(self, test_db, event):
         """Event with no packages returns empty needs."""
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
         assert needs == {}
 
     def test_get_packaging_needs_nonexistent_event(self, test_db):
         """Nonexistent event raises EventNotFoundError."""
         with pytest.raises(EventNotFoundError):
-            get_event_packaging_needs(999999)
+            with session_scope() as session:
+                get_event_packaging_needs(999999, session=session)
 
     def test_get_packaging_needs_from_package_level(
         self, test_db, event, package, recipient, packaging_product
@@ -180,7 +183,8 @@ class TestGetEventPackagingNeeds:
             quantity=3,  # 3 packages
         )
 
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Feature 026: Keys are now "specific_{product_id}" for specific products
         key = f"specific_{packaging_product.id}"
@@ -221,7 +225,8 @@ class TestGetEventPackagingNeeds:
             quantity=4,  # 4 packages
         )
 
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Feature 026: Keys are now "specific_{product_id}" for specific products
         key = f"specific_{packaging_product.id}"
@@ -268,7 +273,8 @@ class TestGetEventPackagingNeeds:
             quantity=3,
         )
 
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Feature 026: Keys are now "specific_{product_id}" for specific products
         key = f"specific_{packaging_product.id}"
@@ -312,7 +318,8 @@ class TestGetEventPackagingNeeds:
             quantity=5,
         )
 
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Feature 026: Keys are now "specific_{product_id}" for specific products
         assert len(needs) == 2
@@ -348,7 +355,8 @@ class TestGetEventPackagingNeeds:
             quantity=1,
         )
 
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Feature 026: Keys are now "specific_{product_id}" for specific products
         key = f"specific_{packaging_product.id}"
@@ -385,7 +393,8 @@ class TestGetEventPackagingNeeds:
             quantity=1,
         )
 
-        needs = get_event_packaging_needs(event.id)
+        with session_scope() as session:
+            needs = get_event_packaging_needs(event.id, session=session)
 
         # Feature 026: Keys are now "specific_{product_id}" for specific products
         key = f"specific_{packaging_product.id}"
@@ -422,7 +431,8 @@ class TestGetShoppingListPackaging:
             quantity=2,
         )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert "packaging" in result
         assert len(result["packaging"]) == 1
@@ -432,7 +442,8 @@ class TestGetShoppingListPackaging:
 
     def test_shopping_list_no_packaging_section_when_empty(self, test_db, event):
         """Shopping list omits packaging section when no packaging needed."""
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         # packaging key should not be present
         assert "packaging" not in result
@@ -456,7 +467,12 @@ class TestGetShoppingListPackaging:
             quantity=2,
         )
 
-        result = get_shopping_list(event.id, include_packaging=False)
+        with session_scope() as session:
+            result = get_shopping_list(
+                event.id,
+                session=session,
+                include_packaging=False,
+            )
 
         assert "packaging" not in result
 
@@ -471,13 +487,15 @@ class TestGetEventPackagingBreakdown:
 
     def test_breakdown_empty_event(self, test_db, event):
         """Event with no packages returns empty breakdown."""
-        breakdown = get_event_packaging_breakdown(event.id)
+        with session_scope() as session:
+            breakdown = get_event_packaging_breakdown(event.id, session=session)
         assert breakdown == {}
 
     def test_breakdown_nonexistent_event(self, test_db):
         """Nonexistent event raises EventNotFoundError."""
         with pytest.raises(EventNotFoundError):
-            get_event_packaging_breakdown(999999)
+            with session_scope() as session:
+                get_event_packaging_breakdown(999999, session=session)
 
     def test_breakdown_shows_package_sources(
         self, test_db, event, package, recipient, packaging_product
@@ -498,7 +516,8 @@ class TestGetEventPackagingBreakdown:
             quantity=2,
         )
 
-        breakdown = get_event_packaging_breakdown(event.id)
+        with session_scope() as session:
+            breakdown = get_event_packaging_breakdown(event.id, session=session)
 
         assert packaging_product.id in breakdown
         sources = breakdown[packaging_product.id]
@@ -541,7 +560,8 @@ class TestGetEventPackagingBreakdown:
             quantity=2,
         )
 
-        breakdown = get_event_packaging_breakdown(event.id)
+        with session_scope() as session:
+            breakdown = get_event_packaging_breakdown(event.id, session=session)
 
         assert packaging_product.id in breakdown
         sources = breakdown[packaging_product.id]

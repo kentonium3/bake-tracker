@@ -39,6 +39,7 @@ from src.services import (
     delete_recipient,
     check_recipient_has_assignments,
 )
+from src.services.database import session_scope
 from src.services.exceptions import ValidationError
 from src.models import (
     Package,
@@ -389,7 +390,8 @@ class TestShoppingListAccuracy:
         event, _, _, _ = sample_event_with_assignment
 
         # Get shopping list - may be empty if no recipe ingredients
-        shopping = get_shopping_list(event.id)
+        with session_scope() as session:
+            shopping = get_shopping_list(event.id, session=session)
 
         # Feature 007: Now returns dict with 'items' key
         assert isinstance(shopping, dict)
@@ -401,7 +403,8 @@ class TestShoppingListAccuracy:
 
     def test_shopping_list_empty_event(self, test_db, sample_event):
         """Test shopping list for event with no assignments."""
-        shopping = get_shopping_list(sample_event.id)
+        with session_scope() as session:
+            shopping = get_shopping_list(sample_event.id, session=session)
 
         # Feature 007: Returns dict with empty items list
         assert isinstance(shopping, dict)
@@ -489,7 +492,8 @@ class TestPerformance:
 
         # Measure shopping list load time
         start = time.time()
-        shopping = get_shopping_list(event.id)
+        with session_scope() as session:
+            shopping = get_shopping_list(event.id, session=session)
         elapsed = time.time() - start
 
         assert elapsed < 2.0, f"Shopping list took {elapsed:.2f}s (>2s limit)"

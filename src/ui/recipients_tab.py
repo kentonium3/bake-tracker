@@ -25,6 +25,7 @@ from src.ui.widgets.dialogs import (
     show_success,
 )
 from src.ui.forms.recipient_form import RecipientFormDialog
+from src.ui.utils import ui_session
 
 
 class RecipientsTab(ctk.CTkFrame):
@@ -418,7 +419,11 @@ class RecipientHistoryDialog(ctk.CTkToplevel):
     def _load_history(self):
         """Load and display recipient's package history (T025)."""
         try:
-            history = event_service.get_recipient_history(self.recipient.id)
+            with ui_session() as session:
+                history = event_service.get_recipient_history(
+                    self.recipient.id,
+                    session=session,
+                )
         except Exception as e:
             ctk.CTkLabel(
                 self.history_frame,
