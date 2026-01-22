@@ -1742,6 +1742,8 @@ def set_production_target(
     recipe_id: int,
     target_batches: int,
     notes: Optional[str] = None,
+    *,
+    session: Session,
 ) -> EventProductionTarget:
     """
     Create or update production target for a recipe in an event.
@@ -1753,6 +1755,7 @@ def set_production_target(
         recipe_id: Recipe ID
         target_batches: Number of batches to produce (must be > 0)
         notes: Optional notes
+        session: Database session (required)
 
     Returns:
         EventProductionTarget instance (created or updated)
@@ -1765,29 +1768,28 @@ def set_production_target(
         raise ValueError("target_batches must be positive")
 
     try:
-        with session_scope() as session:
-            # Check if target already exists
-            existing = (
-                session.query(EventProductionTarget)
-                .filter_by(event_id=event_id, recipe_id=recipe_id)
-                .first()
-            )
+        # Check if target already exists
+        existing = (
+            session.query(EventProductionTarget)
+            .filter_by(event_id=event_id, recipe_id=recipe_id)
+            .first()
+        )
 
-            if existing:
-                existing.target_batches = target_batches
-                existing.notes = notes
-                session.flush()
-                return existing
-            else:
-                target = EventProductionTarget(
-                    event_id=event_id,
-                    recipe_id=recipe_id,
-                    target_batches=target_batches,
-                    notes=notes,
-                )
-                session.add(target)
-                session.flush()
-                return target
+        if existing:
+            existing.target_batches = target_batches
+            existing.notes = notes
+            session.flush()
+            return existing
+        else:
+            target = EventProductionTarget(
+                event_id=event_id,
+                recipe_id=recipe_id,
+                target_batches=target_batches,
+                notes=notes,
+            )
+            session.add(target)
+            session.flush()
+            return target
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to set production target: {str(e)}")
@@ -1798,6 +1800,8 @@ def set_assembly_target(
     finished_good_id: int,
     target_quantity: int,
     notes: Optional[str] = None,
+    *,
+    session: Session,
 ) -> EventAssemblyTarget:
     """
     Create or update assembly target for a finished good in an event.
@@ -1809,6 +1813,7 @@ def set_assembly_target(
         finished_good_id: FinishedGood ID
         target_quantity: Number of units to assemble (must be > 0)
         notes: Optional notes
+        session: Database session (required)
 
     Returns:
         EventAssemblyTarget instance (created or updated)
@@ -1821,35 +1826,34 @@ def set_assembly_target(
         raise ValueError("target_quantity must be positive")
 
     try:
-        with session_scope() as session:
-            # Check if target already exists
-            existing = (
-                session.query(EventAssemblyTarget)
-                .filter_by(event_id=event_id, finished_good_id=finished_good_id)
-                .first()
-            )
+        # Check if target already exists
+        existing = (
+            session.query(EventAssemblyTarget)
+            .filter_by(event_id=event_id, finished_good_id=finished_good_id)
+            .first()
+        )
 
-            if existing:
-                existing.target_quantity = target_quantity
-                existing.notes = notes
-                session.flush()
-                return existing
-            else:
-                target = EventAssemblyTarget(
-                    event_id=event_id,
-                    finished_good_id=finished_good_id,
-                    target_quantity=target_quantity,
-                    notes=notes,
-                )
-                session.add(target)
-                session.flush()
-                return target
+        if existing:
+            existing.target_quantity = target_quantity
+            existing.notes = notes
+            session.flush()
+            return existing
+        else:
+            target = EventAssemblyTarget(
+                event_id=event_id,
+                finished_good_id=finished_good_id,
+                target_quantity=target_quantity,
+                notes=notes,
+            )
+            session.add(target)
+            session.flush()
+            return target
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to set assembly target: {str(e)}")
 
 
-def get_production_targets(event_id: int) -> List[EventProductionTarget]:
+def get_production_targets(event_id: int, *, session: Session) -> List[EventProductionTarget]:
     """
     Get all production targets for an event.
 
@@ -1857,24 +1861,24 @@ def get_production_targets(event_id: int) -> List[EventProductionTarget]:
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         List of EventProductionTarget instances with recipe data
     """
     try:
-        with session_scope() as session:
-            return (
-                session.query(EventProductionTarget)
-                .options(joinedload(EventProductionTarget.recipe))
-                .filter_by(event_id=event_id)
-                .all()
-            )
+        return (
+            session.query(EventProductionTarget)
+            .options(joinedload(EventProductionTarget.recipe))
+            .filter_by(event_id=event_id)
+            .all()
+        )
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get production targets: {str(e)}")
 
 
-def get_assembly_targets(event_id: int) -> List[EventAssemblyTarget]:
+def get_assembly_targets(event_id: int, *, session: Session) -> List[EventAssemblyTarget]:
     """
     Get all assembly targets for an event.
 
@@ -1882,72 +1886,72 @@ def get_assembly_targets(event_id: int) -> List[EventAssemblyTarget]:
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         List of EventAssemblyTarget instances with finished_good data
     """
     try:
-        with session_scope() as session:
-            return (
-                session.query(EventAssemblyTarget)
-                .options(joinedload(EventAssemblyTarget.finished_good))
-                .filter_by(event_id=event_id)
-                .all()
-            )
+        return (
+            session.query(EventAssemblyTarget)
+            .options(joinedload(EventAssemblyTarget.finished_good))
+            .filter_by(event_id=event_id)
+            .all()
+        )
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get assembly targets: {str(e)}")
 
 
-def delete_production_target(event_id: int, recipe_id: int) -> bool:
+def delete_production_target(event_id: int, recipe_id: int, *, session: Session) -> bool:
     """
     Remove a production target from an event.
 
     Args:
         event_id: Event ID
         recipe_id: Recipe ID
+        session: Database session (required)
 
     Returns:
         True if target was deleted, False if not found
     """
     try:
-        with session_scope() as session:
-            target = (
-                session.query(EventProductionTarget)
-                .filter_by(event_id=event_id, recipe_id=recipe_id)
-                .first()
-            )
-            if target:
-                session.delete(target)
-                return True
-            return False
+        target = (
+            session.query(EventProductionTarget)
+            .filter_by(event_id=event_id, recipe_id=recipe_id)
+            .first()
+        )
+        if target:
+            session.delete(target)
+            return True
+        return False
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to delete production target: {str(e)}")
 
 
-def delete_assembly_target(event_id: int, finished_good_id: int) -> bool:
+def delete_assembly_target(event_id: int, finished_good_id: int, *, session: Session) -> bool:
     """
     Remove an assembly target from an event.
 
     Args:
         event_id: Event ID
         finished_good_id: FinishedGood ID
+        session: Database session (required)
 
     Returns:
         True if target was deleted, False if not found
     """
     try:
-        with session_scope() as session:
-            target = (
-                session.query(EventAssemblyTarget)
-                .filter_by(event_id=event_id, finished_good_id=finished_good_id)
-                .first()
-            )
-            if target:
-                session.delete(target)
-                return True
-            return False
+        target = (
+            session.query(EventAssemblyTarget)
+            .filter_by(event_id=event_id, finished_good_id=finished_good_id)
+            .first()
+        )
+        if target:
+            session.delete(target)
+            return True
+        return False
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to delete assembly target: {str(e)}")
@@ -2393,6 +2397,8 @@ def get_event_cost_analysis(event_id: int, *, session: Session) -> Dict[str, Any
 def update_fulfillment_status(
     event_recipient_package_id: int,
     new_status: FulfillmentStatus,
+    *,
+    session: Session,
 ) -> EventRecipientPackage:
     """
     Update package fulfillment status with sequential workflow enforcement.
@@ -2404,6 +2410,7 @@ def update_fulfillment_status(
     Args:
         event_recipient_package_id: Package assignment ID
         new_status: New status to transition to
+        session: Database session (required)
 
     Returns:
         Updated EventRecipientPackage instance
@@ -2420,39 +2427,38 @@ def update_fulfillment_status(
     }
 
     try:
-        with session_scope() as session:
-            package = (
-                session.query(EventRecipientPackage)
-                .filter_by(id=event_recipient_package_id)
-                .first()
+        package = (
+            session.query(EventRecipientPackage)
+            .filter_by(id=event_recipient_package_id)
+            .first()
+        )
+
+        if not package:
+            raise ValueError(f"Package with id {event_recipient_package_id} not found")
+
+        current_status = FulfillmentStatus(package.fulfillment_status)
+
+        if new_status not in valid_transitions[current_status]:
+            allowed = [s.value for s in valid_transitions[current_status]]
+            raise ValueError(
+                f"Invalid transition: {current_status.value} -> {new_status.value}. "
+                f"Allowed: {allowed}"
             )
 
-            if not package:
-                raise ValueError(f"Package with id {event_recipient_package_id} not found")
+        package.fulfillment_status = new_status.value
+        session.flush()
 
-            current_status = FulfillmentStatus(package.fulfillment_status)
-
-            if new_status not in valid_transitions[current_status]:
-                allowed = [s.value for s in valid_transitions[current_status]]
-                raise ValueError(
-                    f"Invalid transition: {current_status.value} -> {new_status.value}. "
-                    f"Allowed: {allowed}"
-                )
-
-            package.fulfillment_status = new_status.value
-            session.flush()
-
-            # Reload with relationships
-            package = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(EventRecipientPackage.id == event_recipient_package_id)
-                .one()
+        # Reload with relationships
+        package = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.recipient),
+                joinedload(EventRecipientPackage.package),
             )
-            return package
+            .filter(EventRecipientPackage.id == event_recipient_package_id)
+            .one()
+        )
+        return package
 
     except ValueError:
         raise
@@ -2463,6 +2469,8 @@ def update_fulfillment_status(
 def get_packages_by_status(
     event_id: int,
     status: Optional[FulfillmentStatus] = None,
+    *,
+    session: Session,
 ) -> List[EventRecipientPackage]:
     """
     Get packages filtered by fulfillment status (or all if None).
@@ -2472,25 +2480,25 @@ def get_packages_by_status(
     Args:
         event_id: Event ID
         status: Optional status to filter by (None returns all)
+        session: Database session (required)
 
     Returns:
         List of EventRecipientPackage instances
     """
     try:
-        with session_scope() as session:
-            query = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter_by(event_id=event_id)
+        query = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.recipient),
+                joinedload(EventRecipientPackage.package),
             )
+            .filter_by(event_id=event_id)
+        )
 
-            if status is not None:
-                query = query.filter(EventRecipientPackage.fulfillment_status == status.value)
+        if status is not None:
+            query = query.filter(EventRecipientPackage.fulfillment_status == status.value)
 
-            return query.all()
+        return query.all()
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get packages by status: {str(e)}")

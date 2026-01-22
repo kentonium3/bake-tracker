@@ -315,12 +315,14 @@ class EventDetailWindow(ctk.CTkToplevel):
         result = dialog.get_result()
         if result:
             try:
-                event_service.set_production_target(
-                    event_id=self.event.id,
-                    recipe_id=result["recipe_id"],
-                    target_batches=result["target_batches"],
-                    notes=result.get("notes"),
-                )
+                with session_scope() as session:
+                    event_service.set_production_target(
+                        event_id=self.event.id,
+                        recipe_id=result["recipe_id"],
+                        target_batches=result["target_batches"],
+                        notes=result.get("notes"),
+                        session=session,
+                    )
                 show_success("Success", "Production target added", parent=self)
                 self._refresh_targets()
             except Exception as e:
@@ -334,12 +336,14 @@ class EventDetailWindow(ctk.CTkToplevel):
         result = dialog.get_result()
         if result:
             try:
-                event_service.set_assembly_target(
-                    event_id=self.event.id,
-                    finished_good_id=result["finished_good_id"],
-                    target_quantity=result["target_quantity"],
-                    notes=result.get("notes"),
-                )
+                with session_scope() as session:
+                    event_service.set_assembly_target(
+                        event_id=self.event.id,
+                        finished_good_id=result["finished_good_id"],
+                        target_quantity=result["target_quantity"],
+                        notes=result.get("notes"),
+                        session=session,
+                    )
                 show_success("Success", "Assembly target added", parent=self)
                 self._refresh_targets()
             except Exception as e:
@@ -358,11 +362,13 @@ class EventDetailWindow(ctk.CTkToplevel):
         result = dialog.get_result()
         if result is not None:
             try:
-                event_service.set_production_target(
-                    event_id=self.event.id,
-                    recipe_id=recipe_id,
-                    target_batches=result,
-                )
+                with session_scope() as session:
+                    event_service.set_production_target(
+                        event_id=self.event.id,
+                        recipe_id=recipe_id,
+                        target_batches=result,
+                        session=session,
+                    )
                 show_success("Success", "Production target updated", parent=self)
                 self._refresh_targets()
             except Exception as e:
@@ -381,11 +387,13 @@ class EventDetailWindow(ctk.CTkToplevel):
         result = dialog.get_result()
         if result is not None:
             try:
-                event_service.set_assembly_target(
-                    event_id=self.event.id,
-                    finished_good_id=finished_good_id,
-                    target_quantity=result,
-                )
+                with session_scope() as session:
+                    event_service.set_assembly_target(
+                        event_id=self.event.id,
+                        finished_good_id=finished_good_id,
+                        target_quantity=result,
+                        session=session,
+                    )
                 show_success("Success", "Assembly target updated", parent=self)
                 self._refresh_targets()
             except Exception as e:
@@ -401,7 +409,10 @@ class EventDetailWindow(ctk.CTkToplevel):
             return
 
         try:
-            event_service.delete_production_target(self.event.id, recipe_id)
+            with session_scope() as session:
+                event_service.delete_production_target(
+                    self.event.id, recipe_id, session=session
+                )
             show_success("Success", "Production target deleted", parent=self)
             self._refresh_targets()
         except Exception as e:
@@ -417,7 +428,10 @@ class EventDetailWindow(ctk.CTkToplevel):
             return
 
         try:
-            event_service.delete_assembly_target(self.event.id, finished_good_id)
+            with session_scope() as session:
+                event_service.delete_assembly_target(
+                    self.event.id, finished_good_id, session=session
+                )
             show_success("Success", "Assembly target deleted", parent=self)
             self._refresh_targets()
         except Exception as e:
@@ -882,7 +896,10 @@ class EventDetailWindow(ctk.CTkToplevel):
         """
         try:
             new_status = FulfillmentStatus(new_status_str.lower())
-            event_service.update_fulfillment_status(assignment.id, new_status)
+            with session_scope() as session:
+                event_service.update_fulfillment_status(
+                    assignment.id, new_status, session=session
+                )
             self._refresh_assignments()
         except ValueError as e:
             show_error(
@@ -1771,8 +1788,11 @@ class AddProductionTargetDialog(ctk.CTkToplevel):
         self.recipes = recipe_service.get_all_recipes()
 
         # Get existing targets to exclude
-        existing_targets = event_service.get_production_targets(event_id)
-        existing_recipe_ids = {t.recipe_id for t in existing_targets}
+        with session_scope() as session:
+            existing_targets = event_service.get_production_targets(
+                event_id, session=session
+            )
+            existing_recipe_ids = {t.recipe_id for t in existing_targets}
 
         # Filter out already-targeted recipes
         self.available_recipes = [r for r in self.recipes if r.id not in existing_recipe_ids]
@@ -1896,8 +1916,11 @@ class AddAssemblyTargetDialog(ctk.CTkToplevel):
         self.finished_goods = get_all_finished_goods()
 
         # Get existing targets to exclude
-        existing_targets = event_service.get_assembly_targets(event_id)
-        existing_fg_ids = {t.finished_good_id for t in existing_targets}
+        with session_scope() as session:
+            existing_targets = event_service.get_assembly_targets(
+                event_id, session=session
+            )
+            existing_fg_ids = {t.finished_good_id for t in existing_targets}
 
         # Filter out already-targeted finished goods
         self.available_fgs = [fg for fg in self.finished_goods if fg.id not in existing_fg_ids]
