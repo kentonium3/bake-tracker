@@ -9,12 +9,12 @@ subtasks:
   - "T041"
 title: "Batch & Assembly Service Bug Fixes"
 phase: "Phase 1 - Service Hardening"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "45175"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-22T15:30:43Z"
@@ -274,3 +274,4 @@ with session_scope() as session:
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T20:46:02Z – claude-opus – shell_pid=45175 – lane=doing – Started implementation via workflow command
+- 2026-01-22T21:39:52Z – claude-opus – shell_pid=45175 – lane=done – Review passed: Fixed session shadowing in 4 history query functions
