@@ -8,7 +8,7 @@ subtasks:
   - "T020"
 title: "Event Service Calculation Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "15857"
@@ -209,3 +209,4 @@ grep -r "get_event_summary\|get_recipe_needs" src/tests/ --include="*.py"
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T19:33:51Z – claude-opus – shell_pid=15857 – lane=doing – Started implementation via workflow command
+- 2026-01-22T19:54:30Z – claude-opus – shell_pid=15857 – lane=for_review – All 6 calculation functions updated with required session param. get_shopping_list threading fixed. All 2636 tests pass.
