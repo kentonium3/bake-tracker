@@ -431,6 +431,8 @@ def assign_package_to_recipient(
     package_id: int,
     quantity: int = 1,
     notes: Optional[str] = None,
+    *,
+    session: Session,
 ) -> EventRecipientPackage:
     """
     Assign a package to a recipient for an event.
@@ -441,6 +443,7 @@ def assign_package_to_recipient(
         package_id: Package ID
         quantity: Number of packages (default 1)
         notes: Optional notes
+        session: Database session (required)
 
     Returns:
         Created EventRecipientPackage instance
@@ -453,44 +456,43 @@ def assign_package_to_recipient(
         raise ValidationError(["Quantity must be at least 1"])
 
     try:
-        with session_scope() as session:
-            # Verify event exists
-            event = session.query(Event).filter(Event.id == event_id).first()
-            if not event:
-                raise ValidationError([f"Event with ID {event_id} not found"])
+        # Verify event exists
+        event = session.query(Event).filter(Event.id == event_id).first()
+        if not event:
+            raise ValidationError([f"Event with ID {event_id} not found"])
 
-            # Verify recipient exists
-            recipient = session.query(Recipient).filter(Recipient.id == recipient_id).first()
-            if not recipient:
-                raise ValidationError([f"Recipient with ID {recipient_id} not found"])
+        # Verify recipient exists
+        recipient = session.query(Recipient).filter(Recipient.id == recipient_id).first()
+        if not recipient:
+            raise ValidationError([f"Recipient with ID {recipient_id} not found"])
 
-            # Verify package exists
-            package = session.query(Package).filter(Package.id == package_id).first()
-            if not package:
-                raise ValidationError([f"Package with ID {package_id} not found"])
+        # Verify package exists
+        package = session.query(Package).filter(Package.id == package_id).first()
+        if not package:
+            raise ValidationError([f"Package with ID {package_id} not found"])
 
-            # Create assignment
-            assignment = EventRecipientPackage(
-                event_id=event_id,
-                recipient_id=recipient_id,
-                package_id=package_id,
-                quantity=quantity,
-                notes=notes,
+        # Create assignment
+        assignment = EventRecipientPackage(
+            event_id=event_id,
+            recipient_id=recipient_id,
+            package_id=package_id,
+            quantity=quantity,
+            notes=notes,
+        )
+        session.add(assignment)
+        session.flush()
+
+        # Reload with relationships
+        assignment = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.recipient),
+                joinedload(EventRecipientPackage.package),
             )
-            session.add(assignment)
-            session.flush()
-
-            # Reload with relationships
-            assignment = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(EventRecipientPackage.id == assignment.id)
-                .one()
-            )
-            return assignment
+            .filter(EventRecipientPackage.id == assignment.id)
+            .one()
+        )
+        return assignment
 
     except ValidationError:
         raise
@@ -503,6 +505,8 @@ def update_assignment(
     package_id: Optional[int] = None,
     quantity: Optional[int] = None,
     notes: Optional[str] = None,
+    *,
+    session: Session,
 ) -> EventRecipientPackage:
     """
     Update an existing assignment.
@@ -512,6 +516,7 @@ def update_assignment(
         package_id: New package ID (optional)
         quantity: New quantity (optional)
         notes: New notes (optional)
+        session: Database session (required)
 
     Returns:
         Updated EventRecipientPackage instance
@@ -522,43 +527,42 @@ def update_assignment(
         DatabaseError: If database operation fails
     """
     try:
-        with session_scope() as session:
-            assignment = (
-                session.query(EventRecipientPackage)
-                .filter(EventRecipientPackage.id == assignment_id)
-                .first()
+        assignment = (
+            session.query(EventRecipientPackage)
+            .filter(EventRecipientPackage.id == assignment_id)
+            .first()
+        )
+        if not assignment:
+            raise AssignmentNotFoundError(assignment_id)
+
+        if package_id is not None:
+            # Verify package exists
+            package = session.query(Package).filter(Package.id == package_id).first()
+            if not package:
+                raise ValidationError([f"Package with ID {package_id} not found"])
+            assignment.package_id = package_id
+
+        if quantity is not None:
+            if quantity < 1:
+                raise ValidationError(["Quantity must be at least 1"])
+            assignment.quantity = quantity
+
+        if notes is not None:
+            assignment.notes = notes
+
+        session.flush()
+
+        # Reload with relationships
+        assignment = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.recipient),
+                joinedload(EventRecipientPackage.package),
             )
-            if not assignment:
-                raise AssignmentNotFoundError(assignment_id)
-
-            if package_id is not None:
-                # Verify package exists
-                package = session.query(Package).filter(Package.id == package_id).first()
-                if not package:
-                    raise ValidationError([f"Package with ID {package_id} not found"])
-                assignment.package_id = package_id
-
-            if quantity is not None:
-                if quantity < 1:
-                    raise ValidationError(["Quantity must be at least 1"])
-                assignment.quantity = quantity
-
-            if notes is not None:
-                assignment.notes = notes
-
-            session.flush()
-
-            # Reload with relationships
-            assignment = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(EventRecipientPackage.id == assignment_id)
-                .one()
-            )
-            return assignment
+            .filter(EventRecipientPackage.id == assignment_id)
+            .one()
+        )
+        return assignment
 
     except (AssignmentNotFoundError, ValidationError):
         raise
@@ -566,12 +570,13 @@ def update_assignment(
         raise DatabaseError(f"Failed to update assignment: {str(e)}")
 
 
-def remove_assignment(assignment_id: int) -> bool:
+def remove_assignment(assignment_id: int, *, session: Session) -> bool:
     """
     Remove an assignment.
 
     Args:
         assignment_id: Assignment ID
+        session: Database session (required)
 
     Returns:
         True if removed successfully
@@ -581,17 +586,16 @@ def remove_assignment(assignment_id: int) -> bool:
         DatabaseError: If database operation fails
     """
     try:
-        with session_scope() as session:
-            assignment = (
-                session.query(EventRecipientPackage)
-                .filter(EventRecipientPackage.id == assignment_id)
-                .first()
-            )
-            if not assignment:
-                raise AssignmentNotFoundError(assignment_id)
+        assignment = (
+            session.query(EventRecipientPackage)
+            .filter(EventRecipientPackage.id == assignment_id)
+            .first()
+        )
+        if not assignment:
+            raise AssignmentNotFoundError(assignment_id)
 
-            session.delete(assignment)
-            return True
+        session.delete(assignment)
+        return True
 
     except AssignmentNotFoundError:
         raise
@@ -599,38 +603,38 @@ def remove_assignment(assignment_id: int) -> bool:
         raise DatabaseError(f"Failed to remove assignment: {str(e)}")
 
 
-def get_event_assignments(event_id: int) -> List[EventRecipientPackage]:
+def get_event_assignments(event_id: int, *, session: Session) -> List[EventRecipientPackage]:
     """
     Get all assignments for an event.
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         List of EventRecipientPackage instances
     """
     try:
-        with session_scope() as session:
-            assignments = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package).joinedload(
-                        Package.package_finished_goods
-                    ),
-                )
-                .filter(EventRecipientPackage.event_id == event_id)
-                .order_by(EventRecipientPackage.recipient_id)
-                .all()
+        assignments = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.recipient),
+                joinedload(EventRecipientPackage.package).joinedload(
+                    Package.package_finished_goods
+                ),
             )
-            return assignments
+            .filter(EventRecipientPackage.event_id == event_id)
+            .order_by(EventRecipientPackage.recipient_id)
+            .all()
+        )
+        return assignments
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get assignments: {str(e)}")
 
 
 def get_recipient_assignments_for_event(
-    event_id: int, recipient_id: int
+    event_id: int, recipient_id: int, *, session: Session
 ) -> List[EventRecipientPackage]:
     """
     Get all assignments for a specific recipient in an event.
@@ -638,24 +642,24 @@ def get_recipient_assignments_for_event(
     Args:
         event_id: Event ID
         recipient_id: Recipient ID
+        session: Database session (required)
 
     Returns:
         List of EventRecipientPackage instances
     """
     try:
-        with session_scope() as session:
-            assignments = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(
-                    EventRecipientPackage.event_id == event_id,
-                    EventRecipientPackage.recipient_id == recipient_id,
-                )
-                .all()
+        assignments = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.package),
             )
-            return assignments
+            .filter(
+                EventRecipientPackage.event_id == event_id,
+                EventRecipientPackage.recipient_id == recipient_id,
+            )
+            .all()
+        )
+        return assignments
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipient assignments: {str(e)}")

@@ -19,6 +19,7 @@ from src.services.event_service import (
     get_shopping_list,
     assign_package_to_recipient,
 )
+from src.services.database import session_scope
 from src.services.composition_service import add_packaging_to_assembly, add_packaging_to_package
 from src.services.ingredient_service import create_ingredient
 from src.services.product_service import create_product
@@ -155,9 +156,10 @@ class TestPackagingBOMFlow:
         test_db.flush()
 
         # Assign 3 packages to recipient
-        assign_package_to_recipient(
-            event_id=event.id, recipient_id=recipient.id, package_id=gift_package.id, quantity=3
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id, recipient_id=recipient.id, package_id=gift_package.id, quantity=3, session=session
+            )
 
         # 6. Generate shopping list and verify packaging
         result = get_shopping_list(event.id)
@@ -232,9 +234,10 @@ class TestPackagingBOMFlow:
         test_db.flush()
 
         # Assign package
-        assign_package_to_recipient(
-            event_id=event.id, recipient_id=recipient.id, package_id=package.id, quantity=1
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id, recipient_id=recipient.id, package_id=package.id, quantity=1, session=session
+            )
 
         # Get shopping list
         result = get_shopping_list(event.id)
@@ -274,18 +277,20 @@ class TestPackagingBOMFlow:
         event = create_event(name="Multi-Recipient Event", event_date=date(2024, 12, 1), year=2024)
 
         # Create multiple recipients
-        for i in range(3):
-            recipient = Recipient(name=f"Recipient {i+1}")
-            test_db.add(recipient)
-            test_db.flush()
+        with session_scope() as session:
+            for i in range(3):
+                recipient = Recipient(name=f"Recipient {i+1}")
+                test_db.add(recipient)
+                test_db.flush()
 
-            # Each recipient gets different quantity
-            assign_package_to_recipient(
-                event_id=event.id,
-                recipient_id=recipient.id,
-                package_id=package.id,
-                quantity=i + 1,  # 1, 2, 3 packages
-            )
+                # Each recipient gets different quantity
+                assign_package_to_recipient(
+                    event_id=event.id,
+                    recipient_id=recipient.id,
+                    package_id=package.id,
+                    quantity=i + 1,  # 1, 2, 3 packages
+                    session=session,
+                )
 
         # Get packaging needs
         needs = get_event_packaging_needs(event.id)
@@ -585,9 +590,10 @@ class TestPackagingEdgeCases:
         test_db.add(recipient)
         test_db.flush()
 
-        assign_package_to_recipient(
-            event_id=event.id, recipient_id=recipient.id, package_id=package.id, quantity=3
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id, recipient_id=recipient.id, package_id=package.id, quantity=3, session=session
+            )
 
         # Calculate packaging needs
         needs = get_event_packaging_needs(event.id)

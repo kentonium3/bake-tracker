@@ -40,6 +40,7 @@ from src.services import (
     check_recipient_has_assignments,
 )
 from src.services.exceptions import ValidationError
+from src.services.database import session_scope
 from src.models import (
     Package,
     PackageFinishedGood,
@@ -161,12 +162,14 @@ def sample_event(test_db):
 @pytest.fixture
 def sample_event_with_assignment(test_db, sample_event, sample_recipient, sample_package):
     """Create an event with a recipient-package assignment."""
-    assignment = assign_package_to_recipient(
-        event_id=sample_event.id,
-        recipient_id=sample_recipient.id,
-        package_id=sample_package.id,
-        quantity=1,
-    )
+    with session_scope() as session:
+        assignment = assign_package_to_recipient(
+            event_id=sample_event.id,
+            recipient_id=sample_recipient.id,
+            package_id=sample_package.id,
+            quantity=1,
+            session=session,
+        )
     return sample_event, sample_recipient, sample_package, assignment
 
 
@@ -224,12 +227,14 @@ class TestFullWorkflow:
         assert event.id is not None
 
         # Step 4: Assign package to recipient
-        assignment = assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=1,
-        )
+        with session_scope() as session:
+            assignment = assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=1,
+                session=session,
+            )
         assert assignment is not None
 
         # Step 5: Verify event summary
@@ -255,13 +260,15 @@ class TestFullWorkflow:
         )
 
         # Assign package to all recipients
-        for recipient in recipients:
-            assign_package_to_recipient(
-                event_id=event.id,
-                recipient_id=recipient.id,
-                package_id=sample_package.id,
-                quantity=1,
-            )
+        with session_scope() as session:
+            for recipient in recipients:
+                assign_package_to_recipient(
+                    event_id=event.id,
+                    recipient_id=recipient.id,
+                    package_id=sample_package.id,
+                    quantity=1,
+                    session=session,
+                )
 
         # Verify summary
         summary = get_event_summary(event.id)
@@ -276,7 +283,8 @@ class TestFullWorkflow:
         assert check_recipient_has_assignments(recipient.id) is True
 
         # Remove assignment
-        remove_assignment(assignment.id)
+        with session_scope() as session:
+            remove_assignment(assignment.id, session=session)
 
         # Verify assignment is gone
         assert check_recipient_has_assignments(recipient.id) is False
@@ -342,8 +350,9 @@ class TestFIFOCostAccuracy:
         r2 = create_recipient({"name": "Recipient 2"})
 
         # Assign package with different quantities
-        assign_package_to_recipient(event.id, r1.id, sample_package.id, quantity=1)
-        assign_package_to_recipient(event.id, r2.id, sample_package.id, quantity=2)
+        with session_scope() as session:
+            assign_package_to_recipient(event.id, r1.id, sample_package.id, quantity=1, session=session)
+            assign_package_to_recipient(event.id, r2.id, sample_package.id, quantity=2, session=session)
 
         # Get package cost - returns 0.00 per Feature 045
         package_cost = calculate_package_cost(sample_package.id)
@@ -427,14 +436,16 @@ class TestPerformance:
         )
 
         # Create 50 recipients and assignments
-        for i in range(50):
-            recipient = create_recipient({"name": f"Recipient {i+1}"})
-            assign_package_to_recipient(
-                event_id=event.id,
-                recipient_id=recipient.id,
-                package_id=sample_package.id,
-                quantity=1,
-            )
+        with session_scope() as session:
+            for i in range(50):
+                recipient = create_recipient({"name": f"Recipient {i+1}"})
+                assign_package_to_recipient(
+                    event_id=event.id,
+                    recipient_id=recipient.id,
+                    package_id=sample_package.id,
+                    quantity=1,
+                    session=session,
+                )
 
         # Measure summary load time
         start = time.time()
@@ -453,14 +464,16 @@ class TestPerformance:
         )
 
         # Create 50 assignments
-        for i in range(50):
-            recipient = create_recipient({"name": f"Recipient R{i+1}"})
-            assign_package_to_recipient(
-                event_id=event.id,
-                recipient_id=recipient.id,
-                package_id=sample_package.id,
-                quantity=1,
-            )
+        with session_scope() as session:
+            for i in range(50):
+                recipient = create_recipient({"name": f"Recipient R{i+1}"})
+                assign_package_to_recipient(
+                    event_id=event.id,
+                    recipient_id=recipient.id,
+                    package_id=sample_package.id,
+                    quantity=1,
+                    session=session,
+                )
 
         # Measure recipe needs load time
         start = time.time()
@@ -478,14 +491,16 @@ class TestPerformance:
         )
 
         # Create 50 assignments
-        for i in range(50):
-            recipient = create_recipient({"name": f"Recipient S{i+1}"})
-            assign_package_to_recipient(
-                event_id=event.id,
-                recipient_id=recipient.id,
-                package_id=sample_package.id,
-                quantity=1,
-            )
+        with session_scope() as session:
+            for i in range(50):
+                recipient = create_recipient({"name": f"Recipient S{i+1}"})
+                assign_package_to_recipient(
+                    event_id=event.id,
+                    recipient_id=recipient.id,
+                    package_id=sample_package.id,
+                    quantity=1,
+                    session=session,
+                )
 
         # Measure shopping list load time
         start = time.time()

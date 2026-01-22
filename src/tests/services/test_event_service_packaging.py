@@ -176,12 +176,14 @@ class TestGetEventPackagingNeeds:
         )
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=3,  # 3 packages
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=3,  # 3 packages
+                session=session,
+            )
 
         needs = get_event_packaging_needs(event.id)
 
@@ -217,12 +219,14 @@ class TestGetEventPackagingNeeds:
         test_db.flush()
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=4,  # 4 packages
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=4,  # 4 packages
+                session=session,
+            )
 
         needs = get_event_packaging_needs(event.id)
 
@@ -264,12 +268,14 @@ class TestGetEventPackagingNeeds:
         test_db.flush()
 
         # Assign package to event (3 packages)
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=3,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=3,
+                session=session,
+            )
 
         needs = get_event_packaging_needs(event.id)
 
@@ -308,12 +314,14 @@ class TestGetEventPackagingNeeds:
         )
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=5,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=5,
+                session=session,
+            )
 
         needs = get_event_packaging_needs(event.id)
 
@@ -344,12 +352,14 @@ class TestGetEventPackagingNeeds:
         test_db.flush()
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=1,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=1,
+                session=session,
+            )
 
         needs = get_event_packaging_needs(event.id)
 
@@ -381,12 +391,14 @@ class TestGetEventPackagingNeeds:
         test_db.flush()
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=1,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=1,
+                session=session,
+            )
 
         needs = get_event_packaging_needs(event.id)
 
@@ -418,12 +430,14 @@ class TestGetShoppingListPackaging:
         )
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=2,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=2,
+                session=session,
+            )
 
         result = get_shopping_list(event.id)
 
@@ -452,12 +466,14 @@ class TestGetShoppingListPackaging:
         )
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=2,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=2,
+                session=session,
+            )
 
         result = get_shopping_list(event.id, include_packaging=False)
 
@@ -494,12 +510,14 @@ class TestGetEventPackagingBreakdown:
         )
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=2,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=2,
+                session=session,
+            )
 
         breakdown = get_event_packaging_breakdown(event.id)
 
@@ -537,12 +555,14 @@ class TestGetEventPackagingBreakdown:
         test_db.flush()
 
         # Assign package to event
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=2,
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=2,
+                session=session,
+            )
 
         breakdown = get_event_packaging_breakdown(event.id)
 

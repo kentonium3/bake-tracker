@@ -21,6 +21,7 @@ from src.services.event_service import (
     get_shopping_list,
     assign_package_to_recipient,
 )
+from src.services.database import session_scope
 from src.services.composition_service import (
     add_packaging_to_assembly,
     add_packaging_to_package,
@@ -332,12 +333,14 @@ class TestDeferredPackagingFullWorkflow:
         test_db.add(recipient)
         test_db.flush()
 
-        assign_package_to_recipient(
-            event_id=event.id,
-            recipient_id=recipient.id,
-            package_id=package.id,
-            quantity=5,  # Need 5 packages = 10 yards of ribbon
-        )
+        with session_scope() as session:
+            assign_package_to_recipient(
+                event_id=event.id,
+                recipient_id=recipient.id,
+                package_id=package.id,
+                quantity=5,  # Need 5 packages = 10 yards of ribbon
+                session=session,
+            )
 
         # Get packaging needs - should show generic item
         needs = get_event_packaging_needs(event.id)
