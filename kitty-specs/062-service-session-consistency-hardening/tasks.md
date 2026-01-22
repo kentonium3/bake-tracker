@@ -182,7 +182,7 @@
 - [x] T027 Add required `session` param to: `delete_production_target`, `delete_assembly_target`
 - [x] T028 Add required `session` param to: `update_fulfillment_status`, `get_packages_by_status`
 - [x] T029 Remove internal `session_scope()` from all target/status functions
-- [ ] T030 Update UI callers and tests
+- [x] T030 Update UI callers and tests
 
 ### Implementation Notes
 - Target functions are used in planning views
