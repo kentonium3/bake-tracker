@@ -147,11 +147,11 @@
 **Prompt**: `tasks/WP05-event-service-progress.md`
 
 ### Included Subtasks
-- [ ] T021 Add required `session` param to `get_event_overall_progress`
-- [ ] T022 Add required `session` param to `get_events_with_progress` and thread session to sub-calls
-- [ ] T023 Remove internal `session_scope()` and ensure session threading to `get_production_progress`, `get_assembly_progress`
-- [ ] T024 Update UI callers in dashboards and event views
-- [ ] T025 Update tests and add transaction consistency test
+- [x] T021 Add required `session` param to `get_event_overall_progress`
+- [x] T022 Add required `session` param to `get_events_with_progress` and thread session to sub-calls
+- [x] T023 Remove internal `session_scope()` and ensure session threading to `get_production_progress`, `get_assembly_progress`
+- [x] T024 Update UI callers in dashboards and event views
+- [x] T025 Update tests and add transaction consistency test
 
 ### Implementation Notes
 - `get_events_with_progress` currently calls other functions outside session (line 2261-2267)
@@ -178,7 +178,7 @@
 **Prompt**: `tasks/WP06-event-service-targets.md`
 
 ### Included Subtasks
-- [ ] T026 Add required `session` param to: `set_production_target`, `set_assembly_target`, `get_production_targets`, `get_assembly_targets`
+- [x] T026 Add required `session` param to: `set_production_target`, `set_assembly_target`, `get_production_targets`, `get_assembly_targets`
 - [ ] T027 Add required `session` param to: `delete_production_target`, `delete_assembly_target`
 - [ ] T028 Add required `session` param to: `update_fulfillment_status`, `get_packages_by_status`
 - [ ] T029 Remove internal `session_scope()` from all target/status functions
