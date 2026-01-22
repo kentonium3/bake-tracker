@@ -18,6 +18,7 @@ from tkinter import messagebox
 from src.ui.widgets.production_history_table import ProductionHistoryTable
 from src.ui.widgets.event_card import EventCard
 from src.ui.service_integration import get_ui_service_integrator, OperationType
+from src.ui.utils import ui_session
 from src.services import batch_production_service, event_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
@@ -256,11 +257,13 @@ class ProductionDashboardTab(ctk.CTkFrame):
 
         # Fetch events with progress
         try:
-            events_data = event_service.get_events_with_progress(
-                filter_type=filter_type,
-                date_from=date_from,
-                date_to=date_to,
-            )
+            with ui_session() as session:
+                events_data = event_service.get_events_with_progress(
+                    filter_type=filter_type,
+                    date_from=date_from,
+                    date_to=date_to,
+                    session=session,
+                )
         except Exception as e:
             logger.error(f"Error loading events: {e}", exc_info=True)
             self._show_error_message(str(e))
