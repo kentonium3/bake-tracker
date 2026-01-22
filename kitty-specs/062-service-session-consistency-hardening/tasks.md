@@ -278,7 +278,7 @@
 - [x] T045 Add required `session` param to: `get_recipe_cost_breakdown`, `get_event_assignments`
 - [x] T046 Remove internal `session_scope()` from all functions
 - [x] T047 Update UI callers in production dashboard and planning views
-- [ ] T048 Update tests
+- [x] T048 Update tests
 
 ### Implementation Notes
 - `production_service.py` is separate from `batch_production_service.py`
