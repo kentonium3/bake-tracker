@@ -9,10 +9,10 @@ subtasks:
   - "T010"
 title: "Event Service CRUD Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "75488"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -408,3 +408,4 @@ def test_create_event():
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T16:03:47Z – claude-opus – shell_pid=75488 – lane=doing – Started implementation via workflow command
