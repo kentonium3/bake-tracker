@@ -52,7 +52,7 @@
 **Prompt**: `tasks/WP02-event-service-crud.md`
 
 ### Included Subtasks
-- [ ] T005 Add required `session` param to: `create_event`, `get_event_by_id`, `get_event_by_name`, `get_all_events`
+- [x] T005 Add required `session` param to: `create_event`, `get_event_by_id`, `get_event_by_name`, `get_all_events`
 - [ ] T006 Add required `session` param to: `get_events_by_year`, `get_available_years`, `update_event`, `delete_event`
 - [ ] T007 Remove internal `session_scope()` from all CRUD functions
 - [ ] T008 Update UI callers in `src/ui/events_tab.py`, `src/ui/forms/event_form.py`
