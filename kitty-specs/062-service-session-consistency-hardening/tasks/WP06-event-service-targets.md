@@ -9,7 +9,7 @@ subtasks:
 title: "Event Service Target & Status Operations"
 phase: "Phase 1 - Service Hardening"
 lane: "done"
-assignee: ""
+assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "42843"
 review_status: "approved"
@@ -21,6 +21,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-22T20:00:00Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: "42843"
+    action: "Review passed, moved to done"
 ---
 
 # Work Package Prompt: WP06 – Event Service Target & Status Operations

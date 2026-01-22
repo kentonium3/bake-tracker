@@ -11,7 +11,7 @@ subtasks:
 title: "Production Service Session Hardening"
 phase: "Phase 1 - Service Hardening"
 lane: "done"
-assignee: ""
+assignee: "codex"
 agent: "codex"
 shell_pid: "65344"
 review_status: "approved"

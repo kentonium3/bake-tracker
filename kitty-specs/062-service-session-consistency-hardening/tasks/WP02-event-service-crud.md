@@ -10,7 +10,7 @@ subtasks:
 title: "Event Service CRUD Operations"
 phase: "Phase 1 - Service Hardening"
 lane: "done"
-assignee: ""
+assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "83271"
 review_status: "approved"
@@ -22,6 +22,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-22T19:00:00Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: "83271"
+    action: "Review passed, moved to done"
 ---
 
 # Work Package Prompt: WP02 – Event Service CRUD Operations

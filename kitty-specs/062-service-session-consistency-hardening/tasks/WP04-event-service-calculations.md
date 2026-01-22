@@ -9,7 +9,7 @@ subtasks:
 title: "Event Service Calculation Operations"
 phase: "Phase 1 - Service Hardening"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "29403"
 review_status: "approved"

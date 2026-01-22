@@ -9,7 +9,7 @@ subtasks:
 title: "Event Service Assignment Operations"
 phase: "Phase 1 - Service Hardening"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "14709"
 review_status: "approved"

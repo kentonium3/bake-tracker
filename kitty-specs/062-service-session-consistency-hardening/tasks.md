@@ -337,11 +337,11 @@
 **Prompt**: `tasks/WP11-structured-logging.md`
 
 ### Included Subtasks
-- [ ] T055 Define logging format and create logger setup in services
-- [ ] T056 Add structured logging to `batch_production_service.record_batch_production`
-- [ ] T057 Add structured logging to `assembly_service.record_assembly`
-- [ ] T058 Add structured logging to check functions (check_can_produce, check_can_assemble)
-- [ ] T059 Add test verifying log output contains expected context
+- [x] T055 Define logging format and create logger setup in services
+- [x] T056 Add structured logging to `batch_production_service.record_batch_production`
+- [x] T057 Add structured logging to `assembly_service.record_assembly`
+- [x] T058 Add structured logging to check functions (check_can_produce, check_can_assemble)
+- [x] T059 Add test verifying log output contains expected context
 
 ### Implementation Notes
 - Use Python stdlib `logging` module
