@@ -11,6 +11,7 @@ from datetime import datetime
 from src.models.event import Event
 from src.services import event_service
 from src.services.event_service import EventNotFoundError
+from src.ui.utils import ui_session
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -227,7 +228,8 @@ class EventsTab(ctk.CTkFrame):
         result = dialog.get_result()
         if result:
             try:
-                event_service.create_event(**result)
+                with ui_session() as session:
+                    event_service.create_event(**result, session=session)
                 show_success("Success", f"Event '{result['name']}' added successfully", parent=self)
                 self.refresh()
             except Exception as e:
@@ -244,7 +246,8 @@ class EventsTab(ctk.CTkFrame):
         result = dialog.get_result()
         if result:
             try:
-                event_service.update_event(self.selected_event.id, **result)
+                with ui_session() as session:
+                    event_service.update_event(self.selected_event.id, session=session, **result)
                 show_success("Success", "Event updated successfully", parent=self)
                 self.refresh()
             except EventNotFoundError:
@@ -294,7 +297,8 @@ class EventsTab(ctk.CTkFrame):
             return
 
         try:
-            event_service.delete_event(self.selected_event.id)
+            with ui_session() as session:
+                event_service.delete_event(self.selected_event.id, session=session)
             show_success("Success", "Event deleted successfully", parent=self)
             self.selected_event = None
             self.refresh()
@@ -323,10 +327,11 @@ class EventsTab(ctk.CTkFrame):
             year_filter = self.year_filter_var.get()
             year = None if year_filter == "All Years" else int(year_filter)
 
-            if year is not None:
-                events = event_service.get_events_by_year(year)
-            else:
-                events = event_service.get_all_events()
+            with ui_session() as session:
+                if year is not None:
+                    events = event_service.get_events_by_year(year, session=session)
+                else:
+                    events = event_service.get_all_events(session=session)
             self.data_table.set_data(events)
             self._update_status(f"Loaded {len(events)} event(s)")
         except Exception as e:

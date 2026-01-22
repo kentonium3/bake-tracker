@@ -16,6 +16,7 @@ from datetime import date
 from src.services.event_service import get_shopping_list
 from src.services import ingredient_service, recipe_service, event_service
 from src.services.product_service import create_product
+from src.services.database import session_scope
 from src.models import Purchase
 
 # ============================================================================
@@ -205,11 +206,13 @@ class TestShoppingListWithProducts:
     def test_shopping_list_includes_new_fields(self, test_db):
         """FR-009: Shopping list items include product-related fields."""
         # Create a minimal event
-        event = event_service.create_event(
-            name="Test Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = event_service.create_event(
+                name="Test Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         result = get_shopping_list(event.id)
 
@@ -223,11 +226,13 @@ class TestShoppingListWithProducts:
     def test_existing_fields_preserved(self, test_db):
         """FR-009: Existing fields (ingredient_id, name, unit, etc.) still present."""
         # Create minimal test setup - empty event returns early
-        event = event_service.create_event(
-            name="Field Test Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = event_service.create_event(
+                name="Field Test Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         result = get_shopping_list(event.id)
 
@@ -239,11 +244,13 @@ class TestShoppingListWithProducts:
 
     def test_empty_event_returns_correct_structure(self, test_db):
         """Edge case: Event with no assignments returns proper structure."""
-        event = event_service.create_event(
-            name="Empty Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = event_service.create_event(
+                name="Empty Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         result = get_shopping_list(event.id)
 
@@ -260,11 +267,13 @@ class TestTotalEstimatedCostCalculation:
 
     def test_total_cost_is_decimal(self, test_db):
         """SC-004: Total cost is a Decimal for precision."""
-        event = event_service.create_event(
-            name="Cost Test Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = event_service.create_event(
+                name="Cost Test Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         result = get_shopping_list(event.id)
 
@@ -272,11 +281,13 @@ class TestTotalEstimatedCostCalculation:
 
     def test_empty_event_total_is_zero(self, test_db):
         """Empty event should have zero total cost."""
-        event = event_service.create_event(
-            name="Zero Cost Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = event_service.create_event(
+                name="Zero Cost Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         result = get_shopping_list(event.id)
 

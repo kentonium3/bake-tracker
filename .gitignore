@@ -101,3 +101,5 @@ docs/.obsidian/
 bake_tracker.db
 .github/copilot/
 bake-tracker/
+# Prevent worktree-local kitty-specs/ (status managed in main repo)
+kitty-specs/

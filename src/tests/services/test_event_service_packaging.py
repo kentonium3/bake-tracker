@@ -24,6 +24,7 @@ from src.services.event_service import (
     get_shopping_list,
     assign_package_to_recipient,
 )
+from src.services.database import session_scope
 from src.services.composition_service import (
     add_packaging_to_assembly,
     add_packaging_to_package,
@@ -134,11 +135,13 @@ def recipient(test_db):
 @pytest.fixture
 def event(test_db):
     """Create an event for tests."""
-    return create_event(
-        name="Test Holiday Event",
-        event_date=date(2024, 12, 25),
-        year=2024,
-    )
+    with session_scope() as session:
+        return create_event(
+            name="Test Holiday Event",
+            event_date=date(2024, 12, 25),
+            year=2024,
+            session=session,
+        )
 
 
 # =============================================================================

@@ -14,6 +14,7 @@ import customtkinter as ctk
 
 from src.ui.planning import PlanningWorkspace
 from src.services import event_service
+from src.ui.utils import ui_session
 
 
 class EventSelector(ctk.CTkFrame):
@@ -61,7 +62,8 @@ class EventSelector(ctk.CTkFrame):
     def _load_events(self) -> None:
         """Load available events from the database."""
         try:
-            self._events = event_service.get_all_events()
+            with ui_session() as session:
+                self._events = event_service.get_all_events(session=session)
             if self._events:
                 values = []
                 self._event_map = {}

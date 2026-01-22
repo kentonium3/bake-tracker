@@ -752,49 +752,50 @@ def export_events_to_json(file_path: str, include_all: bool = True) -> ExportRes
         ExportResult with export statistics
     """
     try:
-        # Get events
-        events = event_service.get_all_events()
+        # Get events within session scope
+        with session_scope() as session:
+            events = event_service.get_all_events(session=session)
 
-        # Build export data
-        export_data = {
-            "version": "1.0",
-            "export_date": utc_now().isoformat() + "Z",
-            "source": f"{APP_NAME} v{APP_VERSION}",
-            "events": [],
-        }
-
-        for event in events:
-            event_data = {
-                "name": event.name,
-                "event_date": event.event_date.isoformat(),
-                "year": event.year,
-                "assignments": [],
+            # Build export data
+            export_data = {
+                "version": "1.0",
+                "export_date": utc_now().isoformat() + "Z",
+                "source": f"{APP_NAME} v{APP_VERSION}",
+                "events": [],
             }
 
-            # Optional fields
-            if event.notes:
-                event_data["notes"] = event.notes
-
-            # Event assignments
-            for assignment in event.event_recipient_packages:
-                assignment_data = {
-                    "recipient_name": assignment.recipient.name,
-                    "package_name": assignment.package.name,
-                    "quantity": assignment.quantity,
+            for event in events:
+                event_data = {
+                    "name": event.name,
+                    "event_date": event.event_date.isoformat(),
+                    "year": event.year,
+                    "assignments": [],
                 }
 
-                if assignment.notes:
-                    assignment_data["notes"] = assignment.notes
+                # Optional fields
+                if event.notes:
+                    event_data["notes"] = event.notes
 
-                event_data["assignments"].append(assignment_data)
+                # Event assignments
+                for assignment in event.event_recipient_packages:
+                    assignment_data = {
+                        "recipient_name": assignment.recipient.name,
+                        "package_name": assignment.package.name,
+                        "quantity": assignment.quantity,
+                    }
 
-            export_data["events"].append(event_data)
+                    if assignment.notes:
+                        assignment_data["notes"] = assignment.notes
 
-        # Write to file
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(export_data, f, indent=2, ensure_ascii=False)
+                    event_data["assignments"].append(assignment_data)
 
-        return ExportResult(file_path, len(events))
+                export_data["events"].append(event_data)
+
+            # Write to file
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(export_data, f, indent=2, ensure_ascii=False)
+
+            return ExportResult(file_path, len(events))
 
     except Exception as e:
         result = ExportResult(file_path, 0)
@@ -1177,7 +1178,7 @@ def export_all_to_json(
         recipes = recipe_service.get_all_recipes()
         packages = package_service.get_all_packages()
         recipients = recipient_service.get_all_recipients()
-        events = event_service.get_all_events()
+        # Events are fetched later in a session scope with their relationships
 
         # Get v3.0 entity exports
         finished_units_data = export_finished_units_to_json()
@@ -1591,36 +1592,39 @@ def export_all_to_json(
             export_data["recipients"].append(recipient_data)
 
         # Add events (v3.0: no embedded assignments - use event_recipient_packages)
-        for event in events:
-            event_data = {
-                "name": event.name,
-                "event_date": event.event_date.isoformat(),
-                "year": event.year,
-            }
-            if event.notes:
-                event_data["notes"] = event.notes
-
-            # Feature 040 / F039: Export output_mode
-            event_data["output_mode"] = event.output_mode.value if event.output_mode else None
-
-            export_data["events"].append(event_data)
-
-            # Populate event_recipient_packages separately (v3.2 format with both status fields)
-            for assignment in event.event_recipient_packages:
-                assignment_data = {
-                    "event_name": event.name,
-                    "recipient_name": assignment.recipient.name,
-                    "package_name": assignment.package.name,
-                    "quantity": assignment.quantity,
-                    "status": assignment.status.value if assignment.status else "pending",
-                    "fulfillment_status": assignment.fulfillment_status,  # Feature 016
+        # Fetch events within session scope to support lazy-loaded relationships
+        with session_scope() as session:
+            events = event_service.get_all_events(session=session)
+            for event in events:
+                event_data = {
+                    "name": event.name,
+                    "event_date": event.event_date.isoformat(),
+                    "year": event.year,
                 }
-                if assignment.delivered_to:
-                    assignment_data["delivered_to"] = assignment.delivered_to
-                if assignment.notes:
-                    assignment_data["notes"] = assignment.notes
+                if event.notes:
+                    event_data["notes"] = event.notes
 
-                export_data["event_recipient_packages"].append(assignment_data)
+                # Feature 040 / F039: Export output_mode
+                event_data["output_mode"] = event.output_mode.value if event.output_mode else None
+
+                export_data["events"].append(event_data)
+
+                # Populate event_recipient_packages separately (v3.2 format with both status fields)
+                for assignment in event.event_recipient_packages:
+                    assignment_data = {
+                        "event_name": event.name,
+                        "recipient_name": assignment.recipient.name,
+                        "package_name": assignment.package.name,
+                        "quantity": assignment.quantity,
+                        "status": assignment.status.value if assignment.status else "pending",
+                        "fulfillment_status": assignment.fulfillment_status,  # Feature 016
+                    }
+                    if assignment.delivered_to:
+                        assignment_data["delivered_to"] = assignment.delivered_to
+                    if assignment.notes:
+                        assignment_data["notes"] = assignment.notes
+
+                    export_data["event_recipient_packages"].append(assignment_data)
 
         # Add material categories
         with session_scope() as session:

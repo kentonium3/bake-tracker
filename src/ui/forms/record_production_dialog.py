@@ -22,6 +22,7 @@ from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 from src.services import batch_production_service, event_service, recipe_service
+from src.ui.utils import ui_session
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -600,7 +601,8 @@ class RecordProductionDialog(ctk.CTkToplevel):
     def _load_events(self) -> List[Event]:
         """Load events sorted by date (nearest upcoming first)."""
         try:
-            events = event_service.get_all_events()
+            with ui_session() as session:
+                events = event_service.get_all_events(session=session)
             # Sort by event_date ascending; events without date go to end
             events.sort(key=lambda e: e.event_date or datetime.max.date())
             return events

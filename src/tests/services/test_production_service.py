@@ -175,11 +175,13 @@ def setup_production_test_data(test_db):
     )
 
     # Create event using the service
-    event = event_service.create_event(
-        name="Christmas 2024",
-        event_date=date(2024, 12, 25),
-        year=2024,
-    )
+    with session_scope() as session:
+        event = event_service.create_event(
+            name="Christmas 2024",
+            event_date=date(2024, 12, 25),
+            year=2024,
+            session=session,
+        )
 
     return {
         "flour": flour,

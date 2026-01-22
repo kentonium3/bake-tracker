@@ -22,6 +22,7 @@ from src.services import (
     packaging_service,
     material_consumption_service,
 )
+from src.ui.utils import ui_session
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -427,7 +428,8 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
     def _load_events(self) -> List[Event]:
         """Load events sorted by date (nearest upcoming first)."""
         try:
-            events = event_service.get_all_events()
+            with ui_session() as session:
+                events = event_service.get_all_events(session=session)
             # Sort by event_date ascending; events without date go to end
             events.sort(key=lambda e: e.event_date or datetime.max.date())
             return events

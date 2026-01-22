@@ -24,7 +24,7 @@ import csv
 
 from sqlalchemy import and_, func  # noqa: F401 - used in complex queries
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Session
 
 from src.models import (
     Event,
@@ -146,6 +146,8 @@ def create_event(
     event_date: date,
     year: int,
     notes: Optional[str] = None,
+    *,
+    session: Session,
 ) -> Event:
     """
     Create a new event.
@@ -155,6 +157,7 @@ def create_event(
         event_date: Event date (required)
         year: Event year (required)
         notes: Optional notes
+        session: Database session (required)
 
     Returns:
         Created Event instance
@@ -174,24 +177,23 @@ def create_event(
         raise ValidationError(errors)
 
     try:
-        with session_scope() as session:
-            event = Event(
-                name=name.strip(),
-                event_date=event_date,
-                year=year,
-                notes=notes,
-            )
-            session.add(event)
-            session.flush()
+        event = Event(
+            name=name.strip(),
+            event_date=event_date,
+            year=year,
+            notes=notes,
+        )
+        session.add(event)
+        session.flush()
 
-            # Reload with relationships
-            event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == event.id)
-                .one()
-            )
-            return event
+        # Reload with relationships
+        event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == event.id)
+            .one()
+        )
+        return event
 
     except ValidationError:
         raise
@@ -199,129 +201,134 @@ def create_event(
         raise DatabaseError(f"Failed to create event: {str(e)}")
 
 
-def get_event_by_id(event_id: int) -> Optional[Event]:
+def get_event_by_id(event_id: int, *, session: Session) -> Optional[Event]:
     """
     Get an event by ID.
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         Event instance or None if not found
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(
-                    joinedload(Event.event_recipient_packages).joinedload(
-                        EventRecipientPackage.recipient
-                    ),
-                    joinedload(Event.event_recipient_packages).joinedload(
-                        EventRecipientPackage.package
-                    ),
-                )
-                .filter(Event.id == event_id)
-                .first()
+        event = (
+            session.query(Event)
+            .options(
+                joinedload(Event.event_recipient_packages).joinedload(
+                    EventRecipientPackage.recipient
+                ),
+                joinedload(Event.event_recipient_packages).joinedload(
+                    EventRecipientPackage.package
+                ),
             )
-            return event
+            .filter(Event.id == event_id)
+            .first()
+        )
+        return event
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event: {str(e)}")
 
 
-def get_event_by_name(name: str) -> Optional[Event]:
+def get_event_by_name(name: str, *, session: Session) -> Optional[Event]:
     """
     Get an event by exact name match.
 
     Args:
         name: Event name
+        session: Database session (required)
 
     Returns:
         Event instance or None if not found
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.name == name)
-                .first()
-            )
-            return event
+        event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.name == name)
+            .first()
+        )
+        return event
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event by name: {str(e)}")
 
 
-def get_all_events() -> List[Event]:
+def get_all_events(*, session: Session) -> List[Event]:
     """
     Get all events ordered by event_date descending.
+
+    Args:
+        session: Database session (required)
 
     Returns:
         List of Event instances
     """
     try:
-        with session_scope() as session:
-            events = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .order_by(Event.event_date.desc())
-                .all()
-            )
-            return events
+        events = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .order_by(Event.event_date.desc())
+            .all()
+        )
+        return events
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get events: {str(e)}")
 
 
-def get_events_by_year(year: int) -> List[Event]:
+def get_events_by_year(year: int, *, session: Session) -> List[Event]:
     """
     Get events filtered by year (FR-020).
 
     Args:
         year: Year to filter by
+        session: Database session (required)
 
     Returns:
         List of Event instances for that year
     """
     try:
-        with session_scope() as session:
-            events = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.year == year)
-                .order_by(Event.event_date.desc())
-                .all()
-            )
-            return events
+        events = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.year == year)
+            .order_by(Event.event_date.desc())
+            .all()
+        )
+        return events
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get events by year: {str(e)}")
 
 
-def get_available_years() -> List[int]:
+def get_available_years(*, session: Session) -> List[int]:
     """
     Get list of distinct years with events (for year filter dropdown).
+
+    Args:
+        session: Database session (required)
 
     Returns:
         List of years in descending order
     """
     try:
-        with session_scope() as session:
-            years = session.query(Event.year).distinct().order_by(Event.year.desc()).all()
-            return [y[0] for y in years]
+        years = session.query(Event.year).distinct().order_by(Event.year.desc()).all()
+        return [y[0] for y in years]
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get available years: {str(e)}")
 
 
-def update_event(event_id: int, **updates) -> Event:
+def update_event(event_id: int, *, session: Session, **updates) -> Event:
     """
     Update an existing event.
 
     Args:
         event_id: Event ID to update
+        session: Database session (required)
         **updates: Field updates (name, event_date, year, notes)
 
     Returns:
@@ -333,37 +340,36 @@ def update_event(event_id: int, **updates) -> Event:
         DatabaseError: If database operation fails
     """
     try:
-        with session_scope() as session:
-            event = session.query(Event).filter(Event.id == event_id).first()
-            if not event:
-                raise EventNotFoundError(event_id)
+        event = session.query(Event).filter(Event.id == event_id).first()
+        if not event:
+            raise EventNotFoundError(event_id)
 
-            if "name" in updates:
-                name = updates["name"]
-                if not name or not name.strip():
-                    raise ValidationError(["Name is required"])
-                event.name = name.strip()
+        if "name" in updates:
+            name = updates["name"]
+            if not name or not name.strip():
+                raise ValidationError(["Name is required"])
+            event.name = name.strip()
 
-            if "event_date" in updates:
-                event.event_date = updates["event_date"]
+        if "event_date" in updates:
+            event.event_date = updates["event_date"]
 
-            if "year" in updates:
-                event.year = updates["year"]
+        if "year" in updates:
+            event.year = updates["year"]
 
-            if "notes" in updates:
-                event.notes = updates["notes"]
+        if "notes" in updates:
+            event.notes = updates["notes"]
 
-            event.last_modified = utc_now()
-            session.flush()
+        event.last_modified = utc_now()
+        session.flush()
 
-            # Reload with relationships
-            event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == event.id)
-                .one()
-            )
-            return event
+        # Reload with relationships
+        event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == event.id)
+            .one()
+        )
+        return event
 
     except (EventNotFoundError, ValidationError):
         raise
@@ -371,13 +377,16 @@ def update_event(event_id: int, **updates) -> Event:
         raise DatabaseError(f"Failed to update event: {str(e)}")
 
 
-def delete_event(event_id: int, cascade_assignments: bool = False) -> bool:
+def delete_event(
+    event_id: int, cascade_assignments: bool = False, *, session: Session
+) -> bool:
     """
     Delete an event.
 
     Args:
         event_id: Event ID to delete
         cascade_assignments: If True, delete assignments too (FR-022)
+        session: Database session (required)
 
     Returns:
         True if deleted successfully
@@ -388,23 +397,22 @@ def delete_event(event_id: int, cascade_assignments: bool = False) -> bool:
         DatabaseError: If database operation fails
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == event_id)
-                .first()
-            )
-            if not event:
-                raise EventNotFoundError(event_id)
+        event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == event_id)
+            .first()
+        )
+        if not event:
+            raise EventNotFoundError(event_id)
 
-            assignment_count = len(event.event_recipient_packages)
-            if assignment_count > 0 and not cascade_assignments:
-                raise EventHasAssignmentsError(event_id, assignment_count)
+        assignment_count = len(event.event_recipient_packages)
+        if assignment_count > 0 and not cascade_assignments:
+            raise EventHasAssignmentsError(event_id, assignment_count)
 
-            # Delete event (cascade will delete assignments if configured)
-            session.delete(event)
-            return True
+        # Delete event (cascade will delete assignments if configured)
+        session.delete(event)
+        return True
 
     except (EventNotFoundError, EventHasAssignmentsError):
         raise
