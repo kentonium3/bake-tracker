@@ -233,7 +233,7 @@
 **Prompt**: `tasks/WP08-integration-tests-verification.md`
 
 ### Included Subtasks
-- [ ] T028 Integration test for assembly service with inventory service (full flow)
+- [x] T028 Integration test for assembly service with inventory service (full flow)
 - [ ] T029 Integration test for production service with inventory service (full flow)
 - [ ] T030 Session atomicity tests (multi-step operations with rollback)
 - [ ] T031 [P] Verify export includes inventory_count (add explicit test)
