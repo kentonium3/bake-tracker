@@ -8,7 +8,7 @@ subtasks:
   - "T035"
 title: "Event Service Remaining Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "codex"
 shell_pid: "65344"
@@ -151,3 +151,4 @@ grep -r "clone_event\|get_event_packaging\|get_recipient_history" src/ui/ --incl
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T20:35:54Z – codex – shell_pid=65344 – lane=doing – Started implementation via workflow command
 - 2026-01-22T20:59:03Z – codex – shell_pid=65344 – lane=for_review – Ready for review: require session for remaining event service ops (shopping list, export, clone, packaging, history), thread session through helpers/UI/tests, update planning wrapper; targeted tests pass
+- 2026-01-22T21:01:27Z – codex – shell_pid=65344 – lane=doing – Started review via workflow command
