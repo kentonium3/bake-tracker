@@ -8,10 +8,10 @@ subtasks:
   - "T032"
 title: "Integration Tests and Verification"
 phase: "Phase 5 - Testing"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "33384"
+shell_pid: "40128"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP04", "WP05", "WP06", "WP07"]
@@ -476,3 +476,4 @@ Run integration tests:
 - 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
 - 2026-01-22T03:53:00Z – claude-opus – shell_pid=33384 – lane=doing – Started implementation via workflow command
 - 2026-01-22T04:08:56Z – claude-opus – shell_pid=33384 – lane=for_review – Ready for review: 14 integration tests covering assembly, production, atomicity, and export/import. All tests pass (13 passed + 1 xfail documenting export gap). Full suite: 2636 tests pass.
+- 2026-01-22T04:15:11Z – claude-opus – shell_pid=40128 – lane=doing – Started review via workflow command
