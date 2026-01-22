@@ -9,12 +9,12 @@ subtasks:
   - "T041"
 title: "Batch & Assembly Service Bug Fixes"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "done"
 assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+agent: "claude-opus"
+shell_pid: "55981"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-22T15:30:43Z"
@@ -273,3 +273,5 @@ with session_scope() as session:
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T21:07:13Z – claude-opus – shell_pid=55981 – lane=doing – Started review via workflow command
+- 2026-01-22T21:09:04Z – claude-opus – shell_pid=55981 – lane=done – Review passed: Fixed session shadowing bug in 4 history query functions. All functions now require session parameter. Added 4 uncommitted data visibility tests. Updated 12+ existing tests. Export functions updated to handle session properly. 92 tests pass.
