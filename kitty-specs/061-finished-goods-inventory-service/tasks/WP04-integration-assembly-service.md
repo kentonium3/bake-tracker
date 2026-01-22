@@ -7,12 +7,12 @@ subtasks:
   - "T015"
 title: "Integration - Assembly Service"
 phase: "Phase 3 - Integration"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "17216"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP03"]
 history:
   - timestamp: "2026-01-21T19:33:38Z"
@@ -301,3 +301,4 @@ with session_scope() as session:
 - 2026-01-22T02:44:03Z – claude-opus – shell_pid=13618 – lane=doing – Started implementation via workflow command
 - 2026-01-22T02:51:58Z – claude-opus – shell_pid=13618 – lane=for_review – Ready for review: Updated assembly_service.py to use adjust_inventory for all inventory changes. FU consumption (T013), nested FG consumption (T014), and FG creation (T015) now create audit records. T012 skipped as existing check works correctly. All 2581 tests pass.
 - 2026-01-22T02:56:11Z – claude-opus – shell_pid=17216 – lane=doing – Started review via workflow command
+- 2026-01-22T02:57:03Z – claude-opus – shell_pid=17216 – lane=done – Review passed: All inventory changes use adjust_inventory with session, assembly reason, and meaningful notes. FU consumption (T013), nested FG consumption (T014), and FG creation (T015) correctly implemented. No direct inventory_count assignments remain. All 2581 tests pass.
