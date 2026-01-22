@@ -272,7 +272,7 @@
 **Prompt**: `tasks/WP09-production-service.md`
 
 ### Included Subtasks
-- [ ] T042 Add required `session` param to: `get_production_records`, `get_production_total`
+- [x] T042 Add required `session` param to: `get_production_records`, `get_production_total`
 - [ ] T043 Add required `session` param to: `can_assemble_package`, `update_package_status`
 - [ ] T044 Add required `session` param to: `get_production_progress`, `get_dashboard_summary`
 - [ ] T045 Add required `session` param to: `get_recipe_cost_breakdown`, `get_event_assignments`
