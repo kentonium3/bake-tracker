@@ -8,10 +8,10 @@ subtasks:
   - "T025"
 title: "Event Service Progress Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "codex"
+shell_pid: "65344"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -280,3 +280,5 @@ def test_get_events_with_progress_session_consistency():
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T19:39:35Z – codex – shell_pid=65344 – lane=doing – Started implementation via workflow command
+- 2026-01-22T20:13:34Z – codex – shell_pid=65344 – lane=for_review – Ready for review: thread session through event progress services, update UI/test callers, add consistency test; event_service_progress tests pass
