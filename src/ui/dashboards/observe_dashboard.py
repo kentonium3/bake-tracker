@@ -115,6 +115,7 @@ class ObserveDashboard(BaseDashboard):
                 get_all_events,
                 get_event_overall_progress,
             )
+            from src.ui.utils import ui_session
 
             events = get_all_events()
             self._event_count = len(events) if events else 0
@@ -134,16 +135,17 @@ class ObserveDashboard(BaseDashboard):
             total_packaging = 0
             event_count = len(events)
 
-            for event in events:
-                try:
-                    progress = get_event_overall_progress(event.id)
-                    total_shopping += progress.get("shopping_pct", 0)
-                    total_production += progress.get("production_pct", 0)
-                    total_assembly += progress.get("assembly_pct", 0)
-                    total_packaging += progress.get("packaging_pct", 0)
-                except Exception:
-                    # Skip events that fail to load progress
-                    event_count = max(1, event_count - 1)
+            with ui_session() as session:
+                for event in events:
+                    try:
+                        progress = get_event_overall_progress(event.id, session=session)
+                        total_shopping += progress.get("shopping_pct", 0)
+                        total_production += progress.get("production_pct", 0)
+                        total_assembly += progress.get("assembly_pct", 0)
+                        total_packaging += progress.get("packaging_pct", 0)
+                    except Exception:
+                        # Skip events that fail to load progress
+                        event_count = max(1, event_count - 1)
 
             # Calculate averages
             if event_count > 0:

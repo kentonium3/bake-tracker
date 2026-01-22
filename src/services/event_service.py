@@ -24,7 +24,7 @@ import csv
 
 from sqlalchemy import and_, func  # noqa: F401 - used in complex queries
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Session, joinedload
 
 from src.models import (
     Event,
@@ -2110,7 +2110,7 @@ def _get_assembly_progress_impl(event_id: int, session) -> List[Dict[str, Any]]:
     return results
 
 
-def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
+def get_event_overall_progress(event_id: int, session: Session) -> Dict[str, Any]:
     """
     Get overall progress summary for an event.
 
@@ -2119,6 +2119,7 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
 
     Args:
         event_id: Event ID
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict with:
@@ -2134,62 +2135,61 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
         - packages_total: int
     """
     try:
-        with session_scope() as session:
-            # Get production progress (reuse function, but we're in same session context)
-            prod_targets = session.query(EventProductionTarget).filter_by(event_id=event_id).all()
-            prod_complete = 0
-            for target in prod_targets:
-                produced = (
-                    session.query(func.coalesce(func.sum(ProductionRun.num_batches), 0))
-                    .filter(
-                        ProductionRun.recipe_id == target.recipe_id,
-                        ProductionRun.event_id == event_id,
-                    )
-                    .scalar()
+        # Get production progress (reuse function, but we're in same session context)
+        prod_targets = session.query(EventProductionTarget).filter_by(event_id=event_id).all()
+        prod_complete = 0
+        for target in prod_targets:
+            produced = (
+                session.query(func.coalesce(func.sum(ProductionRun.num_batches), 0))
+                .filter(
+                    ProductionRun.recipe_id == target.recipe_id,
+                    ProductionRun.event_id == event_id,
                 )
-                if produced and int(produced) >= target.target_batches:
-                    prod_complete += 1
+                .scalar()
+            )
+            if produced and int(produced) >= target.target_batches:
+                prod_complete += 1
 
-            # Get assembly progress
-            asm_targets = session.query(EventAssemblyTarget).filter_by(event_id=event_id).all()
-            asm_complete = 0
-            for target in asm_targets:
-                assembled = (
-                    session.query(func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0))
-                    .filter(
-                        AssemblyRun.finished_good_id == target.finished_good_id,
-                        AssemblyRun.event_id == event_id,
-                    )
-                    .scalar()
+        # Get assembly progress
+        asm_targets = session.query(EventAssemblyTarget).filter_by(event_id=event_id).all()
+        asm_complete = 0
+        for target in asm_targets:
+            assembled = (
+                session.query(func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0))
+                .filter(
+                    AssemblyRun.finished_good_id == target.finished_good_id,
+                    AssemblyRun.event_id == event_id,
                 )
-                if assembled and int(assembled) >= target.target_quantity:
-                    asm_complete += 1
-
-            # Get package counts by status
-            packages = session.query(EventRecipientPackage).filter_by(event_id=event_id).all()
-
-            pending = sum(
-                1 for p in packages if p.fulfillment_status == FulfillmentStatus.PENDING.value
+                .scalar()
             )
-            ready = sum(
-                1 for p in packages if p.fulfillment_status == FulfillmentStatus.READY.value
-            )
-            delivered = sum(
-                1 for p in packages if p.fulfillment_status == FulfillmentStatus.DELIVERED.value
-            )
+            if assembled and int(assembled) >= target.target_quantity:
+                asm_complete += 1
 
-            return {
-                "production_targets_count": len(prod_targets),
-                "production_complete_count": prod_complete,
-                "production_complete": len(prod_targets) == 0 or prod_complete == len(prod_targets),
-                "assembly_targets_count": len(asm_targets),
-                "assembly_complete_count": asm_complete,
-                "assembly_complete": len(asm_targets) == 0 or asm_complete == len(asm_targets),
-                "packages_pending": pending,
-                "packages_ready": ready,
-                "packages_delivered": delivered,
-                "packages_total": len(packages),
-            }
+        # Get package counts by status
+        packages = session.query(EventRecipientPackage).filter_by(event_id=event_id).all()
+
+        pending = sum(
+            1 for p in packages if p.fulfillment_status == FulfillmentStatus.PENDING.value
+        )
+        ready = sum(
+            1 for p in packages if p.fulfillment_status == FulfillmentStatus.READY.value
+        )
+        delivered = sum(
+            1 for p in packages if p.fulfillment_status == FulfillmentStatus.DELIVERED.value
+        )
+
+        return {
+            "production_targets_count": len(prod_targets),
+            "production_complete_count": prod_complete,
+            "production_complete": len(prod_targets) == 0 or prod_complete == len(prod_targets),
+            "assembly_targets_count": len(asm_targets),
+            "assembly_complete_count": asm_complete,
+            "assembly_complete": len(asm_targets) == 0 or asm_complete == len(asm_targets),
+            "packages_pending": pending,
+            "packages_ready": ready,
+            "packages_delivered": delivered,
+            "packages_total": len(packages),
+        }
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event overall progress: {str(e)}")
@@ -2204,6 +2204,8 @@ def get_events_with_progress(
     filter_type: str = "active_future",
     date_from: date = None,
     date_to: date = None,
+    *,
+    session: Session,
 ) -> List[Dict[str, Any]]:
     """
     Get all events matching filter with their progress summaries.
@@ -2212,6 +2214,7 @@ def get_events_with_progress(
         filter_type: One of "active_future" (default), "past", "all"
         date_from: Optional start date for date range filter
         date_to: Optional end date for date range filter
+        session: SQLAlchemy session for database operations
 
     Returns:
         List of dicts with:
@@ -2223,48 +2226,41 @@ def get_events_with_progress(
         - overall_progress: dict (from get_event_overall_progress)
     """
     try:
-        with session_scope() as session:
-            today = date.today()
+        today = date.today()
 
-            # Build base query
-            query = session.query(Event)
+        # Build base query
+        query = session.query(Event)
 
-            # Apply filter based on filter_type
-            if filter_type == "active_future":
-                query = query.filter(Event.event_date >= today)
-            elif filter_type == "past":
-                query = query.filter(Event.event_date < today)
-            # "all" - no date filter
+        # Apply filter based on filter_type
+        if filter_type == "active_future":
+            query = query.filter(Event.event_date >= today)
+        elif filter_type == "past":
+            query = query.filter(Event.event_date < today)
+        # "all" - no date filter
 
-            # Apply date range if provided
-            if date_from:
-                query = query.filter(Event.event_date >= date_from)
-            if date_to:
-                query = query.filter(Event.event_date <= date_to)
+        # Apply date range if provided
+        if date_from:
+            query = query.filter(Event.event_date >= date_from)
+        if date_to:
+            query = query.filter(Event.event_date <= date_to)
 
-            # Order by date ascending, then name
-            query = query.order_by(Event.event_date.asc(), Event.name.asc())
+        # Order by date ascending, then name
+        query = query.order_by(Event.event_date.asc(), Event.name.asc())
 
-            events = query.all()
+        events = query.all()
 
-            # Build result list - capture primitive data before session closes
-            results = []
-            for event in events:
-                results.append(
-                    {
-                        "event_id": event.id,
-                        "event_name": event.name,
-                        "event_date": event.event_date,
-                    }
-                )
-
-        # Now fetch progress for each event (outside session)
-        # Each progress function manages its own session per CLAUDE.md pattern
-        for event_data in results:
-            event_id = event_data["event_id"]
-            event_data["production_progress"] = get_production_progress(event_id)
-            event_data["assembly_progress"] = get_assembly_progress(event_id)
-            event_data["overall_progress"] = get_event_overall_progress(event_id)
+        results = []
+        for event in events:
+            results.append(
+                {
+                    "event_id": event.id,
+                    "event_name": event.name,
+                    "event_date": event.event_date,
+                    "production_progress": get_production_progress(event.id, session=session),
+                    "assembly_progress": get_assembly_progress(event.id, session=session),
+                    "overall_progress": get_event_overall_progress(event.id, session=session),
+                }
+            )
 
         return results
 

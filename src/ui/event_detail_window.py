@@ -1421,7 +1421,13 @@ class EventDetailWindow(ctk.CTkToplevel):
 
         try:
             # Get overall progress which includes package counts
-            progress = event_service.get_event_overall_progress(self.event.id)
+            from src.ui.utils import ui_session
+
+            with ui_session() as session:
+                progress = event_service.get_event_overall_progress(
+                    self.event.id,
+                    session=session,
+                )
 
             # Create status row
             counts_frame = ctk.CTkFrame(section_frame, fg_color="transparent")

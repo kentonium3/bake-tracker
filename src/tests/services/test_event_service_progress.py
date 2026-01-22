@@ -531,7 +531,8 @@ class TestOverallProgress:
 
     def test_all_complete_when_no_targets(self, test_db, event_christmas):
         """production_complete and assembly_complete are True when no targets."""
-        result = event_service.get_event_overall_progress(event_christmas.id)
+        with session_scope() as session:
+            result = event_service.get_event_overall_progress(event_christmas.id, session=session)
 
         assert result["production_targets_count"] == 0
         assert result["production_complete_count"] == 0
@@ -572,7 +573,8 @@ class TestOverallProgress:
             session.add(run)
             session.commit()
 
-        result = event_service.get_event_overall_progress(event_christmas.id)
+        with session_scope() as session:
+            result = event_service.get_event_overall_progress(event_christmas.id, session=session)
 
         assert result["production_targets_count"] == 2
         assert result["production_complete_count"] == 1
@@ -606,7 +608,8 @@ class TestOverallProgress:
             session.add_all([p1, p2, p3])
             session.commit()
 
-        result = event_service.get_event_overall_progress(event_christmas.id)
+        with session_scope() as session:
+            result = event_service.get_event_overall_progress(event_christmas.id, session=session)
 
         assert result["packages_pending"] == 1
         assert result["packages_ready"] == 1
@@ -682,7 +685,8 @@ class TestOverallProgress:
             session.add_all([p1, p2])
             session.commit()
 
-        result = event_service.get_event_overall_progress(event_christmas.id)
+        with session_scope() as session:
+            result = event_service.get_event_overall_progress(event_christmas.id, session=session)
 
         assert result["production_targets_count"] == 1
         assert result["production_complete_count"] == 0
@@ -706,7 +710,8 @@ class TestGetEventsWithProgress:
 
     def test_returns_empty_list_when_no_events(self, test_db):
         """Should return empty list when no events exist."""
-        result = event_service.get_events_with_progress()
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(session=session)
         assert result == []
 
     def test_active_future_filter_excludes_past_events(self, test_db):
@@ -735,7 +740,11 @@ class TestGetEventsWithProgress:
         session.add_all([past_event, today_event, future_event])
         session.commit()
 
-        result = event_service.get_events_with_progress(filter_type="active_future")
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(
+                filter_type="active_future",
+                session=session,
+            )
 
         # Should only include today and future events
         assert len(result) == 2
@@ -764,7 +773,8 @@ class TestGetEventsWithProgress:
         session.add_all([past_event, future_event])
         session.commit()
 
-        result = event_service.get_events_with_progress(filter_type="past")
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(filter_type="past", session=session)
 
         assert len(result) == 1
         assert result[0]["event_name"] == "Past Event"
@@ -789,7 +799,8 @@ class TestGetEventsWithProgress:
         session.add_all([past_event, future_event])
         session.commit()
 
-        result = event_service.get_events_with_progress(filter_type="all")
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(filter_type="all", session=session)
 
         assert len(result) == 2
 
@@ -811,18 +822,21 @@ class TestGetEventsWithProgress:
         session.add_all([dec_event, jan_event])
         session.commit()
 
-        result = event_service.get_events_with_progress(
-            filter_type="all",
-            date_from=date(2025, 12, 1),
-            date_to=date(2025, 12, 31),
-        )
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(
+                filter_type="all",
+                date_from=date(2025, 12, 1),
+                date_to=date(2025, 12, 31),
+                session=session,
+            )
 
         assert len(result) == 1
         assert result[0]["event_name"] == "December Event"
 
     def test_returns_progress_data_structure(self, test_db, event_christmas):
         """Should return correct data structure with progress."""
-        result = event_service.get_events_with_progress(filter_type="all")
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(filter_type="all", session=session)
 
         assert len(result) >= 1
         event_data = result[0]
@@ -863,7 +877,8 @@ class TestGetEventsWithProgress:
         session.add_all([event_b, event_a, event_earlier])
         session.commit()
 
-        result = event_service.get_events_with_progress(filter_type="all")
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(filter_type="all", session=session)
 
         assert len(result) == 3
         # First should be the earlier date
@@ -882,7 +897,8 @@ class TestGetEventsWithProgress:
             target_batches=4,
         )
 
-        result = event_service.get_events_with_progress(filter_type="all")
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(filter_type="all", session=session)
 
         # Find our event
         event_data = next((e for e in result if e["event_id"] == event_christmas.id), None)
@@ -891,6 +907,32 @@ class TestGetEventsWithProgress:
         # Should have production progress with our target
         assert len(event_data["production_progress"]) == 1
         assert event_data["production_progress"][0]["target_batches"] == 4
+
+    def test_progress_reads_uncommitted_targets_in_session(self, test_db, recipe_cookies):
+        """Progress should see uncommitted targets within the same session."""
+        session = test_db()
+        event = Event(
+            name="Session Consistency Event",
+            event_date=date.today(),
+            year=date.today().year,
+        )
+        session.add(event)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe_cookies.id,
+            target_batches=2,
+        )
+        session.add(target)
+        session.flush()
+
+        result = event_service.get_events_with_progress(filter_type="all", session=session)
+
+        event_data = next((e for e in result if e["event_id"] == event.id), None)
+        assert event_data is not None
+        assert len(event_data["production_progress"]) == 1
+        assert event_data["production_progress"][0]["target_batches"] == 2
 
     def test_default_filter_is_active_future(self, test_db):
         """Should use active_future as default when no filter specified."""
@@ -913,7 +955,8 @@ class TestGetEventsWithProgress:
         session.commit()
 
         # Call without specifying filter_type
-        result = event_service.get_events_with_progress()
+        with session_scope() as session:
+            result = event_service.get_events_with_progress(session=session)
 
         # Should only return future event (default is active_future)
         assert len(result) == 1

@@ -105,62 +105,63 @@ class EventStatusTab(ctk.CTkFrame):
                 get_all_events,
                 get_event_overall_progress,
             )
+            from src.ui.utils import ui_session
 
             events = get_all_events()
+            with ui_session() as session:
+                for event in events:
+                    try:
+                        progress = get_event_overall_progress(event.id, session=session)
 
-            for event in events:
-                try:
-                    progress = get_event_overall_progress(event.id)
+                        # Calculate overall progress
+                        shopping = progress.get("shopping_pct", 0)
+                        production = progress.get("production_pct", 0)
+                        assembly = progress.get("assembly_pct", 0)
+                        packaging = progress.get("packaging_pct", 0)
+                        overall = (shopping + production + assembly + packaging) // 4
 
-                    # Calculate overall progress
-                    shopping = progress.get("shopping_pct", 0)
-                    production = progress.get("production_pct", 0)
-                    assembly = progress.get("assembly_pct", 0)
-                    packaging = progress.get("packaging_pct", 0)
-                    overall = (shopping + production + assembly + packaging) // 4
+                        # Determine tag based on overall progress
+                        if overall >= 100:
+                            tag = "complete"
+                        elif overall > 0:
+                            tag = "in_progress"
+                        else:
+                            tag = "not_started"
 
-                    # Determine tag based on overall progress
-                    if overall >= 100:
-                        tag = "complete"
-                    elif overall > 0:
-                        tag = "in_progress"
-                    else:
-                        tag = "not_started"
+                        # Format date
+                        date_str = str(event.event_date) if event.event_date else "TBD"
 
-                    # Format date
-                    date_str = str(event.event_date) if event.event_date else "TBD"
+                        self.tree.insert(
+                            "",
+                            "end",
+                            values=(
+                                event.name,
+                                date_str,
+                                f"{shopping}%",
+                                f"{production}%",
+                                f"{assembly}%",
+                                f"{packaging}%",
+                                f"{overall}%",
+                            ),
+                            tags=(tag,),
+                        )
 
-                    self.tree.insert(
-                        "",
-                        "end",
-                        values=(
-                            event.name,
-                            date_str,
-                            f"{shopping}%",
-                            f"{production}%",
-                            f"{assembly}%",
-                            f"{packaging}%",
-                            f"{overall}%",
-                        ),
-                        tags=(tag,),
-                    )
-
-                except Exception:
-                    # Insert with error indication
-                    self.tree.insert(
-                        "",
-                        "end",
-                        values=(
-                            event.name,
-                            str(event.event_date) if event.event_date else "TBD",
-                            "?",
-                            "?",
-                            "?",
-                            "?",
-                            "?",
-                        ),
-                        tags=("not_started",),
-                    )
+                    except Exception:
+                        # Insert with error indication
+                        self.tree.insert(
+                            "",
+                            "end",
+                            values=(
+                                event.name,
+                                str(event.event_date) if event.event_date else "TBD",
+                                "?",
+                                "?",
+                                "?",
+                                "?",
+                                "?",
+                            ),
+                            tags=("not_started",),
+                        )
 
         except Exception:
             # Show error in empty state
