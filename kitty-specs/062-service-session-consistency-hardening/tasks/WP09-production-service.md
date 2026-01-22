@@ -10,10 +10,10 @@ subtasks:
   - "T048"
 title: "Production Service Session Hardening"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "codex"
+shell_pid: "65344"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -157,3 +157,4 @@ grep -r "production_service\." src/tests/ --include="*.py"
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T21:16:27Z – codex – shell_pid=65344 – lane=doing – Started implementation via workflow command
