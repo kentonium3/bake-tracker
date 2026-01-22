@@ -22,7 +22,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP04 – Integration - Assembly Service
+# Work Package Prompt: WP04 - Integration - Assembly Service
 
 ## ⚠️ IMPORTANT: Review Feedback Status
 
@@ -77,7 +77,7 @@ Depends on WP03 (adjust_inventory function available).
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T012 – Update check_can_assemble for inventory service
+### Subtask T012 - Update check_can_assemble for inventory service
 
 **Purpose**: Optionally update availability checking to use inventory service.
 
@@ -111,7 +111,7 @@ Depends on WP03 (adjust_inventory function available).
 
 ---
 
-### Subtask T013 – Update FU consumption to use adjust_inventory
+### Subtask T013 - Update FU consumption to use adjust_inventory
 
 **Purpose**: Replace direct `inventory_count -= needed` with audit-tracked adjustment.
 
@@ -153,7 +153,7 @@ grep -n "inventory_count -= " src/services/assembly_service.py
 
 ---
 
-### Subtask T014 – Update nested FG consumption to use adjust_inventory
+### Subtask T014 - Update nested FG consumption to use adjust_inventory
 
 **Purpose**: Replace direct consumption of nested finished goods with audit-tracked adjustment.
 
@@ -194,7 +194,7 @@ grep -n "nested" src/services/assembly_service.py
 
 ---
 
-### Subtask T015 – Update FG creation to use adjust_inventory
+### Subtask T015 - Update FG creation to use adjust_inventory
 
 **Purpose**: Replace direct `inventory_count += quantity` with audit-tracked adjustment.
 
@@ -297,8 +297,8 @@ with session_scope() as session:
 
 ## Activity Log
 
-- 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
-- 2026-01-22T02:44:03Z – claude-opus – shell_pid=13618 – lane=doing – Started implementation via workflow command
-- 2026-01-22T02:51:58Z – claude-opus – shell_pid=13618 – lane=for_review – Ready for review: Updated assembly_service.py to use adjust_inventory for all inventory changes. FU consumption (T013), nested FG consumption (T014), and FG creation (T015) now create audit records. T012 skipped as existing check works correctly. All 2581 tests pass.
-- 2026-01-22T02:56:11Z – claude-opus – shell_pid=17216 – lane=doing – Started review via workflow command
-- 2026-01-22T02:57:03Z – claude-opus – shell_pid=17216 – lane=done – Review passed: All inventory changes use adjust_inventory with session, assembly reason, and meaningful notes. FU consumption (T013), nested FG consumption (T014), and FG creation (T015) correctly implemented. No direct inventory_count assignments remain. All 2581 tests pass.
+- 2026-01-21T19:33:38Z - system - lane=planned - Prompt created.
+- 2026-01-22T02:44:03Z - claude-opus - shell_pid=13618 - lane=doing - Started implementation via workflow command
+- 2026-01-22T02:51:58Z - claude-opus - shell_pid=13618 - lane=for_review - Ready for review: Updated assembly_service.py to use adjust_inventory for all inventory changes. FU consumption (T013), nested FG consumption (T014), and FG creation (T015) now create audit records. T012 skipped as existing check works correctly. All 2581 tests pass.
+- 2026-01-22T02:56:11Z - claude-opus - shell_pid=17216 - lane=doing - Started review via workflow command
+- 2026-01-22T02:57:03Z - claude-opus - shell_pid=17216 - lane=done - Review passed: All inventory changes use adjust_inventory with session, assembly reason, and meaningful notes. FU consumption (T013), nested FG consumption (T014), and FG creation (T015) correctly implemented. No direct inventory_count assignments remain. All 2581 tests pass.

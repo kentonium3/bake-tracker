@@ -23,7 +23,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP06 – Model Cleanup
+# Work Package Prompt: WP06 - Model Cleanup
 
 ## ⚠️ IMPORTANT: Review Feedback Status
 
@@ -79,7 +79,7 @@ Depends on WP04 and WP05 (all callers must be updated first).
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T019 – Remove is_available() from FinishedUnit
+### Subtask T019 - Remove is_available() from FinishedUnit
 
 **Purpose**: Remove deprecated business logic method now that service exists.
 
@@ -110,7 +110,7 @@ def is_available(self, quantity: int) -> bool:
 
 ---
 
-### Subtask T020 – Remove update_inventory() from FinishedUnit
+### Subtask T020 - Remove update_inventory() from FinishedUnit
 
 **Purpose**: Remove deprecated business logic method now that service exists.
 
@@ -140,7 +140,7 @@ def update_inventory(self, quantity_change: int, reason: str = None) -> None:
 
 ---
 
-### Subtask T021 – Remove is_available() from FinishedGood
+### Subtask T021 - Remove is_available() from FinishedGood
 
 **Purpose**: Remove deprecated business logic method now that service exists.
 
@@ -160,7 +160,7 @@ def update_inventory(self, quantity_change: int, reason: str = None) -> None:
 
 ---
 
-### Subtask T022 – Remove update_inventory() from FinishedGood
+### Subtask T022 - Remove update_inventory() from FinishedGood
 
 **Purpose**: Remove deprecated business logic method now that service exists.
 
@@ -180,7 +180,7 @@ def update_inventory(self, quantity_change: int, reason: str = None) -> None:
 
 ---
 
-### Subtask T023 – Register FinishedGoodsAdjustment in __init__.py
+### Subtask T023 - Register FinishedGoodsAdjustment in __init__.py
 
 **Purpose**: Export the new model so it can be imported from `src.models`.
 
@@ -279,8 +279,8 @@ grep -rn "\.update_inventory(" src/
 
 ## Activity Log
 
-- 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
-- 2026-01-22T03:24:25Z – claude-opus – shell_pid=24903 – lane=doing – Started implementation via workflow command
-- 2026-01-22T03:31:53Z – claude-opus – shell_pid=24903 – lane=for_review – Ready for review: Removed is_available() and update_inventory() from FinishedUnit and FinishedGood models. T023 already done (from WP01). All 2581 tests pass. No callers remain after WP04/WP05 integration.
-- 2026-01-22T03:33:40Z – claude-opus – shell_pid=27766 – lane=doing – Started review via workflow command
-- 2026-01-22T03:34:45Z – claude-opus – shell_pid=27766 – lane=done – Review passed: Model methods is_available() and update_inventory() correctly removed from FinishedUnit and FinishedGood. Kept methods (calculate_current_cost, etc.) still present. FinishedGoodsAdjustment registered in __init__.py. All 2581 tests pass. Note: Dead code in finished_good_service.py still references removed methods but is never called.
+- 2026-01-21T19:33:38Z - system - lane=planned - Prompt created.
+- 2026-01-22T03:24:25Z - claude-opus - shell_pid=24903 - lane=doing - Started implementation via workflow command
+- 2026-01-22T03:31:53Z - claude-opus - shell_pid=24903 - lane=for_review - Ready for review: Removed is_available() and update_inventory() from FinishedUnit and FinishedGood models. T023 already done (from WP01). All 2581 tests pass. No callers remain after WP04/WP05 integration.
+- 2026-01-22T03:33:40Z - claude-opus - shell_pid=27766 - lane=doing - Started review via workflow command
+- 2026-01-22T03:34:45Z - claude-opus - shell_pid=27766 - lane=done - Review passed: Model methods is_available() and update_inventory() correctly removed from FinishedUnit and FinishedGood. Kept methods (calculate_current_cost, etc.) still present. FinishedGoodsAdjustment registered in __init__.py. All 2581 tests pass. Note: Dead code in finished_good_service.py still references removed methods but is never called.

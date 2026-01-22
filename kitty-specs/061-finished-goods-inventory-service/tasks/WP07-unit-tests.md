@@ -22,7 +22,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP07 – Unit Tests
+# Work Package Prompt: WP07 - Unit Tests
 
 ## ⚠️ IMPORTANT: Review Feedback Status
 
@@ -76,7 +76,7 @@ Depends on WP03 (all service functions implemented). Can start after WP03 but be
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T024 – Unit tests for get_inventory_status()
+### Subtask T024 - Unit tests for get_inventory_status()
 
 **Purpose**: Comprehensive tests for inventory status query function.
 
@@ -179,7 +179,7 @@ class TestGetInventoryStatus:
 
 ---
 
-### Subtask T025 – Unit tests for check_availability() and validate_consumption()
+### Subtask T025 - Unit tests for check_availability() and validate_consumption()
 
 **Purpose**: Tests for availability checking functions.
 
@@ -259,7 +259,7 @@ class TestValidateConsumption:
 
 ---
 
-### Subtask T026 – Unit tests for adjust_inventory()
+### Subtask T026 - Unit tests for adjust_inventory()
 
 **Purpose**: Comprehensive tests for the core mutation function.
 
@@ -399,7 +399,7 @@ class TestAdjustInventory:
 
 ---
 
-### Subtask T027 – Unit tests for get_low_stock_items() and get_total_inventory_value()
+### Subtask T027 - Unit tests for get_low_stock_items() and get_total_inventory_value()
 
 **Purpose**: Tests for aggregation and reporting functions.
 
@@ -560,8 +560,8 @@ Check existing fixtures in `src/tests/conftest.py` and `src/tests/services/test_
 
 ## Activity Log
 
-- 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
-- 2026-01-22T03:38:08Z – claude-opus – shell_pid=29038 – lane=doing – Started implementation via workflow command
-- 2026-01-22T03:46:47Z – claude-opus – shell_pid=29038 – lane=for_review – Ready for review: Added 42 unit tests covering all 6 service functions. Tests verify happy path, edge cases, error handling, and session management. All 2581 tests pass.
-- 2026-01-22T03:50:47Z – claude-opus – shell_pid=32657 – lane=doing – Started review via workflow command
-- 2026-01-22T03:52:03Z – claude-opus – shell_pid=32657 – lane=done – Review passed: All 42 unit tests pass. Tests cover all 6 service functions with comprehensive happy path, edge cases, and error handling. Session handling tested both ways. Audit record creation verified. Type checking for Decimal/int verified.
+- 2026-01-21T19:33:38Z - system - lane=planned - Prompt created.
+- 2026-01-22T03:38:08Z - claude-opus - shell_pid=29038 - lane=doing - Started implementation via workflow command
+- 2026-01-22T03:46:47Z - claude-opus - shell_pid=29038 - lane=for_review - Ready for review: Added 42 unit tests covering all 6 service functions. Tests verify happy path, edge cases, error handling, and session management. All 2581 tests pass.
+- 2026-01-22T03:50:47Z - claude-opus - shell_pid=32657 - lane=doing - Started review via workflow command
+- 2026-01-22T03:52:03Z - claude-opus - shell_pid=32657 - lane=done - Review passed: All 42 unit tests pass. Tests cover all 6 service functions with comprehensive happy path, edge cases, and error handling. Session handling tested both ways. Audit record creation verified. Type checking for Decimal/int verified.

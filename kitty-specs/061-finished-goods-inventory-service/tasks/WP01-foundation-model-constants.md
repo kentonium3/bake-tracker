@@ -23,7 +23,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP01 – Foundation - Model and Constants
+# Work Package Prompt: WP01 - Foundation - Model and Constants
 
 ## ⚠️ IMPORTANT: Review Feedback Status
 
@@ -37,7 +37,7 @@ history:
 
 ## Review Feedback
 
-> **Populated by `/spec-kitty.review`** – Reviewers add detailed feedback here when work needs changes.
+> **Populated by `/spec-kitty.review`** - Reviewers add detailed feedback here when work needs changes.
 
 *[This section is empty initially. Reviewers will populate it if the work is returned from review.]*
 
@@ -80,7 +80,7 @@ No dependencies - this is the starting work package.
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T001 – Create FinishedGoodsAdjustment Model
+### Subtask T001 - Create FinishedGoodsAdjustment Model
 
 **Purpose**: Create the audit trail model that records every inventory change.
 
@@ -128,7 +128,7 @@ class FinishedGoodsAdjustment(BaseModel):
 
 ---
 
-### Subtask T002 – Add Relationship to FinishedUnit
+### Subtask T002 - Add Relationship to FinishedUnit
 
 **Purpose**: Add the back-reference relationship so FinishedUnit can access its adjustment history.
 
@@ -157,7 +157,7 @@ class FinishedGoodsAdjustment(BaseModel):
 
 ---
 
-### Subtask T003 – Add Relationship to FinishedGood
+### Subtask T003 - Add Relationship to FinishedGood
 
 **Purpose**: Add the back-reference relationship so FinishedGood can access its adjustment history.
 
@@ -184,7 +184,7 @@ class FinishedGoodsAdjustment(BaseModel):
 
 ---
 
-### Subtask T004 – Add Inventory Constants
+### Subtask T004 - Add Inventory Constants
 
 **Purpose**: Add the threshold and reason constants used by the service.
 
@@ -223,7 +223,7 @@ class FinishedGoodsAdjustment(BaseModel):
 
 ---
 
-### Subtask T005 – Create Service Module Skeleton
+### Subtask T005 - Create Service Module Skeleton
 
 **Purpose**: Create the service file with imports, docstring, and helper function pattern ready for implementation.
 
@@ -326,8 +326,8 @@ assert hasattr(FinishedGood, 'inventory_adjustments')
 
 ## Activity Log
 
-- 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
-- 2026-01-21T19:54:56Z – claude-opus – shell_pid=88715 – lane=doing – Started implementation via workflow command
-- 2026-01-21T20:02:58Z – claude-opus – shell_pid=88715 – lane=for_review – Ready for review: Created FinishedGoodsAdjustment model with CHECK constraints, added inventory_adjustments relationships to FinishedUnit and FinishedGood, added inventory constants, and created service skeleton with 6 function stubs following helper function session pattern. All imports work, all 2581 tests pass.
-- 2026-01-21T20:06:19Z – claude-opus – shell_pid=91740 – lane=doing – Started review via workflow command
-- 2026-01-21T20:07:48Z – claude-opus – shell_pid=91740 – lane=done – Review passed: Model matches data-model.md with correct CHECK constraints (XOR, count consistency, non-negative). Relationships correctly configured with lazy=dynamic. All 6 service functions have correct signatures per plan.md with helper function session pattern. All imports work, 2581 tests pass.
+- 2026-01-21T19:33:38Z - system - lane=planned - Prompt created.
+- 2026-01-21T19:54:56Z - claude-opus - shell_pid=88715 - lane=doing - Started implementation via workflow command
+- 2026-01-21T20:02:58Z - claude-opus - shell_pid=88715 - lane=for_review - Ready for review: Created FinishedGoodsAdjustment model with CHECK constraints, added inventory_adjustments relationships to FinishedUnit and FinishedGood, added inventory constants, and created service skeleton with 6 function stubs following helper function session pattern. All imports work, all 2581 tests pass.
+- 2026-01-21T20:06:19Z - claude-opus - shell_pid=91740 - lane=doing - Started review via workflow command
+- 2026-01-21T20:07:48Z - claude-opus - shell_pid=91740 - lane=done - Review passed: Model matches data-model.md with correct CHECK constraints (XOR, count consistency, non-negative). Relationships correctly configured with lazy=dynamic. All 6 service functions have correct signatures per plan.md with helper function session pattern. All imports work, 2581 tests pass.

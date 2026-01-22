@@ -21,7 +21,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP02 – Core Service - Query Functions
+# Work Package Prompt: WP02 - Core Service - Query Functions
 
 ## ⚠️ IMPORTANT: Review Feedback Status
 
@@ -74,7 +74,7 @@ Depends on WP01 (model and service skeleton).
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T006 – Implement get_inventory_status()
+### Subtask T006 - Implement get_inventory_status()
 
 **Purpose**: Query current inventory levels for finished units and/or finished goods with optional filtering.
 
@@ -131,7 +131,7 @@ Depends on WP01 (model and service skeleton).
 
 ---
 
-### Subtask T007 – Implement get_low_stock_items()
+### Subtask T007 - Implement get_low_stock_items()
 
 **Purpose**: Identify items with inventory below a configurable threshold.
 
@@ -181,7 +181,7 @@ def _get_low_stock_items_impl(threshold, item_type, session):
 
 ---
 
-### Subtask T008 – Implement get_total_inventory_value()
+### Subtask T008 - Implement get_total_inventory_value()
 
 **Purpose**: Calculate the total value of all finished goods inventory.
 
@@ -274,8 +274,8 @@ print(f"Total inventory value: ${value['total_value']}")
 
 ## Activity Log
 
-- 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
-- 2026-01-22T01:26:13Z – claude-opus – shell_pid=97684 – lane=doing – Started implementation via workflow command
-- 2026-01-22T01:41:33Z – claude-opus – shell_pid=97684 – lane=for_review – Ready for review: Implemented get_inventory_status, get_low_stock_items, and get_total_inventory_value query functions. Added FinishedGoodsAdjustment to models __init__.py. All 2581 tests pass.
-- 2026-01-22T01:46:11Z – claude-opus – shell_pid=3063 – lane=doing – Started review via workflow command
-- 2026-01-22T01:53:06Z – claude-opus – shell_pid=3063 – lane=done – Review passed: All 3 query functions implemented correctly. Return values match plan.md patterns. Session pattern correct. Filtering and edge cases handled. Decimal precision maintained. FinishedGoodsAdjustment added to models __init__.py. All 2581 tests pass.
+- 2026-01-21T19:33:38Z - system - lane=planned - Prompt created.
+- 2026-01-22T01:26:13Z - claude-opus - shell_pid=97684 - lane=doing - Started implementation via workflow command
+- 2026-01-22T01:41:33Z - claude-opus - shell_pid=97684 - lane=for_review - Ready for review: Implemented get_inventory_status, get_low_stock_items, and get_total_inventory_value query functions. Added FinishedGoodsAdjustment to models __init__.py. All 2581 tests pass.
+- 2026-01-22T01:46:11Z - claude-opus - shell_pid=3063 - lane=doing - Started review via workflow command
+- 2026-01-22T01:53:06Z - claude-opus - shell_pid=3063 - lane=done - Review passed: All 3 query functions implemented correctly. Return values match plan.md patterns. Session pattern correct. Filtering and edge cases handled. Decimal precision maintained. FinishedGoodsAdjustment added to models __init__.py. All 2581 tests pass.

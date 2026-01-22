@@ -21,7 +21,7 @@ history:
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
-# Work Package Prompt: WP03 – Core Service - Validation and Mutation
+# Work Package Prompt: WP03 - Core Service - Validation and Mutation
 
 ## ⚠️ IMPORTANT: Review Feedback Status
 
@@ -77,7 +77,7 @@ Depends on WP01 (model) and WP02 (query patterns established).
 
 ## Subtasks & Detailed Guidance
 
-### Subtask T009 – Implement check_availability()
+### Subtask T009 - Implement check_availability()
 
 **Purpose**: Check if a quantity is available for consumption without modifying anything.
 
@@ -127,7 +127,7 @@ Depends on WP01 (model) and WP02 (query patterns established).
 
 ---
 
-### Subtask T010 – Implement validate_consumption()
+### Subtask T010 - Implement validate_consumption()
 
 **Purpose**: Validate a consumption request without modifying inventory. Used for pre-flight checks in UI.
 
@@ -172,7 +172,7 @@ Depends on WP01 (model) and WP02 (query patterns established).
 
 ---
 
-### Subtask T011 – Implement adjust_inventory()
+### Subtask T011 - Implement adjust_inventory()
 
 **Purpose**: The core mutation function that adjusts inventory and creates an audit trail record.
 
@@ -333,8 +333,8 @@ print(f"Adjusted: {result['previous_count']} -> {result['new_count']}")
 
 ## Activity Log
 
-- 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
-- 2026-01-22T02:16:09Z – claude-opus – shell_pid=7745 – lane=doing – Started implementation via workflow command
-- 2026-01-22T02:23:30Z – claude-opus – shell_pid=7745 – lane=for_review – Ready for review: Implemented check_availability, validate_consumption, and adjust_inventory. All functions validate inputs before modification, prevent negative inventory, and create audit records in same session. All 2581 tests pass.
-- 2026-01-22T02:39:30Z – claude-opus – shell_pid=12436 – lane=doing – Started review via workflow command
-- 2026-01-22T02:40:14Z – claude-opus – shell_pid=12436 – lane=done – Review passed: All 3 validation/mutation functions correctly implemented. check_availability returns availability with shortage. validate_consumption validates without modifying. adjust_inventory creates audit record in same session with all validations BEFORE modification. Session pattern correct. All 2581 tests pass.
+- 2026-01-21T19:33:38Z - system - lane=planned - Prompt created.
+- 2026-01-22T02:16:09Z - claude-opus - shell_pid=7745 - lane=doing - Started implementation via workflow command
+- 2026-01-22T02:23:30Z - claude-opus - shell_pid=7745 - lane=for_review - Ready for review: Implemented check_availability, validate_consumption, and adjust_inventory. All functions validate inputs before modification, prevent negative inventory, and create audit records in same session. All 2581 tests pass.
+- 2026-01-22T02:39:30Z - claude-opus - shell_pid=12436 - lane=doing - Started review via workflow command
+- 2026-01-22T02:40:14Z - claude-opus - shell_pid=12436 - lane=done - Review passed: All 3 validation/mutation functions correctly implemented. check_availability returns availability with shortage. validate_consumption validates without modifying. adjust_inventory creates audit record in same session with all validations BEFORE modification. Session pattern correct. All 2581 tests pass.
