@@ -560,7 +560,8 @@ class TestGetProductionHistory:
 
     def test_empty_history(self, test_db):
         """Empty database returns empty list."""
-        result = batch_production_service.get_production_history()
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(session=session)
         assert result == []
 
     def test_returns_production_runs(
@@ -589,7 +590,8 @@ class TestGetProductionHistory:
             actual_yield=90,
         )
 
-        result = batch_production_service.get_production_history()
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(session=session)
         assert len(result) == 2
         # Most recent first
         assert result[0]["actual_yield"] == 90
@@ -615,12 +617,18 @@ class TestGetProductionHistory:
             actual_yield=48,
         )
 
-        result = batch_production_service.get_production_history(recipe_id=recipe_id)
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                recipe_id=recipe_id, session=session
+            )
         assert len(result) == 1
         assert result[0]["recipe_id"] == recipe_id
 
         # Non-existent recipe returns empty
-        result = batch_production_service.get_production_history(recipe_id=99999)
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                recipe_id=99999, session=session
+            )
         assert len(result) == 0
 
     def test_filter_by_date_range(
@@ -644,17 +652,21 @@ class TestGetProductionHistory:
         )
 
         # Within range
-        result = batch_production_service.get_production_history(
-            start_date=datetime(2024, 6, 1),
-            end_date=datetime(2024, 6, 30),
-        )
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                start_date=datetime(2024, 6, 1),
+                end_date=datetime(2024, 6, 30),
+                session=session,
+            )
         assert len(result) == 1
 
         # Outside range
-        result = batch_production_service.get_production_history(
-            start_date=datetime(2024, 7, 1),
-            end_date=datetime(2024, 7, 31),
-        )
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                start_date=datetime(2024, 7, 1),
+                end_date=datetime(2024, 7, 31),
+                session=session,
+            )
         assert len(result) == 0
 
     def test_include_consumptions(
@@ -676,7 +688,10 @@ class TestGetProductionHistory:
             actual_yield=48,
         )
 
-        result = batch_production_service.get_production_history(include_consumptions=True)
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                include_consumptions=True, session=session
+            )
         assert len(result) == 1
         assert "consumptions" in result[0]
         assert len(result[0]["consumptions"]) == 2  # flour and sugar
@@ -703,11 +718,17 @@ class TestGetProductionHistory:
             )
 
         # Limit to 2
-        result = batch_production_service.get_production_history(limit=2)
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                limit=2, session=session
+            )
         assert len(result) == 2
 
         # Offset by 1
-        result = batch_production_service.get_production_history(limit=2, offset=1)
+        with session_scope() as session:
+            result = batch_production_service.get_production_history(
+                limit=2, offset=1, session=session
+            )
         assert len(result) == 2
 
 
@@ -734,7 +755,10 @@ class TestGetProductionRun:
             notes="Test run",
         )
 
-        result = batch_production_service.get_production_run(create_result["production_run_id"])
+        with session_scope() as session:
+            result = batch_production_service.get_production_run(
+                create_result["production_run_id"], session=session
+            )
         assert result["id"] == create_result["production_run_id"]
         assert result["recipe_id"] == recipe_id
         assert result["actual_yield"] == 48
@@ -744,9 +768,125 @@ class TestGetProductionRun:
 
     def test_not_found(self, test_db):
         """Raises error for non-existent production run."""
-        with pytest.raises(ProductionRunNotFoundError) as exc_info:
-            batch_production_service.get_production_run(99999)
+        with session_scope() as session:
+            with pytest.raises(ProductionRunNotFoundError) as exc_info:
+                batch_production_service.get_production_run(99999, session=session)
         assert exc_info.value.production_run_id == 99999
+
+
+# =============================================================================
+# Tests for Session Parameter - Uncommitted Data Visibility
+# =============================================================================
+
+
+class TestProductionHistorySessionVisibility:
+    """
+    Tests verifying that history query functions see uncommitted data when
+    the caller passes their session.
+
+    Feature 062: Service Session Consistency Hardening - WP08
+    These tests verify the fix for session shadowing bugs where functions
+    accepted a session parameter but then shadowed it with a new session.
+    """
+
+    def test_get_production_history_sees_uncommitted_production_run(self, test_db):
+        """
+        get_production_history sees uncommitted ProductionRun when caller
+        passes their session.
+
+        Before fix: session parameter was shadowed, so uncommitted data
+        was not visible. After fix: uses caller's session directly.
+        """
+        with session_scope() as session:
+            # Create a recipe, finished unit, and production run within the
+            # same session WITHOUT committing
+            recipe = Recipe(
+                name="Test Recipe for Session Visibility",
+                category="Test",
+            )
+            session.add(recipe)
+            session.flush()  # Get ID but don't commit
+
+            finished_unit = FinishedUnit(
+                recipe_id=recipe.id,
+                slug="test-session-visibility-unit",
+                display_name="Test Session Unit",
+                items_per_batch=12,
+                item_unit="pieces",
+                yield_mode=YieldMode.DISCRETE_COUNT,
+            )
+            session.add(finished_unit)
+            session.flush()
+
+            # Create a production run directly (bypassing record_batch_production
+            # to avoid other service calls)
+            run = ProductionRun(
+                recipe_id=recipe.id,
+                finished_unit_id=finished_unit.id,
+                num_batches=1,
+                expected_yield=12,
+                actual_yield=12,
+            )
+            session.add(run)
+            session.flush()  # Get ID but don't commit
+
+            # Query history using the SAME session - should see uncommitted run
+            result = batch_production_service.get_production_history(
+                recipe_id=recipe.id, session=session
+            )
+
+            # Should find the uncommitted production run
+            assert len(result) == 1
+            assert result[0]["recipe_id"] == recipe.id
+            assert result[0]["actual_yield"] == 12
+
+    def test_get_production_run_sees_uncommitted_run(self, test_db):
+        """
+        get_production_run sees uncommitted ProductionRun when caller
+        passes their session.
+        """
+        with session_scope() as session:
+            # Create recipe and finished unit
+            recipe = Recipe(
+                name="Test Recipe for Run Visibility",
+                category="Test",
+            )
+            session.add(recipe)
+            session.flush()
+
+            finished_unit = FinishedUnit(
+                recipe_id=recipe.id,
+                slug="test-run-visibility-unit",
+                display_name="Test Run Unit",
+                items_per_batch=12,
+                item_unit="pieces",
+                yield_mode=YieldMode.DISCRETE_COUNT,
+            )
+            session.add(finished_unit)
+            session.flush()
+
+            # Create a production run directly
+            run = ProductionRun(
+                recipe_id=recipe.id,
+                finished_unit_id=finished_unit.id,
+                num_batches=2,
+                expected_yield=24,
+                actual_yield=22,
+                notes="Uncommitted test run",
+            )
+            session.add(run)
+            session.flush()  # Get ID but don't commit
+            run_id = run.id
+
+            # Query single run using the SAME session
+            result = batch_production_service.get_production_run(
+                run_id, session=session
+            )
+
+            # Should find the uncommitted production run
+            assert result["id"] == run_id
+            assert result["actual_yield"] == 22
+            assert result["notes"] == "Uncommitted test run"
 
 
 # =============================================================================
