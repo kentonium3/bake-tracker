@@ -8,10 +8,10 @@ subtasks:
   - "T035"
 title: "Event Service Remaining Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "codex"
+shell_pid: "65344"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -149,3 +149,4 @@ grep -r "clone_event\|get_event_packaging\|get_recipient_history" src/ui/ --incl
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T20:35:54Z – codex – shell_pid=65344 – lane=doing – Started implementation via workflow command
