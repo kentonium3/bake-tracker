@@ -57,7 +57,7 @@
 - [x] T007 Remove internal `session_scope()` from all CRUD functions
 - [x] T008 Update UI callers in `src/ui/events_tab.py`, `src/ui/forms/event_form.py`
 - [x] T009 Update UI callers in `src/ui/event_detail_window.py`, `src/ui/dashboards/plan_dashboard.py`
-- [ ] T010 Update tests in `src/tests/test_services.py` for event CRUD
+- [x] T010 Update tests in `src/tests/test_services.py` for event CRUD
 
 ### Implementation Notes
 - Change `session=None` to required `session: Session` parameter
