@@ -9,10 +9,10 @@ subtasks:
   - "T041"
 title: "Batch & Assembly Service Bug Fixes"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "45175"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -273,3 +273,4 @@ with session_scope() as session:
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T20:46:02Z – claude-opus – shell_pid=45175 – lane=doing – Started implementation via workflow command
