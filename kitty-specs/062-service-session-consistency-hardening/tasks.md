@@ -212,7 +212,7 @@
 - [x] T032 Add required `session` param to: `get_event_packaging_needs`, `get_event_packaging_breakdown`
 - [x] T033 Add required `session` param to: `get_recipient_history`
 - [x] T034 Remove internal `session_scope()` from all remaining functions
-- [ ] T035 Update UI callers and tests
+- [x] T035 Update UI callers and tests
 
 ### Implementation Notes
 - `clone_event` is complex - must use session for all cloned entities
