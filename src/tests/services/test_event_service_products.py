@@ -240,7 +240,7 @@ class TestShoppingListWithProducts:
 
         # Empty event should still have correct structure
         assert result["items"] == []
-        assert result["total_estimated_cost"] == Decimal("0.00")
+        assert result["total_estimated_cost"] == "0.00"
         assert result["items_count"] == 0
         assert result["items_with_shortfall"] == 0
 
@@ -259,7 +259,7 @@ class TestShoppingListWithProducts:
 
         assert result == {
             "items": [],
-            "total_estimated_cost": Decimal("0.00"),
+            "total_estimated_cost": "0.00",
             "items_count": 0,
             "items_with_shortfall": 0,
         }
@@ -268,8 +268,8 @@ class TestShoppingListWithProducts:
 class TestTotalEstimatedCostCalculation:
     """Tests for total_estimated_cost calculation."""
 
-    def test_total_cost_is_decimal(self, test_db):
-        """SC-004: Total cost is a Decimal for precision."""
+    def test_total_cost_is_string(self, test_db):
+        """SC-004: Total cost is a string for JSON serialization."""
         with session_scope() as session:
             event = event_service.create_event(
                 name="Cost Test Event",
@@ -281,7 +281,7 @@ class TestTotalEstimatedCostCalculation:
         with session_scope() as session:
             result = get_shopping_list(event.id, session=session)
 
-        assert isinstance(result["total_estimated_cost"], Decimal)
+        assert isinstance(result["total_estimated_cost"], str)
 
     def test_empty_event_total_is_zero(self, test_db):
         """Empty event should have zero total cost."""
@@ -296,4 +296,4 @@ class TestTotalEstimatedCostCalculation:
         with session_scope() as session:
             result = get_shopping_list(event.id, session=session)
 
-        assert result["total_estimated_cost"] == Decimal("0.00")
+        assert result["total_estimated_cost"] == "0.00"

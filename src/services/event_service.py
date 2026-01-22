@@ -26,6 +26,8 @@ from sqlalchemy import and_, func  # noqa: F401 - used in complex queries
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, joinedload
 
+from src.services.dto_utils import cost_to_string
+
 from src.models import (
     Event,
     EventRecipientPackage,
@@ -795,7 +797,7 @@ def get_event_summary(event_id: int, *, session: Session) -> Dict[str, Any]:
 
         if not event:
             return {
-                "total_cost": Decimal("0.00"),
+                "total_cost": "0.00",
                 "recipient_count": 0,
                 "package_count": 0,
                 "assignment_count": 0,
@@ -812,12 +814,12 @@ def get_event_summary(event_id: int, *, session: Session) -> Dict[str, Any]:
             )
 
         return {
-            "total_cost": event.get_total_cost(),
+            "total_cost": cost_to_string(event.get_total_cost()),
             "recipient_count": event.get_recipient_count(),
             "package_count": event.get_package_count(),
             "assignment_count": len(event.event_recipient_packages),
             "cost_by_recipient": [
-                {"recipient_name": name, "cost": cost}
+                {"recipient_name": name, "cost": cost_to_string(cost)}
                 for name, cost in sorted(cost_by_recipient.items())
             ],
         }
@@ -1003,7 +1005,7 @@ def _get_shopping_list_with_session(
         # No recipe needs, but may still have packaging needs
         result = {
             "items": [],
-            "total_estimated_cost": Decimal("0.00"),
+            "total_estimated_cost": cost_to_string(Decimal("0.00")),
             "items_count": 0,
             "items_with_shortfall": 0,
         }
@@ -1011,7 +1013,7 @@ def _get_shopping_list_with_session(
         # Feature 026: Include generic packaging info
         if include_packaging:
             try:
-                packaging_needs = get_event_packaging_needs(event_id)
+                packaging_needs = get_event_packaging_needs(event_id, session=session)
                 if packaging_needs:  # Only add if not empty
                     result["packaging"] = [
                         {
@@ -1136,7 +1138,7 @@ def _get_shopping_list_impl(
 
     result = {
         "items": items,
-        "total_estimated_cost": total_estimated_cost,
+        "total_estimated_cost": cost_to_string(total_estimated_cost),
         "items_count": len(items),
         "items_with_shortfall": sum(1 for i in items if i["shortfall"] > 0),
     }
@@ -1159,7 +1161,7 @@ def _get_shopping_list_impl(
                         # Feature 026: Generic packaging fields
                         "is_generic": need.is_generic,
                         "generic_product_name": need.generic_product_name,
-                        "estimated_cost": need.estimated_cost,
+                        "estimated_cost": cost_to_string(need.estimated_cost) if need.estimated_cost else None,
                     }
                     for need in packaging_needs.values()
                 ]
@@ -2348,11 +2350,13 @@ def get_event_cost_analysis(event_id: int, *, session: Session) -> Dict[str, Any
             {
                 "recipe_name": name,
                 "run_count": count,
-                "total_cost": Decimal(str(cost)) if cost else Decimal("0"),
+                "total_cost": cost_to_string(cost),
             }
             for name, count, cost in prod_costs
         ]
-        total_production_cost = sum(p["total_cost"] for p in production_costs) or Decimal("0")
+        total_production_cost = sum(
+            Decimal(p["total_cost"]) for p in production_costs
+        ) or Decimal("0")
 
         # Get assembly costs grouped by finished good
         # Note: AssemblyRun uses total_component_cost field
@@ -2374,18 +2378,21 @@ def get_event_cost_analysis(event_id: int, *, session: Session) -> Dict[str, Any
             {
                 "finished_good_name": name,
                 "run_count": count,
-                "total_cost": Decimal(str(cost)) if cost else Decimal("0"),
+                "total_cost": cost_to_string(cost),
             }
             for name, count, cost in asm_costs
         ]
-        total_assembly_cost = sum(a["total_cost"] for a in assembly_costs) or Decimal("0")
+        total_assembly_cost = sum(
+            Decimal(a["total_cost"]) for a in assembly_costs
+        ) or Decimal("0")
 
         # Grand total
         grand_total = total_production_cost + total_assembly_cost
 
         # Get estimated cost from shopping list (pass session for consistency)
         shopping_data = get_shopping_list(event_id, include_packaging=False, session=session)
-        estimated_cost = shopping_data["total_estimated_cost"]
+        # Convert string back to Decimal for calculation
+        estimated_cost = Decimal(shopping_data["total_estimated_cost"])
 
         # Variance (positive = under budget, negative = over budget)
         variance = estimated_cost - grand_total
@@ -2393,11 +2400,11 @@ def get_event_cost_analysis(event_id: int, *, session: Session) -> Dict[str, Any
         return {
             "production_costs": production_costs,
             "assembly_costs": assembly_costs,
-            "total_production_cost": total_production_cost,
-            "total_assembly_cost": total_assembly_cost,
-            "grand_total": grand_total,
-            "estimated_cost": estimated_cost,
-            "variance": variance,
+            "total_production_cost": cost_to_string(total_production_cost),
+            "total_assembly_cost": cost_to_string(total_assembly_cost),
+            "grand_total": cost_to_string(grand_total),
+            "estimated_cost": cost_to_string(estimated_cost),
+            "variance": cost_to_string(variance),
         }
 
     except SQLAlchemyError as e:

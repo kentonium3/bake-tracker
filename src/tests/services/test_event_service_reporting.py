@@ -381,9 +381,9 @@ class TestGetEventCostAnalysis:
 
         assert result["production_costs"] == []
         assert result["assembly_costs"] == []
-        assert result["total_production_cost"] == Decimal("0")
-        assert result["total_assembly_cost"] == Decimal("0")
-        assert result["grand_total"] == Decimal("0")
+        assert result["total_production_cost"] == "0.00"
+        assert result["total_assembly_cost"] == "0.00"
+        assert result["grand_total"] == "0.00"
 
     def test_cost_analysis_with_production(self, test_db, event_with_production_runs):
         """Test cost analysis with production runs."""
@@ -398,13 +398,13 @@ class TestGetEventCostAnalysis:
         assert result["production_costs"][0]["run_count"] == 2
 
         # Total production cost: 25.00 + 12.50 = 37.50
-        assert result["total_production_cost"] == Decimal("37.50")
+        assert result["total_production_cost"] == "37.50"
 
         # No assembly costs yet
-        assert result["total_assembly_cost"] == Decimal("0")
+        assert result["total_assembly_cost"] == "0.00"
 
         # Grand total should equal production
-        assert result["grand_total"] == Decimal("37.50")
+        assert result["grand_total"] == "37.50"
 
     def test_cost_analysis_with_production_and_assembly(self, test_db, event_with_assembly_runs):
         """Test cost analysis with both production and assembly runs."""
@@ -415,27 +415,27 @@ class TestGetEventCostAnalysis:
 
         # Production costs
         assert len(result["production_costs"]) == 1
-        assert result["total_production_cost"] == Decimal("37.50")
+        assert result["total_production_cost"] == "37.50"
 
         # Assembly costs
         assert len(result["assembly_costs"]) == 1
         assert result["assembly_costs"][0]["finished_good_name"] == "Cookie Gift Box"
         assert result["assembly_costs"][0]["run_count"] == 1
-        assert result["total_assembly_cost"] == Decimal("8.00")
+        assert result["total_assembly_cost"] == "8.00"
 
         # Grand total: 37.50 + 8.00 = 45.50
-        assert result["grand_total"] == Decimal("45.50")
+        assert result["grand_total"] == "45.50"
 
-    def test_cost_analysis_returns_decimals(self, test_db, event_with_production_runs):
-        """Test that cost values are returned as Decimals."""
+    def test_cost_analysis_returns_strings(self, test_db, event_with_production_runs):
+        """Test that cost values are returned as strings for JSON serialization."""
         with session_scope() as session:
             result = event_service.get_event_cost_analysis(
                 event_with_production_runs.id, session=session
             )
 
-        assert isinstance(result["total_production_cost"], Decimal)
-        assert isinstance(result["total_assembly_cost"], Decimal)
-        assert isinstance(result["grand_total"], Decimal)
+        assert isinstance(result["total_production_cost"], str)
+        assert isinstance(result["total_assembly_cost"], str)
+        assert isinstance(result["grand_total"], str)
 
     def test_cost_analysis_variance_calculation(self, test_db, test_event):
         """Test that variance is calculated (estimated - actual)."""
@@ -454,7 +454,7 @@ class TestGetEventCostAnalysis:
 
         # Should have an estimated_cost key (may be 0 if no ingredients needed)
         assert "estimated_cost" in result
-        assert isinstance(result["estimated_cost"], Decimal)
+        assert isinstance(result["estimated_cost"], str)
 
 
 # =============================================================================
