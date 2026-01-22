@@ -11,7 +11,7 @@ phase: "Phase 2 - Polish"
 lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "88079"
+shell_pid: "93136"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP08", "WP09"]
@@ -380,3 +380,5 @@ from src.services import batch_production_service
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T23:00:05Z – claude-opus – shell_pid=88079 – lane=doing – Started implementation via workflow command
+- 2026-01-22T23:14:40Z – claude-opus – shell_pid=88079 – lane=for_review – All subtasks complete. Structured logging added to batch_production_service and assembly_service with 11 passing tests.
+- 2026-01-22T23:22:01Z – claude-opus – shell_pid=93136 – lane=doing – Started review via workflow command
