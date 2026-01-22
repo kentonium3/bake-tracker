@@ -163,35 +163,6 @@ class FinishedGood(BaseModel):
         breakdown.sort(key=lambda x: x.get("sort_order", 999))
         return breakdown
 
-    def is_available(self, quantity: int = 1) -> bool:
-        """
-        Check if the specified quantity is available in inventory.
-
-        Args:
-            quantity: Quantity needed
-
-        Returns:
-            True if available, False otherwise
-        """
-        return self.inventory_count >= quantity
-
-    def update_inventory(self, quantity_change: int) -> bool:
-        """
-        Update inventory count with the specified change.
-
-        Args:
-            quantity_change: Positive or negative change to inventory
-
-        Returns:
-            True if successful, False if would result in negative inventory
-        """
-        new_count = self.inventory_count + quantity_change
-        if new_count < 0:
-            return False
-
-        self.inventory_count = new_count
-        return True
-
     def can_assemble(self, quantity: int = 1) -> dict:
         """
         Check if the assembly can be created with current component inventory.
