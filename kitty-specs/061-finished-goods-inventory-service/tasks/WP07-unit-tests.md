@@ -7,10 +7,10 @@ subtasks:
   - "T027"
 title: "Unit Tests"
 phase: "Phase 5 - Testing"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "29038"
+shell_pid: "32657"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP03"]
@@ -563,3 +563,4 @@ Check existing fixtures in `src/tests/conftest.py` and `src/tests/services/test_
 - 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
 - 2026-01-22T03:38:08Z – claude-opus – shell_pid=29038 – lane=doing – Started implementation via workflow command
 - 2026-01-22T03:46:47Z – claude-opus – shell_pid=29038 – lane=for_review – Ready for review: Added 42 unit tests covering all 6 service functions. Tests verify happy path, edge cases, error handling, and session management. All 2581 tests pass.
+- 2026-01-22T03:50:47Z – claude-opus – shell_pid=32657 – lane=doing – Started review via workflow command
