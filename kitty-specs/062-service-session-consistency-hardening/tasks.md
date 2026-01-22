@@ -181,7 +181,7 @@
 - [x] T026 Add required `session` param to: `set_production_target`, `set_assembly_target`, `get_production_targets`, `get_assembly_targets`
 - [x] T027 Add required `session` param to: `delete_production_target`, `delete_assembly_target`
 - [x] T028 Add required `session` param to: `update_fulfillment_status`, `get_packages_by_status`
-- [ ] T029 Remove internal `session_scope()` from all target/status functions
+- [x] T029 Remove internal `session_scope()` from all target/status functions
 - [ ] T030 Update UI callers and tests
 
 ### Implementation Notes
