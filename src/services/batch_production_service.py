@@ -16,6 +16,7 @@ Feature 013: Production & Inventory Tracking
 """
 
 from contextlib import nullcontext
+import logging
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import datetime
@@ -24,6 +25,10 @@ from src.utils.datetime_utils import utc_now
 from sqlalchemy.orm import joinedload, Session
 
 from src.services.dto_utils import cost_to_string
+from src.services.logging_utils import get_service_logger, log_operation
+
+# Module logger
+logger = get_service_logger(__name__)
 
 from src.models import (
     ProductionRun,
@@ -200,8 +205,26 @@ def _check_can_produce_impl(
                 }
             )
 
+    can_produce = len(missing) == 0
+
+    if can_produce:
+        logger.debug(
+            "Production check passed",
+            extra={"recipe_id": recipe_id, "num_batches": num_batches, "scale_factor": scale_factor},
+        )
+    else:
+        log_operation(
+            logger,
+            operation="check_can_produce",
+            outcome="insufficient_inventory",
+            recipe_id=recipe_id,
+            num_batches=num_batches,
+            missing_count=len(missing),
+            missing_ingredients=[m["ingredient_slug"] for m in missing],
+        )
+
     return {
-        "can_produce": len(missing) == 0,
+        "can_produce": can_produce,
         "missing": missing,
     }
 
@@ -279,12 +302,32 @@ def record_batch_production(
         EventNotFoundError: If event_id is provided but event doesn't exist
         ActualYieldExceedsExpectedError: If actual_yield > expected_yield (Feature 025)
     """
+    # Log entry point at DEBUG level
+    logger.debug(
+        "Recording batch production",
+        extra={
+            "recipe_id": recipe_id,
+            "finished_unit_id": finished_unit_id,
+            "num_batches": num_batches,
+            "actual_yield": actual_yield,
+            "event_id": event_id,
+            "scale_factor": scale_factor,
+        },
+    )
+
     # Honor passed session per CLAUDE.md session management pattern
     cm = nullcontext(session) if session is not None else session_scope()
     with cm as session:
         # Validate recipe exists
         recipe = session.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
+            log_operation(
+                logger,
+                operation="record_batch_production",
+                outcome="recipe_not_found",
+                level=logging.WARNING,
+                recipe_id=recipe_id,
+            )
             raise RecipeNotFoundError(recipe_id)
 
         # Validate finished unit exists and belongs to recipe
@@ -378,6 +421,16 @@ def record_batch_production(
             if not result["satisfied"]:
                 # This shouldn't happen if check_can_produce was called first,
                 # but handle it gracefully - rollback happens automatically
+                log_operation(
+                    logger,
+                    operation="record_batch_production",
+                    outcome="insufficient_inventory",
+                    level=logging.WARNING,
+                    recipe_id=recipe_id,
+                    ingredient_slug=ingredient_slug,
+                    quantity_needed=str(quantity_needed),
+                    quantity_available=str(result["consumed"]),
+                )
                 raise InsufficientInventoryError(
                     ingredient_slug,
                     quantity_needed,
@@ -450,6 +503,19 @@ def record_batch_production(
             session.add(consumption)
 
         # Commit happens automatically via session_scope
+
+        # Log successful production
+        log_operation(
+            logger,
+            operation="record_batch_production",
+            outcome="success",
+            production_run_id=production_run.id,
+            recipe_id=recipe_id,
+            finished_unit_id=finished_unit_id,
+            actual_yield=actual_yield,
+            production_status=production_status.value,
+            total_ingredient_cost=str(total_ingredient_cost),
+        )
 
         return {
             "production_run_id": production_run.id,

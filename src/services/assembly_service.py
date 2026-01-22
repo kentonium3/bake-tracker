@@ -16,6 +16,7 @@ The service integrates with:
 Feature 013: Production & Inventory Tracking
 """
 
+import logging
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import datetime
@@ -24,6 +25,10 @@ from src.utils.datetime_utils import utc_now
 from sqlalchemy.orm import joinedload, Session
 
 from src.services.dto_utils import cost_to_string
+from src.services.logging_utils import get_service_logger, log_operation
+
+# Module logger
+logger = get_service_logger(__name__)
 
 from src.models import (
     AssemblyRun,
@@ -219,8 +224,28 @@ def _check_can_assemble_impl(
                         }
                     )
 
+    can_assemble = len(missing) == 0
+
+    if can_assemble:
+        logger.debug(
+            "Assembly check passed",
+            extra={"finished_good_id": finished_good_id, "quantity": quantity},
+        )
+    else:
+        log_operation(
+            logger,
+            operation="check_can_assemble",
+            outcome="insufficient_components",
+            finished_good_id=finished_good_id,
+            quantity=quantity,
+            missing_count=len(missing),
+            missing_components=[
+                f"{m['component_type']}:{m['component_id']}" for m in missing
+            ],
+        )
+
     return {
-        "can_assemble": len(missing) == 0,
+        "can_assemble": can_assemble,
         "missing": missing,
     }
 
@@ -327,9 +352,27 @@ def _record_assembly_impl(
     session,
 ) -> Dict[str, Any]:
     """Implementation of record_assembly that uses provided session."""
+    # Log entry point at DEBUG level
+    logger.debug(
+        "Recording assembly",
+        extra={
+            "finished_good_id": finished_good_id,
+            "quantity": quantity,
+            "event_id": event_id,
+            "packaging_bypassed": packaging_bypassed,
+        },
+    )
+
     # Validate FinishedGood exists
     finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
     if not finished_good:
+        log_operation(
+            logger,
+            operation="record_assembly",
+            outcome="finished_good_not_found",
+            level=logging.WARNING,
+            finished_good_id=finished_good_id,
+        )
         raise FinishedGoodNotFoundError(finished_good_id)
 
     # Feature 016: Validate event exists if event_id provided
@@ -357,6 +400,16 @@ def _record_assembly_impl(
             if fu:
                 needed = int(comp.component_quantity * quantity)
                 if fu.inventory_count < needed:
+                    log_operation(
+                        logger,
+                        operation="record_assembly",
+                        outcome="insufficient_finished_unit",
+                        level=logging.WARNING,
+                        finished_good_id=finished_good_id,
+                        finished_unit_id=fu.id,
+                        needed=needed,
+                        available=fu.inventory_count,
+                    )
                     raise InsufficientFinishedUnitError(fu.id, needed, fu.inventory_count)
 
                 # F046: Calculate actual cost from FinishedUnit's production history
@@ -390,6 +443,16 @@ def _record_assembly_impl(
             if nested_fg:
                 needed = int(comp.component_quantity * quantity)
                 if nested_fg.inventory_count < needed:
+                    log_operation(
+                        logger,
+                        operation="record_assembly",
+                        outcome="insufficient_finished_good",
+                        level=logging.WARNING,
+                        finished_good_id=finished_good_id,
+                        nested_fg_id=nested_fg.id,
+                        needed=needed,
+                        available=nested_fg.inventory_count,
+                    )
                     raise InsufficientFinishedGoodError(
                         nested_fg.id, needed, nested_fg.inventory_count
                     )
@@ -438,6 +501,16 @@ def _record_assembly_impl(
                     ingredient_slug, needed, target_unit, dry_run=False, session=session
                 )
                 if not result["satisfied"]:
+                    log_operation(
+                        logger,
+                        operation="record_assembly",
+                        outcome="insufficient_packaging",
+                        level=logging.WARNING,
+                        finished_good_id=finished_good_id,
+                        product_id=product.id,
+                        needed=str(needed),
+                        available=str(result["consumed"]),
+                    )
                     raise InsufficientPackagingError(product.id, needed, result["consumed"])
 
                 total_component_cost += result["total_cost"]
@@ -539,6 +612,17 @@ def _record_assembly_impl(
     assembly_run.per_unit_cost = per_unit_cost
 
     # Commit happens automatically via session_scope
+
+    # Log successful assembly
+    log_operation(
+        logger,
+        operation="record_assembly",
+        outcome="success",
+        assembly_run_id=assembly_run.id,
+        finished_good_id=finished_good_id,
+        quantity=quantity,
+        total_component_cost=str(total_component_cost),
+    )
 
     return {
         "assembly_run_id": assembly_run.id,
