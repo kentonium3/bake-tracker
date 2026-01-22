@@ -17,6 +17,7 @@ from src.models import (
     Package,
 )
 from src.services import event_service
+from src.services.database import session_scope
 
 
 # ============================================================================
@@ -90,12 +91,13 @@ class TestFulfillmentStatusTransitions:
         assert test_assignment.fulfillment_status == FulfillmentStatus.PENDING.value
 
         # Transition to ready
-        result = event_service.update_fulfillment_status(
-            test_assignment.id, FulfillmentStatus.READY
-        )
+        with session_scope() as session:
+            result = event_service.update_fulfillment_status(
+                test_assignment.id, FulfillmentStatus.READY, session=session
+            )
 
-        # Verify transition succeeded
-        assert result.fulfillment_status == FulfillmentStatus.READY.value
+            # Verify transition succeeded
+            assert result.fulfillment_status == FulfillmentStatus.READY.value
 
         # Verify persisted in database
         session = test_db()
@@ -117,22 +119,28 @@ class TestFulfillmentStatusTransitions:
         session.commit()
 
         # Transition to delivered
-        result = event_service.update_fulfillment_status(assignment.id, FulfillmentStatus.DELIVERED)
+        with session_scope() as sess:
+            result = event_service.update_fulfillment_status(
+                assignment.id, FulfillmentStatus.DELIVERED, session=sess
+            )
 
-        # Verify transition succeeded
-        assert result.fulfillment_status == FulfillmentStatus.DELIVERED.value
+            # Verify transition succeeded
+            assert result.fulfillment_status == FulfillmentStatus.DELIVERED.value
 
     def test_transition_pending_to_delivered_invalid(self, test_db, test_assignment):
         """Invalid transition: cannot skip pending -> delivered."""
         # Attempt to skip to delivered
-        with pytest.raises(ValueError) as exc_info:
-            event_service.update_fulfillment_status(test_assignment.id, FulfillmentStatus.DELIVERED)
+        with session_scope() as session:
+            with pytest.raises(ValueError) as exc_info:
+                event_service.update_fulfillment_status(
+                    test_assignment.id, FulfillmentStatus.DELIVERED, session=session
+                )
 
-        # Verify error message
-        assert "Invalid transition" in str(exc_info.value)
-        assert "pending" in str(exc_info.value)
-        assert "delivered" in str(exc_info.value)
-        assert "Allowed: ['ready']" in str(exc_info.value)
+            # Verify error message
+            assert "Invalid transition" in str(exc_info.value)
+            assert "pending" in str(exc_info.value)
+            assert "delivered" in str(exc_info.value)
+            assert "Allowed: ['ready']" in str(exc_info.value)
 
     def test_transition_delivered_to_any_invalid(
         self, test_db, test_event, test_recipient, test_package
@@ -152,17 +160,23 @@ class TestFulfillmentStatusTransitions:
         assignment_id = assignment.id  # Capture ID before session closes
 
         # Attempt to transition to ready (backwards)
-        with pytest.raises(ValueError) as exc_info:
-            event_service.update_fulfillment_status(assignment_id, FulfillmentStatus.READY)
+        with session_scope() as sess:
+            with pytest.raises(ValueError) as exc_info:
+                event_service.update_fulfillment_status(
+                    assignment_id, FulfillmentStatus.READY, session=sess
+                )
 
-        assert "Invalid transition" in str(exc_info.value)
-        assert "Allowed: []" in str(exc_info.value)
+            assert "Invalid transition" in str(exc_info.value)
+            assert "Allowed: []" in str(exc_info.value)
 
         # Attempt to transition to pending (backwards)
-        with pytest.raises(ValueError) as exc_info:
-            event_service.update_fulfillment_status(assignment_id, FulfillmentStatus.PENDING)
+        with session_scope() as sess:
+            with pytest.raises(ValueError) as exc_info:
+                event_service.update_fulfillment_status(
+                    assignment_id, FulfillmentStatus.PENDING, session=sess
+                )
 
-        assert "Invalid transition" in str(exc_info.value)
+            assert "Invalid transition" in str(exc_info.value)
 
     def test_transition_ready_to_pending_invalid(
         self, test_db, test_event, test_recipient, test_package
@@ -181,20 +195,26 @@ class TestFulfillmentStatusTransitions:
         session.commit()
 
         # Attempt to go backwards
-        with pytest.raises(ValueError) as exc_info:
-            event_service.update_fulfillment_status(assignment.id, FulfillmentStatus.PENDING)
+        with session_scope() as sess:
+            with pytest.raises(ValueError) as exc_info:
+                event_service.update_fulfillment_status(
+                    assignment.id, FulfillmentStatus.PENDING, session=sess
+                )
 
-        assert "Invalid transition" in str(exc_info.value)
-        assert "ready" in str(exc_info.value)
-        assert "pending" in str(exc_info.value)
+            assert "Invalid transition" in str(exc_info.value)
+            assert "ready" in str(exc_info.value)
+            assert "pending" in str(exc_info.value)
 
     def test_package_not_found(self, test_db):
         """ValueError raised for non-existent package."""
-        with pytest.raises(ValueError) as exc_info:
-            event_service.update_fulfillment_status(99999, FulfillmentStatus.READY)
+        with session_scope() as session:
+            with pytest.raises(ValueError) as exc_info:
+                event_service.update_fulfillment_status(
+                    99999, FulfillmentStatus.READY, session=session
+                )
 
-        assert "not found" in str(exc_info.value)
-        assert "99999" in str(exc_info.value)
+            assert "not found" in str(exc_info.value)
+            assert "99999" in str(exc_info.value)
 
 
 # ============================================================================
@@ -228,11 +248,14 @@ class TestGetPackagesByStatus:
         session.commit()
 
         # Filter by pending
-        result = event_service.get_packages_by_status(test_event.id, FulfillmentStatus.PENDING)
+        with session_scope() as sess:
+            result = event_service.get_packages_by_status(
+                test_event.id, FulfillmentStatus.PENDING, session=sess
+            )
 
-        assert len(result) == 1
-        assert result[0].fulfillment_status == FulfillmentStatus.PENDING.value
-        assert result[0].quantity == 1
+            assert len(result) == 1
+            assert result[0].fulfillment_status == FulfillmentStatus.PENDING.value
+            assert result[0].quantity == 1
 
     def test_filter_by_status_ready(self, test_db, test_event, test_recipient, test_package):
         """Returns only packages with matching ready status."""
@@ -264,11 +287,14 @@ class TestGetPackagesByStatus:
         session.commit()
 
         # Filter by ready
-        result = event_service.get_packages_by_status(test_event.id, FulfillmentStatus.READY)
+        with session_scope() as sess:
+            result = event_service.get_packages_by_status(
+                test_event.id, FulfillmentStatus.READY, session=sess
+            )
 
-        assert len(result) == 1
-        assert result[0].fulfillment_status == FulfillmentStatus.READY.value
-        assert result[0].quantity == 2
+            assert len(result) == 1
+            assert result[0].fulfillment_status == FulfillmentStatus.READY.value
+            assert result[0].quantity == 2
 
     def test_filter_by_status_delivered(self, test_db, test_event, test_recipient, test_package):
         """Returns only packages with matching delivered status."""
@@ -293,11 +319,14 @@ class TestGetPackagesByStatus:
         session.commit()
 
         # Filter by delivered
-        result = event_service.get_packages_by_status(test_event.id, FulfillmentStatus.DELIVERED)
+        with session_scope() as sess:
+            result = event_service.get_packages_by_status(
+                test_event.id, FulfillmentStatus.DELIVERED, session=sess
+            )
 
-        assert len(result) == 1
-        assert result[0].fulfillment_status == FulfillmentStatus.DELIVERED.value
-        assert result[0].quantity == 3
+            assert len(result) == 1
+            assert result[0].fulfillment_status == FulfillmentStatus.DELIVERED.value
+            assert result[0].quantity == 3
 
     def test_all_packages_when_no_filter(self, test_db, test_event, test_recipient, test_package):
         """Returns all packages when status=None."""
@@ -329,16 +358,22 @@ class TestGetPackagesByStatus:
         session.commit()
 
         # Get all (no filter)
-        result = event_service.get_packages_by_status(test_event.id, status=None)
+        with session_scope() as sess:
+            result = event_service.get_packages_by_status(
+                test_event.id, status=None, session=sess
+            )
 
-        assert len(result) == 3
+            assert len(result) == 3
 
     def test_empty_result(self, test_db, test_event):
         """Empty list when no matching packages."""
         # No packages exist for this event
-        result = event_service.get_packages_by_status(test_event.id, FulfillmentStatus.PENDING)
+        with session_scope() as session:
+            result = event_service.get_packages_by_status(
+                test_event.id, FulfillmentStatus.PENDING, session=session
+            )
 
-        assert result == []
+            assert result == []
 
     def test_eager_loads_relationships(self, test_db, test_event, test_recipient, test_package):
         """Verifies recipient and package are eager loaded."""
@@ -355,11 +390,12 @@ class TestGetPackagesByStatus:
         session.commit()
 
         # Get packages
-        result = event_service.get_packages_by_status(test_event.id)
+        with session_scope() as sess:
+            result = event_service.get_packages_by_status(test_event.id, session=sess)
 
-        # Verify relationships are loaded (would fail if lazy loaded)
-        assert len(result) == 1
-        assert result[0].recipient is not None
-        assert result[0].recipient.name == "Test Recipient"
-        assert result[0].package is not None
-        assert result[0].package.name == "Cookie Box"
+            # Verify relationships are loaded (would fail if lazy loaded)
+            assert len(result) == 1
+            assert result[0].recipient is not None
+            assert result[0].recipient.name == "Test Recipient"
+            assert result[0].package is not None
+            assert result[0].package.name == "Cookie Box"

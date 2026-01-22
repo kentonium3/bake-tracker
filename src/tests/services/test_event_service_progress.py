@@ -171,11 +171,13 @@ class TestProductionProgress:
     def test_progress_zero_percent(self, test_db, event_christmas, recipe_cookies):
         """0% when no production recorded for target."""
         # Set target but no production
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
 
         result = event_service.get_production_progress(event_christmas.id)
 
@@ -189,11 +191,13 @@ class TestProductionProgress:
     ):
         """50% when half of target produced."""
         # Set target=4 batches
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
 
         # Record 2 batches for this event
         with session_scope() as session:
@@ -222,11 +226,13 @@ class TestProductionProgress:
         self, test_db, event_christmas, recipe_cookies, finished_unit_cookies
     ):
         """100% when target exactly met."""
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
 
         with session_scope() as session:
             run = ProductionRun(
@@ -254,11 +260,13 @@ class TestProductionProgress:
         self, test_db, event_christmas, recipe_cookies, finished_unit_cookies
     ):
         """125% when over-produced."""
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
 
         with session_scope() as session:
             run = ProductionRun(
@@ -286,11 +294,13 @@ class TestProductionProgress:
         self, test_db, event_christmas, event_thanksgiving, recipe_cookies, finished_unit_cookies
     ):
         """Only counts runs with matching event_id."""
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
 
         with session_scope() as session:
             # Run for Christmas event
@@ -348,16 +358,19 @@ class TestProductionProgress:
         self, test_db, event_christmas, recipe_cookies, recipe_brownies
     ):
         """Returns progress for multiple targets."""
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_brownies.id,
-            target_batches=2,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_brownies.id,
+                target_batches=2,
+                session=session,
+            )
 
         result = event_service.get_production_progress(event_christmas.id)
 
@@ -374,11 +387,13 @@ class TestAssemblyProgress:
 
     def test_progress_zero_percent(self, test_db, event_christmas, finished_good_gift_box):
         """0% when no assembly recorded for target."""
-        event_service.set_assembly_target(
-            event_id=event_christmas.id,
-            finished_good_id=finished_good_gift_box.id,
-            target_quantity=20,
-        )
+        with session_scope() as session:
+            event_service.set_assembly_target(
+                event_id=event_christmas.id,
+                finished_good_id=finished_good_gift_box.id,
+                target_quantity=20,
+                session=session,
+            )
 
         result = event_service.get_assembly_progress(event_christmas.id)
 
@@ -389,11 +404,13 @@ class TestAssemblyProgress:
 
     def test_progress_fifty_percent(self, test_db, event_christmas, finished_good_gift_box):
         """50% when half of target assembled."""
-        event_service.set_assembly_target(
-            event_id=event_christmas.id,
-            finished_good_id=finished_good_gift_box.id,
-            target_quantity=20,
-        )
+        with session_scope() as session:
+            event_service.set_assembly_target(
+                event_id=event_christmas.id,
+                finished_good_id=finished_good_gift_box.id,
+                target_quantity=20,
+                session=session,
+            )
 
         with session_scope() as session:
             run = AssemblyRun(
@@ -416,11 +433,13 @@ class TestAssemblyProgress:
 
     def test_progress_one_hundred_percent(self, test_db, event_christmas, finished_good_gift_box):
         """100% when target exactly met."""
-        event_service.set_assembly_target(
-            event_id=event_christmas.id,
-            finished_good_id=finished_good_gift_box.id,
-            target_quantity=20,
-        )
+        with session_scope() as session:
+            event_service.set_assembly_target(
+                event_id=event_christmas.id,
+                finished_good_id=finished_good_gift_box.id,
+                target_quantity=20,
+                session=session,
+            )
 
         with session_scope() as session:
             run = AssemblyRun(
@@ -443,11 +462,13 @@ class TestAssemblyProgress:
 
     def test_progress_over_hundred_percent(self, test_db, event_christmas, finished_good_gift_box):
         """150% when over-assembled."""
-        event_service.set_assembly_target(
-            event_id=event_christmas.id,
-            finished_good_id=finished_good_gift_box.id,
-            target_quantity=20,
-        )
+        with session_scope() as session:
+            event_service.set_assembly_target(
+                event_id=event_christmas.id,
+                finished_good_id=finished_good_gift_box.id,
+                target_quantity=20,
+                session=session,
+            )
 
         with session_scope() as session:
             run = AssemblyRun(
@@ -472,11 +493,13 @@ class TestAssemblyProgress:
         self, test_db, event_christmas, event_thanksgiving, finished_good_gift_box
     ):
         """Only counts runs with matching event_id."""
-        event_service.set_assembly_target(
-            event_id=event_christmas.id,
-            finished_good_id=finished_good_gift_box.id,
-            target_quantity=20,
-        )
+        with session_scope() as session:
+            event_service.set_assembly_target(
+                event_id=event_christmas.id,
+                finished_good_id=finished_good_gift_box.id,
+                target_quantity=20,
+                session=session,
+            )
 
         with session_scope() as session:
             # Run for Christmas event
@@ -545,16 +568,19 @@ class TestOverallProgress:
     ):
         """Correctly counts completed production targets."""
         # Create 2 production targets
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=2,
-        )
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_brownies.id,
-            target_batches=3,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=2,
+                session=session,
+            )
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_brownies.id,
+                target_batches=3,
+                session=session,
+            )
 
         # Complete only the first one
         with session_scope() as session:
@@ -625,11 +651,13 @@ class TestOverallProgress:
     ):
         """Correctly aggregates all progress metrics."""
         # Production: 1 target, 50% complete
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
         with session_scope() as session:
             run = ProductionRun(
                 recipe_id=recipe_cookies.id,
@@ -646,11 +674,13 @@ class TestOverallProgress:
             session.commit()
 
         # Assembly: 1 target, 100% complete
-        event_service.set_assembly_target(
-            event_id=event_christmas.id,
-            finished_good_id=finished_good_gift_box.id,
-            target_quantity=10,
-        )
+        with session_scope() as session:
+            event_service.set_assembly_target(
+                event_id=event_christmas.id,
+                finished_good_id=finished_good_gift_box.id,
+                target_quantity=10,
+                session=session,
+            )
         with session_scope() as session:
             run = AssemblyRun(
                 finished_good_id=finished_good_gift_box.id,
@@ -876,11 +906,13 @@ class TestGetEventsWithProgress:
         self, test_db, event_christmas, recipe_cookies
     ):
         """Should include production progress for events with targets."""
-        event_service.set_production_target(
-            event_id=event_christmas.id,
-            recipe_id=recipe_cookies.id,
-            target_batches=4,
-        )
+        with session_scope() as session:
+            event_service.set_production_target(
+                event_id=event_christmas.id,
+                recipe_id=recipe_cookies.id,
+                target_batches=4,
+                session=session,
+            )
 
         result = event_service.get_events_with_progress(filter_type="all")
 
