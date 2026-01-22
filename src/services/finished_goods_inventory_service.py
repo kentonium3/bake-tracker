@@ -83,8 +83,58 @@ def _get_inventory_status_impl(
     session,
 ) -> list[dict]:
     """Implementation for get_inventory_status."""
-    # TODO: Implement in WP02
-    raise NotImplementedError("get_inventory_status will be implemented in WP02")
+    # Validate item_type
+    valid_types = ("finished_unit", "finished_good")
+    if item_type is not None and item_type not in valid_types:
+        raise ValueError(f"Invalid item_type: {item_type}. Must be one of: {valid_types}")
+
+    # item_id requires item_type
+    if item_id is not None and item_type is None:
+        raise ValueError("item_id requires item_type to be specified")
+
+    results = []
+
+    # Query FinishedUnits
+    if item_type is None or item_type == "finished_unit":
+        query = session.query(FinishedUnit)
+        if item_id is not None:
+            query = query.filter(FinishedUnit.id == item_id)
+        if exclude_zero:
+            query = query.filter(FinishedUnit.inventory_count > 0)
+
+        for unit in query.all():
+            current_cost = unit.calculate_current_cost()
+            results.append({
+                "item_type": "finished_unit",
+                "id": unit.id,
+                "slug": unit.slug,
+                "display_name": unit.display_name,
+                "inventory_count": unit.inventory_count,
+                "current_cost": current_cost,
+                "total_value": unit.inventory_count * current_cost,
+            })
+
+    # Query FinishedGoods
+    if item_type is None or item_type == "finished_good":
+        query = session.query(FinishedGood)
+        if item_id is not None:
+            query = query.filter(FinishedGood.id == item_id)
+        if exclude_zero:
+            query = query.filter(FinishedGood.inventory_count > 0)
+
+        for good in query.all():
+            current_cost = good.calculate_current_cost()
+            results.append({
+                "item_type": "finished_good",
+                "id": good.id,
+                "slug": good.slug,
+                "display_name": good.display_name,
+                "inventory_count": good.inventory_count,
+                "current_cost": current_cost,
+                "total_value": good.inventory_count * current_cost,
+            })
+
+    return results
 
 
 def get_low_stock_items(
@@ -120,8 +170,61 @@ def _get_low_stock_items_impl(
     session,
 ) -> list[dict]:
     """Implementation for get_low_stock_items."""
-    # TODO: Implement in WP02
-    raise NotImplementedError("get_low_stock_items will be implemented in WP02")
+    # Default threshold
+    if threshold is None:
+        threshold = DEFAULT_LOW_STOCK_THRESHOLD
+
+    # Validate item_type
+    valid_types = ("finished_unit", "finished_good")
+    if item_type is not None and item_type not in valid_types:
+        raise ValueError(f"Invalid item_type: {item_type}. Must be one of: {valid_types}")
+
+    results = []
+
+    # Query FinishedUnits with low stock
+    if item_type is None or item_type == "finished_unit":
+        units = (
+            session.query(FinishedUnit)
+            .filter(FinishedUnit.inventory_count < threshold)
+            .order_by(FinishedUnit.inventory_count.asc())
+            .all()
+        )
+        for unit in units:
+            current_cost = unit.calculate_current_cost()
+            results.append({
+                "item_type": "finished_unit",
+                "id": unit.id,
+                "slug": unit.slug,
+                "display_name": unit.display_name,
+                "inventory_count": unit.inventory_count,
+                "current_cost": current_cost,
+                "total_value": unit.inventory_count * current_cost,
+            })
+
+    # Query FinishedGoods with low stock
+    if item_type is None or item_type == "finished_good":
+        goods = (
+            session.query(FinishedGood)
+            .filter(FinishedGood.inventory_count < threshold)
+            .order_by(FinishedGood.inventory_count.asc())
+            .all()
+        )
+        for good in goods:
+            current_cost = good.calculate_current_cost()
+            results.append({
+                "item_type": "finished_good",
+                "id": good.id,
+                "slug": good.slug,
+                "display_name": good.display_name,
+                "inventory_count": good.inventory_count,
+                "current_cost": current_cost,
+                "total_value": good.inventory_count * current_cost,
+            })
+
+    # Sort combined results by inventory_count ascending
+    results.sort(key=lambda x: x["inventory_count"])
+
+    return results
 
 
 def get_total_inventory_value(session=None) -> dict:
@@ -148,8 +251,34 @@ def get_total_inventory_value(session=None) -> dict:
 
 def _get_total_inventory_value_impl(session) -> dict:
     """Implementation for get_total_inventory_value."""
-    # TODO: Implement in WP02
-    raise NotImplementedError("get_total_inventory_value will be implemented in WP02")
+    # Initialize accumulators
+    finished_units_value = Decimal("0.0000")
+    finished_goods_value = Decimal("0.0000")
+    finished_units_count = 0
+    finished_goods_count = 0
+
+    # Query all FinishedUnits
+    units = session.query(FinishedUnit).all()
+    for unit in units:
+        finished_units_count += 1
+        current_cost = unit.calculate_current_cost()
+        finished_units_value += unit.inventory_count * current_cost
+
+    # Query all FinishedGoods
+    goods = session.query(FinishedGood).all()
+    for good in goods:
+        finished_goods_count += 1
+        current_cost = good.calculate_current_cost()
+        finished_goods_value += good.inventory_count * current_cost
+
+    return {
+        "finished_units_value": finished_units_value,
+        "finished_goods_value": finished_goods_value,
+        "total_value": finished_units_value + finished_goods_value,
+        "finished_units_count": finished_units_count,
+        "finished_goods_count": finished_goods_count,
+        "total_items_count": finished_units_count + finished_goods_count,
+    }
 
 
 # =============================================================================
