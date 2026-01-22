@@ -304,12 +304,12 @@
 **Prompt**: `tasks/WP10-dto-cost-standardization.md`
 
 ### Included Subtasks
-- [ ] T049 Create `cost_to_string(decimal_value)` utility function
-- [ ] T050 Audit `_to_dict` methods in `batch_production_service.py` for Decimal returns
-- [ ] T051 Audit `_to_dict` methods in `assembly_service.py` for Decimal returns
-- [ ] T052 Audit `_to_dict` methods in `event_service.py` for Decimal returns
-- [ ] T053 Update all `_to_dict` methods to use `cost_to_string()` for cost fields
-- [ ] T054 Update tests expecting Decimal to expect string format
+- [x] T049 Create `cost_to_string(decimal_value)` utility function
+- [x] T050 Audit `_to_dict` methods in `batch_production_service.py` for Decimal returns
+- [x] T051 Audit `_to_dict` methods in `assembly_service.py` for Decimal returns
+- [x] T052 Audit `_to_dict` methods in `event_service.py` for Decimal returns
+- [x] T053 Update all `_to_dict` methods to use `cost_to_string()` for cost fields
+- [x] T054 Update tests expecting Decimal to expect string format
 
 ### Implementation Notes
 - Format: `f"{cost:.2f}"` → `"12.34"` (standard currency formatting)
