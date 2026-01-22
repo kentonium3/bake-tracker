@@ -21,7 +21,7 @@ from decimal import Decimal
 from datetime import datetime
 from src.utils.datetime_utils import utc_now
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Session
 
 from src.models import (
     AssemblyRun,
@@ -579,7 +579,7 @@ def get_assembly_history(
     limit: int = 100,
     offset: int = 0,
     include_consumptions: bool = False,
-    session=None,
+    session: Session,
 ) -> List[Dict[str, Any]]:
     """
     Query assembly run history with optional filters.
@@ -591,51 +591,50 @@ def get_assembly_history(
         limit: Maximum number of results (default 100)
         offset: Number of results to skip (for pagination)
         include_consumptions: If True, include consumption ledger details
-        session: Optional database session
+        session: Database session (required)
 
     Returns:
         List of assembly run dictionaries with details
     """
-    with session_scope() as session:
-        query = session.query(AssemblyRun)
+    query = session.query(AssemblyRun)
 
-        # Apply filters
-        if finished_good_id:
-            query = query.filter(AssemblyRun.finished_good_id == finished_good_id)
-        if start_date:
-            query = query.filter(AssemblyRun.assembled_at >= start_date)
-        if end_date:
-            query = query.filter(AssemblyRun.assembled_at <= end_date)
+    # Apply filters
+    if finished_good_id:
+        query = query.filter(AssemblyRun.finished_good_id == finished_good_id)
+    if start_date:
+        query = query.filter(AssemblyRun.assembled_at >= start_date)
+    if end_date:
+        query = query.filter(AssemblyRun.assembled_at <= end_date)
 
-        # Eager load relationships to avoid N+1
-        query = query.options(joinedload(AssemblyRun.finished_good))
-        if include_consumptions:
-            query = query.options(
-                joinedload(AssemblyRun.finished_unit_consumptions).joinedload(
-                    AssemblyFinishedUnitConsumption.finished_unit
-                ),
-                joinedload(AssemblyRun.packaging_consumptions).joinedload(
-                    AssemblyPackagingConsumption.product
-                ),
-                # Feature 060: Eagerly load nested FG consumptions
-                joinedload(AssemblyRun.finished_good_consumptions).joinedload(
-                    AssemblyFinishedGoodConsumption.finished_good
-                ),
-            )
+    # Eager load relationships to avoid N+1
+    query = query.options(joinedload(AssemblyRun.finished_good))
+    if include_consumptions:
+        query = query.options(
+            joinedload(AssemblyRun.finished_unit_consumptions).joinedload(
+                AssemblyFinishedUnitConsumption.finished_unit
+            ),
+            joinedload(AssemblyRun.packaging_consumptions).joinedload(
+                AssemblyPackagingConsumption.product
+            ),
+            # Feature 060: Eagerly load nested FG consumptions
+            joinedload(AssemblyRun.finished_good_consumptions).joinedload(
+                AssemblyFinishedGoodConsumption.finished_good
+            ),
+        )
 
-        # Order and paginate
-        query = query.order_by(AssemblyRun.assembled_at.desc())
-        query = query.offset(offset).limit(limit)
+    # Order and paginate
+    query = query.order_by(AssemblyRun.assembled_at.desc())
+    query = query.offset(offset).limit(limit)
 
-        runs = query.all()
-        return [_assembly_run_to_dict(run, include_consumptions) for run in runs]
+    runs = query.all()
+    return [_assembly_run_to_dict(run, include_consumptions) for run in runs]
 
 
 def get_assembly_run(
     assembly_run_id: int,
     *,
     include_consumptions: bool = True,
-    session=None,
+    session: Session,
 ) -> Dict[str, Any]:
     """
     Get a single assembly run with full details.
@@ -643,7 +642,7 @@ def get_assembly_run(
     Args:
         assembly_run_id: ID of the assembly run
         include_consumptions: If True, include consumption ledger details
-        session: Optional database session
+        session: Database session (required)
 
     Returns:
         Assembly run dictionary with details
@@ -651,29 +650,28 @@ def get_assembly_run(
     Raises:
         AssemblyRunNotFoundError: If assembly run doesn't exist
     """
-    with session_scope() as session:
-        query = session.query(AssemblyRun).filter(AssemblyRun.id == assembly_run_id)
+    query = session.query(AssemblyRun).filter(AssemblyRun.id == assembly_run_id)
 
-        query = query.options(joinedload(AssemblyRun.finished_good))
-        if include_consumptions:
-            query = query.options(
-                joinedload(AssemblyRun.finished_unit_consumptions).joinedload(
-                    AssemblyFinishedUnitConsumption.finished_unit
-                ),
-                joinedload(AssemblyRun.packaging_consumptions).joinedload(
-                    AssemblyPackagingConsumption.product
-                ),
-                # Feature 060: Eagerly load nested FG consumptions
-                joinedload(AssemblyRun.finished_good_consumptions).joinedload(
-                    AssemblyFinishedGoodConsumption.finished_good
-                ),
-            )
+    query = query.options(joinedload(AssemblyRun.finished_good))
+    if include_consumptions:
+        query = query.options(
+            joinedload(AssemblyRun.finished_unit_consumptions).joinedload(
+                AssemblyFinishedUnitConsumption.finished_unit
+            ),
+            joinedload(AssemblyRun.packaging_consumptions).joinedload(
+                AssemblyPackagingConsumption.product
+            ),
+            # Feature 060: Eagerly load nested FG consumptions
+            joinedload(AssemblyRun.finished_good_consumptions).joinedload(
+                AssemblyFinishedGoodConsumption.finished_good
+            ),
+        )
 
-        run = query.first()
-        if not run:
-            raise AssemblyRunNotFoundError(assembly_run_id)
+    run = query.first()
+    if not run:
+        raise AssemblyRunNotFoundError(assembly_run_id)
 
-        return _assembly_run_to_dict(run, include_consumptions)
+    return _assembly_run_to_dict(run, include_consumptions)
 
 
 def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) -> Dict[str, Any]:
@@ -774,12 +772,23 @@ def export_assembly_history(
     Returns:
         Dict with version, exported_at timestamp, and assembly_runs list
     """
+    # Create session if not provided
+    if session is None:
+        with session_scope() as session:
+            return export_assembly_history(
+                finished_good_id=finished_good_id,
+                start_date=start_date,
+                end_date=end_date,
+                session=session,
+            )
+
     runs = get_assembly_history(
         finished_good_id=finished_good_id,
         start_date=start_date,
         end_date=end_date,
         include_consumptions=True,
         limit=10000,  # Export all matching
+        session=session,
     )
 
     exported_runs = []

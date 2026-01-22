@@ -21,7 +21,7 @@ from decimal import Decimal
 from datetime import datetime
 from src.utils.datetime_utils import utc_now
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Session
 
 from src.models import (
     ProductionRun,
@@ -497,7 +497,7 @@ def get_production_history(
     offset: int = 0,
     include_consumptions: bool = False,
     include_losses: bool = False,
-    session=None,
+    session: Session,
 ) -> List[Dict[str, Any]]:
     """
     Query production run history with optional filters.
@@ -511,41 +511,40 @@ def get_production_history(
         offset: Number of results to skip (for pagination)
         include_consumptions: If True, include consumption ledger details
         include_losses: If True, include ProductionLoss records (Feature 025)
-        session: Optional database session
+        session: Database session (required)
 
     Returns:
         List of production run dictionaries with details
     """
-    with session_scope() as session:
-        query = session.query(ProductionRun)
+    query = session.query(ProductionRun)
 
-        # Apply filters
-        if recipe_id:
-            query = query.filter(ProductionRun.recipe_id == recipe_id)
-        if finished_unit_id:
-            query = query.filter(ProductionRun.finished_unit_id == finished_unit_id)
-        if start_date:
-            query = query.filter(ProductionRun.produced_at >= start_date)
-        if end_date:
-            query = query.filter(ProductionRun.produced_at <= end_date)
+    # Apply filters
+    if recipe_id:
+        query = query.filter(ProductionRun.recipe_id == recipe_id)
+    if finished_unit_id:
+        query = query.filter(ProductionRun.finished_unit_id == finished_unit_id)
+    if start_date:
+        query = query.filter(ProductionRun.produced_at >= start_date)
+    if end_date:
+        query = query.filter(ProductionRun.produced_at <= end_date)
 
-        # Eager load relationships to avoid N+1
-        query = query.options(
-            joinedload(ProductionRun.recipe),
-            joinedload(ProductionRun.finished_unit),
-        )
-        if include_consumptions:
-            query = query.options(joinedload(ProductionRun.consumptions))
-        # Feature 025: Eager load losses relationship
-        if include_losses:
-            query = query.options(joinedload(ProductionRun.losses))
+    # Eager load relationships to avoid N+1
+    query = query.options(
+        joinedload(ProductionRun.recipe),
+        joinedload(ProductionRun.finished_unit),
+    )
+    if include_consumptions:
+        query = query.options(joinedload(ProductionRun.consumptions))
+    # Feature 025: Eager load losses relationship
+    if include_losses:
+        query = query.options(joinedload(ProductionRun.losses))
 
-        # Order and paginate
-        query = query.order_by(ProductionRun.produced_at.desc())
-        query = query.offset(offset).limit(limit)
+    # Order and paginate
+    query = query.order_by(ProductionRun.produced_at.desc())
+    query = query.offset(offset).limit(limit)
 
-        runs = query.all()
-        return [_production_run_to_dict(run, include_consumptions, include_losses) for run in runs]
+    runs = query.all()
+    return [_production_run_to_dict(run, include_consumptions, include_losses) for run in runs]
 
 
 def get_production_run(
@@ -553,7 +552,7 @@ def get_production_run(
     *,
     include_consumptions: bool = True,
     include_losses: bool = False,
-    session=None,
+    session: Session,
 ) -> Dict[str, Any]:
     """
     Get a single production run with full details.
@@ -562,7 +561,7 @@ def get_production_run(
         production_run_id: ID of the production run
         include_consumptions: If True, include consumption ledger details
         include_losses: If True, include ProductionLoss records (Feature 025)
-        session: Optional database session
+        session: Database session (required)
 
     Returns:
         Production run dictionary with details
@@ -570,24 +569,23 @@ def get_production_run(
     Raises:
         ProductionRunNotFoundError: If production run doesn't exist
     """
-    with session_scope() as session:
-        query = session.query(ProductionRun).filter(ProductionRun.id == production_run_id)
+    query = session.query(ProductionRun).filter(ProductionRun.id == production_run_id)
 
-        query = query.options(
-            joinedload(ProductionRun.recipe),
-            joinedload(ProductionRun.finished_unit),
-        )
-        if include_consumptions:
-            query = query.options(joinedload(ProductionRun.consumptions))
-        # Feature 025: Eager load losses relationship
-        if include_losses:
-            query = query.options(joinedload(ProductionRun.losses))
+    query = query.options(
+        joinedload(ProductionRun.recipe),
+        joinedload(ProductionRun.finished_unit),
+    )
+    if include_consumptions:
+        query = query.options(joinedload(ProductionRun.consumptions))
+    # Feature 025: Eager load losses relationship
+    if include_losses:
+        query = query.options(joinedload(ProductionRun.losses))
 
-        run = query.first()
-        if not run:
-            raise ProductionRunNotFoundError(production_run_id)
+    run = query.first()
+    if not run:
+        raise ProductionRunNotFoundError(production_run_id)
 
-        return _production_run_to_dict(run, include_consumptions, include_losses)
+    return _production_run_to_dict(run, include_consumptions, include_losses)
 
 
 def _production_run_to_dict(
@@ -690,6 +688,16 @@ def export_production_history(
     Returns:
         Dict with version, exported_at timestamp, and production_runs list
     """
+    # Create session if not provided
+    if session is None:
+        with session_scope() as session:
+            return export_production_history(
+                recipe_id=recipe_id,
+                start_date=start_date,
+                end_date=end_date,
+                session=session,
+            )
+
     # Feature 025: Include losses in export
     runs = get_production_history(
         recipe_id=recipe_id,
@@ -698,6 +706,7 @@ def export_production_history(
         include_consumptions=True,
         include_losses=True,  # Feature 025
         limit=10000,  # Export all matching
+        session=session,
     )
 
     exported_runs = []

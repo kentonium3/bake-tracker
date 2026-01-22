@@ -443,7 +443,8 @@ class TestGetAssemblyHistory:
 
     def test_empty_history(self, test_db):
         """Empty database returns empty list."""
-        result = assembly_service.get_assembly_history()
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(session=session)
         assert result == []
 
     def test_returns_assembly_runs(
@@ -463,7 +464,8 @@ class TestGetAssemblyHistory:
             quantity=3,
         )
 
-        result = assembly_service.get_assembly_history()
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(session=session)
         assert len(result) == 2
         # Most recent first
         assert result[0]["quantity_assembled"] == 3
@@ -481,12 +483,18 @@ class TestGetAssemblyHistory:
             quantity=2,
         )
 
-        result = assembly_service.get_assembly_history(finished_good_id=fg_id)
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(
+                finished_good_id=fg_id, session=session
+            )
         assert len(result) == 1
         assert result[0]["finished_good_id"] == fg_id
 
         # Non-existent finished good returns empty
-        result = assembly_service.get_assembly_history(finished_good_id=99999)
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(
+                finished_good_id=99999, session=session
+            )
         assert len(result) == 0
 
     def test_filter_by_date_range(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
@@ -501,17 +509,21 @@ class TestGetAssemblyHistory:
         )
 
         # Within range
-        result = assembly_service.get_assembly_history(
-            start_date=datetime(2024, 6, 1),
-            end_date=datetime(2024, 6, 30),
-        )
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(
+                start_date=datetime(2024, 6, 1),
+                end_date=datetime(2024, 6, 30),
+                session=session,
+            )
         assert len(result) == 1
 
         # Outside range
-        result = assembly_service.get_assembly_history(
-            start_date=datetime(2024, 7, 1),
-            end_date=datetime(2024, 7, 31),
-        )
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(
+                start_date=datetime(2024, 7, 1),
+                end_date=datetime(2024, 7, 31),
+                session=session,
+            )
         assert len(result) == 0
 
     def test_include_consumptions(self, assembly_ready, finished_unit_cookie, inventory_cellophane):
@@ -524,7 +536,10 @@ class TestGetAssemblyHistory:
             quantity=2,
         )
 
-        result = assembly_service.get_assembly_history(include_consumptions=True)
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(
+                include_consumptions=True, session=session
+            )
         assert len(result) == 1
         assert "finished_unit_consumptions" in result[0]
         assert "packaging_consumptions" in result[0]
@@ -544,11 +559,15 @@ class TestGetAssemblyHistory:
             )
 
         # Limit to 2
-        result = assembly_service.get_assembly_history(limit=2)
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(limit=2, session=session)
         assert len(result) == 2
 
         # Offset by 1
-        result = assembly_service.get_assembly_history(limit=2, offset=1)
+        with session_scope() as session:
+            result = assembly_service.get_assembly_history(
+                limit=2, offset=1, session=session
+            )
         assert len(result) == 2
 
 
@@ -566,7 +585,10 @@ class TestGetAssemblyRun:
             notes="Test assembly",
         )
 
-        result = assembly_service.get_assembly_run(create_result["assembly_run_id"])
+        with session_scope() as session:
+            result = assembly_service.get_assembly_run(
+                create_result["assembly_run_id"], session=session
+            )
         assert result["id"] == create_result["assembly_run_id"]
         assert result["finished_good_id"] == fg_id
         assert result["quantity_assembled"] == 3
@@ -576,9 +598,99 @@ class TestGetAssemblyRun:
 
     def test_not_found(self, test_db):
         """Raises error for non-existent assembly run."""
-        with pytest.raises(AssemblyRunNotFoundError) as exc_info:
-            assembly_service.get_assembly_run(99999)
+        with session_scope() as session:
+            with pytest.raises(AssemblyRunNotFoundError) as exc_info:
+                assembly_service.get_assembly_run(99999, session=session)
         assert exc_info.value.assembly_run_id == 99999
+
+
+# =============================================================================
+# Tests for Session Parameter - Uncommitted Data Visibility
+# =============================================================================
+
+
+class TestAssemblyHistorySessionVisibility:
+    """
+    Tests verifying that history query functions see uncommitted data when
+    the caller passes their session.
+
+    Feature 062: Service Session Consistency Hardening - WP08
+    These tests verify the fix for session shadowing bugs where functions
+    accepted a session parameter but then shadowed it with a new session.
+    """
+
+    def test_get_assembly_history_sees_uncommitted_assembly_run(self, test_db):
+        """
+        get_assembly_history sees uncommitted AssemblyRun when caller
+        passes their session.
+
+        Before fix: session parameter was shadowed, so uncommitted data
+        was not visible. After fix: uses caller's session directly.
+        """
+        with session_scope() as session:
+            # Create a finished good and assembly run within the same session
+            # WITHOUT committing
+            fg = FinishedGood(
+                slug="test-session-visibility-fg",
+                display_name="Test Session FG",
+                assembly_type=AssemblyType.VARIETY_PACK,
+                inventory_count=0,
+            )
+            session.add(fg)
+            session.flush()  # Get ID but don't commit
+
+            # Create an assembly run directly (bypassing record_assembly
+            # to avoid other service calls)
+            run = AssemblyRun(
+                finished_good_id=fg.id,
+                quantity_assembled=5,
+            )
+            session.add(run)
+            session.flush()  # Get ID but don't commit
+
+            # Query history using the SAME session - should see uncommitted run
+            result = assembly_service.get_assembly_history(
+                finished_good_id=fg.id, session=session
+            )
+
+            # Should find the uncommitted assembly run
+            assert len(result) == 1
+            assert result[0]["finished_good_id"] == fg.id
+            assert result[0]["quantity_assembled"] == 5
+
+    def test_get_assembly_run_sees_uncommitted_run(self, test_db):
+        """
+        get_assembly_run sees uncommitted AssemblyRun when caller
+        passes their session.
+        """
+        with session_scope() as session:
+            # Create a finished good
+            fg = FinishedGood(
+                slug="test-run-visibility-fg",
+                display_name="Test Run FG",
+                assembly_type=AssemblyType.VARIETY_PACK,
+                inventory_count=0,
+            )
+            session.add(fg)
+            session.flush()
+
+            # Create an assembly run directly
+            run = AssemblyRun(
+                finished_good_id=fg.id,
+                quantity_assembled=8,
+                notes="Uncommitted test assembly",
+            )
+            session.add(run)
+            session.flush()  # Get ID but don't commit
+            run_id = run.id
+
+            # Query single run using the SAME session
+            result = assembly_service.get_assembly_run(run_id, session=session)
+
+            # Should find the uncommitted assembly run
+            assert result["id"] == run_id
+            assert result["quantity_assembled"] == 8
+            assert result["notes"] == "Uncommitted test assembly"
 
 
 # =============================================================================
@@ -1070,10 +1182,12 @@ class TestNestedFinishedGoodConsumption:
         )
 
         # Retrieve with include_consumptions
-        run_details = assembly_service.get_assembly_run(
-            result["assembly_run_id"],
-            include_consumptions=True,
-        )
+        with session_scope() as session:
+            run_details = assembly_service.get_assembly_run(
+                result["assembly_run_id"],
+                include_consumptions=True,
+                session=session,
+            )
 
         assert "finished_good_consumptions" in run_details
         assert len(run_details["finished_good_consumptions"]) == 1
