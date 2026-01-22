@@ -273,7 +273,7 @@
 
 ### Included Subtasks
 - [x] T042 Add required `session` param to: `get_production_records`, `get_production_total`
-- [ ] T043 Add required `session` param to: `can_assemble_package`, `update_package_status`
+- [x] T043 Add required `session` param to: `can_assemble_package`, `update_package_status`
 - [ ] T044 Add required `session` param to: `get_production_progress`, `get_dashboard_summary`
 - [ ] T045 Add required `session` param to: `get_recipe_cost_breakdown`, `get_event_assignments`
 - [ ] T046 Remove internal `session_scope()` from all functions
