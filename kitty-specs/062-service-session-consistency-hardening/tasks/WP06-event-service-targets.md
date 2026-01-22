@@ -8,10 +8,10 @@ subtasks:
   - "T030"
 title: "Event Service Target & Status Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "31173"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -147,3 +147,4 @@ grep -r "set_production_target\|get_production_targets\|update_fulfillment_statu
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T20:11:12Z – claude-opus – shell_pid=31173 – lane=doing – Started implementation via workflow command
