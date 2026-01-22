@@ -51,7 +51,7 @@
 
 ### Included Subtasks
 - [x] T006 Implement get_inventory_status() with filtering by item_type, item_id, exclude_zero
-- [ ] T007 Implement get_low_stock_items() with configurable threshold and item_type filter
+- [x] T007 Implement get_low_stock_items() with configurable threshold and item_type filter
 - [ ] T008 Implement get_total_inventory_value() aggregating costs across both item types
 
 ### Implementation Notes
