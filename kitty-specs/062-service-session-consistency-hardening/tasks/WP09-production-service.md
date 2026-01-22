@@ -10,7 +10,7 @@ subtasks:
   - "T048"
 title: "Production Service Session Hardening"
 phase: "Phase 1 - Service Hardening"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "codex"
 shell_pid: "65344"
@@ -159,3 +159,4 @@ grep -r "production_service\." src/tests/ --include="*.py"
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T21:16:27Z – codex – shell_pid=65344 – lane=doing – Started implementation via workflow command
 - 2026-01-22T21:28:03Z – codex – shell_pid=65344 – lane=for_review – Ready for review: production_service functions require session, session threaded through update/status/progress/dashboard/cost/assignments; tests updated and production_service test suite passes
+- 2026-01-22T21:30:13Z – codex – shell_pid=65344 – lane=doing – Started review via workflow command
