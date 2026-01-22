@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "UI Session Infrastructure"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "72362"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -325,3 +325,4 @@ class TestUISession:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T15:51:10Z – claude-opus – shell_pid=72362 – lane=doing – Started implementation via workflow command
