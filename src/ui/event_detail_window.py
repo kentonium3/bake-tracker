@@ -17,6 +17,7 @@ from src.models.event import Event, EventRecipientPackage, FulfillmentStatus
 from src.services import event_service, recipe_service
 from src.services.finished_good_service import get_all_finished_goods
 from src.services.event_service import AssignmentNotFoundError
+from src.ui.utils import ui_session
 from typing import List
 from src.utils.constants import (
     PADDING_MEDIUM,
@@ -1333,7 +1334,8 @@ class EventDetailWindow(ctk.CTkToplevel):
             ).pack(anchor="w", pady=(0, 10))
 
             # Get fresh event data
-            event = event_service.get_event_by_id(self.event.id)
+            with ui_session() as session:
+                event = event_service.get_event_by_id(self.event.id, session=session)
 
             recipient_count = event.get_recipient_count()
             package_count = event.get_package_count()
