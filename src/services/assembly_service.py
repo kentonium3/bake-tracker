@@ -23,6 +23,8 @@ from src.utils.datetime_utils import utc_now
 
 from sqlalchemy.orm import joinedload, Session
 
+from src.services.dto_utils import cost_to_string
+
 from src.models import (
     AssemblyRun,
     AssemblyFinishedUnitConsumption,
@@ -683,8 +685,8 @@ def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) 
         "quantity_assembled": run.quantity_assembled,
         "assembled_at": run.assembled_at.isoformat() if run.assembled_at else None,
         "notes": run.notes,
-        "total_component_cost": str(run.total_component_cost),
-        "per_unit_cost": str(run.per_unit_cost),
+        "total_component_cost": cost_to_string(run.total_component_cost),
+        "per_unit_cost": cost_to_string(run.per_unit_cost),
     }
 
     # Add relationship data
@@ -706,8 +708,8 @@ def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) 
                     "finished_unit_id": c.finished_unit_id,
                     "finished_unit_name": c.finished_unit.display_name if c.finished_unit else None,
                     "quantity_consumed": c.quantity_consumed,
-                    "unit_cost_at_consumption": str(c.unit_cost_at_consumption),
-                    "total_cost": str(c.total_cost),
+                    "unit_cost_at_consumption": cost_to_string(c.unit_cost_at_consumption),
+                    "total_cost": cost_to_string(c.total_cost),
                 }
                 for c in run.finished_unit_consumptions
             ]
@@ -722,7 +724,7 @@ def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) 
                     "product_name": c.product.display_name if c.product else None,
                     "quantity_consumed": str(c.quantity_consumed),
                     "unit": c.unit,
-                    "total_cost": str(c.total_cost),
+                    "total_cost": cost_to_string(c.total_cost),
                 }
                 for c in run.packaging_consumptions
             ]
@@ -736,8 +738,8 @@ def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) 
                     "finished_good_id": c.finished_good_id,
                     "finished_good_name": c.finished_good.display_name if c.finished_good else None,
                     "quantity_consumed": c.quantity_consumed,
-                    "unit_cost_at_consumption": str(c.unit_cost_at_consumption),
-                    "total_cost": str(c.total_cost),
+                    "unit_cost_at_consumption": cost_to_string(c.unit_cost_at_consumption),
+                    "total_cost": cost_to_string(c.total_cost),
                 }
                 for c in run.finished_good_consumptions
             ]

@@ -23,6 +23,8 @@ from src.utils.datetime_utils import utc_now
 
 from sqlalchemy.orm import joinedload, Session
 
+from src.services.dto_utils import cost_to_string
+
 from src.models import (
     ProductionRun,
     ProductionConsumption,
@@ -604,8 +606,8 @@ def _production_run_to_dict(
         "actual_yield": run.actual_yield,
         "produced_at": run.produced_at.isoformat() if run.produced_at else None,
         "notes": run.notes,
-        "total_ingredient_cost": str(run.total_ingredient_cost),
-        "per_unit_cost": str(run.per_unit_cost),
+        "total_ingredient_cost": cost_to_string(run.total_ingredient_cost),
+        "per_unit_cost": cost_to_string(run.per_unit_cost),
         # Feature 025: Always include loss tracking fields
         "production_status": run.production_status,
         "loss_quantity": run.loss_quantity,
@@ -636,7 +638,7 @@ def _production_run_to_dict(
                 "ingredient_slug": c.ingredient_slug,
                 "quantity_consumed": str(c.quantity_consumed),
                 "unit": c.unit,
-                "total_cost": str(c.total_cost),
+                "total_cost": cost_to_string(c.total_cost),
             }
             for c in run.consumptions
         ]
@@ -649,8 +651,8 @@ def _production_run_to_dict(
                 "uuid": str(loss.uuid) if loss.uuid else None,
                 "loss_category": loss.loss_category,
                 "loss_quantity": loss.loss_quantity,
-                "per_unit_cost": str(loss.per_unit_cost),
-                "total_loss_cost": str(loss.total_loss_cost),
+                "per_unit_cost": cost_to_string(loss.per_unit_cost),
+                "total_loss_cost": cost_to_string(loss.total_loss_cost),
                 "notes": loss.notes,
             }
             for loss in run.losses
