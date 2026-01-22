@@ -243,7 +243,7 @@
 - [x] T037 Fix `batch_production_service.get_production_run` to use provided session
 - [x] T038 Fix `assembly_service.get_assembly_history` to use provided session
 - [x] T039 Fix `assembly_service.get_assembly_run` to use provided session
-- [ ] T040 Add tests verifying uncommitted data visibility with session
+- [x] T040 Add tests verifying uncommitted data visibility with session
 - [ ] T041 Update existing tests to pass session parameter
 
 ### Implementation Notes
