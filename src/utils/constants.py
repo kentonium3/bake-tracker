@@ -325,6 +325,27 @@ def format_quantity(quantity: float, precision: int = QUANTITY_DECIMAL_PLACES) -
 # Sample/Demo Data
 # ============================================================================
 
+# ============================================================================
+# Inventory Constants (Feature 061)
+# ============================================================================
+
+# Default threshold for low stock alerts (finished goods)
+DEFAULT_LOW_STOCK_THRESHOLD = 5
+
+# Valid adjustment reasons for finished goods inventory
+FINISHED_GOODS_ADJUSTMENT_REASONS = [
+    "production",   # Production run completed
+    "assembly",     # Assembly operation (consume component or create good)
+    "consumption",  # Manual consumption
+    "spoilage",     # Damaged or expired
+    "gift",         # Given away
+    "adjustment",   # Manual correction
+]
+
+# ============================================================================
+# Sample/Demo Data
+# ============================================================================
+
 SAMPLE_INGREDIENTS: List[Dict] = [
     # Flour category - uses 4-field density model
     {
