@@ -37,6 +37,7 @@ from src.models import (
 from src.services.database import session_scope
 from src.services import inventory_item_service
 from src.services import material_consumption_service
+from src.services import finished_goods_inventory_service as fg_inv
 
 
 # =============================================================================
@@ -360,7 +361,15 @@ def _record_assembly_impl(
                 unit_cost = fu.calculate_current_cost()
                 cost = unit_cost * Decimal(str(needed))
 
-                fu.inventory_count -= needed
+                # F061: Use inventory service for audit trail
+                fg_inv.adjust_inventory(
+                    item_type="finished_unit",
+                    item_id=fu.id,
+                    quantity=-needed,
+                    reason="assembly",
+                    notes=f"Assembly of {finished_good.display_name} (x{quantity})",
+                    session=session,
+                )
                 total_component_cost += cost
 
                 fu_consumptions.append(
@@ -387,7 +396,15 @@ def _record_assembly_impl(
                 unit_cost = nested_fg.calculate_current_cost()
                 cost = unit_cost * Decimal(str(needed))
 
-                nested_fg.inventory_count -= needed
+                # F061: Use inventory service for audit trail
+                fg_inv.adjust_inventory(
+                    item_type="finished_good",
+                    item_id=nested_fg.id,
+                    quantity=-needed,
+                    reason="assembly",
+                    notes=f"Component for {finished_good.display_name} (x{quantity})",
+                    session=session,
+                )
                 total_component_cost += cost
 
                 # Feature 060: Track nested FG consumption for ledger
@@ -432,7 +449,15 @@ def _record_assembly_impl(
                 )
 
     # Increment FinishedGood inventory (same session, atomic with consumption)
-    finished_good.inventory_count += quantity
+    # F061: Use inventory service for audit trail
+    fg_inv.adjust_inventory(
+        item_type="finished_good",
+        item_id=finished_good.id,
+        quantity=+quantity,
+        reason="assembly",
+        notes=f"Assembled from components",
+        session=session,
+    )
 
     # Calculate per-unit cost
     per_unit_cost = (
