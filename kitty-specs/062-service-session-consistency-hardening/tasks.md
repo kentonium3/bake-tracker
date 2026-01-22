@@ -244,7 +244,7 @@
 - [x] T038 Fix `assembly_service.get_assembly_history` to use provided session
 - [x] T039 Fix `assembly_service.get_assembly_run` to use provided session
 - [x] T040 Add tests verifying uncommitted data visibility with session
-- [ ] T041 Update existing tests to pass session parameter
+- [x] T041 Update existing tests to pass session parameter
 
 ### Implementation Notes
 - Bug pattern: `session=None` parameter exists but `with session_scope() as session:` shadows it
