@@ -8,10 +8,10 @@ subtasks:
   - "T020"
 title: "Event Service Calculation Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "15857"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -208,3 +208,4 @@ grep -r "get_event_summary\|get_recipe_needs" src/tests/ --include="*.py"
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T19:33:51Z – claude-opus – shell_pid=15857 – lane=doing – Started implementation via workflow command
