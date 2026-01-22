@@ -8,10 +8,10 @@ subtasks:
   - "T059"
 title: "Structured Logging"
 phase: "Phase 2 - Polish"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "88079"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP08", "WP09"]
@@ -379,3 +379,4 @@ from src.services import batch_production_service
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T23:00:05Z – claude-opus – shell_pid=88079 – lane=doing – Started implementation via workflow command
