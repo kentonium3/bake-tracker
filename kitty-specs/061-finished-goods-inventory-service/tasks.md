@@ -171,7 +171,7 @@
 **Prompt**: `tasks/WP06-model-cleanup.md`
 
 ### Included Subtasks
-- [ ] T019 Remove is_available() method from FinishedUnit model
+- [x] T019 Remove is_available() method from FinishedUnit model
 - [ ] T020 Remove update_inventory() method from FinishedUnit model
 - [ ] T021 Remove is_available() method from FinishedGood model
 - [ ] T022 Remove update_inventory() method from FinishedGood model
