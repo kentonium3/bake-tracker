@@ -210,7 +210,7 @@
 ### Included Subtasks
 - [x] T031 Add required `session` param to: `clone_event`, `export_shopping_list_csv`
 - [x] T032 Add required `session` param to: `get_event_packaging_needs`, `get_event_packaging_breakdown`
-- [ ] T033 Add required `session` param to: `get_recipient_history`
+- [x] T033 Add required `session` param to: `get_recipient_history`
 - [ ] T034 Remove internal `session_scope()` from all remaining functions
 - [ ] T035 Update UI callers and tests
 
