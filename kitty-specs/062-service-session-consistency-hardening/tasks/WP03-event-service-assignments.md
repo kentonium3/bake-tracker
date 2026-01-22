@@ -8,10 +8,10 @@ subtasks:
   - "T015"
 title: "Event Service Assignment Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "claude-opus"
-shell_pid: "85707"
+agent: "claude"
+shell_pid: "14709"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -198,3 +198,4 @@ grep -r "assign_package_to_recipient\|get_event_assignments" src/tests/ --includ
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
 - 2026-01-22T16:54:32Z – claude-opus – shell_pid=85707 – lane=doing – Started implementation via workflow command
 - 2026-01-22T17:11:51Z – claude-opus – shell_pid=85707 – lane=for_review – All 5 assignment functions (assign_package_to_recipient, update_assignment, remove_assignment, get_event_assignments, get_recipient_assignments_for_event) updated with required session parameter. All 2636 tests pass.
+- 2026-01-22T19:29:57Z – claude – shell_pid=14709 – lane=doing – Started review via workflow command
