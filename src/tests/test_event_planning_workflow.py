@@ -238,7 +238,8 @@ class TestFullWorkflow:
         assert assignment is not None
 
         # Step 5: Verify event summary
-        summary = get_event_summary(event.id)
+        with session_scope() as session:
+            summary = get_event_summary(event.id, session=session)
         assert summary is not None
         assert summary["recipient_count"] == 1
         assert summary["assignment_count"] == 1
@@ -271,7 +272,8 @@ class TestFullWorkflow:
                 )
 
         # Verify summary
-        summary = get_event_summary(event.id)
+        with session_scope() as session:
+            summary = get_event_summary(event.id, session=session)
         assert summary["recipient_count"] == 3
         assert summary["assignment_count"] == 3
 
@@ -328,7 +330,8 @@ class TestFIFOCostAccuracy:
         assert package_cost == Decimal("0.00")
 
         # Get event summary
-        summary = get_event_summary(event.id)
+        with session_scope() as session:
+            summary = get_event_summary(event.id, session=session)
 
         # Event cost should equal package cost (both 0.00 for definitions)
         assert summary["total_cost"] == Decimal("0.00")
@@ -358,7 +361,8 @@ class TestFIFOCostAccuracy:
         package_cost = calculate_package_cost(sample_package.id)
         assert package_cost == Decimal("0.00")
 
-        summary = get_event_summary(event.id)
+        with session_scope() as session:
+            summary = get_event_summary(event.id, session=session)
         # Event cost is 0.00 for definitions
         assert summary["total_cost"] == Decimal("0.00")
 
@@ -449,7 +453,8 @@ class TestPerformance:
 
         # Measure summary load time
         start = time.time()
-        summary = get_event_summary(event.id)
+        with session_scope() as session:
+            summary = get_event_summary(event.id, session=session)
         elapsed = time.time() - start
 
         assert elapsed < 2.0, f"Summary took {elapsed:.2f}s (>2s limit)"
@@ -477,7 +482,8 @@ class TestPerformance:
 
         # Measure recipe needs load time
         start = time.time()
-        needs = get_recipe_needs(event.id)
+        with session_scope() as session:
+            needs = get_recipe_needs(event.id, session=session)
         elapsed = time.time() - start
 
         assert elapsed < 2.0, f"Recipe needs took {elapsed:.2f}s (>2s limit)"
@@ -528,7 +534,8 @@ class TestEdgeCases:
 
     def test_event_with_no_assignments(self, test_db, sample_event):
         """Test event summary with no assignments."""
-        summary = get_event_summary(sample_event.id)
+        with session_scope() as session:
+            summary = get_event_summary(sample_event.id, session=session)
 
         assert summary["assignment_count"] == 0
         assert summary["recipient_count"] == 0

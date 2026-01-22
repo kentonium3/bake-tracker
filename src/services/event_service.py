@@ -670,7 +670,7 @@ def get_recipient_assignments_for_event(
 # ============================================================================
 
 
-def get_event_total_cost(event_id: int) -> Decimal:
+def get_event_total_cost(event_id: int, *, session: Session) -> Decimal:
     """
     Calculate total cost of all packages in an event.
 
@@ -678,84 +678,84 @@ def get_event_total_cost(event_id: int) -> Decimal:
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         Total cost as Decimal
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_finished_goods)
-                    .joinedload(PackageFinishedGood.finished_good)
-                )
-                .filter(Event.id == event_id)
-                .first()
+        event = (
+            session.query(Event)
+            .options(
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.package_finished_goods)
+                .joinedload(PackageFinishedGood.finished_good)
             )
+            .filter(Event.id == event_id)
+            .first()
+        )
 
-            if not event:
-                return Decimal("0.00")
+        if not event:
+            return Decimal("0.00")
 
-            return event.get_total_cost()
+        return event.get_total_cost()
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to calculate event cost: {str(e)}")
 
 
-def get_event_recipient_count(event_id: int) -> int:
+def get_event_recipient_count(event_id: int, *, session: Session) -> int:
     """
     Get number of unique recipients in an event.
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         Number of unique recipients
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == event_id)
-                .first()
-            )
+        event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == event_id)
+            .first()
+        )
 
-            if not event:
-                return 0
+        if not event:
+            return 0
 
-            return event.get_recipient_count()
+        return event.get_recipient_count()
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to count recipients: {str(e)}")
 
 
-def get_event_package_count(event_id: int) -> int:
+def get_event_package_count(event_id: int, *, session: Session) -> int:
     """
     Get total number of packages in an event (sum of quantities).
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         Total package count
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == event_id)
-                .first()
-            )
+        event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == event_id)
+            .first()
+        )
 
-            if not event:
-                return 0
+        if not event:
+            return 0
 
-            return event.get_package_count()
+        return event.get_package_count()
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to count packages: {str(e)}")
@@ -766,61 +766,61 @@ def get_event_package_count(event_id: int) -> int:
 # ============================================================================
 
 
-def get_event_summary(event_id: int) -> Dict[str, Any]:
+def get_event_summary(event_id: int, *, session: Session) -> Dict[str, Any]:
     """
     Get complete event summary for Summary tab.
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         Dict with total_cost, recipient_count, package_count, assignment_count, cost_by_recipient
     """
     try:
-        with session_scope() as session:
-            event = (
-                session.query(Event)
-                .options(
-                    joinedload(Event.event_recipient_packages).joinedload(
-                        EventRecipientPackage.recipient
-                    ),
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_finished_goods)
-                    .joinedload(PackageFinishedGood.finished_good),
-                )
-                .filter(Event.id == event_id)
-                .first()
+        event = (
+            session.query(Event)
+            .options(
+                joinedload(Event.event_recipient_packages).joinedload(
+                    EventRecipientPackage.recipient
+                ),
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.package_finished_goods)
+                .joinedload(PackageFinishedGood.finished_good),
+            )
+            .filter(Event.id == event_id)
+            .first()
+        )
+
+        if not event:
+            return {
+                "total_cost": Decimal("0.00"),
+                "recipient_count": 0,
+                "package_count": 0,
+                "assignment_count": 0,
+                "cost_by_recipient": [],
+            }
+
+        # Calculate cost by recipient
+        cost_by_recipient = {}
+        for erp in event.event_recipient_packages:
+            recipient_name = erp.recipient.name if erp.recipient else "Unknown"
+            assignment_cost = erp.calculate_cost()
+            cost_by_recipient[recipient_name] = (
+                cost_by_recipient.get(recipient_name, Decimal("0.00")) + assignment_cost
             )
 
-            if not event:
-                return {
-                    "total_cost": Decimal("0.00"),
-                    "recipient_count": 0,
-                    "package_count": 0,
-                    "assignment_count": 0,
-                    "cost_by_recipient": [],
-                }
-
-            # Calculate cost by recipient
-            cost_by_recipient = {}
-            for erp in event.event_recipient_packages:
-                recipient_name = erp.recipient.name if erp.recipient else "Unknown"
-                assignment_cost = erp.calculate_cost()
-                cost_by_recipient[recipient_name] = (
-                    cost_by_recipient.get(recipient_name, Decimal("0.00")) + assignment_cost
-                )
-
-            return {
-                "total_cost": event.get_total_cost(),
-                "recipient_count": event.get_recipient_count(),
-                "package_count": event.get_package_count(),
-                "assignment_count": len(event.event_recipient_packages),
-                "cost_by_recipient": [
-                    {"recipient_name": name, "cost": cost}
-                    for name, cost in sorted(cost_by_recipient.items())
-                ],
-            }
+        return {
+            "total_cost": event.get_total_cost(),
+            "recipient_count": event.get_recipient_count(),
+            "package_count": event.get_package_count(),
+            "assignment_count": len(event.event_recipient_packages),
+            "cost_by_recipient": [
+                {"recipient_name": name, "cost": cost}
+                for name, cost in sorted(cost_by_recipient.items())
+            ],
+        }
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event summary: {str(e)}")
@@ -831,7 +831,7 @@ def get_event_summary(event_id: int) -> Dict[str, Any]:
 # ============================================================================
 
 
-def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
+def get_recipe_needs(event_id: int, *, session: Session) -> List[Dict[str, Any]]:
     """
     Calculate batch counts needed for all recipes in an event.
 
@@ -839,84 +839,84 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         List of dicts with recipe_id, recipe_name, total_units_needed, batches_needed, items_per_batch
     """
     try:
-        with session_scope() as session:
-            # Load event with full traversal chain
-            event = (
-                session.query(Event)
-                .options(
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_finished_goods)
-                    .joinedload(PackageFinishedGood.finished_good)
-                    .joinedload(FinishedGood.components)
-                    .joinedload(Composition.finished_unit_component)
-                    .joinedload(FinishedUnit.recipe)
-                )
-                .filter(Event.id == event_id)
-                .first()
+        # Load event with full traversal chain
+        event = (
+            session.query(Event)
+            .options(
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.package_finished_goods)
+                .joinedload(PackageFinishedGood.finished_good)
+                .joinedload(FinishedGood.components)
+                .joinedload(Composition.finished_unit_component)
+                .joinedload(FinishedUnit.recipe)
             )
+            .filter(Event.id == event_id)
+            .first()
+        )
 
-            if not event:
-                return []
+        if not event:
+            return []
 
-            # Aggregate recipe needs
-            recipe_totals: Dict[int, int] = {}  # recipe_id -> total units needed
-            recipe_info: Dict[int, Dict] = {}  # recipe_id -> {name, items_per_batch}
+        # Aggregate recipe needs
+        recipe_totals: Dict[int, int] = {}  # recipe_id -> total units needed
+        recipe_info: Dict[int, Dict] = {}  # recipe_id -> {name, items_per_batch}
 
-            for erp in event.event_recipient_packages:
-                if not erp.package:
+        for erp in event.event_recipient_packages:
+            if not erp.package:
+                continue
+
+            for pfg in erp.package.package_finished_goods:
+                if not pfg.finished_good:
                     continue
 
-                for pfg in erp.package.package_finished_goods:
-                    if not pfg.finished_good:
+                fg = pfg.finished_good
+
+                # Traverse compositions to get FinishedUnits
+                for composition in fg.components:
+                    if not composition.finished_unit_component:
                         continue
 
-                    fg = pfg.finished_good
+                    fu = composition.finished_unit_component
+                    if not fu.recipe:
+                        continue
 
-                    # Traverse compositions to get FinishedUnits
-                    for composition in fg.components:
-                        if not composition.finished_unit_component:
-                            continue
+                    recipe_id = fu.recipe_id
+                    items_per_batch = fu.items_per_batch or 1
 
-                        fu = composition.finished_unit_component
-                        if not fu.recipe:
-                            continue
+                    # Calculate units: composition_qty * pfg_qty * erp_qty
+                    units = int(composition.component_quantity) * pfg.quantity * erp.quantity
 
-                        recipe_id = fu.recipe_id
-                        items_per_batch = fu.items_per_batch or 1
-
-                        # Calculate units: composition_qty * pfg_qty * erp_qty
-                        units = int(composition.component_quantity) * pfg.quantity * erp.quantity
-
-                        recipe_totals[recipe_id] = recipe_totals.get(recipe_id, 0) + units
-                        recipe_info[recipe_id] = {
-                            "name": fu.recipe.name,
-                            "items_per_batch": items_per_batch,
-                        }
-
-            # Build result
-            result = []
-            for recipe_id, total_units in recipe_totals.items():
-                info = recipe_info[recipe_id]
-                batches_needed = ceil(total_units / info["items_per_batch"])
-                result.append(
-                    {
-                        "recipe_id": recipe_id,
-                        "recipe_name": info["name"],
-                        "total_units_needed": total_units,
-                        "batches_needed": batches_needed,
-                        "items_per_batch": info["items_per_batch"],
+                    recipe_totals[recipe_id] = recipe_totals.get(recipe_id, 0) + units
+                    recipe_info[recipe_id] = {
+                        "name": fu.recipe.name,
+                        "items_per_batch": items_per_batch,
                     }
-                )
 
-            # Sort by recipe name
-            result.sort(key=lambda x: x["recipe_name"])
-            return result
+        # Build result
+        result = []
+        for recipe_id, total_units in recipe_totals.items():
+            info = recipe_info[recipe_id]
+            batches_needed = ceil(total_units / info["items_per_batch"])
+            result.append(
+                {
+                    "recipe_id": recipe_id,
+                    "recipe_name": info["name"],
+                    "total_units_needed": total_units,
+                    "batches_needed": batches_needed,
+                    "items_per_batch": info["items_per_batch"],
+                }
+            )
+
+        # Sort by recipe name
+        result.sort(key=lambda x: x["recipe_name"])
+        return result
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to calculate recipe needs: {str(e)}")
@@ -981,53 +981,59 @@ def get_shopping_list(
         - items_with_shortfall: Count of items needing purchase
         - packaging: List of packaging needs (if include_packaging=True and needs exist)
     """
+    # Use provided session or create new one
+    if session is not None:
+        return _get_shopping_list_with_session(event_id, include_packaging, session)
+
     try:
-        # Get recipe needs first
-        recipe_needs = get_recipe_needs(event_id)
-
-        if not recipe_needs:
-            # No recipe needs, but may still have packaging needs
-            result = {
-                "items": [],
-                "total_estimated_cost": Decimal("0.00"),
-                "items_count": 0,
-                "items_with_shortfall": 0,
-            }
-            # Feature 011: Add packaging section if requested
-            # Feature 026: Include generic packaging info
-            if include_packaging:
-                try:
-                    packaging_needs = get_event_packaging_needs(event_id)
-                    if packaging_needs:  # Only add if not empty
-                        result["packaging"] = [
-                            {
-                                "product_id": need.product_id,
-                                "ingredient_name": need.ingredient_name,
-                                "product_name": need.product_display_name,
-                                "total_needed": need.total_needed,
-                                "on_hand": need.on_hand,
-                                "to_buy": need.to_buy,
-                                "unit": need.unit,
-                                # Feature 026: Generic packaging fields
-                                "is_generic": need.is_generic,
-                                "generic_product_name": need.generic_product_name,
-                                "estimated_cost": need.estimated_cost,
-                            }
-                            for need in packaging_needs.values()
-                        ]
-                except EventNotFoundError:
-                    pass
-            return result
-
-        # Use provided session or create new one
-        if session is not None:
-            return _get_shopping_list_impl(event_id, include_packaging, recipe_needs, session)
-
         with session_scope() as session:
-            return _get_shopping_list_impl(event_id, include_packaging, recipe_needs, session)
-
+            return _get_shopping_list_with_session(event_id, include_packaging, session)
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to generate shopping list: {str(e)}")
+
+
+def _get_shopping_list_with_session(
+    event_id: int, include_packaging: bool, session: Session
+) -> Dict[str, Any]:
+    """Get shopping list using provided session."""
+    # Get recipe needs first (pass session since it's now required)
+    recipe_needs = get_recipe_needs(event_id, session=session)
+
+    if not recipe_needs:
+        # No recipe needs, but may still have packaging needs
+        result = {
+            "items": [],
+            "total_estimated_cost": Decimal("0.00"),
+            "items_count": 0,
+            "items_with_shortfall": 0,
+        }
+        # Feature 011: Add packaging section if requested
+        # Feature 026: Include generic packaging info
+        if include_packaging:
+            try:
+                packaging_needs = get_event_packaging_needs(event_id)
+                if packaging_needs:  # Only add if not empty
+                    result["packaging"] = [
+                        {
+                            "product_id": need.product_id,
+                            "ingredient_name": need.ingredient_name,
+                            "product_name": need.product_display_name,
+                            "total_needed": need.total_needed,
+                            "on_hand": need.on_hand,
+                            "to_buy": need.to_buy,
+                            "unit": need.unit,
+                            # Feature 026: Generic packaging fields
+                            "is_generic": need.is_generic,
+                            "generic_product_name": need.generic_product_name,
+                            "estimated_cost": need.estimated_cost,
+                        }
+                        for need in packaging_needs.values()
+                    ]
+            except EventNotFoundError:
+                pass
+        return result
+
+    return _get_shopping_list_impl(event_id, include_packaging, recipe_needs, session)
 
 
 def _get_shopping_list_impl(
@@ -2284,7 +2290,7 @@ def get_events_with_progress(
         raise DatabaseError(f"Failed to get events with progress: {str(e)}")
 
 
-def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
+def get_event_cost_analysis(event_id: int, *, session: Session) -> Dict[str, Any]:
     """
     Get cost breakdown for an event.
 
@@ -2294,6 +2300,7 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
 
     Args:
         event_id: Event ID
+        session: Database session (required)
 
     Returns:
         Dict with:
@@ -2306,78 +2313,77 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
         - variance: Decimal (estimated - actual, positive = under budget)
     """
     try:
-        with session_scope() as session:
-            # Get production costs grouped by recipe
-            # Note: ProductionRun uses total_ingredient_cost field
-            prod_costs = (
-                session.query(
-                    Recipe.name,
-                    func.count(ProductionRun.id).label("run_count"),
-                    func.coalesce(
-                        func.sum(ProductionRun.total_ingredient_cost), Decimal("0")
-                    ).label("total_cost"),
-                )
-                .join(ProductionRun, ProductionRun.recipe_id == Recipe.id)
-                .filter(ProductionRun.event_id == event_id)
-                .group_by(Recipe.id, Recipe.name)
-                .all()
+        # Get production costs grouped by recipe
+        # Note: ProductionRun uses total_ingredient_cost field
+        prod_costs = (
+            session.query(
+                Recipe.name,
+                func.count(ProductionRun.id).label("run_count"),
+                func.coalesce(
+                    func.sum(ProductionRun.total_ingredient_cost), Decimal("0")
+                ).label("total_cost"),
             )
+            .join(ProductionRun, ProductionRun.recipe_id == Recipe.id)
+            .filter(ProductionRun.event_id == event_id)
+            .group_by(Recipe.id, Recipe.name)
+            .all()
+        )
 
-            production_costs = [
-                {
-                    "recipe_name": name,
-                    "run_count": count,
-                    "total_cost": Decimal(str(cost)) if cost else Decimal("0"),
-                }
-                for name, count, cost in prod_costs
-            ]
-            total_production_cost = sum(p["total_cost"] for p in production_costs) or Decimal("0")
-
-            # Get assembly costs grouped by finished good
-            # Note: AssemblyRun uses total_component_cost field
-            asm_costs = (
-                session.query(
-                    FinishedGood.display_name,
-                    func.count(AssemblyRun.id).label("run_count"),
-                    func.coalesce(func.sum(AssemblyRun.total_component_cost), Decimal("0")).label(
-                        "total_cost"
-                    ),
-                )
-                .join(AssemblyRun, AssemblyRun.finished_good_id == FinishedGood.id)
-                .filter(AssemblyRun.event_id == event_id)
-                .group_by(FinishedGood.id, FinishedGood.display_name)
-                .all()
-            )
-
-            assembly_costs = [
-                {
-                    "finished_good_name": name,
-                    "run_count": count,
-                    "total_cost": Decimal(str(cost)) if cost else Decimal("0"),
-                }
-                for name, count, cost in asm_costs
-            ]
-            total_assembly_cost = sum(a["total_cost"] for a in assembly_costs) or Decimal("0")
-
-            # Grand total
-            grand_total = total_production_cost + total_assembly_cost
-
-            # Get estimated cost from shopping list
-            shopping_data = get_shopping_list(event_id, include_packaging=False)
-            estimated_cost = shopping_data["total_estimated_cost"]
-
-            # Variance (positive = under budget, negative = over budget)
-            variance = estimated_cost - grand_total
-
-            return {
-                "production_costs": production_costs,
-                "assembly_costs": assembly_costs,
-                "total_production_cost": total_production_cost,
-                "total_assembly_cost": total_assembly_cost,
-                "grand_total": grand_total,
-                "estimated_cost": estimated_cost,
-                "variance": variance,
+        production_costs = [
+            {
+                "recipe_name": name,
+                "run_count": count,
+                "total_cost": Decimal(str(cost)) if cost else Decimal("0"),
             }
+            for name, count, cost in prod_costs
+        ]
+        total_production_cost = sum(p["total_cost"] for p in production_costs) or Decimal("0")
+
+        # Get assembly costs grouped by finished good
+        # Note: AssemblyRun uses total_component_cost field
+        asm_costs = (
+            session.query(
+                FinishedGood.display_name,
+                func.count(AssemblyRun.id).label("run_count"),
+                func.coalesce(func.sum(AssemblyRun.total_component_cost), Decimal("0")).label(
+                    "total_cost"
+                ),
+            )
+            .join(AssemblyRun, AssemblyRun.finished_good_id == FinishedGood.id)
+            .filter(AssemblyRun.event_id == event_id)
+            .group_by(FinishedGood.id, FinishedGood.display_name)
+            .all()
+        )
+
+        assembly_costs = [
+            {
+                "finished_good_name": name,
+                "run_count": count,
+                "total_cost": Decimal(str(cost)) if cost else Decimal("0"),
+            }
+            for name, count, cost in asm_costs
+        ]
+        total_assembly_cost = sum(a["total_cost"] for a in assembly_costs) or Decimal("0")
+
+        # Grand total
+        grand_total = total_production_cost + total_assembly_cost
+
+        # Get estimated cost from shopping list (pass session for consistency)
+        shopping_data = get_shopping_list(event_id, include_packaging=False, session=session)
+        estimated_cost = shopping_data["total_estimated_cost"]
+
+        # Variance (positive = under budget, negative = over budget)
+        variance = estimated_cost - grand_total
+
+        return {
+            "production_costs": production_costs,
+            "assembly_costs": assembly_costs,
+            "total_production_cost": total_production_cost,
+            "total_assembly_cost": total_assembly_cost,
+            "grand_total": grand_total,
+            "estimated_cost": estimated_cost,
+            "variance": variance,
+        }
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event cost analysis: {str(e)}")

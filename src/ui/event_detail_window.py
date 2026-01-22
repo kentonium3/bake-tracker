@@ -899,7 +899,8 @@ class EventDetailWindow(ctk.CTkToplevel):
             widget.destroy()
 
         try:
-            recipe_needs = event_service.get_recipe_needs(self.event.id)
+            with ui_session() as session:
+                recipe_needs = event_service.get_recipe_needs(self.event.id, session=session)
 
             if not recipe_needs:
                 label = ctk.CTkLabel(
@@ -1657,7 +1658,8 @@ class EventDetailWindow(ctk.CTkToplevel):
         ).pack(anchor="w", padx=15, pady=(10, 5))
 
         try:
-            costs = event_service.get_event_cost_analysis(self.event.id)
+            with ui_session() as session:
+                costs = event_service.get_event_cost_analysis(self.event.id, session=session)
 
             # Cost summary row
             cost_row = ctk.CTkFrame(section_frame, fg_color="transparent")
