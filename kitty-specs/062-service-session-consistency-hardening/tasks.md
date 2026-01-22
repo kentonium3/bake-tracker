@@ -239,7 +239,7 @@
 **Prompt**: `tasks/WP08-batch-assembly-bugfixes.md`
 
 ### Included Subtasks
-- [ ] T036 Fix `batch_production_service.get_production_history` to use provided session
+- [x] T036 Fix `batch_production_service.get_production_history` to use provided session
 - [ ] T037 Fix `batch_production_service.get_production_run` to use provided session
 - [ ] T038 Fix `assembly_service.get_assembly_history` to use provided session
 - [ ] T039 Fix `assembly_service.get_assembly_run` to use provided session
