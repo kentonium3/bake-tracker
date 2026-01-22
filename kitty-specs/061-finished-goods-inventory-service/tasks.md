@@ -202,7 +202,7 @@
 **Prompt**: `tasks/WP07-unit-tests.md`
 
 ### Included Subtasks
-- [ ] T024 Unit tests for get_inventory_status (all filtering scenarios)
+- [x] T024 Unit tests for get_inventory_status (all filtering scenarios)
 - [ ] T025 Unit tests for check_availability and validate_consumption
 - [ ] T026 Unit tests for adjust_inventory (positive, negative, audit record, prevents negative, session handling)
 - [ ] T027 Unit tests for get_low_stock_items and get_total_inventory_value
