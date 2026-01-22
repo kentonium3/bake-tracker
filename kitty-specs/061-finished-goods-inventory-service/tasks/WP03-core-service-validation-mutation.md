@@ -6,10 +6,10 @@ subtasks:
   - "T011"
 title: "Core Service - Validation and Mutation"
 phase: "Phase 2 - Core Service"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "7745"
+shell_pid: "12436"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01", "WP02"]
@@ -336,3 +336,4 @@ print(f"Adjusted: {result['previous_count']} -> {result['new_count']}")
 - 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
 - 2026-01-22T02:16:09Z – claude-opus – shell_pid=7745 – lane=doing – Started implementation via workflow command
 - 2026-01-22T02:23:30Z – claude-opus – shell_pid=7745 – lane=for_review – Ready for review: Implemented check_availability, validate_consumption, and adjust_inventory. All functions validate inputs before modification, prevent negative inventory, and create audit records in same session. All 2581 tests pass.
+- 2026-01-22T02:39:30Z – claude-opus – shell_pid=12436 – lane=doing – Started review via workflow command
