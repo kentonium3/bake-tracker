@@ -8,10 +8,10 @@ subtasks:
   - "T023"
 title: "Model Cleanup"
 phase: "Phase 4 - Cleanup"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "24903"
+shell_pid: "27766"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP04", "WP05"]
@@ -282,3 +282,4 @@ grep -rn "\.update_inventory(" src/
 - 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
 - 2026-01-22T03:24:25Z – claude-opus – shell_pid=24903 – lane=doing – Started implementation via workflow command
 - 2026-01-22T03:31:53Z – claude-opus – shell_pid=24903 – lane=for_review – Ready for review: Removed is_available() and update_inventory() from FinishedUnit and FinishedGood models. T023 already done (from WP01). All 2581 tests pass. No callers remain after WP04/WP05 integration.
+- 2026-01-22T03:33:40Z – claude-opus – shell_pid=27766 – lane=doing – Started review via workflow command
