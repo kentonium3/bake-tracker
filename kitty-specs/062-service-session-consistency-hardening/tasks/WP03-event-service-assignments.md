@@ -8,10 +8,10 @@ subtasks:
   - "T015"
 title: "Event Service Assignment Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "85707"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -196,3 +196,4 @@ grep -r "assign_package_to_recipient\|get_event_assignments" src/tests/ --includ
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T16:54:32Z – claude-opus – shell_pid=85707 – lane=doing – Started implementation via workflow command
