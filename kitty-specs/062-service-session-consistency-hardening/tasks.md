@@ -86,7 +86,7 @@
 **Prompt**: `tasks/WP03-event-service-assignments.md`
 
 ### Included Subtasks
-- [ ] T011 Add required `session` param to: `assign_package_to_recipient`, `update_assignment`, `remove_assignment`
+- [x] T011 Add required `session` param to: `assign_package_to_recipient`, `update_assignment`, `remove_assignment`
 - [ ] T012 Add required `session` param to: `get_event_assignments`, `get_recipient_assignments_for_event`
 - [ ] T013 Remove internal `session_scope()` from all assignment functions
 - [ ] T014 Update UI callers in `src/ui/forms/assignment_form.py`, `src/ui/packaging_assignment_dialog.py`
