@@ -1,9 +1,16 @@
 ---
 work_package_id: WP10
 title: DTO Cost Standardization
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
+- WP03
+- WP04
+- WP05
+- WP06
+- WP07
+- WP08
+- WP09
 subtasks:
 - T049
 - T050
@@ -13,8 +20,8 @@ subtasks:
 - T054
 phase: Phase 2 - Polish
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "64105"
 review_status: ''
 reviewed_by: ''
 history:
@@ -264,3 +271,4 @@ python -c "import json; from src.services.batch_production_service import ...; p
 ## Activity Log
 
 - 2026-01-22T15:30:43Z – system – lane=planned – Prompt created.
+- 2026-01-22T21:33:49Z – claude-opus – shell_pid=64105 – lane=doing – Started implementation via workflow command
