@@ -328,8 +328,44 @@ def _check_availability_impl(
     session,
 ) -> dict:
     """Implementation for check_availability."""
-    # TODO: Implement in WP03
-    raise NotImplementedError("check_availability will be implemented in WP03")
+    # Validate item_type
+    valid_types = ("finished_unit", "finished_good")
+    if item_type not in valid_types:
+        raise ValueError(f"Invalid item_type: {item_type}. Must be one of: {valid_types}")
+
+    # Validate quantity
+    if quantity <= 0:
+        raise ValueError("Quantity must be positive")
+
+    # Get the item
+    if item_type == "finished_unit":
+        item = session.query(FinishedUnit).filter_by(id=item_id).first()
+    else:  # finished_good
+        item = session.query(FinishedGood).filter_by(id=item_id).first()
+
+    if not item:
+        raise ValueError(f"Item not found: {item_type}/{item_id}")
+
+    current_count = item.inventory_count
+
+    # Check availability
+    if current_count >= quantity:
+        return {
+            "available": True,
+            "item_type": item_type,
+            "item_id": item_id,
+            "requested": quantity,
+            "current_count": current_count,
+        }
+    else:
+        return {
+            "available": False,
+            "item_type": item_type,
+            "item_id": item_id,
+            "requested": quantity,
+            "current_count": current_count,
+            "shortage": quantity - current_count,
+        }
 
 
 def validate_consumption(
@@ -376,8 +412,54 @@ def _validate_consumption_impl(
     session,
 ) -> dict:
     """Implementation for validate_consumption."""
-    # TODO: Implement in WP03
-    raise NotImplementedError("validate_consumption will be implemented in WP03")
+    # Validate item_type
+    valid_types = ("finished_unit", "finished_good")
+    if item_type not in valid_types:
+        raise ValueError(f"Invalid item_type: {item_type}. Must be one of: {valid_types}")
+
+    # Get the item
+    if item_type == "finished_unit":
+        item = session.query(FinishedUnit).filter_by(id=item_id).first()
+    else:  # finished_good
+        item = session.query(FinishedGood).filter_by(id=item_id).first()
+
+    if not item:
+        raise ValueError(f"Item not found: {item_type}/{item_id}")
+
+    current_count = item.inventory_count
+
+    # Validate quantity is positive
+    if quantity <= 0:
+        return {
+            "valid": False,
+            "item_type": item_type,
+            "item_id": item_id,
+            "quantity": quantity,
+            "current_count": current_count,
+            "error": "Quantity must be positive",
+            "shortage": 0,
+        }
+
+    # Check if sufficient inventory
+    if current_count >= quantity:
+        return {
+            "valid": True,
+            "item_type": item_type,
+            "item_id": item_id,
+            "quantity": quantity,
+            "current_count": current_count,
+            "remaining_after": current_count - quantity,
+        }
+    else:
+        return {
+            "valid": False,
+            "item_type": item_type,
+            "item_id": item_id,
+            "quantity": quantity,
+            "current_count": current_count,
+            "error": f"Insufficient inventory: need {quantity}, have {current_count}",
+            "shortage": quantity - current_count,
+        }
 
 
 # =============================================================================
@@ -441,5 +523,63 @@ def _adjust_inventory_impl(
     session,
 ) -> dict:
     """Implementation for adjust_inventory."""
-    # TODO: Implement in WP03
-    raise NotImplementedError("adjust_inventory will be implemented in WP03")
+    # Validate item_type
+    valid_types = ("finished_unit", "finished_good")
+    if item_type not in valid_types:
+        raise ValueError(f"Invalid item_type: {item_type}. Must be one of: {valid_types}")
+
+    # Validate reason
+    if reason not in FINISHED_GOODS_ADJUSTMENT_REASONS:
+        raise ValueError(
+            f"Invalid reason: {reason}. Must be one of: {FINISHED_GOODS_ADJUSTMENT_REASONS}"
+        )
+
+    # Validate notes for "adjustment" reason
+    if reason == "adjustment" and not notes:
+        raise ValueError("Notes are required when reason is 'adjustment'")
+
+    # Get the item
+    if item_type == "finished_unit":
+        item = session.query(FinishedUnit).filter_by(id=item_id).first()
+    else:  # finished_good
+        item = session.query(FinishedGood).filter_by(id=item_id).first()
+
+    if not item:
+        raise ValueError(f"Item not found: {item_type}/{item_id}")
+
+    # Calculate and validate new count BEFORE modification
+    previous_count = item.inventory_count
+    new_count = previous_count + quantity
+
+    if new_count < 0:
+        raise ValueError(
+            f"Adjustment would result in negative inventory: "
+            f"{previous_count} + {quantity} = {new_count}"
+        )
+
+    # Update inventory
+    item.inventory_count = new_count
+
+    # Create audit record in SAME session
+    adjustment = FinishedGoodsAdjustment(
+        finished_unit_id=item_id if item_type == "finished_unit" else None,
+        finished_good_id=item_id if item_type == "finished_good" else None,
+        quantity_change=quantity,
+        previous_count=previous_count,
+        new_count=new_count,
+        reason=reason,
+        notes=notes,
+    )
+    session.add(adjustment)
+    session.flush()  # Get the ID
+
+    return {
+        "success": True,
+        "item_type": item_type,
+        "item_id": item_id,
+        "previous_count": previous_count,
+        "new_count": new_count,
+        "quantity_change": quantity,
+        "reason": reason,
+        "adjustment_id": adjustment.id,
+    }
