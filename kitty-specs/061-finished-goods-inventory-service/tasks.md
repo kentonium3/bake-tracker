@@ -79,7 +79,7 @@
 **Prompt**: `tasks/WP03-core-service-validation-mutation.md`
 
 ### Included Subtasks
-- [ ] T009 Implement check_availability() for checking if quantity is available
+- [x] T009 Implement check_availability() for checking if quantity is available
 - [ ] T010 Implement validate_consumption() for pre-validation without modification
 - [ ] T011 Implement adjust_inventory() with audit record creation and validation
 
