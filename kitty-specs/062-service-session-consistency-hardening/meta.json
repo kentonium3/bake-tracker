@@ -1,0 +1,9 @@
+{
+  "feature_number": "062",
+  "slug": "service-session-consistency-hardening",
+  "friendly_name": "Service Session Consistency Hardening",
+  "mission": "software-dev",
+  "source_description": "See docs/func-spec/F062_service_session_consistency_hardening.md for specs on this feature.",
+  "created_at": "2026-01-22T00:00:00Z",
+  "decimal_format": "2_decimal_places"
+}
