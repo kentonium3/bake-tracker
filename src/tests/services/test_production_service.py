@@ -198,7 +198,8 @@ class TestGetProductionRecords:
         """Test: Returns empty list when no production recorded."""
         data = setup_production_test_data
 
-        records = get_production_records(data["event"].id)
+        with session_scope() as session:
+            records = get_production_records(data["event"].id, session=session)
 
         assert records == []
 
@@ -214,7 +215,8 @@ class TestGetProductionRecords:
             event_id=data["event"].id, recipe_id=data["recipe"].id, batches=2, notes="Second batch"
         )
 
-        records = get_production_records(data["event"].id)
+        with session_scope() as session:
+            records = get_production_records(data["event"].id, session=session)
 
         assert len(records) == 2
 
@@ -226,7 +228,12 @@ class TestGetProductionTotal:
         """Test: Returns zeros when no production recorded."""
         data = setup_production_test_data
 
-        result = get_production_total(data["event"].id, data["recipe"].id)
+        with session_scope() as session:
+            result = get_production_total(
+                data["event"].id,
+                data["recipe"].id,
+                session=session,
+            )
 
         assert result["batches_produced"] == 0
         assert result["total_actual_cost"] == Decimal("0.00")
@@ -243,7 +250,12 @@ class TestGetProductionTotal:
             event_id=data["event"].id, recipe_id=data["recipe"].id, batches=2, actual_cost=Decimal("2.40")
         )
 
-        result = get_production_total(data["event"].id, data["recipe"].id)
+        with session_scope() as session:
+            result = get_production_total(
+                data["event"].id,
+                data["recipe"].id,
+                session=session,
+            )
 
         assert result["batches_produced"] == 3
         # Total: $1.10 + $2.40 = $3.50
@@ -383,7 +395,8 @@ class TestCanAssemblePackage:
             batches=1,
         )
 
-        result = can_assemble_package(data["assignment"].id)
+        with session_scope() as session:
+            result = can_assemble_package(data["assignment"].id, session=session)
 
         assert result["can_assemble"] is True
         assert len(result["missing_recipes"]) == 0
@@ -392,7 +405,8 @@ class TestCanAssemblePackage:
         """Test: Returns False when no production recorded."""
         data = setup_package_status_test_data
 
-        result = can_assemble_package(data["assignment"].id)
+        with session_scope() as session:
+            result = can_assemble_package(data["assignment"].id, session=session)
 
         assert result["can_assemble"] is False
         assert len(result["missing_recipes"]) == 1
@@ -403,7 +417,8 @@ class TestCanAssemblePackage:
     def test_can_assemble_assignment_not_found(self, test_db, setup_package_status_test_data):
         """Test: Raises AssignmentNotFoundError for invalid ID."""
         with pytest.raises(AssignmentNotFoundError):
-            can_assemble_package(99999)
+            with session_scope() as session:
+                can_assemble_package(99999, session=session)
 
 
 class TestUpdatePackageStatus:
@@ -420,7 +435,12 @@ class TestUpdatePackageStatus:
             batches=1,
         )
 
-        result = update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
+        with session_scope() as session:
+            result = update_package_status(
+                data["assignment"].id,
+                PackageStatus.ASSEMBLED,
+                session=session,
+            )
 
         assert result.status == PackageStatus.ASSEMBLED
 
@@ -434,14 +454,21 @@ class TestUpdatePackageStatus:
             recipe_id=data["recipe"].id,
             batches=1,
         )
-        update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.ASSEMBLED,
+                session=session,
+            )
 
         # Now transition to DELIVERED
-        result = update_package_status(
-            data["assignment"].id,
-            PackageStatus.DELIVERED,
-            delivered_to="Left with neighbor",
-        )
+        with session_scope() as session:
+            result = update_package_status(
+                data["assignment"].id,
+                PackageStatus.DELIVERED,
+                session=session,
+                delivered_to="Left with neighbor",
+            )
 
         assert result.status == PackageStatus.DELIVERED
         assert result.delivered_to == "Left with neighbor"
@@ -451,7 +478,12 @@ class TestUpdatePackageStatus:
         data = setup_package_status_test_data
 
         with pytest.raises(InvalidStatusTransitionError) as exc_info:
-            update_package_status(data["assignment"].id, PackageStatus.DELIVERED)
+            with session_scope() as session:
+                update_package_status(
+                    data["assignment"].id,
+                    PackageStatus.DELIVERED,
+                    session=session,
+                )
 
         assert exc_info.value.current == PackageStatus.PENDING
         assert exc_info.value.target == PackageStatus.DELIVERED
@@ -466,11 +498,21 @@ class TestUpdatePackageStatus:
             recipe_id=data["recipe"].id,
             batches=1,
         )
-        update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.ASSEMBLED,
+                session=session,
+            )
 
         # Try to go back to PENDING
         with pytest.raises(InvalidStatusTransitionError) as exc_info:
-            update_package_status(data["assignment"].id, PackageStatus.PENDING)
+            with session_scope() as session:
+                update_package_status(
+                    data["assignment"].id,
+                    PackageStatus.PENDING,
+                    session=session,
+                )
 
         assert exc_info.value.current == PackageStatus.ASSEMBLED
         assert exc_info.value.target == PackageStatus.PENDING
@@ -485,12 +527,27 @@ class TestUpdatePackageStatus:
             recipe_id=data["recipe"].id,
             batches=1,
         )
-        update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
-        update_package_status(data["assignment"].id, PackageStatus.DELIVERED)
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.ASSEMBLED,
+                session=session,
+            )
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.DELIVERED,
+                session=session,
+            )
 
         # Try to go back to ASSEMBLED
         with pytest.raises(InvalidStatusTransitionError) as exc_info:
-            update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
+            with session_scope() as session:
+                update_package_status(
+                    data["assignment"].id,
+                    PackageStatus.ASSEMBLED,
+                    session=session,
+                )
 
         assert exc_info.value.current == PackageStatus.DELIVERED
         assert exc_info.value.target == PackageStatus.ASSEMBLED
@@ -501,7 +558,12 @@ class TestUpdatePackageStatus:
 
         # No production recorded - should fail
         with pytest.raises(IncompleteProductionError) as exc_info:
-            update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
+            with session_scope() as session:
+                update_package_status(
+                    data["assignment"].id,
+                    PackageStatus.ASSEMBLED,
+                    session=session,
+                )
 
         assert exc_info.value.assignment_id == data["assignment"].id
         assert len(exc_info.value.missing_recipes) > 0
@@ -509,7 +571,12 @@ class TestUpdatePackageStatus:
     def test_update_status_assignment_not_found(self, test_db, setup_package_status_test_data):
         """Test: Raises AssignmentNotFoundError for invalid ID."""
         with pytest.raises(AssignmentNotFoundError):
-            update_package_status(99999, PackageStatus.ASSEMBLED)
+            with session_scope() as session:
+                update_package_status(
+                    99999,
+                    PackageStatus.ASSEMBLED,
+                    session=session,
+                )
 
 
 # ============================================================================
@@ -524,7 +591,8 @@ class TestGetProductionProgress:
         """Test: Returns zero progress when nothing produced."""
         data = setup_package_status_test_data
 
-        progress = get_production_progress(data["event"].id)
+        with session_scope() as session:
+            progress = get_production_progress(data["event"].id, session=session)
 
         assert progress["event_id"] == data["event"].id
         assert progress["event_name"] == "Christmas 2024"
@@ -547,7 +615,8 @@ class TestGetProductionProgress:
             batches=1,
         )
 
-        progress = get_production_progress(data["event"].id)
+        with session_scope() as session:
+            progress = get_production_progress(data["event"].id, session=session)
 
         # Recipe complete (1 batch is enough for 12 cookies needed)
         assert progress["recipes"][0]["batches_produced"] == 1
@@ -564,9 +633,15 @@ class TestGetProductionProgress:
             recipe_id=data["recipe"].id,
             batches=1,
         )
-        update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.ASSEMBLED,
+                session=session,
+            )
 
-        progress = get_production_progress(data["event"].id)
+        with session_scope() as session:
+            progress = get_production_progress(data["event"].id, session=session)
 
         assert progress["packages"]["pending"] == 0
         assert progress["packages"]["assembled"] == 1
@@ -582,10 +657,21 @@ class TestGetProductionProgress:
             recipe_id=data["recipe"].id,
             batches=1,
         )
-        update_package_status(data["assignment"].id, PackageStatus.ASSEMBLED)
-        update_package_status(data["assignment"].id, PackageStatus.DELIVERED)
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.ASSEMBLED,
+                session=session,
+            )
+        with session_scope() as session:
+            update_package_status(
+                data["assignment"].id,
+                PackageStatus.DELIVERED,
+                session=session,
+            )
 
-        progress = get_production_progress(data["event"].id)
+        with session_scope() as session:
+            progress = get_production_progress(data["event"].id, session=session)
 
         assert progress["packages"]["delivered"] == 1
         assert progress["is_complete"] is True
@@ -593,7 +679,8 @@ class TestGetProductionProgress:
     def test_progress_event_not_found(self, test_db, setup_package_status_test_data):
         """Test: Raises EventNotFoundError for invalid event."""
         with pytest.raises(EventNotFoundError):
-            get_production_progress(99999)
+            with session_scope() as session:
+                get_production_progress(99999, session=session)
 
 
 class TestGetDashboardSummary:
@@ -601,12 +688,14 @@ class TestGetDashboardSummary:
 
     def test_dashboard_empty(self, test_db):
         """Test: Returns empty list when no events with packages."""
-        result = get_dashboard_summary()
+        with session_scope() as session:
+            result = get_dashboard_summary(session=session)
         assert result == []
 
     def test_dashboard_with_events(self, test_db, setup_package_status_test_data):
         """Test: Returns events with packages."""
-        result = get_dashboard_summary()
+        with session_scope() as session:
+            result = get_dashboard_summary(session=session)
 
         assert len(result) >= 1
         # Find our test event
@@ -622,7 +711,8 @@ class TestGetRecipeCostBreakdown:
         """Test: Shows zero actual costs when nothing produced."""
         data = setup_package_status_test_data
 
-        breakdown = get_recipe_cost_breakdown(data["event"].id)
+        with session_scope() as session:
+            breakdown = get_recipe_cost_breakdown(data["event"].id, session=session)
 
         assert len(breakdown) == 1
         assert breakdown[0]["recipe_name"] == "Test Cookies"
@@ -641,7 +731,8 @@ class TestGetRecipeCostBreakdown:
             batches=1,
         )
 
-        breakdown = get_recipe_cost_breakdown(data["event"].id)
+        with session_scope() as session:
+            breakdown = get_recipe_cost_breakdown(data["event"].id, session=session)
 
         assert breakdown[0]["actual_cost"] > Decimal("0")
         assert breakdown[0]["batches_produced"] == 1

@@ -16,7 +16,7 @@ from math import ceil
 
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Session, joinedload
 
 from src.models import (
     ProductionRecord,
@@ -31,9 +31,7 @@ from src.models import (
     FinishedUnit,
     PackageStatus,
 )
-from src.services.database import session_scope
-from src.services.exceptions import ValidationError, DatabaseError
-from src.services import inventory_item_service
+from src.services.exceptions import DatabaseError
 from src.services.event_service import EventNotFoundError
 
 
@@ -114,65 +112,69 @@ VALID_TRANSITIONS: Dict[PackageStatus, Set[PackageStatus]] = {
 # See: src/services/batch_production_service.py
 
 
-def get_production_records(event_id: int) -> List[ProductionRecord]:
+def get_production_records(event_id: int, session: Session) -> List[ProductionRecord]:
     """
     Get all production records for an event.
 
     Args:
         event_id: Event to get records for
+        session: SQLAlchemy session for database operations
 
     Returns:
         List of ProductionRecord objects
     """
     try:
-        with session_scope() as session:
-            records = (
-                session.query(ProductionRecord)
-                .options(joinedload(ProductionRecord.recipe))
-                .filter(ProductionRecord.event_id == event_id)
-                .order_by(ProductionRecord.produced_at.desc())
-                .all()
-            )
+        records = (
+            session.query(ProductionRecord)
+            .options(joinedload(ProductionRecord.recipe))
+            .filter(ProductionRecord.event_id == event_id)
+            .order_by(ProductionRecord.produced_at.desc())
+            .all()
+        )
 
-            # Detach from session so they can be used outside
-            for record in records:
-                session.expunge(record)
+        # Detach from session so they can be used outside
+        for record in records:
+            session.expunge(record)
 
-            return records
+        return records
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get production records: {str(e)}")
 
 
-def get_production_total(event_id: int, recipe_id: int) -> Dict[str, Any]:
+def get_production_total(
+    event_id: int,
+    recipe_id: int,
+    session: Session,
+) -> Dict[str, Any]:
     """
     Get total batches produced and cost for a recipe in an event.
 
     Args:
         event_id: Event ID
         recipe_id: Recipe ID
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict with batches_produced, total_actual_cost
     """
     try:
-        with session_scope() as session:
-            result = (
-                session.query(
-                    func.sum(ProductionRecord.batches).label("batches"),
-                    func.sum(ProductionRecord.actual_cost).label("cost"),
-                )
-                .filter(
-                    ProductionRecord.event_id == event_id,
-                    ProductionRecord.recipe_id == recipe_id,
-                )
-                .first()
+        result = (
+            session.query(
+                func.sum(ProductionRecord.batches).label("batches"),
+                func.sum(ProductionRecord.actual_cost).label("cost"),
             )
+            .filter(
+                ProductionRecord.event_id == event_id,
+                ProductionRecord.recipe_id == recipe_id,
+            )
+            .first()
+        )
 
-            return {
-                "batches_produced": result.batches or 0,
-                "total_actual_cost": result.cost or Decimal("0.00"),
-            }
+        return {
+            "batches_produced": result.batches or 0,
+            "total_actual_cost": result.cost or Decimal("0.00"),
+        }
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get production total: {str(e)}")
@@ -231,7 +233,7 @@ def _calculate_package_recipe_needs(assignment: EventRecipientPackage) -> List[D
     return result
 
 
-def can_assemble_package(assignment_id: int) -> Dict[str, Any]:
+def can_assemble_package(assignment_id: int, session: Session) -> Dict[str, Any]:
     """
     Check if a package can be marked as assembled.
 
@@ -240,6 +242,7 @@ def can_assemble_package(assignment_id: int) -> Dict[str, Any]:
 
     Args:
         assignment_id: EventRecipientPackage ID
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict with:
@@ -247,58 +250,57 @@ def can_assemble_package(assignment_id: int) -> Dict[str, Any]:
         - missing_recipes: List of recipes needing more production
     """
     try:
-        with session_scope() as session:
-            # Load assignment with full chain for recipe needs calculation
-            assignment = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_finished_goods)
-                    .joinedload(PackageFinishedGood.finished_good)
-                    .joinedload(FinishedGood.components)
-                    .joinedload(Composition.finished_unit_component)
-                    .joinedload(FinishedUnit.recipe)
-                )
-                .filter(EventRecipientPackage.id == assignment_id)
-                .first()
+        # Load assignment with full chain for recipe needs calculation
+        assignment = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.package)
+                .joinedload(Package.package_finished_goods)
+                .joinedload(PackageFinishedGood.finished_good)
+                .joinedload(FinishedGood.components)
+                .joinedload(Composition.finished_unit_component)
+                .joinedload(FinishedUnit.recipe)
             )
+            .filter(EventRecipientPackage.id == assignment_id)
+            .first()
+        )
 
-            if not assignment:
-                raise AssignmentNotFoundError(assignment_id)
+        if not assignment:
+            raise AssignmentNotFoundError(assignment_id)
 
-            event_id = assignment.event_id
+        event_id = assignment.event_id
 
-            # Get recipe needs for this specific package
-            recipe_needs = _calculate_package_recipe_needs(assignment)
+        # Get recipe needs for this specific package
+        recipe_needs = _calculate_package_recipe_needs(assignment)
 
-            # Get production totals for this event
-            production_totals = (
-                session.query(
-                    ProductionRecord.recipe_id,
-                    func.sum(ProductionRecord.batches).label("produced"),
-                )
-                .filter(ProductionRecord.event_id == event_id)
-                .group_by(ProductionRecord.recipe_id)
-                .all()
+        # Get production totals for this event
+        production_totals = (
+            session.query(
+                ProductionRecord.recipe_id,
+                func.sum(ProductionRecord.batches).label("produced"),
             )
-            produced_map = {r.recipe_id: r.produced for r in production_totals}
+            .filter(ProductionRecord.event_id == event_id)
+            .group_by(ProductionRecord.recipe_id)
+            .all()
+        )
+        produced_map = {r.recipe_id: r.produced for r in production_totals}
 
-            # Check each required recipe
-            missing = []
-            for need in recipe_needs:
-                produced = produced_map.get(need["recipe_id"], 0)
-                if produced < need["batches_required"]:
-                    missing.append(
-                        {
-                            "recipe_id": need["recipe_id"],
-                            "recipe_name": need["recipe_name"],
-                            "batches_required": need["batches_required"],
-                            "batches_produced": produced,
-                            "batches_missing": need["batches_required"] - produced,
-                        }
-                    )
+        # Check each required recipe
+        missing = []
+        for need in recipe_needs:
+            produced = produced_map.get(need["recipe_id"], 0)
+            if produced < need["batches_required"]:
+                missing.append(
+                    {
+                        "recipe_id": need["recipe_id"],
+                        "recipe_name": need["recipe_name"],
+                        "batches_required": need["batches_required"],
+                        "batches_produced": produced,
+                        "batches_missing": need["batches_required"] - produced,
+                    }
+                )
 
-            return {"can_assemble": len(missing) == 0, "missing_recipes": missing}
+        return {"can_assemble": len(missing) == 0, "missing_recipes": missing}
 
     except AssignmentNotFoundError:
         raise
@@ -309,6 +311,7 @@ def can_assemble_package(assignment_id: int) -> Dict[str, Any]:
 def update_package_status(
     assignment_id: int,
     new_status: PackageStatus,
+    session: Session,
     delivered_to: Optional[str] = None,
 ) -> EventRecipientPackage:
     """
@@ -317,6 +320,7 @@ def update_package_status(
     Args:
         assignment_id: EventRecipientPackage ID
         new_status: Target status
+        session: SQLAlchemy session for database operations
         delivered_to: Optional delivery note (only for DELIVERED status)
 
     Returns:
@@ -327,60 +331,47 @@ def update_package_status(
         InvalidStatusTransitionError: Transition not allowed
         IncompleteProductionError: Trying to assemble with incomplete production
     """
-    # First, get current status without holding session open
     try:
-        with session_scope() as session:
-            assignment = (
-                session.query(EventRecipientPackage)
-                .filter(EventRecipientPackage.id == assignment_id)
-                .first()
-            )
+        assignment = (
+            session.query(EventRecipientPackage)
+            .filter(EventRecipientPackage.id == assignment_id)
+            .first()
+        )
 
-            if not assignment:
-                raise AssignmentNotFoundError(assignment_id)
+        if not assignment:
+            raise AssignmentNotFoundError(assignment_id)
 
-            current_status = assignment.status
+        current_status = assignment.status
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get assignment status: {str(e)}")
 
-    # Validate transition (outside session)
+    # Validate transition
     if new_status not in VALID_TRANSITIONS.get(current_status, set()):
         raise InvalidStatusTransitionError(current_status, new_status)
 
-    # If transitioning to ASSEMBLED, verify production complete (uses its own session)
+    # If transitioning to ASSEMBLED, verify production complete
     if new_status == PackageStatus.ASSEMBLED:
-        assembly_check = can_assemble_package(assignment_id)
+        assembly_check = can_assemble_package(assignment_id, session=session)
         if not assembly_check["can_assemble"]:
             raise IncompleteProductionError(assignment_id, assembly_check["missing_recipes"])
 
-    # Now perform the update in a fresh session
     try:
-        with session_scope() as session:
-            assignment = (
-                session.query(EventRecipientPackage)
-                .filter(EventRecipientPackage.id == assignment_id)
-                .first()
-            )
+        # Update status
+        assignment.status = new_status
 
-            # Update status
-            assignment.status = new_status
+        # Set delivered_to if transitioning to DELIVERED
+        if new_status == PackageStatus.DELIVERED and delivered_to:
+            assignment.delivered_to = delivered_to
 
-            # Set delivered_to if transitioning to DELIVERED
-            if new_status == PackageStatus.DELIVERED and delivered_to:
-                assignment.delivered_to = delivered_to
-
-            session.flush()
-            session.refresh(assignment)
-
-            # Expunge to allow use outside session
-            session.expunge(assignment)
-            return assignment
+        session.flush()
+        session.refresh(assignment)
+        return assignment
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to update package status: {str(e)}")
 
 
-def get_production_progress(event_id: int) -> Dict[str, Any]:
+def get_production_progress(event_id: int, session: Session) -> Dict[str, Any]:
     """
     Get production progress for an event.
 
@@ -388,6 +379,7 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
 
     Args:
         event_id: Event to get progress for
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict with recipes, packages, costs, and completion status
@@ -395,15 +387,13 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
     from src.services import event_service
 
     try:
-        with session_scope() as session:
-            # Verify event exists
-            event = session.query(Event).filter(Event.id == event_id).first()
-            if not event:
-                raise EventNotFoundError(event_id)
+        # Verify event exists
+        event = session.query(Event).filter(Event.id == event_id).first()
+        if not event:
+            raise EventNotFoundError(event_id)
 
-            event_name = event.name
-            event_date = event.event_date
-
+        event_name = event.name
+        event_date = event.event_date
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to verify event: {str(e)}")
 
@@ -411,93 +401,90 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
     recipe_needs = event_service.get_recipe_needs(event_id)
 
     try:
-        with session_scope() as session:
-            # Get produced batches with actual costs
-            production_data = (
-                session.query(
-                    ProductionRecord.recipe_id,
-                    func.sum(ProductionRecord.batches).label("produced"),
-                    func.sum(ProductionRecord.actual_cost).label("actual_cost"),
-                )
-                .filter(ProductionRecord.event_id == event_id)
-                .group_by(ProductionRecord.recipe_id)
-                .all()
+        # Get produced batches with actual costs
+        production_data = (
+            session.query(
+                ProductionRecord.recipe_id,
+                func.sum(ProductionRecord.batches).label("produced"),
+                func.sum(ProductionRecord.actual_cost).label("actual_cost"),
             )
-            produced_map = {
-                r.recipe_id: {"produced": r.produced, "actual_cost": r.actual_cost}
-                for r in production_data
-            }
+            .filter(ProductionRecord.event_id == event_id)
+            .group_by(ProductionRecord.recipe_id)
+            .all()
+        )
+        produced_map = {
+            r.recipe_id: {"produced": r.produced, "actual_cost": r.actual_cost}
+            for r in production_data
+        }
 
-            # Build recipe progress list
-            recipes = []
-            total_actual = Decimal("0.00")
-            total_planned = Decimal("0.00")
+        # Build recipe progress list
+        recipes = []
+        total_actual = Decimal("0.00")
+        total_planned = Decimal("0.00")
 
-            for need in recipe_needs:
-                recipe_id = need["recipe_id"]
-                prod = produced_map.get(recipe_id, {"produced": 0, "actual_cost": Decimal("0")})
+        for need in recipe_needs:
+            recipe_id = need["recipe_id"]
+            prod = produced_map.get(recipe_id, {"produced": 0, "actual_cost": Decimal("0")})
 
-                # Get planned cost from recipe (estimated)
-                recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
-                planned_per_batch = (
-                    Decimal(str(recipe.calculate_cost())) if recipe else Decimal("0")
-                )
-                planned_cost = planned_per_batch * Decimal(str(need["batches_needed"]))
+            # Get planned cost from recipe (estimated)
+            recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
+            planned_per_batch = Decimal(str(recipe.calculate_cost())) if recipe else Decimal("0")
+            planned_cost = planned_per_batch * Decimal(str(need["batches_needed"]))
 
-                actual = prod["actual_cost"] or Decimal("0")
+            actual = prod["actual_cost"] or Decimal("0")
 
-                recipes.append(
-                    {
-                        "recipe_id": recipe_id,
-                        "recipe_name": need["recipe_name"],
-                        "batches_required": need["batches_needed"],
-                        "batches_produced": prod["produced"],
-                        "is_complete": prod["produced"] >= need["batches_needed"],
-                        "actual_cost": actual,
-                        "planned_cost": planned_cost,
-                    }
-                )
-
-                total_actual += actual
-                total_planned += planned_cost
-
-            # Get package status counts
-            package_counts = (
-                session.query(
-                    EventRecipientPackage.status,
-                    func.count(EventRecipientPackage.id).label("count"),
-                )
-                .filter(EventRecipientPackage.event_id == event_id)
-                .group_by(EventRecipientPackage.status)
-                .all()
+            recipes.append(
+                {
+                    "recipe_id": recipe_id,
+                    "recipe_name": need["recipe_name"],
+                    "batches_required": need["batches_needed"],
+                    "batches_produced": prod["produced"],
+                    "is_complete": prod["produced"] >= need["batches_needed"],
+                    "actual_cost": actual,
+                    "planned_cost": planned_cost,
+                }
             )
 
-            status_map = {s.status.value: s.count for s in package_counts}
-            pending = status_map.get("pending", 0)
-            assembled = status_map.get("assembled", 0)
-            delivered = status_map.get("delivered", 0)
-            total_packages = pending + assembled + delivered
+            total_actual += actual
+            total_planned += planned_cost
 
-            return {
-                "event_id": event_id,
-                "event_name": event_name,
-                "event_date": event_date.isoformat() if event_date else None,
-                "recipes": recipes,
-                "packages": {
-                    "total": total_packages,
-                    "pending": pending,
-                    "assembled": assembled,
-                    "delivered": delivered,
-                },
-                "costs": {"actual_total": total_actual, "planned_total": total_planned},
-                "is_complete": delivered == total_packages and total_packages > 0,
-            }
+        # Get package status counts
+        package_counts = (
+            session.query(
+                EventRecipientPackage.status,
+                func.count(EventRecipientPackage.id).label("count"),
+            )
+            .filter(EventRecipientPackage.event_id == event_id)
+            .group_by(EventRecipientPackage.status)
+            .all()
+        )
+
+        status_map = {s.status.value: s.count for s in package_counts}
+        pending = status_map.get("pending", 0)
+        assembled = status_map.get("assembled", 0)
+        delivered = status_map.get("delivered", 0)
+        total_packages = pending + assembled + delivered
+
+        return {
+            "event_id": event_id,
+            "event_name": event_name,
+            "event_date": event_date.isoformat() if event_date else None,
+            "recipes": recipes,
+            "packages": {
+                "total": total_packages,
+                "pending": pending,
+                "assembled": assembled,
+                "delivered": delivered,
+            },
+            "costs": {"actual_total": total_actual, "planned_total": total_planned},
+            "is_complete": delivered == total_packages and total_packages > 0,
+        }
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get production progress: {str(e)}")
 
 
-def get_dashboard_summary() -> List[Dict[str, Any]]:
+def get_dashboard_summary(session: Session) -> List[Dict[str, Any]]:
     """
     Get production summary across all active events.
 
@@ -507,17 +494,16 @@ def get_dashboard_summary() -> List[Dict[str, Any]]:
         List of event summaries with progress information
     """
     try:
-        with session_scope() as session:
-            # Get all events with packages
-            events_with_packages = (
-                session.query(Event)
-                .join(EventRecipientPackage)
-                .distinct()
-                .order_by(Event.event_date.asc())
-                .all()
-            )
+        # Get all events with packages
+        events_with_packages = (
+            session.query(Event)
+            .join(EventRecipientPackage)
+            .distinct()
+            .order_by(Event.event_date.asc())
+            .all()
+        )
 
-            event_ids = [e.id for e in events_with_packages]
+        event_ids = [e.id for e in events_with_packages]
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to query events: {str(e)}")
@@ -525,7 +511,7 @@ def get_dashboard_summary() -> List[Dict[str, Any]]:
     # Build summaries (get_production_progress uses its own sessions)
     summaries = []
     for event_id in event_ids:
-        progress = get_production_progress(event_id)
+        progress = get_production_progress(event_id, session=session)
 
         # Count complete recipes
         recipes_complete = sum(1 for r in progress["recipes"] if r["is_complete"])
@@ -551,7 +537,7 @@ def get_dashboard_summary() -> List[Dict[str, Any]]:
     return summaries
 
 
-def get_recipe_cost_breakdown(event_id: int) -> List[Dict[str, Any]]:
+def get_recipe_cost_breakdown(event_id: int, session: Session) -> List[Dict[str, Any]]:
     """
     Get detailed cost breakdown by recipe for an event.
 
@@ -561,7 +547,7 @@ def get_recipe_cost_breakdown(event_id: int) -> List[Dict[str, Any]]:
     Returns:
         List of recipe cost details with variance
     """
-    progress = get_production_progress(event_id)
+    progress = get_production_progress(event_id, session=session)
 
     breakdown = []
     for recipe in progress["recipes"]:
@@ -591,40 +577,40 @@ def get_recipe_cost_breakdown(event_id: int) -> List[Dict[str, Any]]:
     return breakdown
 
 
-def get_event_assignments(event_id: int) -> List[Dict[str, Any]]:
+def get_event_assignments(event_id: int, session: Session) -> List[Dict[str, Any]]:
     """
     Get package assignments for an event with status info.
 
     Args:
         event_id: Event to get assignments for
+        session: SQLAlchemy session for database operations
 
     Returns:
         List of assignment dicts with recipient, package, status info
     """
     try:
-        with session_scope() as session:
-            assignments = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(EventRecipientPackage.event_id == event_id)
-                .all()
+        assignments = (
+            session.query(EventRecipientPackage)
+            .options(
+                joinedload(EventRecipientPackage.recipient),
+                joinedload(EventRecipientPackage.package),
             )
+            .filter(EventRecipientPackage.event_id == event_id)
+            .all()
+        )
 
-            result = []
-            for a in assignments:
-                result.append(
-                    {
-                        "id": a.id,
-                        "recipient_name": a.recipient.name if a.recipient else "Unknown",
-                        "package_name": a.package.name if a.package else "Unknown",
-                        "status": a.status.value if a.status else "pending",
-                        "delivered_to": a.delivered_to,
-                    }
-                )
-            return result
+        result = []
+        for a in assignments:
+            result.append(
+                {
+                    "id": a.id,
+                    "recipient_name": a.recipient.name if a.recipient else "Unknown",
+                    "package_name": a.package.name if a.package else "Unknown",
+                    "status": a.status.value if a.status else "pending",
+                    "delivered_to": a.delivered_to,
+                }
+            )
+        return result
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event assignments: {str(e)}")
