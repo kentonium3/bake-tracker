@@ -404,11 +404,11 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
             event_name = event.name
             event_date = event.event_date
 
+            # Get required batches from event_service (pass session for consistency)
+            recipe_needs = event_service.get_recipe_needs(event_id, session=session)
+
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to verify event: {str(e)}")
-
-    # Get required batches from event_service (uses its own session)
-    recipe_needs = event_service.get_recipe_needs(event_id)
 
     try:
         with session_scope() as session:

@@ -351,7 +351,8 @@ class TestGetEventCostAnalysis:
 
     def test_cost_analysis_no_production(self, test_db, test_event):
         """Test cost analysis with no production data."""
-        result = event_service.get_event_cost_analysis(test_event.id)
+        with session_scope() as session:
+            result = event_service.get_event_cost_analysis(test_event.id, session=session)
 
         assert result["production_costs"] == []
         assert result["assembly_costs"] == []
@@ -361,7 +362,10 @@ class TestGetEventCostAnalysis:
 
     def test_cost_analysis_with_production(self, test_db, event_with_production_runs):
         """Test cost analysis with production runs."""
-        result = event_service.get_event_cost_analysis(event_with_production_runs.id)
+        with session_scope() as session:
+            result = event_service.get_event_cost_analysis(
+                event_with_production_runs.id, session=session
+            )
 
         # Should have production costs
         assert len(result["production_costs"]) == 1
@@ -379,7 +383,10 @@ class TestGetEventCostAnalysis:
 
     def test_cost_analysis_with_production_and_assembly(self, test_db, event_with_assembly_runs):
         """Test cost analysis with both production and assembly runs."""
-        result = event_service.get_event_cost_analysis(event_with_assembly_runs.id)
+        with session_scope() as session:
+            result = event_service.get_event_cost_analysis(
+                event_with_assembly_runs.id, session=session
+            )
 
         # Production costs
         assert len(result["production_costs"]) == 1
@@ -396,7 +403,10 @@ class TestGetEventCostAnalysis:
 
     def test_cost_analysis_returns_decimals(self, test_db, event_with_production_runs):
         """Test that cost values are returned as Decimals."""
-        result = event_service.get_event_cost_analysis(event_with_production_runs.id)
+        with session_scope() as session:
+            result = event_service.get_event_cost_analysis(
+                event_with_production_runs.id, session=session
+            )
 
         assert isinstance(result["total_production_cost"], Decimal)
         assert isinstance(result["total_assembly_cost"], Decimal)
@@ -404,14 +414,18 @@ class TestGetEventCostAnalysis:
 
     def test_cost_analysis_variance_calculation(self, test_db, test_event):
         """Test that variance is calculated (estimated - actual)."""
-        result = event_service.get_event_cost_analysis(test_event.id)
+        with session_scope() as session:
+            result = event_service.get_event_cost_analysis(test_event.id, session=session)
 
         # With no production, actual = 0, so variance = estimated - 0 = estimated
         assert result["variance"] == result["estimated_cost"]
 
     def test_cost_analysis_includes_estimated_cost(self, test_db, event_with_production_runs):
         """Test that estimated cost is included from shopping list."""
-        result = event_service.get_event_cost_analysis(event_with_production_runs.id)
+        with session_scope() as session:
+            result = event_service.get_event_cost_analysis(
+                event_with_production_runs.id, session=session
+            )
 
         # Should have an estimated_cost key (may be 0 if no ingredients needed)
         assert "estimated_cost" in result
