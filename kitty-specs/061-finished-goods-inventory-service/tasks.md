@@ -111,7 +111,7 @@
 **Prompt**: `tasks/WP04-integration-assembly-service.md`
 
 ### Included Subtasks
-- [ ] T012 Update check_can_assemble to optionally use inventory service for availability
+- [x] T012 Update check_can_assemble to optionally use inventory service for availability
 - [ ] T013 Update _record_assembly_impl FU consumption to use adjust_inventory
 - [ ] T014 Update _record_assembly_impl nested FG consumption to use adjust_inventory
 - [ ] T015 Update _record_assembly_impl FG creation to use adjust_inventory
