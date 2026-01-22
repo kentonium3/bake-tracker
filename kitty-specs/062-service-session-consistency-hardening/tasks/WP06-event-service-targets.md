@@ -8,12 +8,12 @@ subtasks:
   - "T030"
 title: "Event Service Target & Status Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "42843"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-22T15:30:43Z"
@@ -150,3 +150,4 @@ grep -r "set_production_target\|get_production_targets\|update_fulfillment_statu
 - 2026-01-22T20:11:12Z – claude-opus – shell_pid=31173 – lane=doing – Started implementation via workflow command
 - 2026-01-22T20:41:03Z – claude-opus – shell_pid=31173 – lane=for_review – All 8 functions updated with required session parameter. UI callers and tests updated. 2636 tests pass.
 - 2026-01-22T20:43:22Z – claude-opus – shell_pid=42843 – lane=doing – Started review via workflow command
+- 2026-01-22T20:44:42Z – claude-opus – shell_pid=42843 – lane=done – Review passed: All 8 functions have required session parameter, no internal session_scope(), UI callers properly wrapped, 54 related tests pass.
