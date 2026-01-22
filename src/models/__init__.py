@@ -49,6 +49,7 @@ from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption 
 from .assembly_packaging_consumption import AssemblyPackagingConsumption  # Feature 013
 from .assembly_finished_good_consumption import AssemblyFinishedGoodConsumption  # Feature 060
 from .unit import Unit  # Feature 022
+from .finished_goods_adjustment import FinishedGoodsAdjustment  # Feature 061
 
 # Feature 047: Materials Management System
 from .material_category import MaterialCategory
@@ -129,4 +130,6 @@ __all__ = [
     "MaterialConsumption",
     # Feature 058: Materials FIFO Foundation
     "MaterialInventoryItem",
+    # Feature 061: Finished Goods Inventory Service
+    "FinishedGoodsAdjustment",
 ]
