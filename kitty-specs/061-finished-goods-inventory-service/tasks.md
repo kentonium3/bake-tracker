@@ -81,7 +81,7 @@
 ### Included Subtasks
 - [x] T009 Implement check_availability() for checking if quantity is available
 - [x] T010 Implement validate_consumption() for pre-validation without modification
-- [ ] T011 Implement adjust_inventory() with audit record creation and validation
+- [x] T011 Implement adjust_inventory() with audit record creation and validation
 
 ### Implementation Notes
 - adjust_inventory is the core function - all inventory changes flow through it
