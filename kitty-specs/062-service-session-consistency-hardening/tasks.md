@@ -21,7 +21,7 @@
 **Prompt**: `tasks/WP01-ui-session-infrastructure.md`
 
 ### Included Subtasks
-- [ ] T001 Create `src/ui/utils/__init__.py` if not exists
+- [x] T001 Create `src/ui/utils/__init__.py` if not exists
 - [ ] T002 Create `src/ui/utils/session_utils.py` with `ui_session()` context manager
 - [ ] T003 Add type hints and docstrings documenting usage pattern
 - [ ] T004 Create unit test for `ui_session()` in `src/tests/test_ui_session_utils.py`
