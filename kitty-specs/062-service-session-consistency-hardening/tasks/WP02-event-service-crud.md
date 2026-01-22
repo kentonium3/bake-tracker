@@ -9,12 +9,12 @@ subtasks:
   - "T010"
 title: "Event Service CRUD Operations"
 phase: "Phase 1 - Service Hardening"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "83271"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-22T15:30:43Z"
@@ -411,3 +411,4 @@ def test_create_event():
 - 2026-01-22T16:03:47Z – claude-opus – shell_pid=75488 – lane=doing – Started implementation via workflow command
 - 2026-01-22T16:24:56Z – claude-opus – shell_pid=75488 – lane=for_review – All 8 CRUD functions updated with required session param, tests passing
 - 2026-01-22T16:44:18Z – claude-opus – shell_pid=83271 – lane=doing – Started review via workflow command
+- 2026-01-22T16:49:17Z – claude-opus – shell_pid=83271 – lane=done – Review passed: All 8 CRUD functions updated with required session param, no session_scope() inside functions, no commit() calls, all UI callers use ui_session(), 1411 tests passing
