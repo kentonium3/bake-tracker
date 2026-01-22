@@ -120,7 +120,7 @@
 - [x] T017 Add required `session` param to: `get_event_summary`, `get_recipe_needs`, `get_event_cost_analysis`
 - [x] T018 Remove internal `session_scope()` from all calculation functions
 - [x] T019 Update UI callers (event cards, dashboards, detail views)
-- [ ] T020 Update tests for calculation functions
+- [x] T020 Update tests for calculation functions
 
 ### Implementation Notes
 - `get_event_summary` and `get_event_cost_analysis` are complex aggregations
