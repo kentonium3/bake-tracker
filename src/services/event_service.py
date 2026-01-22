@@ -956,7 +956,9 @@ def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
 
 
 def get_shopping_list(
-    event_id: int, include_packaging: bool = True, session=None
+    event_id: int,
+    session: Session,
+    include_packaging: bool = True,
 ) -> Dict[str, Any]:
     """
     Calculate ingredients needed with inventory comparison and product recommendations.
@@ -969,9 +971,7 @@ def get_shopping_list(
     Args:
         event_id: Event ID
         include_packaging: Whether to include packaging section (default True)
-        session: Optional SQLAlchemy session. If provided, all operations
-                 use this session and caller controls commit/rollback.
-                 If None, method manages its own transaction.
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict with:
@@ -1037,7 +1037,10 @@ def _get_shopping_list_with_session(
 
 
 def _get_shopping_list_impl(
-    event_id: int, include_packaging: bool, recipe_needs: List[Dict], session
+    event_id: int,
+    include_packaging: bool,
+    recipe_needs: List[Dict],
+    session: Session,
 ) -> Dict[str, Any]:
     """Implementation of get_shopping_list using provided session."""
     # Aggregate ingredient needs across all recipes
@@ -1142,7 +1145,7 @@ def _get_shopping_list_impl(
     # Feature 026: Include generic packaging info
     if include_packaging:
         try:
-            packaging_needs = get_event_packaging_needs(event_id)
+            packaging_needs = get_event_packaging_needs(event_id, session=session)
             if packaging_needs:  # Only add if not empty
                 result["packaging"] = [
                     {
@@ -1167,13 +1170,14 @@ def _get_shopping_list_impl(
     return result
 
 
-def export_shopping_list_csv(event_id: int, file_path: str) -> bool:
+def export_shopping_list_csv(event_id: int, file_path: str, session: Session) -> bool:
     """
     Export shopping list to CSV file.
 
     Args:
         event_id: Event ID
         file_path: Destination file path
+        session: SQLAlchemy session for database operations
 
     Returns:
         True if export was successful and file was written.
@@ -1183,7 +1187,11 @@ def export_shopping_list_csv(event_id: int, file_path: str) -> bool:
         IOError: If file write fails
     """
     # Get shopping list data
-    shopping_data = get_shopping_list(event_id, include_packaging=True)
+    shopping_data = get_shopping_list(
+        event_id,
+        session=session,
+        include_packaging=True,
+    )
 
     if not shopping_data["items"] and not shopping_data.get("packaging"):
         # Nothing to export - return False so UI can show appropriate message
@@ -1259,6 +1267,7 @@ def clone_event(
     new_name: str,
     new_year: int,
     new_event_date: date,
+    session: Session,
 ) -> Event:
     """
     Clone an event and all its assignments to a new year.
@@ -1268,6 +1277,7 @@ def clone_event(
         new_name: Name for new event
         new_year: Year for new event
         new_event_date: Date for new event
+        session: SQLAlchemy session for database operations
 
     Returns:
         New Event instance with cloned assignments
@@ -1281,49 +1291,48 @@ def clone_event(
         raise ValidationError(["New event name is required"])
 
     try:
-        with session_scope() as session:
-            # Get source event with assignments
-            source_event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == source_event_id)
-                .first()
+        # Get source event with assignments
+        source_event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == source_event_id)
+            .first()
+        )
+
+        if not source_event:
+            raise EventNotFoundError(source_event_id)
+
+        # Create new event
+        new_event = Event(
+            name=new_name.strip(),
+            event_date=new_event_date,
+            year=new_year,
+            notes=source_event.notes,
+        )
+        session.add(new_event)
+        session.flush()
+
+        # Clone assignments
+        for source_assignment in source_event.event_recipient_packages:
+            new_assignment = EventRecipientPackage(
+                event_id=new_event.id,
+                recipient_id=source_assignment.recipient_id,
+                package_id=source_assignment.package_id,
+                quantity=source_assignment.quantity,
+                notes=source_assignment.notes,
             )
+            session.add(new_assignment)
 
-            if not source_event:
-                raise EventNotFoundError(source_event_id)
+        session.flush()
 
-            # Create new event
-            new_event = Event(
-                name=new_name.strip(),
-                event_date=new_event_date,
-                year=new_year,
-                notes=source_event.notes,
-            )
-            session.add(new_event)
-            session.flush()
-
-            # Clone assignments
-            for source_assignment in source_event.event_recipient_packages:
-                new_assignment = EventRecipientPackage(
-                    event_id=new_event.id,
-                    recipient_id=source_assignment.recipient_id,
-                    package_id=source_assignment.package_id,
-                    quantity=source_assignment.quantity,
-                    notes=source_assignment.notes,
-                )
-                session.add(new_assignment)
-
-            session.flush()
-
-            # Reload with relationships
-            new_event = (
-                session.query(Event)
-                .options(joinedload(Event.event_recipient_packages))
-                .filter(Event.id == new_event.id)
-                .one()
-            )
-            return new_event
+        # Reload with relationships
+        new_event = (
+            session.query(Event)
+            .options(joinedload(Event.event_recipient_packages))
+            .filter(Event.id == new_event.id)
+            .one()
+        )
+        return new_event
 
     except (EventNotFoundError, ValidationError):
         raise
@@ -1336,7 +1345,7 @@ def clone_event(
 # ============================================================================
 
 
-def _get_packaging_on_hand(session, product_id: int) -> float:
+def _get_packaging_on_hand(session: Session, product_id: int) -> float:
     """
     Get current inventory quantity for a packaging product.
 
@@ -1365,7 +1374,10 @@ class _RawPackagingNeed:
     product_name: Optional[str]  # For generic compositions
 
 
-def _aggregate_packaging(session, event: Event) -> tuple[Dict[int, float], Dict[str, float]]:
+def _aggregate_packaging(
+    session: Session,
+    event: Event,
+) -> tuple[Dict[int, float], Dict[str, float]]:
     """
     Aggregate packaging quantities for an event.
 
@@ -1440,7 +1452,7 @@ def _aggregate_packaging(session, event: Event) -> tuple[Dict[int, float], Dict[
     return specific_needs, generic_needs
 
 
-def _get_generic_packaging_on_hand(session, product_name: str) -> float:
+def _get_generic_packaging_on_hand(session: Session, product_name: str) -> float:
     """
     Get total on-hand quantity for all products with a given product_name.
 
@@ -1463,7 +1475,7 @@ def _get_generic_packaging_on_hand(session, product_name: str) -> float:
     return total_on_hand
 
 
-def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
+def get_event_packaging_needs(event_id: int, session: Session) -> Dict[str, PackagingNeed]:
     """
     Calculate packaging material needs for an event.
 
@@ -1476,6 +1488,7 @@ def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
 
     Args:
         event_id: Event ID
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict mapping key to PackagingNeed dataclass
@@ -1489,102 +1502,101 @@ def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
     from src.services import packaging_service
 
     try:
-        with session_scope() as session:
-            # Load event with full traversal chain for packaging
-            event = (
-                session.query(Event)
-                .options(
-                    # Package-level packaging
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.packaging_compositions)
-                    .joinedload(Composition.packaging_product),
-                    # FinishedGood-level packaging
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_finished_goods)
-                    .joinedload(PackageFinishedGood.finished_good)
-                    .joinedload(FinishedGood.components)
-                    .joinedload(Composition.packaging_product),
-                )
-                .filter(Event.id == event_id)
-                .first()
+        # Load event with full traversal chain for packaging
+        event = (
+            session.query(Event)
+            .options(
+                # Package-level packaging
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.packaging_compositions)
+                .joinedload(Composition.packaging_product),
+                # FinishedGood-level packaging
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.package_finished_goods)
+                .joinedload(PackageFinishedGood.finished_good)
+                .joinedload(FinishedGood.components)
+                .joinedload(Composition.packaging_product),
+            )
+            .filter(Event.id == event_id)
+            .first()
+        )
+
+        if not event:
+            raise EventNotFoundError(event_id)
+
+        # Feature 026: Aggregate raw quantities (now returns tuple)
+        specific_needs, generic_needs = _aggregate_packaging(session, event)
+
+        # Build PackagingNeed objects
+        needs: Dict[str, PackagingNeed] = {}
+
+        # Process specific packaging needs
+        for product_id, total_needed in specific_needs.items():
+            product = session.get(Product, product_id)
+            if not product:
+                continue
+
+            ingredient = product.ingredient
+            on_hand = _get_packaging_on_hand(session, product_id)
+            to_buy = max(0.0, total_needed - on_hand)
+
+            key = f"specific_{product_id}"
+            needs[key] = PackagingNeed(
+                product_id=product_id,
+                product=product,
+                ingredient_name=ingredient.display_name if ingredient else "Unknown",
+                product_display_name=product.display_name,
+                total_needed=total_needed,
+                on_hand=on_hand,
+                to_buy=to_buy,
+                unit=product.package_unit or "each",
+                is_generic=False,
             )
 
-            if not event:
-                raise EventNotFoundError(event_id)
+        # Feature 026: Process generic packaging needs
+        for product_name, total_needed in generic_needs.items():
+            # Get on-hand across all products with this product_name
+            on_hand = _get_generic_packaging_on_hand(session, product_name)
+            to_buy = max(0.0, total_needed - on_hand)
 
-            # Feature 026: Aggregate raw quantities (now returns tuple)
-            specific_needs, generic_needs = _aggregate_packaging(session, event)
-
-            # Build PackagingNeed objects
-            needs: Dict[str, PackagingNeed] = {}
-
-            # Process specific packaging needs
-            for product_id, total_needed in specific_needs.items():
-                product = session.get(Product, product_id)
-                if not product:
-                    continue
-
-                ingredient = product.ingredient
-                on_hand = _get_packaging_on_hand(session, product_id)
-                to_buy = max(0.0, total_needed - on_hand)
-
-                key = f"specific_{product_id}"
-                needs[key] = PackagingNeed(
-                    product_id=product_id,
-                    product=product,
-                    ingredient_name=ingredient.display_name if ingredient else "Unknown",
-                    product_display_name=product.display_name,
-                    total_needed=total_needed,
-                    on_hand=on_hand,
-                    to_buy=to_buy,
-                    unit=product.package_unit or "each",
-                    is_generic=False,
+            # Get estimated cost from packaging service
+            try:
+                estimated_cost = packaging_service.get_estimated_cost(
+                    product_name, float(total_needed), session=session
                 )
+            except Exception:
+                estimated_cost = None
 
-            # Feature 026: Process generic packaging needs
-            for product_name, total_needed in generic_needs.items():
-                # Get on-hand across all products with this product_name
-                on_hand = _get_generic_packaging_on_hand(session, product_name)
-                to_buy = max(0.0, total_needed - on_hand)
+            # Get a sample product for ingredient/unit info
+            sample_product = (
+                session.query(Product).filter(Product.product_name == product_name).first()
+            )
 
-                # Get estimated cost from packaging service
-                try:
-                    estimated_cost = packaging_service.get_estimated_cost(
-                        product_name, float(total_needed), session=session
-                    )
-                except Exception:
-                    estimated_cost = None
+            ingredient_name = "Unknown"
+            unit = "each"
+            if sample_product:
+                if sample_product.ingredient:
+                    ingredient_name = sample_product.ingredient.display_name
+                unit = sample_product.package_unit or "each"
 
-                # Get a sample product for ingredient/unit info
-                sample_product = (
-                    session.query(Product).filter(Product.product_name == product_name).first()
-                )
+            key = f"generic_{product_name}"
+            needs[key] = PackagingNeed(
+                product_id=sample_product.id if sample_product else 0,
+                product=sample_product,
+                ingredient_name=ingredient_name,
+                product_display_name=product_name,  # Use generic name
+                total_needed=total_needed,
+                on_hand=on_hand,
+                to_buy=to_buy,
+                unit=unit,
+                is_generic=True,
+                generic_product_name=product_name,
+                estimated_cost=estimated_cost,
+            )
 
-                ingredient_name = "Unknown"
-                unit = "each"
-                if sample_product:
-                    if sample_product.ingredient:
-                        ingredient_name = sample_product.ingredient.display_name
-                    unit = sample_product.package_unit or "each"
-
-                key = f"generic_{product_name}"
-                needs[key] = PackagingNeed(
-                    product_id=sample_product.id if sample_product else 0,
-                    product=sample_product,
-                    ingredient_name=ingredient_name,
-                    product_display_name=product_name,  # Use generic name
-                    total_needed=total_needed,
-                    on_hand=on_hand,
-                    to_buy=to_buy,
-                    unit=unit,
-                    is_generic=True,
-                    generic_product_name=product_name,
-                    estimated_cost=estimated_cost,
-                )
-
-            return needs
+        return needs
 
     except EventNotFoundError:
         raise
@@ -1592,12 +1604,16 @@ def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
         raise DatabaseError(f"Failed to calculate packaging needs: {str(e)}")
 
 
-def get_event_packaging_breakdown(event_id: int) -> Dict[int, List[PackagingSource]]:
+def get_event_packaging_breakdown(
+    event_id: int,
+    session: Session,
+) -> Dict[int, List[PackagingSource]]:
     """
     Get detailed breakdown of where packaging needs come from.
 
     Args:
         event_id: Event ID
+        session: SQLAlchemy session for database operations
 
     Returns:
         Dict mapping product_id to list of PackagingSource instances
@@ -1607,38 +1623,62 @@ def get_event_packaging_breakdown(event_id: int) -> Dict[int, List[PackagingSour
         DatabaseError: If database operation fails
     """
     try:
-        with session_scope() as session:
-            # Load event with traversal chain
-            event = (
-                session.query(Event)
-                .options(
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.packaging_compositions),
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_finished_goods)
-                    .joinedload(PackageFinishedGood.finished_good)
-                    .joinedload(FinishedGood.components),
-                )
-                .filter(Event.id == event_id)
-                .first()
+        # Load event with traversal chain
+        event = (
+            session.query(Event)
+            .options(
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.packaging_compositions),
+                joinedload(Event.event_recipient_packages)
+                .joinedload(EventRecipientPackage.package)
+                .joinedload(Package.package_finished_goods)
+                .joinedload(PackageFinishedGood.finished_good)
+                .joinedload(FinishedGood.components),
             )
+            .filter(Event.id == event_id)
+            .first()
+        )
 
-            if not event:
-                raise EventNotFoundError(event_id)
+        if not event:
+            raise EventNotFoundError(event_id)
 
-            breakdown: Dict[int, List[PackagingSource]] = {}
+        breakdown: Dict[int, List[PackagingSource]] = {}
 
-            for erp in event.event_recipient_packages:
-                package = erp.package
-                if not package:
+        for erp in event.event_recipient_packages:
+            package = erp.package
+            if not package:
+                continue
+
+            package_qty = erp.quantity or 1
+
+            # Package-level packaging
+            for comp in package.packaging_compositions:
+                if comp.packaging_product_id:
+                    pid = comp.packaging_product_id
+                    if pid not in breakdown:
+                        breakdown[pid] = []
+
+                    breakdown[pid].append(
+                        PackagingSource(
+                            source_type="package",
+                            source_id=package.id,
+                            source_name=package.name,
+                            quantity_per=comp.component_quantity,
+                            source_count=package_qty,
+                            total_for_source=comp.component_quantity * package_qty,
+                        )
+                    )
+
+            # FinishedGood-level packaging
+            for pfg in package.package_finished_goods:
+                fg = pfg.finished_good
+                if not fg:
                     continue
 
-                package_qty = erp.quantity or 1
+                fg_qty = pfg.quantity * package_qty
 
-                # Package-level packaging
-                for comp in package.packaging_compositions:
+                for comp in fg.components:
                     if comp.packaging_product_id:
                         pid = comp.packaging_product_id
                         if pid not in breakdown:
@@ -1646,41 +1686,16 @@ def get_event_packaging_breakdown(event_id: int) -> Dict[int, List[PackagingSour
 
                         breakdown[pid].append(
                             PackagingSource(
-                                source_type="package",
-                                source_id=package.id,
-                                source_name=package.name,
+                                source_type="finished_good",
+                                source_id=fg.id,
+                                source_name=fg.display_name,
                                 quantity_per=comp.component_quantity,
-                                source_count=package_qty,
-                                total_for_source=comp.component_quantity * package_qty,
+                                source_count=fg_qty,
+                                total_for_source=comp.component_quantity * fg_qty,
                             )
                         )
 
-                # FinishedGood-level packaging
-                for pfg in package.package_finished_goods:
-                    fg = pfg.finished_good
-                    if not fg:
-                        continue
-
-                    fg_qty = pfg.quantity * package_qty
-
-                    for comp in fg.components:
-                        if comp.packaging_product_id:
-                            pid = comp.packaging_product_id
-                            if pid not in breakdown:
-                                breakdown[pid] = []
-
-                            breakdown[pid].append(
-                                PackagingSource(
-                                    source_type="finished_good",
-                                    source_id=fg.id,
-                                    source_name=fg.display_name,
-                                    quantity_per=comp.component_quantity,
-                                    source_count=fg_qty,
-                                    total_for_source=comp.component_quantity * fg_qty,
-                                )
-                            )
-
-            return breakdown
+        return breakdown
 
     except EventNotFoundError:
         raise
@@ -1693,40 +1708,40 @@ def get_event_packaging_breakdown(event_id: int) -> Dict[int, List[PackagingSour
 # ============================================================================
 
 
-def get_recipient_history(recipient_id: int) -> List[Dict[str, Any]]:
+def get_recipient_history(recipient_id: int, session: Session) -> List[Dict[str, Any]]:
     """
     Get package history for a recipient across all events.
 
     Args:
         recipient_id: Recipient ID
+        session: SQLAlchemy session for database operations
 
     Returns:
         List of dicts with event, package, quantity, notes - ordered by event date descending
     """
     try:
-        with session_scope() as session:
-            assignments = (
-                session.query(EventRecipientPackage)
-                .join(Event)
-                .options(
-                    joinedload(EventRecipientPackage.event),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(EventRecipientPackage.recipient_id == recipient_id)
-                .order_by(Event.event_date.desc())
-                .all()
+        assignments = (
+            session.query(EventRecipientPackage)
+            .join(Event)
+            .options(
+                joinedload(EventRecipientPackage.event),
+                joinedload(EventRecipientPackage.package),
             )
+            .filter(EventRecipientPackage.recipient_id == recipient_id)
+            .order_by(Event.event_date.desc())
+            .all()
+        )
 
-            return [
-                {
-                    "event": assignment.event,
-                    "package": assignment.package,
-                    "quantity": assignment.quantity,
-                    "notes": assignment.notes,
-                    "fulfillment_status": assignment.fulfillment_status,
-                }
-                for assignment in assignments
-            ]
+        return [
+            {
+                "event": assignment.event,
+                "package": assignment.package,
+                "quantity": assignment.quantity,
+                "notes": assignment.notes,
+                "fulfillment_status": assignment.fulfillment_status,
+            }
+            for assignment in assignments
+        ]
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipient history: {str(e)}")

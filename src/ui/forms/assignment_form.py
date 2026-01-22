@@ -15,6 +15,7 @@ from src.utils.constants import (
     PADDING_LARGE,
 )
 from src.ui.widgets.dialogs import show_error
+from src.ui.utils import ui_session
 
 
 class AssignmentFormDialog(ctk.CTkToplevel):
@@ -224,8 +225,8 @@ class AssignmentFormDialog(ctk.CTkToplevel):
         # Get recipient history
         try:
             from src.services import event_service
-
-            history = event_service.get_recipient_history(recipient.id)
+            with ui_session() as session:
+                history = event_service.get_recipient_history(recipient.id, session=session)
 
             if history:
                 # Show most recent (first in list)

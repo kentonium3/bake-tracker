@@ -8,8 +8,8 @@ Subtask: T008
 This test module verifies that:
 1. get_production_progress() accepts and uses optional session parameter
 2. get_assembly_progress() accepts and uses optional session parameter
-3. get_shopping_list() accepts and uses optional session parameter
-4. All methods work correctly without session parameter (backward compatibility)
+3. get_shopping_list() requires and uses session parameter
+4. Progress methods work correctly without session parameter (backward compatibility)
 5. Methods can see uncommitted changes when session is shared
 """
 
@@ -343,12 +343,12 @@ class TestShoppingListSession:
     """Test session pass-through for get_shopping_list()."""
 
     def test_accepts_session_parameter(self, event_with_recipe_needs):
-        """Verify get_shopping_list() accepts optional session parameter."""
+        """Verify get_shopping_list() requires session parameter."""
         import inspect
 
         sig = inspect.signature(event_service.get_shopping_list)
         assert "session" in sig.parameters
-        assert sig.parameters["session"].default is None
+        assert sig.parameters["session"].default is inspect._empty
 
     def test_with_session_uses_provided_session(self, event_with_recipe_needs):
         """Verify get_shopping_list() uses provided session for queries."""
@@ -365,18 +365,12 @@ class TestShoppingListSession:
             assert "items_count" in result
             assert isinstance(result["items"], list)
 
-    def test_without_session_backward_compatible(self, event_with_recipe_needs):
-        """Verify get_shopping_list() works without session parameter."""
+    def test_without_session_requires_session(self, event_with_recipe_needs):
+        """Verify get_shopping_list() rejects missing session parameter."""
         event_id = event_with_recipe_needs.event_id
 
-        # Call without session (backward compatibility)
-        result = event_service.get_shopping_list(event_id, include_packaging=False)
-
-        assert isinstance(result, dict)
-        assert "items" in result
-        assert "items_count" in result
-        # Should have at least one item (the flour)
-        assert result["items_count"] >= 0
+        with pytest.raises(TypeError):
+            event_service.get_shopping_list(event_id, include_packaging=False)
 
 
 # =============================================================================

@@ -577,7 +577,12 @@ class EventDetailWindow(ctk.CTkToplevel):
 
         # T018: Call export service method
         try:
-            success = event_service.export_shopping_list_csv(self.event.id, file_path)
+            with ui_session() as session:
+                success = event_service.export_shopping_list_csv(
+                    self.event.id,
+                    file_path,
+                    session=session,
+                )
             if success:
                 # T019: Show success notification
                 messagebox.showinfo(
@@ -1019,7 +1024,11 @@ class EventDetailWindow(ctk.CTkToplevel):
 
         try:
             # Feature 007: Now returns dict with 'items' key
-            shopping_data = event_service.get_shopping_list(self.event.id)
+            with ui_session() as session:
+                shopping_data = event_service.get_shopping_list(
+                    self.event.id,
+                    session=session,
+                )
 
             if not shopping_data or not shopping_data.get("items"):
                 label = ctk.CTkLabel(

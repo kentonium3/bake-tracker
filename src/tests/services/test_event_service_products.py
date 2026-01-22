@@ -214,7 +214,8 @@ class TestShoppingListWithProducts:
                 session=session,
             )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         # Verify structure
         assert isinstance(result, dict)
@@ -234,7 +235,8 @@ class TestShoppingListWithProducts:
                 session=session,
             )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         # Empty event should still have correct structure
         assert result["items"] == []
@@ -252,7 +254,8 @@ class TestShoppingListWithProducts:
                 session=session,
             )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert result == {
             "items": [],
@@ -275,7 +278,8 @@ class TestTotalEstimatedCostCalculation:
                 session=session,
             )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert isinstance(result["total_estimated_cost"], Decimal)
 
@@ -289,6 +293,7 @@ class TestTotalEstimatedCostCalculation:
                 session=session,
             )
 
-        result = get_shopping_list(event.id)
+        with session_scope() as session:
+            result = get_shopping_list(event.id, session=session)
 
         assert result["total_estimated_cost"] == Decimal("0.00")

@@ -236,7 +236,12 @@ class TestExportShoppingListCSV:
             temp_path = f.name
 
         try:
-            result = event_service.export_shopping_list_csv(test_event.id, temp_path)
+            with session_scope() as session:
+                result = event_service.export_shopping_list_csv(
+                    test_event.id,
+                    temp_path,
+                    session=session,
+                )
             # Empty shopping list returns False (nothing to export)
             assert result is False
         finally:
@@ -251,7 +256,12 @@ class TestExportShoppingListCSV:
         os.unlink(temp_path)
 
         try:
-            result = event_service.export_shopping_list_csv(test_event.id, temp_path)
+            with session_scope() as session:
+                result = event_service.export_shopping_list_csv(
+                    test_event.id,
+                    temp_path,
+                    session=session,
+                )
             # Empty shopping list returns False
             assert result is False
             # File should NOT be created for empty export
@@ -285,7 +295,12 @@ class TestExportShoppingListCSV:
             temp_path = f.name
 
         try:
-            event_service.export_shopping_list_csv(test_event.id, temp_path)
+            with session_scope() as session:
+                event_service.export_shopping_list_csv(
+                    test_event.id,
+                    temp_path,
+                    session=session,
+                )
 
             # Read and verify header
             with open(temp_path, "r", encoding="utf-8-sig") as f:
@@ -321,7 +336,12 @@ class TestExportShoppingListCSV:
 
         try:
             # Empty event returns False (nothing to export)
-            result = event_service.export_shopping_list_csv(test_event.id, temp_path)
+            with session_scope() as session:
+                result = event_service.export_shopping_list_csv(
+                    test_event.id,
+                    temp_path,
+                    session=session,
+                )
             assert result is False
         finally:
             if os.path.exists(temp_path):
@@ -334,7 +354,12 @@ class TestExportShoppingListCSV:
 
         try:
             # Nonexistent event has empty shopping list -> returns False
-            result = event_service.export_shopping_list_csv(99999, temp_path)
+            with session_scope() as session:
+                result = event_service.export_shopping_list_csv(
+                    99999,
+                    temp_path,
+                    session=session,
+                )
             assert result is False
         finally:
             if os.path.exists(temp_path):
@@ -442,7 +467,11 @@ class TestGetRecipientHistoryFulfillmentStatus:
 
     def test_recipient_history_includes_fulfillment_status(self, test_db, recipient_with_packages):
         """Test that recipient history includes fulfillment_status field."""
-        history = event_service.get_recipient_history(recipient_with_packages.id)
+        with session_scope() as session:
+            history = event_service.get_recipient_history(
+                recipient_with_packages.id,
+                session=session,
+            )
 
         assert len(history) == 2
 
@@ -459,7 +488,11 @@ class TestGetRecipientHistoryFulfillmentStatus:
 
     def test_recipient_history_correct_statuses(self, test_db, recipient_with_packages):
         """Test that correct fulfillment statuses are returned for each assignment."""
-        history = event_service.get_recipient_history(recipient_with_packages.id)
+        with session_scope() as session:
+            history = event_service.get_recipient_history(
+                recipient_with_packages.id,
+                session=session,
+            )
 
         # History is sorted by event_date descending
         # First should be Holiday 2024 (Dec 25) with DELIVERED status
@@ -472,7 +505,11 @@ class TestGetRecipientHistoryFulfillmentStatus:
 
     def test_recipient_history_sorted_by_date_descending(self, test_db, recipient_with_packages):
         """Test that history is sorted by event date descending (most recent first)."""
-        history = event_service.get_recipient_history(recipient_with_packages.id)
+        with session_scope() as session:
+            history = event_service.get_recipient_history(
+                recipient_with_packages.id,
+                session=session,
+            )
 
         # First event should be Holiday 2024 (Dec 25)
         assert history[0]["event"].event_date == date(2024, 12, 25)
@@ -482,19 +519,28 @@ class TestGetRecipientHistoryFulfillmentStatus:
 
     def test_recipient_history_empty_for_no_assignments(self, test_db, test_recipient):
         """Test that empty list is returned for recipient with no assignments."""
-        history = event_service.get_recipient_history(test_recipient.id)
+        with session_scope() as session:
+            history = event_service.get_recipient_history(
+                test_recipient.id,
+                session=session,
+            )
 
         assert history == []
 
     def test_recipient_history_nonexistent_recipient(self, test_db):
         """Test that empty list is returned for nonexistent recipient."""
-        history = event_service.get_recipient_history(99999)
+        with session_scope() as session:
+            history = event_service.get_recipient_history(99999, session=session)
 
         assert history == []
 
     def test_recipient_history_includes_all_fields(self, test_db, recipient_with_packages):
         """Test that history includes all expected fields."""
-        history = event_service.get_recipient_history(recipient_with_packages.id)
+        with session_scope() as session:
+            history = event_service.get_recipient_history(
+                recipient_with_packages.id,
+                session=session,
+            )
 
         assert len(history) > 0
         record = history[0]
