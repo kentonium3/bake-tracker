@@ -115,6 +115,14 @@ class FinishedUnit(BaseModel):
     # Production tracking (Feature 013)
     production_runs = relationship("ProductionRun", back_populates="finished_unit")
 
+    # Inventory adjustment tracking (Feature 061)
+    inventory_adjustments = relationship(
+        "FinishedGoodsAdjustment",
+        back_populates="finished_unit",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
+
     # Relationships for composition (will be added when Composition model is created)
     # components_in = relationship("Composition", foreign_keys="Composition.finished_unit_id",
     #                            back_populates="finished_unit_component")
