@@ -143,7 +143,7 @@
 
 ### Included Subtasks
 - [x] T016 Update batch_production_service to use adjust_inventory after production completion
-- [ ] T017 Find and update all callers of .is_available() to use check_availability
+- [x] T017 Find and update all callers of .is_available() to use check_availability
 - [ ] T018 Find and update all callers of .update_inventory() to use adjust_inventory
 
 ### Implementation Notes
