@@ -6,10 +6,10 @@ subtasks:
   - "T008"
 title: "Core Service - Query Functions"
 phase: "Phase 2 - Core Service"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "97684"
+shell_pid: "3063"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -277,3 +277,4 @@ print(f"Total inventory value: ${value['total_value']}")
 - 2026-01-21T19:33:38Z – system – lane=planned – Prompt created.
 - 2026-01-22T01:26:13Z – claude-opus – shell_pid=97684 – lane=doing – Started implementation via workflow command
 - 2026-01-22T01:41:33Z – claude-opus – shell_pid=97684 – lane=for_review – Ready for review: Implemented get_inventory_status, get_low_stock_items, and get_total_inventory_value query functions. Added FinishedGoodsAdjustment to models __init__.py. All 2581 tests pass.
+- 2026-01-22T01:46:11Z – claude-opus – shell_pid=3063 – lane=doing – Started review via workflow command
