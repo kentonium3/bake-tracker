@@ -96,7 +96,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T012 Create variant creation dialog/method in recipe forms (if not exists)
+- [x] T012 Create variant creation dialog/method in recipe forms (if not exists)
 - [ ] T013 Query and display base recipe's FinishedUnits as reference
 - [ ] T014 Add CTkEntry fields for variant FinishedUnit display_names (one per base FU)
 - [ ] T015 Add inline validation feedback for duplicate display_name
