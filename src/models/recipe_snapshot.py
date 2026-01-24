@@ -27,15 +27,20 @@ from src.utils.datetime_utils import utc_now
 
 class RecipeSnapshot(BaseModel):
     """
-    Immutable snapshot of recipe state at production time.
+    Immutable snapshot of recipe state.
 
     RecipeSnapshots capture the complete recipe state (recipe metadata and
-    ingredients) at the moment a production run is created. This ensures
+    ingredients) for production tracking or planning. This ensures
     historical production costs remain accurate even when recipes change.
+
+    Context:
+        - Production context: production_run_id is set (created at production time)
+        - Planning context: production_run_id is None (created at plan time,
+          referenced via EventProductionTarget.recipe_snapshot_id)
 
     Attributes:
         recipe_id: FK to the source recipe (RESTRICT on delete)
-        production_run_id: FK to the production run (UNIQUE, 1:1 relationship)
+        production_run_id: FK to the production run (UNIQUE when set, nullable for planning)
         scale_factor: Batch size multiplier (e.g., 2.0 = double batch)
         snapshot_date: When the snapshot was captured
         recipe_data: JSON string with recipe metadata at snapshot time
@@ -45,6 +50,7 @@ class RecipeSnapshot(BaseModel):
     Note:
         - ON DELETE RESTRICT: Cannot delete a recipe that has production snapshots
         - UNIQUE on production_run_id: Each production run has exactly one snapshot
+        - NULL values in production_run_id indicate planning context
         - JSON columns use Text type for SQLite compatibility
     """
 
@@ -59,8 +65,8 @@ class RecipeSnapshot(BaseModel):
     production_run_id = Column(
         Integer,
         ForeignKey("production_runs.id", ondelete="CASCADE"),
-        nullable=False,
-        unique=True,  # 1:1 relationship with ProductionRun
+        nullable=True,  # Planning context: no production_run_id
+        unique=True,  # Still unique when set (NULL values not considered)
     )
 
     # Scaling information

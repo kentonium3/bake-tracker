@@ -90,7 +90,8 @@ from .feasibility import (
 
 from .planning_service import (
     # Core planning functions
-    calculate_plan,
+    create_plan,  # WP04: New snapshot-based planning
+    calculate_plan,  # Deprecated, use create_plan
     check_staleness,
     get_plan_summary,
     get_recipe_batches,
@@ -111,7 +112,8 @@ from .planning_service import (
 
 __all__ = [
     # Planning service facade
-    "calculate_plan",
+    "create_plan",  # WP04: New snapshot-based planning
+    "calculate_plan",  # Deprecated
     "check_staleness",
     "get_plan_summary",
     "get_recipe_batches",
