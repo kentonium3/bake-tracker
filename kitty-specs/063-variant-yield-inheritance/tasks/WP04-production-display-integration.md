@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Production Display Integration
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 - WP02
@@ -12,8 +12,8 @@ subtasks:
 - T021
 phase: Phase 2 - Polish
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "30485"
 review_status: ''
 reviewed_by: ''
 history:
@@ -314,3 +314,7 @@ When reviewing this work package, verify:
 4. **Session Handling**: Session passed to primitive calls correctly
 5. **Edge Cases**: Empty yields, multiple FUs handled
 6. **No Regressions**: Base recipe displays unchanged
+
+## Activity Log
+
+- 2026-01-24T08:07:55Z – claude-opus – shell_pid=30485 – lane=doing – Started implementation via workflow command
