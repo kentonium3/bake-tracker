@@ -7,10 +7,10 @@ subtasks:
   - "T028"
 title: "Assembly Service Snapshot Reuse"
 phase: "Phase 3 - Service Layer - Snapshot Reuse"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "88485"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP02"]
@@ -348,3 +348,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T21:57:57Z – claude-opus – shell_pid=88485 – lane=doing – Started implementation via workflow command
