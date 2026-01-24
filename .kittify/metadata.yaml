@@ -3,12 +3,42 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.11.1
+  version: 0.12.0
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: null
+  last_upgraded_at: '2026-01-24T04:31:44.196371'
 environment:
   python_version: 3.13.11
   platform: darwin
   platform_version: macOS-26.2-x86_64-i386-64bit-Mach-O
 migrations:
-  applied: []
+  applied:
+  - id: 0.11.1_improved_workflow_templates
+    applied_at: '2026-01-24T04:31:44.126601'
+    result: success
+    notes: 'Updated mission template: software-dev/implement.md; Updated mission template:
+      software-dev/review.md; Updated 2 templates for claude; Updated 2 templates
+      for gemini; Updated 2 templates for cursor; Updated 2 templates for codex; Total:
+      Updated 8 slash command templates across all agents; Templates now warn agents
+      to scroll to bottom of long output; Templates emphasize automated file updates
+      (no manual editing); Prevents state corruption from incomplete workflows'
+  - id: 0.11.1_update_implement_slash_command
+    applied_at: '2026-01-24T04:31:44.130278'
+    result: success
+    notes: No agent directories needed updates
+  - id: 0.11.2_improved_workflow_templates
+    applied_at: '2026-01-24T04:31:44.194901'
+    result: success
+    notes: 'Updated mission template: software-dev/implement.md; Updated mission template:
+      software-dev/review.md; Updated 2 templates for claude; Updated 2 templates
+      for gemini; Updated 2 templates for cursor; Updated 2 templates for codex; Total:
+      Updated 8 slash command templates across all agents; Templates now warn agents
+      to scroll to bottom of long output; Templates emphasize automated file updates
+      (no manual editing); Prevents state corruption from incomplete workflows'
+  - id: 0.11.3_workflow_agent_flag
+    applied_at: '2026-01-24T04:31:44.196266'
+    result: skipped
+    notes: Not applicable
+  - id: 0.12.0_documentation_mission
+    applied_at: '2026-01-24T04:31:44.196364'
+    result: skipped
+    notes: Not applicable
