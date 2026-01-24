@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: ProductionPlanSnapshot Model Cleanup
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: e95e18c708ef83dacda927fb527e8190d8e40b82
@@ -276,3 +276,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T20:03:51Z – unknown – shell_pid=75252 – lane=for_review – Ready for review: Removed 6 fields and 5 methods from ProductionPlanSnapshot, updated tests, model now a lightweight container
