@@ -1,0 +1,8 @@
+{
+  "feature_number": "064",
+  "slug": "064-finishedgoods-snapshot-architecture",
+  "friendly_name": "FinishedGoods Snapshot Architecture",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F064_finished_goods_snapshot_implementation.md for inputs on this feature.",
+  "created_at": "2025-01-24T04:42:00Z"
+}
