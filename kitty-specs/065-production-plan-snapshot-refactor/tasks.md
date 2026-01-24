@@ -248,11 +248,11 @@
 **Prompt**: `tasks/WP08-ui-updates.md`
 
 ### Included Subtasks
-- [ ] T035 Identify UI components referencing calculation_results or staleness fields
-- [ ] T036 Update plan display view to call get_plan_summary()
-- [ ] T037 Update shopping list generation to use on-demand calculation
-- [ ] T038 Remove staleness warning UI components
-- [ ] T039 Verify UI responsiveness meets <5 second target
+- [x] T035 Identify UI components referencing calculation_results or staleness fields
+- [x] T036 Update plan display view to call get_plan_summary()
+- [x] T037 Update shopping list generation to use on-demand calculation
+- [x] T038 Remove staleness warning UI components
+- [x] T039 Verify UI responsiveness meets <5 second target
 
 ### Implementation Notes
 - Files: `src/ui/` planning-related views
