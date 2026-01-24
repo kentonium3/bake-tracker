@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: PlanningSnapshot Container
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01, WP02, WP03]
 base_branch: 064-finishedgoods-snapshot-architecture-WP03
 base_commit: 98fadf2cddb70706811c213f524311e10316dad5
@@ -16,8 +16,8 @@ subtasks:
 - T025
 phase: Phase 3 - Container
 assignee: ''
-agent: ''
-shell_pid: "61030"
+agent: "claude-opus"
+shell_pid: "62838"
 review_status: ''
 reviewed_by: ''
 history:
@@ -613,3 +613,4 @@ spec-kitty implement WP04 --base WP03
 
 - 2025-01-24T05:30:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-24T18:30:47Z – unknown – shell_pid=61030 – lane=for_review – Ready for review: PlanningSnapshot model, Event relationship, service CRUD (create/get/delete), 18 unit tests all passing
+- 2026-01-24T18:32:40Z – claude-opus – shell_pid=62838 – lane=doing – Started review via workflow command
