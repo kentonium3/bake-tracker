@@ -615,3 +615,4 @@ spec-kitty implement WP04 --base WP03
 - 2026-01-24T18:30:47Z – unknown – shell_pid=61030 – lane=for_review – Ready for review: PlanningSnapshot model, Event relationship, service CRUD (create/get/delete), 18 unit tests all passing
 - 2026-01-24T18:32:40Z – claude-opus – shell_pid=62838 – lane=doing – Started review via workflow command
 - 2026-01-24T18:33:46Z – claude-opus – shell_pid=62838 – lane=done – Review passed: PlanningSnapshot model with correct FK behaviors, cascade delete on all snapshot relationships, bidirectional Event relationship, service CRUD with session management, 18 unit tests covering CRUD/cascade/SET NULL behavior. All 50 related tests pass.
+- 2026-01-24T18:36:49Z – claude-opus – shell_pid=62838 – lane=done – Adding activity log entry for acceptance
