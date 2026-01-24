@@ -183,10 +183,10 @@
 **Prompt**: `tasks/WP06-assembly-snapshot-reuse.md`
 
 ### Included Subtasks
-- [ ] T025 Add/verify event_id parameter in record_assembly() signature
-- [ ] T026 Query EventAssemblyTarget for finished_good_snapshot_id when event_id provided
-- [ ] T027 Implement reuse logic: use existing snapshot if available, create new only for legacy/ad-hoc
-- [ ] T028 Unit tests for assembly snapshot reuse scenarios
+- [x] T025 Add/verify event_id parameter in record_assembly() signature
+- [x] T026 Query EventAssemblyTarget for finished_good_snapshot_id when event_id provided
+- [x] T027 Implement reuse logic: use existing snapshot if available, create new only for legacy/ad-hoc
+- [x] T028 Unit tests for assembly snapshot reuse scenarios
 
 ### Implementation Notes
 - File: `src/services/assembly_service.py`
