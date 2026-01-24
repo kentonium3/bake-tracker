@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Recipe Snapshot Service Planning Context
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 065-production-plan-snapshot-refactor-WP02
 base_commit: 77ba3b57119846919c8e1e7a55fa3c38ee273971
@@ -363,3 +363,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T21:12:05Z – unknown – shell_pid=80145 – lane=for_review – Ready for review: production_run_id now optional with planning context tests
