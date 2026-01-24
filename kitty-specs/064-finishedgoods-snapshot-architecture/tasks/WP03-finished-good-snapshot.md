@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FinishedGoodSnapshot Model + Service
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -16,7 +16,7 @@ subtasks:
 phase: Phase 2 - Core Logic
 assignee: ''
 agent: "claude-opus"
-shell_pid: ''
+shell_pid: "58308"
 review_status: ''
 reviewed_by: ''
 history:
@@ -685,3 +685,4 @@ spec-kitty implement WP03 --base WP02
 - 2025-01-24T05:30:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-24T17:49:52Z – claude-opus – lane=doing – Moved to doing
 - 2026-01-24T17:58:46Z – claude-opus – lane=for_review – All 19 tests pass. Recursive snapshot with circular reference and max depth protection implemented.
+- 2026-01-24T17:59:35Z – claude-opus – shell_pid=58308 – lane=doing – Started review via workflow command
