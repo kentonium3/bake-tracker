@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Recipe Snapshot Service Planning Context
-lane: "for_review"
+lane: "doing"
 dependencies: [WP02]
 base_branch: 065-production-plan-snapshot-refactor-WP02
 base_commit: 77ba3b57119846919c8e1e7a55fa3c38ee273971
@@ -13,8 +13,8 @@ subtasks:
 - T013
 phase: Phase 2 - Service Layer - Snapshot Creation
 assignee: ''
-agent: ''
-shell_pid: "80145"
+agent: "claude-opus"
+shell_pid: "82445"
 review_status: ''
 reviewed_by: ''
 history:
@@ -364,3 +364,4 @@ Reviewers should verify:
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
 - 2026-01-24T21:12:05Z – unknown – shell_pid=80145 – lane=for_review – Ready for review: production_run_id now optional with planning context tests
+- 2026-01-24T21:18:05Z – claude-opus – shell_pid=82445 – lane=doing – Started review via workflow command
