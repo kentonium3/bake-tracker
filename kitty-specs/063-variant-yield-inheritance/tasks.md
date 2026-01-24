@@ -62,7 +62,7 @@
 - [x] T007 Implement FinishedUnit creation logic in `_create_recipe_variant_impl()`
 - [x] T008 Add validation: variant display_name must differ from base display_name
 - [x] T009 Generate variant FinishedUnit slug from variant recipe name + display_name
-- [ ] T010 Add unit tests for variant creation with FinishedUnits
+- [x] T010 Add unit tests for variant creation with FinishedUnits
 - [ ] T011 Add unit tests for display_name validation (reject duplicates)
 
 ### Implementation Notes
