@@ -23,7 +23,7 @@
 - [x] T001 Create FinishedUnitSnapshot model in `src/models/finished_unit_snapshot.py`
 - [x] T002 [P] Add FinishedUnitSnapshot to models `__init__.py` exports
 - [x] T003 Add `create_finished_unit_snapshot()` function to `src/services/finished_unit_service.py`
-- [ ] T004 Add `get_finished_unit_snapshot()` and `get_snapshots_by_planning_id()` query functions
+- [x] T004 Add `get_finished_unit_snapshot()` and `get_snapshots_by_planning_id()` query functions
 - [ ] T005 Create unit tests in `src/tests/test_finished_unit_snapshot.py`
 
 ### Implementation Notes
