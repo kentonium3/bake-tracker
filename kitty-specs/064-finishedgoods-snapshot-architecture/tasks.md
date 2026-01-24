@@ -123,13 +123,13 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T019 Create PlanningSnapshot model in `src/models/planning_snapshot.py`
-- [ ] T020 [P] Add PlanningSnapshot to models `__init__.py` exports
-- [ ] T021 [P] Add Event.planning_snapshots relationship to `src/models/event.py`
-- [ ] T022 Create `src/services/planning_snapshot_service.py` with CRUD functions
-- [ ] T023 Add `get_planning_snapshot()` with all linked snapshots aggregation
-- [ ] T024 Add `delete_planning_snapshot()` (relies on CASCADE for cleanup)
-- [ ] T025 Create unit tests in `src/tests/test_planning_snapshot.py`
+- [x] T019 Create PlanningSnapshot model in `src/models/planning_snapshot.py`
+- [x] T020 [P] Add PlanningSnapshot to models `__init__.py` exports
+- [x] T021 [P] Add Event.planning_snapshots relationship to `src/models/event.py`
+- [x] T022 Create `src/services/planning_snapshot_service.py` with CRUD functions
+- [x] T023 Add `get_planning_snapshot()` with all linked snapshots aggregation
+- [x] T024 Add `delete_planning_snapshot()` (relies on CASCADE for cleanup)
+- [x] T025 Create unit tests in `src/tests/test_planning_snapshot.py`
 
 ### Implementation Notes
 - PlanningSnapshot is the container that groups all snapshots for an event planning session
