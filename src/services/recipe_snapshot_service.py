@@ -31,19 +31,27 @@ class SnapshotCreationError(Exception):
 
 
 def create_recipe_snapshot(
-    recipe_id: int, scale_factor: float, production_run_id: int, session: Session = None
+    recipe_id: int,
+    scale_factor: float = 1.0,
+    production_run_id: int = None,
+    session: Session = None,
 ) -> dict:
     """
-    Create an immutable snapshot of recipe state at production time.
+    Create an immutable snapshot of recipe state.
 
     Args:
         recipe_id: Source recipe ID
-        scale_factor: Size multiplier for this production (default 1.0)
-        production_run_id: The production run this snapshot is for (1:1)
+        scale_factor: Size multiplier for quantities (default 1.0)
+        production_run_id: Optional production run ID (None for planning context)
         session: Optional SQLAlchemy session for transaction sharing
 
     Returns:
-        dict with snapshot data including id
+        dict with snapshot data including 'id', 'recipe_id', 'snapshot_date', etc.
+
+    Context:
+        - Production context: production_run_id provided (snapshot created at production time)
+        - Planning context: production_run_id=None (snapshot created at plan time,
+          linked via EventProductionTarget.recipe_snapshot_id)
 
     Raises:
         SnapshotCreationError: If recipe not found or creation fails
@@ -59,9 +67,16 @@ def create_recipe_snapshot(
 
 
 def _create_recipe_snapshot_impl(
-    recipe_id: int, scale_factor: float, production_run_id: int, session: Session
+    recipe_id: int, scale_factor: float, production_run_id: Optional[int], session: Session
 ) -> dict:
-    """Internal implementation of snapshot creation."""
+    """Internal implementation of snapshot creation.
+
+    Args:
+        recipe_id: Source recipe ID
+        scale_factor: Size multiplier for quantities
+        production_run_id: Production run ID or None for planning context
+        session: SQLAlchemy session
+    """
     # Load recipe with relationships
     recipe = session.query(Recipe).filter_by(id=recipe_id).first()
     if not recipe:

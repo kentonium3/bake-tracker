@@ -337,6 +337,80 @@ class TestSnapshotImmutability:
         assert not hasattr(recipe_snapshot_service, "remove_snapshot")
 
 
+class TestPlanningContextSnapshot:
+    """Tests for planning context (no production_run_id) snapshot creation."""
+
+    def test_create_snapshot_planning_context(self, test_db, sample_recipe):
+        """Test creating snapshot for planning (no production_run_id)."""
+        result = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=None,  # Planning context
+        )
+
+        # Assert snapshot created
+        assert result["id"] is not None
+        assert result["recipe_id"] == sample_recipe.id
+        assert result["production_run_id"] is None
+        assert result["scale_factor"] == 1.0
+        assert result["is_backfilled"] is False
+
+        # Verify in database
+        session = test_db()
+        snapshot = session.query(RecipeSnapshot).filter_by(id=result["id"]).first()
+        assert snapshot is not None
+        assert snapshot.production_run_id is None
+
+    def test_create_snapshot_planning_context_with_session(self, test_db, sample_recipe):
+        """Test planning context snapshot with passed session."""
+        session = test_db()
+
+        result = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=2.0,
+            production_run_id=None,
+            session=session,
+        )
+
+        # Verify snapshot created in passed session
+        assert result["id"] is not None
+        assert result["production_run_id"] is None
+
+        # Object should be attached to passed session
+        snapshot = session.query(RecipeSnapshot).filter_by(id=result["id"]).first()
+        assert snapshot in session
+
+        session.commit()
+
+        # Verify persisted
+        snapshot = session.query(RecipeSnapshot).filter_by(id=result["id"]).first()
+        assert snapshot is not None
+
+    def test_create_snapshot_production_context_backward_compat(
+        self, test_db, sample_recipe, sample_production_run
+    ):
+        """Test that production context (with production_run_id) still works."""
+        result = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.5,
+            production_run_id=sample_production_run.id,
+        )
+
+        # Assert production context works as before
+        assert result["id"] is not None
+        assert result["production_run_id"] == sample_production_run.id
+
+    def test_create_snapshot_default_scale_factor(self, test_db, sample_recipe):
+        """Test that scale_factor defaults to 1.0."""
+        result = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            # No scale_factor provided - should default to 1.0
+        )
+
+        assert result["scale_factor"] == 1.0
+        assert result["production_run_id"] is None  # Also defaults to None
+
+
 class TestCreateRecipeFromSnapshot:
     """Tests for create_recipe_from_snapshot()."""
 
