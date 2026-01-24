@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Snapshot Model FK Updates
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: a100054ece374c409b16aba986384df8ba57c755
@@ -334,3 +334,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T20:45:34Z – unknown – shell_pid=78109 – lane=for_review – Ready for review: RecipeSnapshot.production_run_id nullable, new FKs on EventProductionTarget and EventAssemblyTarget with relationships, F064 FinishedGoodSnapshot verified
