@@ -1,12 +1,19 @@
 """
-Unit tests for planning service facade (Feature 039 WP06).
+Unit tests for planning service facade (Feature 039 WP06, F065 WP07).
 
 Tests cover:
-- calculate_plan() for BUNDLED and BULK_COUNT modes
-- check_staleness() for timestamp comparison
+- calculate_plan() for BUNDLED and BULK_COUNT modes (deprecated)
+- check_staleness() - deprecated, always returns (False, None) with snapshots
 - get_plan_summary() for phase statuses
+- get_plan_calculation() for on-demand calculation from snapshots (WP07)
 - Exception handling (EventNotConfiguredError, etc.)
 - Facade method delegation
+- Performance tests for snapshot-based calculation
+
+F065 Changes (WP07):
+- check_staleness() deprecated (snapshots are immutable)
+- get_plan_calculation() added for snapshot-based calculation
+- Performance test for <5 second calculation target
 """
 
 import pytest
@@ -16,6 +23,7 @@ from decimal import Decimal
 from src.services.planning import (
     # Facade functions
     create_plan,  # WP04: New snapshot-based planning
+    get_plan_calculation,  # WP07: On-demand calculation from snapshots
     calculate_plan,  # Deprecated
     check_staleness,
     get_plan_summary,
@@ -450,96 +458,20 @@ class TestCreatePlan:
         assert target.recipe_snapshot_id == first_recipe_snapshot_id
 
 
-class TestCheckStaleness:
-    """Tests for check_staleness() function."""
+class TestGetPlanCalculation:
+    """Tests for get_plan_calculation() function (WP07)."""
 
     @pytest.fixture
-    def plan_setup(self, test_db):
-        """Create event with existing plan."""
-        session = test_db()
-
-        # Create event first
-        event = Event(
-            name="Staleness Test Event",
-            event_date=date(2025, 12, 25),
-            year=2025,
-            output_mode=OutputMode.BUNDLED,
-        )
-        session.add(event)
-        session.flush()
-
-        # Get the event's last_modified time
-        event_modified = event.last_modified
-
-        # Create plan snapshot calculated AFTER the event was created
-        # This ensures the plan is "fresh" (calculated after last modification)
-        # Note: WP01 removed calculation_results and staleness fields from model
-        now = utc_now()
-        snapshot = ProductionPlanSnapshot(
-            event_id=event.id,
-            calculated_at=now,  # Calculated now, which is after event's last_modified
-        )
-        session.add(snapshot)
-        session.commit()
-
-        return {
-            "event_id": event.id,
-            "snapshot_id": snapshot.id,
-            "calculated_at": now,
-        }
-
-    def test_fresh_plan_not_stale(self, test_db, plan_setup):
-        """Test that fresh plan is not stale."""
-        session = test_db()
-
-        is_stale, reason = check_staleness(plan_setup["event_id"], session=session)
-
-        assert is_stale is False
-        assert reason is None
-
-    def test_no_plan_is_stale(self, test_db):
-        """Test that missing plan is considered stale."""
-        session = test_db()
-
-        event = Event(
-            name="No Plan Event",
-            event_date=date(2025, 12, 25),
-            year=2025,
-        )
-        session.add(event)
-        session.commit()
-
-        is_stale, reason = check_staleness(event.id, session=session)
-
-        assert is_stale is True
-        assert "No plan exists" in reason
-
-    def test_modified_event_makes_stale(self, test_db, plan_setup):
-        """Test that modified event makes plan stale."""
-        session = test_db()
-
-        # Modify event after plan was calculated
-        # Use a time that's definitely after the calculated_at
-        event = session.get(Event, plan_setup["event_id"])
-        event.last_modified = plan_setup["calculated_at"] + timedelta(minutes=5)
-        session.commit()
-
-        is_stale, reason = check_staleness(plan_setup["event_id"], session=session)
-
-        assert is_stale is True
-        assert "Event modified" in reason
-
-    @pytest.fixture
-    def composition_staleness_setup(self, test_db):
-        """Create event with composition for staleness testing (WP05)."""
+    def plan_with_snapshots_setup(self, test_db):
+        """Create event with plan and snapshots for calculation tests."""
         session = test_db()
 
         # Create event
         event = Event(
-            name="Composition Staleness Test",
+            name="Calculation Test Event",
             event_date=date(2025, 12, 25),
             year=2025,
-            output_mode=OutputMode.BUNDLED,
+            output_mode=OutputMode.BULK_COUNT,
         )
         session.add(event)
         session.flush()
@@ -549,48 +481,220 @@ class TestCheckStaleness:
         session.add(recipe)
         session.flush()
 
-        # Create finished unit
-        cookie_unit = FinishedUnit(
-            display_name="Cookie",
-            slug="cookie",
-            recipe_id=recipe.id,
-            items_per_batch=48,
-            item_unit="cookies",
-            inventory_count=100,
-        )
-        session.add(cookie_unit)
-        session.flush()
-
-        # Create finished good (bundle)
-        gift_box = FinishedGood(
-            display_name="Cookie Box",
-            slug="cookie-box",
-            assembly_type=AssemblyType.GIFT_BOX,
-            inventory_count=0,
-        )
-        session.add(gift_box)
-        session.flush()
-
-        # Create composition
-        comp = Composition.create_unit_composition(
-            assembly_id=gift_box.id,
-            finished_unit_id=cookie_unit.id,
-            quantity=6,
-        )
-        session.add(comp)
-        session.flush()
-
-        # Create assembly target
-        target = EventAssemblyTarget(
+        # Create production target
+        target = EventProductionTarget(
             event_id=event.id,
-            finished_good_id=gift_box.id,
-            target_quantity=10,
+            recipe_id=recipe.id,
+            target_batches=5,
         )
         session.add(target)
+        session.commit()
+
+        # Create plan (this creates snapshots)
+        result = create_plan(event.id, session=session)
+
+        return {
+            "event_id": event.id,
+            "recipe_id": recipe.id,
+            "target_id": target.id,
+            "target_batches": 5,
+            "planning_snapshot_id": result["planning_snapshot_id"],
+        }
+
+    def test_get_plan_calculation_returns_dict(self, test_db, plan_with_snapshots_setup):
+        """Test that get_plan_calculation returns expected dict structure."""
+        session = test_db()
+
+        result = get_plan_calculation(
+            plan_with_snapshots_setup["event_id"],
+            session=session
+        )
+
+        assert isinstance(result, dict)
+        assert "recipe_batches" in result
+        assert "shopping_list" in result
+        assert "aggregated_ingredients" in result
+
+    def test_get_plan_calculation_recipe_batches(self, test_db, plan_with_snapshots_setup):
+        """Test that recipe_batches contains correct data."""
+        session = test_db()
+
+        result = get_plan_calculation(
+            plan_with_snapshots_setup["event_id"],
+            session=session
+        )
+
+        recipe_batches = result["recipe_batches"]
+        assert len(recipe_batches) == 1
+
+        batch = recipe_batches[0]
+        assert batch["recipe_id"] == plan_with_snapshots_setup["recipe_id"]
+        assert batch["target_batches"] == plan_with_snapshots_setup["target_batches"]
+        assert "recipe_name" in batch
+        assert "has_snapshot" in batch
+        assert batch["has_snapshot"] is True
+
+    def test_get_plan_calculation_uses_snapshots(self, test_db, plan_with_snapshots_setup):
+        """Test that calculation uses snapshot data, not live recipe."""
+        session = test_db()
+
+        # Modify the live recipe after plan was created
+        recipe = session.get(Recipe, plan_with_snapshots_setup["recipe_id"])
+        original_name = recipe.name
+        recipe.name = "MODIFIED - Should Not Appear"
+        session.commit()
+
+        # Get calculation - should use snapshot data
+        result = get_plan_calculation(
+            plan_with_snapshots_setup["event_id"],
+            session=session
+        )
+
+        # Recipe name should be from snapshot (original), not modified live data
+        recipe_batches = result["recipe_batches"]
+        assert len(recipe_batches) == 1
+        assert recipe_batches[0]["recipe_name"] == original_name
+
+    def test_get_plan_calculation_event_not_found(self, test_db):
+        """Test that get_plan_calculation raises for nonexistent event."""
+        session = test_db()
+
+        with pytest.raises(EventNotFoundError):
+            get_plan_calculation(99999, session=session)
+
+    def test_get_plan_calculation_fallback_to_live(self, test_db):
+        """Test fallback to live recipe when no snapshot exists."""
+        session = test_db()
+
+        # Create event with target but no plan (no snapshots)
+        event = Event(
+            name="No Snapshot Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BULK_COUNT,
+        )
+        session.add(event)
         session.flush()
 
-        # Create plan snapshot calculated AFTER everything was created
-        # Note: WP01 removed calculation_results and staleness fields from model
+        recipe = Recipe(name="Live Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=3,
+        )
+        session.add(target)
+        session.commit()
+
+        # Get calculation without creating plan first
+        result = get_plan_calculation(event.id, session=session)
+
+        # Should fall back to live recipe data
+        recipe_batches = result["recipe_batches"]
+        assert len(recipe_batches) == 1
+        assert recipe_batches[0]["recipe_name"] == "Live Recipe"
+        assert recipe_batches[0]["has_snapshot"] is False
+
+
+class TestGetPlanCalculationPerformance:
+    """Performance tests for get_plan_calculation() (WP07 T034)."""
+
+    def test_get_plan_calculation_performance(self, test_db):
+        """Verify get_plan_calculation completes in <5 seconds."""
+        import time
+        session = test_db()
+
+        # Setup: create event with typical number of targets
+        event = Event(
+            name="Performance Test Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BULK_COUNT,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create 20 production targets (typical event size per WP07)
+        for i in range(20):
+            recipe = Recipe(name=f"Recipe {i}", category="Test")
+            session.add(recipe)
+            session.flush()
+
+            target = EventProductionTarget(
+                event_id=event.id,
+                recipe_id=recipe.id,
+                target_batches=5,
+            )
+            session.add(target)
+
+        session.commit()
+
+        # Create plan (creates snapshots)
+        create_plan(event.id, session=session)
+
+        # Time the calculation
+        start = time.time()
+        result = get_plan_calculation(event.id, session=session)
+        elapsed = time.time() - start
+
+        # Assert performance
+        assert elapsed < 5.0, f"get_plan_calculation took {elapsed:.2f}s, expected <5s"
+        assert "recipe_batches" in result
+        assert len(result["recipe_batches"]) == 20
+
+
+class TestCheckStaleness:
+    """Tests for check_staleness() function.
+
+    F065: With snapshot-based planning, check_staleness() is DEPRECATED.
+    Plans use immutable snapshots, so they never become stale.
+    The function now always returns (False, None).
+
+    These tests verify the deprecated behavior.
+    """
+
+    def test_check_staleness_always_returns_false(self, test_db):
+        """F065: check_staleness always returns (False, None) with snapshots."""
+        session = test_db()
+
+        # Create event without a plan
+        event = Event(
+            name="Test Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+        )
+        session.add(event)
+        session.commit()
+
+        # Should always return (False, None) regardless of state
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            is_stale, reason = check_staleness(event.id, session=session)
+            # Verify deprecation warning was issued
+            assert len(w) == 1
+            assert issubclass(w[0].category, DeprecationWarning)
+            assert "deprecated" in str(w[0].message).lower()
+
+        assert is_stale is False
+        assert reason is None
+
+    def test_check_staleness_ignores_modifications(self, test_db):
+        """F065: check_staleness ignores all modifications (deprecated)."""
+        session = test_db()
+
+        # Create event with plan
+        event = Event(
+            name="Modified Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BUNDLED,
+        )
+        session.add(event)
+        session.flush()
+
         now = utc_now()
         snapshot = ProductionPlanSnapshot(
             event_id=event.id,
@@ -599,50 +703,15 @@ class TestCheckStaleness:
         session.add(snapshot)
         session.commit()
 
-        return {
-            "event_id": event.id,
-            "snapshot_id": snapshot.id,
-            "composition_id": comp.id,
-            "finished_unit_id": cookie_unit.id,
-            "calculated_at": now,
-        }
-
-    def test_composition_update_makes_stale(self, test_db, composition_staleness_setup):
-        """Test that composition modification makes plan stale (WP05 T026)."""
-        session = test_db()
-
-        # Modify the composition after plan was calculated
-        comp = session.get(Composition, composition_staleness_setup["composition_id"])
-        comp.component_quantity = 12  # Change quantity
-        comp.updated_at = composition_staleness_setup["calculated_at"] + timedelta(minutes=5)
+        # Modify event after plan was calculated
+        event.last_modified = now + timedelta(minutes=5)
         session.commit()
 
-        is_stale, reason = check_staleness(composition_staleness_setup["event_id"], session=session)
-
-        assert is_stale is True
-        assert "composition modified" in reason.lower()
-
-    def test_finished_unit_yield_change_makes_stale(self, test_db, composition_staleness_setup):
-        """Test that FinishedUnit yield change makes plan stale (WP05 T026)."""
-        session = test_db()
-
-        # Modify the finished unit yield after plan was calculated
-        fu = session.get(FinishedUnit, composition_staleness_setup["finished_unit_id"])
-        fu.items_per_batch = 24  # Change yield from 48 to 24
-        fu.updated_at = composition_staleness_setup["calculated_at"] + timedelta(minutes=5)
-        session.commit()
-
-        is_stale, reason = check_staleness(composition_staleness_setup["event_id"], session=session)
-
-        assert is_stale is True
-        assert "yield" in reason.lower() or "finished unit" in reason.lower()
-
-    def test_composition_fresh_if_unchanged(self, test_db, composition_staleness_setup):
-        """Test that plan stays fresh if composition unchanged (WP05 T026)."""
-        session = test_db()
-
-        # Don't modify anything
-        is_stale, reason = check_staleness(composition_staleness_setup["event_id"], session=session)
+        # Should still return (False, None) - staleness concept deprecated
+        import warnings
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("always")
+            is_stale, reason = check_staleness(event.id, session=session)
 
         assert is_stale is False
         assert reason is None

@@ -8,10 +8,18 @@ This module provides a unified facade that orchestrates all planning modules:
 - progress: Production and assembly progress tracking
 
 The facade provides:
-- calculate_plan(): Full plan calculation with persistence
-- check_staleness(): Detect when plan needs recalculation
+- create_plan(): Create production plan with immutable snapshots (F065)
+- get_plan_calculation(): On-demand calculation from snapshots (F065)
 - get_plan_summary(): Get summary with phase statuses
+- calculate_plan(): [DEPRECATED] Use create_plan() instead
+- check_staleness(): [DEPRECATED] Always returns (False, None) with snapshots
 - Delegation methods for all underlying module functions
+
+Feature 065 (Production Plan Snapshot Refactor):
+    Plans now use immutable snapshots captured at planning time. This means:
+    - Staleness is no longer a concept (snapshots don't change)
+    - Calculations use snapshot data, not live definitions
+    - Changes to recipes/bundles don't affect existing plans
 """
 
 from dataclasses import dataclass
@@ -44,6 +52,10 @@ def _normalize_datetime(dt: Optional[datetime]) -> Optional[datetime]:
 
 
 from collections import defaultdict
+
+import json
+
+from sqlalchemy.orm import joinedload
 
 from src.models import (
     Event,
@@ -381,15 +393,13 @@ def _calculate_plan_impl(
     if event.output_mode is None:
         raise EventNotConfiguredError(event_id)
 
-    # Check for existing non-stale plan
+    # F065: With snapshots, staleness is no longer a concept
+    # If there's an existing plan and we're not forcing recalculation, return it
     if not force_recalculate:
         existing_plan = _get_latest_plan(event_id, session)
         if existing_plan:
-            # Check if actually stale (staleness now computed dynamically)
-            is_stale, reason = _check_staleness_impl(event_id, session)
-            if not is_stale:
-                # Return existing plan with computed results
-                return _plan_to_dict(existing_plan, event, session)
+            # Return existing plan with computed results
+            return _plan_to_dict(existing_plan, event, session)
 
     # Calculate batch requirements based on output mode
     if event.output_mode == OutputMode.BUNDLED:
@@ -573,58 +583,222 @@ def _plan_to_dict(
     }
 
 
-def _get_latest_requirements_timestamp(
+# =============================================================================
+# F065: On-Demand Calculation from Snapshots
+# =============================================================================
+
+
+def get_plan_calculation(
+    event_id: int,
+    *,
+    session: Optional[Session] = None,
+) -> Dict[str, Any]:
+    """Get production plan calculation from snapshots (on-demand).
+
+    Unlike cached calculation_results, this calculates fresh each time
+    using the immutable snapshots linked to production/assembly targets.
+    Falls back to live definitions if snapshots are not available.
+
+    Args:
+        event_id: Event to get plan calculation for
+        session: Optional session for query management
+
+    Returns:
+        dict with:
+        - recipe_batches: List of {recipe_id, recipe_name, target_batches, ...}
+        - shopping_list: List of {ingredient_id, name, quantity, unit, ...}
+        - aggregated_ingredients: Dict of ingredient totals by name
+
+    Performance: Designed to complete in <5 seconds for typical events.
+    """
+    if session is not None:
+        return _get_plan_calculation_impl(event_id, session)
+    with session_scope() as session:
+        return _get_plan_calculation_impl(event_id, session)
+
+
+def _get_plan_calculation_impl(
+    event_id: int,
+    session: Session,
+) -> Dict[str, Any]:
+    """Implementation of get_plan_calculation."""
+    # Eager load event with targets and snapshots
+    # Note: relationships have lazy="joined" so this query loads everything
+    event = session.query(Event).options(
+        joinedload(Event.production_targets).joinedload(
+            EventProductionTarget.recipe_snapshot
+        ),
+        joinedload(Event.assembly_targets).joinedload(
+            EventAssemblyTarget.finished_good_snapshot
+        ),
+    ).filter(Event.id == event_id).first()
+
+    if not event:
+        raise EventNotFoundError(event_id)
+
+    # Calculate each component from snapshots
+    recipe_batches = _calculate_recipe_batches_from_snapshots(event, session)
+    shopping_list = _calculate_shopping_list_from_snapshots(event, session)
+    aggregated_ingredients = _aggregate_ingredients_from_snapshots(event, session)
+
+    return {
+        "recipe_batches": recipe_batches,
+        "shopping_list": shopping_list,
+        "aggregated_ingredients": aggregated_ingredients,
+    }
+
+
+def _calculate_recipe_batches_from_snapshots(
     event: Event,
     session: Session,
-) -> Optional[datetime]:
-    """Get the latest updated_at from assembly/production targets."""
-    latest = None
+) -> List[Dict[str, Any]]:
+    """Calculate recipe batch requirements from target snapshots.
 
-    for target in event.assembly_targets:
-        target_ts = _normalize_datetime(target.updated_at)
-        if target_ts and (latest is None or target_ts > latest):
-            latest = target_ts
+    Returns list of dicts with recipe info and batch requirements.
+    Uses snapshot data if available, falls back to live recipe otherwise.
+    """
+    batches = []
+    for target in event.production_targets:
+        # Get recipe data from snapshot if available
+        if target.recipe_snapshot:
+            recipe_data = target.recipe_snapshot.get_recipe_data()
+            recipe_name = recipe_data.get("name", f"Recipe {target.recipe_id}")
+            # Get yield from snapshot or default to 1
+            yield_per_batch = recipe_data.get("yield_quantity") or 1
+            if yield_per_batch <= 0:
+                yield_per_batch = 1
+        else:
+            # Fallback: use live recipe (legacy compatibility)
+            recipe = session.get(Recipe, target.recipe_id)
+            if recipe:
+                recipe_name = recipe.name
+                # F056: Use FinishedUnit.items_per_batch if available
+                yield_per_batch = 1
+                if recipe.finished_units:
+                    primary_unit = recipe.finished_units[0]
+                    if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                        yield_per_batch = primary_unit.items_per_batch
+                recipe_data = {"name": recipe_name}
+            else:
+                recipe_name = f"Recipe {target.recipe_id}"
+                yield_per_batch = 1
+                recipe_data = {}
+
+        # Calculate units needed and waste
+        units_needed = target.target_batches * yield_per_batch
+        total_yield = target.target_batches * yield_per_batch
+        waste_units = total_yield - units_needed if total_yield > units_needed else 0
+        waste_percent = (waste_units / total_yield * 100) if total_yield > 0 else 0.0
+
+        batches.append({
+            "recipe_id": target.recipe_id,
+            "recipe_name": recipe_name,
+            "target_batches": target.target_batches,
+            "units_needed": units_needed,
+            "batches": target.target_batches,
+            "yield_per_batch": yield_per_batch,
+            "total_yield": total_yield,
+            "waste_units": waste_units,
+            "waste_percent": waste_percent,
+            "recipe_snapshot_id": target.recipe_snapshot_id,
+            "has_snapshot": target.recipe_snapshot is not None,
+        })
+
+    return batches
+
+
+def _calculate_shopping_list_from_snapshots(
+    event: Event,
+    session: Session,
+) -> List[Dict[str, Any]]:
+    """Calculate shopping list from target snapshot ingredient data.
+
+    Aggregates all ingredients needed across all recipe snapshots,
+    accounting for batch quantities.
+    """
+    ingredients_needed: Dict[int, Dict[str, Any]] = {}  # {ingredient_id: {name, quantity, unit}}
 
     for target in event.production_targets:
-        target_ts = _normalize_datetime(target.updated_at)
-        if target_ts and (latest is None or target_ts > latest):
-            latest = target_ts
+        # Get ingredients from snapshot
+        if target.recipe_snapshot:
+            ingredients_data = target.recipe_snapshot.get_ingredients_data()
+        else:
+            # Fallback: use live recipe ingredients
+            recipe = session.get(Recipe, target.recipe_id)
+            if recipe:
+                # Get aggregated ingredients including nested recipes
+                try:
+                    agg = recipe_service.get_aggregated_ingredients(
+                        target.recipe_id,
+                        multiplier=1.0,
+                        session=session,
+                    )
+                    ingredients_data = [
+                        {
+                            "ingredient_id": ing.get("ingredient_id"),
+                            "name": ing.get("ingredient_name", "Unknown"),
+                            "quantity": ing.get("total_quantity", 0),
+                            "unit": ing.get("unit", ""),
+                        }
+                        for ing in agg
+                    ]
+                except Exception:
+                    ingredients_data = []
+            else:
+                ingredients_data = []
 
-    return latest
+        # Scale by batch count
+        batch_multiplier = target.target_batches
+
+        for ing in ingredients_data:
+            ing_id = ing.get("ingredient_id") or ing.get("id")
+            if not ing_id:
+                continue
+
+            quantity = (ing.get("quantity") or 0) * batch_multiplier
+            unit = ing.get("unit", "")
+            name = ing.get("name") or ing.get("ingredient_name", f"Ingredient {ing_id}")
+
+            if ing_id in ingredients_needed:
+                ingredients_needed[ing_id]["quantity"] += quantity
+            else:
+                ingredients_needed[ing_id] = {
+                    "ingredient_id": ing_id,
+                    "name": name,
+                    "quantity": quantity,
+                    "unit": unit,
+                }
+
+    return list(ingredients_needed.values())
 
 
-def _get_latest_recipes_timestamp(
-    recipe_batches: List[RecipeBatchResult],
-    session: Session,
-) -> Optional[datetime]:
-    """Get the latest last_modified from recipes in the plan."""
-    latest = None
-
-    for rb in recipe_batches:
-        recipe = session.get(Recipe, rb.recipe_id)
-        recipe_ts = _normalize_datetime(recipe.last_modified) if recipe else None
-        if recipe_ts:
-            if latest is None or recipe_ts > latest:
-                latest = recipe_ts
-
-    return latest
-
-
-def _get_latest_bundles_timestamp(
+def _aggregate_ingredients_from_snapshots(
     event: Event,
     session: Session,
-) -> Optional[datetime]:
-    """Get the latest updated_at from finished goods in the plan."""
-    latest = None
+) -> Dict[str, Dict[str, Any]]:
+    """Aggregate ingredients across all snapshots.
 
-    for target in event.assembly_targets:
-        fg = session.get(FinishedGood, target.finished_good_id)
-        fg_ts = _normalize_datetime(fg.updated_at) if fg else None
-        if fg_ts:
-            if latest is None or fg_ts > latest:
-                latest = fg_ts
+    Returns dict keyed by ingredient name, with totals.
+    This provides a dict format for different consumers.
+    """
+    # Reuse shopping list calculation
+    shopping_list = _calculate_shopping_list_from_snapshots(event, session)
 
-    return latest
+    # Convert to dict format keyed by name
+    aggregated: Dict[str, Dict[str, Any]] = {}
+    for item in shopping_list:
+        key = item["name"]
+        if key in aggregated:
+            # Same ingredient, add quantities
+            aggregated[key]["total_quantity"] += item["quantity"]
+        else:
+            aggregated[key] = {
+                "ingredient_id": item["ingredient_id"],
+                "total_quantity": item["quantity"],
+                "unit": item["unit"],
+            }
+
+    return aggregated
 
 
 def _aggregate_plan_ingredients(
@@ -727,7 +901,7 @@ def _aggregate_plan_ingredients(
 
 
 # =============================================================================
-# Staleness Detection
+# Staleness Detection (DEPRECATED - F065)
 # =============================================================================
 
 
@@ -738,129 +912,26 @@ def check_staleness(
 ) -> Tuple[bool, Optional[str]]:
     """Check if plan is stale.
 
-    Compares the calculated_at timestamp of the latest plan against:
-    - Event.last_modified
-    - EventAssemblyTarget.updated_at (each)
-    - EventProductionTarget.updated_at (each)
-    - Recipe.last_modified (each in plan)
-    - FinishedGood.updated_at (each)
-    - Composition.created_at (bundle contents)
+    .. deprecated:: F065
+        With snapshot-based planning, staleness is no longer a concept.
+        Plans use immutable snapshots, so they never become stale.
+        This function is kept for backward compatibility but always
+        returns (False, None).
 
     Args:
-        event_id: Event to check
-        session: Optional database session
+        event_id: Event to check (unused)
+        session: Optional database session (unused)
 
     Returns:
-        Tuple of (is_stale: bool, reason: Optional[str])
-        - is_stale: True if plan needs recalculation
-        - reason: Human-readable explanation if stale
+        Tuple of (False, None) - plans are never stale with snapshots
     """
-    if session is not None:
-        return _check_staleness_impl(event_id, session)
-    with session_scope() as session:
-        return _check_staleness_impl(event_id, session)
-
-
-def _check_staleness_impl(
-    event_id: int,
-    session: Session,
-) -> Tuple[bool, Optional[str]]:
-    """Implementation of check_staleness."""
-    # Get latest plan
-    plan = _get_latest_plan(event_id, session)
-    if plan is None:
-        return True, "No plan exists for this event"
-
-    calculated_at = _normalize_datetime(plan.calculated_at)
-    if calculated_at is None:
-        return True, "Plan has no calculation timestamp"
-
-    # Get event
-    event = session.get(Event, event_id)
-    if event is None:
-        return True, "Event not found"
-
-    # Check event modification
-    event_modified = _normalize_datetime(event.last_modified)
-    if event_modified and event_modified > calculated_at:
-        return True, "Event modified since plan calculation"
-
-    # Check assembly targets
-    for target in event.assembly_targets:
-        target_updated = _normalize_datetime(target.updated_at)
-        if target_updated and target_updated > calculated_at:
-            fg = session.get(FinishedGood, target.finished_good_id)
-            name = fg.display_name if fg else f"ID {target.finished_good_id}"
-            return True, f"Assembly target '{name}' modified"
-
-    # Check production targets
-    for target in event.production_targets:
-        target_updated = _normalize_datetime(target.updated_at)
-        if target_updated and target_updated > calculated_at:
-            recipe = session.get(Recipe, target.recipe_id)
-            name = recipe.name if recipe else f"ID {target.recipe_id}"
-            return True, f"Production target '{name}' modified"
-
-    # Check recipes in plan (get from event targets since plan no longer stores batches)
-    recipe_ids_to_check = set()
-    for target in event.production_targets:
-        recipe_ids_to_check.add(target.recipe_id)
-
-    for recipe_id in recipe_ids_to_check:
-        recipe = session.get(Recipe, recipe_id)
-        recipe_modified = _normalize_datetime(recipe.last_modified) if recipe else None
-        if recipe_modified and recipe_modified > calculated_at:
-            return True, f"Recipe '{recipe.name}' modified"
-
-    # Check finished goods
-    for target in event.assembly_targets:
-        fg = session.get(FinishedGood, target.finished_good_id)
-        if fg:
-            fg_updated = _normalize_datetime(fg.updated_at)
-            if fg_updated and fg_updated > calculated_at:
-                return True, f"Bundle '{fg.display_name}' modified"
-
-            # Check compositions (created_at and updated_at)
-            compositions = session.query(Composition).filter(Composition.assembly_id == fg.id).all()
-            for comp in compositions:
-                comp_created = _normalize_datetime(comp.created_at)
-                if comp_created and comp_created > calculated_at:
-                    return True, f"Bundle '{fg.display_name}' contents changed"
-                # Check composition updates (WP05 T023)
-                comp_updated = _normalize_datetime(comp.updated_at)
-                if comp_updated and comp_updated > calculated_at:
-                    return True, f"Bundle '{fg.display_name}' composition modified"
-
-    # Check FinishedUnit yield changes (WP05 T024/T025)
-    # Get finished unit IDs from production targets and compositions
-    finished_unit_ids = set()
-
-    # From production targets (if recipe links to finished unit)
-    for target in event.production_targets:
-        recipe = session.get(Recipe, target.recipe_id)
-        if recipe:
-            # Find finished units that use this recipe
-            fus = session.query(FinishedUnit).filter(FinishedUnit.recipe_id == recipe.id).all()
-            for fu in fus:
-                finished_unit_ids.add(fu.id)
-
-    # From assembly compositions
-    for target in event.assembly_targets:
-        compositions = session.query(Composition).filter(
-            Composition.assembly_id == target.finished_good_id,
-            Composition.finished_unit_id.isnot(None)
-        ).all()
-        for comp in compositions:
-            finished_unit_ids.add(comp.finished_unit_id)
-
-    # Check each finished unit for yield changes
-    for fu_id in finished_unit_ids:
-        fu = session.get(FinishedUnit, fu_id)
-        if fu:
-            fu_updated = _normalize_datetime(fu.updated_at)
-            if fu_updated and fu_updated > calculated_at:
-                return True, f"Finished unit '{fu.display_name}' yield changed"
-
+    import warnings
+    warnings.warn(
+        "check_staleness() is deprecated: with snapshot-based planning, "
+        "plans are never stale. This function always returns (False, None).",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return False, None
 
 
@@ -893,15 +964,22 @@ def _get_plan_summary_impl(
     event_id: int,
     session: Session,
 ) -> PlanSummary:
-    """Implementation of get_plan_summary."""
+    """Implementation of get_plan_summary.
+
+    F065: With snapshot-based planning, staleness is no longer a concept.
+    Snapshots are immutable - the plan always uses snapshot data which
+    represents the state at planning time. is_stale is always False.
+    """
     event = session.get(Event, event_id)
     if event is None:
         raise EventNotFoundError(event_id)
 
     plan = _get_latest_plan(event_id, session)
 
-    # Check staleness
-    is_stale, stale_reason = _check_staleness_impl(event_id, session)
+    # F065: Snapshots are immutable - plan is never stale
+    # Staleness detection removed as part of snapshot refactor
+    is_stale = False
+    stale_reason = None
 
     # Get progress
     prod_progress = _get_overall_progress(event_id, session=session)
