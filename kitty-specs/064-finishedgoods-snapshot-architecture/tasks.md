@@ -20,7 +20,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Create FinishedUnitSnapshot model in `src/models/finished_unit_snapshot.py`
+- [x] T001 Create FinishedUnitSnapshot model in `src/models/finished_unit_snapshot.py`
 - [ ] T002 [P] Add FinishedUnitSnapshot to models `__init__.py` exports
 - [ ] T003 Add `create_finished_unit_snapshot()` function to `src/services/finished_unit_service.py`
 - [ ] T004 Add `get_finished_unit_snapshot()` and `get_snapshots_by_planning_id()` query functions
