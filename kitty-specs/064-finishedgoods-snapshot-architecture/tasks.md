@@ -89,7 +89,7 @@
 - [x] T015 Implement circular reference detection with visited_ids set tracking
 - [x] T016 Implement max depth enforcement (10 levels)
 - [x] T017 Add `get_finished_good_snapshot()` and `get_snapshots_by_planning_id()` query functions
-- [ ] T018 Create comprehensive unit tests including edge cases
+- [x] T018 Create comprehensive unit tests including edge cases
 
 ### Implementation Notes
 - Most complex WP - recursive snapshot creation orchestrates WP01 and WP02 primitives
