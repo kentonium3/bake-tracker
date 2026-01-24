@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP04"
-title: "PlanningSnapshot Container"
-phase: "Phase 3 - Container"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01", "WP02", "WP03"]
+work_package_id: WP04
+title: PlanningSnapshot Container
+lane: "doing"
+dependencies: [WP01, WP02, WP03]
+base_branch: 064-finishedgoods-snapshot-architecture-WP03
+base_commit: 98fadf2cddb70706811c213f524311e10316dad5
+created_at: '2026-01-24T18:19:32.379156+00:00'
 subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
+- T019
+- T020
+- T021
+- T022
+- T023
+- T024
+- T025
+phase: Phase 3 - Container
+assignee: ''
+agent: ''
+shell_pid: "61030"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2025-01-24T05:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2025-01-24T05:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – PlanningSnapshot Container
