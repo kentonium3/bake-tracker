@@ -118,13 +118,13 @@
 **Prompt**: `tasks/WP04-planning-snapshot-creation.md`
 
 ### Included Subtasks
-- [ ] T014 Refactor calculate_plan() to create_plan() entry point for snapshot-based planning
-- [ ] T015 Create RecipeSnapshot for each EventProductionTarget during plan creation
-- [ ] T016 Create FinishedGoodSnapshot for each EventAssemblyTarget during plan creation
-- [ ] T017 Link snapshots to targets (set recipe_snapshot_id on EventProductionTarget)
-- [ ] T018 Link snapshots to targets (set finished_good_snapshot_id on EventAssemblyTarget)
-- [ ] T019 Ensure atomic transaction: all snapshot creation in single session_scope
-- [ ] T020 Pass session through all nested service calls per CLAUDE.md patterns
+- [x] T014 Refactor calculate_plan() to create_plan() entry point for snapshot-based planning
+- [x] T015 Create RecipeSnapshot for each EventProductionTarget during plan creation
+- [x] T016 Create FinishedGoodSnapshot for each EventAssemblyTarget during plan creation
+- [x] T017 Link snapshots to targets (set recipe_snapshot_id on EventProductionTarget)
+- [x] T018 Link snapshots to targets (set finished_good_snapshot_id on EventAssemblyTarget)
+- [x] T019 Ensure atomic transaction: all snapshot creation in single session_scope
+- [x] T020 Pass session through all nested service calls per CLAUDE.md patterns
 
 ### Implementation Notes
 - File: `src/services/planning/planning_service.py`
