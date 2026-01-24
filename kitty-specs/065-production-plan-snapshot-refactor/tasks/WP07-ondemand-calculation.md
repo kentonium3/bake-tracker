@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: On-Demand Calculation
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -14,7 +14,7 @@ subtasks:
 phase: Phase 4 - On-Demand Calculation
 assignee: ''
 agent: "claude-opus"
-shell_pid: "93958"
+shell_pid: "98086"
 review_status: ''
 reviewed_by: ''
 history:
@@ -415,3 +415,4 @@ Reviewers should verify:
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
 - 2026-01-24T22:54:42Z – claude-opus – shell_pid=93958 – lane=doing – Started implementation via workflow command
 - 2026-01-24T23:15:12Z – claude-opus – shell_pid=93958 – lane=for_review – Ready for review: Implemented on-demand calculation from snapshots, deprecated staleness detection, added tests
+- 2026-01-24T23:32:07Z – claude-opus – shell_pid=98086 – lane=doing – Started review via workflow command
