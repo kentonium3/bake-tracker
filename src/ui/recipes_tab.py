@@ -508,14 +508,21 @@ class RecipesTab(ctk.CTkFrame):
             details.append(f"Recipe: {recipe.name}")
             details.append(f"Category: {recipe.category}")
 
-            # Show FinishedUnit yield types (Feature 056 - single source of truth)
-            yield_types = finished_unit_service.get_units_by_recipe(recipe.id)
-            if yield_types:
+            # Show FinishedUnit yield types (Feature 056/063 - variant yield inheritance)
+            # Use primitives to get display_name from recipe's FUs and yields from base
+            recipe_fus = recipe_service.get_finished_units(recipe.id)
+            base_yields = recipe_service.get_base_yield_structure(recipe.id)
+
+            if recipe_fus and base_yields:
                 details.append("Yield Types:")
-                for yt in yield_types:
-                    details.append(
-                        f"  - {yt.display_name}: {yt.items_per_batch} {yt.item_unit}/batch"
-                    )
+                # Combine: variant's display_name with base's yield values
+                for fu, y in zip(recipe_fus, base_yields):
+                    items = y.get("items_per_batch")
+                    unit = y.get("item_unit", "")
+                    if items:
+                        details.append(f"  - {fu['display_name']}: {items} {unit}/batch")
+                    else:
+                        details.append(f"  - {fu['display_name']}: Yield not specified")
             else:
                 details.append("Yield Types: None defined (edit recipe to add)")
 
@@ -525,13 +532,15 @@ class RecipesTab(ctk.CTkFrame):
             details.append("")
             details.append("Cost Breakdown:")
             details.append(f"  Total Cost: ${recipe_data['total_cost']:.2f}")
-            if yield_types:
-                # Show cost per unit for each yield type
-                for yt in yield_types:
-                    if yt.items_per_batch and yt.items_per_batch > 0:
-                        cost_per = recipe_data["total_cost"] / yt.items_per_batch
+            if recipe_fus and base_yields:
+                # Show cost per unit for each yield type (use base yields for calculation)
+                for fu, y in zip(recipe_fus, base_yields):
+                    items = y.get("items_per_batch")
+                    unit = y.get("item_unit", "")
+                    if items and items > 0:
+                        cost_per = recipe_data["total_cost"] / items
                         details.append(
-                            f"  Cost per {yt.item_unit} ({yt.display_name}): ${cost_per:.4f}"
+                            f"  Cost per {unit} ({fu['display_name']}): ${cost_per:.4f}"
                         )
 
             details.append("")
