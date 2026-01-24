@@ -9,7 +9,7 @@ subtasks:
   - "T011"
 title: "Variant Creation Extension"
 phase: "Phase 1 - Core"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "26000"
@@ -472,3 +472,4 @@ When reviewing this work package, verify:
 ## Activity Log
 
 - 2026-01-24T07:37:21Z – claude-opus – shell_pid=26000 – lane=doing – Started implementation via workflow command
+- 2026-01-24T07:41:26Z – claude-opus – shell_pid=26000 – lane=for_review – Ready for review: Extended create_recipe_variant with finished_unit_names parameter, validation, and 8 passing tests
