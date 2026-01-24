@@ -3129,3 +3129,329 @@ class TestRecipeFinishedUnitValidation:
         # Validate with session parameter (should see uncommitted data)
         errors = recipe_service.validate_recipe_has_finished_unit(recipe.id, session=session)
         assert len(errors) == 0
+
+
+# ============================================================================
+# Feature 063: Variant Creation with FinishedUnits Tests
+# ============================================================================
+
+
+class TestCreateRecipeVariantWithFinishedUnits:
+    """Tests for create_recipe_variant with finished_unit_names parameter (Feature 063)."""
+
+    def test_create_variant_with_finished_units(self, test_db):
+        """Test: Variant creation with finished_unit_names creates variant FinishedUnits."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe
+        base = recipe_service.create_recipe(
+            {"name": "Plain Thumbprint Cookies", "category": "Cookies"},
+            [],
+        )
+
+        # Create base FinishedUnit
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="plain-thumbprint-cookie",
+            display_name="Plain Thumbprint Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            category="Cookies",
+        )
+        session.add(base_fu)
+        session.commit()
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base_recipe_id=base.id,
+            variant_name="Raspberry",
+            finished_unit_names=[
+                {"base_slug": "plain-thumbprint-cookie", "display_name": "Raspberry Thumbprint Cookie"}
+            ],
+        )
+
+        # Assert
+        assert result["variant_name"] == "Raspberry"
+
+        # Verify variant FinishedUnit created
+        variant_fus = session.query(FinishedUnit).filter_by(recipe_id=result["id"]).all()
+        assert len(variant_fus) == 1
+        assert variant_fus[0].display_name == "Raspberry Thumbprint Cookie"
+        assert variant_fus[0].items_per_batch is None  # NULL for variants
+        assert variant_fus[0].item_unit is None  # NULL for variants
+
+    def test_create_variant_without_finished_units_backward_compatible(self, test_db):
+        """Test: Variant creation without finished_unit_names creates no FinishedUnits."""
+        from src.models.finished_unit import FinishedUnit
+
+        session = test_db()
+
+        # Create base recipe
+        base = recipe_service.create_recipe(
+            {"name": "Basic Cookies", "category": "Cookies"},
+            [],
+        )
+
+        # Act (no finished_unit_names - backward compatible)
+        result = recipe_service.create_recipe_variant(
+            base_recipe_id=base.id,
+            variant_name="Chocolate",
+            copy_ingredients=False,
+        )
+
+        # Assert: No variant FinishedUnits
+        variant_fus = session.query(FinishedUnit).filter_by(recipe_id=result["id"]).all()
+        assert len(variant_fus) == 0
+
+    def test_create_variant_copies_non_yield_fields(self, test_db):
+        """Test: Variant FinishedUnit copies category and yield_mode from base."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe with FinishedUnit
+        base = recipe_service.create_recipe(
+            {"name": "Test Cookies", "category": "Cookies"},
+            [],
+        )
+
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="test-cookie",
+            display_name="Test Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            category="Holiday Cookies",
+            portion_description="Standard size",
+            production_notes="Bake at 350F",
+        )
+        session.add(base_fu)
+        session.commit()
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base_recipe_id=base.id,
+            variant_name="Strawberry",
+            finished_unit_names=[
+                {"base_slug": "test-cookie", "display_name": "Strawberry Cookie"}
+            ],
+        )
+
+        # Assert
+        variant_fu = session.query(FinishedUnit).filter_by(recipe_id=result["id"]).first()
+        assert variant_fu.category == "Holiday Cookies"  # Copied from base
+        assert variant_fu.yield_mode == YieldMode.DISCRETE_COUNT  # Copied from base
+        assert variant_fu.portion_description == "Standard size"  # Copied from base
+        assert variant_fu.production_notes == "Bake at 350F"  # Copied from base
+
+    def test_create_variant_rejects_duplicate_display_name(self, test_db):
+        """Test: Variant creation rejects display_name matching base."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe with FinishedUnit
+        base = recipe_service.create_recipe(
+            {"name": "Original Cookie", "category": "Cookies"},
+            [],
+        )
+
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="original-cookie",
+            display_name="Original Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+        )
+        session.add(base_fu)
+        session.commit()
+
+        # Act & Assert: Same display_name as base should fail
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.create_recipe_variant(
+                base_recipe_id=base.id,
+                variant_name="Copy",
+                finished_unit_names=[
+                    {"base_slug": "original-cookie", "display_name": "Original Cookie"}  # Same as base!
+                ],
+            )
+
+        assert "must differ" in str(exc_info.value).lower()
+
+    def test_create_variant_rejects_invalid_base_slug(self, test_db):
+        """Test: Variant creation rejects non-existent base_slug."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe with FinishedUnit
+        base = recipe_service.create_recipe(
+            {"name": "Some Cookie", "category": "Cookies"},
+            [],
+        )
+
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="some-cookie",
+            display_name="Some Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+        )
+        session.add(base_fu)
+        session.commit()
+
+        # Act & Assert
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.create_recipe_variant(
+                base_recipe_id=base.id,
+                variant_name="Test",
+                finished_unit_names=[
+                    {"base_slug": "nonexistent-slug", "display_name": "Test Cookie"}
+                ],
+            )
+
+        assert "not found" in str(exc_info.value).lower()
+
+    def test_create_variant_rejects_missing_required_fields(self, test_db):
+        """Test: Variant creation rejects finished_unit_names without required fields."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe with FinishedUnit
+        base = recipe_service.create_recipe(
+            {"name": "Another Cookie", "category": "Cookies"},
+            [],
+        )
+
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="another-cookie",
+            display_name="Another Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+        )
+        session.add(base_fu)
+        session.commit()
+
+        # Act & Assert: Missing display_name
+        with pytest.raises(ValidationError):
+            recipe_service.create_recipe_variant(
+                base_recipe_id=base.id,
+                variant_name="Test",
+                finished_unit_names=[
+                    {"base_slug": "another-cookie"}  # Missing display_name
+                ],
+            )
+
+        # Act & Assert: Missing base_slug
+        with pytest.raises(ValidationError):
+            recipe_service.create_recipe_variant(
+                base_recipe_id=base.id,
+                variant_name="Test2",
+                finished_unit_names=[
+                    {"display_name": "Test Cookie"}  # Missing base_slug
+                ],
+            )
+
+    def test_create_variant_generates_unique_slug(self, test_db):
+        """Test: Generated variant FinishedUnit slug is unique and URL-safe."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe with FinishedUnit
+        base = recipe_service.create_recipe(
+            {"name": "Fancy Cookies", "category": "Cookies"},
+            [],
+        )
+
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="fancy-cookie",
+            display_name="Fancy Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+        )
+        session.add(base_fu)
+        session.commit()
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base_recipe_id=base.id,
+            variant_name="Deluxe",
+            finished_unit_names=[
+                {"base_slug": "fancy-cookie", "display_name": "Deluxe Fancy Cookie"}
+            ],
+        )
+
+        # Assert
+        variant_fu = session.query(FinishedUnit).filter_by(recipe_id=result["id"]).first()
+
+        # Slug should be lowercase, URL-safe, and include recipe_id for uniqueness
+        assert variant_fu.slug.islower() or variant_fu.slug.replace("-", "").isalnum()
+        assert " " not in variant_fu.slug
+        assert str(result["id"]) in variant_fu.slug  # Recipe ID for uniqueness
+
+    def test_create_variant_with_multiple_finished_units(self, test_db):
+        """Test: Variant creation with multiple finished_unit_names entries."""
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create base recipe with multiple FinishedUnits
+        base = recipe_service.create_recipe(
+            {"name": "Multi-Size Cookies", "category": "Cookies"},
+            [],
+        )
+
+        base_fu1 = FinishedUnit(
+            recipe_id=base.id,
+            slug="regular-size",
+            display_name="Regular Cookie",
+            items_per_batch=24,
+            item_unit="cookie",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+        )
+        base_fu2 = FinishedUnit(
+            recipe_id=base.id,
+            slug="mini-size",
+            display_name="Mini Cookie",
+            items_per_batch=48,
+            item_unit="mini",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+        )
+        session.add(base_fu1)
+        session.add(base_fu2)
+        session.commit()
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base_recipe_id=base.id,
+            variant_name="Chocolate",
+            finished_unit_names=[
+                {"base_slug": "regular-size", "display_name": "Chocolate Regular Cookie"},
+                {"base_slug": "mini-size", "display_name": "Chocolate Mini Cookie"},
+            ],
+        )
+
+        # Assert
+        variant_fus = session.query(FinishedUnit).filter_by(recipe_id=result["id"]).all()
+        assert len(variant_fus) == 2
+
+        display_names = {fu.display_name for fu in variant_fus}
+        assert "Chocolate Regular Cookie" in display_names
+        assert "Chocolate Mini Cookie" in display_names
+
+        # All should have NULL yield fields
+        for fu in variant_fus:
+            assert fu.items_per_batch is None
+            assert fu.item_unit is None
