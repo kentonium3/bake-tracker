@@ -8,10 +8,10 @@ subtasks:
   - "T039"
 title: "UI Layer Updates"
 phase: "Phase 5 - UI Updates"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "98945"
+shell_pid: "780"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP07"]
@@ -359,3 +359,4 @@ Reviewers should verify:
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
 - 2026-01-24T23:39:58Z – claude-opus – shell_pid=98945 – lane=doing – Started implementation via workflow command
 - 2026-01-24T23:46:10Z – claude-opus – shell_pid=98945 – lane=for_review – Ready for review: Removed staleness UI (StalePlanBanner, check_staleness calls) from planning_workspace.py. Snapshots are immutable, so staleness no longer applies.
+- 2026-01-24T23:49:07Z – claude-opus – shell_pid=780 – lane=doing – Started review via workflow command
