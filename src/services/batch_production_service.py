@@ -37,6 +37,7 @@ from src.models import (
     Recipe,
     FinishedUnit,
     Event,
+    EventProductionTarget,  # F065: For snapshot reuse lookup
     ProductionStatus,
     LossCategory,
 )
@@ -293,6 +294,7 @@ def record_batch_production(
             - "total_loss_cost": str - cost of lost units (Feature 025)
             - "snapshot_id": int - Recipe snapshot ID (Feature 037)
             - "scale_factor": float - Applied scale factor (Feature 037)
+            - "snapshot_reused": bool - True if planning snapshot was reused (F065)
 
     Raises:
         RecipeNotFoundError: If recipe doesn't exist
@@ -362,42 +364,101 @@ def record_batch_production(
         else:
             production_status = ProductionStatus.PARTIAL_LOSS
 
-        # Feature 037: Create snapshot FIRST - captures recipe state before production
-        # Note: We create a temporary ProductionRun to get an ID for the snapshot,
-        # then update it after. Alternative: create snapshot without run_id, then link.
-        # Using the simpler approach: create snapshot with placeholder, update later
-        temp_production_run = ProductionRun(
-            recipe_id=recipe_id,
-            finished_unit_id=finished_unit_id,
-            num_batches=num_batches,
-            expected_yield=expected_yield,
-            actual_yield=actual_yield,
-            produced_at=produced_at or utc_now(),
-            notes=notes,
-            total_ingredient_cost=Decimal("0.0000"),  # Will be updated
-            per_unit_cost=Decimal("0.0000"),  # Will be updated
-            event_id=event_id,
-            production_status=production_status.value,
-            loss_quantity=loss_quantity,
-        )
-        session.add(temp_production_run)
-        session.flush()  # Get the ID
+        # F065: Check for planning snapshot reuse
+        # If production is for a planned event, check if target has recipe_snapshot_id
+        planning_snapshot_id = None
+        snapshot_reused = False
+        if event_id:
+            target = session.query(EventProductionTarget).filter(
+                EventProductionTarget.event_id == event_id,
+                EventProductionTarget.recipe_id == recipe_id
+            ).first()
 
-        # Now create the snapshot with the production_run_id
-        snapshot = recipe_snapshot_service.create_recipe_snapshot(
-            recipe_id=recipe_id,
-            scale_factor=scale_factor,
-            production_run_id=temp_production_run.id,
-            session=session,
-        )
-        snapshot_id = snapshot["id"]
+            if target and target.recipe_snapshot_id:
+                # Reuse snapshot from planning phase
+                planning_snapshot_id = target.recipe_snapshot_id
+                snapshot_reused = True
+                logger.debug(
+                    "Reusing planning snapshot",
+                    extra={
+                        "recipe_id": recipe_id,
+                        "event_id": event_id,
+                        "planning_snapshot_id": planning_snapshot_id,
+                    },
+                )
 
-        # Link snapshot to production run
-        temp_production_run.recipe_snapshot_id = snapshot_id
+        if planning_snapshot_id:
+            # F065: Reuse planning snapshot - create ProductionRun with existing snapshot
+            snapshot_id = planning_snapshot_id
+
+            # Get the snapshot data for ingredient consumption
+            from src.models import RecipeSnapshot
+            snapshot_model = session.get(RecipeSnapshot, snapshot_id)
+            if not snapshot_model:
+                raise RecipeNotFoundError(recipe_id)  # Snapshot missing, shouldn't happen
+            # Use the accessor method to parse JSON string to list
+            ingredients_data = snapshot_model.get_ingredients_data()
+
+            # Create production run with planning snapshot reference
+            temp_production_run = ProductionRun(
+                recipe_id=recipe_id,
+                finished_unit_id=finished_unit_id,
+                num_batches=num_batches,
+                expected_yield=expected_yield,
+                actual_yield=actual_yield,
+                produced_at=produced_at or utc_now(),
+                notes=notes,
+                total_ingredient_cost=Decimal("0.0000"),  # Will be updated
+                per_unit_cost=Decimal("0.0000"),  # Will be updated
+                event_id=event_id,
+                production_status=production_status.value,
+                loss_quantity=loss_quantity,
+                recipe_snapshot_id=snapshot_id,  # Link to planning snapshot
+            )
+            session.add(temp_production_run)
+            session.flush()
+
+        else:
+            # Legacy/ad-hoc production: Create new snapshot
+            # Feature 037: Create snapshot FIRST - captures recipe state before production
+            # Note: We create a temporary ProductionRun to get an ID for the snapshot,
+            # then update it after. Alternative: create snapshot without run_id, then link.
+            # Using the simpler approach: create snapshot with placeholder, update later
+            temp_production_run = ProductionRun(
+                recipe_id=recipe_id,
+                finished_unit_id=finished_unit_id,
+                num_batches=num_batches,
+                expected_yield=expected_yield,
+                actual_yield=actual_yield,
+                produced_at=produced_at or utc_now(),
+                notes=notes,
+                total_ingredient_cost=Decimal("0.0000"),  # Will be updated
+                per_unit_cost=Decimal("0.0000"),  # Will be updated
+                event_id=event_id,
+                production_status=production_status.value,
+                loss_quantity=loss_quantity,
+            )
+            session.add(temp_production_run)
+            session.flush()  # Get the ID
+
+            # Now create the snapshot with the production_run_id
+            snapshot = recipe_snapshot_service.create_recipe_snapshot(
+                recipe_id=recipe_id,
+                scale_factor=scale_factor,
+                production_run_id=temp_production_run.id,
+                session=session,
+            )
+            snapshot_id = snapshot["id"]
+
+            # Link snapshot to production run
+            temp_production_run.recipe_snapshot_id = snapshot_id
+
+            # Get ingredients_data from the newly created snapshot
+            ingredients_data = snapshot["ingredients_data"]
 
         # Feature 037: Use snapshot data for ingredient consumption
         # This ensures costs are calculated from the snapshot, not the live recipe
-        ingredients_data = snapshot["ingredients_data"]
+        # Note: ingredients_data is set in both branches above
 
         # Track consumption data
         total_ingredient_cost = Decimal("0.0000")
@@ -534,6 +595,7 @@ def record_batch_production(
             "total_loss_cost": str(total_loss_cost),  # Feature 025
             "snapshot_id": snapshot_id,  # Feature 037
             "scale_factor": scale_factor,  # Feature 037
+            "snapshot_reused": snapshot_reused,  # F065: True if planning snapshot was reused
         }
 
 

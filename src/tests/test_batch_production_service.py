@@ -1887,3 +1887,189 @@ class TestExportImportV11:
         assert len(reimp_run["losses"]) == 1
         assert reimp_run["losses"][0]["loss_category"] == original_loss["loss_category"]
         assert reimp_run["losses"][0]["notes"] == original_loss["notes"]
+
+
+# =============================================================================
+# Tests for F065 Snapshot Reuse
+# =============================================================================
+
+
+class TestSnapshotReuse:
+    """Tests for F065 production snapshot reuse during planned events."""
+
+    def test_production_reuses_planning_snapshot(
+        self,
+        test_db,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Production for planned event should reuse existing planning snapshot."""
+        from src.models import Event, EventProductionTarget, RecipeSnapshot
+        from src.models.event import OutputMode
+        from src.services import recipe_snapshot_service
+        from datetime import date
+
+        session = test_db()
+        recipe = recipe_with_ingredients_and_inventory
+
+        # Create event with production target
+        event = Event(
+            name="Test Holiday Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BULK_COUNT,
+        )
+        session.add(event)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=5,
+        )
+        session.add(target)
+        session.flush()
+
+        # Create planning snapshot (simulates what create_plan() does)
+        planning_snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=recipe.id,
+            scale_factor=1.0,
+            production_run_id=None,  # Planning context
+            session=session,
+        )
+        planning_snapshot_id = planning_snapshot["id"]
+
+        # Link snapshot to target (simulates what create_plan() does)
+        target.recipe_snapshot_id = planning_snapshot_id
+        session.commit()
+
+        # Act: record production for this event
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=2,
+            actual_yield=92,
+            event_id=event.id,
+            session=session,
+        )
+
+        # Assert: should reuse planning snapshot
+        assert result["snapshot_id"] == planning_snapshot_id
+        assert result["snapshot_reused"] is True
+
+    def test_production_creates_new_snapshot_without_event(
+        self,
+        test_db,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Production without event_id should create new snapshot."""
+        session = test_db()
+        recipe = recipe_with_ingredients_and_inventory
+
+        # Act: record production without event_id (legacy/ad-hoc)
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=2,
+            actual_yield=92,
+            event_id=None,  # No event
+            session=session,
+        )
+
+        # Assert: new snapshot created
+        assert result["snapshot_id"] is not None
+        assert result["snapshot_reused"] is False
+
+    def test_production_creates_snapshot_for_legacy_event(
+        self,
+        test_db,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Production for event without planning snapshot creates new snapshot."""
+        from src.models import Event, EventProductionTarget
+        from src.models.event import OutputMode
+        from datetime import date
+
+        session = test_db()
+        recipe = recipe_with_ingredients_and_inventory
+
+        # Create event with target but NO planning snapshot
+        event = Event(
+            name="Legacy Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BULK_COUNT,
+        )
+        session.add(event)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=5,
+            recipe_snapshot_id=None,  # Legacy: no planning snapshot
+        )
+        session.add(target)
+        session.commit()
+
+        # Act: record production for legacy event
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=2,
+            actual_yield=92,
+            event_id=event.id,
+            session=session,
+        )
+
+        # Assert: new snapshot created (backward compatibility)
+        assert result["snapshot_id"] is not None
+        assert result["snapshot_reused"] is False
+
+    def test_production_creates_snapshot_when_target_not_found(
+        self,
+        test_db,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Production for event without matching target creates new snapshot."""
+        from src.models import Event
+        from src.models.event import OutputMode
+        from datetime import date
+
+        session = test_db()
+        recipe = recipe_with_ingredients_and_inventory
+
+        # Create event with NO targets
+        event = Event(
+            name="Event Without Target",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BULK_COUNT,
+        )
+        session.add(event)
+        session.commit()
+
+        # Act: record production for event without matching target
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=2,
+            actual_yield=92,
+            event_id=event.id,
+            session=session,
+        )
+
+        # Assert: new snapshot created
+        assert result["snapshot_id"] is not None
+        assert result["snapshot_reused"] is False
