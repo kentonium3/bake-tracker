@@ -9,7 +9,7 @@ subtasks:
   - "T017"
 title: "Variant Creation UI"
 phase: "Phase 1 - Core"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "28526"
@@ -481,3 +481,4 @@ When reviewing this work package, verify:
 ## Activity Log
 
 - 2026-01-24T07:57:46Z – claude-opus – shell_pid=28526 – lane=doing – Started implementation via workflow command
+- 2026-01-24T08:03:26Z – claude-opus – shell_pid=28526 – lane=for_review – Ready for review: Created VariantCreationDialog with inline FU display_name input, validation, and Create Variant button in recipes tab
