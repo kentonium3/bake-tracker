@@ -101,7 +101,7 @@
 - [x] T014 Add CTkEntry fields for variant FinishedUnit display_names (one per base FU)
 - [x] T015 Add inline validation feedback for duplicate display_name
 - [x] T016 Wire dialog save to call `create_recipe_variant()` with `finished_unit_names`
-- [ ] T017 Handle case where base recipe has no FinishedUnits (skip FU section)
+- [x] T017 Handle case where base recipe has no FinishedUnits (skip FU section)
 
 ### Implementation Notes
 - Integrate into existing recipe detail view or create "Create Variant" button
