@@ -5,6 +5,12 @@
 **Status**: Draft
 **Input**: User description: "see docs/func-spec/F064_finished_goods_snapshot_implementation.md for inputs on this feature."
 
+## Clarifications
+
+### Session 2025-01-24
+
+- Q: What is an acceptable response time for creating a complete snapshot tree? → A: Under 5 seconds for complex cases (up to 50 components)
+
 ## Overview
 
 This feature implements immutable snapshot capture for FinishedGoods (gift boxes, assembled products) at planning and assembly time. Currently, changes to FinishedGood definitions affect planned and historical assemblies because the system references live catalog definitions. This violates the definition/instantiation separation principle already established for recipes.
@@ -127,7 +133,7 @@ As a gift assembler, I need material components (ribbons, packaging, decorations
 - **SC-003**: Circular reference attempts are blocked with user-understandable error messages indicating the specific conflict.
 - **SC-004**: Nested FinishedGood structures up to 10 levels deep successfully create complete snapshot trees.
 - **SC-005**: All component snapshots for a single assembly are created atomically - no partial snapshot trees exist.
-- **SC-006**: System remains responsive when creating snapshots for FinishedGoods with 20+ components.
+- **SC-006**: Snapshot tree creation completes in under 5 seconds for complex FinishedGoods with up to 50 components.
 
 ## Assumptions
 
