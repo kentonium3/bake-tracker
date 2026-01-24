@@ -8,7 +8,7 @@ subtasks:
   - "T005"
 title: "Service Primitives"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "24599"
@@ -481,3 +481,4 @@ When reviewing this work package, verify:
 ## Activity Log
 
 - 2026-01-24T07:29:28Z – claude-opus – shell_pid=24599 – lane=doing – Started implementation via workflow command
+- 2026-01-24T07:33:21Z – claude-opus – shell_pid=24599 – lane=for_review – Ready for review: Implemented get_base_yield_structure and get_finished_units primitives with 14 passing unit tests
