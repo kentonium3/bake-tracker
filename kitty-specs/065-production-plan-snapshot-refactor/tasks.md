@@ -57,11 +57,11 @@
 **Prompt**: `tasks/WP02-snapshot-model-fks.md`
 
 ### Included Subtasks
-- [ ] T005 Make RecipeSnapshot.production_run_id nullable for planning context
-- [ ] T006 [P] Add recipe_snapshot_id FK to EventProductionTarget model
-- [ ] T007 [P] Add finished_good_snapshot_id FK to EventAssemblyTarget model
-- [ ] T008 Add relationship definitions for new FKs on target models
-- [ ] T009 Verify FinishedGoodSnapshot supports planning context (F064 check)
+- [x] T005 Make RecipeSnapshot.production_run_id nullable for planning context
+- [x] T006 [P] Add recipe_snapshot_id FK to EventProductionTarget model
+- [x] T007 [P] Add finished_good_snapshot_id FK to EventAssemblyTarget model
+- [x] T008 Add relationship definitions for new FKs on target models
+- [x] T009 Verify FinishedGoodSnapshot supports planning context (F064 check)
 
 ### Implementation Notes
 - Files: `src/models/recipe_snapshot.py`, `src/models/event.py`
