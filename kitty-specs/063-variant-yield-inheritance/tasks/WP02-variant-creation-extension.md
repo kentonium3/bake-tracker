@@ -9,10 +9,10 @@ subtasks:
   - "T011"
 title: "Variant Creation Extension"
 phase: "Phase 1 - Core"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "26000"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -468,3 +468,7 @@ When reviewing this work package, verify:
 4. **Non-Yield Fields**: Category, yield_mode copied from base
 5. **Slug Uniqueness**: Generated slugs are unique and URL-safe
 6. **Test Coverage**: All scenarios tested including error cases
+
+## Activity Log
+
+- 2026-01-24T07:37:21Z – claude-opus – shell_pid=26000 – lane=doing – Started implementation via workflow command
