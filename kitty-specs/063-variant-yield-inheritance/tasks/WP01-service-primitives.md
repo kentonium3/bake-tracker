@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Service Primitives"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "24599"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -477,3 +477,7 @@ When reviewing this work package, verify:
 3. **Variant Resolution**: `get_base_yield_structure` resolves to base; `get_finished_units` does not
 4. **Test Coverage**: All edge cases tested (base, variant, no FU, not found)
 5. **Docstrings**: Clear examples showing usage patterns
+
+## Activity Log
+
+- 2026-01-24T07:29:28Z – claude-opus – shell_pid=24599 – lane=doing – Started implementation via workflow command
