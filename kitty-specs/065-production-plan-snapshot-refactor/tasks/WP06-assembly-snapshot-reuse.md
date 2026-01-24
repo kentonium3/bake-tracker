@@ -7,10 +7,10 @@ subtasks:
   - "T028"
 title: "Assembly Service Snapshot Reuse"
 phase: "Phase 3 - Service Layer - Snapshot Reuse"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "88485"
+shell_pid: "90522"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP02"]
@@ -350,3 +350,4 @@ Reviewers should verify:
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
 - 2026-01-24T21:57:57Z – claude-opus – shell_pid=88485 – lane=doing – Started implementation via workflow command
 - 2026-01-24T22:02:19Z – claude-opus – shell_pid=88485 – lane=for_review – Ready for review: Assembly snapshot reuse implemented. Added finished_good_snapshot_id FK to AssemblyRun. When event_id provided, checks EventAssemblyTarget for snapshot. 40 tests pass, 4 new F065 tests.
+- 2026-01-24T22:14:58Z – claude-opus – shell_pid=90522 – lane=doing – Started review via workflow command
