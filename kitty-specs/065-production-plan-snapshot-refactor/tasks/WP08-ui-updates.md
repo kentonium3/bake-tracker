@@ -8,10 +8,10 @@ subtasks:
   - "T039"
 title: "UI Layer Updates"
 phase: "Phase 5 - UI Updates"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "98945"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP07"]
@@ -357,3 +357,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T23:39:58Z – claude-opus – shell_pid=98945 – lane=doing – Started implementation via workflow command
