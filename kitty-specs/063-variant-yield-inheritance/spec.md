@@ -14,6 +14,16 @@ This feature adds service primitives for transparent yield access, enabling Plan
 
 ---
 
+## Clarifications
+
+### Session 2025-01-24
+
+- Q: When creating a variant recipe that needs FinishedUnit display names, where should this step occur in the workflow? → A: Integrated into existing variant creation dialog (add display_name fields inline)
+- Q: What should happen if the user enters the same display_name as the base FinishedUnit? → A: Block save with inline validation error
+- Q: If a base recipe adds a new FinishedUnit after variants already exist, what should happen? → A: Nothing; variants don't need matching FinishedUnits
+
+---
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Batch Calculations for Variant Recipes (Priority: P1)
@@ -36,7 +46,7 @@ Services performing batch calculations need to access variant yields transparent
 
 ### User Story 2 - Creating a Variant Recipe with FinishedUnits (Priority: P1)
 
-When creating a variant of an existing recipe, the user needs to set up FinishedUnits for the variant with distinct display names while inheriting yield structure from the base.
+When creating a variant of an existing recipe, the user needs to set up FinishedUnits for the variant with distinct display names while inheriting yield structure from the base. The FinishedUnit display_name input is integrated inline into the existing variant creation dialog.
 
 **Why this priority**: This is the core workflow. Without this, variants cannot be created with proper FinishedUnit records.
 
@@ -44,7 +54,7 @@ When creating a variant of an existing recipe, the user needs to set up Finished
 
 **Acceptance Scenarios**:
 
-1. **Given** a base recipe "Plain Thumbprint Cookies" with a FinishedUnit (display_name: "Plain Cookie", items_per_batch: 24, item_unit: "cookie"), **When** the user creates a variant "Raspberry Thumbprint Cookies", **Then** the system prompts for variant FinishedUnit display_name only.
+1. **Given** a base recipe "Plain Thumbprint Cookies" with a FinishedUnit (display_name: "Plain Cookie", items_per_batch: 24, item_unit: "cookie"), **When** the user creates a variant "Raspberry Thumbprint Cookies", **Then** the variant creation dialog includes inline fields for variant FinishedUnit display_name(s).
 
 2. **Given** the variant creation form, **When** the user enters display_name "Raspberry Thumbprint Cookie" and saves, **Then** the variant FinishedUnit is created with the variant's recipe_id and the provided display_name (no items_per_batch/item_unit stored on variant FinishedUnit).
 
@@ -82,6 +92,12 @@ When viewing a variant recipe's production details, the system must display the 
 
 - What if a variant FinishedUnit has items_per_batch/item_unit fields populated?
   - These fields should be NULL for variant FinishedUnits; primitives always use base recipe values.
+
+- What if the user enters a variant display_name that matches the base FinishedUnit's display_name?
+  - Block save with inline validation error; variant display_names must differ from base.
+
+- What if a base recipe adds a new FinishedUnit after variants exist?
+  - No action required; variants are not required to have matching FinishedUnits for later additions.
 
 ---
 
@@ -129,7 +145,7 @@ When viewing a variant recipe's production details, the system must display the 
 
 - No backward compatibility required; existing data will be transformed via import files to comply with new schema.
 - Variants of variants are not supported (per existing requirements).
-- The number of variant FinishedUnits must match the number of base recipe FinishedUnits.
+- Variant FinishedUnits are created at variant creation time based on base's current FinishedUnits; if base later adds new FinishedUnits, variants are not required to add matching ones.
 
 ---
 
