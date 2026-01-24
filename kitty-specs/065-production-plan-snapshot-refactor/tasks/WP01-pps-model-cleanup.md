@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: ProductionPlanSnapshot Model Cleanup
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: e95e18c708ef83dacda927fb527e8190d8e40b82
@@ -13,8 +13,8 @@ subtasks:
 - T004
 phase: Phase 1 - Model Changes (Foundation)
 assignee: ''
-agent: ''
-shell_pid: "75252"
+agent: "claude-opus"
+shell_pid: "76853"
 review_status: ''
 reviewed_by: ''
 history:
@@ -277,3 +277,4 @@ Reviewers should verify:
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
 - 2026-01-24T20:03:51Z – unknown – shell_pid=75252 – lane=for_review – Ready for review: Removed 6 fields and 5 methods from ProductionPlanSnapshot, updated tests, model now a lightweight container
+- 2026-01-24T20:27:15Z – claude-opus – shell_pid=76853 – lane=doing – Started review via workflow command
