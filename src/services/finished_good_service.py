@@ -1400,3 +1400,363 @@ def search_finished_goods(query: str) -> List[FinishedGood]:
 def get_assemblies_by_type(assembly_type: AssemblyType) -> List[FinishedGood]:
     """Get all assemblies of a specific type."""
     return FinishedGoodService.get_assemblies_by_type(assembly_type)
+
+
+# =============================================================================
+# Feature 064: FinishedGoodSnapshot Service Functions
+# =============================================================================
+
+import json
+from src.models import FinishedGoodSnapshot, PlanningSnapshot
+from .finished_unit_service import create_finished_unit_snapshot
+from .material_unit_service import create_material_unit_snapshot
+
+
+# Snapshot-specific exceptions
+class SnapshotCreationError(ServiceError):
+    """Raised when snapshot creation fails."""
+
+    pass
+
+
+class SnapshotCircularReferenceError(ServiceError):
+    """Raised when circular reference detected in FinishedGood hierarchy during snapshot.
+
+    Attributes:
+        finished_good_id: The ID that caused the circular reference
+        path: List of IDs showing the reference chain
+    """
+
+    def __init__(self, finished_good_id: int, path: list):
+        self.finished_good_id = finished_good_id
+        self.path = path
+        path_str = " -> ".join(str(id) for id in path)
+        super().__init__(
+            f"Circular reference detected: FinishedGood {finished_good_id} "
+            f"already in hierarchy path: {path_str}"
+        )
+
+
+class MaxDepthExceededError(ServiceError):
+    """Raised when FinishedGood nesting exceeds maximum depth.
+
+    Attributes:
+        depth: Current depth when limit was hit
+        max_depth: The configured maximum depth (10)
+    """
+
+    def __init__(self, depth: int, max_depth: int = 10):
+        self.depth = depth
+        self.max_depth = max_depth
+        super().__init__(
+            f"Maximum nesting depth exceeded: {depth} levels (max: {max_depth})"
+        )
+
+
+MAX_NESTING_DEPTH = 10
+
+
+def create_finished_good_snapshot(
+    finished_good_id: int,
+    planning_snapshot_id: int = None,
+    assembly_run_id: int = None,
+    session: Session = None,
+    _visited_ids: set = None,
+    _depth: int = 0,
+) -> dict:
+    """
+    Create immutable snapshot of FinishedGood definition with all components.
+
+    Recursively creates snapshots for all FinishedUnit, MaterialUnit,
+    and nested FinishedGood components. All snapshots are created in the
+    same transaction for atomicity.
+
+    Args:
+        finished_good_id: Source FinishedGood ID
+        planning_snapshot_id: Optional planning context
+        assembly_run_id: Optional assembly context
+        session: Optional session for transaction sharing
+        _visited_ids: Internal - tracked IDs for circular reference detection
+        _depth: Internal - current recursion depth
+
+    Returns:
+        dict with snapshot id and definition_data (including component snapshot IDs)
+
+    Raises:
+        SnapshotCreationError: If FinishedGood not found or creation fails
+        SnapshotCircularReferenceError: If circular reference detected in hierarchy
+        MaxDepthExceededError: If nesting depth exceeds 10 levels
+    """
+    # Initialize visited set for top-level call
+    if _visited_ids is None:
+        _visited_ids = set()
+
+    if session is not None:
+        return _create_finished_good_snapshot_impl(
+            finished_good_id,
+            planning_snapshot_id,
+            assembly_run_id,
+            session,
+            _visited_ids,
+            _depth,
+        )
+
+    try:
+        with session_scope() as session:
+            return _create_finished_good_snapshot_impl(
+                finished_good_id,
+                planning_snapshot_id,
+                assembly_run_id,
+                session,
+                _visited_ids,
+                _depth,
+            )
+    except SQLAlchemyError as e:
+        raise SnapshotCreationError(f"Database error creating snapshot: {e}")
+
+
+def _create_finished_good_snapshot_impl(
+    finished_good_id: int,
+    planning_snapshot_id: int,
+    assembly_run_id: int,
+    session: Session,
+    visited_ids: set,
+    depth: int,
+) -> dict:
+    """Internal implementation of snapshot creation."""
+    # Check max depth FIRST
+    if depth > MAX_NESTING_DEPTH:
+        raise MaxDepthExceededError(depth, MAX_NESTING_DEPTH)
+
+    # Check circular reference
+    if finished_good_id in visited_ids:
+        raise SnapshotCircularReferenceError(
+            finished_good_id, list(visited_ids) + [finished_good_id]
+        )
+
+    # Add to visited set BEFORE processing components
+    visited_ids.add(finished_good_id)
+
+    # Load FinishedGood with components
+    fg = session.query(FinishedGood).filter_by(id=finished_good_id).first()
+    if not fg:
+        raise SnapshotCreationError(f"FinishedGood {finished_good_id} not found")
+
+    # Process components and create snapshots
+    components_data = []
+    for composition in fg.components:
+        component_data = _snapshot_component(
+            composition,
+            planning_snapshot_id,
+            assembly_run_id,
+            session,
+            visited_ids,
+            depth,
+        )
+        if component_data:  # Skip packaging_product (returns None)
+            components_data.append(component_data)
+
+    # Sort components by sort_order
+    components_data.sort(key=lambda x: x.get("sort_order", 999))
+
+    # Build definition_data JSON
+    definition_data = {
+        "slug": fg.slug,
+        "display_name": fg.display_name,
+        "description": fg.description,
+        "assembly_type": fg.assembly_type.value if fg.assembly_type else None,
+        "packaging_instructions": fg.packaging_instructions,
+        "notes": fg.notes,
+        "components": components_data,
+    }
+
+    # Create snapshot
+    snapshot = FinishedGoodSnapshot(
+        finished_good_id=finished_good_id,
+        planning_snapshot_id=planning_snapshot_id,
+        assembly_run_id=assembly_run_id,
+        definition_data=json.dumps(definition_data),
+        is_backfilled=False,
+    )
+
+    session.add(snapshot)
+    session.flush()
+
+    return {
+        "id": snapshot.id,
+        "finished_good_id": snapshot.finished_good_id,
+        "planning_snapshot_id": snapshot.planning_snapshot_id,
+        "assembly_run_id": snapshot.assembly_run_id,
+        "snapshot_date": snapshot.snapshot_date.isoformat(),
+        "definition_data": definition_data,
+        "is_backfilled": snapshot.is_backfilled,
+    }
+
+
+def _snapshot_component(
+    composition,
+    planning_snapshot_id: int,
+    assembly_run_id: int,
+    session: Session,
+    visited_ids: set,
+    depth: int,
+) -> Optional[dict]:
+    """
+    Create snapshot for a single component based on its type.
+
+    Args:
+        composition: Composition model instance
+        planning_snapshot_id: Planning context
+        assembly_run_id: Assembly context
+        session: Database session
+        visited_ids: Set of visited FinishedGood IDs
+        depth: Current recursion depth
+
+    Returns:
+        Component data dict with snapshot_id, or None if skipped
+    """
+    base_data = {
+        "component_quantity": composition.component_quantity,
+        "component_notes": composition.component_notes,
+        "sort_order": composition.sort_order,
+        "is_generic": composition.is_generic,
+    }
+
+    if composition.finished_unit_id:
+        # FinishedUnit component - create snapshot
+        fu_snapshot = create_finished_unit_snapshot(
+            finished_unit_id=composition.finished_unit_id,
+            planning_snapshot_id=planning_snapshot_id,
+            assembly_run_id=assembly_run_id,
+            session=session,
+        )
+        return {
+            **base_data,
+            "component_type": "finished_unit",
+            "snapshot_id": fu_snapshot["id"],
+            "original_id": composition.finished_unit_id,
+            "component_slug": fu_snapshot["definition_data"]["slug"],
+            "component_name": fu_snapshot["definition_data"]["display_name"],
+        }
+
+    elif composition.finished_good_id:
+        # Nested FinishedGood - recurse
+        fg_snapshot = _create_finished_good_snapshot_impl(
+            finished_good_id=composition.finished_good_id,
+            planning_snapshot_id=planning_snapshot_id,
+            assembly_run_id=assembly_run_id,
+            session=session,
+            visited_ids=visited_ids,
+            depth=depth + 1,
+        )
+        return {
+            **base_data,
+            "component_type": "finished_good",
+            "snapshot_id": fg_snapshot["id"],
+            "original_id": composition.finished_good_id,
+            "component_slug": fg_snapshot["definition_data"]["slug"],
+            "component_name": fg_snapshot["definition_data"]["display_name"],
+        }
+
+    elif composition.material_unit_id:
+        # MaterialUnit component - create snapshot
+        mu_snapshot = create_material_unit_snapshot(
+            material_unit_id=composition.material_unit_id,
+            planning_snapshot_id=planning_snapshot_id,
+            assembly_run_id=assembly_run_id,
+            session=session,
+        )
+        return {
+            **base_data,
+            "component_type": "material_unit",
+            "snapshot_id": mu_snapshot["id"],
+            "original_id": composition.material_unit_id,
+            "component_slug": mu_snapshot["definition_data"]["slug"],
+            "component_name": mu_snapshot["definition_data"]["name"],
+        }
+
+    elif composition.material_id:
+        # Generic material placeholder - no snapshot needed
+        material = composition.material_component
+        return {
+            **base_data,
+            "component_type": "material",
+            "snapshot_id": None,  # No snapshot for generic placeholder
+            "original_id": composition.material_id,
+            "component_slug": None,
+            "component_name": material.name if material else "Unknown Material",
+        }
+
+    elif composition.packaging_product_id:
+        # Packaging product - out of scope, skip
+        return None
+
+    else:
+        # Unknown component type
+        return None
+
+
+def get_finished_good_snapshot(
+    snapshot_id: int, session: Session = None
+) -> Optional[dict]:
+    """Get a FinishedGoodSnapshot by its ID."""
+    if session is not None:
+        return _get_finished_good_snapshot_impl(snapshot_id, session)
+
+    with session_scope() as session:
+        return _get_finished_good_snapshot_impl(snapshot_id, session)
+
+
+def _get_finished_good_snapshot_impl(
+    snapshot_id: int, session: Session
+) -> Optional[dict]:
+    """Internal implementation of get snapshot."""
+    snapshot = session.query(FinishedGoodSnapshot).filter_by(id=snapshot_id).first()
+
+    if not snapshot:
+        return None
+
+    return {
+        "id": snapshot.id,
+        "finished_good_id": snapshot.finished_good_id,
+        "planning_snapshot_id": snapshot.planning_snapshot_id,
+        "assembly_run_id": snapshot.assembly_run_id,
+        "snapshot_date": snapshot.snapshot_date.isoformat(),
+        "definition_data": snapshot.get_definition_data(),
+        "is_backfilled": snapshot.is_backfilled,
+    }
+
+
+def get_finished_good_snapshots_by_planning_id(
+    planning_snapshot_id: int, session: Session = None
+) -> list:
+    """Get all FinishedGoodSnapshots for a planning snapshot."""
+    if session is not None:
+        return _get_fg_snapshots_by_planning_impl(planning_snapshot_id, session)
+
+    with session_scope() as session:
+        return _get_fg_snapshots_by_planning_impl(planning_snapshot_id, session)
+
+
+def _get_fg_snapshots_by_planning_impl(
+    planning_snapshot_id: int, session: Session
+) -> list:
+    """Internal implementation of get snapshots by planning ID."""
+    snapshots = (
+        session.query(FinishedGoodSnapshot)
+        .filter_by(planning_snapshot_id=planning_snapshot_id)
+        .all()
+    )
+
+    return [
+        {
+            "id": s.id,
+            "finished_good_id": s.finished_good_id,
+            "planning_snapshot_id": s.planning_snapshot_id,
+            "assembly_run_id": s.assembly_run_id,
+            "snapshot_date": s.snapshot_date.isoformat(),
+            "definition_data": s.get_definition_data(),
+            "is_backfilled": s.is_backfilled,
+        }
+        for s in snapshots
+    ]

@@ -47,6 +47,7 @@ from .assembly_run import AssemblyRun  # Feature 013
 from .recipe_snapshot import RecipeSnapshot  # Feature 037
 from .planning_snapshot import PlanningSnapshot  # Feature 064 (stub, full impl in WP04)
 from .finished_unit_snapshot import FinishedUnitSnapshot  # Feature 064
+from .finished_good_snapshot import FinishedGoodSnapshot  # Feature 064
 from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
 from .assembly_packaging_consumption import AssemblyPackagingConsumption  # Feature 013
 from .assembly_finished_good_consumption import AssemblyFinishedGoodConsumption  # Feature 060
@@ -127,6 +128,7 @@ __all__ = [
     # Feature 064: FinishedGoods Snapshot Architecture
     "PlanningSnapshot",
     "FinishedUnitSnapshot",
+    "FinishedGoodSnapshot",
     # Feature 047: Materials Management System
     "MaterialCategory",
     "MaterialSubcategory",

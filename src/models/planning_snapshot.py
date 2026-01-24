@@ -62,6 +62,10 @@ class PlanningSnapshot(BaseModel):
         "MaterialUnitSnapshot",
         back_populates="planning_snapshot",
     )
+    finished_good_snapshots = relationship(
+        "FinishedGoodSnapshot",
+        back_populates="planning_snapshot",
+    )
 
     # Indexes
     __table_args__ = (
