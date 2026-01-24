@@ -2,10 +2,10 @@
 work_package_id: "WP01"
 title: "FinishedUnitSnapshot Model + Service"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "47917"
+shell_pid: "51239"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -596,3 +596,4 @@ spec-kitty implement WP01
 - 2025-01-24T05:30:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-24T17:08:00Z – claude-opus – shell_pid=47917 – lane=doing – Started implementation via workflow command
 - 2026-01-24T17:20:06Z – claude-opus – shell_pid=47917 – lane=for_review – Implementation complete: Model, service functions, and 13 unit tests passing
+- 2026-01-24T17:20:44Z – claude-opus – shell_pid=51239 – lane=doing – Started review via workflow command
