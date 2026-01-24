@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Snapshot Model FK Updates"
-phase: "Phase 1 - Model Changes (Foundation)"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP02
+title: Snapshot Model FK Updates
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: a100054ece374c409b16aba986384df8ba57c755
+created_at: '2026-01-24T20:43:09.311104+00:00'
+subtasks:
+- T005
+- T006
+- T007
+- T008
+- T009
+phase: Phase 1 - Model Changes (Foundation)
+assignee: ''
+agent: ''
+shell_pid: "78109"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-24T19:47:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-24T19:47:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Snapshot Model FK Updates
