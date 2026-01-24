@@ -7,12 +7,12 @@ subtasks:
   - "T024"
 title: "Production Service Snapshot Reuse"
 phase: "Phase 3 - Service Layer - Snapshot Reuse"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "87525"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP02"]
 history:
   - timestamp: "2026-01-24T19:47:15Z"
@@ -368,3 +368,4 @@ Reviewers should verify:
 - 2026-01-24T21:44:42Z – claude-opus – shell_pid=86570 – lane=doing – Started implementation via workflow command
 - 2026-01-24T21:48:10Z – claude-opus – shell_pid=86570 – lane=for_review – Ready for review: Production snapshot reuse implemented. When event_id provided, checks EventProductionTarget.recipe_snapshot_id and reuses if present. Creates new snapshot for legacy/ad-hoc. 60 tests pass, 4 new F065 tests.
 - 2026-01-24T21:48:46Z – claude-opus – shell_pid=87525 – lane=doing – Started review via workflow command
+- 2026-01-24T21:49:33Z – claude-opus – shell_pid=87525 – lane=done – Review passed: Production snapshot reuse correctly implemented. Target lookup uses event_id+recipe_id filter, reuses planning snapshot when available, creates new for legacy. 4 tests verify all scenarios. Backward compat maintained.
