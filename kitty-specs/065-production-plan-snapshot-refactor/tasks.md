@@ -89,10 +89,10 @@
 **Prompt**: `tasks/WP03-recipe-snapshot-planning.md`
 
 ### Included Subtasks
-- [ ] T010 Update create_recipe_snapshot() to accept optional production_run_id parameter
-- [ ] T011 Ensure create_recipe_snapshot() properly accepts and uses session parameter
-- [ ] T012 Add validation logic for planning context (production_run_id can be None when called for planning)
-- [ ] T013 Unit tests for recipe snapshot creation with planning context
+- [x] T010 Update create_recipe_snapshot() to accept optional production_run_id parameter
+- [x] T011 Ensure create_recipe_snapshot() properly accepts and uses session parameter
+- [x] T012 Add validation logic for planning context (production_run_id can be None when called for planning)
+- [x] T013 Unit tests for recipe snapshot creation with planning context
 
 ### Implementation Notes
 - File: `src/services/recipe_snapshot_service.py`
