@@ -82,7 +82,7 @@
 **Estimated Size**: ~550 lines
 
 ### Included Subtasks
-- [ ] T011 Create FinishedGoodSnapshot model in `src/models/finished_good_snapshot.py`
+- [x] T011 Create FinishedGoodSnapshot model in `src/models/finished_good_snapshot.py`
 - [ ] T012 [P] Add FinishedGoodSnapshot to models `__init__.py` exports
 - [ ] T013 Create custom exception classes (CircularReferenceError, MaxDepthExceededError)
 - [ ] T014 Add `create_finished_good_snapshot()` with recursive component snapshot logic
