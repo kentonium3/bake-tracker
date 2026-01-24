@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FinishedGoodSnapshot Model + Service
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -15,7 +15,7 @@ subtasks:
 - T018
 phase: Phase 2 - Core Logic
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: ''
 review_status: ''
 reviewed_by: ''
@@ -683,3 +683,4 @@ spec-kitty implement WP03 --base WP02
 ## Activity Log
 
 - 2025-01-24T05:30:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-24T17:49:52Z – claude-opus – lane=doing – Moved to doing
