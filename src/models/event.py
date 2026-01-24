@@ -338,6 +338,7 @@ class EventProductionTarget(BaseModel):
         recipe_id: Foreign key to Recipe (RESTRICT delete)
         target_batches: Number of batches to produce (must be > 0)
         notes: Optional notes about the target
+        recipe_snapshot_id: FK to RecipeSnapshot created at planning time (F065)
     """
 
     __tablename__ = "event_production_targets"
@@ -360,9 +361,22 @@ class EventProductionTarget(BaseModel):
     target_batches = Column(Integer, nullable=False)
     notes = Column(Text, nullable=True)
 
+    # Snapshot reference created at planning time (F065)
+    recipe_snapshot_id = Column(
+        Integer,
+        ForeignKey("recipe_snapshots.id", ondelete="RESTRICT"),
+        nullable=True,  # Backward compatibility for legacy events
+        index=True,
+    )
+
     # Relationships
     event = relationship("Event", back_populates="production_targets")
     recipe = relationship("Recipe")
+    recipe_snapshot = relationship(
+        "RecipeSnapshot",
+        foreign_keys=[recipe_snapshot_id],
+        lazy="joined",  # Eager load for planning queries
+    )
 
     # Constraints
     __table_args__ = (
@@ -412,6 +426,7 @@ class EventAssemblyTarget(BaseModel):
         finished_good_id: Foreign key to FinishedGood (RESTRICT delete)
         target_quantity: Number of units to assemble (must be > 0)
         notes: Optional notes about the target
+        finished_good_snapshot_id: FK to FinishedGoodSnapshot created at planning time (F065)
     """
 
     __tablename__ = "event_assembly_targets"
@@ -434,9 +449,22 @@ class EventAssemblyTarget(BaseModel):
     target_quantity = Column(Integer, nullable=False)
     notes = Column(Text, nullable=True)
 
+    # Snapshot reference created at planning time (F065)
+    finished_good_snapshot_id = Column(
+        Integer,
+        ForeignKey("finished_good_snapshots.id", ondelete="RESTRICT"),
+        nullable=True,  # Backward compatibility for legacy events
+        index=True,
+    )
+
     # Relationships
     event = relationship("Event", back_populates="assembly_targets")
     finished_good = relationship("FinishedGood")
+    finished_good_snapshot = relationship(
+        "FinishedGoodSnapshot",
+        foreign_keys=[finished_good_snapshot_id],
+        lazy="joined",  # Eager load for planning queries
+    )
 
     # Constraints
     __table_args__ = (
