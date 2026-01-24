@@ -1,7 +1,7 @@
 """
 PlanningSnapshot model for grouping snapshots by planning session.
 
-This is a STUB model created in WP02 to satisfy FK constraints.
+This is a STUB model created in WP01/WP02 to satisfy FK constraints.
 The full model with relationships will be implemented in WP04.
 
 Feature 064: FinishedGoods Snapshot Architecture
@@ -54,6 +54,10 @@ class PlanningSnapshot(BaseModel):
 
     # Stub relationship placeholders for WP01-03 snapshot models
     # These will be properly configured with back_populates in WP04
+    finished_unit_snapshots = relationship(
+        "FinishedUnitSnapshot",
+        back_populates="planning_snapshot",
+    )
     material_unit_snapshots = relationship(
         "MaterialUnitSnapshot",
         back_populates="planning_snapshot",

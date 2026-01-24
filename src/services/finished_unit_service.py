@@ -13,6 +13,7 @@ Key Features:
 - Comprehensive search and filtering capabilities
 """
 
+import json
 import logging
 from decimal import Decimal
 from typing import List, Optional, Dict, Any
@@ -26,7 +27,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .database import get_db_session, session_scope
-from ..models import FinishedUnit, Recipe, Composition, InventoryItem
+from ..models import FinishedUnit, FinishedUnitSnapshot, Recipe, Composition, InventoryItem
 from ..models.finished_unit import YieldMode
 from .exceptions import ServiceError, ValidationError, DatabaseError
 
@@ -54,6 +55,12 @@ class DuplicateSlugError(ServiceError):
 
 class ReferencedUnitError(ServiceError):
     """Raised when attempting to delete unit used in compositions."""
+
+    pass
+
+
+class SnapshotCreationError(ServiceError):
+    """Raised when snapshot creation fails."""
 
     pass
 
@@ -763,3 +770,187 @@ def search_finished_units(query: str) -> List[FinishedUnit]:
 def get_units_by_recipe(recipe_id: int) -> List[FinishedUnit]:
     """Get all FinishedUnits associated with a specific recipe."""
     return FinishedUnitService.get_units_by_recipe(recipe_id)
+
+
+# =============================================================================
+# Feature 064: FinishedUnitSnapshot Service Functions
+# =============================================================================
+
+
+def create_finished_unit_snapshot(
+    finished_unit_id: int,
+    planning_snapshot_id: int = None,
+    assembly_run_id: int = None,
+    session: Session = None,
+) -> dict:
+    """
+    Create immutable snapshot of FinishedUnit definition.
+
+    Args:
+        finished_unit_id: Source FinishedUnit ID
+        planning_snapshot_id: Optional planning context
+        assembly_run_id: Optional assembly context
+        session: Optional session for transaction sharing
+
+    Returns:
+        dict with snapshot id and definition_data
+
+    Raises:
+        SnapshotCreationError: If FinishedUnit not found or creation fails
+    """
+    if session is not None:
+        return _create_finished_unit_snapshot_impl(
+            finished_unit_id, planning_snapshot_id, assembly_run_id, session
+        )
+
+    try:
+        with session_scope() as session:
+            return _create_finished_unit_snapshot_impl(
+                finished_unit_id, planning_snapshot_id, assembly_run_id, session
+            )
+    except SQLAlchemyError as e:
+        raise SnapshotCreationError(f"Database error creating snapshot: {e}")
+
+
+def _create_finished_unit_snapshot_impl(
+    finished_unit_id: int,
+    planning_snapshot_id: int,
+    assembly_run_id: int,
+    session: Session,
+) -> dict:
+    """Internal implementation of snapshot creation."""
+    # Load FinishedUnit with recipe relationship
+    fu = session.query(FinishedUnit).filter_by(id=finished_unit_id).first()
+    if not fu:
+        raise SnapshotCreationError(f"FinishedUnit {finished_unit_id} not found")
+
+    # Eagerly load recipe for denormalization
+    recipe = fu.recipe
+
+    # Build definition_data JSON
+    definition_data = {
+        "slug": fu.slug,
+        "display_name": fu.display_name,
+        "description": fu.description,
+        "recipe_id": fu.recipe_id,
+        "recipe_name": recipe.name if recipe else None,
+        "recipe_category": recipe.category if recipe else None,
+        "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+        "items_per_batch": fu.items_per_batch,
+        "item_unit": fu.item_unit,
+        "batch_percentage": float(fu.batch_percentage) if fu.batch_percentage else None,
+        "portion_description": fu.portion_description,
+        "category": fu.category,
+        "production_notes": fu.production_notes,
+        "notes": fu.notes,
+    }
+
+    # Create snapshot
+    snapshot = FinishedUnitSnapshot(
+        finished_unit_id=finished_unit_id,
+        planning_snapshot_id=planning_snapshot_id,
+        assembly_run_id=assembly_run_id,
+        definition_data=json.dumps(definition_data),
+        is_backfilled=False,
+    )
+
+    session.add(snapshot)
+    session.flush()  # Get ID without committing
+
+    return {
+        "id": snapshot.id,
+        "finished_unit_id": snapshot.finished_unit_id,
+        "planning_snapshot_id": snapshot.planning_snapshot_id,
+        "assembly_run_id": snapshot.assembly_run_id,
+        "snapshot_date": snapshot.snapshot_date.isoformat(),
+        "definition_data": definition_data,
+        "is_backfilled": snapshot.is_backfilled,
+    }
+
+
+def get_finished_unit_snapshot(
+    snapshot_id: int,
+    session: Session = None,
+) -> dict | None:
+    """
+    Get a FinishedUnitSnapshot by its ID.
+
+    Args:
+        snapshot_id: Snapshot ID
+        session: Optional session
+
+    Returns:
+        Snapshot dict or None if not found
+    """
+    if session is not None:
+        return _get_finished_unit_snapshot_impl(snapshot_id, session)
+
+    with session_scope() as session:
+        return _get_finished_unit_snapshot_impl(snapshot_id, session)
+
+
+def _get_finished_unit_snapshot_impl(
+    snapshot_id: int,
+    session: Session,
+) -> dict | None:
+    """Internal implementation of snapshot retrieval."""
+    snapshot = session.query(FinishedUnitSnapshot).filter_by(id=snapshot_id).first()
+
+    if not snapshot:
+        return None
+
+    return {
+        "id": snapshot.id,
+        "finished_unit_id": snapshot.finished_unit_id,
+        "planning_snapshot_id": snapshot.planning_snapshot_id,
+        "assembly_run_id": snapshot.assembly_run_id,
+        "snapshot_date": snapshot.snapshot_date.isoformat(),
+        "definition_data": snapshot.get_definition_data(),
+        "is_backfilled": snapshot.is_backfilled,
+    }
+
+
+def get_finished_unit_snapshots_by_planning_id(
+    planning_snapshot_id: int,
+    session: Session = None,
+) -> list[dict]:
+    """
+    Get all FinishedUnitSnapshots for a planning snapshot.
+
+    Args:
+        planning_snapshot_id: PlanningSnapshot ID
+        session: Optional session
+
+    Returns:
+        List of snapshot dicts
+    """
+    if session is not None:
+        return _get_fu_snapshots_by_planning_impl(planning_snapshot_id, session)
+
+    with session_scope() as session:
+        return _get_fu_snapshots_by_planning_impl(planning_snapshot_id, session)
+
+
+def _get_fu_snapshots_by_planning_impl(
+    planning_snapshot_id: int,
+    session: Session,
+) -> list[dict]:
+    """Internal implementation of planning snapshot query."""
+    snapshots = (
+        session.query(FinishedUnitSnapshot)
+        .filter_by(planning_snapshot_id=planning_snapshot_id)
+        .order_by(FinishedUnitSnapshot.snapshot_date.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": s.id,
+            "finished_unit_id": s.finished_unit_id,
+            "planning_snapshot_id": s.planning_snapshot_id,
+            "snapshot_date": s.snapshot_date.isoformat(),
+            "definition_data": s.get_definition_data(),
+            "is_backfilled": s.is_backfilled,
+        }
+        for s in snapshots
+    ]
