@@ -1933,6 +1933,165 @@ def _get_recipe_variants_impl(base_recipe_id: int, session) -> list:
     ]
 
 
+# ============================================================================
+# Feature 063: Variant Yield Inheritance Primitives
+# ============================================================================
+
+
+def get_base_yield_structure(
+    recipe_id: int,
+    session=None,
+) -> List[Dict]:
+    """
+    Get yield structure for a recipe, resolving to base recipe if variant.
+
+    This primitive abstracts the base/variant distinction. Services performing
+    batch calculations should use this function instead of accessing FinishedUnit
+    yields directly. This ensures variants inherit yield specifications from
+    their base recipe transparently.
+
+    Args:
+        recipe_id: Recipe ID (can be base or variant recipe)
+        session: Optional SQLAlchemy session for transaction sharing.
+                 If not provided, creates its own session scope.
+
+    Returns:
+        List of yield dicts with keys:
+        - slug: str - FinishedUnit slug
+        - display_name: str - FinishedUnit display name (from base)
+        - items_per_batch: Optional[int] - Items produced per batch
+        - item_unit: Optional[str] - Unit name (e.g., "cookie")
+
+    Raises:
+        RecipeNotFound: If recipe_id does not exist
+
+    Example:
+        >>> # For batch calculations, use this primitive:
+        >>> yields = get_base_yield_structure(recipe_id, session=session)
+        >>> for y in yields:
+        ...     items_needed = target_quantity / y["items_per_batch"]
+
+        >>> # Works identically for base and variant recipes:
+        >>> get_base_yield_structure(base_id)    # Returns base yields
+        >>> get_base_yield_structure(variant_id) # Returns same base yields
+    """
+    if session is not None:
+        return _get_base_yield_structure_impl(recipe_id, session)
+
+    try:
+        with session_scope() as session:
+            return _get_base_yield_structure_impl(recipe_id, session)
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get yield structure for recipe {recipe_id}", e)
+
+
+def _get_base_yield_structure_impl(recipe_id: int, session) -> List[Dict]:
+    """Internal implementation for get_base_yield_structure."""
+    # Load recipe
+    recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+    if not recipe:
+        raise RecipeNotFound(recipe_id)
+
+    # Resolve to base recipe if variant
+    resolved_id = recipe.base_recipe_id if recipe.base_recipe_id else recipe_id
+
+    # Query FinishedUnits for resolved recipe
+    finished_units = (
+        session.query(FinishedUnit)
+        .filter_by(recipe_id=resolved_id)
+        .all()
+    )
+
+    # Return as list of dicts
+    return [
+        {
+            "slug": fu.slug,
+            "display_name": fu.display_name,
+            "items_per_batch": fu.items_per_batch,
+            "item_unit": fu.item_unit,
+        }
+        for fu in finished_units
+    ]
+
+
+def get_finished_units(
+    recipe_id: int,
+    session=None,
+) -> List[Dict]:
+    """
+    Get a recipe's own FinishedUnits (not inherited from base).
+
+    Use this primitive to access a recipe's display-level FinishedUnit data,
+    such as display_name. For variants, this returns the variant's FinishedUnits
+    which have NULL yield fields - use get_base_yield_structure() for yields.
+
+    Args:
+        recipe_id: Recipe ID
+        session: Optional SQLAlchemy session for transaction sharing.
+                 If not provided, creates its own session scope.
+
+    Returns:
+        List of FinishedUnit dicts with keys:
+        - id: int - FinishedUnit ID
+        - slug: str - FinishedUnit slug
+        - display_name: str - Display name
+        - items_per_batch: Optional[int] - NULL for variants
+        - item_unit: Optional[str] - NULL for variants
+        - yield_mode: str - "discrete_count" or "batch_portion"
+
+    Raises:
+        RecipeNotFound: If recipe_id does not exist
+
+    Example:
+        >>> # To display variant's FinishedUnit name with base yield:
+        >>> variant_fus = get_finished_units(variant_id, session=session)
+        >>> base_yields = get_base_yield_structure(variant_id, session=session)
+        >>> for fu, y in zip(variant_fus, base_yields):
+        ...     print(f"{fu['display_name']}: {y['items_per_batch']} {y['item_unit']}")
+        Raspberry Cookie: 24 cookies
+    """
+    if session is not None:
+        return _get_finished_units_impl(recipe_id, session)
+
+    try:
+        with session_scope() as session:
+            return _get_finished_units_impl(recipe_id, session)
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get finished units for recipe {recipe_id}", e)
+
+
+def _get_finished_units_impl(recipe_id: int, session) -> List[Dict]:
+    """Internal implementation for get_finished_units."""
+    # Verify recipe exists
+    recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+    if not recipe:
+        raise RecipeNotFound(recipe_id)
+
+    # Query this recipe's FinishedUnits (not resolved to base)
+    finished_units = (
+        session.query(FinishedUnit)
+        .filter_by(recipe_id=recipe_id)
+        .all()
+    )
+
+    # Return as list of dicts with all relevant fields
+    return [
+        {
+            "id": fu.id,
+            "slug": fu.slug,
+            "display_name": fu.display_name,
+            "items_per_batch": fu.items_per_batch,
+            "item_unit": fu.item_unit,
+            "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+        }
+        for fu in finished_units
+    ]
+
+
 def create_recipe_variant(
     base_recipe_id: int,
     variant_name: str,
