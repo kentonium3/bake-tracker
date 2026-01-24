@@ -52,11 +52,11 @@
 **Estimated Size**: ~320 lines
 
 ### Included Subtasks
-- [ ] T006 Create MaterialUnitSnapshot model in `src/models/material_unit_snapshot.py`
-- [ ] T007 [P] Add MaterialUnitSnapshot to models `__init__.py` exports
-- [ ] T008 Add `create_material_unit_snapshot()` function to `src/services/material_unit_service.py`
-- [ ] T009 Add `get_material_unit_snapshot()` and `get_snapshots_by_planning_id()` query functions
-- [ ] T010 Create unit tests in `src/tests/test_material_unit_snapshot.py`
+- [x] T006 Create MaterialUnitSnapshot model in `src/models/material_unit_snapshot.py`
+- [x] T007 [P] Add MaterialUnitSnapshot to models `__init__.py` exports
+- [x] T008 Add `create_material_unit_snapshot()` function to `src/services/material_unit_service.py`
+- [x] T009 Add `get_material_unit_snapshot()` and `get_snapshots_by_planning_id()` query functions
+- [x] T010 Create unit tests in `src/tests/test_material_unit_snapshot.py`
 
 ### Implementation Notes
 - Identical pattern to WP01 - different source entity (MaterialUnit vs FinishedUnit)
