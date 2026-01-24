@@ -2097,6 +2097,7 @@ def create_recipe_variant(
     variant_name: str,
     name: str = None,
     copy_ingredients: bool = True,
+    finished_unit_names: Optional[List[Dict]] = None,
     session=None,
 ) -> dict:
     """
@@ -2107,6 +2108,10 @@ def create_recipe_variant(
         variant_name: Name distinguishing this variant (e.g., "Raspberry")
         name: Full recipe name (defaults to "Base Name - Variant Name")
         copy_ingredients: If True, copy ingredients from base recipe
+        finished_unit_names: Optional list of dicts specifying variant FinishedUnits:
+            [{"base_slug": "plain-cookie", "display_name": "Raspberry Cookie"}, ...]
+            If provided, creates variant FinishedUnits with NULL yield fields.
+            If None (default), no FinishedUnits are created for the variant.
         session: Optional session for transaction sharing
 
     Returns:
@@ -2115,26 +2120,35 @@ def create_recipe_variant(
 
     Raises:
         RecipeNotFound: If base recipe does not exist
+        ValidationError: If any display_name matches base FinishedUnit display_name,
+                        or if base_slug is not found
         DatabaseError: If database operation fails
     """
     if session is not None:
         return _create_recipe_variant_impl(
-            base_recipe_id, variant_name, name, copy_ingredients, session
+            base_recipe_id, variant_name, name, copy_ingredients, finished_unit_names, session
         )
 
     try:
         with session_scope() as session:
             return _create_recipe_variant_impl(
-                base_recipe_id, variant_name, name, copy_ingredients, session
+                base_recipe_id, variant_name, name, copy_ingredients, finished_unit_names, session
             )
     except RecipeNotFound:
+        raise
+    except ValidationError:
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to create variant of recipe {base_recipe_id}", e)
 
 
 def _create_recipe_variant_impl(
-    base_recipe_id: int, variant_name: str, name: str, copy_ingredients: bool, session
+    base_recipe_id: int,
+    variant_name: str,
+    name: str,
+    copy_ingredients: bool,
+    finished_unit_names: Optional[List[Dict]],
+    session,
 ) -> dict:
     """Internal implementation for create_recipe_variant."""
     # Get base recipe
@@ -2175,6 +2189,55 @@ def _create_recipe_variant_impl(
             )
             session.add(new_ri)
 
+    # Create variant FinishedUnits if specified (Feature 063)
+    if finished_unit_names:
+        # Get base FinishedUnits for reference and validation
+        base_fus = {
+            fu.slug: fu
+            for fu in session.query(FinishedUnit).filter_by(recipe_id=base_recipe_id).all()
+        }
+        base_display_names = {fu.display_name for fu in base_fus.values()}
+
+        for fu_spec in finished_unit_names:
+            base_slug = fu_spec.get("base_slug")
+            new_display_name = fu_spec.get("display_name")
+
+            # Validate required fields
+            if not base_slug or not new_display_name:
+                raise ValidationError(
+                    ["finished_unit_names entries require 'base_slug' and 'display_name'"]
+                )
+
+            # Validate base_slug exists
+            base_fu = base_fus.get(base_slug)
+            if not base_fu:
+                raise ValidationError(
+                    [f"Base FinishedUnit with slug '{base_slug}' not found"]
+                )
+
+            # Validate display_name differs from base (FR-004)
+            if new_display_name in base_display_names:
+                raise ValidationError(
+                    [f"Variant display_name '{new_display_name}' must differ from base FinishedUnit display_name"]
+                )
+
+            # Create variant FinishedUnit with NULL yield fields
+            variant_fu = FinishedUnit(
+                recipe_id=variant.id,
+                slug=_generate_variant_fu_slug(variant.name, new_display_name, variant.id),
+                display_name=new_display_name,
+                # Yield fields NULL for variants (inherited via primitives)
+                items_per_batch=None,
+                item_unit=None,
+                # Copy non-yield fields from base
+                yield_mode=base_fu.yield_mode,
+                category=base_fu.category,
+                batch_percentage=None,  # Clear for variants
+                portion_description=base_fu.portion_description,
+                production_notes=base_fu.production_notes,
+            )
+            session.add(variant_fu)
+
     session.flush()  # Flush to get IDs; caller controls commit
 
     return {
@@ -2183,6 +2246,30 @@ def _create_recipe_variant_impl(
         "variant_name": variant.variant_name,
         "base_recipe_id": variant.base_recipe_id,
     }
+
+
+def _generate_variant_fu_slug(recipe_name: str, display_name: str, recipe_id: int) -> str:
+    """
+    Generate unique slug for variant FinishedUnit.
+
+    Format: {recipe-name}-{display-name}-{recipe_id}
+    Example: "raspberry-thumbprint-cookies-raspberry-cookie-42"
+
+    Args:
+        recipe_name: Variant recipe name
+        display_name: FinishedUnit display name
+        recipe_id: Variant recipe ID for uniqueness
+
+    Returns:
+        Unique, URL-safe slug
+    """
+    import re
+
+    combined = f"{recipe_name}-{display_name}"
+    # Lowercase, replace spaces and special chars with hyphens
+    slug = re.sub(r"[^a-z0-9]+", "-", combined.lower()).strip("-")
+    # Append recipe_id for uniqueness
+    return f"{slug}-{recipe_id}"
 
 
 def get_all_recipes_grouped(
