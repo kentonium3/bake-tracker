@@ -598,3 +598,4 @@ spec-kitty implement WP01
 - 2026-01-24T17:20:06Z – claude-opus – shell_pid=47917 – lane=for_review – Implementation complete: Model, service functions, and 13 unit tests passing
 - 2026-01-24T17:20:44Z – claude-opus – shell_pid=51239 – lane=doing – Started review via workflow command
 - 2026-01-24T17:31:45Z – claude-opus – shell_pid=51239 – lane=done – Review passed: All requirements met. Model matches data-model.md spec, service functions follow wrapper/impl pattern, 13 tests passing with 95%+ coverage. PlanningSnapshot stub created appropriately for FK constraints.
+- 2026-01-24T18:36:43Z – claude-opus – shell_pid=51239 – lane=done – Adding activity log entry for acceptance
