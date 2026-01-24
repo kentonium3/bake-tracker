@@ -11,7 +11,7 @@ from typing import Optional, Callable
 from src.models.finished_unit import FinishedUnit
 from src.ui.widgets.production_history_table import ProductionHistoryTable
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import batch_production_service, finished_unit_service
+from src.services import batch_production_service, finished_unit_service, recipe_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -154,12 +154,13 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Items per batch (if applicable)
-        if self.finished_unit.items_per_batch:
+        # Items per batch - use primitive for variant yield inheritance (Feature 063)
+        items_per_batch = self._get_inherited_items_per_batch()
+        if items_per_batch:
             ctk.CTkLabel(info_frame, text="Items/Batch:").grid(
                 row=row, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
             )
-            ctk.CTkLabel(info_frame, text=str(self.finished_unit.items_per_batch)).grid(
+            ctk.CTkLabel(info_frame, text=str(items_per_batch)).grid(
                 row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
             )
 
@@ -277,6 +278,33 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
         # Notify parent
         if self._on_inventory_changed:
             self._on_inventory_changed()
+
+    def _get_inherited_items_per_batch(self):
+        """Get items_per_batch from base recipe (Feature 063 variant yield inheritance).
+
+        For variant recipes, the FinishedUnit has NULL yield fields. This method
+        uses the get_base_yield_structure primitive to resolve to the base recipe's
+        yield values transparently.
+
+        Returns:
+            Items per batch value or None if not defined
+        """
+        if not self.finished_unit.recipe_id:
+            return None
+
+        try:
+            yields = recipe_service.get_base_yield_structure(self.finished_unit.recipe_id)
+            if yields:
+                # Find matching FU by slug or use first yield
+                for y in yields:
+                    if y.get("slug") == self.finished_unit.slug:
+                        return y.get("items_per_batch")
+                # Fallback to first yield if no slug match
+                return yields[0].get("items_per_batch")
+        except Exception:
+            pass
+
+        return None
 
     def _reload_finished_unit(self):
         """Reload FinishedUnit data from database."""

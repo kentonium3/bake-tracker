@@ -55,6 +55,9 @@ class RecordProductionDialog(ctk.CTkToplevel):
         self._loss_details_visible = False
         self._estimated_per_unit_cost: Optional[Decimal] = None
 
+        # Feature 063: Cache yield info from base recipe (variant yield inheritance)
+        self._items_per_batch = self._get_inherited_items_per_batch()
+
         # Feature 016: Load events for event selector
         self.events: List[Event] = self._load_events()
 
@@ -511,15 +514,15 @@ class RecordProductionDialog(ctk.CTkToplevel):
         """Calculate expected yield based on batch count and scale factor.
 
         Formula: expected = base_yield x scale_factor x num_batches
+        Uses inherited yield from base recipe (Feature 063).
         """
-        items_per_batch = self.finished_unit.items_per_batch or 1
-        return int(items_per_batch * scale_factor * batch_count)
+        return int(self._items_per_batch * scale_factor * batch_count)
 
     def _update_expected_yield(self):
         """Update the expected yield display with formula."""
         batch_count = self._get_batch_count()
         scale_factor = self._get_scale_factor()
-        items_per_batch = self.finished_unit.items_per_batch or 1
+        items_per_batch = self._items_per_batch  # Feature 063: uses inherited yield
         expected = self._calculate_expected_yield(batch_count, scale_factor)
 
         # Display with formula for clarity (T019)
@@ -597,6 +600,34 @@ class RecordProductionDialog(ctk.CTkToplevel):
             self.confirm_btn.configure(state="normal")
         else:
             self.confirm_btn.configure(state="disabled")
+
+    def _get_inherited_items_per_batch(self) -> int:
+        """Get items_per_batch from base recipe (Feature 063 variant yield inheritance).
+
+        For variant recipes, the FinishedUnit has NULL yield fields. This method
+        uses the get_base_yield_structure primitive to resolve to the base recipe's
+        yield values transparently.
+
+        Returns:
+            Items per batch value (defaults to 1 if not defined)
+        """
+        if not self.finished_unit.recipe_id:
+            return 1
+
+        try:
+            # Use primitive to get yield from base recipe (handles variants transparently)
+            yields = recipe_service.get_base_yield_structure(self.finished_unit.recipe_id)
+            if yields:
+                # Find matching FU by slug or use first yield
+                for y in yields:
+                    if y.get("slug") == self.finished_unit.slug:
+                        return y.get("items_per_batch") or 1
+                # Fallback to first yield if no slug match
+                return yields[0].get("items_per_batch") or 1
+        except Exception:
+            pass
+
+        return 1
 
     def _load_events(self) -> List[Event]:
         """Load events sorted by date (nearest upcoming first)."""
