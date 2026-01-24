@@ -23,6 +23,9 @@ from .finished_unit_detail import FinishedUnitDetailDialog
 from .record_assembly_dialog import RecordAssemblyDialog
 from .finished_good_detail import FinishedGoodDetailDialog
 
+# Feature 063 - Variant Yield Inheritance
+from .variant_creation_dialog import VariantCreationDialog
+
 __all__ = [
     "IngredientFormDialog",
     "RecipeFormDialog",
@@ -37,4 +40,6 @@ __all__ = [
     "FinishedUnitDetailDialog",
     "RecordAssemblyDialog",
     "FinishedGoodDetailDialog",
+    # Feature 063 - Variant Yield Inheritance
+    "VariantCreationDialog",
 ]

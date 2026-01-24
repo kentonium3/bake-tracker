@@ -27,6 +27,7 @@ from src.ui.widgets.dialogs import (
 )
 from src.services.exceptions import ValidationError
 from src.ui.forms.recipe_form import RecipeFormDialog
+from src.ui.forms.variant_creation_dialog import VariantCreationDialog
 
 
 class RecipesTab(ctk.CTkFrame):
@@ -150,9 +151,19 @@ class RecipesTab(ctk.CTkFrame):
         )
         self.details_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
 
+        # Create Variant button (Feature 063)
+        self.variant_button = ctk.CTkButton(
+            button_frame,
+            text="Create Variant",
+            command=self._create_variant,
+            width=130,
+            state="disabled",
+        )
+        self.variant_button.grid(row=0, column=4, padx=PADDING_MEDIUM)
+
         # Readiness filter dropdown (T031 - Feature 037)
         readiness_label = ctk.CTkLabel(button_frame, text="Readiness:")
-        readiness_label.grid(row=0, column=4, padx=(PADDING_LARGE, 5))
+        readiness_label.grid(row=0, column=5, padx=(PADDING_LARGE, 5))
 
         self.readiness_var = ctk.StringVar(value="All")
         self.readiness_dropdown = ctk.CTkComboBox(
@@ -163,7 +174,7 @@ class RecipesTab(ctk.CTkFrame):
             state="readonly",
             command=self._on_readiness_filter_changed,
         )
-        self.readiness_dropdown.grid(row=0, column=5, padx=PADDING_MEDIUM)
+        self.readiness_dropdown.grid(row=0, column=6, padx=PADDING_MEDIUM)
 
     def _create_data_table(self):
         """Create the data table for displaying recipes."""
@@ -246,6 +257,7 @@ class RecipesTab(ctk.CTkFrame):
         self.edit_button.configure(state="normal" if has_selection else "disabled")
         self.delete_button.configure(state="normal" if has_selection else "disabled")
         self.details_button.configure(state="normal" if has_selection else "disabled")
+        self.variant_button.configure(state="normal" if has_selection else "disabled")
 
         if recipe:
             self._update_status(f"Selected: {recipe.name}")
@@ -438,6 +450,50 @@ class RecipesTab(ctk.CTkFrame):
                     parent=self,
                 )
                 self._update_status("Failed to delete recipe", error=True)
+
+    def _create_variant(self):
+        """
+        Show dialog to create a variant of the selected recipe (Feature 063).
+
+        Opens VariantCreationDialog with base recipe's FinishedUnits pre-loaded.
+        """
+        if not self.selected_recipe:
+            return
+
+        try:
+            # Get base recipe's FinishedUnits
+            base_fus = recipe_service.get_finished_units(self.selected_recipe.id)
+
+            # Open variant creation dialog
+            dialog = VariantCreationDialog(
+                parent=self,
+                base_recipe_id=self.selected_recipe.id,
+                base_recipe_name=self.selected_recipe.name,
+                base_finished_units=base_fus,
+                on_save_callback=self._on_variant_created,
+            )
+
+        except Exception as e:
+            show_error(
+                "Error",
+                f"Failed to open variant dialog: {str(e)}",
+                parent=self,
+            )
+
+    def _on_variant_created(self, result: dict):
+        """
+        Callback when a variant is successfully created.
+
+        Args:
+            result: Dict with created variant info (id, name, variant_name, base_recipe_id)
+        """
+        show_success(
+            "Success",
+            f"Variant '{result['name']}' created successfully",
+            parent=self,
+        )
+        self._update_status(f"Created variant: {result['name']}", success=True)
+        self.refresh()
 
     def _save_yield_types(self, recipe_id: int, yield_types: list) -> bool:
         """
