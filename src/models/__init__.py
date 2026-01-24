@@ -57,6 +57,8 @@ from .material_subcategory import MaterialSubcategory
 from .material import Material
 from .material_product import MaterialProduct
 from .material_unit import MaterialUnit
+from .planning_snapshot import PlanningSnapshot  # Feature 064 (stub, full impl in WP04)
+from .material_unit_snapshot import MaterialUnitSnapshot  # Feature 064
 from .material_purchase import MaterialPurchase
 from .material_consumption import MaterialConsumption
 
@@ -126,6 +128,8 @@ __all__ = [
     "Material",
     "MaterialProduct",
     "MaterialUnit",
+    "PlanningSnapshot",
+    "MaterialUnitSnapshot",
     "MaterialPurchase",
     "MaterialConsumption",
     # Feature 058: Materials FIFO Foundation

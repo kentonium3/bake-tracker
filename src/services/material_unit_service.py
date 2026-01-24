@@ -14,11 +14,20 @@ All functions accept optional session parameter per CLAUDE.md session management
 
 from typing import Optional, List, Dict, Any
 from decimal import Decimal
+import json
 import math
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
-from ..models import Material, MaterialProduct, MaterialUnit, Composition, MaterialInventoryItem
+from ..models import (
+    Material,
+    MaterialProduct,
+    MaterialUnit,
+    MaterialUnitSnapshot,
+    Composition,
+    MaterialInventoryItem,
+)
 from .database import session_scope
 from .exceptions import ValidationError
 from .material_catalog_service import slugify
@@ -52,6 +61,12 @@ class MaterialUnitInUseError(Exception):
         self.unit_id = unit_id
         self.usage_count = usage_count
         super().__init__(f"Material unit {unit_id} is used in {usage_count} composition(s)")
+
+
+class SnapshotCreationError(Exception):
+    """Raised when snapshot creation fails."""
+
+    pass
 
 
 # =============================================================================
@@ -630,3 +645,177 @@ def preview_consumption(
         return _preview_consumption_impl(unit_id, quantity_needed, session)
     with session_scope() as sess:
         return _preview_consumption_impl(unit_id, quantity_needed, sess)
+
+
+# =============================================================================
+# Snapshot Functions
+# =============================================================================
+
+
+def create_material_unit_snapshot(
+    material_unit_id: int,
+    planning_snapshot_id: Optional[int] = None,
+    assembly_run_id: Optional[int] = None,
+    session: Optional[Session] = None,
+) -> dict:
+    """
+    Create immutable snapshot of MaterialUnit definition.
+
+    Args:
+        material_unit_id: Source MaterialUnit ID
+        planning_snapshot_id: Optional planning context
+        assembly_run_id: Optional assembly context
+        session: Optional session for transaction sharing
+
+    Returns:
+        dict with snapshot id and definition_data
+
+    Raises:
+        SnapshotCreationError: If MaterialUnit not found or creation fails
+    """
+    if session is not None:
+        return _create_material_unit_snapshot_impl(
+            material_unit_id, planning_snapshot_id, assembly_run_id, session
+        )
+
+    try:
+        with session_scope() as session:
+            return _create_material_unit_snapshot_impl(
+                material_unit_id, planning_snapshot_id, assembly_run_id, session
+            )
+    except SQLAlchemyError as e:
+        raise SnapshotCreationError(f"Database error creating snapshot: {e}")
+
+
+def _create_material_unit_snapshot_impl(
+    material_unit_id: int,
+    planning_snapshot_id: Optional[int],
+    assembly_run_id: Optional[int],
+    session: Session,
+) -> dict:
+    """Internal implementation of snapshot creation."""
+    mu = session.query(MaterialUnit).filter_by(id=material_unit_id).first()
+    if not mu:
+        raise SnapshotCreationError(f"MaterialUnit {material_unit_id} not found")
+
+    material = mu.material
+    material_category = None
+    if material and material.subcategory and material.subcategory.category:
+        material_category = material.subcategory.category.name
+
+    definition_data = {
+        "slug": mu.slug,
+        "name": mu.name,
+        "description": mu.description,
+        "material_id": mu.material_id,
+        "material_name": material.name if material else None,
+        "material_category": material_category,
+        "quantity_per_unit": mu.quantity_per_unit,
+    }
+
+    snapshot = MaterialUnitSnapshot(
+        material_unit_id=material_unit_id,
+        planning_snapshot_id=planning_snapshot_id,
+        assembly_run_id=assembly_run_id,
+        definition_data=json.dumps(definition_data),
+        is_backfilled=False,
+    )
+
+    session.add(snapshot)
+    session.flush()
+
+    return {
+        "id": snapshot.id,
+        "material_unit_id": snapshot.material_unit_id,
+        "planning_snapshot_id": snapshot.planning_snapshot_id,
+        "assembly_run_id": snapshot.assembly_run_id,
+        "snapshot_date": snapshot.snapshot_date.isoformat(),
+        "definition_data": definition_data,
+        "is_backfilled": snapshot.is_backfilled,
+    }
+
+
+def get_material_unit_snapshot(
+    snapshot_id: int,
+    session: Optional[Session] = None,
+) -> Optional[dict]:
+    """
+    Get a MaterialUnitSnapshot by its ID.
+
+    Args:
+        snapshot_id: Snapshot ID
+        session: Optional session
+
+    Returns:
+        Snapshot dict or None if not found
+    """
+    if session is not None:
+        return _get_material_unit_snapshot_impl(snapshot_id, session)
+
+    with session_scope() as session:
+        return _get_material_unit_snapshot_impl(snapshot_id, session)
+
+
+def _get_material_unit_snapshot_impl(
+    snapshot_id: int,
+    session: Session,
+) -> Optional[dict]:
+    snapshot = session.query(MaterialUnitSnapshot).filter_by(id=snapshot_id).first()
+
+    if not snapshot:
+        return None
+
+    return {
+        "id": snapshot.id,
+        "material_unit_id": snapshot.material_unit_id,
+        "planning_snapshot_id": snapshot.planning_snapshot_id,
+        "assembly_run_id": snapshot.assembly_run_id,
+        "snapshot_date": snapshot.snapshot_date.isoformat(),
+        "definition_data": snapshot.get_definition_data(),
+        "is_backfilled": snapshot.is_backfilled,
+    }
+
+
+def get_material_unit_snapshots_by_planning_id(
+    planning_snapshot_id: int,
+    session: Optional[Session] = None,
+) -> list[dict]:
+    """
+    Get all MaterialUnitSnapshots for a planning snapshot.
+
+    Args:
+        planning_snapshot_id: PlanningSnapshot ID
+        session: Optional session
+
+    Returns:
+        List of snapshot dicts
+    """
+    if session is not None:
+        return _get_mu_snapshots_by_planning_impl(planning_snapshot_id, session)
+
+    with session_scope() as session:
+        return _get_mu_snapshots_by_planning_impl(planning_snapshot_id, session)
+
+
+def _get_mu_snapshots_by_planning_impl(
+    planning_snapshot_id: int,
+    session: Session,
+) -> list[dict]:
+    snapshots = (
+        session.query(MaterialUnitSnapshot)
+        .filter_by(planning_snapshot_id=planning_snapshot_id)
+        .order_by(MaterialUnitSnapshot.snapshot_date.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": s.id,
+            "material_unit_id": s.material_unit_id,
+            "planning_snapshot_id": s.planning_snapshot_id,
+            "snapshot_date": s.snapshot_date.isoformat(),
+            "definition_data": s.get_definition_data(),
+            "is_backfilled": s.is_backfilled,
+        }
+        for s in snapshots
+    ]
