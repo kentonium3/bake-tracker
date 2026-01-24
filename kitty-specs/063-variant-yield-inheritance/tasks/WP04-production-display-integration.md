@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Production Display Integration
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP02
@@ -318,3 +318,4 @@ When reviewing this work package, verify:
 ## Activity Log
 
 - 2026-01-24T08:07:55Z – claude-opus – shell_pid=30485 – lane=doing – Started implementation via workflow command
+- 2026-01-24T08:22:18Z – claude-opus – shell_pid=30485 – lane=for_review – UI updated to use yield primitives for variant yield inheritance
