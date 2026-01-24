@@ -44,7 +44,7 @@ history:
 
 ```bash
 # Depends on WP02 (nullable production_run_id)
-spec-kitty implement WP03 --base WP02
+spec-kitty implement WP03 --base WP02 --feature 065-production-plan-snapshot-refactor
 ```
 
 ---

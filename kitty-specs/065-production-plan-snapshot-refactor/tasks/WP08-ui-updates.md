@@ -45,7 +45,7 @@ history:
 
 ```bash
 # Depends on WP07 (get_plan_summary() exists)
-spec-kitty implement WP08 --base WP07
+spec-kitty implement WP08 --base WP07 --feature 065-production-plan-snapshot-refactor
 ```
 
 ---

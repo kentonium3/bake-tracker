@@ -45,7 +45,7 @@ history:
 ```bash
 # Depends on WP02 (recipe_snapshot_id FK on target)
 # Can run in parallel with WP06
-spec-kitty implement WP05 --base WP02
+spec-kitty implement WP05 --base WP02 --feature 065-production-plan-snapshot-refactor
 ```
 
 ---

@@ -48,7 +48,7 @@ history:
 
 ```bash
 # Depends on WP02 (FK fields) and WP03 (recipe snapshot service)
-spec-kitty implement WP04 --base WP03
+spec-kitty implement WP04 --base WP03 --feature 065-production-plan-snapshot-refactor
 ```
 
 ---

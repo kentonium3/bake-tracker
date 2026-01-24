@@ -47,7 +47,7 @@ history:
 
 ```bash
 # Depends on WP01 (cache fields removed) and WP04 (snapshots exist)
-spec-kitty implement WP07 --base WP04
+spec-kitty implement WP07 --base WP04 --feature 065-production-plan-snapshot-refactor
 ```
 
 ---
