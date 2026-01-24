@@ -9,12 +9,12 @@ subtasks:
   - "T011"
 title: "Variant Creation Extension"
 phase: "Phase 1 - Core"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "27415"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2025-01-24T07:30:00Z"
@@ -474,3 +474,4 @@ When reviewing this work package, verify:
 - 2026-01-24T07:37:21Z – claude-opus – shell_pid=26000 – lane=doing – Started implementation via workflow command
 - 2026-01-24T07:41:26Z – claude-opus – shell_pid=26000 – lane=for_review – Ready for review: Extended create_recipe_variant with finished_unit_names parameter, validation, and 8 passing tests
 - 2026-01-24T07:47:27Z – claude-opus – shell_pid=27415 – lane=doing – Started review via workflow command
+- 2026-01-24T07:48:13Z – claude-opus – shell_pid=27415 – lane=done – Review passed: Parameter signature, NULL yields, validation, non-yield field copying, slug generation, and backward compatibility all verified. 13/13 tests pass.
