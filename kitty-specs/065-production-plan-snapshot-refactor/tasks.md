@@ -26,10 +26,10 @@
 **Prompt**: `tasks/WP01-pps-model-cleanup.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Remove calculation_results JSON field from ProductionPlanSnapshot
-- [ ] T002 [P] Remove staleness tracking fields (requirements_updated_at, recipes_updated_at, bundles_updated_at)
-- [ ] T003 [P] Remove staleness state fields (is_stale, stale_reason)
-- [ ] T004 Remove staleness-related methods (get_recipe_batches, get_shopping_list, get_aggregated_ingredients, mark_stale, mark_fresh)
+- [x] T001 [P] Remove calculation_results JSON field from ProductionPlanSnapshot
+- [x] T002 [P] Remove staleness tracking fields (requirements_updated_at, recipes_updated_at, bundles_updated_at)
+- [x] T003 [P] Remove staleness state fields (is_stale, stale_reason)
+- [x] T004 Remove staleness-related methods (get_recipe_batches, get_shopping_list, get_aggregated_ingredients, mark_stale, mark_fresh)
 
 ### Implementation Notes
 - File: `src/models/production_plan_snapshot.py`
