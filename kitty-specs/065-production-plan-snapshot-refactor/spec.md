@@ -5,6 +5,12 @@
 **Status**: Draft
 **Input**: User description: "see docs/func-spec/F065_production_plan_snapshot_refactor.md for this feature's inputs."
 
+## Clarifications
+
+### Session 2025-01-24
+
+- Q: What is the maximum acceptable time for displaying batch requirements after clicking to view an event plan? → A: Under 5 seconds
+
 ## Overview
 
 This architectural refactoring transforms ProductionPlanSnapshot from a calculation cache into a true snapshot orchestration container. The refactor completes the definition/instantiation separation pattern by ensuring that event planning captures immutable snapshots of recipes and finished goods at planning time, not execution time.
@@ -131,7 +137,7 @@ As an event planner, when I want my plan to reflect updated recipe or finished g
 - **SC-002**: Production runs for planned events reference the same snapshot as the plan (100% snapshot reuse for planned production)
 - **SC-003**: Assembly runs for planned events reference the same snapshot as the plan (100% snapshot reuse for planned assembly)
 - **SC-004**: Legacy events without planning snapshots continue to function (backward compatibility maintained)
-- **SC-005**: Users can view event plan requirements within acceptable response time (on-demand calculation performs adequately)
+- **SC-005**: Users can view event plan requirements within 5 seconds (on-demand calculation completes in under 5 seconds)
 - **SC-006**: All planning snapshots for an event are created atomically (either all succeed or all fail)
 
 ## Assumptions
