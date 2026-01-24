@@ -137,7 +137,7 @@
 - [x] T018 Identify production dashboard components that display yield info
 - [x] T019 Replace direct FinishedUnit yield access with `get_base_yield_structure()` calls
 - [x] T020 Ensure variant display_name is shown (from `get_finished_units()`) with base yield
-- [ ] T021 Test production dashboard with base recipes, variant recipes, and recipes with multiple FUs
+- [x] T021 Test production dashboard with base recipes, variant recipes, and recipes with multiple FUs
 
 ### Implementation Notes
 - Production dashboard is in `src/ui/dashboards/` and `src/ui/production_dashboard_tab.py`
