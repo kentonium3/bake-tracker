@@ -214,12 +214,12 @@
 **Prompt**: `tasks/WP07-ondemand-calculation.md`
 
 ### Included Subtasks
-- [ ] T029 Create get_plan_summary(event_id, session=None) function signature and structure
-- [ ] T030 Implement batch requirements calculation from linked RecipeSnapshots
-- [ ] T031 Implement shopping list calculation from snapshot data
-- [ ] T032 Implement ingredient aggregation from snapshot data
-- [ ] T033 Remove staleness detection code (_check_staleness_impl and related methods)
-- [ ] T034 Performance verification: ensure calculation completes in <5 seconds
+- [x] T029 Create get_plan_summary(event_id, session=None) function signature and structure
+- [x] T030 Implement batch requirements calculation from linked RecipeSnapshots
+- [x] T031 Implement shopping list calculation from snapshot data
+- [x] T032 Implement ingredient aggregation from snapshot data
+- [x] T033 Remove staleness detection code (_check_staleness_impl and related methods)
+- [x] T034 Performance verification: ensure calculation completes in <5 seconds
 
 ### Implementation Notes
 - File: `src/services/planning/planning_service.py`
