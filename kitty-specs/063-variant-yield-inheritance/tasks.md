@@ -23,7 +23,7 @@
 **Estimated Size**: ~320 lines
 
 ### Included Subtasks
-- [ ] T001 Implement `get_base_yield_structure(recipe_id, session=None)` function
+- [x] T001 Implement `get_base_yield_structure(recipe_id, session=None)` function
 - [ ] T002 Implement `get_finished_units(recipe_id, session=None)` function
 - [ ] T003 Add unit tests for `get_base_yield_structure` (base, variant, no FU cases)
 - [ ] T004 Add unit tests for `get_finished_units` (base, variant cases)
