@@ -2,10 +2,10 @@
 work_package_id: "WP02"
 title: "MaterialUnitSnapshot Model + Service"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "codex"
+shell_pid: "49307"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -557,3 +557,5 @@ spec-kitty implement WP02
 ## Activity Log
 
 - 2025-01-24T05:30:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-24T17:18:27Z – codex – shell_pid=49307 – lane=doing – Started implementation via workflow command
+- 2026-01-24T17:29:46Z – codex – shell_pid=49307 – lane=for_review – Ready for review: add material unit snapshot model, service helpers, and tests
