@@ -1,8 +1,8 @@
 """
 PlanningSnapshot model for grouping snapshots by planning session.
 
-This is a STUB model created in WP01/WP02 to satisfy FK constraints.
-The full model with relationships will be implemented in WP04.
+Container record that links an optional event to all snapshots created
+during plan finalization. Enables atomic cleanup and event-scoped queries.
 
 Feature 064: FinishedGoods Snapshot Architecture
 """
@@ -26,13 +26,16 @@ class PlanningSnapshot(BaseModel):
     Container record linking an optional event to all snapshots created during
     plan finalization.
 
-    Note: This is a stub model. Full implementation with complete relationships
-    will be added in WP04.
-
     Attributes:
         event_id: FK to Event (optional, SET NULL on delete)
         created_at: When the planning snapshot was created
         notes: Optional notes
+
+    Relationships:
+        event: Optional Event this snapshot is for
+        finished_unit_snapshots: FinishedUnitSnapshot records (cascade delete)
+        material_unit_snapshots: MaterialUnitSnapshot records (cascade delete)
+        finished_good_snapshots: FinishedGoodSnapshot records (cascade delete)
     """
 
     __tablename__ = "planning_snapshots"
@@ -49,22 +52,28 @@ class PlanningSnapshot(BaseModel):
     created_at = Column(DateTime, nullable=False, default=utc_now)
     notes = Column(Text, nullable=True)
 
-    # Relationships - to be completed in WP04
-    event = relationship("Event")
+    # Relationship to Event (bidirectional)
+    event = relationship("Event", back_populates="planning_snapshots")
 
-    # Stub relationship placeholders for WP01-03 snapshot models
-    # These will be properly configured with back_populates in WP04
+    # Relationships to snapshot types (one-to-many)
+    # CASCADE: deleting PlanningSnapshot deletes all child snapshots
     finished_unit_snapshots = relationship(
         "FinishedUnitSnapshot",
         back_populates="planning_snapshot",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
     )
     material_unit_snapshots = relationship(
         "MaterialUnitSnapshot",
         back_populates="planning_snapshot",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
     )
     finished_good_snapshots = relationship(
         "FinishedGoodSnapshot",
         back_populates="planning_snapshot",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
     )
 
     # Indexes

@@ -131,6 +131,14 @@ class Event(BaseModel):
         lazy="selectin",
     )
 
+    # Feature 064: Planning snapshot container relationships
+    # Note: No cascade - event deletion sets event_id to NULL (preserves snapshots)
+    planning_snapshots = relationship(
+        "PlanningSnapshot",
+        back_populates="event",
+        lazy="selectin",
+    )
+
     # Indexes
     __table_args__ = (
         Index("idx_event_name", "name"),
