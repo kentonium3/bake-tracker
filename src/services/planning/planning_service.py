@@ -58,6 +58,8 @@ from src.models import (
 from src.models.event import OutputMode
 from src.services.database import session_scope
 from src.services import recipe_service
+from src.services import recipe_snapshot_service
+from src.services import finished_good_service
 from src.utils.datetime_utils import utc_now
 
 # Import from sibling modules
@@ -198,6 +200,118 @@ class PlanSummary:
 # =============================================================================
 
 
+def create_plan(
+    event_id: int,
+    *,
+    force_recreate: bool = False,
+    session: Optional[Session] = None,
+) -> Dict[str, Any]:
+    """Create production plan with immutable snapshots.
+
+    Creates RecipeSnapshot for each production target and FinishedGoodSnapshot
+    for each assembly target. Links snapshots to targets for use during
+    production/assembly.
+
+    This is the new entry point that replaces calculate_plan() for creating
+    plans with snapshot support.
+
+    Args:
+        event_id: Event to create plan for
+        force_recreate: If True, create new snapshots even if they exist
+        session: Optional session for transaction management
+
+    Returns:
+        Dict with:
+            - success: True if plan created successfully
+            - planning_snapshot_id: ProductionPlanSnapshot ID
+            - recipe_snapshots_created: Count of recipe snapshots created
+            - finished_good_snapshots_created: Count of FG snapshots created
+    """
+    if session is not None:
+        return _create_plan_impl(event_id, force_recreate, session)
+    with session_scope() as session:
+        return _create_plan_impl(event_id, force_recreate, session)
+
+
+def _create_plan_impl(
+    event_id: int,
+    force_recreate: bool,
+    session: Session,
+) -> Dict[str, Any]:
+    """Implementation of create_plan.
+
+    Session Management:
+        This function receives a session from create_plan() and passes it
+        to all nested service calls. This ensures:
+        1. All changes are in single transaction (atomic)
+        2. ORM objects remain attached (no detachment bugs)
+        3. Caller controls commit/rollback
+
+    All service calls MUST include session=session parameter.
+    """
+    event = session.get(Event, event_id)
+    if event is None:
+        raise EventNotFoundError(event_id)
+
+    if event.output_mode is None:
+        raise EventNotConfiguredError(event_id)
+
+    try:
+        # Create snapshots for production targets
+        recipe_snapshots_created = 0
+        for target in event.production_targets:
+            # Skip if already has snapshot (unless force_recreate)
+            if target.recipe_snapshot_id and not force_recreate:
+                continue
+
+            # Create recipe snapshot (planning context - no production_run_id)
+            snapshot = recipe_snapshot_service.create_recipe_snapshot(
+                recipe_id=target.recipe_id,
+                scale_factor=1.0,  # Base scale; target has quantity
+                production_run_id=None,  # Planning context
+                session=session,  # CRITICAL: pass session for atomicity
+            )
+            target.recipe_snapshot_id = snapshot["id"]
+            recipe_snapshots_created += 1
+
+        # Create snapshots for assembly targets
+        fg_snapshots_created = 0
+        for target in event.assembly_targets:
+            # Skip if already has snapshot (unless force_recreate)
+            if target.finished_good_snapshot_id and not force_recreate:
+                continue
+
+            # Create finished good snapshot (planning context)
+            snapshot = finished_good_service.create_finished_good_snapshot(
+                finished_good_id=target.finished_good_id,
+                planning_snapshot_id=None,  # Will be set after PlanSnapshot created
+                assembly_run_id=None,  # Planning context
+                session=session,  # CRITICAL: pass session for atomicity
+            )
+            target.finished_good_snapshot_id = snapshot["id"]
+            fg_snapshots_created += 1
+
+        # Create lightweight ProductionPlanSnapshot container
+        # Note: WP01 removed calculation_results and staleness fields
+        plan_snapshot = ProductionPlanSnapshot(
+            event_id=event_id,
+            calculated_at=utc_now(),
+        )
+        session.add(plan_snapshot)
+        session.flush()  # Get ID before returning
+
+        return {
+            "success": True,
+            "planning_snapshot_id": plan_snapshot.id,
+            "recipe_snapshots_created": recipe_snapshots_created,
+            "finished_good_snapshots_created": fg_snapshots_created,
+        }
+
+    except Exception as e:
+        # Session rollback handled by session_scope context manager
+        raise RuntimeError(f"Plan creation failed: {e}") from e
+
+
 def calculate_plan(
     event_id: int,
     *,
@@ -205,6 +319,10 @@ def calculate_plan(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Calculate production plan for an event.
+
+    .. deprecated::
+        Use create_plan() for new code. This function is maintained for
+        backward compatibility but will be removed in a future release.
 
     This is the main orchestration function that:
     1. Validates event configuration
@@ -233,6 +351,12 @@ def calculate_plan(
         EventNotFoundError: Event doesn't exist
         EventNotConfiguredError: Event output_mode not set
     """
+    import warnings
+    warnings.warn(
+        "calculate_plan() is deprecated, use create_plan() instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if session is not None:
         return _calculate_plan_impl(event_id, force_recalculate, session)
     with session_scope() as session:
@@ -244,7 +368,11 @@ def _calculate_plan_impl(
     force_recalculate: bool,
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of calculate_plan."""
+    """Implementation of calculate_plan (deprecated).
+
+    Note: This function is maintained for backward compatibility.
+    Use create_plan() for new code.
+    """
     # Get and validate event
     event = session.get(Event, event_id)
     if event is None:
@@ -256,12 +384,12 @@ def _calculate_plan_impl(
     # Check for existing non-stale plan
     if not force_recalculate:
         existing_plan = _get_latest_plan(event_id, session)
-        if existing_plan and not existing_plan.is_stale:
-            # Check if actually stale
+        if existing_plan:
+            # Check if actually stale (staleness now computed dynamically)
             is_stale, reason = _check_staleness_impl(event_id, session)
             if not is_stale:
-                # Return existing plan
-                return _plan_to_dict(existing_plan)
+                # Return existing plan with computed results
+                return _plan_to_dict(existing_plan, event, session)
 
     # Calculate batch requirements based on output mode
     if event.output_mode == OutputMode.BUNDLED:
@@ -269,19 +397,12 @@ def _calculate_plan_impl(
     else:  # BULK_COUNT
         recipe_batches = _calculate_bulk_requirements(event, session)
 
-    # Get timestamps for staleness tracking
     now = utc_now()
-    requirements_ts = _get_latest_requirements_timestamp(event, session)
-    recipes_ts = _get_latest_recipes_timestamp(recipe_batches, session)
-    bundles_ts = _get_latest_bundles_timestamp(event, session)
 
     # Get shopping list for the event
     shopping_items = _get_shopping_list(event_id, session=session)
 
-    # Aggregate ingredients across all recipes in the plan (WP04)
-    aggregated_ingredients = _aggregate_plan_ingredients(recipe_batches, session)
-
-    # Build calculation results JSON
+    # Build calculation results for return (not stored - computed on demand)
     calculation_results = {
         "recipe_batches": [
             {
@@ -296,7 +417,6 @@ def _calculate_plan_impl(
             }
             for rb in recipe_batches
         ],
-        "aggregated_ingredients": aggregated_ingredients,
         "shopping_list": [
             {
                 "ingredient_id": item.ingredient_id,
@@ -312,16 +432,10 @@ def _calculate_plan_impl(
         ],
     }
 
-    # Create or update snapshot
+    # Create lightweight snapshot (WP01: removed calculation_results and staleness fields)
     snapshot = ProductionPlanSnapshot(
         event_id=event_id,
         calculated_at=now,
-        requirements_updated_at=requirements_ts or now,
-        recipes_updated_at=recipes_ts or now,
-        bundles_updated_at=bundles_ts or now,
-        calculation_results=calculation_results,
-        is_stale=False,
-        stale_reason=None,
     )
     session.add(snapshot)
     session.flush()
@@ -403,14 +517,59 @@ def _get_latest_plan(
     )
 
 
-def _plan_to_dict(plan: ProductionPlanSnapshot) -> Dict[str, Any]:
-    """Convert a plan snapshot to the standard return format."""
+def _plan_to_dict(
+    plan: ProductionPlanSnapshot,
+    event: Event,
+    session: Session,
+) -> Dict[str, Any]:
+    """Convert a plan snapshot to the standard return format.
+
+    Note: WP01 removed calculation_results from ProductionPlanSnapshot.
+    Results are now computed on-demand.
+
+    Args:
+        plan: The ProductionPlanSnapshot
+        event: The Event (needed to compute results)
+        session: SQLAlchemy session for queries
+    """
+    # Compute results on-demand (no longer stored in snapshot)
+    if event.output_mode == OutputMode.BUNDLED:
+        recipe_batches = _calculate_bundled_requirements(event, session)
+    else:
+        recipe_batches = _calculate_bulk_requirements(event, session)
+
+    shopping_items = _get_shopping_list(event.id, session=session)
+
     return {
         "plan_id": plan.id,
         "calculated_at": (plan.calculated_at.isoformat() if plan.calculated_at else None),
-        "recipe_batches": plan.get_recipe_batches(),
-        "shopping_list": plan.get_shopping_list(),
-        "feasibility": [],  # Would need to recalculate for live data
+        "recipe_batches": [
+            {
+                "recipe_id": rb.recipe_id,
+                "recipe_name": rb.recipe_name,
+                "units_needed": rb.units_needed,
+                "batches": rb.batches,
+                "yield_per_batch": rb.yield_per_batch,
+                "total_yield": rb.total_yield,
+                "waste_units": rb.waste_units,
+                "waste_percent": rb.waste_percent,
+            }
+            for rb in recipe_batches
+        ],
+        "shopping_list": [
+            {
+                "ingredient_id": item.ingredient_id,
+                "ingredient_slug": item.ingredient_slug,
+                "ingredient_name": item.ingredient_name,
+                "needed": str(item.needed),
+                "in_stock": str(item.in_stock),
+                "to_buy": str(item.to_buy),
+                "unit": item.unit,
+                "is_sufficient": item.is_sufficient,
+            }
+            for item in shopping_items
+        ],
+        "feasibility": [],  # Computed separately if needed
     }
 
 
@@ -642,9 +801,13 @@ def _check_staleness_impl(
             name = recipe.name if recipe else f"ID {target.recipe_id}"
             return True, f"Production target '{name}' modified"
 
-    # Check recipes in plan
-    for recipe_batch in plan.get_recipe_batches():
-        recipe = session.get(Recipe, recipe_batch["recipe_id"])
+    # Check recipes in plan (get from event targets since plan no longer stores batches)
+    recipe_ids_to_check = set()
+    for target in event.production_targets:
+        recipe_ids_to_check.add(target.recipe_id)
+
+    for recipe_id in recipe_ids_to_check:
+        recipe = session.get(Recipe, recipe_id)
         recipe_modified = _normalize_datetime(recipe.last_modified) if recipe else None
         if recipe_modified and recipe_modified > calculated_at:
             return True, f"Recipe '{recipe.name}' modified"
