@@ -6,8 +6,11 @@ content views for the planning workflow.
 Implements:
 - FR-021: Planning Workspace shows calculated batch requirements
 - FR-034-036: Flexible navigation with contextual warnings
-- FR-040: Stale plan warning banner
 - SC-011: User can see shopping, production, and assembly status in one workspace
+
+Note: FR-040 (Stale plan warning banner) has been deprecated with F065
+(snapshot-based planning). Plans use immutable snapshots, so they never
+become stale. The StalePlanBanner class has been removed.
 """
 
 from typing import Any, Optional
@@ -15,7 +18,6 @@ import customtkinter as ctk
 
 from src.services.planning import (
     calculate_plan,
-    check_staleness,
     get_plan_summary,
     PlanningError,
     EventNotConfiguredError,
@@ -28,89 +30,8 @@ from .produce_view import ProduceView
 from .assemble_view import AssembleView
 
 
-class StalePlanBanner(ctk.CTkFrame):
-    """Warning banner shown when the plan may be outdated.
-
-    Implements FR-040: Stale plan warning banner.
-    """
-
-    def __init__(self, parent: Any, on_recalculate: callable, **kwargs):
-        """Initialize StalePlanBanner.
-
-        Args:
-            parent: Parent widget
-            on_recalculate: Callback when Recalculate button is clicked
-            **kwargs: Additional arguments passed to CTkFrame
-        """
-        # Yellow/warning background
-        kwargs.setdefault("fg_color", ("#FFF3CD", "#664D03"))
-        kwargs.setdefault("corner_radius", 6)
-        super().__init__(parent, **kwargs)
-
-        self.on_recalculate = on_recalculate
-        self._reason = ""
-
-        self._setup_ui()
-
-        # Start hidden
-        self.grid_remove()
-
-    def _setup_ui(self) -> None:
-        """Set up the banner UI."""
-        self.grid_columnconfigure(1, weight=1)
-
-        # Warning icon
-        icon = ctk.CTkLabel(
-            self,
-            text="\u26a0",  # Warning sign
-            font=ctk.CTkFont(size=18),
-            text_color=("#856404", "#FFC107"),
-        )
-        icon.grid(row=0, column=0, padx=(10, 5), pady=8)
-
-        # Message
-        self.message_label = ctk.CTkLabel(
-            self,
-            text="Plan may be outdated",
-            font=ctk.CTkFont(size=13),
-            text_color=("#856404", "#FFC107"),
-            anchor="w",
-        )
-        self.message_label.grid(row=0, column=1, sticky="ew", padx=5, pady=8)
-
-        # Recalculate button
-        recalc_btn = ctk.CTkButton(
-            self,
-            text="Recalculate",
-            command=self._handle_recalculate,
-            width=100,
-            height=28,
-            fg_color=("#856404", "#FFC107"),
-            text_color=("white", "black"),
-            hover_color=("#6c5303", "#E0A800"),
-        )
-        recalc_btn.grid(row=0, column=2, padx=10, pady=8)
-
-    def _handle_recalculate(self) -> None:
-        """Handle Recalculate button click."""
-        self.on_recalculate()
-
-    def show(self, reason: str = "") -> None:
-        """Show the banner with an optional reason.
-
-        Args:
-            reason: Reason the plan is stale
-        """
-        self._reason = reason
-        if reason:
-            self.message_label.configure(text=f"Plan may be outdated: {reason}")
-        else:
-            self.message_label.configure(text="Plan may be outdated")
-        self.grid()
-
-    def hide(self) -> None:
-        """Hide the banner."""
-        self.grid_remove()
+# F065: StalePlanBanner removed - with snapshot-based planning, plans are
+# immutable and never become stale. The staleness concept no longer applies.
 
 
 class PrerequisiteWarningDialog(ctk.CTkToplevel):
@@ -323,18 +244,13 @@ class PlanningWorkspace(ctk.CTkFrame):
         self.content_container = ctk.CTkFrame(self, fg_color="transparent")
         self.content_container.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         self.content_container.grid_columnconfigure(0, weight=1)
-        self.content_container.grid_rowconfigure(1, weight=1)
+        self.content_container.grid_rowconfigure(0, weight=1)
 
-        # Stale plan banner (row 0)
-        self.stale_banner = StalePlanBanner(
-            self.content_container,
-            on_recalculate=self._handle_recalculate,
-        )
-        self.stale_banner.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        # F065: Stale plan banner removed - snapshots are immutable, no staleness
 
-        # View container (row 1)
+        # View container (row 0 - was row 1 when stale banner existed)
         self.view_container = ctk.CTkFrame(self.content_container, fg_color="transparent")
-        self.view_container.grid(row=1, column=0, sticky="nsew")
+        self.view_container.grid(row=0, column=0, sticky="nsew")
         self.view_container.grid_columnconfigure(0, weight=1)
         self.view_container.grid_rowconfigure(0, weight=1)
 
@@ -487,18 +403,15 @@ class PlanningWorkspace(ctk.CTkFrame):
         return self._plan_data.get("production_started", False)
 
     def _load_plan_data(self) -> None:
-        """Load plan data for the current event."""
+        """Load plan data for the current event.
+
+        F065: Staleness checking removed. With snapshot-based planning,
+        plans use immutable snapshots and never become stale.
+        """
         if not self.event_id:
             return
 
         try:
-            # Check staleness
-            is_stale, reason = check_staleness(self.event_id)
-            if is_stale:
-                self.stale_banner.show(reason or "")
-            else:
-                self.stale_banner.hide()
-
             # Get plan summary for status updates
             try:
                 summary = get_plan_summary(self.event_id)
@@ -548,13 +461,16 @@ class PlanningWorkspace(ctk.CTkFrame):
         self.sidebar.update_all_statuses(statuses)
 
     def _handle_recalculate(self) -> None:
-        """Handle recalculate button click."""
+        """Handle recalculate button click.
+
+        F065: Stale banner removed. This method is kept for potential future
+        use or if the CalculateView has a regenerate button that calls it.
+        """
         if not self.event_id:
             return
 
         try:
             self._plan_data = calculate_plan(self.event_id, force_recalculate=True)
-            self.stale_banner.hide()
             self._load_plan_data()  # Refresh statuses
         except PlanningError as e:
             self._show_error(str(e))
