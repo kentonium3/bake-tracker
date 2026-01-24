@@ -1250,3 +1250,176 @@ class TestNestedFinishedGoodConsumption:
             )
             assert len(consumptions) == 1
             assert consumptions[0].quantity_consumed == 2
+
+
+# =============================================================================
+# F065: Snapshot Reuse Tests
+# =============================================================================
+
+
+class TestSnapshotReuse:
+    """Tests for F065 assembly snapshot reuse during planned events."""
+
+    def test_assembly_reuses_planning_snapshot(
+        self,
+        test_db,
+        finished_unit_cookie,
+        finished_good_gift_bag,
+        inventory_cellophane,
+    ):
+        """Assembly for planned event should reuse existing planning snapshot."""
+        from src.models import EventAssemblyTarget
+        from src.models.event import OutputMode
+        from src.services import finished_good_service
+        from datetime import date
+
+        session = test_db()
+        fg = finished_good_gift_bag
+
+        # Create event with assembly target
+        event = Event(
+            name="Test Holiday Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BUNDLED,
+        )
+        session.add(event)
+        session.flush()
+
+        target = EventAssemblyTarget(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            target_quantity=10,
+        )
+        session.add(target)
+        session.flush()
+
+        # Create planning snapshot (simulates what create_plan() does)
+        planning_snapshot = finished_good_service.create_finished_good_snapshot(
+            finished_good_id=fg.id,
+            planning_snapshot_id=None,  # Planning context
+            assembly_run_id=None,
+            session=session,
+        )
+        planning_snapshot_id = planning_snapshot["id"]
+
+        # Link snapshot to target (simulates what create_plan() does)
+        target.finished_good_snapshot_id = planning_snapshot_id
+        session.commit()
+
+        # Act: record assembly for this event
+        result = assembly_service.record_assembly(
+            finished_good_id=fg.id,
+            quantity=2,
+            event_id=event.id,
+            session=session,
+        )
+
+        # Assert: should reuse planning snapshot
+        assert result["finished_good_snapshot_id"] == planning_snapshot_id
+        assert result["snapshot_reused"] is True
+
+    def test_assembly_creates_new_snapshot_without_event(
+        self,
+        test_db,
+        finished_unit_cookie,
+        finished_good_gift_bag,
+        inventory_cellophane,
+    ):
+        """Assembly without event_id should create new snapshot."""
+        session = test_db()
+        fg = finished_good_gift_bag
+
+        # Act: record assembly without event_id (legacy/ad-hoc)
+        result = assembly_service.record_assembly(
+            finished_good_id=fg.id,
+            quantity=2,
+            event_id=None,  # No event
+            session=session,
+        )
+
+        # Assert: new snapshot created
+        assert result["finished_good_snapshot_id"] is not None
+        assert result["snapshot_reused"] is False
+
+    def test_assembly_creates_snapshot_for_legacy_event(
+        self,
+        test_db,
+        finished_unit_cookie,
+        finished_good_gift_bag,
+        inventory_cellophane,
+    ):
+        """Assembly for event without planning snapshot creates new snapshot."""
+        from src.models import EventAssemblyTarget
+        from src.models.event import OutputMode
+        from datetime import date
+
+        session = test_db()
+        fg = finished_good_gift_bag
+
+        # Create event with target but NO planning snapshot
+        event = Event(
+            name="Legacy Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BUNDLED,
+        )
+        session.add(event)
+        session.flush()
+
+        target = EventAssemblyTarget(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            target_quantity=10,
+            finished_good_snapshot_id=None,  # Legacy: no planning snapshot
+        )
+        session.add(target)
+        session.commit()
+
+        # Act: record assembly for legacy event
+        result = assembly_service.record_assembly(
+            finished_good_id=fg.id,
+            quantity=2,
+            event_id=event.id,
+            session=session,
+        )
+
+        # Assert: new snapshot created (backward compatibility)
+        assert result["finished_good_snapshot_id"] is not None
+        assert result["snapshot_reused"] is False
+
+    def test_assembly_creates_snapshot_when_target_not_found(
+        self,
+        test_db,
+        finished_unit_cookie,
+        finished_good_gift_bag,
+        inventory_cellophane,
+    ):
+        """Assembly for event without matching target creates new snapshot."""
+        from src.models.event import OutputMode
+        from datetime import date
+
+        session = test_db()
+        fg = finished_good_gift_bag
+
+        # Create event with NO assembly targets
+        event = Event(
+            name="Event Without Target",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            output_mode=OutputMode.BUNDLED,
+        )
+        session.add(event)
+        session.commit()
+
+        # Act: record assembly for event without matching target
+        result = assembly_service.record_assembly(
+            finished_good_id=fg.id,
+            quantity=2,
+            event_id=event.id,
+            session=session,
+        )
+
+        # Assert: new snapshot created
+        assert result["finished_good_snapshot_id"] is not None
+        assert result["snapshot_reused"] is False

@@ -40,11 +40,13 @@ from src.models import (
     Composition,
     Product,
     Event,
+    EventAssemblyTarget,  # F065: For snapshot reuse lookup
 )
 from src.services.database import session_scope
 from src.services import inventory_item_service
 from src.services import material_consumption_service
 from src.services import finished_goods_inventory_service as fg_inv
+from src.services import finished_good_service  # F065: For snapshot creation
 
 
 # =============================================================================
@@ -304,6 +306,8 @@ def record_assembly(
             - "material_consumptions": List[Dict] - material consumption records (Feature 047)
             - "event_id": Optional[int] - linked event ID (Feature 016)
             - "packaging_bypassed": bool - packaging bypass flag (Feature 026)
+            - "finished_good_snapshot_id": int - FinishedGood snapshot ID (F065)
+            - "snapshot_reused": bool - True if planning snapshot was reused (F065)
 
     Raises:
         FinishedGoodNotFoundError: If finished good doesn't exist
@@ -380,6 +384,29 @@ def _record_assembly_impl(
         event = session.query(Event).filter_by(id=event_id).first()
         if not event:
             raise EventNotFoundError(event_id)
+
+    # F065: Check for planning snapshot reuse
+    # If assembly is for a planned event, check if target has finished_good_snapshot_id
+    planning_snapshot_id = None
+    snapshot_reused = False
+    if event_id:
+        target = session.query(EventAssemblyTarget).filter(
+            EventAssemblyTarget.event_id == event_id,
+            EventAssemblyTarget.finished_good_id == finished_good_id
+        ).first()
+
+        if target and target.finished_good_snapshot_id:
+            # Reuse snapshot from planning phase
+            planning_snapshot_id = target.finished_good_snapshot_id
+            snapshot_reused = True
+            logger.debug(
+                "Reusing planning snapshot for assembly",
+                extra={
+                    "finished_good_id": finished_good_id,
+                    "event_id": event_id,
+                    "planning_snapshot_id": planning_snapshot_id,
+                },
+            )
 
     # Query Composition for this FinishedGood's components
     compositions = (
@@ -539,6 +566,20 @@ def _record_assembly_impl(
         total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
     )
 
+    # F065: Determine snapshot to use
+    if planning_snapshot_id:
+        # Reuse planning snapshot
+        fg_snapshot_id = planning_snapshot_id
+    else:
+        # Create new snapshot for legacy/ad-hoc assembly
+        snapshot = finished_good_service.create_finished_good_snapshot(
+            finished_good_id=finished_good_id,
+            planning_snapshot_id=None,  # Not linked to planning
+            assembly_run_id=None,  # Will link after AssemblyRun created
+            session=session,
+        )
+        fg_snapshot_id = snapshot["id"]
+
     # Create AssemblyRun record
     assembly_run = AssemblyRun(
         finished_good_id=finished_good_id,
@@ -550,6 +591,7 @@ def _record_assembly_impl(
         event_id=event_id,  # Feature 016
         packaging_bypassed=packaging_bypassed,  # Feature 026
         packaging_bypass_notes=packaging_bypass_notes,  # Feature 026
+        finished_good_snapshot_id=fg_snapshot_id,  # F065: Link to snapshot
     )
     session.add(assembly_run)
     session.flush()  # Get the ID
@@ -636,6 +678,8 @@ def _record_assembly_impl(
         "material_consumptions": [c.to_dict() for c in material_consumptions],  # Feature 047
         "event_id": event_id,  # Feature 016
         "packaging_bypassed": packaging_bypassed,  # Feature 026
+        "finished_good_snapshot_id": fg_snapshot_id,  # F065: Snapshot ID
+        "snapshot_reused": snapshot_reused,  # F065: True if planning snapshot was reused
     }
 
 

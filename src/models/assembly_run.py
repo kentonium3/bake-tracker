@@ -57,6 +57,14 @@ class AssemblyRun(BaseModel):
         index=True,
     )
 
+    # F065: Snapshot reference for component state at assembly time
+    finished_good_snapshot_id = Column(
+        Integer,
+        ForeignKey("finished_good_snapshots.id", ondelete="RESTRICT"),
+        nullable=True,  # Legacy assemblies may not have snapshots
+        index=True,
+    )
+
     # Assembly data
     quantity_assembled = Column(Integer, nullable=False)
     assembled_at = Column(DateTime, nullable=False, default=utc_now)
@@ -90,6 +98,12 @@ class AssemblyRun(BaseModel):
     )
     # Feature 016: Event relationship
     event = relationship("Event", back_populates="assembly_runs")
+
+    # F065: Snapshot relationship
+    finished_good_snapshot = relationship(
+        "FinishedGoodSnapshot",
+        foreign_keys=[finished_good_snapshot_id],
+    )
 
     # Constraints and indexes
     __table_args__ = (
