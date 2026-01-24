@@ -87,7 +87,7 @@
 - [x] T013 Create custom exception classes (CircularReferenceError, MaxDepthExceededError)
 - [x] T014 Add `create_finished_good_snapshot()` with recursive component snapshot logic
 - [x] T015 Implement circular reference detection with visited_ids set tracking
-- [ ] T016 Implement max depth enforcement (10 levels)
+- [x] T016 Implement max depth enforcement (10 levels)
 - [ ] T017 Add `get_finished_good_snapshot()` and `get_snapshots_by_planning_id()` query functions
 - [ ] T018 Create comprehensive unit tests including edge cases
 
