@@ -4,5 +4,7 @@
   "friendly_name": "Production Plan Snapshot Refactor",
   "mission": "software-dev",
   "source_description": "see docs/func-spec/F065_production_plan_snapshot_refactor.md for this feature's inputs.",
-  "created_at": "2025-01-24T00:00:00Z"
+  "created_at": "2025-01-24T00:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-24T20:00:31.083242+00:00"
 }
