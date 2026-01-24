@@ -9,10 +9,10 @@ subtasks:
   - "T017"
 title: "Variant Creation UI"
 phase: "Phase 1 - Core"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "28526"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP02"]
@@ -477,3 +477,7 @@ When reviewing this work package, verify:
 4. **Service Integration**: Correctly calls `create_recipe_variant` with `finished_unit_names`
 5. **Edge Case**: No FinishedUnits case handled gracefully
 6. **UI Consistency**: Follows existing CustomTkinter patterns in codebase
+
+## Activity Log
+
+- 2026-01-24T07:57:46Z – claude-opus – shell_pid=28526 – lane=doing – Started implementation via workflow command
