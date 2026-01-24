@@ -24,7 +24,7 @@
 - [x] T002 [P] Add FinishedUnitSnapshot to models `__init__.py` exports
 - [x] T003 Add `create_finished_unit_snapshot()` function to `src/services/finished_unit_service.py`
 - [x] T004 Add `get_finished_unit_snapshot()` and `get_snapshots_by_planning_id()` query functions
-- [ ] T005 Create unit tests in `src/tests/test_finished_unit_snapshot.py`
+- [x] T005 Create unit tests in `src/tests/test_finished_unit_snapshot.py`
 
 ### Implementation Notes
 - Model follows RecipeSnapshot pattern: JSON Text column, dual context FKs, wrapper/impl session pattern
