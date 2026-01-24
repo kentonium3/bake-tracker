@@ -2,12 +2,12 @@
 work_package_id: "WP01"
 title: "FinishedUnitSnapshot Model + Service"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "51239"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 subtasks:
   - "T001"
@@ -597,3 +597,4 @@ spec-kitty implement WP01
 - 2026-01-24T17:08:00Z – claude-opus – shell_pid=47917 – lane=doing – Started implementation via workflow command
 - 2026-01-24T17:20:06Z – claude-opus – shell_pid=47917 – lane=for_review – Implementation complete: Model, service functions, and 13 unit tests passing
 - 2026-01-24T17:20:44Z – claude-opus – shell_pid=51239 – lane=doing – Started review via workflow command
+- 2026-01-24T17:31:45Z – claude-opus – shell_pid=51239 – lane=done – Review passed: All requirements met. Model matches data-model.md spec, service functions follow wrapper/impl pattern, 13 tests passing with 95%+ coverage. PlanningSnapshot stub created appropriately for FK constraints.
