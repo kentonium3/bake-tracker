@@ -58,7 +58,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T006 Add `finished_unit_names` parameter to `create_recipe_variant()` and `_create_recipe_variant_impl()`
+- [x] T006 Add `finished_unit_names` parameter to `create_recipe_variant()` and `_create_recipe_variant_impl()`
 - [ ] T007 Implement FinishedUnit creation logic in `_create_recipe_variant_impl()`
 - [ ] T008 Add validation: variant display_name must differ from base display_name
 - [ ] T009 Generate variant FinishedUnit slug from variant recipe name + display_name
