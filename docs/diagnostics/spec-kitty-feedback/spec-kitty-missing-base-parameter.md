@@ -1,13 +1,26 @@
-# spec-kitty Bug Report: Missing --base Parameter in Implement Command
+# spec-kitty Bug Report: Missing --base Parameter in Agent Workflow Implement
 
 **Date:** 2026-01-24
 **Version:** spec-kitty-cli 0.12.0
-**Severity:** High - Blocks sequential WP workflow
+**Severity:** Medium - Feature parity gap between commands
 **Reporter:** Claude Opus (via Kent Gale)
+**Status:** PARTIALLY RESOLVED - Workaround available
 
 ## Summary
 
-The `--base` parameter is documented in generated WP prompt files but does not exist in the CLI implementation, preventing proper workflow for features with sequential work packages that depend on each other.
+The `--base` parameter exists in `spec-kitty implement` but is **missing** from `spec-kitty agent workflow implement`. This creates confusion because:
+1. WP prompt files reference `spec-kitty implement --base`
+2. The `/spec-kitty.implement` skill instructs agents to use `spec-kitty agent workflow implement`
+3. The agent command lacks the `--base` parameter
+
+## Root Cause
+
+There are **two different implement commands** with different capabilities:
+
+| Command | Has `--base` | Creates Worktree | Outputs Prompt |
+|---------|--------------|------------------|----------------|
+| `spec-kitty implement` | ✅ YES | ✅ YES | ❌ NO |
+| `spec-kitty agent workflow implement` | ❌ NO | ❌ NO | ✅ YES |
 
 ## Command Attempted
 
@@ -85,39 +98,70 @@ Should:
 2. Move WP04 to "doing" lane
 3. Output the WP04 prompt with implementation instructions
 
-## Current Workaround
+## Working Solution
 
-Manual git worktree creation:
+Use the **top-level** `spec-kitty implement` command (not the agent workflow command):
+
 ```bash
-# From main repo
-git worktree add .worktrees/FEATURE-WP04 -b FEATURE-WP04 FEATURE-WP03
-cd .worktrees/FEATURE-WP04
-# Then manually move WP04 to doing lane
-spec-kitty agent tasks move-task WP04 --to doing --agent claude-opus
+# This works! Creates worktree based on WP03
+spec-kitty implement WP04 --base WP03 --feature 064-finishedgoods-snapshot-architecture
+```
+
+Output:
+```
+→ Base tracking: 064-finishedgoods-snapshot-architecture-WP03 @ 98fadf2
+→ WP04 moved to 'doing' (committed to main)
+✓ Workspace created successfully
+```
+
+## Recommended Workflow for Dependent WPs
+
+For WPs that depend on other WPs (not yet merged to main):
+
+```bash
+# Step 1: Use top-level implement with --base to create worktree
+spec-kitty implement WP04 --base WP03 --feature 064-finishedgoods-snapshot-architecture
+
+# Step 2: Change to worktree
+cd .worktrees/064-finishedgoods-snapshot-architecture-WP04
+
+# Step 3: (Optional) Get the prompt if needed
+spec-kitty agent workflow implement WP04 --agent claude-opus
 ```
 
 ## Suggested Fix
 
-Add `--base` option to the implement command:
+Add `--base` option to `spec-kitty agent workflow implement` for feature parity:
 
 ```python
 @click.option('--base', type=str, default=None,
-              help='Base WP branch to create worktree from (e.g., WP03)')
+              help='Base WP to branch from (e.g., WP01). Calls top-level implement internally.')
 ```
 
 When `--base` is provided:
-- Create worktree from `FEATURE-WP##` branch instead of main
-- Validate that base WP exists and is in done/for_review lane
+- Internally call `spec-kitty implement WP_ID --base BASE_WP`
+- Then output the prompt as normal
+
+Alternatively, update the `/spec-kitty.implement` skill to detect dependencies and suggest the correct command.
 
 ## Related Issues
 
-This may be related to the template/CLI mismatch pattern documented in:
-- `spec-kitty-template-cli-mismatch.md`
-- `spec-kitty-wrong-params.md`
+This is a **feature parity gap** between the top-level and agent commands:
+- `spec-kitty-template-cli-mismatch.md` - Similar pattern of command differences
+- `spec-kitty-wrong-params.md` - Other parameter discrepancies
 
 ## Environment
 
 - OS: macOS Darwin 25.2.0
 - Python: 3.13.11
-- spec-kitty-cli: 0.12.0
+- spec-kitty-cli: 0.12.0 (pip reports 0.10.13 - possible version mismatch)
 - Feature: 064-finishedgoods-snapshot-architecture
+
+## Resolution
+
+**Workaround available:** Use `spec-kitty implement --base` instead of `spec-kitty agent workflow implement` for dependent WPs.
+
+**Tested and verified:** WP04 worktree successfully created based on WP03 using:
+```bash
+spec-kitty implement WP04 --base WP03 --feature 064-finishedgoods-snapshot-architecture
+```
