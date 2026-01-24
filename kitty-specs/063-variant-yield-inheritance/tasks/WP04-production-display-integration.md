@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Production Display Integration
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 - WP02
@@ -14,8 +14,8 @@ phase: Phase 2 - Polish
 assignee: ''
 agent: "claude-opus"
 shell_pid: "33368"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2025-01-24T07:30:00Z'
   lane: planned
@@ -320,3 +320,4 @@ When reviewing this work package, verify:
 - 2026-01-24T08:07:55Z – claude-opus – shell_pid=30485 – lane=doing – Started implementation via workflow command
 - 2026-01-24T08:22:18Z – claude-opus – shell_pid=30485 – lane=for_review – UI updated to use yield primitives for variant yield inheritance
 - 2026-01-24T08:23:48Z – claude-opus – shell_pid=33368 – lane=doing – Started review via workflow command
+- 2026-01-24T08:25:19Z – claude-opus – shell_pid=33368 – lane=done – Review passed: UI correctly uses yield primitives for variant inheritance. Recipes tab, production dialog, and FU detail all use get_base_yield_structure() for yields and get_finished_units() for display_name. No variant-specific logic. All tests pass.
