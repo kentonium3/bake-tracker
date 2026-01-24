@@ -153,10 +153,10 @@
 **Prompt**: `tasks/WP05-production-snapshot-reuse.md`
 
 ### Included Subtasks
-- [ ] T021 Add/verify event_id parameter in record_batch_production() signature
-- [ ] T022 Query EventProductionTarget for recipe_snapshot_id when event_id provided
-- [ ] T023 Implement reuse logic: use existing snapshot if available, create new only for legacy/ad-hoc
-- [ ] T024 Unit tests for production snapshot reuse scenarios
+- [x] T021 Add/verify event_id parameter in record_batch_production() signature
+- [x] T022 Query EventProductionTarget for recipe_snapshot_id when event_id provided
+- [x] T023 Implement reuse logic: use existing snapshot if available, create new only for legacy/ad-hoc
+- [x] T024 Unit tests for production snapshot reuse scenarios
 
 ### Implementation Notes
 - File: `src/services/batch_production_service.py`
