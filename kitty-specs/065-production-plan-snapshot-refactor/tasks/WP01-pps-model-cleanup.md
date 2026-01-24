@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "ProductionPlanSnapshot Model Cleanup"
-phase: "Phase 1 - Model Changes (Foundation)"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP01
+title: ProductionPlanSnapshot Model Cleanup
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: e95e18c708ef83dacda927fb527e8190d8e40b82
+created_at: '2026-01-24T20:00:33.018952+00:00'
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Model Changes (Foundation)
+assignee: ''
+agent: ''
+shell_pid: "75252"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-24T19:47:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-24T19:47:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – ProductionPlanSnapshot Model Cleanup
