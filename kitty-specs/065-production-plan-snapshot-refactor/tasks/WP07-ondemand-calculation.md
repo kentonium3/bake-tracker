@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: On-Demand Calculation
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 subtasks:
@@ -13,8 +13,8 @@ subtasks:
 - T034
 phase: Phase 4 - On-Demand Calculation
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "93958"
 review_status: ''
 reviewed_by: ''
 history:
@@ -413,3 +413,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T22:54:42Z – claude-opus – shell_pid=93958 – lane=doing – Started implementation via workflow command
