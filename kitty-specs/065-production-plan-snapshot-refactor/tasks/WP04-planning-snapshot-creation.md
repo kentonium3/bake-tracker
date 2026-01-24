@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Planning Service Snapshot Creation
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 base_branch: 065-production-plan-snapshot-refactor-WP03
@@ -438,3 +438,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-24T21:34:21Z – unknown – shell_pid=83183 – lane=for_review – Ready for review: create_plan() creates RecipeSnapshot and FinishedGoodSnapshot for targets, links via FKs, uses atomic transaction with proper session management. 37 passed, 7 skipped (deprecated), 36 warnings.
