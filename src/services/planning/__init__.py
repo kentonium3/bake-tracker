@@ -91,8 +91,9 @@ from .feasibility import (
 from .planning_service import (
     # Core planning functions
     create_plan,  # WP04: New snapshot-based planning
+    get_plan_calculation,  # WP07: On-demand calculation from snapshots
     calculate_plan,  # Deprecated, use create_plan
-    check_staleness,
+    check_staleness,  # Deprecated with snapshots (F065)
     get_plan_summary,
     get_recipe_batches,
     calculate_batches_for_quantity,
@@ -113,8 +114,9 @@ from .planning_service import (
 __all__ = [
     # Planning service facade
     "create_plan",  # WP04: New snapshot-based planning
+    "get_plan_calculation",  # WP07: On-demand calculation from snapshots
     "calculate_plan",  # Deprecated
-    "check_staleness",
+    "check_staleness",  # Deprecated with snapshots (F065)
     "get_plan_summary",
     "get_recipe_batches",
     "calculate_batches_for_quantity",
