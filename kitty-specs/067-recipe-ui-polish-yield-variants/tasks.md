@@ -115,7 +115,7 @@
 
 ### Included Subtasks
 - [x] T011 [P] Implement variant-aware sorting in `src/ui/widgets/data_table.py` FinishedGoodDataTable
-- [ ] T012 [P] Add "↳ " indicator for variant-sourced finished units in `_get_row_values()`
+- [x] T012 [P] Add "↳ " indicator for variant-sourced finished units in `_get_row_values()`
 
 ### Implementation Notes
 - Mirror the pattern established in WP02 for RecipeDataTable
