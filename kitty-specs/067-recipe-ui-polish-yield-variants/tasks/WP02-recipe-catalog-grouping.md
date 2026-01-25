@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Catalog Variant Grouping + Production Ready Default
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 328768f4daee82a997d39359558c3f7d6a9c9f78
@@ -303,6 +303,7 @@ history:
 - 2026-01-25T18:09:19Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 
 ---
+- 2026-01-25T18:23:45Z – unknown – shell_pid=49364 – lane=for_review – Implemented: variant grouping with sorting and prefix, production ready default already present
 
 ## Implementation Command
 
