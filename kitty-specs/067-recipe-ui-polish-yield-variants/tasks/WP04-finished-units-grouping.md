@@ -5,7 +5,7 @@ subtasks:
   - "T012"
 title: "Finished Units Grid Variant Grouping"
 phase: "Phase 2 - Grid Grouping"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "50955"
@@ -274,6 +274,7 @@ A FinishedUnit is a "variant FU" if its parent recipe is a variant (has non-null
 
 ---
 - 2026-01-25T18:23:55Z – claude-opus – shell_pid=50955 – lane=doing – Started implementation via workflow command
+- 2026-01-25T18:25:16Z – claude-opus – shell_pid=50955 – lane=for_review – Implemented: Finished Units grid variant grouping with sorting and prefix indicator
 
 ## Implementation Command
 
