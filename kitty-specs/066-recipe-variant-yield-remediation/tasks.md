@@ -179,7 +179,7 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T016 [P] Create integration test for planning service primitive usage
+- [x] T016 [P] Create integration test for planning service primitive usage
 - [ ] T017 [P] Create integration test for batch calculation primitive usage
 - [ ] T018 Verify existing primitive tests pass with updated docstrings
 
