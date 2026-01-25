@@ -358,7 +358,7 @@ class RecipeDataTable(DataTable):
         """
         # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         columns = [
-            ("Name", 250),
+            ("Name", 330),  # Widened to accommodate variant prefixes
             ("Category", 120),
             ("Yield", 150),
         ]

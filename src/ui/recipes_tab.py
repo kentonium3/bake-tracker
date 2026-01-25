@@ -460,6 +460,16 @@ class RecipesTab(ctk.CTkFrame):
         if not self.selected_recipe:
             return
 
+        # Prevent creating variant of a variant
+        if self.selected_recipe.base_recipe_id is not None:
+            show_error(
+                "Cannot Create Variant",
+                "Cannot create a variant of a variant.\n"
+                "Please select the base recipe to create variants.",
+                parent=self,
+            )
+            return
+
         try:
             # Get base recipe's FinishedUnits
             base_fus = recipe_service.get_finished_units(self.selected_recipe.id)

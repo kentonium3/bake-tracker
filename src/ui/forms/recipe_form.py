@@ -1251,6 +1251,12 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.yield_type_rows.append(row)
         self._update_remove_buttons()
 
+        # Explicitly re-apply readonly state for variants (belt-and-suspenders)
+        if self.is_variant:
+            row.unit_entry.configure(state="disabled")
+            row.quantity_entry.configure(state="disabled")
+            row.remove_button.grid_remove()
+
     def _remove_yield_type_row(self, row: YieldTypeRow):
         """
         Remove a yield type row after confirmation.
