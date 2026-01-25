@@ -148,7 +148,7 @@
 ### Included Subtasks
 - [x] T011 Add variant detection in RecipeFormDialog.__init__ (check recipe.base_recipe_id)
 - [x] T012 Add "Base Recipe: [name]" banner at top for variants
-- [ ] T013 Make yield structure fields (items_per_batch, item_unit, yield_mode) read-only for variants
+- [x] T013 Make yield structure fields (items_per_batch, item_unit, yield_mode) read-only for variants
 - [ ] T014 Keep display_name field editable for variants
 - [ ] T015 Add explanatory text about inheritance ("Yield structure inherited from base recipe")
 
