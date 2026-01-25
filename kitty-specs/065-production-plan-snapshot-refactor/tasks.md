@@ -279,11 +279,11 @@
 **Prompt**: `tasks/WP09-integration-testing.md`
 
 ### Included Subtasks
-- [ ] T040 Integration test: plan creation → production → verify snapshot reuse
-- [ ] T041 Integration test: plan creation → assembly → verify snapshot reuse
-- [ ] T042 Backward compatibility test: legacy events without snapshots still work
-- [ ] T043 Code cleanup: remove unused imports, dead code, update docstrings
-- [ ] T044 Verify test coverage >70% for affected services
+- [x] T040 Integration test: plan creation → production → verify snapshot reuse
+- [x] T041 Integration test: plan creation → assembly → verify snapshot reuse
+- [x] T042 Backward compatibility test: legacy events without snapshots still work
+- [x] T043 Code cleanup: remove unused imports, dead code, update docstrings
+- [x] T044 Verify test coverage >70% for affected services
 
 ### Implementation Notes
 - Files: `src/tests/integration/`, service test files
