@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from src.models import FinishedGood, FinishedUnit, Recipe, Composition
 from src.services.database import session_scope
+from src.services import recipe_service
 
 
 @dataclass
@@ -291,12 +292,13 @@ def aggregate_by_recipe(
             # Cache recipe info on first encounter
             recipe = session.get(Recipe, recipe_id)
             if recipe:
-                # F056: Use FinishedUnit.items_per_batch instead of deprecated yield_quantity
+                # F066: Use get_finished_units() primitive for decoupled yield access
                 items_per_batch = 1
-                if recipe.finished_units:
-                    primary_unit = recipe.finished_units[0]
-                    if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
-                        items_per_batch = primary_unit.items_per_batch
+                finished_units = recipe_service.get_finished_units(recipe_id, session=session)
+                if finished_units:
+                    primary_unit = finished_units[0]
+                    if primary_unit["items_per_batch"] and primary_unit["items_per_batch"] > 0:
+                        items_per_batch = primary_unit["items_per_batch"]
                 recipe_info[recipe_id] = (
                     recipe.name,
                     items_per_batch,
