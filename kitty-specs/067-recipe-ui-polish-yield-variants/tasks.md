@@ -83,10 +83,10 @@
 **Estimated Size**: ~350 lines (4 subtasks)
 
 ### Included Subtasks
-- [ ] T006 [P] Change section header from "Variant Yields:" to "Finished Unit Name(s):" in `src/ui/forms/variant_creation_dialog.py`
-- [ ] T007 [P] Remove "Base:" label prefix from FU row labels
-- [ ] T008 [P] Left-justify input fields in FU section
-- [ ] T009 [P] Restructure variant name section layout (label above field, help text between)
+- [x] T006 [P] Change section header from "Variant Yields:" to "Finished Unit Name(s):" in `src/ui/forms/variant_creation_dialog.py`
+- [x] T007 [P] Remove "Base:" label prefix from FU row labels
+- [x] T008 [P] Left-justify input fields in FU section
+- [x] T009 [P] Restructure variant name section layout (label above field, help text between)
 
 ### Implementation Notes
 - Section header at line 143: change text string
