@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP03",
+  "feature_slug": "065-production-plan-snapshot-refactor",
+  "worktree_path": ".worktrees/065-production-plan-snapshot-refactor-WP03",
+  "branch_name": "065-production-plan-snapshot-refactor-WP03",
+  "base_branch": "065-production-plan-snapshot-refactor-WP02",
+  "base_commit": "77ba3b57119846919c8e1e7a55fa3c38ee273971",
+  "dependencies": [
+    "WP02"
+  ],
+  "created_at": "2026-01-24T20:59:25.017534+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

@@ -1,4 +1,4 @@
-# F064: ProductionPlanSnapshot Architecture Refactor
+# F065: ProductionPlanSnapshot Architecture Refactor
 
 **Version**: 1.0  
 **Priority**: HIGH (P0 - Architectural Debt)  
@@ -41,7 +41,7 @@ Event Planning Workflow
 
 Production/Assembly Execution
 ├─ ✅ RecipeSnapshot created at ProductionRun time
-├─ ❌ No FinishedGoodSnapshot at AssemblyRun time (F065-F066 will add)
+├─ ✅ FinishedGoodSnapshot created at AssemblyRun time (F064 complete)
 └─ ❌ Planning snapshots disconnected from execution snapshots
 ```
 
@@ -51,7 +51,7 @@ ProductionPlanSnapshot (Snapshot Container - Pattern A)
 ├─ ✅ event_id reference
 ├─ ✅ created_at timestamp
 ├─ ✅ References to RecipeSnapshots (via production targets)
-├─ ✅ References to FinishedGoodSnapshots (via assembly targets - F065-F066)
+├─ ✅ References to FinishedGoodSnapshots (via assembly targets)
 ├─ ❌ NO calculation_results (removed)
 ├─ ❌ NO staleness tracking (removed)
 └─ ✅ Immutable - definitions captured at planning time
@@ -59,14 +59,17 @@ ProductionPlanSnapshot (Snapshot Container - Pattern A)
 Event Planning Workflow
 ├─ ✅ Calculate recipe batches from event requirements
 ├─ ✅ Create RecipeSnapshot for each production target
-├─ ✅ Store recipe_snapshot_id in ProductionTarget
+├─ ✅ Create FinishedGoodSnapshot for each assembly target (F064)
+├─ ✅ Store snapshot IDs in targets
 ├─ ✅ Create ProductionPlanSnapshot container
 ├─ ✅ Plan references snapshots (immutable)
 └─ ✅ Definition changes don't affect planned events
 
 Production/Assembly Execution
 ├─ ✅ Use RecipeSnapshot from planning (same snapshot)
+├─ ✅ Use FinishedGoodSnapshot from planning (same snapshot)
 ├─ ✅ ProductionRun references recipe_snapshot_id
+├─ ✅ AssemblyRun references finished_good_snapshot_id
 ├─ ✅ Planning and execution use same immutable snapshots
 └─ ✅ Complete definition/instantiation separation
 ```
@@ -95,34 +98,46 @@ Production/Assembly Execution
    - Note recipe_snapshot_id FK on ProductionRun
    - Understand immutability pattern
 
-4. **Recipe Snapshot Service (Reference)**
+4. **FinishedGoodSnapshot Pattern (Reference - F064 Complete)**
+   - Find `/src/models/finished_good_snapshot.py`
+   - Study snapshot creation at assembly time (F064)
+   - Note finished_good_snapshot_id FK on AssemblyRun
+   - Understand recursive snapshot pattern
+
+5. **Recipe Snapshot Service (Reference)**
    - Find `/src/services/recipe_snapshot_service.py`
    - Study create_recipe_snapshot() signature
    - Note session management pattern
    - Understand snapshot data capture
 
-5. **Batch Production Service (Orchestration Pattern)**
+6. **FinishedGood Snapshot Service (Reference - F064 Complete)**
+   - Find `/src/services/finished_good_service.py`
+   - Study create_finished_good_snapshot() implementation (F064)
+   - Note recursive snapshot creation
+   - Understand component snapshot orchestration
+
+7. **Batch Production Service (Orchestration Pattern)**
    - Find `/src/services/batch_production_service.py`
    - Study how RecipeSnapshot is created BEFORE production
    - Note snapshot_id storage on ProductionRun
    - Understand snapshot timing (before inventory consumption)
 
-6. **Instantiation Pattern Research**
+8. **Instantiation Pattern Research**
    - Find `/docs/research/instantiation_pattern_findings.md`
    - Study Section 1.4 (ProductionPlanSnapshot architectural problem)
    - Review Pattern A recommendation (Catalog Service Ownership)
    - Note planning snapshot container pattern
 
-7. **Event and Target Models**
+9. **Event and Target Models**
    - Find `/src/models/event.py`
    - Find `/src/models/production_target.py` (or equivalent)
    - Study event → targets relationship
    - Note where snapshot_id references should be added
 
-8. **Constitution Principles**
-   - Find `/.kittify/memory/constitution.md`
-   - Study Principle II: Definition vs Instantiation Separation
-   - Understand immutability requirements
+10. **Constitution Principles**
+    - Find `/.kittify/memory/constitution.md`
+    - Study Principle II: Definition vs Instantiation Separation
+    - Understand immutability requirements
 
 ---
 
@@ -131,6 +146,7 @@ Production/Assembly Execution
 This specification addresses architectural issues identified in:
 - **instantiation_pattern_findings.md** Section 1.4: ProductionPlanSnapshot architectural problem
 - **Constitutional Principle II**: Definition vs Instantiation Separation
+- **F064 Complete**: FinishedGoodSnapshot now available for assembly targets
 
 ---
 
@@ -208,13 +224,49 @@ class ProductionTarget(BaseModel):
 
 ---
 
-### FR-3: Planning Service Creates RecipeSnapshots
+### FR-3: Add FinishedGoodSnapshot References to Assembly Targets
+
+**What it must do:**
+- Add finished_good_snapshot_id FK to AssemblyTarget model (or equivalent)
+- FK references finished_good_snapshots table (F064 complete)
+- FK nullable=True initially for backward compatibility
+- Assembly target stores reference to FinishedGoodSnapshot created during planning
+- Planning service populates finished_good_snapshot_id when creating snapshots
+
+**Pattern reference:** Study how AssemblyRun stores finished_good_snapshot_id (F064), apply to AssemblyTarget
+
+**Model update:**
+```python
+class AssemblyTarget(BaseModel):
+    event_id = ForeignKey("events.id")
+    finished_good_id = ForeignKey("finished_goods.id")  # Definition reference
+    quantity_needed = Integer
+    
+    # NEW: Snapshot reference created at planning time (F064 complete)
+    finished_good_snapshot_id = ForeignKey(
+        "finished_good_snapshots.id",
+        nullable=True,  # Backward compatibility
+        ondelete="RESTRICT"
+    )
+```
+
+**Success criteria:**
+- [ ] finished_good_snapshot_id FK added to AssemblyTarget
+- [ ] FK properly indexed
+- [ ] Migration successful
+- [ ] Nullable for backward compatibility
+
+---
+
+### FR-4: Planning Service Creates Definition Snapshots
 
 **What it must do:**
 - Planning service creates RecipeSnapshot for each production target during event planning
+- Planning service creates FinishedGoodSnapshot for each assembly target (F064)
 - Call recipe_snapshot_service.create_recipe_snapshot() for each recipe
-- Pass planning_snapshot_id to link snapshots to plan (if supported by RecipeSnapshot model)
-- Store recipe_snapshot_id on ProductionTarget
+- Call finished_good_service.create_finished_good_snapshot() for each finished good
+- Pass planning_snapshot_id to link snapshots to plan (if supported by snapshot models)
+- Store snapshot IDs on targets (recipe_snapshot_id, finished_good_snapshot_id)
 - All snapshots created in single transaction
 - Snapshot creation happens BEFORE calculation (captures state before changes)
 
@@ -243,6 +295,16 @@ def create_event_plan(event_id, session):
         )
         target.recipe_snapshot_id = recipe_snapshot["id"]
     
+    # Create FinishedGoodSnapshot for each assembly target (F064)
+    for target in event.assembly_targets:
+        fg_snapshot = finished_good_service.create_finished_good_snapshot(
+            finished_good_id=target.finished_good_id,
+            recursive=True,
+            assembly_run_id=None,  # Planning snapshot, not assembly
+            session=session
+        )
+        target.finished_good_snapshot_id = fg_snapshot["id"]
+    
     # Calculate requirements (still needed for display/shopping list)
     # But calculations NOT stored in ProductionPlanSnapshot
     calculations = calculate_batch_requirements(event, session)
@@ -250,19 +312,22 @@ def create_event_plan(event_id, session):
     return {
         "planning_snapshot_id": planning_snapshot.id,
         "recipe_snapshots_created": len(event.production_targets),
+        "finished_good_snapshots_created": len(event.assembly_targets),
         "calculations": calculations  # Returned, not stored
     }
 ```
 
 **Success criteria:**
 - [ ] Planning service creates RecipeSnapshot for each production target
+- [ ] Planning service creates FinishedGoodSnapshot for each assembly target
 - [ ] recipe_snapshot_id stored on ProductionTarget
+- [ ] finished_good_snapshot_id stored on AssemblyTarget
 - [ ] All snapshots created in single transaction
 - [ ] Calculation results returned but NOT stored in ProductionPlanSnapshot
 
 ---
 
-### FR-4: Remove Staleness Detection Logic
+### FR-5: Remove Staleness Detection Logic
 
 **What it must do:**
 - Remove all staleness detection code from planning service
@@ -271,7 +336,7 @@ def create_event_plan(event_id, session):
 - Snapshots are immutable - no staleness concept needed
 - If user changes definitions, they create a NEW plan (new snapshots)
 
-**Pattern reference:** RecipeSnapshot has no staleness tracking - it's immutable
+**Pattern reference:** RecipeSnapshot and FinishedGoodSnapshot have no staleness tracking - they're immutable
 
 **Code to REMOVE:**
 ```python
@@ -290,16 +355,17 @@ def get_stale_snapshots()  # DELETE
 
 ---
 
-### FR-5: Production Service Uses Planning Snapshots
+### FR-6: Production/Assembly Services Use Planning Snapshots
 
 **What it must do:**
 - When ProductionRun is created from a planned event, use the RecipeSnapshot already created during planning
-- Check if ProductionTarget has recipe_snapshot_id
+- When AssemblyRun is created from a planned event, use the FinishedGoodSnapshot already created during planning (F064)
+- Check if target has snapshot_id
 - If yes: reference that snapshot (don't create new one)
-- If no: create RecipeSnapshot at production time (backward compatibility)
-- Eventually all ProductionRuns reference snapshots created at planning time
+- If no: create snapshot at production/assembly time (backward compatibility)
+- Eventually all ProductionRuns/AssemblyRuns reference snapshots created at planning time
 
-**Pattern reference:** Planning and production share same RecipeSnapshot (immutability)
+**Pattern reference:** Planning and production/assembly share same snapshots (immutability)
 
 **Production workflow update:**
 ```python
@@ -331,25 +397,57 @@ def record_batch_production(recipe_id, quantity, event_id, session):
     # ... rest of production logic
 ```
 
+**Assembly workflow update:**
+```python
+def record_assembly(finished_good_id, quantity, event_id, session):
+    # Check if this assembly is for a planned event target
+    snapshot_id = None
+    if event_id:
+        target = get_assembly_target(event_id, finished_good_id, session)
+        if target and target.finished_good_snapshot_id:
+            # Use snapshot created during planning
+            snapshot_id = target.finished_good_snapshot_id
+    
+    # If no planning snapshot, create one now (F064 pattern)
+    if not snapshot_id:
+        assembly_run = AssemblyRun(...)
+        session.add(assembly_run)
+        session.flush()
+        
+        fg_snapshot = finished_good_service.create_finished_good_snapshot(
+            finished_good_id=finished_good_id,
+            recursive=True,
+            assembly_run_id=assembly_run.id,
+            session=session
+        )
+        snapshot_id = fg_snapshot["id"]
+    
+    # Assembly uses snapshot (whether from planning or created now)
+    assembly_run.finished_good_snapshot_id = snapshot_id
+    # ... rest of assembly logic
+```
+
 **Success criteria:**
 - [ ] Production checks for planning snapshot first
+- [ ] Assembly checks for planning snapshot first
 - [ ] Planning snapshots reused if available
 - [ ] Backward compatibility maintained (create snapshot if missing)
-- [ ] Planning and production share same immutable snapshots
+- [ ] Planning and production/assembly share same immutable snapshots
 
 ---
 
-### FR-6: Update RecipeSnapshot Model for Planning Context
+### FR-7: Update RecipeSnapshot and FinishedGoodSnapshot Models for Planning Context
 
 **What it must do:**
 - RecipeSnapshot currently requires production_run_id
 - Make production_run_id nullable to support planning snapshots
 - Add optional planning_snapshot_id FK to ProductionPlanSnapshot
-- Snapshot can be linked to either production run OR planning snapshot OR both
+- FinishedGoodSnapshot (F064) may already support planning_snapshot_id
+- Snapshot can be linked to production/assembly run OR planning snapshot OR both
 
-**Pattern reference:** Study FinishedGoodSnapshot recommended structure with multiple context FKs
+**Pattern reference:** Study FinishedGoodSnapshot (F064) for multiple context FKs
 
-**Model update:**
+**RecipeSnapshot model update:**
 ```python
 class RecipeSnapshot(BaseModel):
     recipe_id = ForeignKey("recipes.id", ondelete="RESTRICT")
@@ -369,20 +467,26 @@ class RecipeSnapshot(BaseModel):
     # ... rest of model unchanged
 ```
 
+**FinishedGoodSnapshot verification (F064):**
+- Check if planning_snapshot_id already exists from F064
+- If not, add planning_snapshot_id FK
+- Ensure assembly_run_id is nullable for planning context
+
 **Success criteria:**
-- [ ] production_run_id now nullable
-- [ ] planning_snapshot_id FK added
+- [ ] production_run_id now nullable on RecipeSnapshot
+- [ ] planning_snapshot_id FK added to RecipeSnapshot
+- [ ] FinishedGoodSnapshot supports planning_snapshot_id (verify F064)
 - [ ] Migration successful
-- [ ] Snapshots can be created for planning OR production
+- [ ] Snapshots can be created for planning OR production/assembly
 
 ---
 
-### FR-7: Deprecate Calculation Storage in UI
+### FR-8: Deprecate Calculation Storage in UI
 
 **What it must do:**
 - UI currently expects calculation_results from ProductionPlanSnapshot
 - Update UI to recalculate on-demand from snapshots
-- Planning view calculates requirements from recipe_snapshot_id references
+- Planning view calculates requirements from snapshot_id references
 - Remove UI code that displays staleness warnings
 - Shopping list generated from current calculation (not cached)
 
@@ -414,9 +518,8 @@ def display_event_plan(event_id):
 ## Out of Scope
 
 **Explicitly NOT included in this feature:**
-- ❌ FinishedGoodSnapshot creation (F065-F066)
-- ❌ InventorySnapshot improvements (F065)
-- ❌ Material snapshots (F066)
+- ❌ InventorySnapshot improvements (eliminated - F066 not needed)
+- ❌ Material snapshots (handled by consumption records)
 - ❌ Changing event planning calculation logic (just where results are stored)
 - ❌ UI redesign (just remove calculation cache dependencies)
 - ❌ Performance optimization of recalculation (acceptable to recalculate on-demand)
@@ -431,22 +534,27 @@ def display_event_plan(event_id):
 - [ ] calculation_results field removed from ProductionPlanSnapshot
 - [ ] Staleness fields removed (requirements_updated_at, recipes_updated_at, etc.)
 - [ ] recipe_snapshot_id FK added to ProductionTarget
+- [ ] finished_good_snapshot_id FK added to AssemblyTarget
 - [ ] production_run_id nullable on RecipeSnapshot
 - [ ] planning_snapshot_id FK added to RecipeSnapshot
+- [ ] FinishedGoodSnapshot supports planning_snapshot_id (verify F064)
 - [ ] Database migrations successful
 
 ### Service Layer - Planning
 - [ ] Planning service creates RecipeSnapshot for each production target
+- [ ] Planning service creates FinishedGoodSnapshot for each assembly target
 - [ ] recipe_snapshot_id stored on ProductionTarget
+- [ ] finished_good_snapshot_id stored on AssemblyTarget
 - [ ] Staleness detection code removed
 - [ ] Calculation results returned but not stored
 - [ ] All snapshots created in single transaction
 
-### Service Layer - Production
+### Service Layer - Production/Assembly
 - [ ] Production checks for planning snapshot before creating new one
+- [ ] Assembly checks for planning snapshot before creating new one
 - [ ] Planning snapshots reused when available
 - [ ] Backward compatibility maintained (create if missing)
-- [ ] ProductionRun references correct snapshot (planning or new)
+- [ ] ProductionRun/AssemblyRun reference correct snapshot (planning or new)
 
 ### UI Layer
 - [ ] UI recalculates requirements on-demand from snapshots
@@ -456,10 +564,10 @@ def display_event_plan(event_id):
 
 ### Quality
 - [ ] Unit tests for snapshot creation during planning
-- [ ] Integration tests for planning → production snapshot reuse
+- [ ] Integration tests for planning → production/assembly snapshot reuse
 - [ ] Migration tested (forward and backward)
 - [ ] Performance acceptable for on-demand recalculation
-- [ ] Pattern consistency with RecipeSnapshot verified
+- [ ] Pattern consistency with RecipeSnapshot and FinishedGoodSnapshot verified
 
 ---
 
@@ -470,6 +578,7 @@ def display_event_plan(event_id):
 **Lightweight container:**
 - Stores event_id and created_at
 - References RecipeSnapshots via ProductionTargets
+- References FinishedGoodSnapshots via AssemblyTargets (F064)
 - NO calculation results stored
 - NO staleness tracking needed
 
@@ -478,11 +587,12 @@ def display_event_plan(event_id):
 - Definition changes require NEW plan with NEW snapshots
 - No concept of "stale" snapshots - they're historical records
 
-### Planning and Production Share Snapshots
+### Planning and Production/Assembly Share Snapshots
 
 **Single source of truth:**
 - RecipeSnapshot created during planning
-- Same snapshot referenced by ProductionRun
+- FinishedGoodSnapshot created during planning (F064)
+- Same snapshots referenced by ProductionRun/AssemblyRun
 - Definitions captured once, used by both planning and execution
 - Complete definition/instantiation separation
 
@@ -490,24 +600,26 @@ def display_event_plan(event_id):
 
 **Catalog Service Ownership:**
 - recipe_snapshot_service owns RecipeSnapshot creation
-- Planning service orchestrates (calls primitive)
-- Production service orchestrates (calls primitive or reuses existing)
+- finished_good_service owns FinishedGoodSnapshot creation (F064)
+- Planning service orchestrates (calls primitives)
+- Production/Assembly services orchestrate (calls primitives or reuses existing)
 
 ---
 
 ## Constitutional Compliance
 
 ✅ **Principle II: Definition vs Instantiation Separation**
-- Recipes are catalog definitions (mutable)
-- RecipeSnapshots capture state at planning time (immutable)
+- Recipes and FinishedGoods are catalog definitions (mutable)
+- RecipeSnapshots and FinishedGoodSnapshots capture state at planning time (immutable)
 - Planning references snapshots, not live definitions
-- Production references same snapshots from planning
+- Production/Assembly reference same snapshots from planning
 - Definition changes don't affect planned events
 
 ✅ **Principle V: Service Boundaries**
-- recipe_snapshot_service owns snapshot creation
+- recipe_snapshot_service owns RecipeSnapshot creation
+- finished_good_service owns FinishedGoodSnapshot creation (F064)
 - Planning service orchestrates snapshot creation
-- Production service consumes snapshots (planning or creates new)
+- Production/Assembly services consume snapshots (planning or creates new)
 - No service dictates another service's implementation
 
 ✅ **Principle VIII: Session Management**
@@ -530,13 +642,13 @@ def display_event_plan(event_id):
 - Future optimization: client-side caching if needed
 
 **Risk: Backward compatibility for events without snapshots**
-- Old events have no recipe_snapshot_id on targets
-- Mitigation: Production service creates snapshot at production time if missing
+- Old events have no snapshot_id on targets
+- Mitigation: Production/Assembly service creates snapshot at execution time if missing
 - Graceful degradation - old events still work
 
-**Risk: RecipeSnapshot model changes affect existing code**
-- Making production_run_id nullable changes assumptions
-- Mitigation: Planning phase audits all RecipeSnapshot usage
+**Risk: RecipeSnapshot and FinishedGoodSnapshot model changes affect existing code**
+- Making production_run_id/assembly_run_id nullable changes assumptions
+- Mitigation: Planning phase audits all snapshot usage
 - Validation ensures at least one context FK is set
 
 ---
@@ -545,33 +657,40 @@ def display_event_plan(event_id):
 
 **Pattern Discovery (Planning Phase):**
 - Study RecipeSnapshot model → understand immutability pattern
+- Study FinishedGoodSnapshot model (F064) → understand recursive pattern
 - Study recipe_snapshot_service → understand creation primitive
+- Study finished_good_service (F064) → understand snapshot orchestration
 - Study batch_production_service → understand snapshot timing
 - Study planning service current calculation logic → preserve calculation, change storage
 
 **Key Patterns to Copy:**
 - RecipeSnapshot immutability → apply to ProductionPlanSnapshot refactor
+- FinishedGoodSnapshot immutability (F064) → planning integration
 - batch_production_service snapshot timing → apply to planning phase
 - ProductionRun.recipe_snapshot_id → apply to ProductionTarget.recipe_snapshot_id
+- AssemblyRun.finished_good_snapshot_id (F064) → apply to AssemblyTarget.finished_good_snapshot_id
 
 **Focus Areas:**
 - Data migration: Remove calculation_results safely
 - Backward compatibility: Old events without snapshots still work
 - UI updates: Recalculate instead of read cache
 - Transaction boundaries: All planning snapshots in one transaction
+- F064 integration: Leverage completed FinishedGoodSnapshot implementation
 
 **Migration Strategy:**
 1. Add recipe_snapshot_id to ProductionTarget (nullable)
-2. Make production_run_id nullable on RecipeSnapshot
-3. Add planning_snapshot_id to RecipeSnapshot
-4. Deploy code that creates snapshots during planning
-5. Remove calculation_results field (data loss acceptable - recalculate)
-6. Remove staleness tracking fields
-7. Remove staleness detection code
+2. Add finished_good_snapshot_id to AssemblyTarget (nullable)
+3. Make production_run_id nullable on RecipeSnapshot
+4. Add planning_snapshot_id to RecipeSnapshot
+5. Verify FinishedGoodSnapshot supports planning_snapshot_id (F064)
+6. Deploy code that creates snapshots during planning
+7. Remove calculation_results field (data loss acceptable - recalculate)
+8. Remove staleness tracking fields
+9. Remove staleness detection code
 
 **Testing Strategy:**
 - Unit test planning service snapshot creation
-- Integration test planning → production snapshot reuse
+- Integration test planning → production/assembly snapshot reuse
 - Test backward compatibility (events without snapshots)
 - Test on-demand calculation performance
 - Test migration (forward only, data loss acceptable)
