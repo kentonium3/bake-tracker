@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Create Variant Dialog Polish
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 560e62fea4b7ea44de2dd05d0c9a31b2eddd2567
@@ -13,7 +13,7 @@ subtasks:
 - T009
 phase: Phase 1 - UI Polish
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "49512"
 review_status: ''
 reviewed_by: ''
@@ -328,6 +328,7 @@ Descriptive help text here       <-- Help text (gray, between label and input)
 - 2026-01-25T18:09:19Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 
 ---
+- 2026-01-25T18:20:17Z – claude-opus – shell_pid=49512 – lane=for_review – Implemented by Codex, committed by Claude: dialog terminology and layout polish
 
 ## Implementation Command
 
