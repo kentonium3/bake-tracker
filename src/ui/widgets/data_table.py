@@ -396,6 +396,8 @@ class RecipeDataTable(DataTable):
 class FinishedGoodDataTable(DataTable):
     """
     Specialized data table for displaying finished goods.
+
+    F067: Supports visual grouping of variant finished units under their base FUs.
     """
 
     def __init__(
@@ -430,9 +432,77 @@ class FinishedGoodDataTable(DataTable):
             height=height,
         )
 
+    def set_data(self, data: List[Any]):
+        """
+        Set the table data with variant grouping.
+
+        F067: Sorts data so variant FUs (from variant recipes) appear immediately
+        after their base recipe's FUs, making the relationship visually clear.
+
+        Args:
+            data: List of FinishedUnit objects to display
+        """
+        if not data:
+            super().set_data(data)
+            return
+
+        # Separate base FUs and variant FUs based on recipe relationship
+        base_fus = []
+        variant_fus = []
+
+        for fu in data:
+            if fu.recipe and fu.recipe.base_recipe_id is not None:
+                variant_fus.append(fu)
+            else:
+                base_fus.append(fu)
+
+        # Sort base FUs by recipe name, then by FU display_name
+        base_fus.sort(key=lambda fu: (
+            fu.recipe.name.lower() if fu.recipe else "",
+            fu.display_name.lower()
+        ))
+
+        # Group variant FUs by their recipe's base_recipe_id
+        variants_by_base_recipe = {}
+        for vfu in variant_fus:
+            base_recipe_id = vfu.recipe.base_recipe_id
+            if base_recipe_id not in variants_by_base_recipe:
+                variants_by_base_recipe[base_recipe_id] = []
+            variants_by_base_recipe[base_recipe_id].append(vfu)
+
+        # Sort variants within each group
+        for base_id in variants_by_base_recipe:
+            variants_by_base_recipe[base_id].sort(key=lambda fu: (
+                fu.recipe.name.lower() if fu.recipe else "",
+                fu.display_name.lower()
+            ))
+
+        # Build final sorted list
+        sorted_data = []
+        processed_base_recipes = set()
+
+        for base_fu in base_fus:
+            sorted_data.append(base_fu)
+
+            # Add variant FUs that belong to variants of this base FU's recipe
+            if base_fu.recipe:
+                base_recipe_id = base_fu.recipe.id
+                if base_recipe_id in variants_by_base_recipe and base_recipe_id not in processed_base_recipes:
+                    sorted_data.extend(variants_by_base_recipe[base_recipe_id])
+                    processed_base_recipes.add(base_recipe_id)
+
+        # Add any orphaned variant FUs (their base recipe was deleted)
+        for base_id, vfus in variants_by_base_recipe.items():
+            if base_id not in processed_base_recipes:
+                sorted_data.extend(vfus)
+
+        super().set_data(sorted_data)
+
     def _get_row_values(self, row_data: Any) -> List[str]:
         """
         Extract finished good-specific row values.
+
+        F067: Adds "↳ " prefix to variant FU names for visual grouping.
 
         Args:
             row_data: FinishedGood object
@@ -440,6 +510,11 @@ class FinishedGoodDataTable(DataTable):
         Returns:
             List of formatted values
         """
+        # F067: Detect if this FU belongs to a variant recipe
+        display_name = row_data.display_name
+        if row_data.recipe and row_data.recipe.base_recipe_id is not None:
+            display_name = f"↳ {display_name}"
+
         # Get yield info based on mode
         if row_data.yield_mode.value == "discrete_count":
             yield_info = f"{row_data.items_per_batch} {row_data.item_unit}/batch"
@@ -450,7 +525,7 @@ class FinishedGoodDataTable(DataTable):
 
         # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         return [
-            row_data.display_name,
+            display_name,
             row_data.recipe.name if row_data.recipe else "N/A",
             row_data.category or "",
             type_display,
