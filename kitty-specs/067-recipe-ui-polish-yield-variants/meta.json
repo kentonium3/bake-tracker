@@ -1,0 +1,8 @@
+{
+  "feature_number": "067",
+  "slug": "067-recipe-ui-polish-yield-variants",
+  "friendly_name": "Recipe UI Polish - Yield Information and Variant Grouping",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F067_recipe_ui_polish_yield_and_variants.md for feature inputs",
+  "created_at": "2025-01-25T20:32:00Z"
+}
