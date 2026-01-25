@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Decouple Planning Service
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -228,3 +228,4 @@ Should return no matches after this WP.
 ## Activity Log
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
+- 2026-01-25T03:50:38Z – unknown – shell_pid=24714 – lane=for_review – Ready for review: Decoupled planning_service from direct recipe.finished_units access. All 48 planning_service tests pass. Replaced 2 locations with get_finished_units() primitive.
