@@ -1,0 +1,9 @@
+{
+  "feature_number": "066",
+  "slug": "066-recipe-variant-yield-remediation",
+  "friendly_name": "Recipe Variant Yield Remediation",
+  "mission": "software-dev",
+  "source_description": "See docs/func-spec/F066_recipe_variant_yield_remediation.md for inputs on this feature.",
+  "created_at": "2025-01-24T00:00:00Z",
+  "vcs": "git"
+}

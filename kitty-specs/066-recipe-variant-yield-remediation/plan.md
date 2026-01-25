@@ -1,108 +1,200 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Recipe Variant Yield Remediation
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `.kittify/templates/commands/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `066-recipe-variant-yield-remediation` | **Date**: 2025-01-24 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/kitty-specs/066-recipe-variant-yield-remediation/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Complete F063 (Recipe Variant Yield Inheritance) implementation by:
+1. Updating service primitive docstrings (implementation already correct post-Phase-1-fix)
+2. Decoupling planning/production/calculation services from direct `recipe.finished_units` access
+3. Improving UI dialogs (VariantCreationDialog, RecipeFormDialog) for variant clarity
+
+**Key Discovery**: Service primitives `get_finished_units()` and `get_base_yield_structure()` already exist in `recipe_service.py:1941-2054`. Phase 1 bug fix changed variant FinishedUnits from NULL yields to copied yields, so docstrings need updating.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+
+**Primary Dependencies**: CustomTkinter (UI), SQLAlchemy 2.x (ORM)
+**Storage**: SQLite with WAL mode
+**Testing**: pytest (>70% service coverage required)
+**Target Platform**: Desktop (Windows/macOS/Linux)
+**Project Type**: Single desktop application
+**Performance Goals**: N/A (desktop app, no concurrent users)
+**Constraints**: N/A
+**Scale/Scope**: Single user, ~100 recipes, ~50 ingredients
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| **I. User-Centric Design** | PASS | UI terminology changes improve clarity for primary user |
+| **II. Data Integrity** | PASS | No data model changes; primitives improve consistency |
+| **III. Future-Proof Schema** | PASS | No schema changes required |
+| **IV. Test-Driven Development** | PASS | Tests already exist; will expand coverage |
+| **V. Layered Architecture** | PASS | Service decoupling aligns perfectly with this principle |
+| **VI. Schema Change Strategy** | N/A | No schema changes |
+| **VII. Pragmatic Aspiration** | PASS | Clean service layer supports future API wrapping |
+
+**Desktop Phase Gates:**
+- Does this design block web deployment? **NO** - Service primitives are API-ready
+- Is the service layer UI-independent? **YES** - UI calls services, not vice versa
+- Does this support AI-assisted JSON import? **N/A** - Not import-related
+- What's the web migration cost? **LOW** - Service primitives become API endpoints trivially
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/066-recipe-variant-yield-remediation/
+├── spec.md              # Feature specification (complete)
+├── plan.md              # This file
+├── research.md          # Phase 0 output (minimal - mostly codebase audit)
+├── tasks/               # Work package prompts
+└── tasks.md             # Task tracking (generated by /spec-kitty.tasks)
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
+│   └── (no changes needed)
 ├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+│   ├── recipe_service.py           # Update docstrings for primitives
+│   ├── planning/
+│   │   ├── planning_service.py     # Replace direct finished_units access
+│   │   └── batch_calculation.py    # Replace direct finished_units access
+│   └── (other services - out of scope per recommendation)
+├── ui/
+│   └── forms/
+│       ├── variant_creation_dialog.py  # Terminology, yield reference display
+│       └── recipe_form.py              # Variant detection, read-only yields
 └── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+    ├── test_recipe_yield_primitives.py  # Update post-Phase-1 expectations
+    └── services/
+        └── test_planning_service.py     # Add integration tests
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Single project layout. Feature touches service layer (decoupling) and UI layer (dialog improvements). No new files needed except tests.
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+*No constitution violations. All changes align with Principle V (Layered Architecture).*
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+## Implementation Phases
+
+### Phase 0: Audit & Research (Complete)
+
+Research completed during planning interrogation. Findings:
+
+| Service | Direct Access Locations | Action |
+|---------|------------------------|--------|
+| `planning_service.py` | Lines 505-506, 686-687 | Replace with `get_finished_units()` |
+| `batch_calculation.py` | Lines 296-297 | Replace with `get_finished_units()` |
+| `recipe_service.py` | Lines 285, 725-726, 1148, 1866-1867 | Internal - evaluate case by case |
+| `recipe_snapshot_service.py` | Lines 96-97 | OUT OF SCOPE - snapshot captures raw data |
+| `denormalized_export_service.py` | Lines 1187-1188 | OUT OF SCOPE - export serializes raw data |
+| `import_export_service.py` | Line 1491 | OUT OF SCOPE - import/export raw data |
+
+**Scope Decision**: Focus on planning/calculation services (yield consumers). Export/snapshot services keep direct access since they serialize raw data, not perform yield-based calculations.
+
+### Phase 1: Design
+
+#### Service Primitive Updates
+
+Both primitives exist and work correctly. Updates needed:
+
+1. **`get_base_yield_structure()`** - Update docstring to reflect Phase 1 fix:
+   - Remove references to "NULL yield fields for variants"
+   - Clarify that variants now have copied yield values
+   - Explain when to use this vs `get_finished_units()`
+
+2. **`get_finished_units()`** - Update docstring:
+   - Remove "NULL for variants" from return value docs
+   - Clarify that post-Phase-1, variants have copied yield values
+
+#### Service Decoupling Pattern
+
+Replace direct access:
+```python
+# BEFORE (tightly coupled):
+if recipe.finished_units:
+    primary_unit = recipe.finished_units[0]
+    items_per_batch = primary_unit.items_per_batch
+
+# AFTER (decoupled):
+finished_units = recipe_service.get_finished_units(recipe_id, session=session)
+if finished_units:
+    primary_unit = finished_units[0]
+    items_per_batch = primary_unit["items_per_batch"]
+```
+
+**Note**: `get_finished_units()` returns list of dicts, not ORM objects.
+
+#### UI Updates
+
+**VariantCreationDialog** (`src/ui/forms/variant_creation_dialog.py`):
+- Line 130: Change "Yield Type Names:" to "Variant Yields:"
+- Add section showing base recipe yields as read-only reference before the editable section
+- Add explanatory text: "Variant inherits yield structure from base recipe"
+- Use `get_base_yield_structure()` to fetch base yields
+
+**RecipeFormDialog** (`src/ui/forms/recipe_form.py`):
+- Add variant detection: Check `recipe.base_recipe_id` in `__init__`
+- For variants:
+  - Show "Base Recipe: [name]" banner at top
+  - Make yield structure fields read-only (items_per_batch, item_unit, yield_mode)
+  - Allow display_name editing
+  - Add explanatory text about inheritance
+- For base recipes: No changes (full editing as before)
+
+## Work Package Decomposition
+
+| WP | Title | Dependencies | Scope |
+|----|-------|--------------|-------|
+| WP01 | Update Service Primitive Docstrings | None | Update docstrings for `get_base_yield_structure()` and `get_finished_units()` |
+| WP02 | Decouple Planning Service | WP01 | Replace direct access in `planning_service.py` |
+| WP03 | Decouple Batch Calculation | WP01 | Replace direct access in `batch_calculation.py` |
+| WP04 | Update VariantCreationDialog | WP01 | Terminology, base yield reference display |
+| WP05 | Update RecipeFormDialog | WP01 | Variant detection, read-only yields |
+| WP06 | Integration Tests | WP02, WP03 | Verify services use primitives correctly |
+
+**Parallelization**: WP02, WP03, WP04, WP05 can run in parallel after WP01.
+
+## Testing Strategy
+
+1. **Unit Tests** (existing `test_recipe_yield_primitives.py`):
+   - Verify post-Phase-1 expectations (copied yields, not NULL)
+   - Already covers both primitives
+
+2. **Integration Tests** (new):
+   - `test_planning_uses_primitives`: Mock `get_finished_units()`, verify planning calls it
+   - `test_batch_calculation_uses_primitives`: Same for batch calculation
+
+3. **Manual UI Testing**:
+   - Create variant via VariantCreationDialog - verify terminology and base yield display
+   - Edit variant via RecipeFormDialog - verify read-only yields, base recipe reference
+   - Edit base recipe - verify full editing still works
+
+## Success Criteria
+
+- [ ] SC-001: No direct `recipe.finished_units` in planning_service.py or batch_calculation.py
+- [ ] SC-002: Primitive docstrings updated to reflect Phase 1 fix
+- [ ] SC-003: VariantCreationDialog shows base recipe yields as reference
+- [ ] SC-004: VariantCreationDialog uses "yield" terminology consistently
+- [ ] SC-005: RecipeFormDialog detects variants and shows read-only yield structure
+- [ ] SC-006: RecipeFormDialog shows base recipe reference for variants
+- [ ] SC-007: All existing tests pass
+- [ ] SC-008: Integration tests verify service decoupling
+
+## Out of Scope (Confirmed)
+
+- `recipe_snapshot_service.py` - Captures raw data for snapshots
+- `denormalized_export_service.py` - Serializes raw data for export
+- `import_export_service.py` - Handles raw import/export
+- Internal `recipe_service.py` usages - Evaluated but kept for internal consistency
+- Phase 4 (yield change detection) - Deferred to future feature
