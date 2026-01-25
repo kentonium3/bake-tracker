@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Create Variant Dialog Polish
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: 560e62fea4b7ea44de2dd05d0c9a31b2eddd2567
@@ -14,7 +14,7 @@ subtasks:
 phase: Phase 1 - UI Polish
 assignee: ''
 agent: "claude-opus"
-shell_pid: "49512"
+shell_pid: "52140"
 review_status: ''
 reviewed_by: ''
 history:
@@ -329,6 +329,7 @@ Descriptive help text here       <-- Help text (gray, between label and input)
 
 ---
 - 2026-01-25T18:20:17Z – claude-opus – shell_pid=49512 – lane=for_review – Implemented by Codex, committed by Claude: dialog terminology and layout polish
+- 2026-01-25T18:28:38Z – claude-opus – shell_pid=52140 – lane=doing – Started review via workflow command
 
 ## Implementation Command
 
