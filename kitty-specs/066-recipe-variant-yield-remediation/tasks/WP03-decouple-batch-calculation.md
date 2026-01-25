@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Decouple Batch Calculation
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP02
 base_commit: 28cd0870a1811b7da946a57f976a8cd47feaf102
@@ -11,8 +11,8 @@ subtasks:
 - T007
 phase: Phase 2 - Service Decoupling
 assignee: ''
-agent: ''
-shell_pid: "26101"
+agent: "claude-opus"
+shell_pid: "27060"
 review_status: ''
 reviewed_by: ''
 history:
@@ -185,3 +185,4 @@ Should return no matches after this WP.
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
 - 2026-01-25T03:54:59Z – unknown – shell_pid=26101 – lane=for_review – Ready for review: Decoupled batch_calculation.py from direct recipe.finished_units access. Added import, replaced 1 location with get_finished_units() primitive. All 28 batch_calculation tests pass.
+- 2026-01-25T03:55:22Z – claude-opus – shell_pid=27060 – lane=doing – Started review via workflow command
