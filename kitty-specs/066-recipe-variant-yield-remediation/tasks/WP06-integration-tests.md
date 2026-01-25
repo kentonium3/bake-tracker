@@ -1,9 +1,12 @@
 ---
 work_package_id: WP06
 title: Integration Tests
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
+base_branch: 066-recipe-variant-yield-remediation-WP01
+base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
+created_at: '2026-01-25T04:14:29.923154+00:00'
 subtasks:
 - T016
 - T017
@@ -11,7 +14,7 @@ subtasks:
 phase: Phase 4 - Validation
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "30576"
 review_status: ''
 reviewed_by: ''
 history:
