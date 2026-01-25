@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T004"
-  - "T005"
-  - "T010"
-title: "Recipe Catalog Variant Grouping + Production Ready Default"
-phase: "Phase 1 - UI Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP02
+title: Recipe Catalog Variant Grouping + Production Ready Default
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 328768f4daee82a997d39359558c3f7d6a9c9f78
+created_at: '2026-01-25T18:19:25.297635+00:00'
+subtasks:
+- T004
+- T005
+- T010
+phase: Phase 1 - UI Polish
+assignee: ''
+agent: ''
+shell_pid: "49364"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-25T18:09:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-25T18:09:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Recipe Catalog Variant Grouping + Production Ready Default
