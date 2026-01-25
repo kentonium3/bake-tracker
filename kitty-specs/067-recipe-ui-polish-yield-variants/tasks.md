@@ -114,7 +114,7 @@
 **Estimated Size**: ~280 lines (2 subtasks)
 
 ### Included Subtasks
-- [ ] T011 [P] Implement variant-aware sorting in `src/ui/widgets/data_table.py` FinishedGoodDataTable
+- [x] T011 [P] Implement variant-aware sorting in `src/ui/widgets/data_table.py` FinishedGoodDataTable
 - [ ] T012 [P] Add "↳ " indicator for variant-sourced finished units in `_get_row_values()`
 
 ### Implementation Notes
