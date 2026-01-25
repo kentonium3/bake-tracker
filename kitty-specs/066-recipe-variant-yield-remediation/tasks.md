@@ -86,7 +86,7 @@
 
 ### Included Subtasks
 - [x] T006 [P] Replace direct access at `batch_calculation.py:296-297`
-- [ ] T007 Add import for recipe_service in batch_calculation.py
+- [x] T007 Add import for recipe_service in batch_calculation.py
 
 ### Implementation Notes
 - File: `src/services/planning/batch_calculation.py`
