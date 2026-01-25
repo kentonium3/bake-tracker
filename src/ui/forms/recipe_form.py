@@ -23,6 +23,7 @@ from src.utils.constants import (
     COUNT_UNITS,
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
+    PADDING_SMALL,
     PADDING_MEDIUM,
     PADDING_LARGE,
 )
