@@ -116,7 +116,7 @@
 
 ### Included Subtasks
 - [x] T008 [P] Update header from "Yield Type Names:" to "Variant Yields:"
-- [ ] T009 Add base yield reference display section showing items_per_batch and item_unit
+- [x] T009 Add base yield reference display section showing items_per_batch and item_unit
 - [ ] T010 Add inheritance explanatory text ("Variant inherits yield structure from base recipe")
 
 ### Implementation Notes
