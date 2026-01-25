@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Update RecipeFormDialog
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -14,8 +14,8 @@ subtasks:
 - T015
 phase: Phase 3 - UI Polish
 assignee: ''
-agent: ''
-shell_pid: "29155"
+agent: "claude-opus"
+shell_pid: "30283"
 review_status: ''
 reviewed_by: ''
 history:
@@ -294,3 +294,4 @@ if self.is_variant:
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
 - 2026-01-25T04:13:23Z – unknown – shell_pid=29155 – lane=for_review – Ready for review: Implemented variant detection, banner, read-only yield fields, and inheritance explanatory text in RecipeFormDialog. Syntax validated.
+- 2026-01-25T04:13:34Z – claude-opus – shell_pid=30283 – lane=doing – Started review via workflow command
