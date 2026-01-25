@@ -55,7 +55,7 @@
 ### Included Subtasks
 - [x] T004 [P] Implement variant-aware sorting in `src/ui/widgets/data_table.py` RecipeDataTable
 - [x] T005 [P] Add "↳ " prefix to variant names in `_get_row_values()` method
-- [ ] T010 [P] Set production_ready=True default in `src/ui/forms/recipe_form.py`
+- [x] T010 [P] Set production_ready=True default in `src/ui/forms/recipe_form.py`
 
 ### Implementation Notes
 - Sorting: Base recipes alphabetically, variants grouped under their base (also alphabetical)
