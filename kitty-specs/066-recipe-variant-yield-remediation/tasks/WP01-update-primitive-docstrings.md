@@ -34,7 +34,11 @@ history:
 
 **Implementation Command**:
 ```bash
+# Step 1: Create worktree (no --base needed for WP01)
 spec-kitty implement WP01
+
+# Step 2: Change to worktree directory
+cd .worktrees/066-recipe-variant-yield-remediation-WP01
 ```
 
 ## Context & Constraints

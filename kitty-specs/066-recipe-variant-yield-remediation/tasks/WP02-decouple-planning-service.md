@@ -35,8 +35,14 @@ history:
 
 **Implementation Command**:
 ```bash
+# Step 1: Create worktree based on WP01 branch
 spec-kitty implement WP02 --base WP01
+
+# Step 2: Change to worktree directory
+cd .worktrees/066-recipe-variant-yield-remediation-WP02
 ```
+
+**Note**: The `--base WP01` flag creates the worktree from WP01's branch, not from main. This is required because WP01 changes are not yet merged to main.
 
 ## Context & Constraints
 

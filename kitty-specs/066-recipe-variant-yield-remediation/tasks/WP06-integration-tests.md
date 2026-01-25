@@ -36,10 +36,18 @@ history:
 
 **Implementation Command**:
 ```bash
+# Step 1: Create worktree based on WP02 branch
+# Note: WP06 depends on both WP02 and WP03. Use WP02 as base, then merge WP03 if needed.
 spec-kitty implement WP06 --base WP02
+
+# Step 2: Change to worktree directory
+cd .worktrees/066-recipe-variant-yield-remediation-WP06
+
+# Step 3 (if WP03 changes needed): Merge WP03 into WP06 branch
+# git merge 066-recipe-variant-yield-remediation-WP03
 ```
 
-(Note: WP06 depends on both WP02 and WP03, but --base only accepts one. Use WP02 as base since both WP02 and WP03 branch from WP01.)
+**Note**: The `--base WP02` flag creates the worktree from WP02's branch. If WP03 is also complete, you may need to merge it manually since `--base` only accepts one WP.
 
 ## Context & Constraints
 
