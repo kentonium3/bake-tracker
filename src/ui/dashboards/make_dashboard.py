@@ -82,7 +82,6 @@ class MakeDashboard(BaseDashboard):
             from src.services import batch_production_service
 
             # Get recent production runs and count those that might be pending
-            # This is a placeholder - actual implementation depends on service API
             history = batch_production_service.get_production_history(limit=100)
             return len(history) if history else 0
         except Exception:

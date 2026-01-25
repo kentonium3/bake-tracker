@@ -153,7 +153,7 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
     from src.models.material_product import MaterialProduct
     from src.models.ingredient import Ingredient
     from src.models.recipe import Recipe
-    from src.models.recipe_ingredient import RecipeIngredient
+    from src.models.recipe import RecipeIngredient
 
     cascade_risks = []
     restrict_risks = []

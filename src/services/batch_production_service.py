@@ -627,7 +627,7 @@ def get_production_history(
     offset: int = 0,
     include_consumptions: bool = False,
     include_losses: bool = False,
-    session: Session,
+    session: Optional[Session] = None,
 ) -> List[Dict[str, Any]]:
     """
     Query production run history with optional filters.
@@ -641,11 +641,25 @@ def get_production_history(
         offset: Number of results to skip (for pagination)
         include_consumptions: If True, include consumption ledger details
         include_losses: If True, include ProductionLoss records (Feature 025)
-        session: Database session (required)
+        session: Database session (optional, creates one if not provided)
 
     Returns:
         List of production run dictionaries with details
     """
+    if session is None:
+        with session_scope() as session:
+            return get_production_history(
+                recipe_id=recipe_id,
+                finished_unit_id=finished_unit_id,
+                start_date=start_date,
+                end_date=end_date,
+                limit=limit,
+                offset=offset,
+                include_consumptions=include_consumptions,
+                include_losses=include_losses,
+                session=session,
+            )
+
     query = session.query(ProductionRun)
 
     # Apply filters

@@ -234,6 +234,10 @@ def init_database(engine: Optional[Engine] = None) -> None:
     from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
     from ..models import production_record  # noqa: F401  # Feature 008
     from ..models import unit  # noqa: F401  # Feature 022
+    from ..models import event  # noqa: F401  # Events and targets (F065 adds snapshot FKs)
+    from ..models import recipe_snapshot, finished_good_snapshot  # noqa: F401  # Snapshots
+    from ..models import production_plan_snapshot  # noqa: F401  # Planning (F065 refactored)
+    from ..models import production_run, assembly_run  # noqa: F401  # Production/assembly runs
 
     # Feature 047: Materials Management System
     from ..models import material_category, material_subcategory, material  # noqa: F401
