@@ -8,10 +8,10 @@ subtasks:
   - "T044"
 title: "Integration Testing & Cleanup"
 phase: "Phase 6 - Cleanup & Testing"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "2314"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP05", "WP06", "WP08"]
@@ -446,3 +446,4 @@ Reviewers should verify:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-24T19:47:15Z – system – lane=planned – Prompt created.
+- 2026-01-25T00:10:44Z – claude-opus – shell_pid=2314 – lane=doing – Started implementation via workflow command
