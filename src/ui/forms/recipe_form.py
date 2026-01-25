@@ -399,6 +399,7 @@ class YieldTypeRow(ctk.CTkFrame):
         display_name: str = "",
         item_unit: str = "",
         items_per_batch: int = 1,
+        readonly_structure: bool = False,
     ):
         """
         Initialize yield type row.
@@ -410,11 +411,14 @@ class YieldTypeRow(ctk.CTkFrame):
             display_name: Yield type name (e.g., "Large Cookie")
             item_unit: Unit of the finished item (e.g., "cookie", "piece")
             items_per_batch: Number of items per batch
+            readonly_structure: If True, structural fields (unit, quantity) are read-only
+                                but display_name remains editable. Used for variants (F066).
         """
         super().__init__(parent)
 
         self.remove_callback = remove_callback
         self.finished_unit_id = finished_unit_id
+        self.readonly_structure = readonly_structure
 
         # Configure grid (Name / Unit / Quantity / Remove)
         self.grid_columnconfigure(0, weight=3)  # Name (wider)
@@ -422,7 +426,7 @@ class YieldTypeRow(ctk.CTkFrame):
         self.grid_columnconfigure(2, weight=1)  # Quantity
         self.grid_columnconfigure(3, weight=0)  # Remove button
 
-        # Name entry (Description)
+        # Name entry (Description) - always editable (T014)
         self.name_entry = ctk.CTkEntry(
             self, width=200, placeholder_text="Description (e.g., Large Cookie)"
         )
@@ -430,19 +434,24 @@ class YieldTypeRow(ctk.CTkFrame):
             self.name_entry.insert(0, display_name)
         self.name_entry.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5, sticky="ew")
 
-        # Unit entry (Item Unit)
+        # Unit entry (Item Unit) - read-only for variants (T013)
         self.unit_entry = ctk.CTkEntry(self, width=100, placeholder_text="Unit (e.g., cookie)")
         if item_unit:
             self.unit_entry.insert(0, item_unit)
         self.unit_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
+        if readonly_structure:
+            self.unit_entry.configure(state="disabled")
 
-        # Items per batch entry (Quantity)
+        # Items per batch entry (Quantity) - read-only for variants (T013)
         self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty/batch")
         if items_per_batch:
             self.quantity_entry.insert(0, str(items_per_batch))
         self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
+        if readonly_structure:
+            self.quantity_entry.configure(state="disabled")
 
         # Remove button (exposed for T019 - disable when only one row)
+        # Hidden for variants since they can't remove inherited yields (T013)
         self.remove_button = ctk.CTkButton(
             self,
             text="X",
@@ -452,6 +461,8 @@ class YieldTypeRow(ctk.CTkFrame):
             hover_color="red",
         )
         self.remove_button.grid(row=0, column=3, padx=(PADDING_MEDIUM, 0), pady=5)
+        if readonly_structure:
+            self.remove_button.grid_remove()  # Hide for variants
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
@@ -516,6 +527,20 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.result = None
         self.ingredient_rows: List[RecipeIngredientRow] = []
         self.yield_type_rows: List[YieldTypeRow] = []
+
+        # F066: Variant detection for conditional UI
+        self.is_variant = False
+        self.base_recipe_name = None
+        if self.recipe and self.recipe.base_recipe_id:
+            self.is_variant = True
+            # Fetch base recipe name for display
+            try:
+                with session_scope() as session:
+                    base_recipe = session.get(Recipe, self.recipe.base_recipe_id)
+                    if base_recipe:
+                        self.base_recipe_name = base_recipe.name
+            except Exception:
+                self.base_recipe_name = f"Recipe #{self.recipe.base_recipe_id}"
 
         # Sub-recipe tracking
         self.current_components: List[RecipeComponent] = []  # For existing recipe
@@ -610,6 +635,28 @@ class RecipeFormDialog(ctk.CTkToplevel):
     def _create_form_fields(self, parent):
         """Create all form input fields."""
         row = 0
+
+        # F066: Variant banner if editing a variant recipe
+        if self.is_variant:
+            variant_banner = ctk.CTkFrame(parent, fg_color=("lightblue", "darkblue"))
+            variant_banner.grid(
+                row=row,
+                column=0,
+                columnspan=2,
+                sticky="ew",
+                padx=PADDING_MEDIUM,
+                pady=(0, PADDING_MEDIUM),
+            )
+
+            banner_text = f"Variant of: {self.base_recipe_name or 'Unknown'}"
+            banner_label = ctk.CTkLabel(
+                variant_banner,
+                text=banner_text,
+                font=ctk.CTkFont(weight="bold"),
+            )
+            banner_label.pack(padx=PADDING_MEDIUM, pady=5)
+
+            row += 1
 
         # Basic Information section
         basic_label = ctk.CTkLabel(
@@ -714,6 +761,24 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
+        # F066: Inheritance explanatory text for variants
+        if self.is_variant:
+            inheritance_note = ctk.CTkLabel(
+                parent,
+                text="Yield structure inherited from base recipe. Only display names can be edited.",
+                text_color="gray",
+                font=ctk.CTkFont(size=11),
+            )
+            inheritance_note.grid(
+                row=row,
+                column=0,
+                columnspan=2,
+                sticky="w",
+                padx=PADDING_MEDIUM,
+                pady=(0, 5),
+            )
+            row += 1
+
         # Yield types container
         self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent")
         self.yield_types_frame.grid(
@@ -722,15 +787,16 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.yield_types_frame.grid_columnconfigure(0, weight=1)
         row += 1
 
-        # Add yield type button
-        add_yield_type_button = ctk.CTkButton(
-            parent,
-            text="+ Add Yield Type",
-            command=self._add_yield_type_row,
-            width=150,
-        )
-        add_yield_type_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
-        row += 1
+        # Add yield type button (hidden for variants - F066)
+        if not self.is_variant:
+            add_yield_type_button = ctk.CTkButton(
+                parent,
+                text="+ Add Yield Type",
+                command=self._add_yield_type_row,
+                width=150,
+            )
+            add_yield_type_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
+            row += 1
 
         # Ingredients section
         ingredients_label = ctk.CTkLabel(
@@ -1152,6 +1218,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             display_name,
             item_unit,
             items_per_batch,
+            readonly_structure=self.is_variant,  # F066: structural fields read-only for variants
         )
         row.grid(row=len(self.yield_type_rows), column=0, sticky="ew", pady=2)
         self.yield_type_rows.append(row)
