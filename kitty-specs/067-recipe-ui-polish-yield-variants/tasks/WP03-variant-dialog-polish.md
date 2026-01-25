@@ -331,6 +331,7 @@ Descriptive help text here       <-- Help text (gray, between label and input)
 - 2026-01-25T18:20:17Z – claude-opus – shell_pid=49512 – lane=for_review – Implemented by Codex, committed by Claude: dialog terminology and layout polish
 - 2026-01-25T18:28:38Z – claude-opus – shell_pid=52140 – lane=doing – Started review via workflow command
 - 2026-01-25T18:29:04Z – claude-opus – shell_pid=52140 – lane=done – Review passed: T006 header text correct, T007 no Base: prefix, T008 left-justified, T009 proper vertical layout
+- 2026-01-25T18:36:12Z – claude-opus – shell_pid=52140 – lane=done – lane=done – Review passed: T006 header text correct, T007 no Base: prefix, T008 left-justified, T009 proper vertical layout
 
 ## Implementation Command
 

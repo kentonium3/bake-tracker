@@ -277,6 +277,7 @@ A FinishedUnit is a "variant FU" if its parent recipe is a variant (has non-null
 - 2026-01-25T18:25:16Z – claude-opus – shell_pid=50955 – lane=for_review – Implemented: Finished Units grid variant grouping with sorting and prefix indicator
 - 2026-01-25T18:29:09Z – claude-opus – shell_pid=52282 – lane=doing – Started review via workflow command
 - 2026-01-25T18:29:27Z – claude-opus – shell_pid=52282 – lane=done – Review passed: T011 variant-aware sorting correct, T012 prefix indicator works, pattern matches WP02
+- 2026-01-25T18:36:13Z – claude-opus – shell_pid=52282 – lane=done – lane=done – Review passed: T011 variant-aware sorting correct, T012 prefix indicator works, pattern matches WP02
 
 ## Implementation Command
 
