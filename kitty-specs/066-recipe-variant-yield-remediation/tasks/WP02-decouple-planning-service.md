@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Decouple Planning Service
+lane: "doing"
+dependencies: [WP01]
+base_branch: 066-recipe-variant-yield-remediation-WP01
+base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
+created_at: '2026-01-25T03:48:01.267954+00:00'
 subtasks:
-  - "T003"
-  - "T004"
-  - "T005"
-title: "Decouple Planning Service"
-phase: "Phase 2 - Service Decoupling"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T003
+- T004
+- T005
+phase: Phase 2 - Service Decoupling
+assignee: ''
+agent: ''
+shell_pid: "24714"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-25T03:23:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-25T03:23:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Decouple Planning Service
