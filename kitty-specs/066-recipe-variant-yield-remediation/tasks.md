@@ -24,7 +24,7 @@
 **Estimated Size**: ~200 lines
 
 ### Included Subtasks
-- [ ] T001 Update `get_finished_units()` docstring - remove "NULL for variants" references
+- [x] T001 Update `get_finished_units()` docstring - remove "NULL for variants" references
 - [ ] T002 Update `get_base_yield_structure()` docstring - clarify post-Phase-1 behavior
 
 ### Implementation Notes
