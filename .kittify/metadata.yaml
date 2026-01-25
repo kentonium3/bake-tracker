@@ -5,7 +5,7 @@
 spec_kitty:
   version: 0.12.1
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-01-24T13:57:15.425882'
+  last_upgraded_at: '2026-01-25T14:14:48.275293'
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -46,3 +46,7 @@ migrations:
     applied_at: '2026-01-24T13:57:15.425863'
     result: skipped
     notes: Not applicable
+  - id: 0.12.1_remove_kitty_specs_from_gitignore
+    applied_at: '2026-01-25T14:14:48.275277'
+    result: success
+    notes: 'Removed 1 blocking entries from .gitignore; Line 108: Removed ''kitty-specs/'''
