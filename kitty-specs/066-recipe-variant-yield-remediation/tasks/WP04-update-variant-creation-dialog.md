@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Update VariantCreationDialog
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -12,8 +12,8 @@ subtasks:
 - T010
 phase: Phase 3 - UI Polish
 assignee: ''
-agent: ''
-shell_pid: "27434"
+agent: "claude-opus"
+shell_pid: "28303"
 review_status: ''
 reviewed_by: ''
 history:
@@ -217,3 +217,4 @@ explanation.grid(row=2, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(0, PADD
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
 - 2026-01-25T03:59:15Z – unknown – shell_pid=27434 – lane=for_review – Ready for review: Updated VariantCreationDialog with base yield reference display, 'Variant Yields:' header, and inheritance explanatory text. Syntax validated.
+- 2026-01-25T04:00:40Z – claude-opus – shell_pid=28303 – lane=doing – Started review via workflow command
