@@ -89,11 +89,22 @@ class VariantCreationDialog(ctk.CTkToplevel):
         """Create the variant name input section."""
         name_frame = ctk.CTkFrame(self, fg_color="transparent")
         name_frame.grid(row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
-        name_frame.grid_columnconfigure(1, weight=1)
+        name_frame.grid_columnconfigure(0, weight=1)
 
         # Label
-        name_label = ctk.CTkLabel(name_frame, text="Variant Name:", anchor="e", width=120)
-        name_label.grid(row=0, column=0, sticky="e", padx=(0, PADDING_MEDIUM))
+        name_label = ctk.CTkLabel(name_frame, text="Recipe Variant Name", anchor="w")
+        name_label.grid(row=0, column=0, sticky="w")
+
+        # Help text
+        help_text = ctk.CTkLabel(
+            name_frame,
+            text="This name distinguishes the variant (e.g., 'Raspberry' for 'Thumbprint Cookies - Raspberry')",
+            text_color="gray",
+            font=ctk.CTkFont(size=11),
+            anchor="w",
+            justify="left",
+        )
+        help_text.grid(row=1, column=0, sticky="w", pady=(5, 0))
 
         # Entry with variable for change tracking
         self.variant_name_var = ctk.StringVar()
@@ -103,17 +114,9 @@ class VariantCreationDialog(ctk.CTkToplevel):
             name_frame,
             textvariable=self.variant_name_var,
             placeholder_text="e.g., Raspberry, Chocolate Chip",
+            justify="left",
         )
-        self.variant_name_entry.grid(row=0, column=1, sticky="ew")
-
-        # Help text
-        help_text = ctk.CTkLabel(
-            name_frame,
-            text="This name distinguishes the variant (e.g., 'Raspberry' for 'Thumbprint Cookies - Raspberry')",
-            text_color="gray",
-            font=ctk.CTkFont(size=11),
-        )
-        help_text.grid(row=1, column=0, columnspan=2, sticky="w", pady=(5, 0))
+        self.variant_name_entry.grid(row=2, column=0, sticky="ew", pady=(5, 0))
 
     def _create_finished_units_section(self):
         """Create the FinishedUnit display name input section."""
@@ -140,7 +143,7 @@ class VariantCreationDialog(ctk.CTkToplevel):
             # Section header for editable names
             header_label = ctk.CTkLabel(
                 fu_container,
-                text="Variant Yields:",
+                text="Finished Unit Name(s):",
                 font=ctk.CTkFont(weight="bold"),
             )
             header_label.grid(row=3, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
@@ -210,9 +213,10 @@ class VariantCreationDialog(ctk.CTkToplevel):
         # Base name label
         base_label = ctk.CTkLabel(
             self.fu_frame,
-            text=f"Base: {base_fu['display_name']}",
+            text=base_fu['display_name'],
             anchor="w",
             width=180,
+            text_color="gray",
         )
         base_label.grid(row=idx, column=0, sticky="w", padx=(0, PADDING_MEDIUM), pady=3)
 
@@ -220,6 +224,7 @@ class VariantCreationDialog(ctk.CTkToplevel):
         entry = ctk.CTkEntry(
             self.fu_frame,
             placeholder_text="Enter variant name...",
+            justify="left",
         )
         entry.grid(row=idx, column=1, sticky="ew", pady=3)
 
