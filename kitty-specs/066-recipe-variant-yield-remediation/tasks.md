@@ -181,7 +181,7 @@
 ### Included Subtasks
 - [x] T016 [P] Create integration test for planning service primitive usage
 - [x] T017 [P] Create integration test for batch calculation primitive usage
-- [ ] T018 Verify existing primitive tests pass with updated docstrings
+- [x] T018 Verify existing primitive tests pass with updated docstrings
 
 ### Implementation Notes
 - New file: `src/tests/integration/test_service_decoupling.py` (or add to existing)
