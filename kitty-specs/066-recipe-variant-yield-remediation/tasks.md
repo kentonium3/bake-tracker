@@ -146,7 +146,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T011 Add variant detection in RecipeFormDialog.__init__ (check recipe.base_recipe_id)
+- [x] T011 Add variant detection in RecipeFormDialog.__init__ (check recipe.base_recipe_id)
 - [ ] T012 Add "Base Recipe: [name]" banner at top for variants
 - [ ] T013 Make yield structure fields (items_per_batch, item_unit, yield_mode) read-only for variants
 - [ ] T014 Keep display_name field editable for variants
