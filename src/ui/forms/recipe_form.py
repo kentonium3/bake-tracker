@@ -743,11 +743,10 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Yield Types section (Feature 056 - FinishedUnits as single source of yield data)
-        # Each yield type specifies: Description, Unit, and Quantity per batch
+        # F067: Updated help text with consistent "Finished Unit" terminology
         yield_types_info = ctk.CTkLabel(
             parent,
-            text="Yield Types* - Each row defines a finished product from this recipe (Description, Unit, Qty/batch):",
+            text="Each row defines a Finished Unit and quantity per batch for this recipe.",
             text_color="gray",
             font=ctk.CTkFont(size=11),
         )
@@ -757,7 +756,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             columnspan=2,
             sticky="w",
             padx=PADDING_MEDIUM,
-            pady=(PADDING_MEDIUM, 5),
+            pady=(PADDING_SMALL, 5),
         )
         row += 1
 
@@ -778,6 +777,33 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 pady=(0, 5),
             )
             row += 1
+
+        # F067: Column labels for yield inputs
+        labels_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        labels_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM
+        )
+        # Configure columns to match YieldTypeRow proportions
+        labels_frame.grid_columnconfigure(0, weight=3)  # Name column (wider)
+        labels_frame.grid_columnconfigure(1, weight=1)  # Unit column
+        labels_frame.grid_columnconfigure(2, weight=1)  # Qty column
+        labels_frame.grid_columnconfigure(3, weight=0)  # Spacer for remove button area
+
+        name_label = ctk.CTkLabel(
+            labels_frame, text="Finished Unit Name", font=ctk.CTkFont(size=11)
+        )
+        name_label.grid(row=0, column=0, sticky="w", padx=(0, PADDING_MEDIUM))
+
+        unit_label = ctk.CTkLabel(
+            labels_frame, text="Unit", font=ctk.CTkFont(size=11)
+        )
+        unit_label.grid(row=0, column=1, sticky="w", padx=PADDING_MEDIUM)
+
+        qty_label = ctk.CTkLabel(
+            labels_frame, text="Qty/Batch", font=ctk.CTkFont(size=11)
+        )
+        qty_label.grid(row=0, column=2, sticky="w", padx=PADDING_MEDIUM)
+        row += 1
 
         # Yield types container
         self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent")
