@@ -84,7 +84,7 @@ def base_recipe_with_fu(db_session):
 
 @pytest.fixture
 def variant_recipe(db_session, base_recipe_with_fu):
-    """Create a variant recipe with NULL yield FinishedUnit."""
+    """Create a variant recipe with FinishedUnit (yields copied from base)."""
     base, base_fu = base_recipe_with_fu
     variant = Recipe(
         name="Raspberry Cookie",
@@ -95,13 +95,14 @@ def variant_recipe(db_session, base_recipe_with_fu):
     db_session.add(variant)
     db_session.flush()
 
+    # Variant FinishedUnits should have yields copied from base
     variant_fu = FinishedUnit(
         recipe_id=variant.id,
         slug="raspberry-cookie",
         display_name="Raspberry Cookie",
-        items_per_batch=None,
-        item_unit=None,
-        yield_mode=YieldMode.DISCRETE_COUNT,
+        items_per_batch=base_fu.items_per_batch,  # Copied from base
+        item_unit=base_fu.item_unit,  # Copied from base
+        yield_mode=base_fu.yield_mode,
     )
     db_session.add(variant_fu)
     db_session.flush()
@@ -241,18 +242,19 @@ class TestGetFinishedUnits:
         assert result[0]["item_unit"] == "cookie"
         assert result[0]["yield_mode"] == "discrete_count"
 
-    def test_variant_recipe_returns_own_finished_units_with_null_yields(
-        self, db_session, variant_recipe
+    def test_variant_recipe_returns_own_finished_units_with_copied_yields(
+        self, db_session, variant_recipe, base_recipe_with_fu
     ):
-        """Variant recipe returns its own FinishedUnits with NULL yield values."""
+        """Variant recipe returns its own FinishedUnits with yields copied from base."""
         variant, variant_fu = variant_recipe
+        base, base_fu = base_recipe_with_fu
 
         result = recipe_service.get_finished_units(variant.id, session=db_session)
 
         assert len(result) == 1
         assert result[0]["display_name"] == "Raspberry Cookie"
-        assert result[0]["items_per_batch"] is None  # NULL for variants
-        assert result[0]["item_unit"] is None  # NULL for variants
+        assert result[0]["items_per_batch"] == base_fu.items_per_batch  # Copied from base
+        assert result[0]["item_unit"] == base_fu.item_unit  # Copied from base
 
     def test_recipe_with_no_finished_units(self, db_session):
         """Recipe with no FinishedUnits returns empty list."""

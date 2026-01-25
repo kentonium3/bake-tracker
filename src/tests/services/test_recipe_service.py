@@ -3176,12 +3176,12 @@ class TestCreateRecipeVariantWithFinishedUnits:
         # Assert
         assert result["variant_name"] == "Raspberry"
 
-        # Verify variant FinishedUnit created
+        # Verify variant FinishedUnit created with yield fields copied from base
         variant_fus = session.query(FinishedUnit).filter_by(recipe_id=result["id"]).all()
         assert len(variant_fus) == 1
         assert variant_fus[0].display_name == "Raspberry Thumbprint Cookie"
-        assert variant_fus[0].items_per_batch is None  # NULL for variants
-        assert variant_fus[0].item_unit is None  # NULL for variants
+        assert variant_fus[0].items_per_batch == base_fu.items_per_batch  # Copied from base
+        assert variant_fus[0].item_unit == base_fu.item_unit  # Copied from base
 
     def test_create_variant_without_finished_units_backward_compatible(self, test_db):
         """Test: Variant creation without finished_unit_names creates no FinishedUnits."""
@@ -3451,7 +3451,11 @@ class TestCreateRecipeVariantWithFinishedUnits:
         assert "Chocolate Regular Cookie" in display_names
         assert "Chocolate Mini Cookie" in display_names
 
-        # All should have NULL yield fields
+        # Yield fields should be copied from base
         for fu in variant_fus:
-            assert fu.items_per_batch is None
-            assert fu.item_unit is None
+            if fu.display_name == "Chocolate Regular Cookie":
+                assert fu.items_per_batch == base_fu1.items_per_batch  # 24
+                assert fu.item_unit == base_fu1.item_unit  # "cookie"
+            elif fu.display_name == "Chocolate Mini Cookie":
+                assert fu.items_per_batch == base_fu2.items_per_batch  # 48
+                assert fu.item_unit == base_fu2.item_unit  # "mini"

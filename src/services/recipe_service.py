@@ -2198,6 +2198,12 @@ def _create_recipe_variant_impl(
         }
         base_display_names = {fu.display_name for fu in base_fus.values()}
 
+        # Validate variant has same number of FinishedUnits as base
+        if len(finished_unit_names) != len(base_fus):
+            raise ValidationError(
+                [f"Variant must have {len(base_fus)} FinishedUnit(s) to match base recipe, got {len(finished_unit_names)}"]
+            )
+
         for fu_spec in finished_unit_names:
             base_slug = fu_spec.get("base_slug")
             new_display_name = fu_spec.get("display_name")
@@ -2221,15 +2227,15 @@ def _create_recipe_variant_impl(
                     [f"Variant display_name '{new_display_name}' must differ from base FinishedUnit display_name"]
                 )
 
-            # Create variant FinishedUnit with NULL yield fields
+            # Create variant FinishedUnit with yield fields copied from base
             variant_fu = FinishedUnit(
                 recipe_id=variant.id,
                 slug=_generate_variant_fu_slug(variant.name, new_display_name, variant.id),
                 display_name=new_display_name,
-                # Yield fields NULL for variants (inherited via primitives)
-                items_per_batch=None,
-                item_unit=None,
-                # Copy non-yield fields from base
+                # Copy yield fields from base (variants must match base yield structure)
+                items_per_batch=base_fu.items_per_batch,
+                item_unit=base_fu.item_unit,
+                # Copy other fields from base
                 yield_mode=base_fu.yield_mode,
                 category=base_fu.category,
                 batch_percentage=None,  # Clear for variants
