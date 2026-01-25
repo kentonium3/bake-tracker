@@ -732,9 +732,17 @@ def get_finished_unit_by_slug(slug: str) -> Optional[FinishedUnit]:
     return FinishedUnitService.get_finished_unit_by_slug(slug)
 
 
-def get_all_finished_units() -> List[FinishedUnit]:
-    """Retrieve all FinishedUnits."""
-    return FinishedUnitService.get_all_finished_units()
+def get_all_finished_units(
+    name_search: Optional[str] = None,
+    category: Optional[str] = None,
+    recipe_id: Optional[int] = None,
+) -> List[FinishedUnit]:
+    """Retrieve all FinishedUnits with optional filtering."""
+    return FinishedUnitService.get_all_finished_units(
+        name_search=name_search,
+        category=category,
+        recipe_id=recipe_id,
+    )
 
 
 def create_finished_unit(display_name: str, **kwargs) -> FinishedUnit:
