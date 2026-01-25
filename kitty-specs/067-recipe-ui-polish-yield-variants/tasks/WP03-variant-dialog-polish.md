@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP03"
-subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Create Variant Dialog Polish"
-phase: "Phase 1 - UI Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP03
+title: Create Variant Dialog Polish
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 560e62fea4b7ea44de2dd05d0c9a31b2eddd2567
+created_at: '2026-01-25T18:19:30.240343+00:00'
+subtasks:
+- T006
+- T007
+- T008
+- T009
+phase: Phase 1 - UI Polish
+assignee: ''
+agent: ''
+shell_pid: "49512"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-25T18:09:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-25T18:09:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Create Variant Dialog Polish
