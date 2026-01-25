@@ -5,10 +5,10 @@ subtasks:
   - "T012"
 title: "Finished Units Grid Variant Grouping"
 phase: "Phase 2 - Grid Grouping"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "50955"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP02"]
@@ -273,6 +273,7 @@ A FinishedUnit is a "variant FU" if its parent recipe is a variant (has non-null
 - 2026-01-25T18:09:19Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 
 ---
+- 2026-01-25T18:23:55Z – claude-opus – shell_pid=50955 – lane=doing – Started implementation via workflow command
 
 ## Implementation Command
 
