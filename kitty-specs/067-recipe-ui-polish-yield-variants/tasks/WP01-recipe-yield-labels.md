@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Edit Recipe Yield Section Polish
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: fb81dfdc215cc23237d5441a4b7c843294ee85d8
@@ -12,7 +12,7 @@ subtasks:
 - T003
 phase: Phase 1 - UI Polish
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "47605"
 review_status: ''
 reviewed_by: ''
@@ -246,6 +246,7 @@ history:
 - 2026-01-25T18:09:19Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 
 ---
+- 2026-01-25T18:18:06Z – claude-opus – shell_pid=47605 – lane=for_review – Implemented column labels, updated help text, adjusted spacing
 
 ## Implementation Command
 
