@@ -150,7 +150,7 @@
 - [x] T012 Add "Base Recipe: [name]" banner at top for variants
 - [x] T013 Make yield structure fields (items_per_batch, item_unit, yield_mode) read-only for variants
 - [x] T014 Keep display_name field editable for variants
-- [ ] T015 Add explanatory text about inheritance ("Yield structure inherited from base recipe")
+- [x] T015 Add explanatory text about inheritance ("Yield structure inherited from base recipe")
 
 ### Implementation Notes
 - File: `src/ui/forms/recipe_form.py`
