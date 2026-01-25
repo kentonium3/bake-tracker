@@ -1943,12 +1943,24 @@ def get_base_yield_structure(
     session=None,
 ) -> List[Dict]:
     """
-    Get yield structure for a recipe, resolving to base recipe if variant.
+    Get yield structure from base recipe (resolves variants to their base).
 
-    This primitive abstracts the base/variant distinction. Services performing
-    batch calculations should use this function instead of accessing FinishedUnit
-    yields directly. This ensures variants inherit yield specifications from
-    their base recipe transparently.
+    Use this primitive when you need the ORIGINAL yield specifications from a
+    base recipe, even when given a variant recipe ID. This is useful for:
+    - Displaying "inherited from base" yield values in UI
+    - Understanding the source of yield values for variants
+    - Comparing variant's yield display_name with base's structure
+
+    For variants: Returns the BASE recipe's FinishedUnit data (slug, display_name,
+    items_per_batch, item_unit from the parent recipe).
+
+    For base recipes: Returns the recipe's own FinishedUnit data (same as
+    get_finished_units()).
+
+    Note: Since F066 Phase 1 fix, variants have yield values copied at creation.
+    Use get_finished_units() to access a recipe's own FU data (including copied
+    yields for variants). Use get_base_yield_structure() when you specifically
+    need to reference the base recipe's original yield data.
 
     Args:
         recipe_id: Recipe ID (can be base or variant recipe)
@@ -1957,23 +1969,26 @@ def get_base_yield_structure(
 
     Returns:
         List of yield dicts with keys:
-        - slug: str - FinishedUnit slug
-        - display_name: str - FinishedUnit display name (from base)
-        - items_per_batch: Optional[int] - Items produced per batch
-        - item_unit: Optional[str] - Unit name (e.g., "cookie")
+        - slug: str - FinishedUnit slug (from base recipe if variant)
+        - display_name: str - FinishedUnit display name (from base recipe if variant)
+        - items_per_batch: int - Items produced per batch
+        - item_unit: str - Unit name (e.g., "cookie")
 
     Raises:
         RecipeNotFound: If recipe_id does not exist
 
     Example:
-        >>> # For batch calculations, use this primitive:
-        >>> yields = get_base_yield_structure(recipe_id, session=session)
-        >>> for y in yields:
-        ...     items_needed = target_quantity / y["items_per_batch"]
+        >>> # For a variant, get the base recipe's original yield structure:
+        >>> base_yields = get_base_yield_structure(variant_id, session=session)
+        >>> for y in base_yields:
+        ...     print(f"Base defines: {y['display_name']} - {y['items_per_batch']} {y['item_unit']}")
+        Base defines: Thumbprint Cookie - 24 cookies
 
-        >>> # Works identically for base and variant recipes:
-        >>> get_base_yield_structure(base_id)    # Returns base yields
-        >>> get_base_yield_structure(variant_id) # Returns same base yields
+        >>> # Compare with variant's own FUs:
+        >>> variant_fus = get_finished_units(variant_id, session=session)
+        >>> for fu in variant_fus:
+        ...     print(f"Variant shows: {fu['display_name']} - {fu['items_per_batch']} {fu['item_unit']}")
+        Variant shows: Raspberry Thumbprint - 24 cookies  # display_name differs, yields same
     """
     if session is not None:
         return _get_base_yield_structure_impl(recipe_id, session)
@@ -2021,11 +2036,12 @@ def get_finished_units(
     session=None,
 ) -> List[Dict]:
     """
-    Get a recipe's own FinishedUnits (not inherited from base).
+    Get a recipe's own FinishedUnits.
 
-    Use this primitive to access a recipe's display-level FinishedUnit data,
-    such as display_name. For variants, this returns the variant's FinishedUnits
-    which have NULL yield fields - use get_base_yield_structure() for yields.
+    Use this primitive to access a recipe's FinishedUnit data including display_name
+    and yield values. For both base and variant recipes, this returns the recipe's
+    own FinishedUnits. Variants have yield values copied from their base recipe
+    at creation time (as of F066 Phase 1 fix).
 
     Args:
         recipe_id: Recipe ID
@@ -2037,19 +2053,18 @@ def get_finished_units(
         - id: int - FinishedUnit ID
         - slug: str - FinishedUnit slug
         - display_name: str - Display name
-        - items_per_batch: Optional[int] - NULL for variants
-        - item_unit: Optional[str] - NULL for variants
+        - items_per_batch: int - Items produced per batch (copied from base for variants)
+        - item_unit: str - Unit name (e.g., "cookie") (copied from base for variants)
         - yield_mode: str - "discrete_count" or "batch_portion"
 
     Raises:
         RecipeNotFound: If recipe_id does not exist
 
     Example:
-        >>> # To display variant's FinishedUnit name with base yield:
-        >>> variant_fus = get_finished_units(variant_id, session=session)
-        >>> base_yields = get_base_yield_structure(variant_id, session=session)
-        >>> for fu, y in zip(variant_fus, base_yields):
-        ...     print(f"{fu['display_name']}: {y['items_per_batch']} {y['item_unit']}")
+        >>> # Get recipe's FinishedUnits (works for both base and variant):
+        >>> fus = get_finished_units(recipe_id, session=session)
+        >>> for fu in fus:
+        ...     print(f"{fu['display_name']}: {fu['items_per_batch']} {fu['item_unit']}")
         Raspberry Cookie: 24 cookies
     """
     if session is not None:
