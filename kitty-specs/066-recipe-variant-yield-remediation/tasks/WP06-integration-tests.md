@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Integration Tests
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP02
 base_branch: 066-recipe-variant-yield-remediation-WP01
@@ -13,8 +13,8 @@ subtasks:
 - T018
 phase: Phase 4 - Validation
 assignee: ''
-agent: ''
-shell_pid: "30576"
+agent: "claude-opus"
+shell_pid: "32935"
 review_status: ''
 reviewed_by: ''
 history:
@@ -301,3 +301,4 @@ class TestBatchCalculationDecoupling:
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
 - 2026-01-25T04:30:31Z – unknown – shell_pid=30576 – lane=for_review – Ready for review: Added integration tests for service decoupling (T016-T017) and verified all primitive tests pass (T018). 4 new tests, all passing.
+- 2026-01-25T04:30:36Z – claude-opus – shell_pid=32935 – lane=doing – Started review via workflow command
