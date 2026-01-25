@@ -117,7 +117,7 @@
 ### Included Subtasks
 - [x] T008 [P] Update header from "Yield Type Names:" to "Variant Yields:"
 - [x] T009 Add base yield reference display section showing items_per_batch and item_unit
-- [ ] T010 Add inheritance explanatory text ("Variant inherits yield structure from base recipe")
+- [x] T010 Add inheritance explanatory text ("Variant inherits yield structure from base recipe")
 
 ### Implementation Notes
 - File: `src/ui/forms/variant_creation_dialog.py`
