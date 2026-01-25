@@ -23,7 +23,7 @@
 **Estimated Size**: ~250 lines (3 subtasks)
 
 ### Included Subtasks
-- [ ] T001 [P] Add column labels row above yield inputs in `src/ui/forms/recipe_form.py`
+- [x] T001 [P] Add column labels row above yield inputs in `src/ui/forms/recipe_form.py`
 - [ ] T002 [P] Update help text to spec wording in `src/ui/forms/recipe_form.py`
 - [ ] T003 [P] Reduce vertical spacing after section title in `src/ui/forms/recipe_form.py`
 
