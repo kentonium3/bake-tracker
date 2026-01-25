@@ -497,11 +497,6 @@ class RecipesTab(ctk.CTkFrame):
         Args:
             result: Dict with created variant info (id, name, variant_name, base_recipe_id)
         """
-        show_success(
-            "Success",
-            f"Variant '{result['name']}' created successfully",
-            parent=self,
-        )
         self._update_status(f"Created variant: {result['name']}", success=True)
         self.refresh()
 
