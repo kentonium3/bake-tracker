@@ -62,9 +62,11 @@ from src.models import (
     EventAssemblyTarget,
     EventProductionTarget,
     FinishedGood,
+    FinishedGoodSnapshot,
     FinishedUnit,
     ProductionPlanSnapshot,
     Recipe,
+    RecipeSnapshot,
     Composition,
 )
 from src.models.event import OutputMode
@@ -659,9 +661,16 @@ def _calculate_recipe_batches_from_snapshots(
     """
     batches = []
     for target in event.production_targets:
+        # Get the snapshot - handle identity map caching edge case where
+        # recipe_snapshot_id is set but the relationship object is None
+        snapshot = target.recipe_snapshot
+        if snapshot is None and target.recipe_snapshot_id:
+            # Explicitly load the snapshot (identity map may have stale relationship)
+            snapshot = session.get(RecipeSnapshot, target.recipe_snapshot_id)
+
         # Get recipe data from snapshot if available
-        if target.recipe_snapshot:
-            recipe_data = target.recipe_snapshot.get_recipe_data()
+        if snapshot:
+            recipe_data = snapshot.get_recipe_data()
             recipe_name = recipe_data.get("name", f"Recipe {target.recipe_id}")
             # Get yield from snapshot or default to 1
             yield_per_batch = recipe_data.get("yield_quantity") or 1
@@ -701,7 +710,7 @@ def _calculate_recipe_batches_from_snapshots(
             "waste_units": waste_units,
             "waste_percent": waste_percent,
             "recipe_snapshot_id": target.recipe_snapshot_id,
-            "has_snapshot": target.recipe_snapshot is not None,
+            "has_snapshot": snapshot is not None,
         })
 
     return batches
@@ -719,9 +728,14 @@ def _calculate_shopping_list_from_snapshots(
     ingredients_needed: Dict[int, Dict[str, Any]] = {}  # {ingredient_id: {name, quantity, unit}}
 
     for target in event.production_targets:
+        # Get the snapshot - handle identity map caching edge case
+        snapshot = target.recipe_snapshot
+        if snapshot is None and target.recipe_snapshot_id:
+            snapshot = session.get(RecipeSnapshot, target.recipe_snapshot_id)
+
         # Get ingredients from snapshot
-        if target.recipe_snapshot:
-            ingredients_data = target.recipe_snapshot.get_ingredients_data()
+        if snapshot:
+            ingredients_data = snapshot.get_ingredients_data()
         else:
             # Fallback: use live recipe ingredients
             recipe = session.get(Recipe, target.recipe_id)
