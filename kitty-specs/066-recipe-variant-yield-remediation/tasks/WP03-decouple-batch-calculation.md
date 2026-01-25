@@ -1,23 +1,26 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Decouple Batch Calculation
+lane: "doing"
+dependencies: [WP01]
+base_branch: 066-recipe-variant-yield-remediation-WP02
+base_commit: 28cd0870a1811b7da946a57f976a8cd47feaf102
+created_at: '2026-01-25T03:53:12.631064+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-title: "Decouple Batch Calculation"
-phase: "Phase 2 - Service Decoupling"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+phase: Phase 2 - Service Decoupling
+assignee: ''
+agent: ''
+shell_pid: "26101"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-25T03:23:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-25T03:23:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Decouple Batch Calculation
