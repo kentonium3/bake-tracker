@@ -54,7 +54,7 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T003 [P] Replace direct access at `planning_service.py:505-506`
+- [x] T003 [P] Replace direct access at `planning_service.py:505-506`
 - [ ] T004 [P] Replace direct access at `planning_service.py:686-687`
 - [ ] T005 Add import for recipe_service in planning_service.py
 
