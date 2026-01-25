@@ -25,7 +25,7 @@
 
 ### Included Subtasks
 - [x] T001 Update `get_finished_units()` docstring - remove "NULL for variants" references
-- [ ] T002 Update `get_base_yield_structure()` docstring - clarify post-Phase-1 behavior
+- [x] T002 Update `get_base_yield_structure()` docstring - clarify post-Phase-1 behavior
 
 ### Implementation Notes
 - File: `src/services/recipe_service.py` lines 2019-2054 and 1941-1987
