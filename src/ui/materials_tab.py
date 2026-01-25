@@ -2426,13 +2426,13 @@ class MaterialProductsTab:
         """Enable buttons that require selection."""
         self.edit_button.configure(state="normal")
         self.purchase_button.configure(state="normal")
-        self.adjust_button.configure(state="normal")
+        # adjust_button removed in F058 (incompatible with FIFO tracking)
 
     def _disable_selection_buttons(self):
         """Disable buttons that require selection."""
         self.edit_button.configure(state="disabled")
         self.purchase_button.configure(state="disabled")
-        self.adjust_button.configure(state="disabled")
+        # adjust_button removed in F058 (incompatible with FIFO tracking)
 
     def _add_product(self):
         """Open dialog to add a new product."""
