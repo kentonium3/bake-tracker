@@ -500,12 +500,13 @@ def _calculate_bulk_requirements(
     for target in event.production_targets:
         recipe = session.get(Recipe, target.recipe_id)
         if recipe:
-            # F056: Use FinishedUnit.items_per_batch instead of deprecated yield_quantity
+            # F066: Use get_finished_units() primitive for decoupled yield access
             items_per_batch = 1
-            if recipe.finished_units:
-                primary_unit = recipe.finished_units[0]
-                if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
-                    items_per_batch = primary_unit.items_per_batch
+            finished_units = recipe_service.get_finished_units(target.recipe_id, session=session)
+            if finished_units:
+                primary_unit = finished_units[0]
+                if primary_unit["items_per_batch"] and primary_unit["items_per_batch"] > 0:
+                    items_per_batch = primary_unit["items_per_batch"]
             result = create_batch_result(
                 recipe_id=recipe.id,
                 recipe_name=recipe.name,
@@ -681,12 +682,13 @@ def _calculate_recipe_batches_from_snapshots(
             recipe = session.get(Recipe, target.recipe_id)
             if recipe:
                 recipe_name = recipe.name
-                # F056: Use FinishedUnit.items_per_batch if available
+                # F066: Use get_finished_units() primitive for decoupled yield access
                 yield_per_batch = 1
-                if recipe.finished_units:
-                    primary_unit = recipe.finished_units[0]
-                    if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
-                        yield_per_batch = primary_unit.items_per_batch
+                finished_units = recipe_service.get_finished_units(target.recipe_id, session=session)
+                if finished_units:
+                    primary_unit = finished_units[0]
+                    if primary_unit["items_per_batch"] and primary_unit["items_per_batch"] > 0:
+                        yield_per_batch = primary_unit["items_per_batch"]
                 recipe_data = {"name": recipe_name}
             else:
                 recipe_name = f"Recipe {target.recipe_id}"
