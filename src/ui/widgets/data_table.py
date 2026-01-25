@@ -336,6 +336,8 @@ class IngredientDataTable(DataTable):
 class RecipeDataTable(DataTable):
     """
     Specialized data table for displaying recipes.
+
+    F067: Supports visual grouping of recipe variants under their base recipes.
     """
 
     def __init__(
@@ -368,9 +370,59 @@ class RecipeDataTable(DataTable):
             height=height,
         )
 
+    def set_data(self, data: List[Any]):
+        """
+        Set the table data with variant grouping.
+
+        F067: Sorts data so variants appear immediately after their base recipe,
+        making the parent-child relationship visually clear.
+
+        Args:
+            data: List of Recipe objects to display
+        """
+        if not data:
+            super().set_data(data)
+            return
+
+        # Separate base recipes and variants
+        base_recipes = [r for r in data if r.base_recipe_id is None]
+        variants = [r for r in data if r.base_recipe_id is not None]
+
+        # Sort base recipes alphabetically
+        base_recipes.sort(key=lambda r: r.name.lower())
+
+        # Group variants by base_recipe_id
+        variants_by_base = {}
+        for v in variants:
+            base_id = v.base_recipe_id
+            if base_id not in variants_by_base:
+                variants_by_base[base_id] = []
+            variants_by_base[base_id].append(v)
+
+        # Sort variants within each group
+        for base_id in variants_by_base:
+            variants_by_base[base_id].sort(key=lambda r: r.name.lower())
+
+        # Build final sorted list: base followed by its variants
+        base_ids = {b.id for b in base_recipes}
+        sorted_data = []
+        for base in base_recipes:
+            sorted_data.append(base)
+            if base.id in variants_by_base:
+                sorted_data.extend(variants_by_base[base.id])
+
+        # Add orphaned variants (base deleted) at the end, sorted alphabetically
+        orphaned = [v for v in variants if v.base_recipe_id not in base_ids]
+        orphaned.sort(key=lambda r: r.name.lower())
+        sorted_data.extend(orphaned)
+
+        super().set_data(sorted_data)
+
     def _get_row_values(self, row_data: Any) -> List[str]:
         """
         Extract recipe-specific row values.
+
+        F067: Adds "↳ " prefix to variant recipe names for visual grouping.
 
         Args:
             row_data: Recipe object
@@ -378,6 +430,11 @@ class RecipeDataTable(DataTable):
         Returns:
             List of formatted values
         """
+        # F067: Add variant indicator prefix
+        name = row_data.name
+        if row_data.base_recipe_id is not None:
+            name = f"↳ {name}"
+
         # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         # F056: Use FinishedUnit for yield info instead of deprecated fields
         yield_info = "No yield types"
@@ -387,7 +444,7 @@ class RecipeDataTable(DataTable):
             unit = primary_unit.item_unit or "each"
             yield_info = f"{items:.0f} {unit}"
         return [
-            row_data.name,
+            name,
             row_data.category,
             yield_info,
         ]
