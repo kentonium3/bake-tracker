@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Update Service Primitive Docstrings
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: d49816264f27079bf14bbc4b21446590cc2045ac
@@ -11,8 +11,8 @@ subtasks:
 - T002
 phase: Phase 1 - Foundation
 assignee: ''
-agent: ''
-shell_pid: "23257"
+agent: "claude-opus"
+shell_pid: "24370"
 review_status: ''
 reviewed_by: ''
 history:
@@ -235,3 +235,4 @@ Example:
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
 - 2026-01-25T03:41:25Z – unknown – shell_pid=23257 – lane=for_review – Ready for review: Updated docstrings for get_finished_units() and get_base_yield_structure() to reflect Phase 1 fix. All 14 primitive tests pass.
+- 2026-01-25T03:46:28Z – claude-opus – shell_pid=24370 – lane=doing – Started review via workflow command
