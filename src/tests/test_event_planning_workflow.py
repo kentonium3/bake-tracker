@@ -436,18 +436,21 @@ class TestPerformance:
     def test_event_summary_performance(self, test_db, sample_package):
         """Test that event summary loads in <2s with many assignments."""
         # Create event
-        event = create_event(
-            name="Performance Test Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Performance Test Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
+            event_id = event.id
 
         # Create 50 recipients and assignments
         with session_scope() as session:
             for i in range(50):
                 recipient = create_recipient({"name": f"Recipient {i+1}"})
                 assign_package_to_recipient(
-                    event_id=event.id,
+                    event_id=event_id,
                     recipient_id=recipient.id,
                     package_id=sample_package.id,
                     quantity=1,
@@ -457,7 +460,7 @@ class TestPerformance:
         # Measure summary load time
         start = time.time()
         with session_scope() as session:
-            summary = get_event_summary(event.id, session=session)
+            summary = get_event_summary(event_id, session=session)
         elapsed = time.time() - start
 
         assert elapsed < 2.0, f"Summary took {elapsed:.2f}s (>2s limit)"
@@ -465,18 +468,21 @@ class TestPerformance:
 
     def test_recipe_needs_performance(self, test_db, sample_package):
         """Test that recipe needs loads in <2s with many assignments."""
-        event = create_event(
-            name="Recipe Needs Perf Test",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Recipe Needs Perf Test",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
+            event_id = event.id
 
         # Create 50 assignments
         with session_scope() as session:
             for i in range(50):
                 recipient = create_recipient({"name": f"Recipient R{i+1}"})
                 assign_package_to_recipient(
-                    event_id=event.id,
+                    event_id=event_id,
                     recipient_id=recipient.id,
                     package_id=sample_package.id,
                     quantity=1,
@@ -486,25 +492,28 @@ class TestPerformance:
         # Measure recipe needs load time
         start = time.time()
         with session_scope() as session:
-            needs = get_recipe_needs(event.id, session=session)
+            needs = get_recipe_needs(event_id, session=session)
         elapsed = time.time() - start
 
         assert elapsed < 2.0, f"Recipe needs took {elapsed:.2f}s (>2s limit)"
 
     def test_shopping_list_performance(self, test_db, sample_package):
         """Test that shopping list loads in <2s with many assignments."""
-        event = create_event(
-            name="Shopping List Perf Test",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Shopping List Perf Test",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
+            event_id = event.id
 
         # Create 50 assignments
         with session_scope() as session:
             for i in range(50):
                 recipient = create_recipient({"name": f"Recipient S{i+1}"})
                 assign_package_to_recipient(
-                    event_id=event.id,
+                    event_id=event_id,
                     recipient_id=recipient.id,
                     package_id=sample_package.id,
                     quantity=1,
@@ -514,7 +523,7 @@ class TestPerformance:
         # Measure shopping list load time
         start = time.time()
         with session_scope() as session:
-            shopping = get_shopping_list(event.id, session=session)
+            shopping = get_shopping_list(event_id, session=session)
         elapsed = time.time() - start
 
         assert elapsed < 2.0, f"Shopping list took {elapsed:.2f}s (>2s limit)"
