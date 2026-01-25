@@ -121,20 +121,33 @@ class VariantCreationDialog(ctk.CTkToplevel):
         fu_container = ctk.CTkFrame(self)
         fu_container.grid(row=2, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
         fu_container.grid_columnconfigure(0, weight=1)
-        fu_container.grid_rowconfigure(1, weight=1)
+        fu_container.grid_rowconfigure(4, weight=1)  # Scrollable frame row expands
 
         if self.base_finished_units:
-            # Section header
+            # Base yield reference section
+            self._create_base_yield_reference(fu_container)
+
+            # Inheritance explanation
+            explanation = ctk.CTkLabel(
+                fu_container,
+                text="Variant inherits yield structure from base recipe.\nYou can customize the display names below.",
+                text_color="gray",
+                font=ctk.CTkFont(size=11),
+                justify="left",
+            )
+            explanation.grid(row=2, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(0, PADDING_MEDIUM))
+
+            # Section header for editable names
             header_label = ctk.CTkLabel(
                 fu_container,
-                text="Yield Type Names:",
+                text="Variant Yields:",
                 font=ctk.CTkFont(weight="bold"),
             )
-            header_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
+            header_label.grid(row=3, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
 
             # Scrollable frame for FU entries
-            self.fu_frame = ctk.CTkScrollableFrame(fu_container, height=200)
-            self.fu_frame.grid(row=1, column=0, sticky="nsew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+            self.fu_frame = ctk.CTkScrollableFrame(fu_container, height=150)
+            self.fu_frame.grid(row=4, column=0, sticky="nsew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
             self.fu_frame.grid_columnconfigure(1, weight=1)
 
             # Create row for each base FinishedUnit
@@ -152,6 +165,39 @@ class VariantCreationDialog(ctk.CTkToplevel):
                 justify="center",
             )
             no_fu_label.grid(row=0, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_LARGE)
+
+    def _create_base_yield_reference(self, container):
+        """Display base recipe yields as read-only reference."""
+        if not self.base_finished_units:
+            return
+
+        # Reference header
+        ref_header = ctk.CTkLabel(
+            container,
+            text="Base Recipe Yields (Reference):",
+            font=ctk.CTkFont(weight="bold"),
+            text_color="gray",
+        )
+        ref_header.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
+
+        # Show each base yield in a subtle frame
+        ref_frame = ctk.CTkFrame(container, fg_color=("gray90", "gray20"))
+        ref_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_MEDIUM, pady=(0, PADDING_MEDIUM))
+
+        for idx, fu in enumerate(self.base_finished_units):
+            items = fu.get('items_per_batch', 'N/A')
+            unit = fu.get('item_unit', 'unit')
+            # Handle plural for unit
+            unit_display = f"{unit}s" if items != 1 else unit
+            yield_text = f"{fu['display_name']}: {items} {unit_display} per batch"
+
+            yield_label = ctk.CTkLabel(
+                ref_frame,
+                text=yield_text,
+                text_color="gray",
+                anchor="w",
+            )
+            yield_label.pack(anchor="w", padx=PADDING_MEDIUM, pady=2)
 
     def _create_fu_row(self, idx: int, base_fu: Dict):
         """
