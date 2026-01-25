@@ -5,12 +5,12 @@ subtasks:
   - "T012"
 title: "Finished Units Grid Variant Grouping"
 phase: "Phase 2 - Grid Grouping"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "52282"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP02"]
 history:
   - timestamp: "2026-01-25T18:09:19Z"
@@ -276,6 +276,7 @@ A FinishedUnit is a "variant FU" if its parent recipe is a variant (has non-null
 - 2026-01-25T18:23:55Z – claude-opus – shell_pid=50955 – lane=doing – Started implementation via workflow command
 - 2026-01-25T18:25:16Z – claude-opus – shell_pid=50955 – lane=for_review – Implemented: Finished Units grid variant grouping with sorting and prefix indicator
 - 2026-01-25T18:29:09Z – claude-opus – shell_pid=52282 – lane=doing – Started review via workflow command
+- 2026-01-25T18:29:27Z – claude-opus – shell_pid=52282 – lane=done – Review passed: T011 variant-aware sorting correct, T012 prefix indicator works, pattern matches WP02
 
 ## Implementation Command
 
