@@ -56,7 +56,7 @@
 ### Included Subtasks
 - [x] T003 [P] Replace direct access at `planning_service.py:505-506`
 - [x] T004 [P] Replace direct access at `planning_service.py:686-687`
-- [ ] T005 Add import for recipe_service in planning_service.py
+- [x] T005 Add import for recipe_service in planning_service.py
 
 ### Implementation Notes
 - File: `src/services/planning/planning_service.py`
