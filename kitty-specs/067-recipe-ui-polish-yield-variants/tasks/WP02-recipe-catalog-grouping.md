@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Catalog Variant Grouping + Production Ready Default
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: 328768f4daee82a997d39359558c3f7d6a9c9f78
@@ -12,8 +12,8 @@ subtasks:
 - T010
 phase: Phase 1 - UI Polish
 assignee: ''
-agent: ''
-shell_pid: "49364"
+agent: "claude-opus"
+shell_pid: "51931"
 review_status: ''
 reviewed_by: ''
 history:
@@ -304,6 +304,7 @@ history:
 
 ---
 - 2026-01-25T18:23:45Z – unknown – shell_pid=49364 – lane=for_review – Implemented: variant grouping with sorting and prefix, production ready default already present
+- 2026-01-25T18:28:12Z – claude-opus – shell_pid=51931 – lane=doing – Started review via workflow command
 
 ## Implementation Command
 
