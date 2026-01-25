@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Update RecipeFormDialog
+lane: "doing"
+dependencies: [WP01]
+base_branch: 066-recipe-variant-yield-remediation-WP01
+base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
+created_at: '2026-01-25T04:09:05.231512+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Update RecipeFormDialog"
-phase: "Phase 3 - UI Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 3 - UI Polish
+assignee: ''
+agent: ''
+shell_pid: "29155"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-25T03:23:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-25T03:23:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Update RecipeFormDialog
