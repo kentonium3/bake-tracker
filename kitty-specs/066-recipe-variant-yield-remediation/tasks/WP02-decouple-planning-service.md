@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Decouple Planning Service
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -12,8 +12,8 @@ subtasks:
 - T005
 phase: Phase 2 - Service Decoupling
 assignee: ''
-agent: ''
-shell_pid: "24714"
+agent: "claude-opus"
+shell_pid: "25768"
 review_status: ''
 reviewed_by: ''
 history:
@@ -229,3 +229,4 @@ Should return no matches after this WP.
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
 - 2026-01-25T03:50:38Z – unknown – shell_pid=24714 – lane=for_review – Ready for review: Decoupled planning_service from direct recipe.finished_units access. All 48 planning_service tests pass. Replaced 2 locations with get_finished_units() primitive.
+- 2026-01-25T03:51:34Z – claude-opus – shell_pid=25768 – lane=doing – Started review via workflow command
