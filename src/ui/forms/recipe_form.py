@@ -441,7 +441,7 @@ class YieldTypeRow(ctk.CTkFrame):
             self.unit_entry.insert(0, item_unit)
         self.unit_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
         if readonly_structure:
-            self.unit_entry.configure(state="disabled")
+            self.unit_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
 
         # Items per batch entry (Quantity) - read-only for variants (T013)
         self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty/batch")
@@ -449,7 +449,7 @@ class YieldTypeRow(ctk.CTkFrame):
             self.quantity_entry.insert(0, str(items_per_batch))
         self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
         if readonly_structure:
-            self.quantity_entry.configure(state="disabled")
+            self.quantity_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
 
         # Remove button (exposed for T019 - disable when only one row)
         # Hidden for variants since they can't remove inherited yields (T013)
@@ -1253,8 +1253,8 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Explicitly re-apply readonly state for variants (belt-and-suspenders)
         if self.is_variant:
-            row.unit_entry.configure(state="disabled")
-            row.quantity_entry.configure(state="disabled")
+            row.unit_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
+            row.quantity_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
             row.remove_button.grid_remove()
 
     def _remove_yield_type_row(self, row: YieldTypeRow):
