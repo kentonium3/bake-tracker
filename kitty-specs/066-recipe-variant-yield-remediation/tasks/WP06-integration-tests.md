@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Integration Tests
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 base_branch: 066-recipe-variant-yield-remediation-WP01
@@ -300,3 +300,4 @@ class TestBatchCalculationDecoupling:
 ## Activity Log
 
 - 2026-01-25T03:23:15Z – system – lane=planned – Prompt created.
+- 2026-01-25T04:30:31Z – unknown – shell_pid=30576 – lane=for_review – Ready for review: Added integration tests for service decoupling (T016-T017) and verified all primitive tests pass (T018). 4 new tests, all passing.
