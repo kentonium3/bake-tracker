@@ -53,12 +53,12 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T005 Create `RecipeSelectionFrame` class with scrollable container
-- [ ] T006 Implement checkbox list population from recipe data
-- [ ] T007 Implement visual distinction for base vs variant recipes (indent + label)
-- [ ] T008 Implement selection count display ("X of Y recipes selected")
-- [ ] T009 Implement `get_selected_ids()` and `set_selected(recipe_ids)` methods
-- [ ] T010 Add Save and Cancel buttons with callback hooks
+- [x] T005 Create `RecipeSelectionFrame` class with scrollable container
+- [x] T006 Implement checkbox list population from recipe data
+- [x] T007 Implement visual distinction for base vs variant recipes (indent + label)
+- [x] T008 Implement selection count display ("X of Y recipes selected")
+- [x] T009 Implement `get_selected_ids()` and `set_selected(recipe_ids)` methods
+- [x] T010 Add Save and Cancel buttons with callback hooks
 
 ### Implementation Notes
 - Use CTkScrollableFrame for scrollable list (per research.md)
