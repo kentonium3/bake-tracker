@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Event CRUD Dialogs
+lane: "doing"
+dependencies: [WP02]
+base_branch: 068-event-management-planning-data-model-WP02
+base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
+created_at: '2026-01-26T21:36:39.742396+00:00'
 subtasks:
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-title: "Event CRUD Dialogs"
-phase: "Phase 2 - UI Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T021
+- T022
+- T023
+- T024
+- T025
+- T026
+phase: Phase 2 - UI Layer
+assignee: ''
+agent: ''
+shell_pid: "98418"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-26T19:16:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T19:16:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Event CRUD Dialogs
