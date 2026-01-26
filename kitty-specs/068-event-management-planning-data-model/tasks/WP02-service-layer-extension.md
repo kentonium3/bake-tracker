@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Remaining Models & Service Layer Extension
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 068-event-management-planning-data-model-WP01
 base_commit: 62c6ed55d13273268c70271235c41bb8fbd63f08
@@ -16,8 +16,8 @@ subtasks:
 - T014
 phase: Phase 1 - Foundation
 assignee: ''
-agent: ''
-shell_pid: "93502"
+agent: "claude-opus"
+shell_pid: "96307"
 review_status: ''
 reviewed_by: ''
 history:
@@ -793,3 +793,4 @@ pytest src/tests -v
 
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
 - 2026-01-26T20:04:34Z – unknown – shell_pid=93502 – lane=for_review – Ready for review: EventService planning methods, SnapshotType enum, 24 unit tests passing
+- 2026-01-26T21:22:49Z – claude-opus – shell_pid=96307 – lane=doing – Started review via workflow command
