@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Planning Tab UI
+lane: "doing"
+dependencies: [WP02]
+base_branch: 068-event-management-planning-data-model-WP02
+base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
+created_at: '2026-01-26T21:27:41.668699+00:00'
 subtasks:
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-title: "Planning Tab UI"
-phase: "Phase 2 - UI Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T015
+- T016
+- T017
+- T018
+- T019
+- T020
+phase: Phase 2 - UI Layer
+assignee: ''
+agent: ''
+shell_pid: "96745"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-26T19:16:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T19:16:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Planning Tab UI
