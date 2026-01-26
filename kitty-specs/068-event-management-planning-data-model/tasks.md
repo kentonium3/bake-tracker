@@ -63,7 +63,7 @@
 - [x] T010 Update `src/models/__init__.py` with new exports
 - [x] T011 Add planning CRUD methods to `src/services/event_service.py`
 - [x] T012 Add validation for expected_attendees (positive integer or None)
-- [ ] T013 Ensure plan_state is display-only (no direct transitions in F068)
+- [x] T013 Ensure plan_state is display-only (no direct transitions in F068)
 - [ ] T014 Write unit tests in `src/tests/test_event_planning.py`
 
 ### Implementation Notes
