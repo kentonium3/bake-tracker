@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Service Layer Methods"
 phase: "Phase 1 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus-4-5"
 shell_pid: "11706"
@@ -487,3 +487,4 @@ spec-kitty agent tasks move-task WP01 --to <lane> --note "message"
 
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 - 2026-01-26T23:02:49Z – claude-opus-4-5 – shell_pid=11706 – lane=doing – Started implementation via workflow command
+- 2026-01-26T23:18:36Z – claude-opus-4-5 – shell_pid=11706 – lane=for_review – Ready for review: Service methods implemented with 11 passing tests
