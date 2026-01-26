@@ -64,7 +64,7 @@
 - [x] T011 Add planning CRUD methods to `src/services/event_service.py`
 - [x] T012 Add validation for expected_attendees (positive integer or None)
 - [x] T013 Ensure plan_state is display-only (no direct transitions in F068)
-- [ ] T014 Write unit tests in `src/tests/test_event_planning.py`
+- [x] T014 Write unit tests in `src/tests/test_event_planning.py`
 
 ### Implementation Notes
 - EventService already has 1900+ lines; add new methods in clearly marked section
