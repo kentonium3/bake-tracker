@@ -86,7 +86,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T011 Embed `RecipeSelectionFrame` in `PlanningTab` layout (Row 2)
+- [x] T011 Embed `RecipeSelectionFrame` in `PlanningTab` layout (Row 2)
 - [ ] T012 Wire event selection callback to show/hide and populate frame
 - [ ] T013 Implement Save button handler (call `set_event_recipes()`)
 - [ ] T014 Implement Cancel button handler (revert to loaded state)
