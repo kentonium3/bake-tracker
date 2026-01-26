@@ -52,7 +52,7 @@ from .enums import ProductionStatus, LossCategory, DepletionReason  # Feature 02
 from .inventory_depletion import InventoryDepletion  # Feature 041
 from .assembly_run import AssemblyRun  # Feature 013
 from .recipe_snapshot import RecipeSnapshot  # Feature 037
-from .planning_snapshot import PlanningSnapshot  # Feature 064 (stub, full impl in WP04)
+from .planning_snapshot import PlanningSnapshot, SnapshotType  # Feature 064, F068 adds SnapshotType
 from .finished_unit_snapshot import FinishedUnitSnapshot  # Feature 064
 from .finished_good_snapshot import FinishedGoodSnapshot  # Feature 064
 from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
@@ -141,6 +141,7 @@ __all__ = [
     "RecipeSnapshot",
     # Feature 064: FinishedGoods Snapshot Architecture
     "PlanningSnapshot",
+    "SnapshotType",  # F068: Added for plan comparison
     "FinishedUnitSnapshot",
     "FinishedGoodSnapshot",
     # Feature 047: Materials Management System
