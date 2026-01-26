@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Selection UI Component
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 069-recipe-selection-for-event-planning-WP01
 base_commit: 1bc0971b0175cde1d2bdc47e5bb8abaece08886c
@@ -15,8 +15,8 @@ subtasks:
 - T010
 phase: Phase 2 - UI Component
 assignee: ''
-agent: ''
-shell_pid: "14673"
+agent: "claude-opus-4-5"
+shell_pid: "15784"
 review_status: ''
 reviewed_by: ''
 history:
@@ -583,3 +583,4 @@ spec-kitty agent tasks move-task WP02 --to <lane> --note "message"
 
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 - 2026-01-26T23:28:42Z – unknown – shell_pid=14673 – lane=for_review – Ready for review: RecipeSelectionFrame component with 13 passing tests
+- 2026-01-26T23:31:07Z – claude-opus-4-5 – shell_pid=15784 – lane=doing – Started review via workflow command
