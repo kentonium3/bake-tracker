@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Event CRUD Dialogs
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 068-event-management-planning-data-model-WP02
 base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
@@ -750,3 +750,4 @@ __all__ = ["EventPlanningForm", "DeleteEventDialog"]
 ## Activity Log
 
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
+- 2026-01-26T21:38:55Z – unknown – shell_pid=98418 – lane=for_review – Ready for review: EventPlanningForm and DeleteEventDialog with validation, factory methods, and service layer integration. 495 lines.
