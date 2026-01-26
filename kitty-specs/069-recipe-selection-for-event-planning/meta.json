@@ -1,0 +1,8 @@
+{
+  "feature_number": "069",
+  "slug": "069-recipe-selection-for-event-planning",
+  "friendly_name": "Recipe Selection for Event Planning",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F069_recipe_selection_ui.md for the feature inputs.",
+  "created_at": "2026-01-26T17:45:00Z"
+}
