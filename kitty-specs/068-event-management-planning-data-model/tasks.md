@@ -58,7 +58,7 @@
 **Estimated Size**: ~500 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T008 [P] Create PlanAmendment model with AmendmentType enum in `src/models/plan_amendment.py`
+- [x] T008 [P] Create PlanAmendment model with AmendmentType enum in `src/models/plan_amendment.py`
 - [ ] T009 [P] Add SnapshotType enum and fields to `src/models/planning_snapshot.py`
 - [ ] T010 Update `src/models/__init__.py` with new exports
 - [ ] T011 Add planning CRUD methods to `src/services/event_service.py`
