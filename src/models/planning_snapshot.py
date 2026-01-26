@@ -5,7 +5,10 @@ Container record that links an optional event to all snapshots created
 during plan finalization. Enables atomic cleanup and event-scoped queries.
 
 Feature 064: FinishedGoods Snapshot Architecture
+Feature 068: Added snapshot_type and snapshot_data for plan comparison
 """
+
+from enum import Enum
 
 from sqlalchemy import (
     Column,
@@ -14,11 +17,24 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Index,
+    Enum as SQLEnum,
 )
+from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
 from src.utils.datetime_utils import utc_now
+
+
+class SnapshotType(str, Enum):
+    """
+    Type of planning snapshot.
+
+    Used to distinguish between original locked plan and current state.
+    """
+
+    ORIGINAL = "original"  # Snapshot when plan was locked
+    CURRENT = "current"  # Latest snapshot reflecting amendments
 
 
 class PlanningSnapshot(BaseModel):
@@ -52,6 +68,11 @@ class PlanningSnapshot(BaseModel):
     created_at = Column(DateTime, nullable=False, default=utc_now)
     notes = Column(Text, nullable=True)
 
+    # Phase 3 fields (F068 preparation for F078-F079)
+    # Nullable for backward compatibility with existing records
+    snapshot_type = Column(SQLEnum(SnapshotType), nullable=True, index=True)
+    snapshot_data = Column(JSON, nullable=True)
+
     # Relationship to Event (bidirectional)
     event = relationship("Event", back_populates="planning_snapshots")
 
@@ -80,6 +101,7 @@ class PlanningSnapshot(BaseModel):
     __table_args__ = (
         Index("idx_planning_snapshot_event", "event_id"),
         Index("idx_planning_snapshot_created", "created_at"),
+        Index("idx_planning_snapshot_type", "snapshot_type"),
     )
 
     def __repr__(self) -> str:

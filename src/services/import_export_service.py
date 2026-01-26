@@ -37,7 +37,11 @@ from src.models.package import Package, PackageFinishedGood
 from src.models.production_record import ProductionRecord
 from src.models.production_run import ProductionRun
 from src.models.assembly_run import AssemblyRun
-from src.models.event import EventProductionTarget, EventAssemblyTarget, FulfillmentStatus
+from src.models.event import Event, EventProductionTarget, EventAssemblyTarget, FulfillmentStatus, PlanState
+from src.models.event_recipe import EventRecipe
+from src.models.event_finished_good import EventFinishedGood
+from src.models.batch_decision import BatchDecision
+from src.models.plan_amendment import PlanAmendment, AmendmentType
 from src.models.recipe import Recipe, RecipeComponent
 from src.models.material import Material
 from src.models.material_product import MaterialProduct
@@ -1221,6 +1225,11 @@ def export_all_to_json(
             "material_subcategories": [],
             "materials": [],
             "material_products": [],
+            # Planning entities (Feature 068)
+            "event_recipes": [],
+            "event_finished_goods": [],
+            "batch_decisions": [],
+            "plan_amendments": [],
         }
 
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
@@ -1607,6 +1616,11 @@ def export_all_to_json(
                 # Feature 040 / F039: Export output_mode
                 event_data["output_mode"] = event.output_mode.value if event.output_mode else None
 
+                # Feature 068: Export planning fields
+                if event.expected_attendees is not None:
+                    event_data["expected_attendees"] = event.expected_attendees
+                event_data["plan_state"] = event.plan_state.value if event.plan_state else "draft"
+
                 export_data["events"].append(event_data)
 
                 # Populate event_recipient_packages separately (v3.2 format with both status fields)
@@ -1704,6 +1718,69 @@ def export_all_to_json(
                     }
                 )
 
+        # Add planning entities (Feature 068)
+        with session_scope() as session:
+            # Build event name lookup for FK references
+            events_list = event_service.get_all_events(session=session)
+            event_id_to_name = {e.id: e.name for e in events_list}
+
+            # Build recipe name lookup
+            recipes_list = session.query(Recipe).all()
+            recipe_id_to_name = {r.id: r.name for r in recipes_list}
+
+            # Build finished_good name lookup
+            fgs_list = session.query(FinishedGood).all()
+            fg_id_to_name = {fg.id: fg.display_name for fg in fgs_list}
+
+            # Build finished_unit name lookup
+            fus_list = session.query(FinishedUnit).all()
+            fu_id_to_name = {fu.id: fu.display_name for fu in fus_list}
+
+            # Export event_recipes
+            event_recipes = session.query(EventRecipe).all()
+            for er in event_recipes:
+                export_data["event_recipes"].append({
+                    "event_name": event_id_to_name.get(er.event_id),
+                    "recipe_name": recipe_id_to_name.get(er.recipe_id),
+                    "created_at": er.created_at.isoformat() if er.created_at else None,
+                })
+
+            # Export event_finished_goods
+            event_fgs = session.query(EventFinishedGood).all()
+            for efg in event_fgs:
+                export_data["event_finished_goods"].append({
+                    "event_name": event_id_to_name.get(efg.event_id),
+                    "finished_good_name": fg_id_to_name.get(efg.finished_good_id),
+                    "quantity": efg.quantity,
+                    "created_at": efg.created_at.isoformat() if efg.created_at else None,
+                    "updated_at": efg.updated_at.isoformat() if efg.updated_at else None,
+                })
+
+            # Export batch_decisions
+            batch_decisions = session.query(BatchDecision).all()
+            for bd in batch_decisions:
+                bd_data = {
+                    "event_name": event_id_to_name.get(bd.event_id),
+                    "recipe_name": recipe_id_to_name.get(bd.recipe_id),
+                    "batches": bd.batches,
+                    "created_at": bd.created_at.isoformat() if bd.created_at else None,
+                    "updated_at": bd.updated_at.isoformat() if bd.updated_at else None,
+                }
+                if bd.finished_unit_id:
+                    bd_data["finished_unit_name"] = fu_id_to_name.get(bd.finished_unit_id)
+                export_data["batch_decisions"].append(bd_data)
+
+            # Export plan_amendments
+            plan_amendments = session.query(PlanAmendment).all()
+            for pa in plan_amendments:
+                export_data["plan_amendments"].append({
+                    "event_name": event_id_to_name.get(pa.event_id),
+                    "amendment_type": pa.amendment_type.value if pa.amendment_type else None,
+                    "amendment_data": pa.amendment_data,
+                    "reason": pa.reason,
+                    "created_at": pa.created_at.isoformat() if pa.created_at else None,
+                })
+
         # Filter entities if selective export requested
         if entities is not None:
             # Map UI entity names to export_data keys
@@ -1757,6 +1834,11 @@ def export_all_to_json(
             + len(export_data["material_subcategories"])
             + len(export_data["materials"])
             + len(export_data["material_products"])
+            # Planning entities (Feature 068)
+            + len(export_data["event_recipes"])
+            + len(export_data["event_finished_goods"])
+            + len(export_data["batch_decisions"])
+            + len(export_data["plan_amendments"])
         )
 
         result = ExportResult(file_path, total_records)
@@ -1796,6 +1878,11 @@ def export_all_to_json(
         )
         result.add_entity_count("materials", len(export_data["materials"]))
         result.add_entity_count("material_products", len(export_data["material_products"]))
+        # Planning entities (Feature 068)
+        result.add_entity_count("event_recipes", len(export_data["event_recipes"]))
+        result.add_entity_count("event_finished_goods", len(export_data["event_finished_goods"]))
+        result.add_entity_count("batch_decisions", len(export_data["batch_decisions"]))
+        result.add_entity_count("plan_amendments", len(export_data["plan_amendments"]))
 
         return result
 
@@ -1847,9 +1934,15 @@ def _clear_all_tables(session) -> None:
     # Tables in REVERSE dependency order to avoid FK violations
     # Order: dependent tables cleared first, base tables cleared last
     # Feature 027: Added Supplier (cleared after Products since Products reference Suppliers)
+    # Feature 068: Added planning tables (cleared before Event)
     tables_to_clear = [
         ProductionRecord,
         EventRecipientPackage,
+        # Feature 068 planning tables (depend on Event, cleared before Event)
+        PlanAmendment,
+        BatchDecision,
+        EventFinishedGood,
+        EventRecipe,
         Event,
         Recipient,
         PackageFinishedGood,
@@ -3993,6 +4086,7 @@ def import_all_from_json_v4(
 
             # 13. Events
             # Feature 040 / F039: Import output_mode field
+            # Feature 068: Import expected_attendees and plan_state
             if "events" in data:
                 from src.models.event import Event, OutputMode
 
@@ -4029,12 +4123,28 @@ def import_all_from_json_v4(
                                 )
                                 continue
 
+                        # Feature 068: Parse plan_state enum
+                        plan_state = PlanState.DRAFT  # Default
+                        plan_state_str = evt.get("plan_state")
+                        if plan_state_str:
+                            try:
+                                plan_state = PlanState(plan_state_str)
+                            except ValueError:
+                                result.add_error(
+                                    "event",
+                                    name,
+                                    f"Invalid plan_state: {plan_state_str}. Valid values: {[e.value for e in PlanState]}",
+                                )
+                                continue
+
                         event = Event(
                             name=name,
                             event_date=event_date,
                             year=year,
                             notes=evt.get("notes"),
                             output_mode=output_mode,  # Feature 040 / F039
+                            expected_attendees=evt.get("expected_attendees"),  # Feature 068
+                            plan_state=plan_state,  # Feature 068
                         )
                         session.add(event)
                         result.add_success("event")
@@ -4213,6 +4323,221 @@ def import_all_from_json_v4(
                 result.skipped += counts.skipped
                 result.failed += counts.failed
                 result.total_records += counts.added + counts.skipped + counts.failed
+
+            # 21. Planning entities (Feature 068)
+            # Import order respects FK dependencies:
+            # - event_recipes (depends on: events, recipes)
+            # - event_finished_goods (depends on: events, finished_goods)
+            # - batch_decisions (depends on: events, recipes, finished_units)
+            # - plan_amendments (depends on: events)
+
+            # Build lookup tables for FK resolution
+            all_events = {e.name: e.id for e in session.query(Event).all()}
+            all_recipes = {r.name: r.id for r in session.query(Recipe).all()}
+            all_fgs = {fg.display_name: fg.id for fg in session.query(FinishedGood).all()}
+            all_fus = {fu.display_name: fu.id for fu in session.query(FinishedUnit).all()}
+
+            # Import event_recipes
+            if "event_recipes" in data:
+                for er_data in data["event_recipes"]:
+                    try:
+                        event_name = er_data.get("event_name")
+                        recipe_name = er_data.get("recipe_name")
+
+                        event_id = all_events.get(event_name)
+                        recipe_id = all_recipes.get(recipe_name)
+
+                        if not event_id:
+                            result.add_error(
+                                "event_recipe", f"{event_name}/{recipe_name}",
+                                f"Event not found: {event_name}"
+                            )
+                            continue
+                        if not recipe_id:
+                            result.add_error(
+                                "event_recipe", f"{event_name}/{recipe_name}",
+                                f"Recipe not found: {recipe_name}"
+                            )
+                            continue
+
+                        if skip_duplicates:
+                            existing = session.query(EventRecipe).filter_by(
+                                event_id=event_id, recipe_id=recipe_id
+                            ).first()
+                            if existing:
+                                result.add_skip(
+                                    "event_recipe", f"{event_name}/{recipe_name}",
+                                    "Already exists"
+                                )
+                                continue
+
+                        er = EventRecipe(event_id=event_id, recipe_id=recipe_id)
+                        session.add(er)
+                        result.add_success("event_recipe")
+                    except Exception as e:
+                        result.add_error(
+                            "event_recipe",
+                            f"{er_data.get('event_name')}/{er_data.get('recipe_name')}",
+                            str(e)
+                        )
+                session.flush()
+
+            # Import event_finished_goods
+            if "event_finished_goods" in data:
+                for efg_data in data["event_finished_goods"]:
+                    try:
+                        event_name = efg_data.get("event_name")
+                        fg_name = efg_data.get("finished_good_name")
+                        quantity = efg_data.get("quantity", 1)
+
+                        event_id = all_events.get(event_name)
+                        fg_id = all_fgs.get(fg_name)
+
+                        if not event_id:
+                            result.add_error(
+                                "event_finished_good", f"{event_name}/{fg_name}",
+                                f"Event not found: {event_name}"
+                            )
+                            continue
+                        if not fg_id:
+                            result.add_error(
+                                "event_finished_good", f"{event_name}/{fg_name}",
+                                f"Finished good not found: {fg_name}"
+                            )
+                            continue
+
+                        if skip_duplicates:
+                            existing = session.query(EventFinishedGood).filter_by(
+                                event_id=event_id, finished_good_id=fg_id
+                            ).first()
+                            if existing:
+                                result.add_skip(
+                                    "event_finished_good", f"{event_name}/{fg_name}",
+                                    "Already exists"
+                                )
+                                continue
+
+                        efg = EventFinishedGood(
+                            event_id=event_id,
+                            finished_good_id=fg_id,
+                            quantity=quantity,
+                        )
+                        session.add(efg)
+                        result.add_success("event_finished_good")
+                    except Exception as e:
+                        result.add_error(
+                            "event_finished_good",
+                            f"{efg_data.get('event_name')}/{efg_data.get('finished_good_name')}",
+                            str(e)
+                        )
+                session.flush()
+
+            # Import batch_decisions
+            if "batch_decisions" in data:
+                for bd_data in data["batch_decisions"]:
+                    try:
+                        event_name = bd_data.get("event_name")
+                        recipe_name = bd_data.get("recipe_name")
+                        batches = bd_data.get("batches", 1)
+
+                        event_id = all_events.get(event_name)
+                        recipe_id = all_recipes.get(recipe_name)
+
+                        if not event_id:
+                            result.add_error(
+                                "batch_decision", f"{event_name}/{recipe_name}",
+                                f"Event not found: {event_name}"
+                            )
+                            continue
+                        if not recipe_id:
+                            result.add_error(
+                                "batch_decision", f"{event_name}/{recipe_name}",
+                                f"Recipe not found: {recipe_name}"
+                            )
+                            continue
+
+                        # Optional finished_unit_id
+                        fu_id = None
+                        fu_name = bd_data.get("finished_unit_name")
+                        if fu_name:
+                            fu_id = all_fus.get(fu_name)
+                            if not fu_id:
+                                result.add_warning(
+                                    "batch_decision", f"{event_name}/{recipe_name}",
+                                    f"Finished unit not found: {fu_name}",
+                                    suggestion="Import will continue without finished_unit reference"
+                                )
+
+                        if skip_duplicates:
+                            existing = session.query(BatchDecision).filter_by(
+                                event_id=event_id, recipe_id=recipe_id
+                            ).first()
+                            if existing:
+                                result.add_skip(
+                                    "batch_decision", f"{event_name}/{recipe_name}",
+                                    "Already exists"
+                                )
+                                continue
+
+                        bd = BatchDecision(
+                            event_id=event_id,
+                            recipe_id=recipe_id,
+                            batches=batches,
+                            finished_unit_id=fu_id,
+                        )
+                        session.add(bd)
+                        result.add_success("batch_decision")
+                    except Exception as e:
+                        result.add_error(
+                            "batch_decision",
+                            f"{bd_data.get('event_name')}/{bd_data.get('recipe_name')}",
+                            str(e)
+                        )
+                session.flush()
+
+            # Import plan_amendments
+            if "plan_amendments" in data:
+                for pa_data in data["plan_amendments"]:
+                    try:
+                        event_name = pa_data.get("event_name")
+                        amendment_type_str = pa_data.get("amendment_type")
+                        amendment_data_raw = pa_data.get("amendment_data", {})
+                        reason = pa_data.get("reason")
+
+                        event_id = all_events.get(event_name)
+                        if not event_id:
+                            result.add_error(
+                                "plan_amendment", event_name,
+                                f"Event not found: {event_name}"
+                            )
+                            continue
+
+                        # Parse amendment_type enum
+                        try:
+                            amendment_type = AmendmentType(amendment_type_str)
+                        except ValueError:
+                            result.add_error(
+                                "plan_amendment", event_name,
+                                f"Invalid amendment_type: {amendment_type_str}. "
+                                f"Valid values: {[e.value for e in AmendmentType]}"
+                            )
+                            continue
+
+                        pa = PlanAmendment(
+                            event_id=event_id,
+                            amendment_type=amendment_type,
+                            amendment_data=amendment_data_raw,
+                            reason=reason,
+                        )
+                        session.add(pa)
+                        result.add_success("plan_amendment")
+                    except Exception as e:
+                        result.add_error(
+                            "plan_amendment",
+                            pa_data.get("event_name", "unknown"),
+                            str(e)
+                        )
+                session.flush()
 
             # Commit transaction
             session.commit()

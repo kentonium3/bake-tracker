@@ -34,6 +34,7 @@ from src.models import (
     EventProductionTarget,
     EventAssemblyTarget,
     FulfillmentStatus,
+    PlanState,  # Feature 068
     ProductionRun,
     AssemblyRun,
     Recipient,
@@ -2524,3 +2525,166 @@ def get_packages_by_status(
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get packages by status: {str(e)}")
+
+
+# ============================================================================
+# F068: Planning Module Methods
+# ============================================================================
+
+
+def _validate_expected_attendees(value: Optional[int]) -> None:
+    """
+    Validate expected_attendees value.
+
+    Args:
+        value: Attendee count to validate
+
+    Raises:
+        ValidationError: If value is not positive (when provided)
+    """
+    if value is not None and value <= 0:
+        raise ValidationError(["Expected attendees must be a positive integer"])
+
+
+def get_events_for_planning(
+    session: Session,
+    include_completed: bool = False,
+) -> List[Event]:
+    """
+    Get events for the Planning workspace.
+
+    Args:
+        session: Database session
+        include_completed: If True, include COMPLETED events
+
+    Returns:
+        List of Event objects sorted by event_date (most recent first)
+    """
+    query = session.query(Event)
+
+    if not include_completed:
+        query = query.filter(Event.plan_state != PlanState.COMPLETED)
+
+    return query.order_by(Event.event_date.desc()).all()
+
+
+def create_planning_event(
+    session: Session,
+    name: str,
+    event_date: date,
+    expected_attendees: Optional[int] = None,
+    notes: Optional[str] = None,
+) -> Event:
+    """
+    Create a new event for planning.
+
+    Args:
+        session: Database session
+        name: Event name (required)
+        event_date: Event date (required)
+        expected_attendees: Optional attendee count (must be positive)
+        notes: Optional notes
+
+    Returns:
+        Created Event object
+
+    Raises:
+        ValidationError: If validation fails
+    """
+    # Validate expected_attendees
+    _validate_expected_attendees(expected_attendees)
+
+    # Create event with planning defaults
+    event = Event(
+        name=name,
+        event_date=event_date,
+        year=event_date.year,
+        expected_attendees=expected_attendees,
+        plan_state=PlanState.DRAFT,
+        notes=notes,
+    )
+
+    session.add(event)
+    session.flush()
+
+    return event
+
+
+def update_planning_event(
+    session: Session,
+    event_id: int,
+    name: Optional[str] = None,
+    event_date: Optional[date] = None,
+    expected_attendees: Optional[int] = None,
+    notes: Optional[str] = None,
+    # NOTE: plan_state is intentionally NOT a parameter.
+    # State transitions are implemented in F077 (Plan State Management).
+) -> Event:
+    """
+    Update an existing event's planning metadata.
+
+    Args:
+        session: Database session
+        event_id: ID of event to update
+        name: New name (if provided)
+        event_date: New date (if provided)
+        expected_attendees: New attendee count (if provided, must be positive or 0 to clear)
+        notes: New notes (if provided)
+
+    Returns:
+        Updated Event object
+
+    Raises:
+        ValidationError: If event not found or validation fails
+    """
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError([f"Event with ID {event_id} not found"])
+
+    # Validate and update expected_attendees
+    # Special handling: pass 0 to clear, positive to set
+    if expected_attendees is not None:
+        if expected_attendees == 0:
+            event.expected_attendees = None
+        elif expected_attendees < 0:
+            raise ValidationError(["Expected attendees must be a positive integer"])
+        else:
+            event.expected_attendees = expected_attendees
+
+    # Update other fields if provided
+    if name is not None:
+        event.name = name
+    if event_date is not None:
+        event.event_date = event_date
+        event.year = event_date.year
+    if notes is not None:
+        event.notes = notes
+
+    session.flush()
+    return event
+
+
+def delete_planning_event(
+    session: Session,
+    event_id: int,
+) -> bool:
+    """
+    Delete an event and all its planning associations.
+
+    Cascade delete removes: event_recipes, event_finished_goods,
+    batch_decisions, plan_amendments.
+
+    Args:
+        session: Database session
+        event_id: ID of event to delete
+
+    Returns:
+        True if deleted, False if not found
+    """
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        return False
+
+    session.delete(event)
+    session.flush()
+    return True

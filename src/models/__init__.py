@@ -34,7 +34,14 @@ from .event import (
     EventProductionTarget,
     EventAssemblyTarget,
     OutputMode,  # Feature 039
+    PlanState,  # Feature 068
 )  # Re-enabled Feature 006, extended Feature 016
+
+# Feature 068: Event Management & Planning Data Model
+from .event_recipe import EventRecipe
+from .event_finished_good import EventFinishedGood
+from .batch_decision import BatchDecision
+from .plan_amendment import PlanAmendment, AmendmentType
 from .production_plan_snapshot import ProductionPlanSnapshot  # Feature 039
 from .package_status import PackageStatus  # Feature 008
 from .production_record import ProductionRecord  # Feature 008
@@ -45,7 +52,7 @@ from .enums import ProductionStatus, LossCategory, DepletionReason  # Feature 02
 from .inventory_depletion import InventoryDepletion  # Feature 041
 from .assembly_run import AssemblyRun  # Feature 013
 from .recipe_snapshot import RecipeSnapshot  # Feature 037
-from .planning_snapshot import PlanningSnapshot  # Feature 064 (stub, full impl in WP04)
+from .planning_snapshot import PlanningSnapshot, SnapshotType  # Feature 064, F068 adds SnapshotType
 from .finished_unit_snapshot import FinishedUnitSnapshot  # Feature 064
 from .finished_good_snapshot import FinishedGoodSnapshot  # Feature 064
 from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
@@ -103,6 +110,13 @@ __all__ = [
     "EventProductionTarget",
     "EventAssemblyTarget",
     "OutputMode",  # Feature 039
+    "PlanState",  # Feature 068
+    # Feature 068: Event Management & Planning Data Model
+    "EventRecipe",
+    "EventFinishedGood",
+    "BatchDecision",
+    "PlanAmendment",
+    "AmendmentType",
     "ProductionPlanSnapshot",  # Feature 039
     # Production tracking Feature 008
     "PackageStatus",
@@ -127,6 +141,7 @@ __all__ = [
     "RecipeSnapshot",
     # Feature 064: FinishedGoods Snapshot Architecture
     "PlanningSnapshot",
+    "SnapshotType",  # F068: Added for plan comparison
     "FinishedUnitSnapshot",
     "FinishedGoodSnapshot",
     # Feature 047: Materials Management System
