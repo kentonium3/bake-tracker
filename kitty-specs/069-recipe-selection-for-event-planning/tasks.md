@@ -89,7 +89,7 @@
 - [x] T011 Embed `RecipeSelectionFrame` in `PlanningTab` layout (Row 2)
 - [x] T012 Wire event selection callback to show/hide and populate frame
 - [x] T013 Implement Save button handler (call `set_event_recipes()`)
-- [ ] T014 Implement Cancel button handler (revert to loaded state)
+- [x] T014 Implement Cancel button handler (revert to loaded state)
 - [ ] T015 Handle edge cases (no event selected, empty recipe list, save failure)
 - [ ] T016 [P] Add integration tests for full workflow
 
