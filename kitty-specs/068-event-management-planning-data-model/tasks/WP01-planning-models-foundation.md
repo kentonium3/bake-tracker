@@ -10,10 +10,10 @@ subtasks:
   - "T007"
 title: "Planning Models Foundation"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude"
-shell_pid: "90115"
+shell_pid: "92876"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -542,3 +542,4 @@ class BatchDecision(BaseModel):
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
 - 2026-01-26T19:25:36Z – claude – shell_pid=90115 – lane=doing – Started implementation via workflow command
 - 2026-01-26T19:37:57Z – claude – shell_pid=90115 – lane=for_review – Ready for review: All planning models created (PlanState enum, Event fields, EventRecipe, EventFinishedGood, BatchDecision, PlanAmendment). All models import and SQLAlchemy creates tables correctly.
+- 2026-01-26T19:49:10Z – claude – shell_pid=92876 – lane=doing – Started review via workflow command
