@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Event CRUD Dialogs
-lane: "for_review"
+lane: "doing"
 dependencies: [WP02]
 base_branch: 068-event-management-planning-data-model-WP02
 base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
@@ -15,8 +15,8 @@ subtasks:
 - T026
 phase: Phase 2 - UI Layer
 assignee: ''
-agent: ''
-shell_pid: "98418"
+agent: "claude-opus"
+shell_pid: "99189"
 review_status: ''
 reviewed_by: ''
 history:
@@ -751,3 +751,4 @@ __all__ = ["EventPlanningForm", "DeleteEventDialog"]
 
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
 - 2026-01-26T21:38:55Z – unknown – shell_pid=98418 – lane=for_review – Ready for review: EventPlanningForm and DeleteEventDialog with validation, factory methods, and service layer integration. 495 lines.
+- 2026-01-26T21:40:34Z – claude-opus – shell_pid=99189 – lane=doing – Started review via workflow command
