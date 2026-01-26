@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Planning Tab Integration
+lane: "doing"
+dependencies: [WP01, WP02]
+base_branch: 069-recipe-selection-for-event-planning-WP02
+base_commit: 49d3dc12c87a5b392c48f27e69bda3334cc50258
+created_at: '2026-01-26T23:32:36.811462+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-title: "Planning Tab Integration"
-phase: "Phase 3 - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01", "WP02"]
+- T011
+- T012
+- T013
+- T014
+- T015
+- T016
+phase: Phase 3 - Integration
+assignee: ''
+agent: ''
+shell_pid: "16206"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-26T22:57:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T22:57:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Planning Tab Integration
