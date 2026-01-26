@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Selection UI Component
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 069-recipe-selection-for-event-planning-WP01
 base_commit: 1bc0971b0175cde1d2bdc47e5bb8abaece08886c
@@ -582,3 +582,4 @@ spec-kitty agent tasks move-task WP02 --to <lane> --note "message"
 ```
 
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
+- 2026-01-26T23:28:42Z – unknown – shell_pid=14673 – lane=for_review – Ready for review: RecipeSelectionFrame component with 13 passing tests
