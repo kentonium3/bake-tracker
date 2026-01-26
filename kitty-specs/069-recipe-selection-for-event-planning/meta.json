@@ -4,5 +4,7 @@
   "friendly_name": "Recipe Selection for Event Planning",
   "mission": "software-dev",
   "source_description": "see docs/func-spec/F069_recipe_selection_ui.md for the feature inputs.",
-  "created_at": "2026-01-26T17:45:00Z"
+  "created_at": "2026-01-26T17:45:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-26T23:23:30.806086+00:00"
 }
