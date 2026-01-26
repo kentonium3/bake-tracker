@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration & Import/Export
-lane: "doing"
+lane: "done"
 dependencies:
 - WP03
 base_branch: 068-event-management-planning-data-model-WP03
@@ -17,8 +17,8 @@ phase: Phase 3 - Integration
 assignee: ''
 agent: "claude-opus"
 shell_pid: "4029"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned
@@ -503,3 +503,4 @@ self.bind("<Escape>", lambda e: self._on_close())
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
 - 2026-01-26T21:58:24Z – unknown – shell_pid=99642 – lane=for_review – Ready for review: Planning tab integration complete, import/export support for F068 tables added with 11 passing tests
 - 2026-01-26T22:02:56Z – claude-opus – shell_pid=4029 – lane=doing – Started review via workflow command
+- 2026-01-26T22:06:08Z – claude-opus – shell_pid=4029 – lane=done – Review passed: Planning tab integration verified with correct callback wiring; import/export supports all 4 F068 junction tables with proper FK dependency ordering; all 11 roundtrip tests pass; no regressions in existing tests
