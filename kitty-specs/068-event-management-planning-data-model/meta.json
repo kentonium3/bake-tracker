@@ -1,0 +1,20 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [],
+  "acceptance_mode": "local",
+  "accepted_at": null,
+  "accepted_by": null,
+  "accepted_from_commit": null,
+  "created_at": "2026-01-26T13:55:00Z",
+  "feature_number": "068",
+  "friendly_name": "Event Management & Planning Data Model",
+  "merge_history": [],
+  "merged_at": null,
+  "merged_by": null,
+  "merged_commit": null,
+  "merged_into": null,
+  "merged_push": null,
+  "merged_strategy": null,
+  "slug": "068-event-management-planning-data-model",
+  "source_description": "Foundation feature for event-based planning: data model extensions for recipe selection, quantity specification, and batch decisions"
+}
