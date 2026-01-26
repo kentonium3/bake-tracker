@@ -30,6 +30,7 @@ from src.services.dto_utils import cost_to_string
 
 from src.models import (
     Event,
+    EventRecipe,  # Feature 069
     EventRecipientPackage,
     EventProductionTarget,
     EventAssemblyTarget,
@@ -2704,3 +2705,87 @@ def delete_planning_event(
     session.delete(event)
     session.flush()
     return True
+
+
+# ============================================================================
+# Feature 069: Recipe Selection for Event Planning
+# ============================================================================
+
+
+def get_event_recipe_ids(
+    session: Session,
+    event_id: int,
+) -> List[int]:
+    """
+    Get IDs of all recipes selected for an event.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+
+    Returns:
+        List of selected recipe IDs (empty if none)
+
+    Raises:
+        ValidationError: If event not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError(["Event not found"])
+
+    # Query recipe IDs
+    result = (
+        session.query(EventRecipe.recipe_id)
+        .filter(EventRecipe.event_id == event_id)
+        .all()
+    )
+    return [r[0] for r in result]
+
+
+def set_event_recipes(
+    session: Session,
+    event_id: int,
+    recipe_ids: List[int],
+) -> int:
+    """
+    Replace all recipe selections for an event.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+        recipe_ids: List of recipe IDs to select (empty list clears all)
+
+    Returns:
+        Number of recipes now selected
+
+    Raises:
+        ValidationError: If event not found or recipe ID invalid
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError(["Event not found"])
+
+    # Validate all recipe IDs exist (if any provided)
+    if recipe_ids:
+        existing_ids = set(
+            r[0] for r in session.query(Recipe.id)
+            .filter(Recipe.id.in_(recipe_ids))
+            .all()
+        )
+        invalid_ids = set(recipe_ids) - existing_ids
+        if invalid_ids:
+            raise ValidationError([f"Recipe {min(invalid_ids)} not found"])
+
+    # Delete existing selections
+    session.query(EventRecipe).filter(
+        EventRecipe.event_id == event_id
+    ).delete()
+
+    # Insert new selections
+    for recipe_id in recipe_ids:
+        session.add(EventRecipe(event_id=event_id, recipe_id=recipe_id))
+
+    session.flush()
+    return len(recipe_ids)
