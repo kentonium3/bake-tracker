@@ -60,7 +60,7 @@
 ### Included Subtasks
 - [x] T008 [P] Create PlanAmendment model with AmendmentType enum in `src/models/plan_amendment.py`
 - [x] T009 [P] Add SnapshotType enum and fields to `src/models/planning_snapshot.py`
-- [ ] T010 Update `src/models/__init__.py` with new exports
+- [x] T010 Update `src/models/__init__.py` with new exports
 - [ ] T011 Add planning CRUD methods to `src/services/event_service.py`
 - [ ] T012 Add validation for expected_attendees (positive integer or None)
 - [ ] T013 Ensure plan_state is display-only (no direct transitions in F068)
