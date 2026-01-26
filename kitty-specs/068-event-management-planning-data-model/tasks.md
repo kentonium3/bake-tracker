@@ -22,13 +22,13 @@
 **Estimated Size**: ~450 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T001 [P] Add PlanState enum to `src/models/event.py`
-- [ ] T002 Add expected_attendees field to Event model
-- [ ] T003 Add plan_state field to Event model (uses PlanState enum)
-- [ ] T004 Add planning relationships to Event model (4 new relationships)
-- [ ] T005 [P] Create EventRecipe model in `src/models/event_recipe.py`
-- [ ] T006 [P] Create EventFinishedGood model in `src/models/event_finished_good.py`
-- [ ] T007 [P] Create BatchDecision model in `src/models/batch_decision.py`
+- [x] T001 [P] Add PlanState enum to `src/models/event.py`
+- [x] T002 Add expected_attendees field to Event model
+- [x] T003 Add plan_state field to Event model (uses PlanState enum)
+- [x] T004 Add planning relationships to Event model (4 new relationships)
+- [x] T005 [P] Create EventRecipe model in `src/models/event_recipe.py`
+- [x] T006 [P] Create EventFinishedGood model in `src/models/event_finished_good.py`
+- [x] T007 [P] Create BatchDecision model in `src/models/batch_decision.py`
 
 ### Implementation Notes
 - Follow SQLAlchemy patterns from existing models (EventProductionTarget)
