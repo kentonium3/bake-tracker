@@ -127,12 +127,12 @@
 **Estimated Size**: ~450 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T021 Create event planning form base in `src/ui/forms/event_planning_form.py`
-- [ ] T022 Implement Create Event dialog with name, date picker, attendees
-- [ ] T023 Implement Edit Event dialog (pre-populated fields)
-- [ ] T024 Implement Delete confirmation dialog
-- [ ] T025 Add validation feedback (name required, date required, attendees positive)
-- [ ] T026 Wire dialogs to Planning tab action buttons
+- [x] T021 Create event planning form base in `src/ui/forms/event_planning_form.py`
+- [x] T022 Implement Create Event dialog with name, date picker, attendees
+- [x] T023 Implement Edit Event dialog (pre-populated fields)
+- [x] T024 Implement Delete confirmation dialog
+- [x] T025 Add validation feedback (name required, date required, attendees positive)
+- [x] T026 Wire dialogs to Planning tab action buttons
 
 ### Implementation Notes
 - Follow recipe_form.py pattern for dialog structure
