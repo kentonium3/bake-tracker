@@ -59,6 +59,20 @@ class OutputMode(str, Enum):
     BUNDLED = "bundled"
 
 
+class PlanState(str, Enum):
+    """
+    Planning workflow states for events.
+
+    Workflow is sequential: DRAFT → LOCKED → IN_PRODUCTION → COMPLETED
+    State transitions are implemented in F077; F068 just defines the enum.
+    """
+
+    DRAFT = "draft"  # Initial state, plan can be edited
+    LOCKED = "locked"  # Plan finalized, ready for production
+    IN_PRODUCTION = "in_production"  # Production started
+    COMPLETED = "completed"  # All production complete
+
+
 class Event(BaseModel):
     """
     Event model representing annual baking events.
@@ -83,6 +97,15 @@ class Event(BaseModel):
 
     # Planning configuration (Feature 039)
     output_mode = Column(SQLEnum(OutputMode), nullable=True, index=True)
+
+    # Planning metadata (F068)
+    expected_attendees = Column(Integer, nullable=True, index=True)
+    plan_state = Column(
+        SQLEnum(PlanState),
+        nullable=False,
+        default=PlanState.DRAFT,
+        index=True,
+    )
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
@@ -139,11 +162,38 @@ class Event(BaseModel):
         lazy="selectin",
     )
 
+    # Planning module relationships (F068)
+    event_recipes = relationship(
+        "EventRecipe",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+    event_finished_goods = relationship(
+        "EventFinishedGood",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+    batch_decisions = relationship(
+        "BatchDecision",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+    plan_amendments = relationship(
+        "PlanAmendment",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     # Indexes
     __table_args__ = (
         Index("idx_event_name", "name"),
         Index("idx_event_year", "year"),
         Index("idx_event_date", "event_date"),
+        Index("idx_event_plan_state", "plan_state"),
     )
 
     def __repr__(self) -> str:

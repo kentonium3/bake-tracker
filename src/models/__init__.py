@@ -34,7 +34,14 @@ from .event import (
     EventProductionTarget,
     EventAssemblyTarget,
     OutputMode,  # Feature 039
+    PlanState,  # Feature 068
 )  # Re-enabled Feature 006, extended Feature 016
+
+# Feature 068: Event Management & Planning Data Model
+from .event_recipe import EventRecipe
+from .event_finished_good import EventFinishedGood
+from .batch_decision import BatchDecision
+from .plan_amendment import PlanAmendment, AmendmentType
 from .production_plan_snapshot import ProductionPlanSnapshot  # Feature 039
 from .package_status import PackageStatus  # Feature 008
 from .production_record import ProductionRecord  # Feature 008
@@ -103,6 +110,13 @@ __all__ = [
     "EventProductionTarget",
     "EventAssemblyTarget",
     "OutputMode",  # Feature 039
+    "PlanState",  # Feature 068
+    # Feature 068: Event Management & Planning Data Model
+    "EventRecipe",
+    "EventFinishedGood",
+    "BatchDecision",
+    "PlanAmendment",
+    "AmendmentType",
     "ProductionPlanSnapshot",  # Feature 039
     # Production tracking Feature 008
     "PackageStatus",
