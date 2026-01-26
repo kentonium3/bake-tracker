@@ -150,6 +150,51 @@ class TestSetEventRecipes:
 
 
 # ============================================================================
+# Integration Tests (WP03 - T016)
+# ============================================================================
+
+
+class TestRecipeSelectionIntegration:
+    """Integration tests for full recipe selection workflow."""
+
+    def test_select_event_loads_empty_selections(self, test_db, planning_event, test_recipes):
+        """Selecting an event with no selections shows unchecked recipes (FR-009)."""
+        # No selections yet
+        result = event_service.get_event_recipe_ids(test_db, planning_event.id)
+        assert result == []
+
+    def test_save_and_reload_selections(self, test_db, planning_event, test_recipes):
+        """Selections persist through save and reload cycle (US-005)."""
+        selected = [test_recipes[0].id, test_recipes[2].id]
+
+        # Save selections
+        event_service.set_event_recipes(test_db, planning_event.id, selected)
+        test_db.commit()
+
+        # Reload and verify
+        loaded = event_service.get_event_recipe_ids(test_db, planning_event.id)
+        assert set(loaded) == set(selected)
+
+    def test_replace_behavior_not_append(self, test_db, planning_event, test_recipes):
+        """Saving replaces selections, not appends (FR-010)."""
+        # Initial selection
+        event_service.set_event_recipes(
+            test_db, planning_event.id, [test_recipes[0].id]
+        )
+        test_db.commit()
+
+        # Replace with different selection
+        event_service.set_event_recipes(
+            test_db, planning_event.id, [test_recipes[1].id]
+        )
+        test_db.commit()
+
+        # Verify only new selection exists
+        result = event_service.get_event_recipe_ids(test_db, planning_event.id)
+        assert result == [test_recipes[1].id]
+
+
+# ============================================================================
 # Fixtures
 # ============================================================================
 
