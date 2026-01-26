@@ -93,12 +93,12 @@
 **Estimated Size**: ~400 lines (6 subtasks)
 
 ### Included Subtasks
-- [ ] T015 Create Planning tab skeleton in `src/ui/planning_tab.py`
-- [ ] T016 Implement event list view using DataTable widget
-- [ ] T017 Add columns: Name, Date, Expected Attendees, Plan State
-- [ ] T018 Implement event selection handling
-- [ ] T019 Add action buttons: Create, Edit, Delete
-- [ ] T020 Add status bar and refresh functionality
+- [x] T015 Create Planning tab skeleton in `src/ui/planning_tab.py`
+- [x] T016 Implement event list view using DataTable widget
+- [x] T017 Add columns: Name, Date, Expected Attendees, Plan State
+- [x] T018 Implement event selection handling
+- [x] T019 Add action buttons: Create, Edit, Delete
+- [x] T020 Add status bar and refresh functionality
 
 ### Implementation Notes
 - Follow recipes_tab.py pattern for structure
