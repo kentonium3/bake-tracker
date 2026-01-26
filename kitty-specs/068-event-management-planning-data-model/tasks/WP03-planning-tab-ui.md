@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Planning Tab UI
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 068-event-management-planning-data-model-WP02
 base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
@@ -539,3 +539,4 @@ def refresh(self) -> None:
 ## Activity Log
 
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
+- 2026-01-26T21:31:24Z – unknown – shell_pid=96745 – lane=for_review – Ready for review: PlanningTab UI component with event list, CRUD buttons, status bar. 331 lines following existing patterns.
