@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Recipe Selection UI Component
+lane: "doing"
+dependencies: [WP01]
+base_branch: 069-recipe-selection-for-event-planning-WP01
+base_commit: 1bc0971b0175cde1d2bdc47e5bb8abaece08886c
+created_at: '2026-01-26T23:23:33.160562+00:00'
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-title: "Recipe Selection UI Component"
-phase: "Phase 2 - UI Component"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 2 - UI Component
+assignee: ''
+agent: ''
+shell_pid: "14673"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-26T22:57:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T22:57:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Recipe Selection UI Component
