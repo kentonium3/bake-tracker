@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Remaining Models & Service Layer Extension
+lane: "doing"
+dependencies: [WP01]
+base_branch: 068-event-management-planning-data-model-WP01
+base_commit: 62c6ed55d13273268c70271235c41bb8fbd63f08
+created_at: '2026-01-26T19:52:08.206339+00:00'
 subtasks:
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Remaining Models & Service Layer Extension"
-phase: "Phase 1 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T008
+- T009
+- T010
+- T011
+- T012
+- T013
+- T014
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "93502"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-26T19:16:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T19:16:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Remaining Models & Service Layer Extension
