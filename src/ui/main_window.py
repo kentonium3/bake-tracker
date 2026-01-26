@@ -210,13 +210,15 @@ class MainWindow(ctk.CTk):
         self.mode_manager.register_mode("CATALOG", mode)
 
     def _create_plan_mode(self):
-        """Create PLAN mode with 2 tabs using PlanMode class."""
+        """Create PLAN mode with 3 tabs using PlanMode class (F068 Planning tab added)."""
         mode = PlanMode(self.mode_content)
 
         # Store tab references for backward compatibility
         self.events_tab = mode.events_tab
+        self.planning_tab = mode.planning_tab
 
         self._tab_refs["events"] = self.events_tab
+        self._tab_refs["planning"] = self.planning_tab
 
         self.mode_manager.register_mode("PLAN", mode)
 
@@ -476,6 +478,7 @@ class MainWindow(ctk.CTk):
         self.packages_tab.refresh()
         self.recipients_tab.refresh()
         self.events_tab.refresh()
+        self.planning_tab.refresh()  # F068: Planning tab
         self.production_tab.refresh()
 
     def refresh_dashboard(self):
@@ -509,6 +512,10 @@ class MainWindow(ctk.CTk):
     def refresh_events(self):
         """Refresh the events tab."""
         self.events_tab.refresh()
+
+    def refresh_planning(self):
+        """Refresh the planning tab (F068)."""
+        self.planning_tab.refresh()
 
     def refresh_production(self):
         """Refresh the production tab."""
