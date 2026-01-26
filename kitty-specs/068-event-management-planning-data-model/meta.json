@@ -16,5 +16,7 @@
   "merged_push": null,
   "merged_strategy": null,
   "slug": "068-event-management-planning-data-model",
-  "source_description": "Foundation feature for event-based planning: data model extensions for recipe selection, quantity specification, and batch decisions"
+  "source_description": "Foundation feature for event-based planning: data model extensions for recipe selection, quantity specification, and batch decisions",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-26T19:52:05.860671+00:00"
 }
