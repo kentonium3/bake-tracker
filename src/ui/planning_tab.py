@@ -5,19 +5,21 @@ Provides a focused interface for planning events, displaying plan_state,
 expected_attendees, and supporting CRUD operations.
 
 Feature 068: Event Management & Planning Data Model
+Feature 069: Recipe Selection for Event Planning
 """
 
 import customtkinter as ctk
 from typing import Optional, Callable, List, Any
 
 from src.models import Event, PlanState
-from src.services import event_service
+from src.services import event_service, recipe_service
 from src.services.database import session_scope
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
 )
 from src.ui.widgets.data_table import DataTable
+from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 
 
 class PlanningEventDataTable(DataTable):
@@ -121,6 +123,8 @@ class PlanningTab(ctk.CTkFrame):
         super().__init__(parent, **kwargs)
 
         self.selected_event: Optional[Event] = None
+        self._selected_event_id: Optional[int] = None
+        self._original_selection: List[int] = []
 
         # Store callbacks
         self._on_create_event = on_create_event
@@ -131,11 +135,13 @@ class PlanningTab(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=0)  # Action buttons
         self.grid_rowconfigure(1, weight=1)  # Data table
-        self.grid_rowconfigure(2, weight=0)  # Status bar
+        self.grid_rowconfigure(2, weight=0)  # Recipe selection frame
+        self.grid_rowconfigure(3, weight=0)  # Status bar
 
         # Build UI
         self._create_action_buttons()
         self._create_data_table()
+        self._create_recipe_selection_frame()
         self._create_status_bar()
 
         # Layout widgets
@@ -195,6 +201,15 @@ class PlanningTab(ctk.CTkFrame):
             double_click_callback=self._on_row_double_click,
         )
 
+    def _create_recipe_selection_frame(self) -> None:
+        """Create the recipe selection frame (initially hidden)."""
+        self._recipe_selection_frame = RecipeSelectionFrame(
+            self,
+            on_save=self._on_recipe_selection_save,
+            on_cancel=self._on_recipe_selection_cancel,
+        )
+        # Frame starts hidden - will be shown when event is selected
+
     def _create_status_bar(self) -> None:
         """Create status bar for displaying feedback."""
         self.status_frame = ctk.CTkFrame(self, height=30)
@@ -222,9 +237,12 @@ class PlanningTab(ctk.CTkFrame):
             padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
 
+        # Recipe selection frame - row 2 (initially not gridded, shown when event selected)
+        # Note: _recipe_selection_frame.grid() is called in _show_recipe_selection()
+
         # Status bar at bottom
         self.status_frame.grid(
-            row=2, column=0, sticky="ew",
+            row=3, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
@@ -247,8 +265,10 @@ class PlanningTab(ctk.CTkFrame):
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
 
-        # Clear selection
+        # Clear selection and hide recipe selection
         self.selected_event = None
+        self._selected_event_id = None
+        self._hide_recipe_selection()
         self._update_button_states()
 
     def _on_row_select(self, event: Optional[Event]) -> None:
@@ -274,8 +294,87 @@ class PlanningTab(ctk.CTkFrame):
 
         if self.selected_event:
             self._update_status(f"Selected: {self.selected_event.name}")
+            self._selected_event_id = self.selected_event.id
+            self._show_recipe_selection(self.selected_event.id)
         else:
             self._update_status("Ready")
+            self._selected_event_id = None
+            self._hide_recipe_selection()
+
+    def _show_recipe_selection(self, event_id: int) -> None:
+        """
+        Show and populate recipe selection for an event.
+
+        Args:
+            event_id: ID of the selected event
+        """
+        try:
+            with session_scope() as session:
+                # Get event name
+                event = event_service.get_event_by_id(event_id, session=session)
+                event_name = event.name if event else ""
+
+                # Get all recipes for selection (non-archived only)
+                recipes = recipe_service.get_all_recipes(include_archived=False)
+
+                # Get existing selections
+                selected_ids = event_service.get_event_recipe_ids(session, event_id)
+
+            # Populate frame
+            self._recipe_selection_frame.populate_recipes(recipes, event_name)
+            self._recipe_selection_frame.set_selected(selected_ids)
+
+            # Store for cancel functionality
+            self._original_selection = selected_ids.copy()
+
+            # Show frame using grid
+            self._recipe_selection_frame.grid(
+                row=2, column=0, sticky="ew",
+                padx=PADDING_LARGE, pady=PADDING_MEDIUM
+            )
+
+        except Exception as e:
+            self._update_status(f"Error loading recipes: {e}", is_error=True)
+
+    def _hide_recipe_selection(self) -> None:
+        """Hide the recipe selection frame."""
+        self._recipe_selection_frame.grid_forget()
+        self._original_selection = []
+
+    def _on_recipe_selection_save(self, selected_ids: List[int]) -> None:
+        """
+        Handle recipe selection save.
+
+        Args:
+            selected_ids: List of selected recipe IDs
+        """
+        if self._selected_event_id is None:
+            self._update_status("No event selected", is_error=True)
+            return
+
+        try:
+            with session_scope() as session:
+                count = event_service.set_event_recipes(
+                    session,
+                    self._selected_event_id,
+                    selected_ids,
+                )
+                session.commit()
+
+            # Update original selection (for future cancel)
+            self._original_selection = selected_ids.copy()
+
+            # Show success feedback
+            self._update_status(f"Saved {count} recipe selection(s)")
+
+        except Exception as e:
+            # Show error but keep UI state
+            self._update_status(f"Error saving: {e}", is_error=True)
+
+    def _on_recipe_selection_cancel(self) -> None:
+        """Handle recipe selection cancel - revert to last saved state."""
+        self._recipe_selection_frame.set_selected(self._original_selection)
+        self._update_status("Reverted to saved selections")
 
     def _on_row_double_click(self, event: Event) -> None:
         """
