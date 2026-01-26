@@ -99,7 +99,18 @@ class Event(BaseModel):
     output_mode = Column(SQLEnum(OutputMode), nullable=True, index=True)
 
     # Planning metadata (F068)
-    expected_attendees = Column(Integer, nullable=True, index=True)
+    # CheckConstraint ensures positive values when not NULL (F068 review fix)
+    expected_attendees = Column(
+        Integer,
+        nullable=True,
+        index=True,
+    )
+    __table_args__ = (
+        CheckConstraint(
+            "expected_attendees IS NULL OR expected_attendees > 0",
+            name="ck_events_expected_attendees_positive",
+        ),
+    )
     plan_state = Column(
         SQLEnum(PlanState),
         nullable=False,

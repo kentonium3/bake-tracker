@@ -122,6 +122,42 @@ class TestCreatePlanningEvent:
 
         assert "positive integer" in str(exc_info.value)
 
+    def test_rejects_empty_name(self, test_db):
+        """Empty name should raise ValidationError (FR-001)."""
+        with pytest.raises(ValidationError) as exc_info:
+            event_service.create_planning_event(
+                test_db, "", date(2026, 7, 4)
+            )
+
+        assert "name is required" in str(exc_info.value).lower()
+
+    def test_rejects_whitespace_only_name(self, test_db):
+        """Whitespace-only name should raise ValidationError (FR-001)."""
+        with pytest.raises(ValidationError) as exc_info:
+            event_service.create_planning_event(
+                test_db, "   ", date(2026, 7, 4)
+            )
+
+        assert "name is required" in str(exc_info.value).lower()
+
+    def test_rejects_none_date(self, test_db):
+        """None date should raise ValidationError (FR-002)."""
+        with pytest.raises(ValidationError) as exc_info:
+            event_service.create_planning_event(
+                test_db, "Party", None
+            )
+
+        assert "date is required" in str(exc_info.value).lower()
+
+    def test_strips_name_whitespace(self, test_db):
+        """Name should be trimmed of leading/trailing whitespace."""
+        event = event_service.create_planning_event(
+            test_db, "  Party  ", date(2026, 7, 4)
+        )
+        test_db.commit()
+
+        assert event.name == "Party"
+
 
 class TestUpdatePlanningEvent:
     """Tests for update_planning_event method."""
@@ -220,6 +256,38 @@ class TestUpdatePlanningEvent:
 
         assert updated.name == original_name
         assert updated.expected_attendees == original_attendees
+
+    def test_rejects_empty_name_update(self, test_db):
+        """Empty name update should raise ValidationError (FR-001)."""
+        event = event_service.create_planning_event(test_db, "Party", date(2026, 7, 4))
+        test_db.commit()
+
+        with pytest.raises(ValidationError) as exc_info:
+            event_service.update_planning_event(test_db, event.id, name="")
+
+        assert "cannot be empty" in str(exc_info.value).lower()
+
+    def test_rejects_whitespace_only_name_update(self, test_db):
+        """Whitespace-only name update should raise ValidationError (FR-001)."""
+        event = event_service.create_planning_event(test_db, "Party", date(2026, 7, 4))
+        test_db.commit()
+
+        with pytest.raises(ValidationError) as exc_info:
+            event_service.update_planning_event(test_db, event.id, name="   ")
+
+        assert "cannot be empty" in str(exc_info.value).lower()
+
+    def test_strips_name_whitespace_on_update(self, test_db):
+        """Updated name should be trimmed of whitespace."""
+        event = event_service.create_planning_event(test_db, "Party", date(2026, 7, 4))
+        test_db.commit()
+
+        updated = event_service.update_planning_event(
+            test_db, event.id, name="  New Name  "
+        )
+        test_db.commit()
+
+        assert updated.name == "New Name"
 
 
 class TestDeletePlanningEvent:

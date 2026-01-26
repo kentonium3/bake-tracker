@@ -2591,12 +2591,21 @@ def create_planning_event(
     Raises:
         ValidationError: If validation fails
     """
+    # Validate required fields (FR-001, FR-002)
+    errors = []
+    if not name or not name.strip():
+        errors.append("Event name is required")
+    if event_date is None:
+        errors.append("Event date is required")
+    if errors:
+        raise ValidationError(errors)
+
     # Validate expected_attendees
     _validate_expected_attendees(expected_attendees)
 
     # Create event with planning defaults
     event = Event(
-        name=name,
+        name=name.strip(),
         event_date=event_date,
         year=event_date.year,
         expected_attendees=expected_attendees,
@@ -2641,6 +2650,13 @@ def update_planning_event(
     if not event:
         raise ValidationError([f"Event with ID {event_id} not found"])
 
+    # Validate fields if provided (FR-001, FR-002)
+    errors = []
+    if name is not None and not name.strip():
+        errors.append("Event name cannot be empty")
+    if errors:
+        raise ValidationError(errors)
+
     # Validate and update expected_attendees
     # Special handling: pass 0 to clear, positive to set
     if expected_attendees is not None:
@@ -2653,7 +2669,7 @@ def update_planning_event(
 
     # Update other fields if provided
     if name is not None:
-        event.name = name
+        event.name = name.strip()
     if event_date is not None:
         event.event_date = event_date
         event.year = event_date.year
