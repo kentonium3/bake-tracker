@@ -23,10 +23,10 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Implement `get_event_recipe_ids(session, event_id)` method
-- [ ] T002 Implement `set_event_recipes(session, event_id, recipe_ids)` method
-- [ ] T003 Add validation for event existence and recipe existence
-- [ ] T004 [P] Write unit tests for service methods
+- [x] T001 Implement `get_event_recipe_ids(session, event_id)` method
+- [x] T002 Implement `set_event_recipes(session, event_id, recipe_ids)` method
+- [x] T003 Add validation for event existence and recipe existence
+- [x] T004 [P] Write unit tests for service methods
 
 ### Implementation Notes
 - Follow existing event_service.py patterns (F068)
