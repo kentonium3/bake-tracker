@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration & Import/Export
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP03
 base_branch: 068-event-management-planning-data-model-WP03
@@ -15,8 +15,8 @@ subtasks:
 - T031
 phase: Phase 3 - Integration
 assignee: ''
-agent: ''
-shell_pid: "99642"
+agent: "claude-opus"
+shell_pid: "4029"
 review_status: ''
 reviewed_by: ''
 history:
@@ -502,3 +502,4 @@ self.bind("<Escape>", lambda e: self._on_close())
 
 - 2026-01-26T19:16:03Z – system – lane=planned – Prompt created.
 - 2026-01-26T21:58:24Z – unknown – shell_pid=99642 – lane=for_review – Ready for review: Planning tab integration complete, import/export support for F068 tables added with 11 passing tests
+- 2026-01-26T22:02:56Z – claude-opus – shell_pid=4029 – lane=doing – Started review via workflow command
