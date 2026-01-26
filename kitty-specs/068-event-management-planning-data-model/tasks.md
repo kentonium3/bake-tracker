@@ -161,11 +161,11 @@
 **Estimated Size**: ~350 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T027 Add Planning tab to main application window
-- [ ] T028 Add new planning tables to import/export service
-- [ ] T029 Integration test: Create event → Edit → Delete with cascade
-- [ ] T030 Validate import/export preserves all planning fields
-- [ ] T031 Final UI polish and edge case handling
+- [x] T027 Add Planning tab to main application window
+- [x] T028 Add new planning tables to import/export service
+- [x] T029 Integration test: Create event → Edit → Delete with cascade
+- [x] T030 Validate import/export preserves all planning fields
+- [x] T031 Final UI polish and edge case handling
 
 ### Implementation Notes
 - Add import/export in dependency order: event_recipes, event_finished_goods, batch_decisions, plan_amendments
