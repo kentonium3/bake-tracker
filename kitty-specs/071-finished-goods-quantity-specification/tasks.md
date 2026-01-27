@@ -26,7 +26,7 @@
 - [x] T001 Implement `get_event_fg_quantities()` in `src/services/event_service.py`
 - [x] T002 Implement `set_event_fg_quantities()` in `src/services/event_service.py`
 - [x] T003 Implement `remove_event_fg()` in `src/services/event_service.py`
-- [ ] T004 Write unit tests in `src/tests/services/test_event_service_fg_quantities.py`
+- [x] T004 Write unit tests in `src/tests/services/test_event_service_fg_quantities.py`
 
 ### Implementation Notes
 - Follow session management pattern: accept `session` parameter, delegate to `_impl` function
