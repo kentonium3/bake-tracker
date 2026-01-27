@@ -93,7 +93,7 @@
 
 ### Included Subtasks
 - [x] T013 [P] Create `FGSelectionFrame(CTkFrame)` class structure in `src/ui/components/fg_selection_frame.py`
-- [ ] T014 Implement `populate_finished_goods(fgs: List[FinishedGood], event_name: str)` method
+- [x] T014 Implement `populate_finished_goods(fgs: List[FinishedGood], event_name: str)` method
 - [ ] T015 Implement checkbox rendering per FG with display name
 - [ ] T016 Implement live count display ("X of Y selected")
 - [ ] T017 Implement Save/Cancel buttons with callback support
