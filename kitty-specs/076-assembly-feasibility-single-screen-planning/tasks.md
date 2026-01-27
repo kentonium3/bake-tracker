@@ -27,7 +27,7 @@
 - [x] T002 Implement _get_production_availability() to calculate yields from BatchDecisions
 - [x] T003 Implement _calculate_fg_feasibility() with bundle decomposition
 - [x] T004 Implement calculate_assembly_feasibility() main public function
-- [ ] T005 Handle edge cases (empty event, missing decisions, zero quantities)
+- [x] T005 Handle edge cases (empty event, missing decisions, zero quantities)
 
 ### Implementation Notes
 - Follow session=None pattern per CLAUDE.md
