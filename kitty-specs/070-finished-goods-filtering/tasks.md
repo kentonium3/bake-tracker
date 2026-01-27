@@ -62,7 +62,7 @@
 - [x] T008 Implement `get_available_finished_goods(event_id, session)` function
 - [x] T009 Implement `remove_invalid_fg_selections(event_id, session)` function
 - [x] T010 Modify `set_event_recipes()` to call `remove_invalid_fg_selections()` after updating recipes
-- [ ] T011 Write unit tests for availability checking in `src/tests/test_fg_availability.py`
+- [x] T011 Write unit tests for availability checking in `src/tests/test_fg_availability.py`
 - [ ] T012 Write unit tests for cascade removal in `src/tests/test_fg_availability.py`
 
 ### Implementation Notes
