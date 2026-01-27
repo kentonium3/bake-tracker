@@ -129,7 +129,7 @@
 
 ### Included Subtasks
 - [x] T022 Create `src/ui/widgets/batch_options_frame.py` module
-- [ ] T023 Implement `BatchOptionsFrame` class structure with constructor
+- [x] T023 Implement `BatchOptionsFrame` class structure with constructor
 - [ ] T024 Implement `populate(options_results)` to display all FUs
 - [ ] T025 Implement `_create_fu_section(result)` for individual FU display
 - [ ] T026 Implement radio button selection with shortfall visual indicator
