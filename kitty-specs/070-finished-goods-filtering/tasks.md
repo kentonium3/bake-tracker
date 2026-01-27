@@ -28,7 +28,7 @@
 - [x] T002 Implement `get_required_recipes(fg_id, session)` recursive function
 - [x] T003 Add circular reference detection using visited set
 - [x] T004 Add depth limiting (max 10 levels)
-- [ ] T005 Write unit tests for decomposition in `src/tests/test_fg_availability.py`
+- [x] T005 Write unit tests for decomposition in `src/tests/test_fg_availability.py`
 
 ### Implementation Notes
 - Follow pattern from `batch_calculation.explode_bundle_requirements()` (lines 149-234)
