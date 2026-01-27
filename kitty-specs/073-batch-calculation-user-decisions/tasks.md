@@ -170,7 +170,7 @@
 - [x] T032 Implement shortfall confirmation dialog flow using `show_confirmation()`
 - [x] T033 Implement `_save_batch_decisions()` on user action
 - [x] T034 Implement load existing decisions on event open (pre-select radio buttons)
-- [ ] T035 Wire up modification flow (change existing decision triggers re-save)
+- [x] T035 Wire up modification flow (change existing decision triggers re-save)
 - [ ] T036 End-to-end manual testing and validation
 
 ### Implementation Notes
