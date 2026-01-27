@@ -114,7 +114,7 @@
 
 ### Included Subtasks
 - [x] T014 Create AssemblyStatusFrame class in src/ui/components/assembly_status_frame.py
-- [ ] T015 Add status indicator with color coding (green/orange/red/gray)
+- [x] T015 Add status indicator with color coding (green/orange/red/gray)
 - [ ] T016 Add FG count display ("X of Y finished goods ready")
 - [ ] T017 Add per-FG detail list with shortfall amounts
 
