@@ -1,28 +1,30 @@
 ---
-work_package_id: "WP02"
-title: "Modification Guards"
-lane: "planned"
+work_package_id: WP02
+title: Modification Guards
+lane: "doing"
 dependencies:
-  - "WP01"
+- WP01
+base_branch: 077-plan-state-management-WP01
+base_commit: a6cfd406f35e89c0d0f113dbe562f6cfcab55113
+created_at: '2026-01-27T22:43:46.167060+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-phase: "Phase 2 - Service Layer Guards"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-base_branch: "077-plan-state-management-WP01"
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 2 - Service Layer Guards
+assignee: ''
+agent: ''
+shell_pid: "56450"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Modification Guards
