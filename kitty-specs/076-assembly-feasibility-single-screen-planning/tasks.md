@@ -55,7 +55,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T006 [P] Test basic feasibility with single atomic FG (sufficient production)
+- [x] T006 [P] Test basic feasibility with single atomic FG (sufficient production)
 - [ ] T007 [P] Test shortfall detection (production < needed)
 - [ ] T008 [P] Test bundle component validation (nested FG)
 - [ ] T009 [P] Test empty event and missing batch decisions
