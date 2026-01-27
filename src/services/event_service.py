@@ -14,7 +14,7 @@ Architecture Note (Feature 006):
 - Recipe needs traverse: Package -> FinishedGood -> Composition -> FinishedUnit -> Recipe
 """
 
-from typing import List, Optional, Dict, Any, Set
+from typing import List, Optional, Dict, Any, Set, Tuple
 from dataclasses import dataclass
 from datetime import datetime, date
 from src.utils.datetime_utils import utc_now
@@ -31,6 +31,7 @@ from src.services.dto_utils import cost_to_string
 from src.models import (
     Event,
     EventRecipe,  # Feature 069
+    EventFinishedGood,  # Feature 070
     EventRecipientPackage,
     EventProductionTarget,
     EventAssemblyTarget,
@@ -231,6 +232,196 @@ def get_required_recipes(
         # else: packaging/material component - no recipe needed (skip)
 
     return recipes
+
+
+# ============================================================================
+# F070: FG Availability DTOs
+# ============================================================================
+
+
+@dataclass
+class AvailabilityResult:
+    """Result of checking FG availability against selected recipes."""
+
+    fg_id: int
+    fg_name: str
+    is_available: bool
+    required_recipe_ids: Set[int]
+    missing_recipe_ids: Set[int]
+
+
+@dataclass
+class RemovedFGInfo:
+    """Info about an FG that was auto-removed due to recipe deselection."""
+
+    fg_id: int
+    fg_name: str
+    missing_recipes: List[str]  # Recipe names for user notification
+
+
+# ============================================================================
+# F070: FG Availability Checking
+# ============================================================================
+
+
+def check_fg_availability(
+    fg_id: int,
+    selected_recipe_ids: Set[int],
+    session: Session,
+) -> AvailabilityResult:
+    """
+    Check if a FinishedGood is available given selected recipes.
+
+    Args:
+        fg_id: The FinishedGood ID to check
+        selected_recipe_ids: Set of recipe IDs currently selected for the event
+        session: Database session
+
+    Returns:
+        AvailabilityResult with availability status and missing recipe details
+
+    Raises:
+        ValidationError: If fg_id not found
+    """
+    # Get FG for name (for result)
+    fg = session.query(FinishedGood).filter(FinishedGood.id == fg_id).first()
+    if fg is None:
+        raise ValidationError([f"FinishedGood {fg_id} not found"])
+
+    # Decompose to required recipes
+    try:
+        required = get_required_recipes(fg_id, session)
+    except (CircularReferenceError, MaxDepthExceededError):
+        # Treat problematic FGs as unavailable
+        return AvailabilityResult(
+            fg_id=fg_id,
+            fg_name=fg.display_name,
+            is_available=False,
+            required_recipe_ids=set(),
+            missing_recipe_ids=set(),
+        )
+
+    # Calculate missing recipes
+    missing = required - selected_recipe_ids
+
+    return AvailabilityResult(
+        fg_id=fg_id,
+        fg_name=fg.display_name,
+        is_available=len(missing) == 0,
+        required_recipe_ids=required,
+        missing_recipe_ids=missing,
+    )
+
+
+def get_available_finished_goods(
+    event_id: int,
+    session: Session,
+) -> List[FinishedGood]:
+    """
+    Get all FinishedGoods that are available for an event.
+
+    A FG is available if all its required recipes are selected for the event.
+
+    Args:
+        event_id: The event to check availability for
+        session: Database session
+
+    Returns:
+        List of FinishedGood objects that are available
+
+    Raises:
+        ValidationError: If event_id not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if event is None:
+        raise ValidationError([f"Event {event_id} not found"])
+
+    # Get selected recipe IDs for this event
+    selected_recipe_ids = set(get_event_recipe_ids(session, event_id))
+
+    # If no recipes selected, no FGs are available
+    if not selected_recipe_ids:
+        return []
+
+    # Get all FGs
+    all_fgs = session.query(FinishedGood).all()
+
+    # Filter to available FGs
+    available_fgs = []
+    for fg in all_fgs:
+        result = check_fg_availability(fg.id, selected_recipe_ids, session)
+        if result.is_available:
+            available_fgs.append(fg)
+
+    return available_fgs
+
+
+def remove_invalid_fg_selections(
+    event_id: int,
+    session: Session,
+) -> List[RemovedFGInfo]:
+    """
+    Remove FG selections that are no longer valid for an event.
+
+    Called after recipe selection changes to maintain data integrity.
+
+    Args:
+        event_id: The event to clean up
+        session: Database session
+
+    Returns:
+        List of RemovedFGInfo for FGs that were removed (for notification)
+
+    Raises:
+        ValidationError: If event_id not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if event is None:
+        raise ValidationError([f"Event {event_id} not found"])
+
+    # Get current selected recipe IDs
+    selected_recipe_ids = set(get_event_recipe_ids(session, event_id))
+
+    # Get current FG selections for this event
+    current_fg_selections = (
+        session.query(EventFinishedGood)
+        .filter(EventFinishedGood.event_id == event_id)
+        .all()
+    )
+
+    removed_fgs: List[RemovedFGInfo] = []
+
+    for efg in current_fg_selections:
+        result = check_fg_availability(efg.finished_good_id, selected_recipe_ids, session)
+
+        if not result.is_available:
+            # Get recipe names for notification
+            missing_recipe_names = []
+            if result.missing_recipe_ids:
+                recipes = (
+                    session.query(Recipe)
+                    .filter(Recipe.id.in_(result.missing_recipe_ids))
+                    .all()
+                )
+                missing_recipe_names = [r.name for r in recipes]
+
+            removed_fgs.append(
+                RemovedFGInfo(
+                    fg_id=result.fg_id,
+                    fg_name=result.fg_name,
+                    missing_recipes=missing_recipe_names,
+                )
+            )
+
+            # Delete the selection
+            session.delete(efg)
+
+    # Flush to persist deletions
+    session.flush()
+
+    return removed_fgs
 
 
 # ============================================================================
@@ -2840,9 +3031,12 @@ def set_event_recipes(
     session: Session,
     event_id: int,
     recipe_ids: List[int],
-) -> int:
+) -> Tuple[int, List[RemovedFGInfo]]:
     """
     Replace all recipe selections for an event.
+
+    MODIFIED for F070: Now also removes invalid FG selections and returns
+    info about removed FGs for notification.
 
     Args:
         session: Database session
@@ -2850,7 +3044,7 @@ def set_event_recipes(
         recipe_ids: List of recipe IDs to select (empty list clears all)
 
     Returns:
-        Number of recipes now selected
+        Tuple of (count of recipes set, list of removed FG info)
 
     Raises:
         ValidationError: If event not found or recipe ID invalid
@@ -2881,4 +3075,8 @@ def set_event_recipes(
         session.add(EventRecipe(event_id=event_id, recipe_id=recipe_id))
 
     session.flush()
-    return len(recipe_ids)
+
+    # F070: Remove invalid FG selections after recipe change
+    removed_fgs = remove_invalid_fg_selections(event_id, session)
+
+    return len(recipe_ids), removed_fgs
