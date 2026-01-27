@@ -8,6 +8,7 @@ Feature 068: Event Management & Planning Data Model
 Feature 069: Recipe Selection for Event Planning
 Feature 070: Finished Goods Filtering for Event Planning
 Feature 071: Finished Goods Quantity Specification
+Feature 073: Batch Calculation User Decisions
 """
 
 import customtkinter as ctk
@@ -22,8 +23,18 @@ from src.utils.constants import (
     PADDING_LARGE,
 )
 from src.ui.widgets.data_table import DataTable
+from src.ui.widgets.dialogs import show_confirmation
+from src.ui.widgets.batch_options_frame import BatchOptionsFrame
 from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 from src.ui.components.fg_selection_frame import FGSelectionFrame
+from src.services.planning_service import calculate_batch_options
+from src.services.batch_decision_service import (
+    save_batch_decision,
+    get_batch_decisions,
+    delete_batch_decisions,
+    BatchDecisionInput,
+)
+from src.services.exceptions import ValidationError
 
 
 class PlanningEventDataTable(DataTable):
@@ -131,6 +142,9 @@ class PlanningTab(ctk.CTkFrame):
         self._original_recipe_selection: List[int] = []
         # F070/F071: FG selection state with quantities
         self._original_fg_selection: List[Tuple[int, int]] = []
+        # F073: Batch decision state
+        self._confirmed_shortfalls: set = set()
+        self._has_unsaved_batch_changes: bool = False
 
         # Store callbacks
         self._on_create_event = on_create_event
@@ -143,13 +157,15 @@ class PlanningTab(ctk.CTkFrame):
         self.grid_rowconfigure(1, weight=1)  # Data table
         self.grid_rowconfigure(2, weight=0)  # Recipe selection frame
         self.grid_rowconfigure(3, weight=0)  # FG selection frame (F070)
-        self.grid_rowconfigure(4, weight=0)  # Status bar
+        self.grid_rowconfigure(4, weight=0)  # Batch options frame (F073)
+        self.grid_rowconfigure(5, weight=0)  # Status bar
 
         # Build UI
         self._create_action_buttons()
         self._create_data_table()
         self._create_recipe_selection_frame()
         self._create_fg_selection_frame()
+        self._create_batch_options_frame()
         self._create_status_bar()
 
         # Layout widgets
@@ -227,6 +243,38 @@ class PlanningTab(ctk.CTkFrame):
         )
         # Frame starts hidden - will be shown when event is selected
 
+    def _create_batch_options_frame(self) -> None:
+        """Create the batch options frame (F073, initially hidden)."""
+        # Create container frame for label, widget, and save button
+        self._batch_options_container = ctk.CTkFrame(self)
+
+        # Section label
+        self._batch_options_label = ctk.CTkLabel(
+            self._batch_options_container,
+            text="Batch Options",
+            font=ctk.CTkFont(weight="bold", size=16),
+            anchor="w",
+        )
+        self._batch_options_label.pack(anchor="w", padx=10, pady=(10, 5))
+
+        # BatchOptionsFrame widget
+        self._batch_options_frame = BatchOptionsFrame(
+            self._batch_options_container,
+            on_selection_change=self._on_batch_selection_change,
+            height=200,
+        )
+        self._batch_options_frame.pack(fill="x", padx=10, pady=5)
+
+        # Save button
+        self._save_batches_button = ctk.CTkButton(
+            self._batch_options_container,
+            text="Save Batch Decisions",
+            command=self._save_batch_decisions,
+            width=180,
+        )
+        self._save_batches_button.pack(anchor="e", padx=10, pady=10)
+        # Frame starts hidden
+
     def _create_status_bar(self) -> None:
         """Create status bar for displaying feedback."""
         self.status_frame = ctk.CTkFrame(self, height=30)
@@ -260,9 +308,12 @@ class PlanningTab(ctk.CTkFrame):
         # FG selection frame - row 3 (initially not gridded, shown when event selected)
         # Note: _fg_selection_frame.grid() is called in _show_fg_selection()
 
-        # Status bar at bottom (row 4)
+        # Batch options frame - row 4 (F073, initially not gridded)
+        # Note: _batch_options_container.grid() is called in _show_batch_options()
+
+        # Status bar at bottom (row 5)
         self.status_frame.grid(
-            row=4, column=0, sticky="ew",
+            row=5, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
@@ -285,11 +336,12 @@ class PlanningTab(ctk.CTkFrame):
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
 
-        # Clear selection and hide recipe/FG selection
+        # Clear selection and hide recipe/FG/batch selection
         self.selected_event = None
         self._selected_event_id = None
         self._hide_recipe_selection()
         self._hide_fg_selection()
+        self._hide_batch_options()
         self._update_button_states()
 
     def _on_row_select(self, event: Optional[Event]) -> None:
@@ -318,11 +370,13 @@ class PlanningTab(ctk.CTkFrame):
             self._selected_event_id = self.selected_event.id
             self._show_recipe_selection(self.selected_event.id)
             self._show_fg_selection(self.selected_event.id)
+            self._show_batch_options(self.selected_event.id)
         else:
             self._update_status("Ready")
             self._selected_event_id = None
             self._hide_recipe_selection()
             self._hide_fg_selection()
+            self._hide_batch_options()
 
     def _show_recipe_selection(self, event_id: int) -> None:
         """
@@ -530,6 +584,158 @@ class PlanningTab(ctk.CTkFrame):
 
         # Show as error-style to draw attention (orange would be ideal but red is available)
         self._update_status(message, is_error=True)
+
+    # =========================================================================
+    # F073: Batch Options
+    # =========================================================================
+
+    def _show_batch_options(self, event_id: int) -> None:
+        """
+        Show and populate batch options for an event.
+
+        Args:
+            event_id: ID of the selected event
+        """
+        self._load_batch_options()
+
+        # Show container using grid
+        self._batch_options_container.grid(
+            row=4, column=0, sticky="ew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        )
+
+    def _hide_batch_options(self) -> None:
+        """Hide the batch options frame."""
+        self._batch_options_container.grid_forget()
+        self._batch_options_frame.clear()
+        self._confirmed_shortfalls.clear()
+        self._has_unsaved_batch_changes = False
+
+    def _load_batch_options(self) -> None:
+        """Load batch options for the currently selected event."""
+        if self._selected_event_id is None:
+            self._batch_options_frame.clear()
+            return
+
+        try:
+            # Calculate options from F073
+            options_results = calculate_batch_options(self._selected_event_id)
+
+            # Populate the widget
+            self._batch_options_frame.populate(options_results)
+
+            # Load existing decisions and pre-select
+            self._load_existing_decisions()
+
+            # Reset unsaved changes flag
+            self._has_unsaved_batch_changes = False
+            self._update_save_button_state()
+
+        except Exception as e:
+            self._update_status(f"Failed to load batch options: {e}", is_error=True)
+
+    def _load_existing_decisions(self) -> None:
+        """Load existing batch decisions and pre-select options."""
+        if self._selected_event_id is None:
+            return
+
+        try:
+            decisions = get_batch_decisions(self._selected_event_id)
+
+            for decision in decisions:
+                self._batch_options_frame.set_selection(
+                    decision.finished_unit_id,
+                    decision.batches,
+                )
+
+        except Exception as e:
+            # Log but don't fail - just means no pre-selection
+            print(f"Warning: Could not load existing decisions: {e}")
+
+    def _on_batch_selection_change(self, fu_id: int, batches: int) -> None:
+        """
+        Handle batch selection change.
+
+        Shows confirmation dialog if shortfall option selected.
+
+        Args:
+            fu_id: FinishedUnit ID
+            batches: Number of batches selected
+        """
+        # Check if this is a shortfall selection
+        selections = self._batch_options_frame.get_selection_with_shortfall_info()
+        selection = next(
+            (s for s in selections if s["finished_unit_id"] == fu_id), None
+        )
+
+        if selection and selection["is_shortfall"]:
+            # Show confirmation dialog
+            confirmed = show_confirmation(
+                "Shortfall Warning",
+                "This selection will produce fewer items than needed.\n\n"
+                "You will be short. Do you want to proceed with this selection?",
+                parent=self,
+            )
+
+            if not confirmed:
+                # User cancelled - clear selection
+                self._batch_options_frame.set_selection(fu_id, 0)
+                return
+
+            # Mark as confirmed for save
+            self._confirmed_shortfalls.add(fu_id)
+        else:
+            # Not a shortfall, remove from confirmed set if present
+            self._confirmed_shortfalls.discard(fu_id)
+
+        # Mark as having unsaved changes
+        self._has_unsaved_batch_changes = True
+        self._update_save_button_state()
+
+    def _update_save_button_state(self) -> None:
+        """Update save button to indicate unsaved changes."""
+        if self._has_unsaved_batch_changes:
+            self._save_batches_button.configure(text="Save Batch Decisions *")
+        else:
+            self._save_batches_button.configure(text="Save Batch Decisions")
+
+    def _save_batch_decisions(self) -> None:
+        """Save all batch decisions for the current event."""
+        if self._selected_event_id is None:
+            return
+
+        selections = self._batch_options_frame.get_selection_with_shortfall_info()
+
+        if not selections:
+            self._update_status("No batch selections to save.")
+            return
+
+        try:
+            # Clear existing decisions first (replace pattern)
+            delete_batch_decisions(self._selected_event_id)
+
+            # Save each decision
+            for selection in selections:
+                is_shortfall = selection["is_shortfall"]
+                fu_id = selection["finished_unit_id"]
+                decision = BatchDecisionInput(
+                    finished_unit_id=fu_id,
+                    batches=selection["batches"],
+                    is_shortfall=is_shortfall,
+                    confirmed_shortfall=fu_id in self._confirmed_shortfalls if is_shortfall else False,
+                )
+                save_batch_decision(self._selected_event_id, decision)
+
+            self._update_status("Batch decisions saved successfully.")
+
+            # Reset unsaved indicator on success
+            self._has_unsaved_batch_changes = False
+            self._update_save_button_state()
+
+        except ValidationError as e:
+            self._update_status(f"Validation error: {e}", is_error=True)
+        except Exception as e:
+            self._update_status(f"Failed to save batch decisions: {e}", is_error=True)
 
     def _on_row_double_click(self, event: Event) -> None:
         """
