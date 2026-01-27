@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.13.4
+  version: 0.13.7
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-01-26T18:51:55.678877'
+  last_upgraded_at: '2026-01-27T10:27:02.087123'
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -64,5 +64,13 @@ migrations:
     notes: Not applicable
   - id: 0.13.1_exclude_worktrees
     applied_at: '2026-01-26T18:51:55.678791'
+    result: skipped
+    notes: Not applicable
+  - id: 0.13.5_fix_clarify_template
+    applied_at: '2026-01-27T10:27:02.086713'
+    result: skipped
+    notes: Not applicable
+  - id: 0.13.5_add_commit_workflow_to_templates
+    applied_at: '2026-01-27T10:27:02.087118'
     result: skipped
     notes: Not applicable
