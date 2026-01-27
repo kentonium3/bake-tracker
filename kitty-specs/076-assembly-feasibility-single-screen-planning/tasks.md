@@ -57,7 +57,7 @@
 ### Included Subtasks
 - [x] T006 [P] Test basic feasibility with single atomic FG (sufficient production)
 - [x] T007 [P] Test shortfall detection (production < needed)
-- [ ] T008 [P] Test bundle component validation (nested FG)
+- [x] T008 [P] Test bundle component validation (nested FG)
 - [ ] T009 [P] Test empty event and missing batch decisions
 - [ ] T010 [P] Test decision coverage metrics (decided_count vs total_fu_count)
 
