@@ -1,0 +1,8 @@
+{
+  "feature_number": "074",
+  "slug": "074-ingredient-aggregation",
+  "friendly_name": "Ingredient Aggregation for Batch Decisions",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F074_ingredient_aggregation.md for the feature's inputs",
+  "created_at": "2026-01-27T20:30:00Z"
+}
