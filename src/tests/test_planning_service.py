@@ -1,10 +1,13 @@
 """
-Tests for F072 Planning Service - Recipe Decomposition & Aggregation.
+Tests for F072/F073 Planning Service - FU-Level Decomposition.
+
+F073 Change: Tests updated to work with List[FURequirement] return type
+instead of Dict[Recipe, int]. This preserves FU identity for batch calculation.
 
 Tests cover:
-- Single atomic FG → recipe quantity mapping
+- Single atomic FG → FU requirement
 - Bundle decomposition with quantity multiplication
-- Recipe aggregation across multiple FGs
+- FU-level data preservation (no recipe aggregation)
 - Nested bundle decomposition (2-level, 3+ level)
 - DAG patterns (same FG in multiple branches)
 - Mixed atomic/bundle events
@@ -16,7 +19,10 @@ from unittest.mock import patch, PropertyMock
 import pytest
 from datetime import date
 
-from src.services.planning_service import calculate_recipe_requirements
+from src.services.planning_service import (
+    decompose_event_to_fu_requirements,
+    FURequirement,
+)
 from src.services.event_service import CircularReferenceError
 from src.services.exceptions import ValidationError
 from src.models.event import Event
@@ -25,6 +31,24 @@ from src.models.finished_good import FinishedGood
 from src.models.finished_unit import FinishedUnit
 from src.models.composition import Composition
 from src.models.recipe import Recipe
+
+
+# ============================================================================
+# Helper Functions for Test Assertions
+# ============================================================================
+
+
+def find_fu_requirement(result: list, fu_id: int) -> FURequirement:
+    """Find FURequirement for a specific FinishedUnit ID."""
+    for req in result:
+        if req.finished_unit.id == fu_id:
+            return req
+    return None
+
+
+def sum_quantity_for_recipe(result: list, recipe_id: int) -> int:
+    """Sum quantities for all FURequirements with a given recipe."""
+    return sum(req.quantity_needed for req in result if req.recipe.id == recipe_id)
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -146,13 +170,13 @@ def bundle_finished_good(test_db, test_finished_unit, second_finished_unit):
 class TestSingleAtomicFG:
     """Tests for User Story 1, Scenario 1: Single atomic FG."""
 
-    def test_single_atomic_fg_returns_correct_recipe_quantity(
-        self, test_db, planning_event, atomic_finished_good, test_recipe
+    def test_single_atomic_fg_returns_correct_fu_requirement(
+        self, test_db, planning_event, atomic_finished_good, test_recipe, test_finished_unit
     ):
         """
         Given an event with a single atomic FG (quantity 24)
-        When recipe requirements are calculated
-        Then the result contains one recipe with quantity 24
+        When FU requirements are decomposed
+        Then the result contains one FURequirement with quantity 24
         """
         # Create EventFinishedGood with quantity 24
         efg = EventFinishedGood(
@@ -163,18 +187,20 @@ class TestSingleAtomicFG:
         test_db.add(efg)
         test_db.flush()
 
-        # Calculate requirements
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        # Decompose to FU requirements
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Verify
+        # Verify: one FURequirement for the FU
         assert len(result) == 1
-        assert test_recipe in result
-        assert result[test_recipe] == 24
+        fu_req = result[0]
+        assert fu_req.finished_unit.id == test_finished_unit.id
+        assert fu_req.quantity_needed == 24
+        assert fu_req.recipe.id == test_recipe.id
 
     def test_atomic_fg_with_quantity_one(
-        self, test_db, planning_event, atomic_finished_good, test_recipe
+        self, test_db, planning_event, atomic_finished_good, test_recipe, test_finished_unit
     ):
-        """Quantity 1 should map directly to recipe quantity 1."""
+        """Quantity 1 should map directly to FU requirement quantity 1."""
         efg = EventFinishedGood(
             event_id=planning_event.id,
             finished_good_id=atomic_finished_good.id,
@@ -183,9 +209,10 @@ class TestSingleAtomicFG:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        assert result[test_recipe] == 1
+        assert len(result) == 1
+        assert result[0].quantity_needed == 1
 
 
 # ============================================================================
@@ -203,11 +230,13 @@ class TestBundleDecomposition:
         bundle_finished_good,
         test_recipe,
         second_recipe,
+        test_finished_unit,
+        second_finished_unit,
     ):
         """
         Given an event with a bundle FG (quantity 10) containing 2 atomic items each
-        When recipe requirements are calculated
-        Then the result shows 20 units needed for each component's recipe
+        When FU requirements are decomposed
+        Then the result shows 20 units needed for each FU
         """
         # Create EventFinishedGood with bundle quantity 10
         efg = EventFinishedGood(
@@ -218,13 +247,17 @@ class TestBundleDecomposition:
         test_db.add(efg)
         test_db.flush()
 
-        # Calculate requirements
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        # Decompose to FU requirements
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Verify: 10 bundles * 2 of each = 20 per recipe
+        # Verify: 10 bundles * 2 of each = 20 per FU
         assert len(result) == 2
-        assert result[test_recipe] == 20
-        assert result[second_recipe] == 20
+        fu1_req = find_fu_requirement(result, test_finished_unit.id)
+        fu2_req = find_fu_requirement(result, second_finished_unit.id)
+        assert fu1_req is not None
+        assert fu2_req is not None
+        assert fu1_req.quantity_needed == 20
+        assert fu2_req.quantity_needed == 20
 
     def test_bundle_with_different_component_quantities(
         self, test_db, planning_event, test_finished_unit, second_finished_unit
@@ -257,14 +290,13 @@ class TestBundleDecomposition:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # First recipe: 4 * 3 = 12
-        # Second recipe: 4 * 5 = 20
-        recipe1 = test_finished_unit.recipe
-        recipe2 = second_finished_unit.recipe
-        assert result[recipe1] == 12
-        assert result[recipe2] == 20
+        # FU requirements: first FU = 4 * 3 = 12, second FU = 4 * 5 = 20
+        fu1_req = find_fu_requirement(result, test_finished_unit.id)
+        fu2_req = find_fu_requirement(result, second_finished_unit.id)
+        assert fu1_req.quantity_needed == 12
+        assert fu2_req.quantity_needed == 20
 
 
 # ============================================================================
@@ -272,24 +304,32 @@ class TestBundleDecomposition:
 # ============================================================================
 
 
-class TestRecipeAggregation:
-    """Tests for User Story 1, Scenario 3: Recipe aggregation."""
+class TestFULevelPreservation:
+    """Tests for F073: FU-level data preservation (no recipe aggregation).
 
-    def test_recipe_quantities_aggregated_across_multiple_fgs(
+    F073 Change: Instead of aggregating by recipe, the function now returns
+    separate FURequirements for each occurrence. This preserves FU identity
+    for batch calculation which needs yield information.
+    """
+
+    def test_same_fu_multiple_fgs_returns_separate_requirements(
         self, test_db, planning_event, test_recipe, test_finished_unit
     ):
         """
-        Given an event with multiple FGs that share the same recipe
-        When recipe requirements are calculated
-        Then the quantities are summed for that recipe
+        Given an event with multiple FGs that use the same FU
+        When FU requirements are decomposed
+        Then separate FURequirements are returned (not aggregated)
+
+        F073 BEHAVIOR CHANGE: Previously returned Dict[Recipe, int] = {recipe: 25}
+        Now returns List[FURequirement] with two entries for the same FU.
         """
-        # Create two FGs both using the same recipe
+        # Create two FGs both using the same FU
         fg1 = FinishedGood(slug="box-a", display_name="Box A")
         fg2 = FinishedGood(slug="box-b", display_name="Box B")
         test_db.add_all([fg1, fg2])
         test_db.flush()
 
-        # Both contain the same FinishedUnit (same recipe)
+        # Both contain the same FinishedUnit
         comp1 = Composition(
             assembly_id=fg1.id,
             finished_unit_id=test_finished_unit.id,
@@ -317,16 +357,22 @@ class TestRecipeAggregation:
         test_db.add_all([efg1, efg2])
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Should aggregate: 10 + 15 = 25
-        assert len(result) == 1
-        assert result[test_recipe] == 25
+        # F073: Returns 2 separate FURequirements (not aggregated)
+        assert len(result) == 2
+        # Both reference the same FU
+        assert all(req.finished_unit.id == test_finished_unit.id for req in result)
+        # Quantities are preserved separately
+        quantities = sorted([req.quantity_needed for req in result])
+        assert quantities == [10, 15]
+        # Total can still be computed if needed
+        assert sum_quantity_for_recipe(result, test_recipe.id) == 25
 
-    def test_aggregation_with_different_multipliers(
+    def test_different_multipliers_returns_separate_requirements(
         self, test_db, planning_event, test_recipe, test_finished_unit
     ):
-        """Multiple FGs with different component quantities aggregate correctly."""
+        """Multiple FGs with different component quantities return separate requirements."""
         # FG1: 2 of the FU per bundle
         # FG2: 5 of the FU per bundle
         fg1 = FinishedGood(slug="small-box", display_name="Small Box")
@@ -361,12 +407,17 @@ class TestRecipeAggregation:
         test_db.add_all([efg1, efg2])
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # (3 * 2) + (2 * 5) = 6 + 10 = 16
-        assert result[test_recipe] == 16
+        # Returns 2 separate FURequirements
+        assert len(result) == 2
+        quantities = sorted([req.quantity_needed for req in result])
+        # (3 * 2) = 6, (2 * 5) = 10
+        assert quantities == [6, 10]
+        # Total: 16
+        assert sum_quantity_for_recipe(result, test_recipe.id) == 16
 
-    def test_multiple_recipes_with_aggregation(
+    def test_multiple_fus_different_recipes(
         self,
         test_db,
         planning_event,
@@ -375,9 +426,9 @@ class TestRecipeAggregation:
         test_finished_unit,
         second_finished_unit,
     ):
-        """Event with multiple FGs using different recipes aggregates per-recipe."""
-        # FG1: uses both recipes
-        # FG2: uses only first recipe
+        """Event with multiple FGs using different FUs preserves all identities."""
+        # FG1: uses both FUs
+        # FG2: uses only first FU
         fg1 = FinishedGood(slug="combo-box", display_name="Combo Box")
         fg2 = FinishedGood(slug="cookie-box", display_name="Cookie Box")
         test_db.add_all([fg1, fg2])
@@ -417,12 +468,25 @@ class TestRecipeAggregation:
         test_db.add_all([efg1, efg2])
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Cookie recipe: (5 * 2) + (10 * 4) = 10 + 40 = 50
-        # Truffle recipe: (5 * 3) = 15
-        assert result[test_recipe] == 50
-        assert result[second_recipe] == 15
+        # 3 FURequirements: 2 for test_finished_unit (from fg1 and fg2), 1 for second_finished_unit
+        assert len(result) == 3
+
+        # Check quantities for first FU (cookie): (5*2)=10 and (10*4)=40
+        cookie_reqs = [r for r in result if r.finished_unit.id == test_finished_unit.id]
+        assert len(cookie_reqs) == 2
+        cookie_quantities = sorted([r.quantity_needed for r in cookie_reqs])
+        assert cookie_quantities == [10, 40]
+
+        # Check quantity for second FU (truffle): (5*3)=15
+        truffle_reqs = [r for r in result if r.finished_unit.id == second_finished_unit.id]
+        assert len(truffle_reqs) == 1
+        assert truffle_reqs[0].quantity_needed == 15
+
+        # Totals still computable
+        assert sum_quantity_for_recipe(result, test_recipe.id) == 50
+        assert sum_quantity_for_recipe(result, second_recipe.id) == 15
 
 
 # ============================================================================
@@ -495,17 +559,19 @@ class TestTwoLevelNestedBundles:
         test_db.flush()
 
         # Execute
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
         # Verify: 5 × 3 × 2 = 30
         assert len(result) == 1
-        assert result[recipe] == 30
+        assert result[0].finished_unit.id == fu.id
+        assert result[0].quantity_needed == 30
+        assert result[0].recipe.id == recipe.id
 
-    def test_2_level_nested_with_multiple_recipes(self, test_db, planning_event):
+    def test_2_level_nested_with_multiple_fus(self, test_db, planning_event):
         """
-        Given a 2-level nested bundle with multiple recipes at the leaf level
+        Given a 2-level nested bundle with multiple FUs at the leaf level
         When decomposed
-        Then all recipes are correctly aggregated.
+        Then all FU requirements are correctly returned.
 
         Structure:
           OuterBundle (qty 2 in event)
@@ -513,7 +579,7 @@ class TestTwoLevelNestedBundles:
               ├── FU_A (qty 3 per inner) → RecipeA
               └── FU_B (qty 5 per inner) → RecipeB
 
-        Expected: RecipeA = 2×4×3 = 24, RecipeB = 2×4×5 = 40
+        Expected: FU_A = 2×4×3 = 24, FU_B = 2×4×5 = 40
         """
         # Create two recipes
         recipe_a = Recipe(name="Recipe A", category="Test")
@@ -574,13 +640,20 @@ class TestTwoLevelNestedBundles:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # RecipeA: 2 × 4 × 3 = 24
-        # RecipeB: 2 × 4 × 5 = 40
+        # Two FURequirements
         assert len(result) == 2
-        assert result[recipe_a] == 24
-        assert result[recipe_b] == 40
+
+        # FU_A: 2 × 4 × 3 = 24
+        fu_a_req = find_fu_requirement(result, fu_a.id)
+        assert fu_a_req is not None
+        assert fu_a_req.quantity_needed == 24
+
+        # FU_B: 2 × 4 × 5 = 40
+        fu_b_req = find_fu_requirement(result, fu_b.id)
+        assert fu_b_req is not None
+        assert fu_b_req.quantity_needed == 40
 
 
 # ============================================================================
@@ -662,28 +735,29 @@ class TestDeepNestedBundles:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
         # 2 × 3 × 4 × 5 = 120
         assert len(result) == 1
-        assert result[recipe] == 120
+        assert result[0].finished_unit.id == fu.id
+        assert result[0].quantity_needed == 120
 
     def test_4_level_nested_bundle_with_branching(self, test_db, planning_event):
         """
         Given a 4-level nested structure with branching at middle levels
         When decomposed
-        Then all paths are followed and quantities aggregate correctly.
+        Then all paths are followed and FU requirements are correct.
 
         Structure:
           L1 (qty 1 in event)
           └── L2 (qty 2 per L1)
               ├── L3a (qty 3 per L2)
-              │   └── FU → RecipeA (qty 1)
+              │   └── FU_A (qty 1)
               └── L3b (qty 4 per L2)
                   └── L4 (qty 5 per L3b)
-                      └── FU → RecipeB (qty 1)
+                      └── FU_B (qty 1)
 
-        Expected: RecipeA = 1×2×3×1 = 6, RecipeB = 1×2×4×5×1 = 40
+        Expected: FU_A = 1×2×3×1 = 6, FU_B = 1×2×4×5×1 = 40
         """
         # Create recipes
         recipe_a = Recipe(name="Recipe A Deep", category="Test")
@@ -746,13 +820,20 @@ class TestDeepNestedBundles:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # RecipeA: 1 × 2 × 3 × 1 = 6
-        # RecipeB: 1 × 2 × 4 × 5 × 1 = 40
+        # Two FURequirements
         assert len(result) == 2
-        assert result[recipe_a] == 6
-        assert result[recipe_b] == 40
+
+        # FU_A: 1 × 2 × 3 × 1 = 6
+        fu_a_req = find_fu_requirement(result, fu_a.id)
+        assert fu_a_req is not None
+        assert fu_a_req.quantity_needed == 6
+
+        # FU_B: 1 × 2 × 4 × 5 × 1 = 40
+        fu_b_req = find_fu_requirement(result, fu_b.id)
+        assert fu_b_req is not None
+        assert fu_b_req.quantity_needed == 40
 
 
 # ============================================================================
@@ -767,16 +848,16 @@ class TestDAGPatterns:
         """
         Given a bundle structure where the same FinishedUnit appears in multiple branches (DAG)
         When decomposed
-        Then no circular reference error is raised and quantities aggregate correctly.
+        Then no circular reference error is raised and separate FURequirements are returned.
 
         Structure:
           MainBundle (qty 1 in event)
           ├── BranchA (qty 2)
-          │   └── SharedFU (qty 3) → Recipe
+          │   └── SharedFU (qty 3)
           └── BranchB (qty 4)
-              └── SharedFU (qty 5) → Recipe (SAME FU!)
+              └── SharedFU (qty 5) (SAME FU!)
 
-        Expected: (2 × 3) + (4 × 5) = 6 + 20 = 26
+        Expected: Two FURequirements for SharedFU: (2×3)=6 and (4×5)=20
         """
         # Create Recipe
         recipe = Recipe(name="Shared Recipe", category="Test")
@@ -846,11 +927,15 @@ class TestDAGPatterns:
         test_db.flush()
 
         # Should NOT raise CircularReferenceError
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Should aggregate: (2×3) + (4×5) = 26
-        assert len(result) == 1
-        assert result[recipe] == 26
+        # F073: Two separate FURequirements for same FU (not aggregated)
+        assert len(result) == 2
+        assert all(req.finished_unit.id == shared_fu.id for req in result)
+        quantities = sorted([req.quantity_needed for req in result])
+        assert quantities == [6, 20]  # (2×3)=6, (4×5)=20
+        # Total still computable
+        assert sum_quantity_for_recipe(result, recipe.id) == 26
 
     def test_dag_pattern_same_bundle_multiple_branches(self, test_db, planning_event):
         """
@@ -862,12 +947,12 @@ class TestDAGPatterns:
           Root (qty 1 in event)
           ├── PathA (qty 2)
           │   └── SharedBundle (qty 1)
-          │       └── FU (qty 3) → Recipe
+          │       └── FU (qty 3)
           └── PathB (qty 3)
               └── SharedBundle (qty 1) (SAME BUNDLE!)
-                  └── FU (qty 3) → Recipe
+                  └── FU (qty 3)
 
-        Expected: (2×1×3) + (3×1×3) = 6 + 9 = 15
+        Expected: Two FURequirements: (2×1×3)=6 and (3×1×3)=9
         """
         # Create Recipe and FU
         recipe = Recipe(name="DAG Bundle Recipe", category="Test")
@@ -948,11 +1033,13 @@ class TestDAGPatterns:
         test_db.flush()
 
         # Should NOT raise CircularReferenceError - this is DAG, not circular
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # (2×1×3) + (3×1×3) = 6 + 9 = 15
-        assert len(result) == 1
-        assert result[recipe] == 15
+        # F073: Two separate FURequirements (not aggregated)
+        assert len(result) == 2
+        quantities = sorted([req.quantity_needed for req in result])
+        assert quantities == [6, 9]  # (2×1×3)=6, (3×1×3)=9
+        assert sum_quantity_for_recipe(result, recipe.id) == 15
 
 
 # ============================================================================
@@ -971,11 +1058,11 @@ class TestMixedAtomicAndBundleEvents:
 
         Structure:
           Event contains:
-          - AtomicFG (qty 10) → direct FinishedUnit → RecipeA
+          - AtomicFG (qty 10) → direct FU_A
           - BundleFG (qty 5)
-            └── FinishedUnit (qty 2) → RecipeB
+            └── FU_B (qty 2)
 
-        Expected: RecipeA = 10, RecipeB = 10 (5 × 2)
+        Expected: FU_A = 10, FU_B = 10 (5 × 2)
         """
         # Create recipes
         recipe_a = Recipe(name="Atomic Recipe", category="Test")
@@ -1036,30 +1123,37 @@ class TestMixedAtomicAndBundleEvents:
         test_db.add_all([efg_atomic, efg_bundle])
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Atomic: 10 × 1 = 10
-        # Bundle: 5 × 2 = 10
+        # Two FURequirements, one per FU
         assert len(result) == 2
-        assert result[recipe_a] == 10
-        assert result[recipe_b] == 10
+
+        # FU_A: 10 × 1 = 10
+        fu_a_req = find_fu_requirement(result, fu_a.id)
+        assert fu_a_req is not None
+        assert fu_a_req.quantity_needed == 10
+
+        # FU_B: 5 × 2 = 10
+        fu_b_req = find_fu_requirement(result, fu_b.id)
+        assert fu_b_req is not None
+        assert fu_b_req.quantity_needed == 10
 
     def test_mixed_atomic_bundle_and_nested_in_same_event(self, test_db, planning_event):
         """
         Given an event with atomic, simple bundle, and nested bundle FGs
         When decomposed
-        Then all types process correctly with proper aggregation.
+        Then all types process correctly with FU-level preservation.
 
         Structure:
           Event contains:
-          - AtomicFG (qty 3) → FU → RecipeA
+          - AtomicFG (qty 3) → FU_A
           - SimpleBundleFG (qty 2)
-            └── FU (qty 4) → RecipeA (same recipe!)
+            └── FU_A (qty 4) (same FU!)
           - NestedBundleFG (qty 1)
             └── InnerBundle (qty 2)
-                └── FU (qty 3) → RecipeB
+                └── FU_B (qty 3)
 
-        Expected: RecipeA = (3×1) + (2×4) = 11, RecipeB = 1×2×3 = 6
+        Expected: Two FU_A requirements (3 and 8), one FU_B requirement (6)
         """
         # Create recipes
         recipe_a = Recipe(name="Shared Recipe Mixed", category="Test")
@@ -1152,13 +1246,25 @@ class TestMixedAtomicAndBundleEvents:
         )
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # RecipeA: (3×1) + (2×4) = 3 + 8 = 11
-        # RecipeB: 1×2×3 = 6
-        assert len(result) == 2
-        assert result[recipe_a] == 11
-        assert result[recipe_b] == 6
+        # 3 FURequirements: 2 for FU_A (from atomic and simple), 1 for FU_B
+        assert len(result) == 3
+
+        # FU_A requirements: (3×1)=3 and (2×4)=8
+        fu_a_reqs = [r for r in result if r.finished_unit.id == fu_a.id]
+        assert len(fu_a_reqs) == 2
+        fu_a_quantities = sorted([r.quantity_needed for r in fu_a_reqs])
+        assert fu_a_quantities == [3, 8]
+
+        # FU_B requirement: 1×2×3 = 6
+        fu_b_req = find_fu_requirement(result, fu_b.id)
+        assert fu_b_req is not None
+        assert fu_b_req.quantity_needed == 6
+
+        # Totals still computable
+        assert sum_quantity_for_recipe(result, recipe_a.id) == 11
+        assert sum_quantity_for_recipe(result, recipe_b.id) == 6
 # ============================================================================
 # T011: Tests for circular reference detection
 # ============================================================================
@@ -1214,7 +1320,7 @@ class TestCircularReferenceDetection:
 
         # Should raise CircularReferenceError
         with pytest.raises(CircularReferenceError) as exc_info:
-            calculate_recipe_requirements(planning_event.id, session=test_db)
+            decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
         # Verify one of the bundle IDs is in the error path
         assert bundle_a.id in exc_info.value.path or bundle_b.id in exc_info.value.path
@@ -1271,7 +1377,7 @@ class TestCircularReferenceDetection:
         test_db.flush()
 
         with pytest.raises(CircularReferenceError):
-            calculate_recipe_requirements(planning_event.id, session=test_db)
+            decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
 
 # ============================================================================
@@ -1282,11 +1388,11 @@ class TestCircularReferenceDetection:
 class TestEmptyEventHandling:
     """Tests for User Story 3, Scenario 3: Empty event handling."""
 
-    def test_empty_event_returns_empty_dict(self, test_db):
+    def test_empty_event_returns_empty_list(self, test_db):
         """
         Given an event with no FG selections
-        When recipe requirements are calculated
-        Then an empty dictionary is returned (not an error).
+        When FU requirements are decomposed
+        Then an empty list is returned (not an error).
         """
         # Create event with no EventFinishedGoods
         event = Event(
@@ -1297,21 +1403,21 @@ class TestEmptyEventHandling:
         test_db.add(event)
         test_db.flush()
 
-        result = calculate_recipe_requirements(event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(event.id, session=test_db)
 
-        assert result == {}
-        assert isinstance(result, dict)
+        assert result == []
+        assert isinstance(result, list)
 
     def test_nonexistent_event_raises_validation_error(self, test_db):
         """
         Given an event ID that doesn't exist
-        When recipe requirements are requested
+        When FU requirements are requested
         Then a ValidationError is raised.
         """
         nonexistent_id = 99999
 
         with pytest.raises(ValidationError) as exc_info:
-            calculate_recipe_requirements(nonexistent_id, session=test_db)
+            decompose_event_to_fu_requirements(nonexistent_id, session=test_db)
 
         # Verify error message mentions the event
         assert "99999" in str(exc_info.value) or "not found" in str(exc_info.value).lower()
@@ -1330,7 +1436,7 @@ class TestMissingRecipeValidation:
     ):
         """
         Given a FinishedGood that contains a FinishedUnit without a linked recipe
-        When recipe mapping is attempted
+        When FU decomposition is attempted
         Then a ValidationError is raised with a clear message.
 
         Note: The schema requires recipe_id to be NOT NULL with ondelete=CASCADE,
@@ -1379,7 +1485,7 @@ class TestMissingRecipeValidation:
             FinishedUnit, "recipe", new_callable=PropertyMock, return_value=None
         ):
             with pytest.raises(ValidationError) as exc_info:
-                calculate_recipe_requirements(planning_event.id, session=test_db)
+                decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
             # Verify error message is clear about the missing recipe
             error_msg = str(exc_info.value).lower()
@@ -1457,13 +1563,13 @@ class TestZeroQuantityHandling:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Only recipe_included should be in result (qty = 1 * 2 = 2)
-        # recipe_excluded should be skipped due to effective_qty = int(0.4) = 0
-        assert recipe_included in result
-        assert result[recipe_included] == 2
-        assert recipe_excluded not in result
+        # Only fu_included should be in result (qty = 1 * 2 = 2)
+        # fu_excluded should be skipped due to effective_qty = int(0.4) = 0
+        assert len(result) == 1
+        assert result[0].finished_unit.id == fu_included.id
+        assert result[0].quantity_needed == 2
 
     def test_small_fractional_quantity_that_rounds_to_zero_skipped(
         self, test_db, planning_event
@@ -1512,7 +1618,7 @@ class TestZeroQuantityHandling:
         test_db.add(efg)
         test_db.flush()
 
-        result = calculate_recipe_requirements(planning_event.id, session=test_db)
+        result = decompose_event_to_fu_requirements(planning_event.id, session=test_db)
 
-        # Recipe should NOT be in result because effective quantity rounds to 0
-        assert recipe not in result or result.get(recipe, 0) == 0
+        # Result should be empty because effective quantity rounds to 0
+        assert result == []

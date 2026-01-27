@@ -1,8 +1,10 @@
 """
 BatchDecision model for storing user's batch choices.
 
-Records the number of batches chosen for each recipe in an event plan.
+Records the number of batches chosen for each FinishedUnit in an event plan.
 Feature 068: Event Management & Planning Data Model
+Feature 073: Changed constraint from (event_id, recipe_id) to (event_id, finished_unit_id)
+             to support multiple FUs from the same recipe per event.
 """
 
 from sqlalchemy import (
@@ -22,17 +24,22 @@ from src.utils.datetime_utils import utc_now
 
 class BatchDecision(BaseModel):
     """
-    Stores user's batch choice per recipe for an event.
+    Stores user's batch choice per FinishedUnit for an event.
 
-    When planning, users decide how many batches of each recipe to make.
-    This table records those decisions, optionally linked to a specific
-    FinishedUnit for recipes with multiple yield types.
+    When planning, users decide how many batches of each FinishedUnit to make.
+    Each FU may have different yield characteristics from the same recipe,
+    so decisions are tracked at the FU level (not recipe level).
+
+    F073 Change: finished_unit_id is now required (NOT NULL) and the unique
+    constraint is on (event_id, finished_unit_id) instead of (event_id, recipe_id).
+    This allows multiple batch decisions from the same recipe per event when
+    different FUs have different yields (e.g., Large Cake vs Small Cake).
 
     Attributes:
         event_id: Foreign key to Event (CASCADE delete)
-        recipe_id: Foreign key to Recipe (RESTRICT delete)
+        recipe_id: Foreign key to Recipe (RESTRICT delete) - denormalized for convenience
+        finished_unit_id: Foreign key to FinishedUnit (CASCADE delete) - REQUIRED
         batches: Number of batches to make (must be positive)
-        finished_unit_id: Optional FK to FinishedUnit (for multi-yield recipes)
         created_at: When decision was made
         updated_at: Last modification
     """
@@ -54,8 +61,8 @@ class BatchDecision(BaseModel):
     )
     finished_unit_id = Column(
         Integer,
-        ForeignKey("finished_units.id", ondelete="SET NULL"),
-        nullable=True,
+        ForeignKey("finished_units.id", ondelete="CASCADE"),
+        nullable=False,
         index=True,
     )
 
@@ -72,8 +79,10 @@ class BatchDecision(BaseModel):
     finished_unit = relationship("FinishedUnit")
 
     # Constraints and indexes
+    # F073: Changed unique constraint from (event_id, recipe_id) to (event_id, finished_unit_id)
+    # to allow multiple FUs from the same recipe per event
     __table_args__ = (
-        UniqueConstraint("event_id", "recipe_id", name="uq_batch_decision_event_recipe"),
+        UniqueConstraint("event_id", "finished_unit_id", name="uq_batch_decision_event_fu"),
         CheckConstraint("batches > 0", name="ck_batch_decision_batches_positive"),
         Index("idx_batch_decision_event", "event_id"),
         Index("idx_batch_decision_recipe", "recipe_id"),

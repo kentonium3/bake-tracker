@@ -1,10 +1,13 @@
 """
-Planning Service for F072 Recipe Decomposition & Aggregation.
+Planning Service for F072 Recipe Decomposition & Aggregation (F073 Enhanced).
 
-Provides recipe requirement calculation for event planning:
+Provides FinishedUnit-level requirement decomposition for event planning:
 - Recursive bundle decomposition with quantity tracking
-- Recipe aggregation across multiple FG selections
+- FU-level data preservation (not recipe-level aggregation)
 - Cycle detection and depth limiting
+
+F073 Change: Returns List[FURequirement] instead of Dict[Recipe, int]
+to preserve FU-level yield context for batch calculation.
 
 Session Management Pattern (from CLAUDE.md):
 - All public functions accept session=None parameter
@@ -12,7 +15,8 @@ Session Management Pattern (from CLAUDE.md):
 - If session is None, create a new session via session_scope()
 """
 
-from typing import Dict, Optional, Set
+from dataclasses import dataclass
+from typing import List, Optional, Set
 
 from sqlalchemy.orm import Session
 
@@ -20,6 +24,7 @@ from src.models import (
     Event,
     EventFinishedGood,
     FinishedGood,
+    FinishedUnit,
     Recipe,
 )
 from src.services.database import session_scope
@@ -31,39 +36,53 @@ from src.services.event_service import (
 from src.services.exceptions import ValidationError
 
 
-def calculate_recipe_requirements(
+@dataclass
+class FURequirement:
+    """Requirement for a single FinishedUnit from bundle decomposition.
+
+    Preserves FU identity for downstream batch calculation which needs
+    yield information (items_per_batch, yield_mode) that varies by FU.
+    """
+
+    finished_unit: FinishedUnit
+    quantity_needed: int
+    recipe: Recipe  # Convenience reference (same as finished_unit.recipe)
+
+
+def decompose_event_to_fu_requirements(
     event_id: int,
     session: Session = None,
-) -> Dict[Recipe, int]:
+) -> List[FURequirement]:
     """
-    Calculate aggregated recipe requirements for an event.
+    Decompose event FG selections into FinishedUnit-level requirements.
 
-    Decomposes all FG selections for the event into atomic recipe requirements,
-    multiplying quantities through bundle hierarchies and aggregating by recipe.
+    Traverses bundle hierarchies, multiplying quantities at each level.
+    Returns FU-level data (not recipe-level aggregation) to preserve
+    yield context for downstream batch calculation.
 
     Args:
-        event_id: The Event to calculate requirements for
+        event_id: The Event to decompose
         session: Optional session for transaction sharing
 
     Returns:
-        Dictionary mapping Recipe objects to total quantities needed
+        List of FURequirement objects, one per atomic FinishedUnit found
 
     Raises:
-        ValidationError: If event not found or FG has no recipe
+        ValidationError: If event not found or FU has no recipe
         CircularReferenceError: If bundle contains circular reference
         MaxDepthExceededError: If nesting exceeds MAX_FG_NESTING_DEPTH
     """
     if session is not None:
-        return _calculate_recipe_requirements_impl(event_id, session)
+        return _decompose_event_to_fu_requirements_impl(event_id, session)
     with session_scope() as session:
-        return _calculate_recipe_requirements_impl(event_id, session)
+        return _decompose_event_to_fu_requirements_impl(event_id, session)
 
 
-def _calculate_recipe_requirements_impl(
+def _decompose_event_to_fu_requirements_impl(
     event_id: int,
     session: Session,
-) -> Dict[Recipe, int]:
-    """Internal implementation of calculate_recipe_requirements."""
+) -> List[FURequirement]:
+    """Internal implementation of decompose_event_to_fu_requirements."""
     # Validate event exists
     event = session.query(Event).filter(Event.id == event_id).first()
     if event is None:
@@ -78,35 +97,35 @@ def _calculate_recipe_requirements_impl(
 
     # Handle empty event
     if not efgs:
-        return {}
+        return []
 
-    # Aggregate across all FG selections
-    result: Dict[Recipe, int] = {}
+    # Collect FU requirements across all FG selections (no aggregation)
+    result: List[FURequirement] = []
     for efg in efgs:
-        fg_result = _decompose_fg_to_recipes(
+        fu_requirements = _decompose_fg_to_fus(
             efg.finished_good_id,
             efg.quantity,
             session,
             set(),  # Fresh path for each top-level FG
             0,  # Start at depth 0
         )
-        for recipe, qty in fg_result.items():
-            result[recipe] = result.get(recipe, 0) + qty
+        result.extend(fu_requirements)
 
     return result
 
 
-def _decompose_fg_to_recipes(
+def _decompose_fg_to_fus(
     fg_id: int,
     multiplier: int,
     session: Session,
     _path: Set[int],
     _depth: int,
-) -> Dict[Recipe, int]:
+) -> List[FURequirement]:
     """
-    Recursively decompose a FinishedGood to recipe requirements with quantities.
+    Recursively decompose a FinishedGood to FU-level requirements.
 
     Uses path-based cycle detection (allows DAG patterns, catches true cycles).
+    Returns FU-level data to preserve yield context for batch calculation.
 
     Args:
         fg_id: FinishedGood ID to decompose
@@ -116,7 +135,7 @@ def _decompose_fg_to_recipes(
         _depth: Current nesting depth
 
     Returns:
-        Dictionary mapping Recipe objects to quantities for this FG subtree
+        List of FURequirement objects for this FG subtree
     """
     # Check depth limit
     if _depth > MAX_FG_NESTING_DEPTH:
@@ -135,7 +154,7 @@ def _decompose_fg_to_recipes(
         if fg is None:
             raise ValidationError([f"FinishedGood {fg_id} not found"])
 
-        result: Dict[Recipe, int] = {}
+        result: List[FURequirement] = []
 
         # Traverse components
         for comp in fg.components:
@@ -147,7 +166,7 @@ def _decompose_fg_to_recipes(
                 continue
 
             if comp.finished_unit_id is not None:
-                # Atomic component: get recipe from FinishedUnit
+                # Atomic component: create FURequirement preserving FU identity
                 fu = comp.finished_unit_component
                 if fu is None:
                     raise ValidationError(
@@ -158,21 +177,25 @@ def _decompose_fg_to_recipes(
                         [f"FinishedUnit '{fu.display_name}' (id={fu.id}) has no recipe"]
                     )
 
-                recipe = fu.recipe
-                result[recipe] = result.get(recipe, 0) + effective_qty
+                result.append(
+                    FURequirement(
+                        finished_unit=fu,
+                        quantity_needed=effective_qty,
+                        recipe=fu.recipe,
+                    )
+                )
 
             elif comp.finished_good_id is not None:
                 # Nested bundle: recurse
-                child_result = _decompose_fg_to_recipes(
+                child_result = _decompose_fg_to_fus(
                     comp.finished_good_id,
                     effective_qty,
                     session,
                     _path,
                     _depth + 1,
                 )
-                # Merge child results
-                for recipe, qty in child_result.items():
-                    result[recipe] = result.get(recipe, 0) + qty
+                # Extend with child results (no aggregation)
+                result.extend(child_result)
 
             # else: packaging/material component - no recipe needed (skip)
 
