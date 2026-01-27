@@ -1,9 +1,12 @@
 ---
 work_package_id: WP03
 title: Planning Tab Integration
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
+base_branch: 071-finished-goods-quantity-specification-WP02
+base_commit: 0244f2cd4e749e76f8098dd94849525c13bf0dd7
+created_at: '2026-01-27T14:37:59.378395+00:00'
 subtasks:
 - T009
 - T010
@@ -12,7 +15,7 @@ subtasks:
 phase: Phase 3 - Integration
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "80449"
 review_status: ''
 reviewed_by: ''
 history:
