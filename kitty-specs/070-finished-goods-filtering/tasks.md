@@ -128,7 +128,7 @@
 ### Included Subtasks
 - [x] T019 Add imports and instance variables for FG selection in `src/ui/planning_tab.py`
 - [x] T020 Create `_create_fg_selection_frame()` method
-- [ ] T021 Embed FGSelectionFrame in grid layout (row 3, below recipe selection)
+- [x] T021 Embed FGSelectionFrame in grid layout (row 3, below recipe selection)
 - [ ] T022 Wire recipe selection save to trigger FG list refresh
 - [ ] T023 Implement `_on_fg_selection_save(selected_fg_ids)` callback
 - [ ] T024 Implement `_on_fg_selection_cancel()` callback
