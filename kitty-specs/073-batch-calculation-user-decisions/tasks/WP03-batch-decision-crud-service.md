@@ -1,29 +1,32 @@
 ---
-work_package_id: "WP03"
-subtasks:
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "Batch Decision CRUD Service"
-phase: "Phase 1 - Core Service"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP03
+title: Batch Decision CRUD Service
+lane: "doing"
 dependencies:
-  - "WP01"
+- WP01
+base_branch: 073-batch-calculation-user-decisions-WP01
+base_commit: 7eedb5fedcdc079a25704e92d054b4d18c98bc46
+created_at: '2026-01-27T19:31:06.701223+00:00'
+subtasks:
+- T015
+- T016
+- T017
+- T018
+- T019
+- T020
+- T021
+phase: Phase 1 - Core Service
+assignee: ''
+agent: ''
+shell_pid: "19392"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Batch Decision CRUD Service
