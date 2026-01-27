@@ -96,7 +96,7 @@
 - [x] T014 Implement `populate_finished_goods(fgs: List[FinishedGood], event_name: str)` method
 - [x] T015 Implement checkbox rendering per FG with display name
 - [x] T016 Implement live count display ("X of Y selected")
-- [ ] T017 Implement Save/Cancel buttons with callback support
+- [x] T017 Implement Save/Cancel buttons with callback support
 - [ ] T018 [P] Write UI tests in `src/tests/test_fg_selection_frame.py`
 
 ### Implementation Notes
