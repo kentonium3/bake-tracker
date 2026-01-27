@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Service Layer Foundation"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "75646"
+shell_pid: "77827"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -548,3 +548,4 @@ class TestRemoveEventFg:
 - 2026-01-27T12:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-27T14:03:37Z – claude-opus – shell_pid=75646 – lane=doing – Started implementation via workflow command
 - 2026-01-27T14:08:08Z – claude-opus – shell_pid=75646 – lane=for_review – Service layer complete: 3 methods implemented (get_event_fg_quantities, set_event_fg_quantities, remove_event_fg), 15 unit tests passing
+- 2026-01-27T14:21:02Z – claude-opus – shell_pid=77827 – lane=doing – Started review via workflow command
