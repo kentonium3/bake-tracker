@@ -51,7 +51,7 @@ This feature creates an inventory gap analysis service that compares F074's aggr
 **Estimated Size**: ~300 lines
 
 **Subtasks**:
-- [ ] T008: Write test: gap calculation with shortfall
+- [x] T008: Write test: gap calculation with shortfall
 - [ ] T009: Write test: gap calculation with sufficient inventory
 - [ ] T010: Write test: missing inventory treated as zero
 - [ ] T011: Write test: all items categorized
