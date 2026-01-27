@@ -5,6 +5,7 @@ Provides FinishedUnit-level requirement decomposition for event planning:
 - Recursive bundle decomposition with quantity tracking
 - FU-level data preservation (not recipe-level aggregation)
 - Cycle detection and depth limiting
+- Batch option calculation (floor/ceil options with shortfall flags)
 
 F073 Change: Returns List[FURequirement] instead of Dict[Recipe, int]
 to preserve FU-level yield context for batch calculation.
@@ -15,6 +16,7 @@ Session Management Pattern (from CLAUDE.md):
 - If session is None, create a new session via session_scope()
 """
 
+import math
 from dataclasses import dataclass
 from typing import List, Optional, Set
 
@@ -34,6 +36,7 @@ from src.services.event_service import (
     MAX_FG_NESTING_DEPTH,
 )
 from src.services.exceptions import ValidationError
+from src.models.finished_unit import YieldMode
 
 
 @dataclass
@@ -204,3 +207,180 @@ def _decompose_fg_to_fus(
     finally:
         # Clean up path when returning (backtracking)
         _path.discard(fg_id)
+
+
+# =============================================================================
+# F073 WP02: Batch Calculation
+# =============================================================================
+
+
+@dataclass
+class BatchOption:
+    """One batch option for user selection.
+
+    Represents either a floor option (may shortfall) or ceil option (meets/exceeds).
+    """
+
+    batches: int  # Number of batches to make
+    total_yield: int  # batches * yield_per_batch
+    quantity_needed: int  # From FURequirement.quantity_needed
+    difference: int  # total_yield - quantity_needed
+    is_shortfall: bool  # difference < 0
+    is_exact_match: bool  # difference == 0
+    yield_per_batch: int  # From FinishedUnit (for display)
+
+
+@dataclass
+class BatchOptionsResult:
+    """Batch options for one FinishedUnit.
+
+    Contains all the context needed for UI display plus the calculated options.
+    """
+
+    finished_unit_id: int
+    finished_unit_name: str
+    recipe_id: int
+    recipe_name: str
+    quantity_needed: int
+    yield_per_batch: int
+    yield_mode: str  # "discrete_count" or "batch_portion"
+    item_unit: str  # "cookie", "cake", etc.
+    options: List[BatchOption]
+
+
+def calculate_batch_options_for_fu(
+    finished_unit: FinishedUnit,
+    quantity_needed: int,
+) -> List[BatchOption]:
+    """
+    Calculate floor/ceil batch options for a single FinishedUnit.
+
+    Args:
+        finished_unit: The FU to calculate for
+        quantity_needed: How many items/portions needed
+
+    Returns:
+        List of 0-2 BatchOptions:
+        - Empty if quantity_needed <= 0 or invalid yield
+        - One option if floor == ceil (exact division)
+        - Two options otherwise (floor may shortfall, ceil meets/exceeds)
+    """
+    if quantity_needed <= 0:
+        return []
+
+    # Use existing method to get raw batch count
+    raw_batches = finished_unit.calculate_batches_needed(quantity_needed)
+
+    if raw_batches <= 0:
+        return []
+
+    # Determine yield per batch based on mode
+    yield_per_batch = finished_unit.items_per_batch or 1
+    if finished_unit.yield_mode == YieldMode.BATCH_PORTION:
+        yield_per_batch = 1  # One batch = one portion
+
+    # Guard against invalid yield configuration
+    if yield_per_batch <= 0:
+        return []
+
+    options = []
+
+    # Floor option (may shortfall)
+    floor_batches = math.floor(raw_batches)
+    if floor_batches > 0:
+        floor_yield = floor_batches * yield_per_batch
+        floor_diff = floor_yield - quantity_needed
+        options.append(
+            BatchOption(
+                batches=floor_batches,
+                total_yield=floor_yield,
+                quantity_needed=quantity_needed,
+                difference=floor_diff,
+                is_shortfall=floor_diff < 0,
+                is_exact_match=floor_diff == 0,
+                yield_per_batch=yield_per_batch,
+            )
+        )
+
+    # Ceil option (if different from floor)
+    ceil_batches = math.ceil(raw_batches)
+    if ceil_batches != floor_batches:
+        ceil_yield = ceil_batches * yield_per_batch
+        ceil_diff = ceil_yield - quantity_needed
+        options.append(
+            BatchOption(
+                batches=ceil_batches,
+                total_yield=ceil_yield,
+                quantity_needed=quantity_needed,
+                difference=ceil_diff,
+                is_shortfall=False,  # Ceil never shortfalls
+                is_exact_match=ceil_diff == 0,
+                yield_per_batch=yield_per_batch,
+            )
+        )
+
+    return options
+
+
+def calculate_batch_options(
+    event_id: int,
+    session: Session = None,
+) -> List[BatchOptionsResult]:
+    """
+    Calculate batch options for all FUs in an event.
+
+    Uses decompose_event_to_fu_requirements() to get FU-level data,
+    then calculates floor/ceil options for each.
+
+    Args:
+        event_id: The Event to calculate for
+        session: Optional session for transaction sharing
+
+    Returns:
+        List of BatchOptionsResult, one per FURequirement from F072
+
+    Raises:
+        ValidationError: If event not found
+    """
+    if session is not None:
+        return _calculate_batch_options_impl(event_id, session)
+    with session_scope() as session:
+        return _calculate_batch_options_impl(event_id, session)
+
+
+def _calculate_batch_options_impl(
+    event_id: int,
+    session: Session,
+) -> List[BatchOptionsResult]:
+    """Implementation of calculate_batch_options."""
+    # Get FU-level requirements from F072
+    fu_requirements = decompose_event_to_fu_requirements(event_id, session=session)
+
+    results = []
+    for fu_req in fu_requirements:
+        fu = fu_req.finished_unit
+        recipe = fu_req.recipe
+
+        # Calculate options for this FU
+        options = calculate_batch_options_for_fu(fu, fu_req.quantity_needed)
+
+        # Determine yield per batch for display
+        yield_per_batch = fu.items_per_batch or 1
+        if fu.yield_mode == YieldMode.BATCH_PORTION:
+            yield_per_batch = 1
+
+        results.append(
+            BatchOptionsResult(
+                finished_unit_id=fu.id,
+                finished_unit_name=fu.display_name,
+                recipe_id=recipe.id,
+                recipe_name=recipe.name,
+                quantity_needed=fu_req.quantity_needed,
+                yield_per_batch=yield_per_batch,
+                yield_mode=fu.yield_mode.value if fu.yield_mode else "discrete_count",
+                item_unit=fu.item_unit or "item",
+                options=options,
+            )
+        )
+
+    return results
