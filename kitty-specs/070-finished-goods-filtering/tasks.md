@@ -131,7 +131,7 @@
 - [x] T021 Embed FGSelectionFrame in grid layout (row 3, below recipe selection)
 - [x] T022 Wire recipe selection save to trigger FG list refresh
 - [x] T023 Implement `_on_fg_selection_save(selected_fg_ids)` callback
-- [ ] T024 Implement `_on_fg_selection_cancel()` callback
+- [x] T024 Implement `_on_fg_selection_cancel()` callback
 - [ ] T025 Show notification when FGs auto-removed (from cascade removal)
 - [ ] T026 Write integration tests in `src/tests/test_planning_tab_fg.py`
 
