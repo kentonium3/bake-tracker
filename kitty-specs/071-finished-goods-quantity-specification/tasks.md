@@ -89,7 +89,7 @@
 ### Included Subtasks
 - [x] T009 Update `_show_fg_selection()` to load quantities via `get_event_fg_quantities()` in `src/ui/planning_tab.py`
 - [x] T010 Update `_on_fg_selection_save()` to save quantities via `set_event_fg_quantities()` in `src/ui/planning_tab.py`
-- [ ] T011 Add status bar feedback for save success/error in `src/ui/planning_tab.py`
+- [x] T011 Add status bar feedback for save success/error in `src/ui/planning_tab.py`
 - [ ] T012 End-to-end validation: manual test of complete workflow
 
 ### Implementation Notes
