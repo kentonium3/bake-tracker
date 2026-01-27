@@ -55,7 +55,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T005 Add `CTkEntry` quantity inputs to FGSelectionFrame in `src/ui/components/fg_selection_frame.py`
+- [x] T005 Add `CTkEntry` quantity inputs to FGSelectionFrame in `src/ui/components/fg_selection_frame.py`
 - [ ] T006 Add live validation with colored feedback in `src/ui/components/fg_selection_frame.py`
 - [ ] T007 Implement quantity pre-population via `set_quantities()` method
 - [ ] T008 Update `get_selected()` to return `List[Tuple[int, int]]` (fg_id, quantity)
