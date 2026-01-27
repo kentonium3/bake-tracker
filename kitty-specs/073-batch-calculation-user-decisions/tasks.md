@@ -30,7 +30,7 @@
 - [x] T005 Update all 22 F072 tests in `src/tests/test_planning_service.py` for new return type
 - [x] T006 Modify `BatchDecision` model - change `finished_unit_id` to NOT NULL
 - [x] T007 Update UniqueConstraint from `(event_id, recipe_id)` to `(event_id, finished_unit_id)`
-- [ ] T008 Verify constraint changes with fresh database creation
+- [x] T008 Verify constraint changes with fresh database creation
 
 ### Implementation Notes
 - F072 API change is breaking but no production code uses it yet (only tests)
