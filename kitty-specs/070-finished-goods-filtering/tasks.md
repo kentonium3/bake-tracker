@@ -24,7 +24,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Create exception classes (CircularReferenceError, MaxDepthExceededError) in `src/services/event_service.py`
+- [x] T001 Create exception classes (CircularReferenceError, MaxDepthExceededError) in `src/services/event_service.py`
 - [ ] T002 Implement `get_required_recipes(fg_id, session)` recursive function
 - [ ] T003 Add circular reference detection using visited set
 - [ ] T004 Add depth limiting (max 10 levels)
