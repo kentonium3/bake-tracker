@@ -61,7 +61,7 @@
 ### Included Subtasks
 - [x] T009 Add `BatchOption` dataclass to `src/services/planning_service.py`
 - [x] T010 Add `BatchOptionsResult` dataclass for per-FU results
-- [ ] T011 Implement `calculate_batch_options_for_fu()` - floor/ceil calculation
+- [x] T011 Implement `calculate_batch_options_for_fu()` - floor/ceil calculation
 - [ ] T012 Implement `calculate_batch_options()` - event-level using F072 output
 - [ ] T013 Handle edge cases: zero yield, zero quantity, floor=0
 - [ ] T014 Write tests in `src/tests/test_batch_calculation.py`
