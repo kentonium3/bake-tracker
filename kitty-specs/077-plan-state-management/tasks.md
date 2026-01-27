@@ -85,7 +85,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T011 Add state indicator frame to `src/ui/planning_tab.py`
+- [x] T011 Add state indicator frame to `src/ui/planning_tab.py`
 - [ ] T012 Add transition buttons (Lock Plan, Start Production, Complete)
 - [ ] T013 Wire button click handlers to plan_state_service calls
 - [ ] T014 Implement button enable/disable logic based on current state
