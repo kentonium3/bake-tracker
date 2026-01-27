@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Bundle Decomposition Algorithm"
 phase: "Phase 1 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "26262"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -721,3 +721,4 @@ def deeply_nested_bundle(test_db, test_recipe):
 
 **Initial entry**:
 - 2026-01-26T19:45:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-27T01:04:20Z – claude – shell_pid=26262 – lane=doing – Started implementation via workflow command
