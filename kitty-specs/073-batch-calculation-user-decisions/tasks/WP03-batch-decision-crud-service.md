@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Batch Decision CRUD Service
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -19,8 +19,8 @@ phase: Phase 1 - Core Service
 assignee: ''
 agent: "claude"
 shell_pid: "22322"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned
@@ -634,3 +634,4 @@ class TestIsShortfallOption:
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-27T19:35:17Z – gemini – shell_pid=19392 – lane=for_review – All subtasks complete (T015-T021), 33 tests passing
 - 2026-01-27T19:40:14Z – claude – shell_pid=22322 – lane=doing – Started review via workflow command
+- 2026-01-27T19:44:59Z – claude – shell_pid=22322 – lane=done – Review passed: All 7 subtasks complete (T015-T021), 33 tests passing, BatchDecisionInput dataclass and CRUD functions (save/get/delete) with proper session pattern, is_shortfall_option helper
