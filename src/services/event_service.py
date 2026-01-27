@@ -3174,3 +3174,133 @@ def set_event_finished_goods(
     session.flush()
 
     return len(valid_fg_ids)
+
+
+# ============================================================================
+# Feature 071: Event Finished Good Quantity Specification
+# ============================================================================
+
+
+def get_event_fg_quantities(
+    session: Session,
+    event_id: int,
+) -> List[Tuple[FinishedGood, int]]:
+    """
+    Get all finished goods with quantities for an event.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+
+    Returns:
+        List of (FinishedGood, quantity) tuples
+
+    Raises:
+        ValidationError: If event not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError(["Event not found"])
+
+    # Query finished goods joined with their quantities
+    results = (
+        session.query(FinishedGood, EventFinishedGood.quantity)
+        .join(EventFinishedGood, FinishedGood.id == EventFinishedGood.finished_good_id)
+        .filter(EventFinishedGood.event_id == event_id)
+        .all()
+    )
+    return [(fg, qty) for fg, qty in results]
+
+
+def set_event_fg_quantities(
+    session: Session,
+    event_id: int,
+    fg_quantities: List[Tuple[int, int]],
+) -> int:
+    """
+    Replace all FG quantities for an event.
+
+    Only accepts FG IDs that are valid given the current recipe selection.
+    Invalid FG IDs and quantities <= 0 are silently filtered out.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+        fg_quantities: List of (finished_good_id, quantity) tuples
+
+    Returns:
+        Count of records created (may be less than len(fg_quantities)
+        if some FGs were unavailable or had invalid quantities)
+
+    Raises:
+        ValidationError: If event not found
+
+    Notes:
+        - Only FGs available to the event are saved (invalid IDs filtered)
+        - Uses replace pattern: DELETE existing, INSERT new
+        - Empty list clears all FG associations
+        - Quantity must be > 0 (DB constraint enforces; pre-filtered here)
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError(["Event not found"])
+
+    # Get available FG IDs to filter input
+    available_fgs = get_available_finished_goods(event_id, session)
+    available_ids = {fg.id for fg in available_fgs}
+
+    # Filter to only available FGs with valid quantities
+    valid_pairs = [
+        (fg_id, qty)
+        for fg_id, qty in fg_quantities
+        if fg_id in available_ids and qty > 0
+    ]
+
+    # Delete existing records
+    session.query(EventFinishedGood).filter(
+        EventFinishedGood.event_id == event_id
+    ).delete(synchronize_session=False)
+
+    # Insert new records with quantities
+    for fg_id, quantity in valid_pairs:
+        session.add(
+            EventFinishedGood(
+                event_id=event_id,
+                finished_good_id=fg_id,
+                quantity=quantity,
+            )
+        )
+
+    session.flush()
+    return len(valid_pairs)
+
+
+def remove_event_fg(
+    session: Session,
+    event_id: int,
+    fg_id: int,
+) -> bool:
+    """
+    Remove a single FG from an event.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+        fg_id: Finished good ID to remove
+
+    Returns:
+        True if record deleted, False if not found
+    """
+    result = (
+        session.query(EventFinishedGood)
+        .filter(
+            EventFinishedGood.event_id == event_id,
+            EventFinishedGood.finished_good_id == fg_id,
+        )
+        .delete(synchronize_session=False)
+    )
+
+    session.flush()
+    return result > 0
