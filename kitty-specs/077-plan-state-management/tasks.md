@@ -89,7 +89,7 @@
 - [x] T012 Add transition buttons (Lock Plan, Start Production, Complete)
 - [x] T013 Wire button click handlers to plan_state_service calls
 - [x] T014 Implement button enable/disable logic based on current state
-- [ ] T015 Show/hide state controls based on event selection
+- [x] T015 Show/hide state controls based on event selection
 
 ### Implementation Notes
 - Add new row in grid layout for state controls
