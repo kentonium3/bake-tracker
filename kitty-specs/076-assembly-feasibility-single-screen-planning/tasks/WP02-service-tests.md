@@ -8,12 +8,12 @@ subtasks:
   - "T010"
 title: "Service Unit Tests"
 phase: "Phase 1 - Service Layer"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "51032"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-27T15:30:00Z"
@@ -535,3 +535,4 @@ def test_decision_coverage_partial(
 - 2026-01-27T15:30:00Z – system – lane=planned – Prompt created.
 - 2026-01-27T22:18:19Z – claude – lane=for_review – Service tests implemented with 17 passing tests
 - 2026-01-27T22:19:21Z – claude – shell_pid=51032 – lane=doing – Started review via workflow command
+- 2026-01-27T22:22:33Z – claude – shell_pid=51032 – lane=done – Review passed: 17 tests covering all scenarios, bug fix for fg.display_name included
