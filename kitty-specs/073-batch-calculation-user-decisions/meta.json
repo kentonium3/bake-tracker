@@ -4,5 +4,7 @@
   "friendly_name": "Batch Calculation & User Decisions",
   "mission": "software-dev",
   "source_description": "see docs/func-spec/F073_batch_calculation_user_decisions.md for the feature's inputs",
-  "created_at": "2026-01-27T17:45:00Z"
+  "created_at": "2026-01-27T17:45:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-27T19:19:17.105776+00:00"
 }
