@@ -87,7 +87,7 @@
 ### Included Subtasks
 - [x] T011 Add state indicator frame to `src/ui/planning_tab.py`
 - [x] T012 Add transition buttons (Lock Plan, Start Production, Complete)
-- [ ] T013 Wire button click handlers to plan_state_service calls
+- [x] T013 Wire button click handlers to plan_state_service calls
 - [ ] T014 Implement button enable/disable logic based on current state
 - [ ] T015 Show/hide state controls based on event selection
 
