@@ -133,7 +133,7 @@
 - [x] T023 Implement `_on_fg_selection_save(selected_fg_ids)` callback
 - [x] T024 Implement `_on_fg_selection_cancel()` callback
 - [x] T025 Show notification when FGs auto-removed (from cascade removal)
-- [ ] T026 Write integration tests in `src/tests/test_planning_tab_fg.py`
+- [x] T026 Write integration tests in `src/tests/test_planning_tab_fg.py`
 
 ### Implementation Notes
 - Follow pattern from F069 recipe selection integration
