@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP05"
-subtasks:
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-title: "Integration with Planning Tab"
-phase: "Phase 3 - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP05
+title: Integration with Planning Tab
+lane: "doing"
 dependencies:
-  - "WP03"
-  - "WP04"
+- WP03
+- WP04
+base_branch: 073-batch-calculation-user-decisions-WP04
+base_commit: 6591083eeac42a33f259d8561fbaf979d9d25e05
+created_at: '2026-01-27T19:47:59.918508+00:00'
+subtasks:
+- T030
+- T031
+- T032
+- T033
+- T034
+- T035
+- T036
+phase: Phase 3 - Integration
+assignee: ''
+agent: ''
+shell_pid: "24352"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Integration with Planning Tab
