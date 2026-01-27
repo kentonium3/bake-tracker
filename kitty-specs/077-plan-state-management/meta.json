@@ -4,5 +4,7 @@
   "friendly_name": "Plan State Management",
   "mission": "software-dev",
   "source_description": "see docs/func-spec/F077_plan_state_management.md for the feature's inputs",
-  "created_at": "2026-01-27T23:45:00Z"
+  "created_at": "2026-01-27T23:45:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-27T22:38:37.455539+00:00"
 }
