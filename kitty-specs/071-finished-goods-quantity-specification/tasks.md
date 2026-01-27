@@ -58,7 +58,7 @@
 - [x] T005 Add `CTkEntry` quantity inputs to FGSelectionFrame in `src/ui/components/fg_selection_frame.py`
 - [x] T006 Add live validation with colored feedback in `src/ui/components/fg_selection_frame.py`
 - [x] T007 Implement quantity pre-population via `set_quantities()` method
-- [ ] T008 Update `get_selected()` to return `List[Tuple[int, int]]` (fg_id, quantity)
+- [x] T008 Update `get_selected()` to return `List[Tuple[int, int]]` (fg_id, quantity)
 
 ### Implementation Notes
 - Add quantity entry next to each checkbox in `populate_finished_goods()` loop
