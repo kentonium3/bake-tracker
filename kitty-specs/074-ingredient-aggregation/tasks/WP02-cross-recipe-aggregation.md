@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Cross-Recipe Aggregation & Edge Cases
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 074-ingredient-aggregation-WP01
 base_commit: 79825eb63cd316e3fe05f288872cc53055b14f1d
@@ -14,7 +14,7 @@ subtasks:
 - T010
 phase: Phase 1 - Complete Feature
 assignee: ''
-agent: ''
+agent: "claude"
 shell_pid: "32596"
 review_status: ''
 reviewed_by: ''
@@ -466,3 +466,4 @@ class TestPrecision:
 ## Activity Log
 
 - 2026-01-27T20:19:43Z – system – lane=planned – Prompt created.
+- 2026-01-27T20:56:47Z – claude – shell_pid=32596 – lane=for_review – WP02 complete: Cross-recipe aggregation tests and edge case tests (10 total)
