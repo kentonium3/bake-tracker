@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Planning Tab Integration + Notifications
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 - WP03
@@ -21,8 +21,8 @@ phase: Phase 2 - UI Layer
 assignee: ''
 agent: "claude"
 shell_pid: "35025"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned
@@ -681,3 +681,4 @@ def test_recipes(test_db):
 - 2026-01-26T19:45:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-27T01:48:48Z – unknown – shell_pid=32702 – lane=for_review – Ready for review: Integrated FGSelectionFrame into Planning Tab with recipe-FG wiring and notifications. All 59 tests pass (45 F070 + 14 F069).
 - 2026-01-27T01:49:54Z – claude – shell_pid=35025 – lane=doing – Started review via workflow command
+- 2026-01-27T01:50:51Z – claude – shell_pid=35025 – lane=done – Review passed: All acceptance criteria met. FGSelectionFrame properly integrated at row 3, recipe-FG wiring working, notifications implemented, 59 tests pass.
