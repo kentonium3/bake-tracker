@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Edge Cases & Validation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 072-recipe-decomposition-aggregation-WP01
 base_commit: f0556ed2280479fb06fd6f005a5cde6bd1642677
@@ -392,3 +392,4 @@ Options:
 ## Activity Log
 
 - 2026-01-27T16:30:47Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-01-27T17:06:33Z – unknown – shell_pid=1110 – lane=for_review – All 7 edge case tests pass: circular refs, empty events, missing recipes, zero quantities
