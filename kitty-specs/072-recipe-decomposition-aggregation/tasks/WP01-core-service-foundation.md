@@ -9,10 +9,10 @@ subtasks:
   - "T006"
 title: "Core Service Foundation"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "96187"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -500,3 +500,4 @@ From `src/services/database.py`:
 ## Activity Log
 
 - 2026-01-27T16:30:47Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-01-27T16:34:25Z – claude – shell_pid=96187 – lane=doing – Started implementation via workflow command
