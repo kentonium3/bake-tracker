@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: UI Widget - BatchOptionsFrame
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 base_branch: 073-batch-calculation-user-decisions-WP02
@@ -18,7 +18,7 @@ subtasks:
 - T029
 phase: Phase 2 - UI Layer
 assignee: ''
-agent: ''
+agent: "claude"
 shell_pid: "23225"
 review_status: ''
 reviewed_by: ''
@@ -616,3 +616,4 @@ if __name__ == "__main__":
 ## Activity Log
 
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T19:47:18Z – claude – shell_pid=23225 – lane=for_review – All 8 subtasks complete (T022-T029), BatchOptionsFrame widget with shortfall/exact match indicators, selection callback, get_selections methods
