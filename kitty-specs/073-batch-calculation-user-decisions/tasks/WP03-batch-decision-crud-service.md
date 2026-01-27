@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Batch Decision CRUD Service
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -17,7 +17,7 @@ subtasks:
 - T021
 phase: Phase 1 - Core Service
 assignee: ''
-agent: ''
+agent: "gemini"
 shell_pid: "19392"
 review_status: ''
 reviewed_by: ''
@@ -632,3 +632,4 @@ class TestIsShortfallOption:
 ## Activity Log
 
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T19:35:17Z – gemini – shell_pid=19392 – lane=for_review – All subtasks complete (T015-T021), 33 tests passing
