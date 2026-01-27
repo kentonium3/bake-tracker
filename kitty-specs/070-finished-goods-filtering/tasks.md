@@ -57,7 +57,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T006 Create `AvailabilityResult` and `RemovedFGInfo` dataclasses in `src/services/event_service.py`
+- [x] T006 Create `AvailabilityResult` and `RemovedFGInfo` dataclasses in `src/services/event_service.py`
 - [ ] T007 Implement `check_fg_availability(fg_id, selected_recipe_ids, session)` function
 - [ ] T008 Implement `get_available_finished_goods(event_id, session)` function
 - [ ] T009 Implement `remove_invalid_fg_selections(event_id, session)` function
