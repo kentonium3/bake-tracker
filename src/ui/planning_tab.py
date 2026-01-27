@@ -39,7 +39,14 @@ from src.services.batch_decision_service import (
     delete_batch_decisions,
     BatchDecisionInput,
 )
-from src.services.exceptions import PlanStateError, ValidationError
+from src.services.exceptions import ValidationError, PlanStateError
+from src.services.plan_state_service import (
+    get_plan_state,
+    lock_plan,
+    start_production,
+    complete_production,
+)
+from tkinter import messagebox
 
 
 class PlanningEventDataTable(DataTable):
@@ -163,9 +170,10 @@ class PlanningTab(ctk.CTkFrame):
         self.grid_rowconfigure(2, weight=0)  # Recipe selection frame
         self.grid_rowconfigure(3, weight=0)  # FG selection frame (F070)
         self.grid_rowconfigure(4, weight=0)  # Batch options frame (F073)
-        self.grid_rowconfigure(5, weight=0)  # Shopping summary frame (F076)
-        self.grid_rowconfigure(6, weight=0)  # Assembly status frame (F076)
-        self.grid_rowconfigure(7, weight=0)  # Status bar
+        self.grid_rowconfigure(5, weight=0)  # Plan state controls (F077)
+        self.grid_rowconfigure(6, weight=0)  # Shopping summary frame (F076, shifted)
+        self.grid_rowconfigure(7, weight=0)  # Assembly status frame (F076, shifted)
+        self.grid_rowconfigure(8, weight=0)  # Status bar (shifted)
 
         # Build UI
         self._create_action_buttons()
@@ -173,6 +181,7 @@ class PlanningTab(ctk.CTkFrame):
         self._create_recipe_selection_frame()
         self._create_fg_selection_frame()
         self._create_batch_options_frame()
+        self._create_plan_state_frame()  # F077
         self._create_shopping_summary_frame()
         self._create_assembly_status_frame()
         self._create_status_bar()
@@ -284,6 +293,45 @@ class PlanningTab(ctk.CTkFrame):
         self._save_batches_button.pack(anchor="e", padx=10, pady=10)
         # Frame starts hidden
 
+    def _create_plan_state_frame(self) -> None:
+        """Create the plan state controls frame (F077)."""
+        self._plan_state_frame = ctk.CTkFrame(self)
+
+        # State label (shows current state)
+        self._state_label = ctk.CTkLabel(
+            self._plan_state_frame,
+            text="Plan State: --",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        self._state_label.pack(side="left", padx=(10, 20), pady=8)
+
+        # Transition buttons (created but visibility controlled by state)
+        self._lock_btn = ctk.CTkButton(
+            self._plan_state_frame,
+            text="Lock Plan",
+            command=self._on_lock_plan,
+            width=120,
+        )
+        self._lock_btn.pack(side="left", padx=5, pady=8)
+
+        self._start_production_btn = ctk.CTkButton(
+            self._plan_state_frame,
+            text="Start Production",
+            command=self._on_start_production,
+            width=140,
+        )
+        self._start_production_btn.pack(side="left", padx=5, pady=8)
+
+        self._complete_btn = ctk.CTkButton(
+            self._plan_state_frame,
+            text="Complete Production",
+            command=self._on_complete_production,
+            width=160,
+        )
+        self._complete_btn.pack(side="left", padx=5, pady=8)
+
+        # Frame starts hidden
+
     def _create_shopping_summary_frame(self) -> None:
         """Create the shopping summary frame (F076)."""
         self._shopping_summary_frame = ShoppingSummaryFrame(self)
@@ -330,15 +378,18 @@ class PlanningTab(ctk.CTkFrame):
         # Batch options frame - row 4 (F073, initially not gridded)
         # Note: _batch_options_container.grid() is called in _show_batch_options()
 
-        # Shopping summary frame - row 5 (F076, initially not gridded)
+        # Plan state controls - row 5 (F077, initially not gridded)
+        # Note: _plan_state_frame.grid() is called in _show_plan_state_controls()
+
+        # Shopping summary frame - row 6 (shifted for F077)
         # Note: _shopping_summary_frame.grid() is called in _show_shopping_summary()
 
-        # Assembly status frame - row 6 (F076, initially not gridded)
+        # Assembly status frame - row 7 (shifted for F077)
         # Note: _assembly_status_frame.grid() is called in _show_assembly_status()
 
-        # Status bar at bottom (row 7 - shifted for F076)
+        # Status bar at bottom (row 8 - shifted for F077)
         self.status_frame.grid(
-            row=7, column=0, sticky="ew",
+            row=8, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
@@ -361,12 +412,13 @@ class PlanningTab(ctk.CTkFrame):
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
 
-        # Clear selection and hide recipe/FG/batch/shopping/assembly panels
+        # Clear selection and hide recipe/FG/batch/state/shopping/assembly panels
         self.selected_event = None
         self._selected_event_id = None
         self._hide_recipe_selection()
         self._hide_fg_selection()
         self._hide_batch_options()
+        self._hide_plan_state_controls()  # F077
         self._hide_shopping_summary()
         self._hide_assembly_status()
         self._update_button_states()
@@ -398,6 +450,7 @@ class PlanningTab(ctk.CTkFrame):
             self._show_recipe_selection(self.selected_event.id)
             self._show_fg_selection(self.selected_event.id)
             self._show_batch_options(self.selected_event.id)
+            self._show_plan_state_controls()  # F077
             self._show_shopping_summary()
             self._show_assembly_status()
         else:
@@ -406,6 +459,7 @@ class PlanningTab(ctk.CTkFrame):
             self._hide_recipe_selection()
             self._hide_fg_selection()
             self._hide_batch_options()
+            self._hide_plan_state_controls()  # F077
             self._hide_shopping_summary()
             self._hide_assembly_status()
 
@@ -785,11 +839,143 @@ class PlanningTab(ctk.CTkFrame):
             print(f"Warning: Could not update assembly status: {e}")
             self._assembly_status_frame.clear()
 
+    def _show_plan_state_controls(self) -> None:
+        """Show and update plan state controls frame (F077)."""
+        if self._selected_event_id is None:
+            return
+
+        try:
+            state = get_plan_state(self._selected_event_id)
+            self._update_plan_state_buttons(state)
+            self._plan_state_frame.grid(
+                row=5, column=0, sticky="ew",
+                padx=PADDING_LARGE, pady=PADDING_MEDIUM
+            )
+        except Exception as e:
+            print(f"Warning: Could not show plan state controls: {e}")
+
+    def _hide_plan_state_controls(self) -> None:
+        """Hide the plan state controls frame (F077)."""
+        self._plan_state_frame.grid_forget()
+        self._state_label.configure(text="Plan State: --")
+
+    def _update_plan_state_buttons(self, state: PlanState) -> None:
+        """Update button visibility and state based on current plan state (F077).
+
+        Args:
+            state: Current PlanState of the selected event
+        """
+        # Handle None/invalid state
+        if state is None:
+            self._state_label.configure(text="Plan State: --")
+            self._lock_btn.pack_forget()
+            self._start_production_btn.pack_forget()
+            self._complete_btn.pack_forget()
+            return
+
+        # Hide all buttons first
+        self._lock_btn.pack_forget()
+        self._start_production_btn.pack_forget()
+        self._complete_btn.pack_forget()
+
+        # Update state label with human-readable name
+        state_display = {
+            PlanState.DRAFT: "Draft",
+            PlanState.LOCKED: "Locked",
+            PlanState.IN_PRODUCTION: "In Production",
+            PlanState.COMPLETED: "Completed",
+        }
+        display_name = state_display.get(state, str(state))
+        self._state_label.configure(text=f"Plan State: {display_name}")
+
+        # Show appropriate button based on state
+        if state == PlanState.DRAFT:
+            self._lock_btn.pack(side="left", padx=5, pady=8)
+        elif state == PlanState.LOCKED:
+            self._start_production_btn.pack(side="left", padx=5, pady=8)
+        elif state == PlanState.IN_PRODUCTION:
+            self._complete_btn.pack(side="left", padx=5, pady=8)
+        # COMPLETED: no buttons shown
+
+    def _refresh_plan_state_display(self) -> None:
+        """Refresh the plan state display after a transition (F077)."""
+        if self._selected_event_id is None:
+            return
+
+        try:
+            state = get_plan_state(self._selected_event_id)
+            self._update_plan_state_buttons(state)
+        except Exception as e:
+            print(f"Warning: Could not refresh plan state: {e}")
+
+    def _on_lock_plan(self) -> None:
+        """Handle Lock Plan button click (F077)."""
+        if self._selected_event_id is None:
+            return
+
+        try:
+            lock_plan(self._selected_event_id)
+            self._update_status("Plan locked successfully")
+            self._refresh_plan_state_display()
+            # Refresh other panels that may be affected
+            self._update_shopping_summary()
+            self._update_assembly_status()
+        except PlanStateError as e:
+            self._update_status(f"Cannot lock plan: {e}", is_error=True)
+            messagebox.showerror("Lock Failed", str(e))
+        except Exception as e:
+            self._update_status(f"Error: {e}", is_error=True)
+            messagebox.showerror("Error", f"Failed to lock plan: {e}")
+
+    def _on_start_production(self) -> None:
+        """Handle Start Production button click (F077)."""
+        if self._selected_event_id is None:
+            return
+
+        try:
+            start_production(self._selected_event_id)
+            self._update_status("Production started")
+            self._refresh_plan_state_display()
+            self._update_shopping_summary()
+            self._update_assembly_status()
+        except PlanStateError as e:
+            self._update_status(f"Cannot start production: {e}", is_error=True)
+            messagebox.showerror("Start Production Failed", str(e))
+        except Exception as e:
+            self._update_status(f"Error: {e}", is_error=True)
+            messagebox.showerror("Error", f"Failed to start production: {e}")
+
+    def _on_complete_production(self) -> None:
+        """Handle Complete Production button click (F077)."""
+        if self._selected_event_id is None:
+            return
+
+        # Confirm completion (this is a significant action)
+        if not messagebox.askyesno(
+            "Complete Production",
+            "Are you sure you want to mark production as complete?\n\n"
+            "This will make the plan read-only. No further changes will be allowed."
+        ):
+            return
+
+        try:
+            complete_production(self._selected_event_id)
+            self._update_status("Production completed")
+            self._refresh_plan_state_display()
+            self._update_shopping_summary()
+            self._update_assembly_status()
+        except PlanStateError as e:
+            self._update_status(f"Cannot complete production: {e}", is_error=True)
+            messagebox.showerror("Complete Production Failed", str(e))
+        except Exception as e:
+            self._update_status(f"Error: {e}", is_error=True)
+            messagebox.showerror("Error", f"Failed to complete production: {e}")
+
     def _show_shopping_summary(self) -> None:
         """Show and update shopping summary frame."""
         self._update_shopping_summary()
         self._shopping_summary_frame.grid(
-            row=5, column=0, sticky="ew",
+            row=6, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
 
@@ -802,7 +988,7 @@ class PlanningTab(ctk.CTkFrame):
         """Show and update assembly status frame."""
         self._update_assembly_status()
         self._assembly_status_frame.grid(
-            row=6, column=0, sticky="ew",
+            row=7, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
 
