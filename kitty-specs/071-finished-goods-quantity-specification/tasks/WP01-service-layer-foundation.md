@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Service Layer Foundation"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "75646"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -546,3 +546,4 @@ class TestRemoveEventFg:
 ## Activity Log
 
 - 2026-01-27T12:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-27T14:03:37Z – claude-opus – shell_pid=75646 – lane=doing – Started implementation via workflow command
