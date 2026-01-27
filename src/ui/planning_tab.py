@@ -39,7 +39,7 @@ from src.services.batch_decision_service import (
     delete_batch_decisions,
     BatchDecisionInput,
 )
-from src.services.exceptions import ValidationError
+from src.services.exceptions import PlanStateError, ValidationError
 
 
 class PlanningEventDataTable(DataTable):
@@ -488,6 +488,13 @@ class PlanningTab(ctk.CTkFrame):
             self._update_shopping_summary()
             self._update_assembly_status()
 
+        except PlanStateError as e:
+            # F077: User-friendly message for state violations
+            self._update_status(
+                f"Cannot save: {e.attempted_action} not allowed "
+                f"(plan is {e.current_state.value})",
+                is_error=True
+            )
         except Exception as e:
             # Show error but keep UI state
             self._update_status(f"Error saving: {e}", is_error=True)
@@ -595,6 +602,13 @@ class PlanningTab(ctk.CTkFrame):
             self._update_shopping_summary()
             self._update_assembly_status()
 
+        except PlanStateError as e:
+            # F077: User-friendly message for state violations
+            self._update_status(
+                f"Cannot save: {e.attempted_action} not allowed "
+                f"(plan is {e.current_state.value})",
+                is_error=True
+            )
         except Exception as e:
             # Show error but keep UI state
             self._update_status(f"Error saving: {e}", is_error=True)
@@ -834,6 +848,13 @@ class PlanningTab(ctk.CTkFrame):
             self._update_shopping_summary()
             self._update_assembly_status()
 
+        except PlanStateError as e:
+            # F077: User-friendly message for state violations
+            self._update_status(
+                f"Cannot save: {e.attempted_action} not allowed "
+                f"(plan is {e.current_state.value})",
+                is_error=True
+            )
         except ValidationError as e:
             self._update_status(f"Validation error: {e}", is_error=True)
         except Exception as e:

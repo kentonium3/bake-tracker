@@ -14,10 +14,10 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from src.models.batch_decision import BatchDecision
-from src.models.event import Event
+from src.models.event import Event, PlanState
 from src.models.finished_unit import FinishedUnit
 from src.services.database import session_scope
-from src.services.exceptions import ValidationError
+from src.services.exceptions import PlanStateError, ValidationError
 
 
 logger = logging.getLogger(__name__)
@@ -161,7 +161,15 @@ def _save_batch_decision_impl(
         Created or updated BatchDecision instance
     """
     # Validate inputs
-    _validate_event_exists(event_id, session)
+    event = _validate_event_exists(event_id, session)
+
+    # F077: Check plan state - DRAFT and LOCKED allow batch decision modifications
+    if event.plan_state not in (PlanState.DRAFT, PlanState.LOCKED):
+        raise PlanStateError(
+            event_id,
+            event.plan_state,
+            "modify batch decisions"
+        )
     fu = _validate_finished_unit_exists(decision.finished_unit_id, session)
     _validate_batches(decision.batches)
     _validate_shortfall_confirmation(decision)
@@ -256,6 +264,17 @@ def _delete_batch_decisions_impl(event_id: int, session: Session) -> int:
     Returns:
         Number of deleted records
     """
+    # Validate event and check state
+    event = _validate_event_exists(event_id, session)
+
+    # F077: Check plan state - DRAFT and LOCKED allow batch decision modifications
+    if event.plan_state not in (PlanState.DRAFT, PlanState.LOCKED):
+        raise PlanStateError(
+            event_id,
+            event.plan_state,
+            "modify batch decisions"
+        )
+
     count = (
         session.query(BatchDecision)
         .filter(BatchDecision.event_id == event_id)
