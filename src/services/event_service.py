@@ -3080,3 +3080,88 @@ def set_event_recipes(
     removed_fgs = remove_invalid_fg_selections(event_id, session)
 
     return len(recipe_ids), removed_fgs
+
+
+# ============================================================================
+# Feature 070: Event Finished Good Selection
+# ============================================================================
+
+
+def get_event_finished_good_ids(
+    session: Session,
+    event_id: int,
+) -> List[int]:
+    """
+    Get IDs of all finished goods selected for an event.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+
+    Returns:
+        List of selected finished good IDs (empty if none)
+
+    Raises:
+        ValidationError: If event not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError(["Event not found"])
+
+    # Query finished good IDs
+    result = (
+        session.query(EventFinishedGood.finished_good_id)
+        .filter(EventFinishedGood.event_id == event_id)
+        .all()
+    )
+    return [r[0] for r in result]
+
+
+def set_event_finished_goods(
+    session: Session,
+    event_id: int,
+    fg_ids: List[int],
+) -> int:
+    """
+    Replace all finished good selections for an event.
+
+    Only accepts FG IDs that are valid given the current recipe selection.
+    Invalid FG IDs are silently filtered out.
+
+    Args:
+        session: Database session
+        event_id: Target event ID
+        fg_ids: List of finished good IDs to select (empty list clears all)
+
+    Returns:
+        Count of finished goods actually set (may be less than len(fg_ids)
+        if some FGs were unavailable)
+
+    Raises:
+        ValidationError: If event not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise ValidationError(["Event not found"])
+
+    # Get available FGs to filter input
+    available_fgs = get_available_finished_goods(event_id, session)
+    available_ids = {fg.id for fg in available_fgs}
+
+    # Filter to only available FGs
+    valid_fg_ids = [fid for fid in fg_ids if fid in available_ids]
+
+    # Delete existing selections
+    session.query(EventFinishedGood).filter(
+        EventFinishedGood.event_id == event_id
+    ).delete()
+
+    # Insert new selections
+    for fg_id in valid_fg_ids:
+        session.add(EventFinishedGood(event_id=event_id, finished_good_id=fg_id))
+
+    session.flush()
+
+    return len(valid_fg_ids)

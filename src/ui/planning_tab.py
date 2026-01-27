@@ -6,13 +6,15 @@ expected_attendees, and supporting CRUD operations.
 
 Feature 068: Event Management & Planning Data Model
 Feature 069: Recipe Selection for Event Planning
+Feature 070: Finished Goods Filtering for Event Planning
 """
 
 import customtkinter as ctk
-from typing import Optional, Callable, List, Any
+from typing import Optional, Callable, List, Any, Tuple
 
 from src.models import Event, PlanState
 from src.services import event_service, recipe_service
+from src.services.event_service import RemovedFGInfo
 from src.services.database import session_scope
 from src.utils.constants import (
     PADDING_MEDIUM,
@@ -20,6 +22,7 @@ from src.utils.constants import (
 )
 from src.ui.widgets.data_table import DataTable
 from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
+from src.ui.components.fg_selection_frame import FGSelectionFrame
 
 
 class PlanningEventDataTable(DataTable):
@@ -124,7 +127,9 @@ class PlanningTab(ctk.CTkFrame):
 
         self.selected_event: Optional[Event] = None
         self._selected_event_id: Optional[int] = None
-        self._original_selection: List[int] = []
+        self._original_recipe_selection: List[int] = []
+        # F070: FG selection state
+        self._original_fg_selection: List[int] = []
 
         # Store callbacks
         self._on_create_event = on_create_event
@@ -136,12 +141,14 @@ class PlanningTab(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=0)  # Action buttons
         self.grid_rowconfigure(1, weight=1)  # Data table
         self.grid_rowconfigure(2, weight=0)  # Recipe selection frame
-        self.grid_rowconfigure(3, weight=0)  # Status bar
+        self.grid_rowconfigure(3, weight=0)  # FG selection frame (F070)
+        self.grid_rowconfigure(4, weight=0)  # Status bar
 
         # Build UI
         self._create_action_buttons()
         self._create_data_table()
         self._create_recipe_selection_frame()
+        self._create_fg_selection_frame()
         self._create_status_bar()
 
         # Layout widgets
@@ -210,6 +217,15 @@ class PlanningTab(ctk.CTkFrame):
         )
         # Frame starts hidden - will be shown when event is selected
 
+    def _create_fg_selection_frame(self) -> None:
+        """Create the FG selection frame (initially hidden)."""
+        self._fg_selection_frame = FGSelectionFrame(
+            self,
+            on_save=self._on_fg_selection_save,
+            on_cancel=self._on_fg_selection_cancel,
+        )
+        # Frame starts hidden - will be shown when event is selected
+
     def _create_status_bar(self) -> None:
         """Create status bar for displaying feedback."""
         self.status_frame = ctk.CTkFrame(self, height=30)
@@ -240,9 +256,12 @@ class PlanningTab(ctk.CTkFrame):
         # Recipe selection frame - row 2 (initially not gridded, shown when event selected)
         # Note: _recipe_selection_frame.grid() is called in _show_recipe_selection()
 
-        # Status bar at bottom
+        # FG selection frame - row 3 (initially not gridded, shown when event selected)
+        # Note: _fg_selection_frame.grid() is called in _show_fg_selection()
+
+        # Status bar at bottom (row 4)
         self.status_frame.grid(
-            row=3, column=0, sticky="ew",
+            row=4, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
@@ -265,10 +284,11 @@ class PlanningTab(ctk.CTkFrame):
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
 
-        # Clear selection and hide recipe selection
+        # Clear selection and hide recipe/FG selection
         self.selected_event = None
         self._selected_event_id = None
         self._hide_recipe_selection()
+        self._hide_fg_selection()
         self._update_button_states()
 
     def _on_row_select(self, event: Optional[Event]) -> None:
@@ -296,10 +316,12 @@ class PlanningTab(ctk.CTkFrame):
             self._update_status(f"Selected: {self.selected_event.name}")
             self._selected_event_id = self.selected_event.id
             self._show_recipe_selection(self.selected_event.id)
+            self._show_fg_selection(self.selected_event.id)
         else:
             self._update_status("Ready")
             self._selected_event_id = None
             self._hide_recipe_selection()
+            self._hide_fg_selection()
 
     def _show_recipe_selection(self, event_id: int) -> None:
         """
@@ -325,7 +347,7 @@ class PlanningTab(ctk.CTkFrame):
             self._recipe_selection_frame.set_selected(selected_ids)
 
             # Store for cancel functionality
-            self._original_selection = selected_ids.copy()
+            self._original_recipe_selection = selected_ids.copy()
 
             # Show frame using grid
             self._recipe_selection_frame.grid(
@@ -339,11 +361,13 @@ class PlanningTab(ctk.CTkFrame):
     def _hide_recipe_selection(self) -> None:
         """Hide the recipe selection frame."""
         self._recipe_selection_frame.grid_forget()
-        self._original_selection = []
+        self._original_recipe_selection = []
 
     def _on_recipe_selection_save(self, selected_ids: List[int]) -> None:
         """
         Handle recipe selection save.
+
+        F070: Also refreshes FG selection and shows notification for removed FGs.
 
         Args:
             selected_ids: List of selected recipe IDs
@@ -354,7 +378,7 @@ class PlanningTab(ctk.CTkFrame):
 
         try:
             with session_scope() as session:
-                count = event_service.set_event_recipes(
+                count, removed_fgs = event_service.set_event_recipes(
                     session,
                     self._selected_event_id,
                     selected_ids,
@@ -362,10 +386,17 @@ class PlanningTab(ctk.CTkFrame):
                 session.commit()
 
             # Update original selection (for future cancel)
-            self._original_selection = selected_ids.copy()
+            self._original_recipe_selection = selected_ids.copy()
 
-            # Show success feedback
-            self._update_status(f"Saved {count} recipe selection(s)")
+            # F070: Show notification for auto-removed FGs
+            if removed_fgs:
+                self._show_removed_fg_notification(removed_fgs)
+            else:
+                # Show success feedback
+                self._update_status(f"Saved {count} recipe selection(s)")
+
+            # F070: Refresh FG selection to show available FGs
+            self._refresh_fg_selection()
 
         except Exception as e:
             # Show error but keep UI state
@@ -373,8 +404,114 @@ class PlanningTab(ctk.CTkFrame):
 
     def _on_recipe_selection_cancel(self) -> None:
         """Handle recipe selection cancel - revert to last saved state."""
-        self._recipe_selection_frame.set_selected(self._original_selection)
-        self._update_status("Reverted to saved selections")
+        self._recipe_selection_frame.set_selected(self._original_recipe_selection)
+        self._update_status("Reverted to saved recipe selections")
+
+    # =========================================================================
+    # F070: Finished Good Selection
+    # =========================================================================
+
+    def _show_fg_selection(self, event_id: int) -> None:
+        """
+        Show and populate FG selection for an event.
+
+        Args:
+            event_id: ID of the selected event
+        """
+        try:
+            with session_scope() as session:
+                # Get event name
+                event = event_service.get_event_by_id(event_id, session=session)
+                event_name = event.name if event else ""
+
+                # Get available FGs (filtered by selected recipes)
+                available_fgs = event_service.get_available_finished_goods(
+                    event_id, session
+                )
+
+                # Get existing selections
+                selected_ids = event_service.get_event_finished_good_ids(
+                    session, event_id
+                )
+
+            # Populate frame
+            self._fg_selection_frame.populate_finished_goods(available_fgs, event_name)
+            self._fg_selection_frame.set_selected(selected_ids)
+
+            # Store for cancel functionality
+            self._original_fg_selection = selected_ids.copy()
+
+            # Show frame using grid
+            self._fg_selection_frame.grid(
+                row=3, column=0, sticky="ew",
+                padx=PADDING_LARGE, pady=PADDING_MEDIUM
+            )
+
+        except Exception as e:
+            self._update_status(f"Error loading finished goods: {e}", is_error=True)
+
+    def _hide_fg_selection(self) -> None:
+        """Hide the FG selection frame."""
+        self._fg_selection_frame.grid_forget()
+        self._original_fg_selection = []
+
+    def _refresh_fg_selection(self) -> None:
+        """Refresh FG selection after recipe change."""
+        if self._selected_event_id is not None:
+            self._show_fg_selection(self._selected_event_id)
+
+    def _on_fg_selection_save(self, selected_ids: List[int]) -> None:
+        """
+        Handle FG selection save.
+
+        Args:
+            selected_ids: List of selected finished good IDs
+        """
+        if self._selected_event_id is None:
+            self._update_status("No event selected", is_error=True)
+            return
+
+        try:
+            with session_scope() as session:
+                count = event_service.set_event_finished_goods(
+                    session,
+                    self._selected_event_id,
+                    selected_ids,
+                )
+                session.commit()
+
+            # Update original selection (for future cancel)
+            self._original_fg_selection = selected_ids.copy()
+
+            # Show success feedback
+            self._update_status(f"Saved {count} finished good selection(s)")
+
+        except Exception as e:
+            # Show error but keep UI state
+            self._update_status(f"Error saving: {e}", is_error=True)
+
+    def _on_fg_selection_cancel(self) -> None:
+        """Handle FG selection cancel - revert to last saved state."""
+        self._fg_selection_frame.set_selected(self._original_fg_selection)
+        self._update_status("Reverted to saved FG selections")
+
+    def _show_removed_fg_notification(self, removed_fgs: List[RemovedFGInfo]) -> None:
+        """
+        Show notification about auto-removed FG selections.
+
+        Args:
+            removed_fgs: List of RemovedFGInfo for removed FGs
+        """
+        if len(removed_fgs) == 1:
+            fg = removed_fgs[0]
+            missing = ", ".join(fg.missing_recipes)
+            message = f"Removed '{fg.fg_name}' - requires: {missing}"
+        else:
+            names = ", ".join(fg.fg_name for fg in removed_fgs)
+            message = f"Removed {len(removed_fgs)} FGs: {names}"
+
+        # Show as error-style to draw attention (orange would be ideal but red is available)
+        self._update_status(message, is_error=True)
 
     def _on_row_double_click(self, event: Event) -> None:
         """
