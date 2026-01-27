@@ -28,7 +28,7 @@ This feature creates an inventory gap analysis service that compares F074's aggr
 - [x] T003: Create inventory_gap_service.py skeleton with session pattern
 - [x] T004: Implement inventory lookup helper (ingredient_id → slug → inventory)
 - [x] T005: Implement gap calculation logic
-- [ ] T006: Implement analyze_inventory_gaps() main function
+- [x] T006: Implement analyze_inventory_gaps() main function
 - [ ] T007: Implement result partitioning (purchase vs sufficient)
 
 **Implementation Notes**:
