@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Edge Cases & Validation
+lane: "doing"
+dependencies: [WP01]
+base_branch: 072-recipe-decomposition-aggregation-WP01
+base_commit: f0556ed2280479fb06fd6f005a5cde6bd1642677
+created_at: '2026-01-27T16:57:41.595909+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Edge Cases & Validation"
-phase: "Phase 2 - Edge Cases"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+- T014
+phase: Phase 2 - Edge Cases
+assignee: ''
+agent: ''
+shell_pid: "1110"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T16:30:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T16:30:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Edge Cases & Validation
