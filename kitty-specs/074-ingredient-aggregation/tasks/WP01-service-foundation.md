@@ -13,7 +13,7 @@ subtasks:
 - T004
 - T005
 phase: Phase 0 - Foundation
-assignee: ''
+assignee: 'claude'
 agent: "gemini"
 shell_pid: "32718"
 review_status: "approved"

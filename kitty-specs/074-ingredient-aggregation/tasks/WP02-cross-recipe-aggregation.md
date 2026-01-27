@@ -13,7 +13,7 @@ subtasks:
 - T009
 - T010
 phase: Phase 1 - Complete Feature
-assignee: ''
+assignee: 'claude'
 agent: "gemini"
 shell_pid: "33821"
 review_status: "approved"
