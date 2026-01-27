@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Foundation Fixes
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: 1826555fcc5313254f73ce3d3eb79c1f2734b750
@@ -18,7 +18,7 @@ subtasks:
 phase: Phase 0 - Foundation
 assignee: ''
 agent: "claude"
-shell_pid: "16747"
+shell_pid: "18855"
 review_status: ''
 reviewed_by: ''
 history:
@@ -450,3 +450,4 @@ with session_scope() as session:
 
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-27T19:29:41Z – claude – shell_pid=16747 – lane=for_review – All 8 tasks (T001-T008) complete. 22 tests passing.
+- 2026-01-27T19:29:50Z – claude – shell_pid=18855 – lane=doing – Started review via workflow command
