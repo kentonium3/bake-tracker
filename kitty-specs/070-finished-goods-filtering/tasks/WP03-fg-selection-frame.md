@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FG Selection Frame UI Component
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 070-finished-goods-filtering-WP02
@@ -670,3 +670,4 @@ def mock_fgs():
 
 **Initial entry**:
 - 2026-01-26T19:45:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-27T01:31:44Z – unknown – shell_pid=31081 – lane=for_review – Ready for review: FGSelectionFrame UI component with 14 passing tests
