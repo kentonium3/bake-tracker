@@ -145,7 +145,7 @@
 - [x] T018 Add ShoppingSummaryFrame to planning_tab.py layout (row 5)
 - [x] T019 Add AssemblyStatusFrame to planning_tab.py layout (row 6)
 - [x] T020 Implement _update_shopping_summary() and _update_assembly_status() methods
-- [ ] T021 Wire callbacks: recipe save → FG save → batch save all trigger updates
+- [x] T021 Wire callbacks: recipe save → FG save → batch save all trigger updates
 
 ### Implementation Notes
 - Extend existing planning_tab.py grid layout
