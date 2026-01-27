@@ -172,7 +172,7 @@ def get_required_recipes(
     fg_id: int,
     session: Session,
     *,
-    _visited: Optional[Set[int]] = None,
+    _path: Optional[Set[int]] = None,
     _depth: int = 0,
 ) -> Set[int]:
     """
@@ -181,7 +181,7 @@ def get_required_recipes(
     Args:
         fg_id: The FinishedGood ID to decompose
         session: Database session (required, caller manages transaction)
-        _visited: Internal tracking for circular reference detection
+        _path: Internal tracking for current recursion path (cycle detection)
         _depth: Internal tracking for depth limiting
 
     Returns:
@@ -191,47 +191,56 @@ def get_required_recipes(
         CircularReferenceError: If bundle contains circular reference
         MaxDepthExceededError: If nesting exceeds MAX_FG_NESTING_DEPTH
         ValidationError: If fg_id not found
+
+    Note:
+        Uses path-based cycle detection: only flags true cycles where an FG
+        references itself through its descendants. DAG patterns (same FG
+        reused in multiple branches) are allowed and do not raise errors.
     """
-    # Initialize visited set on first call
-    if _visited is None:
-        _visited = set()
+    # Initialize path set on first call
+    if _path is None:
+        _path = set()
 
     # Check depth limit
     if _depth > MAX_FG_NESTING_DEPTH:
         raise MaxDepthExceededError(_depth, MAX_FG_NESTING_DEPTH)
 
-    # Check for circular reference
-    if fg_id in _visited:
-        raise CircularReferenceError(fg_id, list(_visited))
+    # Check for circular reference (only if fg_id is in current ancestry path)
+    if fg_id in _path:
+        raise CircularReferenceError(fg_id, list(_path))
 
-    # Mark as visited
-    _visited.add(fg_id)
+    # Add to current path (will be removed when we return)
+    _path.add(fg_id)
 
-    # Query the FinishedGood with components eager-loaded
-    fg = session.query(FinishedGood).filter(FinishedGood.id == fg_id).first()
-    if fg is None:
-        raise ValidationError([f"FinishedGood {fg_id} not found"])
+    try:
+        # Query the FinishedGood with components eager-loaded
+        fg = session.query(FinishedGood).filter(FinishedGood.id == fg_id).first()
+        if fg is None:
+            raise ValidationError([f"FinishedGood {fg_id} not found"])
 
-    recipes: Set[int] = set()
+        recipes: Set[int] = set()
 
-    # Traverse components
-    for comp in fg.components:
-        if comp.finished_unit_id is not None:
-            # Atomic component: get recipe directly from FinishedUnit
-            if comp.finished_unit_component and comp.finished_unit_component.recipe_id:
-                recipes.add(comp.finished_unit_component.recipe_id)
-        elif comp.finished_good_id is not None:
-            # Nested bundle: recurse
-            child_recipes = get_required_recipes(
-                comp.finished_good_id,
-                session,
-                _visited=_visited,
-                _depth=_depth + 1,
-            )
-            recipes.update(child_recipes)
-        # else: packaging/material component - no recipe needed (skip)
+        # Traverse components
+        for comp in fg.components:
+            if comp.finished_unit_id is not None:
+                # Atomic component: get recipe directly from FinishedUnit
+                if comp.finished_unit_component and comp.finished_unit_component.recipe_id:
+                    recipes.add(comp.finished_unit_component.recipe_id)
+            elif comp.finished_good_id is not None:
+                # Nested bundle: recurse
+                child_recipes = get_required_recipes(
+                    comp.finished_good_id,
+                    session,
+                    _path=_path,
+                    _depth=_depth + 1,
+                )
+                recipes.update(child_recipes)
+            # else: packaging/material component - no recipe needed (skip)
 
-    return recipes
+        return recipes
+    finally:
+        # Remove from path when returning (backtracking)
+        _path.discard(fg_id)
 
 
 # ============================================================================

@@ -78,6 +78,13 @@ class TestGetRequiredRecipes:
             get_required_recipes(deeply_nested_bundle.id, test_db)
         assert exc_info.value.max_depth == MAX_FG_NESTING_DEPTH
 
+    def test_allows_dag_shared_component(self, test_db, dag_bundle_shared_component):
+        """DAG pattern: same FG reused in multiple branches does NOT raise error."""
+        # This should NOT raise CircularReferenceError - it's a valid DAG, not a cycle
+        result = get_required_recipes(dag_bundle_shared_component.id, test_db)
+        # Should return all expected recipes (from shared component and unique branches)
+        assert result == dag_bundle_shared_component.expected_recipe_ids
+
 
 # ============================================================================
 # Fixtures (WP01)
@@ -383,6 +390,121 @@ def deeply_nested_bundle(test_db, test_recipe):
 
     test_db.flush()
     return prev_fg  # Return outermost bundle
+
+
+@pytest.fixture
+def dag_bundle_shared_component(test_db, test_recipes):
+    """
+    Bundle with DAG pattern: same FG component used in multiple branches.
+
+    Structure:
+        outer_bundle
+        ├── branch_a → shared_fg → recipe_1
+        └── branch_b → shared_fg → recipe_1 (same FG reused)
+                    └── unique_fu → recipe_2
+
+    This is a valid acyclic DAG, NOT a circular reference.
+    The shared_fg appears twice in the traversal but shouldn't raise an error.
+    """
+    from src.models.finished_good import FinishedGood
+    from src.models.finished_unit import FinishedUnit
+    from src.models.composition import Composition
+
+    # Create shared component (leaf FG with one recipe)
+    shared_fg = FinishedGood(
+        slug="dag-shared-fg",
+        display_name="Shared FG",
+    )
+    test_db.add(shared_fg)
+    test_db.flush()
+
+    shared_fu = FinishedUnit(
+        slug="dag-shared-fu",
+        display_name="Shared FU",
+        recipe_id=test_recipes[0].id,
+    )
+    test_db.add(shared_fu)
+    test_db.flush()
+
+    comp_shared = Composition(
+        assembly_id=shared_fg.id,
+        finished_unit_id=shared_fu.id,
+        component_quantity=1.0,
+    )
+    test_db.add(comp_shared)
+
+    # Create branch_a (just contains shared_fg)
+    branch_a = FinishedGood(
+        slug="dag-branch-a",
+        display_name="Branch A",
+    )
+    test_db.add(branch_a)
+    test_db.flush()
+
+    comp_a = Composition(
+        assembly_id=branch_a.id,
+        finished_good_id=shared_fg.id,
+        component_quantity=1.0,
+    )
+    test_db.add(comp_a)
+
+    # Create branch_b (contains shared_fg AND a unique FU)
+    branch_b = FinishedGood(
+        slug="dag-branch-b",
+        display_name="Branch B",
+    )
+    test_db.add(branch_b)
+    test_db.flush()
+
+    comp_b_shared = Composition(
+        assembly_id=branch_b.id,
+        finished_good_id=shared_fg.id,
+        component_quantity=1.0,
+    )
+    test_db.add(comp_b_shared)
+
+    unique_fu = FinishedUnit(
+        slug="dag-unique-fu",
+        display_name="Unique FU",
+        recipe_id=test_recipes[1].id,
+    )
+    test_db.add(unique_fu)
+    test_db.flush()
+
+    comp_b_unique = Composition(
+        assembly_id=branch_b.id,
+        finished_unit_id=unique_fu.id,
+        component_quantity=1.0,
+    )
+    test_db.add(comp_b_unique)
+
+    # Create outer bundle containing both branches
+    outer_bundle = FinishedGood(
+        slug="dag-outer-bundle",
+        display_name="DAG Outer Bundle",
+    )
+    test_db.add(outer_bundle)
+    test_db.flush()
+
+    comp_outer_a = Composition(
+        assembly_id=outer_bundle.id,
+        finished_good_id=branch_a.id,
+        component_quantity=1.0,
+    )
+    test_db.add(comp_outer_a)
+
+    comp_outer_b = Composition(
+        assembly_id=outer_bundle.id,
+        finished_good_id=branch_b.id,
+        component_quantity=1.0,
+    )
+    test_db.add(comp_outer_b)
+
+    test_db.flush()
+
+    # Expected: recipes from shared (recipe 0) + unique (recipe 1)
+    outer_bundle.expected_recipe_ids = {test_recipes[0].id, test_recipes[1].id}
+    return outer_bundle
 
 
 # ============================================================================
