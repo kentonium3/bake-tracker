@@ -24,7 +24,7 @@
 
 ### Included Subtasks
 - [x] T001 Add `FURequirement` dataclass to `src/services/planning_service.py`
-- [ ] T002 Rename `calculate_recipe_requirements()` → `decompose_event_to_fu_requirements()`
+- [x] T002 Rename `calculate_recipe_requirements()` → `decompose_event_to_fu_requirements()`
 - [ ] T003 Modify `_decompose_fg_to_recipes()` → `_decompose_fg_to_fus()` to return FU-level data
 - [ ] T004 Remove recipe-level aggregation from decomposition logic
 - [ ] T005 Update all 22 F072 tests in `src/tests/test_planning_service.py` for new return type
