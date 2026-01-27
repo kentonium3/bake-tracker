@@ -29,7 +29,7 @@
 - [x] T004 Remove recipe-level aggregation from decomposition logic
 - [x] T005 Update all 22 F072 tests in `src/tests/test_planning_service.py` for new return type
 - [x] T006 Modify `BatchDecision` model - change `finished_unit_id` to NOT NULL
-- [ ] T007 Update UniqueConstraint from `(event_id, recipe_id)` to `(event_id, finished_unit_id)`
+- [x] T007 Update UniqueConstraint from `(event_id, recipe_id)` to `(event_id, finished_unit_id)`
 - [ ] T008 Verify constraint changes with fresh database creation
 
 ### Implementation Notes
