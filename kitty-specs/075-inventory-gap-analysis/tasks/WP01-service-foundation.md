@@ -1,10 +1,11 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Gap Calculation
-lane: "planned"
+lane: "doing"
 dependencies: []
 base_branch: main
-created_at: '2026-01-27T23:30:00Z'
+base_commit: d79ee82fbc98842196707709c9112e4be7cd209d
+created_at: '2026-01-27T21:23:57.183293+00:00'
 subtasks:
 - T001
 - T002
@@ -16,7 +17,7 @@ subtasks:
 phase: Phase 1 - Foundation
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "37873"
 review_status: ''
 reviewed_by: ''
 history:
