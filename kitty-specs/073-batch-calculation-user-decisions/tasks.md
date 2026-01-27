@@ -167,7 +167,7 @@
 ### Included Subtasks
 - [x] T030 Add BatchOptionsFrame instance to `src/ui/planning_tab.py` layout
 - [x] T031 Implement `_load_batch_options()` when event is selected
-- [ ] T032 Implement shortfall confirmation dialog flow using `show_confirmation()`
+- [x] T032 Implement shortfall confirmation dialog flow using `show_confirmation()`
 - [ ] T033 Implement `_save_batch_decisions()` on user action
 - [ ] T034 Implement load existing decisions on event open (pre-select radio buttons)
 - [ ] T035 Wire up modification flow (change existing decision triggers re-save)
