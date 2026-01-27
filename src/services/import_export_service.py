@@ -29,7 +29,7 @@ from src.models.product import Product
 from src.models.inventory_item import InventoryItem
 from src.models.purchase import Purchase
 from src.models.supplier import Supplier
-from src.models.finished_unit import FinishedUnit
+from src.models.finished_unit import FinishedUnit, YieldMode
 from src.models.finished_good import FinishedGood
 from src.models.composition import Composition
 from src.models.composition_assignment import CompositionAssignment
@@ -37,12 +37,19 @@ from src.models.package import Package, PackageFinishedGood
 from src.models.production_record import ProductionRecord
 from src.models.production_run import ProductionRun
 from src.models.assembly_run import AssemblyRun
-from src.models.event import Event, EventProductionTarget, EventAssemblyTarget, FulfillmentStatus, PlanState
+from src.models.event import (
+    Event,
+    EventProductionTarget,
+    EventAssemblyTarget,
+    FulfillmentStatus,
+    PlanState,
+    OutputMode,
+)
 from src.models.event_recipe import EventRecipe
 from src.models.event_finished_good import EventFinishedGood
 from src.models.batch_decision import BatchDecision
 from src.models.plan_amendment import PlanAmendment, AmendmentType
-from src.models.recipe import Recipe, RecipeComponent
+from src.models.recipe import Recipe, RecipeComponent, RecipeIngredient
 from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_category import MaterialCategory
@@ -3670,9 +3677,6 @@ def import_all_from_json_v4(
             # 6. Recipes (depends on ingredients)
             # Feature 040 / F037: Import recipes with variant support
             if "recipes" in data:
-                from src.models.recipe import Recipe, RecipeIngredient
-                from src.models.finished_unit import FinishedUnit, YieldMode
-
                 # T006: Sort recipes - import base recipes before variants
                 # This ensures base_recipe exists when importing a variant
                 recipes_data = data["recipes"]
@@ -4088,8 +4092,6 @@ def import_all_from_json_v4(
             # Feature 040 / F039: Import output_mode field
             # Feature 068: Import expected_attendees and plan_state
             if "events" in data:
-                from src.models.event import Event, OutputMode
-
                 for evt in data["events"]:
                     try:
                         name = evt.get("name", "")
@@ -4192,8 +4194,6 @@ def import_all_from_json_v4(
             # T014: Validate output_mode vs targets consistency
             # Check if events with specific output_mode have corresponding targets
             if "events" in data:
-                from src.models.event import Event, OutputMode
-
                 for evt in data["events"]:
                     name = evt.get("name", "")
                     output_mode_str = evt.get("output_mode")
