@@ -24,7 +24,7 @@
 
 ### Included Subtasks
 - [x] T001 Create IngredientTotal dataclass in `src/services/ingredient_aggregation_service.py`
-- [ ] T002 Create service file structure with session management pattern
+- [x] T002 Create service file structure with session management pattern
 - [ ] T003 Implement `_scale_recipe_ingredients()` helper function
 - [ ] T004 Implement `aggregate_ingredients_for_event()` for single-recipe case
 - [ ] T005 Write unit tests for single-recipe aggregation in `src/tests/test_ingredient_aggregation_service.py`
