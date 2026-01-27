@@ -171,7 +171,7 @@
 - [x] T033 Implement `_save_batch_decisions()` on user action
 - [x] T034 Implement load existing decisions on event open (pre-select radio buttons)
 - [x] T035 Wire up modification flow (change existing decision triggers re-save)
-- [ ] T036 End-to-end manual testing and validation
+- [x] T036 End-to-end manual testing and validation
 
 ### Implementation Notes
 - BatchOptionsFrame should appear after FG quantities section
