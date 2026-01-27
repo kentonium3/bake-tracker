@@ -9,6 +9,7 @@ Feature 069: Recipe Selection for Event Planning
 Feature 070: Finished Goods Filtering for Event Planning
 Feature 071: Finished Goods Quantity Specification
 Feature 073: Batch Calculation User Decisions
+Feature 076: Assembly Feasibility & Single-Screen Planning
 """
 
 import customtkinter as ctk
@@ -27,7 +28,11 @@ from src.ui.widgets.dialogs import show_confirmation
 from src.ui.widgets.batch_options_frame import BatchOptionsFrame
 from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 from src.ui.components.fg_selection_frame import FGSelectionFrame
+from src.ui.components.shopping_summary_frame import ShoppingSummaryFrame
+from src.ui.components.assembly_status_frame import AssemblyStatusFrame
 from src.services.planning_service import calculate_batch_options
+from src.services.inventory_gap_service import analyze_inventory_gaps
+from src.services.assembly_feasibility_service import calculate_assembly_feasibility
 from src.services.batch_decision_service import (
     save_batch_decision,
     get_batch_decisions,
@@ -158,7 +163,9 @@ class PlanningTab(ctk.CTkFrame):
         self.grid_rowconfigure(2, weight=0)  # Recipe selection frame
         self.grid_rowconfigure(3, weight=0)  # FG selection frame (F070)
         self.grid_rowconfigure(4, weight=0)  # Batch options frame (F073)
-        self.grid_rowconfigure(5, weight=0)  # Status bar
+        self.grid_rowconfigure(5, weight=0)  # Shopping summary frame (F076)
+        self.grid_rowconfigure(6, weight=0)  # Assembly status frame (F076)
+        self.grid_rowconfigure(7, weight=0)  # Status bar
 
         # Build UI
         self._create_action_buttons()
@@ -166,6 +173,8 @@ class PlanningTab(ctk.CTkFrame):
         self._create_recipe_selection_frame()
         self._create_fg_selection_frame()
         self._create_batch_options_frame()
+        self._create_shopping_summary_frame()
+        self._create_assembly_status_frame()
         self._create_status_bar()
 
         # Layout widgets
@@ -275,6 +284,16 @@ class PlanningTab(ctk.CTkFrame):
         self._save_batches_button.pack(anchor="e", padx=10, pady=10)
         # Frame starts hidden
 
+    def _create_shopping_summary_frame(self) -> None:
+        """Create the shopping summary frame (F076)."""
+        self._shopping_summary_frame = ShoppingSummaryFrame(self)
+        # Frame starts hidden - shown when event selected
+
+    def _create_assembly_status_frame(self) -> None:
+        """Create the assembly status frame (F076)."""
+        self._assembly_status_frame = AssemblyStatusFrame(self)
+        # Frame starts hidden - shown when event selected
+
     def _create_status_bar(self) -> None:
         """Create status bar for displaying feedback."""
         self.status_frame = ctk.CTkFrame(self, height=30)
@@ -311,9 +330,15 @@ class PlanningTab(ctk.CTkFrame):
         # Batch options frame - row 4 (F073, initially not gridded)
         # Note: _batch_options_container.grid() is called in _show_batch_options()
 
-        # Status bar at bottom (row 5)
+        # Shopping summary frame - row 5 (F076, initially not gridded)
+        # Note: _shopping_summary_frame.grid() is called in _show_shopping_summary()
+
+        # Assembly status frame - row 6 (F076, initially not gridded)
+        # Note: _assembly_status_frame.grid() is called in _show_assembly_status()
+
+        # Status bar at bottom (row 7 - shifted for F076)
         self.status_frame.grid(
-            row=5, column=0, sticky="ew",
+            row=7, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
@@ -336,12 +361,14 @@ class PlanningTab(ctk.CTkFrame):
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
 
-        # Clear selection and hide recipe/FG/batch selection
+        # Clear selection and hide recipe/FG/batch/shopping/assembly panels
         self.selected_event = None
         self._selected_event_id = None
         self._hide_recipe_selection()
         self._hide_fg_selection()
         self._hide_batch_options()
+        self._hide_shopping_summary()
+        self._hide_assembly_status()
         self._update_button_states()
 
     def _on_row_select(self, event: Optional[Event]) -> None:
@@ -371,12 +398,16 @@ class PlanningTab(ctk.CTkFrame):
             self._show_recipe_selection(self.selected_event.id)
             self._show_fg_selection(self.selected_event.id)
             self._show_batch_options(self.selected_event.id)
+            self._show_shopping_summary()
+            self._show_assembly_status()
         else:
             self._update_status("Ready")
             self._selected_event_id = None
             self._hide_recipe_selection()
             self._hide_fg_selection()
             self._hide_batch_options()
+            self._hide_shopping_summary()
+            self._hide_assembly_status()
 
     def _show_recipe_selection(self, event_id: int) -> None:
         """
@@ -452,6 +483,10 @@ class PlanningTab(ctk.CTkFrame):
 
             # F070: Refresh FG selection to show available FGs
             self._refresh_fg_selection()
+
+            # F076: Cascade updates to shopping and assembly
+            self._update_shopping_summary()
+            self._update_assembly_status()
 
         except Exception as e:
             # Show error but keep UI state
@@ -554,6 +589,11 @@ class PlanningTab(ctk.CTkFrame):
 
             # Show success feedback
             self._update_status(f"Saved {count} finished good(s)")
+
+            # F076: Reload batch options and update downstream panels
+            self._load_batch_options()
+            self._update_shopping_summary()
+            self._update_assembly_status()
 
         except Exception as e:
             # Show error but keep UI state
@@ -699,6 +739,64 @@ class PlanningTab(ctk.CTkFrame):
         else:
             self._save_batches_button.configure(text="Save Batch Decisions")
 
+    # =========================================================================
+    # F076: Shopping Summary & Assembly Status
+    # =========================================================================
+
+    def _update_shopping_summary(self) -> None:
+        """Update the shopping summary panel with current gap analysis."""
+        if self._selected_event_id is None:
+            self._shopping_summary_frame.clear()
+            return
+
+        try:
+            gap_result = analyze_inventory_gaps(self._selected_event_id)
+            self._shopping_summary_frame.update_summary(gap_result)
+        except Exception as e:
+            # Log but don't fail - shopping summary is informational
+            print(f"Warning: Could not update shopping summary: {e}")
+            self._shopping_summary_frame.clear()
+
+    def _update_assembly_status(self) -> None:
+        """Update the assembly status panel with current feasibility."""
+        if self._selected_event_id is None:
+            self._assembly_status_frame.clear()
+            return
+
+        try:
+            feasibility = calculate_assembly_feasibility(self._selected_event_id)
+            self._assembly_status_frame.update_status(feasibility)
+        except Exception as e:
+            # Log but don't fail - assembly status is informational
+            print(f"Warning: Could not update assembly status: {e}")
+            self._assembly_status_frame.clear()
+
+    def _show_shopping_summary(self) -> None:
+        """Show and update shopping summary frame."""
+        self._update_shopping_summary()
+        self._shopping_summary_frame.grid(
+            row=5, column=0, sticky="ew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        )
+
+    def _hide_shopping_summary(self) -> None:
+        """Hide the shopping summary frame."""
+        self._shopping_summary_frame.grid_forget()
+        self._shopping_summary_frame.clear()
+
+    def _show_assembly_status(self) -> None:
+        """Show and update assembly status frame."""
+        self._update_assembly_status()
+        self._assembly_status_frame.grid(
+            row=6, column=0, sticky="ew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        )
+
+    def _hide_assembly_status(self) -> None:
+        """Hide the assembly status frame."""
+        self._assembly_status_frame.grid_forget()
+        self._assembly_status_frame.clear()
+
     def _save_batch_decisions(self) -> None:
         """Save all batch decisions for the current event."""
         if self._selected_event_id is None:
@@ -731,6 +829,10 @@ class PlanningTab(ctk.CTkFrame):
             # Reset unsaved indicator on success
             self._has_unsaved_batch_changes = False
             self._update_save_button_state()
+
+            # F076: Update shopping and assembly status
+            self._update_shopping_summary()
+            self._update_assembly_status()
 
         except ValidationError as e:
             self._update_status(f"Validation error: {e}", is_error=True)
