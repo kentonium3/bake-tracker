@@ -23,7 +23,7 @@ This feature creates an inventory gap analysis service that compares F074's aggr
 **Estimated Size**: ~350 lines
 
 **Subtasks**:
-- [ ] T001: Create GapItem dataclass
+- [x] T001: Create GapItem dataclass
 - [ ] T002: Create GapAnalysisResult dataclass
 - [ ] T003: Create inventory_gap_service.py skeleton with session pattern
 - [ ] T004: Implement inventory lookup helper (ingredient_id → slug → inventory)
