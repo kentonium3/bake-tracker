@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Planning Tab Integration
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 base_branch: 071-finished-goods-quantity-specification-WP02
@@ -14,8 +14,8 @@ subtasks:
 - T012
 phase: Phase 3 - Integration
 assignee: ''
-agent: ''
-shell_pid: "80449"
+agent: "claude-opus"
+shell_pid: "81837"
 review_status: ''
 reviewed_by: ''
 history:
@@ -392,3 +392,4 @@ _on_fg_selection_save()
 
 - 2026-01-27T12:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-27T14:41:56Z – unknown – shell_pid=80449 – lane=for_review – All subtasks complete. 61 tests passing (10 planning tab FG + 36 FGSelectionFrame + 15 event service). End-to-end quantity workflow implemented: load, save, validate, cancel.
+- 2026-01-27T14:42:28Z – claude-opus – shell_pid=81837 – lane=doing – Started review via workflow command
