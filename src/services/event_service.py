@@ -14,7 +14,7 @@ Architecture Note (Feature 006):
 - Recipe needs traverse: Package -> FinishedGood -> Composition -> FinishedUnit -> Recipe
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set
 from dataclasses import dataclass
 from datetime import datetime, date
 from src.utils.datetime_utils import utc_now
@@ -138,6 +138,99 @@ class DuplicateAssignmentError(Exception):
         super().__init__(
             f"Assignment already exists: Event {event_id}, Recipient {recipient_id}, Package {package_id}"
         )
+
+
+# F070: FG Availability exceptions
+class CircularReferenceError(Exception):
+    """Raised when a bundle contains a circular reference."""
+
+    def __init__(self, fg_id: int, path: List[int]):
+        self.fg_id = fg_id
+        self.path = path
+        super().__init__(f"Circular reference detected: FG {fg_id} in path {path}")
+
+
+class MaxDepthExceededError(Exception):
+    """Raised when bundle nesting exceeds maximum depth."""
+
+    def __init__(self, depth: int, max_depth: int):
+        self.depth = depth
+        self.max_depth = max_depth
+        super().__init__(f"Maximum nesting depth {max_depth} exceeded at depth {depth}")
+
+
+MAX_FG_NESTING_DEPTH = 10
+
+
+# ============================================================================
+# F070: FG Availability / Bundle Decomposition
+# ============================================================================
+
+
+def get_required_recipes(
+    fg_id: int,
+    session: Session,
+    *,
+    _visited: Optional[Set[int]] = None,
+    _depth: int = 0,
+) -> Set[int]:
+    """
+    Recursively decompose a FinishedGood to determine all required recipe IDs.
+
+    Args:
+        fg_id: The FinishedGood ID to decompose
+        session: Database session (required, caller manages transaction)
+        _visited: Internal tracking for circular reference detection
+        _depth: Internal tracking for depth limiting
+
+    Returns:
+        Set of recipe IDs required to produce this FinishedGood
+
+    Raises:
+        CircularReferenceError: If bundle contains circular reference
+        MaxDepthExceededError: If nesting exceeds MAX_FG_NESTING_DEPTH
+        ValidationError: If fg_id not found
+    """
+    # Initialize visited set on first call
+    if _visited is None:
+        _visited = set()
+
+    # Check depth limit
+    if _depth > MAX_FG_NESTING_DEPTH:
+        raise MaxDepthExceededError(_depth, MAX_FG_NESTING_DEPTH)
+
+    # Check for circular reference
+    if fg_id in _visited:
+        raise CircularReferenceError(fg_id, list(_visited))
+
+    # Mark as visited
+    _visited.add(fg_id)
+
+    # Query the FinishedGood with components eager-loaded
+    fg = session.query(FinishedGood).filter(FinishedGood.id == fg_id).first()
+    if fg is None:
+        raise ValidationError([f"FinishedGood {fg_id} not found"])
+
+    recipes: Set[int] = set()
+
+    # Traverse components
+    for comp in fg.components:
+        if comp.finished_unit_id is not None:
+            # Atomic component: get recipe directly from FinishedUnit
+            if comp.finished_unit_component and comp.finished_unit_component.recipe_id:
+                recipes.add(comp.finished_unit_component.recipe_id)
+        elif comp.finished_good_id is not None:
+            # Nested bundle: recurse
+            child_recipes = get_required_recipes(
+                comp.finished_good_id,
+                session,
+                _visited=_visited,
+                _depth=_depth + 1,
+            )
+            recipes.update(child_recipes)
+        # else: packaging/material component - no recipe needed (skip)
+
+    return recipes
 
 
 # ============================================================================
