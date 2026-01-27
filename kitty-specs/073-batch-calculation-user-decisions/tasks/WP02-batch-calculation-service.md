@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Batch Calculation Service
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -17,7 +17,7 @@ subtasks:
 phase: Phase 1 - Core Service
 assignee: ''
 agent: "claude"
-shell_pid: "19203"
+shell_pid: "21934"
 review_status: ''
 reviewed_by: ''
 history:
@@ -506,3 +506,4 @@ class TestCalculateBatchOptions:
 
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-27T19:38:17Z – claude – shell_pid=19203 – lane=for_review – All subtasks (T009-T014) complete, 16 tests passing
+- 2026-01-27T19:38:30Z – claude – shell_pid=21934 – lane=doing – Started review via workflow command
