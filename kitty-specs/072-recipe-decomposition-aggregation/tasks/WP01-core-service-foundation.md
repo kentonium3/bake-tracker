@@ -9,12 +9,12 @@ subtasks:
   - "T006"
 title: "Core Service Foundation"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "98326"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-27T16:30:47Z"
@@ -503,3 +503,4 @@ From `src/services/database.py`:
 - 2026-01-27T16:34:25Z – claude – shell_pid=96187 – lane=doing – Started implementation via workflow command
 - 2026-01-27T16:44:47Z – claude – shell_pid=96187 – lane=for_review – Ready for review: Implemented planning_service.py with calculate_recipe_requirements(), 7 tests passing (atomic FG, bundle decomposition, recipe aggregation)
 - 2026-01-27T16:46:05Z – claude – shell_pid=98326 – lane=doing – Started review via workflow command
+- 2026-01-27T16:47:38Z – claude – shell_pid=98326 – lane=done – Review passed: Session pattern correct, path-based cycle detection, all 7 tests pass covering atomic FG, bundle decomposition, and recipe aggregation scenarios
