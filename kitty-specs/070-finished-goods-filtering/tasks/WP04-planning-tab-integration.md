@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Planning Tab Integration + Notifications
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP03
@@ -679,3 +679,4 @@ def test_recipes(test_db):
 
 **Initial entry**:
 - 2026-01-26T19:45:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-27T01:48:48Z – unknown – shell_pid=32702 – lane=for_review – Ready for review: Integrated FGSelectionFrame into Planning Tab with recipe-FG wiring and notifications. All 59 tests pass (45 F070 + 14 F069).
