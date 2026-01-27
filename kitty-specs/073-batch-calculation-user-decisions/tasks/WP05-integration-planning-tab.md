@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration with Planning Tab
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP03
 - WP04
@@ -18,7 +18,7 @@ subtasks:
 - T036
 phase: Phase 3 - Integration
 assignee: ''
-agent: ''
+agent: "claude"
 shell_pid: "24352"
 review_status: ''
 reviewed_by: ''
@@ -509,3 +509,4 @@ def test_end_to_end_batch_flow(test_db, sample_event_with_fgs):
 ## Activity Log
 
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T19:51:52Z – claude – shell_pid=24352 – lane=for_review – All 7 subtasks complete (T030-T036), batch options integrated into planning_tab.py, shortfall confirmation dialog, save/load decisions, merged WP03 for batch_decision_service
