@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Availability Checking + Cascade Removal
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 070-finished-goods-filtering-WP01
 base_commit: 95b1d964956e408331a6b3c63d533cf0c63fbe3e
@@ -18,8 +18,8 @@ phase: Phase 1 - Service Layer
 assignee: ''
 agent: "claude"
 shell_pid: "30418"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned
@@ -732,3 +732,4 @@ class TestSetEventRecipesWithCascade:
 - 2026-01-26T19:45:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-27T01:24:41Z – unknown – shell_pid=29057 – lane=for_review – Ready for review: FG availability checking, cascade removal, and modified set_event_recipes() with 21 passing tests
 - 2026-01-27T01:25:29Z – claude – shell_pid=30418 – lane=doing – Started review via workflow command
+- 2026-01-27T01:28:04Z – claude – shell_pid=30418 – lane=done – Review passed: All 35 tests pass. Return type change documented. Cascade removal happens after recipe update. RemovedFGInfo contains recipe names. F069 tests updated for new API.
