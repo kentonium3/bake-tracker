@@ -57,7 +57,7 @@
 - [x] T007 Add state check to `set_event_fg_quantities()` in `src/services/event_service.py`
 - [x] T008 Add state check to `save_batch_decisions()` in `src/services/batch_decision_service.py`
 - [x] T009 Write integration tests in `src/tests/integration/test_plan_state_guards.py`
-- [ ] T010 [P] Update UI error handling in `src/ui/planning_tab.py` save handlers
+- [x] T010 [P] Update UI error handling in `src/ui/planning_tab.py` save handlers
 
 ### Implementation Notes
 - Import PlanStateError from exceptions.py
