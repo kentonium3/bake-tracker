@@ -54,10 +54,10 @@
 **Estimated Size**: ~280 lines
 
 ### Included Subtasks
-- [ ] T007 Write unit tests for 2-level nested bundles
-- [ ] T008 Write unit tests for 3+ level nested bundles
-- [ ] T009 Write unit tests for DAG patterns (same FG in multiple branches)
-- [ ] T010 Write unit tests for mixed atomic/bundle events
+- [x] T007 Write unit tests for 2-level nested bundles
+- [x] T008 Write unit tests for 3+ level nested bundles
+- [x] T009 Write unit tests for DAG patterns (same FG in multiple branches)
+- [x] T010 Write unit tests for mixed atomic/bundle events
 
 ### Implementation Notes
 - Tests require complex fixture setup with multiple bundle levels
