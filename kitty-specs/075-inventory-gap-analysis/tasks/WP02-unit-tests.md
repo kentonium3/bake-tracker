@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Unit Tests
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: 075-inventory-gap-analysis-WP01
 base_commit: 9c0f60588e0d360d00f6370886cb7a8c3047efd5
@@ -561,3 +561,4 @@ Add test:
 ## Activity Log
 
 - 2026-01-27T23:30:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T21:32:00Z – unknown – shell_pid=39077 – lane=for_review – 6 unit tests pass: shortfall, sufficient, missing inventory, all categorized, empty event, unit mismatch
