@@ -1,0 +1,8 @@
+{
+  "feature_number": "072",
+  "slug": "072-recipe-decomposition-aggregation",
+  "friendly_name": "Recipe Decomposition & Aggregation",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F072_recipe_decomposition_aggregation.md for feature inputs.",
+  "created_at": "2026-01-27T18:45:00Z"
+}
