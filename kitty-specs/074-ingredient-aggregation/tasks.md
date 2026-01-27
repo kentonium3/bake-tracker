@@ -58,7 +58,7 @@
 ### Included Subtasks
 - [x] T006 Implement cross-recipe aggregation (same ingredient_id + unit = combined total)
 - [x] T007 Handle edge cases: empty event, recipe with no ingredients, zero batches
-- [ ] T008 Implement 3-decimal precision rounding for final totals
+- [x] T008 Implement 3-decimal precision rounding for final totals
 - [ ] T009 Write unit tests for cross-recipe aggregation scenarios
 - [ ] T010 Write unit tests for edge cases and precision
 
