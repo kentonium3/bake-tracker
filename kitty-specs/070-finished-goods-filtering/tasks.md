@@ -25,7 +25,7 @@
 
 ### Included Subtasks
 - [x] T001 Create exception classes (CircularReferenceError, MaxDepthExceededError) in `src/services/event_service.py`
-- [ ] T002 Implement `get_required_recipes(fg_id, session)` recursive function
+- [x] T002 Implement `get_required_recipes(fg_id, session)` recursive function
 - [ ] T003 Add circular reference detection using visited set
 - [ ] T004 Add depth limiting (max 10 levels)
 - [ ] T005 Write unit tests for decomposition in `src/tests/test_fg_availability.py`
