@@ -169,7 +169,7 @@
 - [x] T031 Implement `_load_batch_options()` when event is selected
 - [x] T032 Implement shortfall confirmation dialog flow using `show_confirmation()`
 - [x] T033 Implement `_save_batch_decisions()` on user action
-- [ ] T034 Implement load existing decisions on event open (pre-select radio buttons)
+- [x] T034 Implement load existing decisions on event open (pre-select radio buttons)
 - [ ] T035 Wire up modification flow (change existing decision triggers re-save)
 - [ ] T036 End-to-end manual testing and validation
 
