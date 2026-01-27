@@ -93,13 +93,13 @@
 **Estimated Size**: ~380 lines
 
 ### Included Subtasks
-- [ ] T015 Create `src/services/batch_decision_service.py` module with imports
-- [ ] T016 Implement `save_batch_decision()` with validation
-- [ ] T017 Implement `get_batch_decisions(event_id)` - returns all for event
-- [ ] T018 Implement `get_batch_decision(event_id, finished_unit_id)` - single lookup
-- [ ] T019 Implement `delete_batch_decisions(event_id)` - clear all for event
-- [ ] T020 Add shortfall confirmation validation in save logic
-- [ ] T021 Write tests in `src/tests/test_batch_decision_service.py`
+- [x] T015 Create `src/services/batch_decision_service.py` module with imports
+- [x] T016 Implement `save_batch_decision()` with validation
+- [x] T017 Implement `get_batch_decisions(event_id)` - returns all for event
+- [x] T018 Implement `get_batch_decision(event_id, finished_unit_id)` - single lookup
+- [x] T019 Implement `delete_batch_decisions(event_id)` - clear all for event
+- [x] T020 Add shortfall confirmation validation in save logic
+- [x] T021 Write tests in `src/tests/test_batch_decision_service.py`
 
 ### Implementation Notes
 - Follow patterns from `event_service.py` (validate parent entity, accept session parameter)
