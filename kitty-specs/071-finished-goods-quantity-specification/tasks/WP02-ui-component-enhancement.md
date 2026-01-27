@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: UI Component Enhancement
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 071-finished-goods-quantity-specification-WP01
 base_commit: 69a9ebc983d54438bb3354bc30afc1bfd78c1397
@@ -469,3 +469,4 @@ self.quantity_entry.insert(0, str(quantity))
 ## Activity Log
 
 - 2026-01-27T12:00:00Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-27T14:34:28Z – unknown – shell_pid=78233 – lane=for_review – All subtasks complete. 36 tests passing. Note: planning_tab integration tests fail due to callback signature change - this is expected and will be resolved in WP03.
