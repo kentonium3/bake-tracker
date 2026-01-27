@@ -24,7 +24,7 @@
 
 ### Included Subtasks
 - [x] T001 Add PlanStateError exception to `src/services/exceptions.py`
-- [ ] T002 Create `src/services/plan_state_service.py` with get_plan_state() helper
+- [x] T002 Create `src/services/plan_state_service.py` with get_plan_state() helper
 - [ ] T003 Implement lock_plan() transition function (DRAFT → LOCKED)
 - [ ] T004 Implement start_production() and complete_production() transitions
 - [ ] T005 Write unit tests in `src/tests/test_plan_state_service.py`
