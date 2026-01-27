@@ -12,8 +12,13 @@ from src.services.event_service import (
     CircularReferenceError,
     MaxDepthExceededError,
     MAX_FG_NESTING_DEPTH,
+    check_fg_availability,
+    get_available_finished_goods,
+    set_event_recipes,
+    get_event_recipe_ids,
 )
 from src.services.exceptions import ValidationError
+from src.models.event_finished_good import EventFinishedGood
 
 
 class TestGetRequiredRecipes:
@@ -378,3 +383,264 @@ def deeply_nested_bundle(test_db, test_recipe):
 
     test_db.flush()
     return prev_fg  # Return outermost bundle
+
+
+# ============================================================================
+# WP02: Availability Checking Tests (T011)
+# ============================================================================
+
+
+class TestCheckFgAvailability:
+    """Tests for check_fg_availability."""
+
+    def test_available_when_all_recipes_selected(
+        self, test_db, atomic_fg_with_recipe
+    ):
+        """FG is available when its recipe is in selected set."""
+        selected = {atomic_fg_with_recipe.expected_recipe_id}
+        result = check_fg_availability(atomic_fg_with_recipe.id, selected, test_db)
+
+        assert result.is_available is True
+        assert result.missing_recipe_ids == set()
+
+    def test_unavailable_when_recipe_missing(
+        self, test_db, atomic_fg_with_recipe
+    ):
+        """FG is unavailable when its recipe is not selected."""
+        selected = set()  # No recipes selected
+        result = check_fg_availability(atomic_fg_with_recipe.id, selected, test_db)
+
+        assert result.is_available is False
+        assert atomic_fg_with_recipe.expected_recipe_id in result.missing_recipe_ids
+
+    def test_bundle_available_when_all_component_recipes_selected(
+        self, test_db, simple_bundle
+    ):
+        """Bundle is available when all component recipes selected."""
+        result = check_fg_availability(
+            simple_bundle.id,
+            simple_bundle.expected_recipe_ids,
+            test_db
+        )
+
+        assert result.is_available is True
+        assert result.missing_recipe_ids == set()
+
+    def test_bundle_unavailable_when_partial_recipes_selected(
+        self, test_db, simple_bundle
+    ):
+        """Bundle is unavailable when only some recipes selected."""
+        partial = set(list(simple_bundle.expected_recipe_ids)[:1])
+        result = check_fg_availability(simple_bundle.id, partial, test_db)
+
+        assert result.is_available is False
+        assert len(result.missing_recipe_ids) > 0
+
+    def test_raises_for_nonexistent_fg(self, test_db):
+        """Raises ValidationError for non-existent FG."""
+        with pytest.raises(ValidationError):
+            check_fg_availability(99999, set(), test_db)
+
+
+class TestGetAvailableFinishedGoods:
+    """Tests for get_available_finished_goods."""
+
+    def test_returns_empty_when_no_recipes_selected(
+        self, test_db, planning_event, atomic_fg_with_recipe
+    ):
+        """No FGs available when no recipes selected."""
+        result = get_available_finished_goods(planning_event.id, test_db)
+        assert result == []
+
+    def test_returns_fgs_with_selected_recipes(
+        self, test_db, planning_event, atomic_fg_with_recipe
+    ):
+        """Returns FGs whose recipes are all selected."""
+        # Select the recipe
+        set_event_recipes(
+            test_db,
+            planning_event.id,
+            [atomic_fg_with_recipe.expected_recipe_id],
+        )
+        test_db.flush()
+
+        result = get_available_finished_goods(planning_event.id, test_db)
+        fg_ids = [fg.id for fg in result]
+        assert atomic_fg_with_recipe.id in fg_ids
+
+    def test_raises_for_nonexistent_event(self, test_db):
+        """Raises ValidationError for non-existent event."""
+        with pytest.raises(ValidationError, match="Event .* not found"):
+            get_available_finished_goods(99999, test_db)
+
+
+# ============================================================================
+# WP02: Cascade Removal Tests (T012)
+# ============================================================================
+
+
+class TestRemoveInvalidFgSelections:
+    """Tests for remove_invalid_fg_selections."""
+
+    def test_removes_fg_when_recipe_deselected(
+        self, test_db, planning_event, atomic_fg_with_recipe
+    ):
+        """Removes FG selection when its recipe is deselected."""
+        # Setup: select recipe and FG
+        set_event_recipes(
+            test_db,
+            planning_event.id,
+            [atomic_fg_with_recipe.expected_recipe_id],
+        )
+        # Add FG selection
+        efg = EventFinishedGood(
+            event_id=planning_event.id,
+            finished_good_id=atomic_fg_with_recipe.id,
+            quantity=1,
+        )
+        test_db.add(efg)
+        test_db.flush()
+
+        # Deselect recipe (set empty list)
+        set_event_recipes(test_db, planning_event.id, [])
+        test_db.flush()
+
+        # Verify FG selection was removed
+        remaining = (
+            test_db.query(EventFinishedGood)
+            .filter(EventFinishedGood.event_id == planning_event.id)
+            .all()
+        )
+        assert len(remaining) == 0
+
+    def test_returns_removed_fg_info(
+        self, test_db, planning_event, atomic_fg_with_recipe
+    ):
+        """Returns info about removed FGs for notification."""
+        # Setup: select recipe and FG
+        set_event_recipes(
+            test_db,
+            planning_event.id,
+            [atomic_fg_with_recipe.expected_recipe_id],
+        )
+        efg = EventFinishedGood(
+            event_id=planning_event.id,
+            finished_good_id=atomic_fg_with_recipe.id,
+            quantity=1,
+        )
+        test_db.add(efg)
+        test_db.flush()
+
+        # Deselect recipe
+        count, removed = set_event_recipes(test_db, planning_event.id, [])
+
+        assert count == 0
+        assert len(removed) == 1
+        assert removed[0].fg_id == atomic_fg_with_recipe.id
+
+    def test_keeps_fg_when_recipe_still_selected(
+        self, test_db, planning_event, atomic_fg_with_recipe, test_recipes
+    ):
+        """Keeps FG selection when its recipe remains selected."""
+        # Setup: select recipe and FG
+        set_event_recipes(
+            test_db,
+            planning_event.id,
+            [atomic_fg_with_recipe.expected_recipe_id],
+        )
+        efg = EventFinishedGood(
+            event_id=planning_event.id,
+            finished_good_id=atomic_fg_with_recipe.id,
+            quantity=1,
+        )
+        test_db.add(efg)
+        test_db.flush()
+
+        # Add another recipe but keep original
+        set_event_recipes(
+            test_db,
+            planning_event.id,
+            [atomic_fg_with_recipe.expected_recipe_id, test_recipes[1].id],
+        )
+        test_db.flush()
+
+        # Verify FG selection still exists
+        remaining = (
+            test_db.query(EventFinishedGood)
+            .filter(EventFinishedGood.event_id == planning_event.id)
+            .all()
+        )
+        assert len(remaining) == 1
+
+
+class TestSetEventRecipesWithCascade:
+    """Tests for modified set_event_recipes with cascade removal."""
+
+    def test_returns_tuple_with_removed_fgs(
+        self, test_db, planning_event, test_recipes
+    ):
+        """Returns tuple of (count, removed_fgs)."""
+        count, removed = set_event_recipes(
+            test_db,
+            planning_event.id,
+            [test_recipes[0].id],
+        )
+
+        assert count == 1
+        assert isinstance(removed, list)
+
+    def test_cascade_happens_atomically(
+        self, test_db, planning_event, atomic_fg_with_recipe
+    ):
+        """Recipe update and cascade removal happen in same transaction."""
+        # Setup
+        set_event_recipes(
+            test_db,
+            planning_event.id,
+            [atomic_fg_with_recipe.expected_recipe_id],
+        )
+        efg = EventFinishedGood(
+            event_id=planning_event.id,
+            finished_good_id=atomic_fg_with_recipe.id,
+            quantity=1,
+        )
+        test_db.add(efg)
+        test_db.commit()
+
+        # Deselect recipe
+        set_event_recipes(test_db, planning_event.id, [])
+        # Don't commit yet
+
+        # Rollback
+        test_db.rollback()
+
+        # Both recipe and FG selection should be restored
+        recipes = get_event_recipe_ids(test_db, planning_event.id)
+        fgs = (
+            test_db.query(EventFinishedGood)
+            .filter(EventFinishedGood.event_id == planning_event.id)
+            .all()
+        )
+        assert len(recipes) == 1
+        assert len(fgs) == 1
+
+
+# ============================================================================
+# Fixtures (WP02)
+# ============================================================================
+
+
+@pytest.fixture
+def planning_event(test_db):
+    """Create a test event for planning tests."""
+    from src.models.event import Event
+    from datetime import date
+
+    event = Event(
+        name="Test Planning Event",
+        event_date=date(2026, 12, 25),
+        year=2026,
+    )
+    test_db.add(event)
+    test_db.flush()
+    return event
