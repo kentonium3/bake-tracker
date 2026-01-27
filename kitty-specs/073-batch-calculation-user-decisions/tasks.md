@@ -135,7 +135,7 @@
 - [x] T026 Implement radio button selection with shortfall visual indicator
 - [x] T027 Implement exact match highlighting
 - [x] T028 Implement `_format_option_text(option, unit)` for display formatting
-- [ ] T029 Add selection change callback and `get_selections()` method
+- [x] T029 Add selection change callback and `get_selections()` method
 
 ### Implementation Notes
 - Follow CTkRadioButton pattern from `finished_good_form.py:182-209`
