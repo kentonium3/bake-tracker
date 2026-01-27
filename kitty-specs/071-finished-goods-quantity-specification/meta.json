@@ -4,5 +4,7 @@
   "friendly_name": "Finished Goods Quantity Specification",
   "mission": "software-dev",
   "source_description": "see docs/func-spec/F071_quantity_specification.md for feature inputs",
-  "created_at": "2026-01-27T00:00:00Z"
+  "created_at": "2026-01-27T00:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-27T14:23:46.931102+00:00"
 }
