@@ -54,7 +54,7 @@ This feature creates an inventory gap analysis service that compares F074's aggr
 - [x] T008: Write test: gap calculation with shortfall
 - [x] T009: Write test: gap calculation with sufficient inventory
 - [x] T010: Write test: missing inventory treated as zero
-- [ ] T011: Write test: all items categorized
+- [x] T011: Write test: all items categorized
 - [ ] T012: Write test: empty event returns empty
 - [ ] T013: Write test: unit mismatch treated as zero
 
