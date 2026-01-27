@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Nested Bundle Support
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 072-recipe-decomposition-aggregation-WP01
 base_commit: f0556ed2280479fb06fd6f005a5cde6bd1642677
@@ -379,3 +379,4 @@ def create_nested_bundle(session, depth, quantities):
 ## Activity Log
 
 - 2026-01-27T16:30:47Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-01-27T16:52:50Z – unknown – shell_pid=99034 – lane=for_review – Ready for review: 8 new tests for nested bundles (2-level, 3+ level, DAG patterns, mixed atomic/bundle), all 15 tests pass
