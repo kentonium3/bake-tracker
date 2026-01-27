@@ -43,7 +43,7 @@ class TestSetEventRecipes:
 
     def test_sets_recipe_selections(self, test_db, planning_event, test_recipes):
         """Sets recipe selections for an event."""
-        count = event_service.set_event_recipes(
+        count, _ = event_service.set_event_recipes(
             test_db, planning_event.id, [test_recipes[0].id]
         )
         test_db.commit()
@@ -74,7 +74,7 @@ class TestSetEventRecipes:
         )
         test_db.commit()
 
-        count = event_service.set_event_recipes(test_db, planning_event.id, [])
+        count, _ = event_service.set_event_recipes(test_db, planning_event.id, [])
         test_db.commit()
         assert count == 0
 
@@ -115,7 +115,7 @@ class TestSetEventRecipes:
         """Duplicate recipe IDs in input list are deduplicated or handled gracefully."""
         # Note: The implementation doesn't dedupe, but db has unique constraint
         # We should only insert each recipe once
-        count = event_service.set_event_recipes(
+        count, _ = event_service.set_event_recipes(
             test_db, planning_event.id, [test_recipes[0].id]
         )
         test_db.commit()
