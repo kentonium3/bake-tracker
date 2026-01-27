@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Availability Checking + Cascade Removal
+lane: "doing"
+dependencies: [WP01]
+base_branch: 070-finished-goods-filtering-WP01
+base_commit: 95b1d964956e408331a6b3c63d533cf0c63fbe3e
+created_at: '2026-01-27T01:21:03.541955+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Availability Checking + Cascade Removal"
-phase: "Phase 1 - Service Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Phase 1 - Service Layer
+assignee: ''
+agent: ''
+shell_pid: "29057"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-26T19:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T19:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Availability Checking + Cascade Removal
