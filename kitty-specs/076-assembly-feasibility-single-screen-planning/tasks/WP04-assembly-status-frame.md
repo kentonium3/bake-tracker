@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Assembly Status Frame
+lane: "doing"
+dependencies: [WP01]
+base_branch: 076-assembly-feasibility-single-screen-planning-WP01
+base_commit: db69c6834888373acd24dc42ee1d6586c57e2d97
+created_at: '2026-01-27T22:05:40.651760+00:00'
 subtasks:
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-title: "Assembly Status Frame"
-phase: "Phase 2 - UI Components"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T014
+- T015
+- T016
+- T017
+phase: Phase 2 - UI Components
+assignee: ''
+agent: ''
+shell_pid: "45654"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T15:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T15:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Assembly Status Frame
