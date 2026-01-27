@@ -85,7 +85,7 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T011 Create ShoppingSummaryFrame class in src/ui/components/shopping_summary_frame.py
+- [x] T011 Create ShoppingSummaryFrame class in src/ui/components/shopping_summary_frame.py
 - [ ] T012 Add update_summary(gap_result: GapAnalysisResult) method
 - [ ] T013 Add compact styling with item counts
 
