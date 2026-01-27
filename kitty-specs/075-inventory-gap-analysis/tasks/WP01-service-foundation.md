@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Gap Calculation
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: d79ee82fbc98842196707709c9112e4be7cd209d
@@ -466,3 +466,4 @@ if __name__ == "__main__":
 ## Activity Log
 
 - 2026-01-27T23:30:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T21:28:20Z – unknown – shell_pid=37873 – lane=for_review – Service implementation complete: GapItem, GapAnalysisResult dataclasses, analyze_inventory_gaps() with session pattern
