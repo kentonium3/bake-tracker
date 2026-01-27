@@ -53,7 +53,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T006 Add state check to `set_event_recipes()` in `src/services/event_service.py`
+- [x] T006 Add state check to `set_event_recipes()` in `src/services/event_service.py`
 - [ ] T007 Add state check to `set_event_fg_quantities()` in `src/services/event_service.py`
 - [ ] T008 Add state check to `save_batch_decisions()` in `src/services/batch_decision_service.py`
 - [ ] T009 Write integration tests in `src/tests/integration/test_plan_state_guards.py`
