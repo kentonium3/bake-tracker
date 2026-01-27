@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Assembly Status Frame
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 076-assembly-feasibility-single-screen-planning-WP01
 base_commit: db69c6834888373acd24dc42ee1d6586c57e2d97
@@ -13,7 +13,7 @@ subtasks:
 - T017
 phase: Phase 2 - UI Components
 assignee: ''
-agent: ''
+agent: "claude"
 shell_pid: "45654"
 review_status: ''
 reviewed_by: ''
@@ -403,3 +403,4 @@ After all subtasks, ensure the file includes all methods and proper structure. T
 ## Activity Log
 
 - 2026-01-27T15:30:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T22:07:22Z – claude – shell_pid=45654 – lane=for_review – AssemblyStatusFrame UI component implemented with all 4 status states, FG counts, and detail list
