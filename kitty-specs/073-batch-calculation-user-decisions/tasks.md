@@ -133,7 +133,7 @@
 - [x] T024 Implement `populate(options_results)` to display all FUs
 - [x] T025 Implement `_create_fu_section(result)` for individual FU display
 - [x] T026 Implement radio button selection with shortfall visual indicator
-- [ ] T027 Implement exact match highlighting
+- [x] T027 Implement exact match highlighting
 - [ ] T028 Implement `_format_option_text(option, unit)` for display formatting
 - [ ] T029 Add selection change callback and `get_selections()` method
 
