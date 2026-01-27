@@ -359,3 +359,29 @@ class NonLeafIngredientError(HierarchyValidationError):
         if self.suggestions:
             msg += f". Try: {', '.join(self.suggestions[:3])}"
         super().__init__(msg)
+
+
+# Plan State Exceptions (Feature 077)
+
+
+class PlanStateError(ServiceError):
+    """Raised when an invalid plan state transition or modification is attempted.
+
+    Args:
+        event_id: The event ID involved in the failed operation
+        current_state: The current PlanState value
+        attempted_action: Description of what was attempted
+
+    Example:
+        >>> raise PlanStateError(123, PlanState.LOCKED, "modify recipes")
+        PlanStateError: Cannot modify recipes: event 123 plan is locked
+    """
+
+    def __init__(self, event_id: int, current_state, attempted_action: str):
+        self.event_id = event_id
+        self.current_state = current_state
+        self.attempted_action = attempted_action
+        state_name = current_state.value if hasattr(current_state, "value") else str(current_state)
+        super().__init__(
+            f"Cannot {attempted_action}: event {event_id} plan is {state_name}"
+        )
