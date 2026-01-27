@@ -1,8 +1,10 @@
 """
-Tests for Planning Tab FG Selection Integration (F070 WP04).
+Tests for Planning Tab FG Selection Integration.
 
-Tests the integration of FGSelectionFrame into the Planning Tab,
+F070 WP04: Tests the integration of FGSelectionFrame into the Planning Tab,
 including wiring between recipe and FG selection.
+
+F071 WP03: Updated to test quantity specification workflow.
 """
 
 import pytest
@@ -212,10 +214,10 @@ class TestPlanningTabFGIntegration:
         assert "Cookie Box" in text
 
     def test_fg_selection_save_calls_service(self, mock_dependencies):
-        """FG selection save calls event_service.set_event_finished_goods."""
+        """FG selection save calls event_service.set_event_fg_quantities (F071)."""
         from src.ui.planning_tab import PlanningTab
 
-        mock_dependencies["event_service"].set_event_finished_goods.return_value = 3
+        mock_dependencies["event_service"].set_event_fg_quantities.return_value = 3
 
         parent = MagicMock()
         tab = PlanningTab(parent)
@@ -224,24 +226,29 @@ class TestPlanningTabFGIntegration:
         # Mock the status label
         tab.status_label = MagicMock()
 
-        # Save FG selection
-        tab._on_fg_selection_save([1, 2, 3])
+        # Mock FGSelectionFrame to not have validation errors
+        fg_frame_instance = mock_dependencies["fg_frame"].return_value
+        fg_frame_instance.has_validation_errors.return_value = False
 
-        # Verify service was called
-        mock_dependencies["event_service"].set_event_finished_goods.assert_called_once()
+        # Save FG selection with quantities (F071 format)
+        tab._on_fg_selection_save([(1, 10), (2, 20), (3, 30)])
+
+        # Verify service was called with quantities
+        mock_dependencies["event_service"].set_event_fg_quantities.assert_called_once()
         call_args = mock_dependencies[
             "event_service"
-        ].set_event_finished_goods.call_args
+        ].set_event_fg_quantities.call_args
         assert call_args[0][1] == 1  # event_id
-        assert call_args[0][2] == [1, 2, 3]  # fg_ids
+        assert call_args[0][2] == [(1, 10), (2, 20), (3, 30)]  # fg_quantities
 
     def test_fg_selection_cancel_reverts(self, mock_dependencies):
-        """FG selection cancel reverts to original selection."""
+        """FG selection cancel reverts to original selection with quantities (F071)."""
         from src.ui.planning_tab import PlanningTab
 
         parent = MagicMock()
         tab = PlanningTab(parent)
-        tab._original_fg_selection = [1, 2]
+        # F071: Original selection now includes quantities
+        tab._original_fg_selection = [(1, 10), (2, 20)]
 
         # Mock the status label
         tab.status_label = MagicMock()
@@ -251,8 +258,10 @@ class TestPlanningTabFGIntegration:
         # Cancel
         tab._on_fg_selection_cancel()
 
-        # Frame should be set to original selection
-        fg_frame_instance.set_selected.assert_called_with([1, 2])
+        # Frame should be set to original selection with quantities
+        fg_frame_instance.set_selected_with_quantities.assert_called_with(
+            [(1, 10), (2, 20)]
+        )
 
     def test_original_fg_selection_cleared_on_hide(self, mock_dependencies):
         """Original FG selection is cleared when frame is hidden."""

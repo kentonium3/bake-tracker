@@ -7,6 +7,7 @@ expected_attendees, and supporting CRUD operations.
 Feature 068: Event Management & Planning Data Model
 Feature 069: Recipe Selection for Event Planning
 Feature 070: Finished Goods Filtering for Event Planning
+Feature 071: Finished Goods Quantity Specification
 """
 
 import customtkinter as ctk
@@ -128,8 +129,8 @@ class PlanningTab(ctk.CTkFrame):
         self.selected_event: Optional[Event] = None
         self._selected_event_id: Optional[int] = None
         self._original_recipe_selection: List[int] = []
-        # F070: FG selection state
-        self._original_fg_selection: List[int] = []
+        # F070/F071: FG selection state with quantities
+        self._original_fg_selection: List[Tuple[int, int]] = []
 
         # Store callbacks
         self._on_create_event = on_create_event
@@ -415,6 +416,8 @@ class PlanningTab(ctk.CTkFrame):
         """
         Show and populate FG selection for an event.
 
+        F071: Now loads quantities via get_event_fg_quantities().
+
         Args:
             event_id: ID of the selected event
         """
@@ -429,17 +432,20 @@ class PlanningTab(ctk.CTkFrame):
                     event_id, session
                 )
 
-                # Get existing selections
-                selected_ids = event_service.get_event_finished_good_ids(
+                # F071: Get existing selections with quantities
+                fg_quantities = event_service.get_event_fg_quantities(
                     session, event_id
                 )
 
             # Populate frame
             self._fg_selection_frame.populate_finished_goods(available_fgs, event_name)
-            self._fg_selection_frame.set_selected(selected_ids)
+
+            # F071: Set quantities (converts from (FG, qty) to (fg_id, qty) tuples)
+            qty_tuples = [(fg.id, qty) for fg, qty in fg_quantities]
+            self._fg_selection_frame.set_selected_with_quantities(qty_tuples)
 
             # Store for cancel functionality
-            self._original_fg_selection = selected_ids.copy()
+            self._original_fg_selection = qty_tuples.copy()
 
             # Show frame using grid
             self._fg_selection_frame.grid(
@@ -460,31 +466,40 @@ class PlanningTab(ctk.CTkFrame):
         if self._selected_event_id is not None:
             self._show_fg_selection(self._selected_event_id)
 
-    def _on_fg_selection_save(self, selected_ids: List[int]) -> None:
+    def _on_fg_selection_save(self, fg_quantities: List[Tuple[int, int]]) -> None:
         """
-        Handle FG selection save.
+        Handle FG selection save with quantities.
+
+        F071: Now saves quantities via set_event_fg_quantities().
 
         Args:
-            selected_ids: List of selected finished good IDs
+            fg_quantities: List of (fg_id, quantity) tuples
         """
         if self._selected_event_id is None:
             self._update_status("No event selected", is_error=True)
             return
 
+        # F071: Check for validation errors before saving
+        if self._fg_selection_frame.has_validation_errors():
+            self._update_status(
+                "Please fix invalid quantities before saving", is_error=True
+            )
+            return
+
         try:
             with session_scope() as session:
-                count = event_service.set_event_finished_goods(
+                count = event_service.set_event_fg_quantities(
                     session,
                     self._selected_event_id,
-                    selected_ids,
+                    fg_quantities,
                 )
                 session.commit()
 
             # Update original selection (for future cancel)
-            self._original_fg_selection = selected_ids.copy()
+            self._original_fg_selection = list(fg_quantities)
 
             # Show success feedback
-            self._update_status(f"Saved {count} finished good selection(s)")
+            self._update_status(f"Saved {count} finished good(s)")
 
         except Exception as e:
             # Show error but keep UI state
@@ -492,7 +507,10 @@ class PlanningTab(ctk.CTkFrame):
 
     def _on_fg_selection_cancel(self) -> None:
         """Handle FG selection cancel - revert to last saved state."""
-        self._fg_selection_frame.set_selected(self._original_fg_selection)
+        # F071: Use set_selected_with_quantities for quantities
+        self._fg_selection_frame.set_selected_with_quantities(
+            self._original_fg_selection
+        )
         self._update_status("Reverted to saved FG selections")
 
     def _show_removed_fg_notification(self, removed_fgs: List[RemovedFGInfo]) -> None:
