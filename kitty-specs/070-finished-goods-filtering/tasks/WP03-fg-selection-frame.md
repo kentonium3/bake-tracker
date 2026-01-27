@@ -1,9 +1,12 @@
 ---
 work_package_id: WP03
 title: FG Selection Frame UI Component
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
+base_branch: 070-finished-goods-filtering-WP02
+base_commit: 687d77aee3d684bc4073df548f9db8093524f42c
+created_at: '2026-01-27T01:28:53.309541+00:00'
 subtasks:
 - T013
 - T014
@@ -14,7 +17,7 @@ subtasks:
 phase: Phase 2 - UI Layer
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "31081"
 review_status: ''
 reviewed_by: ''
 history:
