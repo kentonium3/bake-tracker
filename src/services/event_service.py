@@ -51,7 +51,7 @@ from src.models import (
     InventoryItem,
 )
 from src.services.database import session_scope
-from src.services.exceptions import DatabaseError, ValidationError
+from src.services.exceptions import DatabaseError, PlanStateError, ValidationError
 
 
 # ============================================================================
@@ -3063,6 +3063,14 @@ def set_event_recipes(
     if not event:
         raise ValidationError(["Event not found"])
 
+    # F077: Check plan state - only DRAFT allows recipe modifications
+    if event.plan_state != PlanState.DRAFT:
+        raise PlanStateError(
+            event_id,
+            event.plan_state,
+            "modify recipes"
+        )
+
     # Validate all recipe IDs exist (if any provided)
     if recipe_ids:
         existing_ids = set(
@@ -3246,6 +3254,14 @@ def set_event_fg_quantities(
     event = session.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise ValidationError(["Event not found"])
+
+    # F077: Check plan state - only DRAFT allows FG modifications
+    if event.plan_state != PlanState.DRAFT:
+        raise PlanStateError(
+            event_id,
+            event.plan_state,
+            "modify finished goods"
+        )
 
     # Get available FG IDs to filter input
     available_fgs = get_available_finished_goods(event_id, session)
