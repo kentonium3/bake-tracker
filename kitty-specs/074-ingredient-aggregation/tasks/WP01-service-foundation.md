@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Single-Recipe Aggregation
-lane: "doing"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 8657d3be86f0ed213c9002069fa57a2a2c98c32f
@@ -16,8 +16,8 @@ phase: Phase 0 - Foundation
 assignee: ''
 agent: "gemini"
 shell_pid: "32718"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-27T20:19:43Z'
   lane: planned
@@ -521,3 +521,4 @@ class TestSingleRecipeAggregation:
 - 2026-01-27T20:19:43Z – system – lane=planned – Prompt created.
 - 2026-01-27T20:54:04Z – claude – shell_pid=30741 – lane=for_review – WP01 complete: Service foundation with 5 passing tests
 - 2026-01-27T20:54:32Z – gemini – shell_pid=32718 – lane=doing – Started review via workflow command
+- 2026-01-27T20:55:45Z – gemini – shell_pid=32718 – lane=done – Review passed: Session pattern correct, IngredientTotal types verified (int/str/str/float), 5 tests passing including base case and batch multiplication, service is read-only
