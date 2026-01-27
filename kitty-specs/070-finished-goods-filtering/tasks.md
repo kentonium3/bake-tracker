@@ -126,7 +126,7 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T019 Add imports and instance variables for FG selection in `src/ui/planning_tab.py`
+- [x] T019 Add imports and instance variables for FG selection in `src/ui/planning_tab.py`
 - [ ] T020 Create `_create_fg_selection_frame()` method
 - [ ] T021 Embed FGSelectionFrame in grid layout (row 3, below recipe selection)
 - [ ] T022 Wire recipe selection save to trigger FG list refresh
