@@ -1,0 +1,8 @@
+{
+  "feature_number": "075",
+  "slug": "075-inventory-gap-analysis",
+  "friendly_name": "Inventory Gap Analysis",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F075_inventory_gap_analysis.md for the feature's inputs",
+  "created_at": "2026-01-27T23:15:00Z"
+}
