@@ -152,12 +152,14 @@ def sample_recipient(test_db):
 @pytest.fixture
 def sample_event(test_db):
     """Create a sample event."""
-    return create_event(
-        name="Test Holiday Event",
-        event_date=date(2024, 12, 25),
-        year=2024,
-        notes="Test event",
-    )
+    with session_scope() as session:
+        return create_event(
+            name="Test Holiday Event",
+            event_date=date(2024, 12, 25),
+            year=2024,
+            notes="Test event",
+            session=session,
+        )
 
 
 @pytest.fixture
@@ -219,11 +221,13 @@ class TestFullWorkflow:
         assert recipient.id is not None
 
         # Step 3: Create event
-        event = create_event(
-            name="Christmas 2024",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Christmas 2024",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
         assert event is not None
         assert event.id is not None
 
@@ -255,11 +259,13 @@ class TestFullWorkflow:
             recipients.append(r)
 
         # Create event
-        event = create_event(
-            name="Multi-Recipient Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Multi-Recipient Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         # Assign package to all recipients
         with session_scope() as session:
@@ -293,7 +299,8 @@ class TestFullWorkflow:
         assert check_recipient_has_assignments(recipient.id) is False
 
         # Event and recipient should still exist
-        retrieved_event = get_event_by_id(event.id)
+        with session_scope() as session:
+            retrieved_event = get_event_by_id(event.id, session=session)
         assert retrieved_event is not None
 
         retrieved_recipient = get_recipient(recipient.id)
@@ -335,7 +342,8 @@ class TestFIFOCostAccuracy:
             summary = get_event_summary(event.id, session=session)
 
         # Event cost should equal package cost (both 0.00 for definitions)
-        assert summary["total_cost"] == Decimal("0.00")
+        # Note: summary["total_cost"] is returned as string by get_event_summary()
+        assert summary["total_cost"] == "0.00"
 
     def test_cost_with_multiple_assignments(self, test_db, sample_package):
         """Test cost calculation with multiple assignments.
@@ -344,11 +352,13 @@ class TestFIFOCostAccuracy:
         not on definition models. All definition costs return Decimal("0.00").
         """
         # Create event and recipients
-        event = create_event(
-            name="Multi-Assignment Event",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Multi-Assignment Event",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         r1 = create_recipient({"name": "Recipient 1"})
         r2 = create_recipient({"name": "Recipient 2"})
@@ -365,7 +375,7 @@ class TestFIFOCostAccuracy:
         with session_scope() as session:
             summary = get_event_summary(event.id, session=session)
         # Event cost is 0.00 for definitions
-        assert summary["total_cost"] == Decimal("0.00")
+        assert summary["total_cost"] == "0.00"
 
     def test_cost_returns_zero_for_definitions(self, test_db, sample_finished_good):
         """Test that definition-level costs return zero.
@@ -552,7 +562,7 @@ class TestEdgeCases:
 
         assert summary["assignment_count"] == 0
         assert summary["recipient_count"] == 0
-        assert summary["total_cost"] == Decimal("0.00")
+        assert summary["total_cost"] == "0.00"
 
     def test_finished_good_in_package(self, test_db):
         """Test that finished goods can be added to packages.
@@ -591,25 +601,29 @@ class TestEdgeCases:
     def test_event_year_filtering(self, test_db):
         """Test filtering events by year."""
         # Create events in different years
-        event_2023 = create_event(
-            name="Event 2023",
-            event_date=date(2023, 12, 25),
-            year=2023,
-        )
-        event_2024 = create_event(
-            name="Event 2024",
-            event_date=date(2024, 12, 25),
-            year=2024,
-        )
+        with session_scope() as session:
+            event_2023 = create_event(
+                name="Event 2023",
+                event_date=date(2023, 12, 25),
+                year=2023,
+                session=session,
+            )
+            event_2024 = create_event(
+                name="Event 2024",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         # Filter by year
-        events_2024 = get_events_by_year(2024)
-        events_2023 = get_events_by_year(2023)
+        with session_scope() as session:
+            events_2024 = get_events_by_year(2024, session=session)
+            events_2023 = get_events_by_year(2023, session=session)
 
-        assert len(events_2024) >= 1
-        assert len(events_2023) >= 1
-        assert all(e.year == 2024 for e in events_2024)
-        assert all(e.year == 2023 for e in events_2023)
+            assert len(events_2024) >= 1
+            assert len(events_2023) >= 1
+            assert all(e.year == 2024 for e in events_2024)
+            assert all(e.year == 2023 for e in events_2023)
 
     def test_cascade_delete_event(self, test_db, sample_event_with_assignment):
         """Test that deleting event cascades to assignments."""
@@ -617,10 +631,12 @@ class TestEdgeCases:
         event_id = event.id
 
         # Delete event with cascade
-        delete_event(event_id, cascade_assignments=True)
+        with session_scope() as session:
+            delete_event(event_id, cascade_assignments=True, session=session)
 
         # Event should be gone (returns None, doesn't raise)
-        deleted_event = get_event_by_id(event_id)
+        with session_scope() as session:
+            deleted_event = get_event_by_id(event_id, session=session)
         assert deleted_event is None
 
         # Recipient should still exist
@@ -637,8 +653,10 @@ class TestEdgeCases:
             create_recipient({"name": ""})
 
         with pytest.raises(ValidationError):
-            create_event(
-                name="",
-                event_date=date(2024, 12, 25),
-                year=2024,
-            )
+            with session_scope() as session:
+                create_event(
+                    name="",
+                    event_date=date(2024, 12, 25),
+                    year=2024,
+                    session=session,
+                )

@@ -365,10 +365,6 @@ class TestMarkShoppingComplete:
         snapshot = ProductionPlanSnapshot(
             event_id=event.id,
             calculated_at=now,
-            requirements_updated_at=now,
-            recipes_updated_at=now,
-            bundles_updated_at=now,
-            calculation_results={"recipe_batches": [], "shopping_list": []},
             shopping_complete=False,
             shopping_completed_at=None,
         )
@@ -419,10 +415,6 @@ class TestUnmarkShoppingComplete:
         snapshot = ProductionPlanSnapshot(
             event_id=event.id,
             calculated_at=now,
-            requirements_updated_at=now,
-            recipes_updated_at=now,
-            bundles_updated_at=now,
-            calculation_results={"recipe_batches": [], "shopping_list": []},
             shopping_complete=True,
             shopping_completed_at=now,
         )
@@ -473,10 +465,6 @@ class TestIsShoppingComplete:
         snapshot = ProductionPlanSnapshot(
             event_id=event.id,
             calculated_at=now,
-            requirements_updated_at=now,
-            recipes_updated_at=now,
-            bundles_updated_at=now,
-            calculation_results={"recipe_batches": [], "shopping_list": []},
             shopping_complete=False,
         )
         session.add(snapshot)
@@ -501,10 +489,6 @@ class TestIsShoppingComplete:
         snapshot = ProductionPlanSnapshot(
             event_id=event.id,
             calculated_at=now,
-            requirements_updated_at=now,
-            recipes_updated_at=now,
-            bundles_updated_at=now,
-            calculation_results={"recipe_batches": [], "shopping_list": []},
             shopping_complete=True,
             shopping_completed_at=now,
         )

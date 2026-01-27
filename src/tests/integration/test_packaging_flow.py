@@ -150,7 +150,13 @@ class TestPackagingBOMFlow:
         test_db.flush()
 
         # 5. Create Event and Recipient
-        event = create_event(name="Christmas 2024", event_date=date(2024, 12, 25), year=2024)
+        with session_scope() as session:
+            event = create_event(
+                name="Christmas 2024",
+                event_date=date(2024, 12, 25),
+                year=2024,
+                session=session,
+            )
 
         recipient = Recipient(name="Test Family")
         test_db.add(recipient)
@@ -230,7 +236,13 @@ class TestPackagingBOMFlow:
         test_db.flush()
 
         # Create event and recipient
-        event = create_event(name="Simple Event", event_date=date(2024, 12, 1), year=2024)
+        with session_scope() as session:
+            event = create_event(
+                name="Simple Event",
+                event_date=date(2024, 12, 1),
+                year=2024,
+                session=session,
+            )
 
         recipient = Recipient(name="Test Person")
         test_db.add(recipient)
@@ -278,7 +290,13 @@ class TestPackagingBOMFlow:
         )
 
         # Create event
-        event = create_event(name="Multi-Recipient Event", event_date=date(2024, 12, 1), year=2024)
+        with session_scope() as session:
+            event = create_event(
+                name="Multi-Recipient Event",
+                event_date=date(2024, 12, 1),
+                year=2024,
+                session=session,
+            )
 
         # Create multiple recipients
         with session_scope() as session:
@@ -589,7 +607,13 @@ class TestPackagingEdgeCases:
         test_db.flush()
 
         # Create event with 3 of this package
-        event = create_event(name="Aggregation Test Event", event_date=date(2024, 12, 1), year=2024)
+        with session_scope() as session:
+            event = create_event(
+                name="Aggregation Test Event",
+                event_date=date(2024, 12, 1),
+                year=2024,
+                session=session,
+            )
 
         recipient = Recipient(name="Test Recipient")
         test_db.add(recipient)

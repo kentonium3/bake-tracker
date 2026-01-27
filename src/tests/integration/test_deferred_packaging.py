@@ -326,9 +326,13 @@ class TestDeferredPackagingFullWorkflow:
         test_db.add(pfg)
         test_db.flush()
 
-        event = create_event(
-            name="Shopping List Test Event", event_date=date(2024, 12, 15), year=2024
-        )
+        with session_scope() as session:
+            event = create_event(
+                name="Shopping List Test Event",
+                event_date=date(2024, 12, 15),
+                year=2024,
+                session=session,
+            )
 
         recipient = Recipient(name="Test Recipient")
         test_db.add(recipient)
