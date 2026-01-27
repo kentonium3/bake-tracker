@@ -117,7 +117,7 @@ def _calculate_fg_feasibility(
 
     # Get FG for name
     fg = session.query(FinishedGood).filter(FinishedGood.id == fg_id).first()
-    fg_name = fg.name if fg else f"FG#{fg_id}"
+fg_name = fg.display_name if fg else f"FG#{fg_id}"
 
     # Handle zero quantity as always feasible
     if quantity_needed <= 0:
