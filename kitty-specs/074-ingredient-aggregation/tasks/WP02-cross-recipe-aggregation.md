@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Cross-Recipe Aggregation & Edge Cases
+lane: "doing"
+dependencies: [WP01]
+base_branch: 074-ingredient-aggregation-WP01
+base_commit: 79825eb63cd316e3fe05f288872cc53055b14f1d
+created_at: '2026-01-27T20:54:30.779925+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-title: "Cross-Recipe Aggregation & Edge Cases"
-phase: "Phase 1 - Complete Feature"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 1 - Complete Feature
+assignee: ''
+agent: ''
+shell_pid: "32596"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T20:19:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T20:19:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Cross-Recipe Aggregation & Edge Cases
