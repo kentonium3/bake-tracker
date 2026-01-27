@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: UI Component Enhancement
+lane: "doing"
+dependencies: [WP01]
+base_branch: 071-finished-goods-quantity-specification-WP01
+base_commit: 69a9ebc983d54438bb3354bc30afc1bfd78c1397
+created_at: '2026-01-27T14:23:49.294458+00:00'
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "UI Component Enhancement"
-phase: "Phase 2 - UI Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+phase: Phase 2 - UI Layer
+assignee: ''
+agent: ''
+shell_pid: "78233"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T12:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – UI Component Enhancement
