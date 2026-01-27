@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Assembly Feasibility Service Foundation
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: a2808d4a47415faba26a82a211274ae75d229146
@@ -14,7 +14,7 @@ subtasks:
 - T005
 phase: Phase 1 - Service Layer
 assignee: ''
-agent: ''
+agent: "claude"
 shell_pid: "44439"
 review_status: ''
 reviewed_by: ''
@@ -424,3 +424,4 @@ def _calculate_assembly_feasibility_impl(
 ## Activity Log
 
 - 2026-01-27T15:30:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T22:04:58Z – claude – shell_pid=44439 – lane=for_review – Service implementation complete - all subtasks T001-T005 done
