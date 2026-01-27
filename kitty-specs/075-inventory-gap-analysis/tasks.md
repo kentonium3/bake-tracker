@@ -56,7 +56,7 @@ This feature creates an inventory gap analysis service that compares F074's aggr
 - [x] T010: Write test: missing inventory treated as zero
 - [x] T011: Write test: all items categorized
 - [x] T012: Write test: empty event returns empty
-- [ ] T013: Write test: unit mismatch treated as zero
+- [x] T013: Write test: unit mismatch treated as zero
 
 **Implementation Notes**:
 - Reuse F074 test fixtures (Event, Recipe, Ingredient, etc.)
