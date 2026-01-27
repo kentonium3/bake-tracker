@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Shopping Summary Frame
+lane: "doing"
+dependencies: [WP01]
+base_branch: 076-assembly-feasibility-single-screen-planning-WP01
+base_commit: db69c6834888373acd24dc42ee1d6586c57e2d97
+created_at: '2026-01-27T22:06:00.989815+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-title: "Shopping Summary Frame"
-phase: "Phase 2 - UI Components"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+phase: Phase 2 - UI Components
+assignee: ''
+agent: ''
+shell_pid: "46006"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T15:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T15:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Shopping Summary Frame
