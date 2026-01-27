@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Availability Checking + Cascade Removal
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 070-finished-goods-filtering-WP01
 base_commit: 95b1d964956e408331a6b3c63d533cf0c63fbe3e
@@ -16,8 +16,8 @@ subtasks:
 - T012
 phase: Phase 1 - Service Layer
 assignee: ''
-agent: ''
-shell_pid: "29057"
+agent: "claude"
+shell_pid: "30418"
 review_status: ''
 reviewed_by: ''
 history:
@@ -731,3 +731,4 @@ class TestSetEventRecipesWithCascade:
 **Initial entry**:
 - 2026-01-26T19:45:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-27T01:24:41Z – unknown – shell_pid=29057 – lane=for_review – Ready for review: FG availability checking, cascade removal, and modified set_event_recipes() with 21 passing tests
+- 2026-01-27T01:25:29Z – claude – shell_pid=30418 – lane=doing – Started review via workflow command
