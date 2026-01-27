@@ -87,7 +87,7 @@
 ### Included Subtasks
 - [x] T011 Create ShoppingSummaryFrame class in src/ui/components/shopping_summary_frame.py
 - [x] T012 Add update_summary(gap_result: GapAnalysisResult) method
-- [ ] T013 Add compact styling with item counts
+- [x] T013 Add compact styling with item counts
 
 ### Implementation Notes
 - Follow CustomTkinter patterns from existing components (FGSelectionFrame, RecipeSelectionFrame)
