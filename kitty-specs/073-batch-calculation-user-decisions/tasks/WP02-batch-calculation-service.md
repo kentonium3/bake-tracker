@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Batch Calculation Service"
-phase: "Phase 1 - Core Service"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP02
+title: Batch Calculation Service
+lane: "doing"
 dependencies:
-  - "WP01"
+- WP01
+base_branch: 073-batch-calculation-user-decisions-WP01
+base_commit: 7eedb5fedcdc079a25704e92d054b4d18c98bc46
+created_at: '2026-01-27T19:30:59.193507+00:00'
+subtasks:
+- T009
+- T010
+- T011
+- T012
+- T013
+- T014
+phase: Phase 1 - Core Service
+assignee: ''
+agent: ''
+shell_pid: "19203"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Batch Calculation Service
