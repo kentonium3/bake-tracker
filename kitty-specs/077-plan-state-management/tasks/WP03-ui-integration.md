@@ -1,29 +1,31 @@
 ---
-work_package_id: "WP03"
-title: "UI Integration"
-lane: "planned"
+work_package_id: WP03
+title: UI Integration
+lane: "doing"
 dependencies:
-  - "WP01"
-  - "WP02"
+- WP01
+- WP02
+base_branch: 077-plan-state-management-WP02
+base_commit: a6cfd406f35e89c0d0f113dbe562f6cfcab55113
+created_at: '2026-01-27T22:44:48.031371+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-phase: "Phase 3 - UI Integration"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-base_branch: "077-plan-state-management-WP02"
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 3 - UI Integration
+assignee: ''
+agent: ''
+shell_pid: "56995"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – UI Integration
