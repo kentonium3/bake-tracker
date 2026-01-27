@@ -1,10 +1,13 @@
 ---
 work_package_id: WP04
 title: Planning Tab Integration + Notifications
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 - WP03
+base_branch: 070-finished-goods-filtering-WP03
+base_commit: fee6e89e66ea265e4767035836373b0a4dd6ca0e
+created_at: '2026-01-27T01:38:13.565166+00:00'
 subtasks:
 - T019
 - T020
@@ -17,7 +20,7 @@ subtasks:
 phase: Phase 2 - UI Layer
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "32702"
 review_status: ''
 reviewed_by: ''
 history:
