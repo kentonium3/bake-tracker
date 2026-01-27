@@ -1,10 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-27T22:52:38Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "da3e6b58c4d86f60d5bd9d566291b482451fc755",
+      "branch": "main",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-27T22:52:38Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "da3e6b58c4d86f60d5bd9d566291b482451fc755",
+  "created_at": "2026-01-27T23:45:00Z",
   "feature_number": "077",
-  "slug": "077-plan-state-management",
   "friendly_name": "Plan State Management",
   "mission": "software-dev",
+  "slug": "077-plan-state-management",
   "source_description": "see docs/func-spec/F077_plan_state_management.md for the feature's inputs",
-  "created_at": "2026-01-27T23:45:00Z",
   "vcs": "git",
   "vcs_locked_at": "2026-01-27T22:38:37.455539+00:00"
 }
