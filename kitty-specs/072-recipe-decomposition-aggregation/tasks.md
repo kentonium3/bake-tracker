@@ -23,12 +23,12 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Create planning_service.py module with imports and boilerplate
-- [ ] T002 Implement `_decompose_fg_to_recipes()` recursive function with cycle detection
-- [ ] T003 Implement `calculate_recipe_requirements()` public API
-- [ ] T004 Write unit tests for single atomic FG
-- [ ] T005 Write unit tests for single bundle decomposition
-- [ ] T006 Write unit tests for recipe aggregation (multiple FGs same recipe)
+- [x] T001 Create planning_service.py module with imports and boilerplate
+- [x] T002 Implement `_decompose_fg_to_recipes()` recursive function with cycle detection
+- [x] T003 Implement `calculate_recipe_requirements()` public API
+- [x] T004 Write unit tests for single atomic FG
+- [x] T005 Write unit tests for single bundle decomposition
+- [x] T006 Write unit tests for recipe aggregation (multiple FGs same recipe)
 
 ### Implementation Notes
 - Follow session parameter pattern from planning_snapshot_service.py
