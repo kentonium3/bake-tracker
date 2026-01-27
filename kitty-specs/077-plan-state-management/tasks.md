@@ -27,7 +27,7 @@
 - [x] T002 Create `src/services/plan_state_service.py` with get_plan_state() helper
 - [x] T003 Implement lock_plan() transition function (DRAFT → LOCKED)
 - [x] T004 Implement start_production() and complete_production() transitions
-- [ ] T005 Write unit tests in `src/tests/test_plan_state_service.py`
+- [x] T005 Write unit tests in `src/tests/test_plan_state_service.py`
 
 ### Implementation Notes
 - Follow existing service patterns (session=None parameter, session_scope usage)
