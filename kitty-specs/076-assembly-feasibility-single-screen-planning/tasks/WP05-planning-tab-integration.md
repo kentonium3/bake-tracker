@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Planning Tab Integration
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 076-assembly-feasibility-single-screen-planning-WP04
@@ -14,7 +14,7 @@ subtasks:
 - T021
 phase: Phase 3 - Integration
 assignee: ''
-agent: ''
+agent: "claude"
 shell_pid: "48531"
 review_status: ''
 reviewed_by: ''
@@ -414,3 +414,4 @@ After implementation, manually test:
 ## Activity Log
 
 - 2026-01-27T15:30:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T22:16:25Z – claude – shell_pid=48531 – lane=for_review – Planning tab integration complete: shopping summary at row 5, assembly status at row 6, update propagation wired
