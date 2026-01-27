@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Batch Decision CRUD Service
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -17,8 +17,8 @@ subtasks:
 - T021
 phase: Phase 1 - Core Service
 assignee: ''
-agent: "gemini"
-shell_pid: "19392"
+agent: "claude"
+shell_pid: "22322"
 review_status: ''
 reviewed_by: ''
 history:
@@ -633,3 +633,4 @@ class TestIsShortfallOption:
 
 - 2026-01-27T18:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-27T19:35:17Z – gemini – shell_pid=19392 – lane=for_review – All subtasks complete (T015-T021), 33 tests passing
+- 2026-01-27T19:40:14Z – claude – shell_pid=22322 – lane=doing – Started review via workflow command
