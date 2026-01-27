@@ -128,7 +128,7 @@
 **Estimated Size**: ~420 lines
 
 ### Included Subtasks
-- [ ] T022 Create `src/ui/widgets/batch_options_frame.py` module
+- [x] T022 Create `src/ui/widgets/batch_options_frame.py` module
 - [ ] T023 Implement `BatchOptionsFrame` class structure with constructor
 - [ ] T024 Implement `populate(options_results)` to display all FUs
 - [ ] T025 Implement `_create_fu_section(result)` for individual FU display
