@@ -26,7 +26,7 @@
 - [x] T001 Create dataclasses (ComponentStatus, FGFeasibilityStatus, AssemblyFeasibilityResult)
 - [x] T002 Implement _get_production_availability() to calculate yields from BatchDecisions
 - [x] T003 Implement _calculate_fg_feasibility() with bundle decomposition
-- [ ] T004 Implement calculate_assembly_feasibility() main public function
+- [x] T004 Implement calculate_assembly_feasibility() main public function
 - [ ] T005 Handle edge cases (empty event, missing decisions, zero quantities)
 
 ### Implementation Notes
