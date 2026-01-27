@@ -1,27 +1,29 @@
 ---
-work_package_id: "WP01"
-title: "Plan State Service"
-lane: "planned"
+work_package_id: WP01
+title: Plan State Service
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: f0f24b3db80ed1137d9ce8145585210bbd07667b
+created_at: '2026-01-27T22:38:39.481022+00:00'
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-phase: "Phase 1 - Foundation"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-base_branch: "main"
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "55084"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Plan State Service
