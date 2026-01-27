@@ -8,9 +8,9 @@ subtasks:
   - "T010"
 title: "Service Unit Tests"
 phase: "Phase 1 - Service Layer"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "claude"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -533,3 +533,4 @@ def test_decision_coverage_partial(
 ## Activity Log
 
 - 2026-01-27T15:30:00Z – system – lane=planned – Prompt created.
+- 2026-01-27T22:18:19Z – claude – lane=for_review – Service tests implemented with 17 passing tests
