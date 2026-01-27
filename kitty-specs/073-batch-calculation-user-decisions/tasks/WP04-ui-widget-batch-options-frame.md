@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP04"
-subtasks:
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-title: "UI Widget - BatchOptionsFrame"
-phase: "Phase 2 - UI Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP04
+title: UI Widget - BatchOptionsFrame
+lane: "doing"
 dependencies:
-  - "WP02"
+- WP02
+base_branch: 073-batch-calculation-user-decisions-WP02
+base_commit: b677bf1dc01b0d67138f79ac23cea9e677de0c60
+created_at: '2026-01-27T19:45:35.264547+00:00'
+subtasks:
+- T022
+- T023
+- T024
+- T025
+- T026
+- T027
+- T028
+- T029
+phase: Phase 2 - UI Layer
+assignee: ''
+agent: ''
+shell_pid: "23225"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-27T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – UI Widget - BatchOptionsFrame
