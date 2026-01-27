@@ -1,0 +1,8 @@
+{
+  "feature_number": "070",
+  "slug": "070-finished-goods-filtering",
+  "friendly_name": "Finished Goods Filtering for Event Planning",
+  "mission": "software-dev",
+  "source_description": "see docs/func-spec/F070_finished_goods_filtering.md for the feature inputs.",
+  "created_at": "2026-01-26T19:15:00Z"
+}
