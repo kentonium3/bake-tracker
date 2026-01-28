@@ -199,6 +199,15 @@ class Event(BaseModel):
         lazy="selectin",
     )
 
+    # Feature 078: Plan snapshot for production state
+    plan_snapshot = relationship(
+        "PlanSnapshot",
+        back_populates="event",
+        uselist=False,  # One-to-one
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     # Indexes
     __table_args__ = (
         Index("idx_event_name", "name"),

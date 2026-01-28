@@ -42,6 +42,7 @@ from .event_recipe import EventRecipe
 from .event_finished_good import EventFinishedGood
 from .batch_decision import BatchDecision
 from .plan_amendment import PlanAmendment, AmendmentType
+from .plan_snapshot import PlanSnapshot  # Feature 078
 from .production_plan_snapshot import ProductionPlanSnapshot  # Feature 039
 from .package_status import PackageStatus  # Feature 008
 from .production_record import ProductionRecord  # Feature 008
@@ -117,6 +118,7 @@ __all__ = [
     "BatchDecision",
     "PlanAmendment",
     "AmendmentType",
+    "PlanSnapshot",  # Feature 078
     "ProductionPlanSnapshot",  # Feature 039
     # Production tracking Feature 008
     "PackageStatus",
