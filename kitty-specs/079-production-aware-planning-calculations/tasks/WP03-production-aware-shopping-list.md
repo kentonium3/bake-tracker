@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Production-Aware Shopping List
+lane: "doing"
+dependencies: [WP01]
+base_branch: 079-production-aware-planning-calculations-WP01
+base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
+created_at: '2026-01-28T06:17:43.364949+00:00'
 subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Production-Aware Shopping List"
-phase: "Phase 2 - Core Features"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T009
+- T010
+- T011
+- T012
+phase: Phase 2 - Core Features
+assignee: ''
+agent: ''
+shell_pid: "96442"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T06:03:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T06:03:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Production-Aware Shopping List
