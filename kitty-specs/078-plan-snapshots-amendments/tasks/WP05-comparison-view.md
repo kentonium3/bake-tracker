@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Comparison View & Integration
-lane: "for_review"
+lane: "doing"
 dependencies: [WP02, WP03, WP04]
 base_branch: 078-plan-snapshots-amendments-WP04
 base_commit: 0474335093934e3aef6864ac6b3f0ec45d45f65b
@@ -15,8 +15,8 @@ subtasks:
 - T026
 phase: Phase 2 - Polish
 assignee: ''
-agent: ''
-shell_pid: "81572"
+agent: "gemini"
+shell_pid: "86660"
 review_status: ''
 reviewed_by: ''
 history:
@@ -724,3 +724,4 @@ class TestFullWorkflowIntegration:
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
 - 2026-01-28T04:09:36Z – unknown – shell_pid=81572 – lane=for_review – Comparison view complete with diff highlighting, color coding, and 15 passing tests
+- 2026-01-28T05:17:25Z – gemini – shell_pid=86660 – lane=doing – Started review via workflow command
