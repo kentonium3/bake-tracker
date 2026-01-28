@@ -15,6 +15,7 @@ from typing import Optional
 
 from src.models.event import Event, EventRecipientPackage, FulfillmentStatus
 from src.services import event_service, recipe_service
+from src.services.database import session_scope
 from src.services.finished_good_service import get_all_finished_goods
 from src.services.event_service import AssignmentNotFoundError
 from src.ui.utils import ui_session
@@ -29,7 +30,6 @@ from src.ui.widgets.dialogs import (
     show_success,
 )
 from src.ui.forms.assignment_form import AssignmentFormDialog
-from src.ui.utils import ui_session
 
 
 class EventDetailWindow(ctk.CTkToplevel):
