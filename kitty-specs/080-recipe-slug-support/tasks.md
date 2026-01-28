@@ -19,11 +19,11 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001: Add `slug` column to Recipe model (String(200), unique, indexed, non-nullable)
-- [ ] T002: Add `previous_slug` column to Recipe model (String(200), nullable, indexed)
-- [ ] T003: Add unique index for slug column
-- [ ] T004: Add event listener for slug auto-generation on insert
-- [ ] T005: Add model-level validation for slug format
+- [x] T001: Add `slug` column to Recipe model (String(200), unique, indexed, non-nullable)
+- [x] T002: Add `previous_slug` column to Recipe model (String(200), nullable, indexed)
+- [x] T003: Add unique index for slug column
+- [x] T004: Add event listener for slug auto-generation on insert
+- [x] T005: Add model-level validation for slug format
 
 ### Implementation Notes
 - Copy column pattern from `src/models/supplier.py:82-83`
