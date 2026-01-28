@@ -56,7 +56,7 @@
 - [x] T009: Update `update_recipe()` to handle rename (regenerate slug, preserve previous_slug)
 - [x] T010: [P] Add unit tests for slug generation from various names
 - [x] T011: [P] Add unit tests for collision handling (-2, -3 suffixes)
-- [ ] T012: [P] Add unit tests for rename behavior (previous_slug preservation)
+- [x] T012: [P] Add unit tests for rename behavior (previous_slug preservation)
 
 ### Implementation Notes
 - Copy `_generate_slug()` from `src/services/finished_unit_service.py:629-652`
