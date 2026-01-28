@@ -156,7 +156,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T021 Create comparison dataclasses in `src/services/plan_snapshot_service.py`
+- [x] T021 Create comparison dataclasses in `src/services/plan_snapshot_service.py`
 - [ ] T022 Implement get_plan_comparison() function returning structured diff
 - [ ] T023 Add comparison view panel to `src/ui/planning_tab.py`
 - [ ] T024 Implement visual diff highlighting for FG changes (added/dropped)
