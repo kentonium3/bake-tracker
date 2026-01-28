@@ -116,10 +116,10 @@
 **Estimated Lines**: ~350
 
 ### Included Subtasks
-- [ ] T015 Implement `material_unit_snapshots` import handler
-- [ ] T016 Implement `finished_unit_snapshots` import handler
-- [ ] T017 Verify complete delete order includes all 4 snapshot types
-- [ ] T018 Manual smoke test: export → clear → import cycle
+- [x] T015 Implement `material_unit_snapshots` import handler
+- [x] T016 Implement `finished_unit_snapshots` import handler
+- [x] T017 Verify complete delete order includes all 4 snapshot types
+- [x] T018 Manual smoke test: export → clear → import cycle
 
 ### Implementation Notes
 - Follow same pattern as WP03
