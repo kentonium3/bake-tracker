@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Export Service Updates
-lane: "doing"
+lane: "done"
 dependencies: [WP02]
 base_branch: 080-recipe-slug-support-WP02
 base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
@@ -17,8 +17,8 @@ phase: Phase 1 - Export/Import
 assignee: ''
 agent: "claude-code"
 shell_pid: "60257"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
@@ -456,3 +456,4 @@ spec-kitty implement WP03 --base WP02
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-28T17:02:54Z – claude-opus – shell_pid=50556 – lane=for_review – All T013-T018 subtasks implemented. 53 tests pass (46 existing export + 7 new slug tests).
 - 2026-01-28T17:48:25Z – claude-code – shell_pid=60257 – lane=doing – Started review via workflow command
+- 2026-01-28T17:49:02Z – claude-code – shell_pid=60257 – lane=done – Review passed: All recipe_slug fields added to exports. Recipe export has slug/previous_slug, components have component_recipe_slug, finished_units/events/production_runs have recipe_slug alongside recipe_name for backward compatibility. 7 new tests pass.
