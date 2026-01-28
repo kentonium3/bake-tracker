@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Recipe & FinishedGood Snapshot Export
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 2ad59dfb928e8e8071e55871259216e9f5ff27a4
@@ -322,3 +322,4 @@ def _export_finished_good_snapshots(output_dir: Path, session: Session) -> FileE
 ## Activity Log
 
 - 2026-01-28T18:40:28Z – system – lane=planned – Prompt created.
+- 2026-01-28T18:50:33Z – unknown – shell_pid=68763 – lane=for_review – Recipe and FinishedGood snapshot export functions implemented
