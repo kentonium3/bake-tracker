@@ -121,7 +121,7 @@
 - [x] T020: Create `_resolve_recipe()` helper with slug → previous_slug → name fallback
 - [x] T021: [P] Update finished_units import to use `_resolve_recipe()` helper
 - [x] T022: [P] Update event_production_targets import to use slug resolution
-- [ ] T023: [P] Update production_runs import to use slug resolution
+- [x] T023: [P] Update production_runs import to use slug resolution
 - [ ] T024: Update recipe component import to use `component_recipe_slug` resolution
 - [ ] T025: Add logging for fallback resolution (previous_slug and name fallbacks)
 
