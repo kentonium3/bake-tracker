@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration Tests & Validation
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP03
 base_branch: 080-recipe-slug-support-WP04
@@ -624,3 +624,4 @@ spec-kitty implement WP05 --base WP04
 ## Activity Log
 
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-28T18:00:43Z – unknown – shell_pid=60731 – lane=for_review – Ready for review: 17 integration tests covering round-trip export/import, legacy fallback, previous_slug fallback, and FK entity resolution
