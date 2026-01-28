@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Import Service Updates
-lane: "doing"
+lane: "done"
 dependencies: [WP02]
 base_branch: 080-recipe-slug-support-WP02
 base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
@@ -18,8 +18,8 @@ phase: Phase 1 - Export/Import
 assignee: ''
 agent: "claude-code"
 shell_pid: "60473"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
@@ -605,3 +605,4 @@ class TestRecipeImportSlugResolution:
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-28T17:23:41Z – unknown – shell_pid=51946 – lane=for_review – Ready for review: Import service updates complete with 15 tests passing
 - 2026-01-28T17:49:08Z – claude-code – shell_pid=60473 – lane=doing – Started review via workflow command
+- 2026-01-28T17:49:35Z – claude-code – shell_pid=60473 – lane=done – Review passed: _resolve_recipe helper implements slug -> previous_slug -> name fallback chain. All import locations (recipes, finished_units, events, production_runs, recipe_components) use slug-based resolution with name fallback for backward compatibility. Logging added for fallback events. 15 comprehensive tests pass.
