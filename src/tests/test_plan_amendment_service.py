@@ -1,15 +1,30 @@
 """Unit tests for plan_amendment_service.
 
 Feature 078: Plan Snapshots & Amendments
+Feature 079 WP04: Amendment Production Validation
 """
 
 import pytest
 from datetime import datetime
+from decimal import Decimal
 
-from src.models import Event, EventFinishedGood, BatchDecision, FinishedGood, Recipe
+from src.models import (
+    Event,
+    EventFinishedGood,
+    BatchDecision,
+    FinishedGood,
+    Recipe,
+    FinishedUnit,
+    Composition,
+    ProductionRun,
+)
 from src.models.event import PlanState
 from src.models.plan_amendment import AmendmentType
 from src.services import plan_amendment_service
+from src.services.plan_amendment_service import (
+    _has_production_for_recipe,
+    _get_recipes_for_finished_good,
+)
 from src.services.exceptions import ValidationError, PlanStateError
 
 
@@ -509,3 +524,786 @@ class TestGetAmendments:
         assert amendments[0].amendment_data["fg_id"] == 123
         assert amendments[0].amendment_data["fg_name"] == "Test Box"
         assert amendments[0].reason == "Testing data"
+
+
+# =============================================================================
+# F079 WP04: Amendment Production Validation Tests
+# =============================================================================
+
+
+class TestHasProductionForRecipe:
+    """Tests for _has_production_for_recipe helper."""
+
+    def test_returns_true_when_production_exists(self, test_db):
+        """Should return True when production run exists for recipe in event."""
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Test Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Test FU",
+            slug="test-fu",
+            recipe_id=recipe.id,
+            items_per_batch=12,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create production run
+        production_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            event_id=event.id,
+            num_batches=2,
+            expected_yield=24,
+            actual_yield=24,
+            total_ingredient_cost=Decimal("10.00"),
+            per_unit_cost=Decimal("0.4167"),
+        )
+        session.add(production_run)
+        session.flush()
+
+        # Test
+        result = _has_production_for_recipe(event.id, recipe.id, session)
+        assert result is True
+
+    def test_returns_false_when_no_production(self, test_db):
+        """Should return False when no production run exists."""
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Test Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Test (no production run created)
+        result = _has_production_for_recipe(event.id, recipe.id, session)
+        assert result is False
+
+    def test_returns_false_for_different_event(self, test_db):
+        """Production in one event should not affect another."""
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Test Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Test FU",
+            slug="test-fu",
+            recipe_id=recipe.id,
+            items_per_batch=12,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create two events
+        event1 = Event(
+            name="Event 1",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        event2 = Event(
+            name="Event 2",
+            event_date=datetime(2026, 12, 26).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add_all([event1, event2])
+        session.flush()
+
+        # Create production run for event1 only
+        production_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            event_id=event1.id,
+            num_batches=2,
+            expected_yield=24,
+            actual_yield=24,
+            total_ingredient_cost=Decimal("10.00"),
+            per_unit_cost=Decimal("0.4167"),
+        )
+        session.add(production_run)
+        session.flush()
+
+        # Test - event1 has production, event2 does not
+        assert _has_production_for_recipe(event1.id, recipe.id, session) is True
+        assert _has_production_for_recipe(event2.id, recipe.id, session) is False
+
+
+class TestGetRecipesForFinishedGood:
+    """Tests for _get_recipes_for_finished_good helper."""
+
+    def test_returns_recipe_ids_from_composition(self, test_db):
+        """Should return recipe IDs from FG's FinishedUnit components."""
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Cookie Recipe", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Sugar Cookie",
+            slug="sugar-cookie",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create finished good
+        fg = FinishedGood(
+            display_name="Cookie Box",
+            slug="cookie-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create composition linking FG to FU
+        composition = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu.id,
+            component_quantity=6,
+        )
+        session.add(composition)
+        session.flush()
+
+        # Test
+        recipe_ids = _get_recipes_for_finished_good(fg.id, session)
+        assert len(recipe_ids) == 1
+        assert recipe.id in recipe_ids
+
+    def test_returns_multiple_recipe_ids(self, test_db):
+        """Should return all recipe IDs when FG has multiple FU components."""
+        session = test_db()
+
+        # Create two recipes
+        recipe1 = Recipe(name="Recipe 1", category="Cookies")
+        recipe2 = Recipe(name="Recipe 2", category="Brownies")
+        session.add_all([recipe1, recipe2])
+        session.flush()
+
+        # Create finished units
+        fu1 = FinishedUnit(
+            display_name="Cookie",
+            slug="test-cookie",
+            recipe_id=recipe1.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        fu2 = FinishedUnit(
+            display_name="Brownie",
+            slug="test-brownie",
+            recipe_id=recipe2.id,
+            items_per_batch=16,
+            item_unit="brownie",
+        )
+        session.add_all([fu1, fu2])
+        session.flush()
+
+        # Create finished good
+        fg = FinishedGood(
+            display_name="Variety Box",
+            slug="variety-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create compositions
+        comp1 = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu1.id,
+            component_quantity=3,
+        )
+        comp2 = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu2.id,
+            component_quantity=2,
+        )
+        session.add_all([comp1, comp2])
+        session.flush()
+
+        # Test
+        recipe_ids = _get_recipes_for_finished_good(fg.id, session)
+        assert len(recipe_ids) == 2
+        assert recipe1.id in recipe_ids
+        assert recipe2.id in recipe_ids
+
+    def test_returns_empty_for_fg_without_fu_components(self, test_db):
+        """FG with no FinishedUnit components returns empty list."""
+        session = test_db()
+
+        # Create finished good with no compositions
+        fg = FinishedGood(
+            display_name="Empty Box",
+            slug="empty-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Test
+        recipe_ids = _get_recipes_for_finished_good(fg.id, session)
+        assert recipe_ids == []
+
+
+class TestAmendmentProductionValidation:
+    """Tests for blocking amendments when production exists."""
+
+    def test_modify_batch_blocked_when_production_exists(self, test_db):
+        """
+        Given: Recipe has ProductionRun records
+        When: modify_batch_decision() called
+        Then: ValidationError raised with clear message
+        """
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Test Cookies", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Cookie",
+            slug="test-cookie-prod",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create batch decision
+        batch_decision = BatchDecision(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            batches=5,
+        )
+        session.add(batch_decision)
+        session.flush()
+
+        # Create production run
+        production_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            event_id=event.id,
+            num_batches=2,
+            expected_yield=48,
+            actual_yield=48,
+            total_ingredient_cost=Decimal("10.00"),
+            per_unit_cost=Decimal("0.2083"),
+        )
+        session.add(production_run)
+        session.flush()
+
+        # Test - should raise ValidationError
+        with pytest.raises(ValidationError) as exc_info:
+            plan_amendment_service.modify_batch_decision(
+                event.id,
+                recipe.id,
+                new_batches=10,
+                reason="Increase production",
+                session=session,
+            )
+
+        assert "Cannot modify batch decision" in str(exc_info.value)
+        assert recipe.name in str(exc_info.value)
+        assert "production has already been recorded" in str(exc_info.value)
+
+    def test_modify_batch_allowed_when_no_production(self, test_db):
+        """
+        Given: Recipe has no ProductionRun records
+        When: modify_batch_decision() called
+        Then: Amendment succeeds
+        """
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Test Cookies No Prod", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Cookie No Prod",
+            slug="test-cookie-no-prod",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create batch decision
+        batch_decision = BatchDecision(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            batches=5,
+        )
+        session.add(batch_decision)
+        session.flush()
+
+        # Test - should succeed (no production exists)
+        amendment = plan_amendment_service.modify_batch_decision(
+            event.id,
+            recipe.id,
+            new_batches=10,
+            reason="Increase production",
+            session=session,
+        )
+
+        assert amendment is not None
+        assert amendment.amendment_type == AmendmentType.MODIFY_BATCH
+        assert amendment.amendment_data["old_batches"] == 5
+        assert amendment.amendment_data["new_batches"] == 10
+
+    def test_drop_fg_blocked_when_contributing_recipe_has_production(self, test_db):
+        """
+        Given: FG's contributing recipe has ProductionRun records
+        When: drop_finished_good() called
+        Then: ValidationError raised listing the recipe
+        """
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Gift Box Cookies", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Cookie for Box",
+            slug="cookie-for-box",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create finished good
+        fg = FinishedGood(
+            display_name="Gift Box",
+            slug="gift-box-prod",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create composition
+        composition = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu.id,
+            component_quantity=6,
+        )
+        session.add(composition)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Add FG to event plan
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=10,
+        )
+        session.add(event_fg)
+        session.flush()
+
+        # Create production run
+        production_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            event_id=event.id,
+            num_batches=3,
+            expected_yield=72,
+            actual_yield=72,
+            total_ingredient_cost=Decimal("15.00"),
+            per_unit_cost=Decimal("0.2083"),
+        )
+        session.add(production_run)
+        session.flush()
+
+        # Test - should raise ValidationError
+        with pytest.raises(ValidationError) as exc_info:
+            plan_amendment_service.drop_finished_good(
+                event.id,
+                fg.id,
+                reason="No longer needed",
+                session=session,
+            )
+
+        assert "Cannot drop finished good" in str(exc_info.value)
+        assert fg.display_name in str(exc_info.value)
+        assert recipe.name in str(exc_info.value)
+
+    def test_drop_fg_allowed_when_no_production(self, test_db):
+        """
+        Given: FG's contributing recipes have no production
+        When: drop_finished_good() called
+        Then: Amendment succeeds
+        """
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="No Prod Cookies", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Cookie No Prod FG",
+            slug="cookie-no-prod-fg",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create finished good
+        fg = FinishedGood(
+            display_name="Gift Box No Prod",
+            slug="gift-box-no-prod",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create composition
+        composition = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu.id,
+            component_quantity=6,
+        )
+        session.add(composition)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Add FG to event plan
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=10,
+        )
+        session.add(event_fg)
+        session.flush()
+
+        # Test - should succeed (no production exists)
+        amendment = plan_amendment_service.drop_finished_good(
+            event.id,
+            fg.id,
+            reason="No longer needed",
+            session=session,
+        )
+
+        assert amendment is not None
+        assert amendment.amendment_type == AmendmentType.DROP_FG
+        assert amendment.amendment_data["fg_id"] == fg.id
+        assert amendment.amendment_data["original_quantity"] == 10
+
+    def test_add_fg_not_blocked_by_production(self, test_db):
+        """ADD_FG should not be blocked by existing production."""
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(name="Existing Cookies", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Existing Cookie",
+            slug="existing-cookie",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create finished good to be added
+        fg = FinishedGood(
+            display_name="New Box",
+            slug="new-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create production run for existing recipe
+        production_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            event_id=event.id,
+            num_batches=2,
+            expected_yield=48,
+            actual_yield=48,
+            total_ingredient_cost=Decimal("10.00"),
+            per_unit_cost=Decimal("0.2083"),
+        )
+        session.add(production_run)
+        session.flush()
+
+        # Test - ADD_FG should succeed regardless of production
+        amendment = plan_amendment_service.add_finished_good(
+            event.id,
+            fg.id,
+            quantity=5,
+            reason="Adding new item",
+            session=session,
+        )
+
+        assert amendment is not None
+        assert amendment.amendment_type == AmendmentType.ADD_FG
+
+    def test_error_message_includes_recipe_name(self, test_db):
+        """Error messages should include recipe name for clarity."""
+        session = test_db()
+
+        # Create recipe with distinctive name
+        recipe = Recipe(name="Grandma's Special Cookies", category="Cookies")
+        session.add(recipe)
+        session.flush()
+
+        # Create finished unit
+        fu = FinishedUnit(
+            display_name="Special Cookie",
+            slug="special-cookie",
+            recipe_id=recipe.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        session.add(fu)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create batch decision
+        batch_decision = BatchDecision(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            batches=5,
+        )
+        session.add(batch_decision)
+        session.flush()
+
+        # Create production run
+        production_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            event_id=event.id,
+            num_batches=1,
+            expected_yield=24,
+            actual_yield=24,
+            total_ingredient_cost=Decimal("5.00"),
+            per_unit_cost=Decimal("0.2083"),
+        )
+        session.add(production_run)
+        session.flush()
+
+        # Test - error message should include recipe name
+        with pytest.raises(ValidationError) as exc_info:
+            plan_amendment_service.modify_batch_decision(
+                event.id,
+                recipe.id,
+                new_batches=10,
+                reason="Test",
+                session=session,
+            )
+
+        # Recipe name should be in the error
+        assert "Grandma's Special Cookies" in str(exc_info.value)
+
+    def test_drop_fg_with_multiple_recipes_shows_all_blocked(self, test_db):
+        """DROP_FG error should list all recipes with production."""
+        session = test_db()
+
+        # Create two recipes
+        recipe1 = Recipe(name="Cookie Recipe", category="Cookies")
+        recipe2 = Recipe(name="Brownie Recipe", category="Brownies")
+        session.add_all([recipe1, recipe2])
+        session.flush()
+
+        # Create finished units
+        fu1 = FinishedUnit(
+            display_name="Multi Cookie",
+            slug="multi-cookie",
+            recipe_id=recipe1.id,
+            items_per_batch=24,
+            item_unit="cookie",
+        )
+        fu2 = FinishedUnit(
+            display_name="Multi Brownie",
+            slug="multi-brownie",
+            recipe_id=recipe2.id,
+            items_per_batch=16,
+            item_unit="brownie",
+        )
+        session.add_all([fu1, fu2])
+        session.flush()
+
+        # Create finished good
+        fg = FinishedGood(
+            display_name="Variety Box Multi",
+            slug="variety-box-multi",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create compositions
+        comp1 = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu1.id,
+            component_quantity=3,
+        )
+        comp2 = Composition(
+            assembly_id=fg.id,
+            finished_unit_id=fu2.id,
+            component_quantity=2,
+        )
+        session.add_all([comp1, comp2])
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Test Event",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+            plan_state=PlanState.IN_PRODUCTION,
+        )
+        session.add(event)
+        session.flush()
+
+        # Add FG to event plan
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=10,
+        )
+        session.add(event_fg)
+        session.flush()
+
+        # Create production runs for BOTH recipes
+        prod1 = ProductionRun(
+            recipe_id=recipe1.id,
+            finished_unit_id=fu1.id,
+            event_id=event.id,
+            num_batches=2,
+            expected_yield=48,
+            actual_yield=48,
+            total_ingredient_cost=Decimal("10.00"),
+            per_unit_cost=Decimal("0.2083"),
+        )
+        prod2 = ProductionRun(
+            recipe_id=recipe2.id,
+            finished_unit_id=fu2.id,
+            event_id=event.id,
+            num_batches=2,
+            expected_yield=32,
+            actual_yield=32,
+            total_ingredient_cost=Decimal("8.00"),
+            per_unit_cost=Decimal("0.25"),
+        )
+        session.add_all([prod1, prod2])
+        session.flush()
+
+        # Test - error message should list both recipes
+        with pytest.raises(ValidationError) as exc_info:
+            plan_amendment_service.drop_finished_good(
+                event.id,
+                fg.id,
+                reason="Test",
+                session=session,
+            )
+
+        error_msg = str(exc_info.value)
+        assert "Cookie Recipe" in error_msg
+        assert "Brownie Recipe" in error_msg

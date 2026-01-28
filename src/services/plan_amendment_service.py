@@ -7,13 +7,27 @@ Session Management Pattern (from CLAUDE.md):
 - All public functions accept session=None parameter
 - If session provided, use it directly
 - If session is None, create a new session via session_scope()
+
+Feature F079: Production-aware validation added in WP04.
+- Amendments are blocked when production has been recorded for the target recipe/FG
+- This protects completed work from being modified after the fact
 """
 
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from src.models import Event, PlanAmendment, EventFinishedGood, BatchDecision
+from src.models import (
+    Event,
+    PlanAmendment,
+    EventFinishedGood,
+    BatchDecision,
+    ProductionRun,
+    Recipe,
+    FinishedGood,
+    Composition,
+    FinishedUnit,
+)
 from src.models.plan_amendment import AmendmentType
 from src.models.event import PlanState
 from src.services.database import session_scope
@@ -48,6 +62,68 @@ def _get_event_or_raise(event_id: int, session: Session) -> Event:
     if event is None:
         raise ValidationError([f"Event {event_id} not found"])
     return event
+
+
+# =============================================================================
+# F079 WP04: Production Validation Helpers
+# =============================================================================
+
+
+def _has_production_for_recipe(
+    event_id: int,
+    recipe_id: int,
+    session: Session
+) -> bool:
+    """Check if any production has been recorded for a recipe in an event.
+
+    Args:
+        event_id: Event to check
+        recipe_id: Recipe to check
+        session: Database session
+
+    Returns:
+        True if at least one ProductionRun exists for this recipe/event
+    """
+    count = session.query(ProductionRun).filter(
+        ProductionRun.event_id == event_id,
+        ProductionRun.recipe_id == recipe_id,
+    ).count()
+    return count > 0
+
+
+def _get_recipes_for_finished_good(
+    fg_id: int,
+    session: Session
+) -> List[int]:
+    """Get all recipe IDs that contribute to a finished good.
+
+    A recipe contributes to an FG if:
+    - The FG's composition includes a FinishedUnit
+    - That FinishedUnit is produced by the recipe
+
+    Args:
+        fg_id: FinishedGood ID to check
+        session: Database session
+
+    Returns:
+        List of recipe IDs that contribute to this FG
+    """
+    # Get all compositions for this FG that have a FinishedUnit component
+    compositions = (
+        session.query(Composition)
+        .filter(Composition.assembly_id == fg_id)
+        .filter(Composition.finished_unit_id.isnot(None))
+        .all()
+    )
+
+    recipe_ids = set()
+    for comp in compositions:
+        # Get the FinishedUnit and its recipe
+        fu = session.get(FinishedUnit, comp.finished_unit_id)
+        if fu and fu.recipe_id:
+            recipe_ids.add(fu.recipe_id)
+
+    return list(recipe_ids)
 
 
 # =============================================================================
@@ -126,6 +202,26 @@ def _drop_finished_good_impl(
     """Internal implementation of drop_finished_good."""
     event = _get_event_or_raise(event_id, session)
     _validate_amendment_allowed(event, reason)
+
+    # F079 WP04: Check for production on contributing recipes
+    contributing_recipes = _get_recipes_for_finished_good(fg_id, session)
+    recipes_with_production = []
+
+    for recipe_id in contributing_recipes:
+        if _has_production_for_recipe(event_id, recipe_id, session):
+            recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
+            recipe_name = recipe.name if recipe else f"Recipe {recipe_id}"
+            recipes_with_production.append(recipe_name)
+
+    if recipes_with_production:
+        # Get FG name for error message
+        fg = session.query(FinishedGood).filter(FinishedGood.id == fg_id).first()
+        fg_name = fg.display_name if fg else f"Finished Good {fg_id}"
+        raise ValidationError([
+            f"Cannot drop finished good '{fg_name}' - production has been "
+            f"recorded for contributing recipe(s): {', '.join(recipes_with_production)}. "
+            "Complete or void production first."
+        ])
 
     # Find the EventFinishedGood record
     event_fg = session.query(EventFinishedGood).filter(
@@ -301,6 +397,17 @@ def _modify_batch_decision_impl(
     """Internal implementation of modify_batch_decision."""
     event = _get_event_or_raise(event_id, session)
     _validate_amendment_allowed(event, reason)
+
+    # F079 WP04: Check for existing production
+    if _has_production_for_recipe(event_id, recipe_id, session):
+        # Get recipe name for clear error message
+        recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
+        recipe_name = recipe.name if recipe else f"Recipe {recipe_id}"
+        raise ValidationError([
+            f"Cannot modify batch decision for recipe '{recipe_name}' - "
+            "production has already been recorded. "
+            "Complete or void existing production first."
+        ])
 
     # Find batch decision
     batch_decision = session.query(BatchDecision).filter(
