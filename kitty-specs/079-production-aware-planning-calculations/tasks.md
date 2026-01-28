@@ -121,7 +121,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T013 Add _has_production_for_recipe() helper function to check if recipe has production records
+- [x] T013 Add _has_production_for_recipe() helper function to check if recipe has production records
 - [ ] T014 Add validation call in _modify_batch_decision_impl() before making changes
 - [ ] T015 Add _get_recipes_for_finished_good() helper to find recipes contributing to an FG
 - [ ] T016 Add validation call in _drop_finished_good_impl() checking all contributing recipes
