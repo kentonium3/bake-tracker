@@ -124,7 +124,7 @@
 - [x] T013 Add _has_production_for_recipe() helper function to check if recipe has production records
 - [x] T014 Add validation call in _modify_batch_decision_impl() before making changes
 - [x] T015 Add _get_recipes_for_finished_good() helper to find recipes contributing to an FG
-- [ ] T016 Add validation call in _drop_finished_good_impl() checking all contributing recipes
+- [x] T016 Add validation call in _drop_finished_good_impl() checking all contributing recipes
 - [ ] T017 [P] Write tests for amendment validation in `src/tests/test_plan_amendment_service.py`
 
 ### Implementation Notes
