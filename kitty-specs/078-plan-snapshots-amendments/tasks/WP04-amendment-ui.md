@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Amendment UI Controls
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP02
 - WP03
@@ -16,8 +16,8 @@ subtasks:
 - T020
 phase: Phase 1 - Core Implementation
 assignee: ''
-agent: ''
-shell_pid: "80435"
+agent: "gemini"
+shell_pid: "86568"
 review_status: ''
 reviewed_by: ''
 history:
@@ -621,3 +621,4 @@ def _format_amendment_summary(self, amendment) -> str:
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
 - 2026-01-28T04:04:37Z – unknown – shell_pid=80435 – lane=for_review – Amendment UI complete with Drop/Add FG and Modify Batch dialogs, history panel, state-based visibility
+- 2026-01-28T05:17:15Z – gemini – shell_pid=86568 – lane=doing – Started review via workflow command
