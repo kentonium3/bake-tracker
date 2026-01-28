@@ -125,7 +125,7 @@
 - [x] T017 Implement DROP_FG dialog with FG selection and reason entry
 - [x] T018 Implement ADD_FG dialog with available FG selection and quantity/reason entry
 - [x] T019 Implement MODIFY_BATCH dialog with recipe selection, batch adjustment, and reason
-- [ ] T020 Add amendment history panel showing chronological amendment list
+- [x] T020 Add amendment history panel showing chronological amendment list
 
 ### Implementation Notes
 - Amendment controls only visible/enabled when plan_state == IN_PRODUCTION
