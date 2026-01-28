@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-title: "Recipe & FinishedGood Snapshot Export"
-phase: "Phase 1 - Export Functions"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP01
+title: Recipe & FinishedGood Snapshot Export
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 2ad59dfb928e8e8071e55871259216e9f5ff27a4
+created_at: '2026-01-28T18:48:39.759119+00:00'
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Export Functions
+assignee: ''
+agent: ''
+shell_pid: "68763"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T18:40:28Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T18:40:28Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Recipe & FinishedGood Snapshot Export
