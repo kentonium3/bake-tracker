@@ -2218,8 +2218,12 @@ def _import_entity_records(
 
             session.flush()
 
-        except Exception:
-            # Skip records that fail
+        except Exception as e:
+            # Log the error for debugging, then skip the record
+            logger.error(
+                f"Failed to import {entity_type} record: {e}. "
+                f"Record data: {json.dumps(record, default=str)[:500]}"
+            )
             continue
 
     return imported_count

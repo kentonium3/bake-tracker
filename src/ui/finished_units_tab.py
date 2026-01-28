@@ -159,10 +159,11 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
     def _create_search_bar(self):
         """Create the search bar with category filter."""
+        # Note: SearchBar adds "All Categories" internally, so don't add it here
         self.search_bar = SearchBar(
             self,
             search_callback=self._on_search,
-            categories=["All Categories"] + self.recipe_categories,
+            categories=self.recipe_categories,
             placeholder="Search by finished unit name...",
         )
         self.search_bar.grid(
@@ -386,12 +387,16 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
     def refresh(self):
         """
-        Refresh the finished units list.
+        Refresh the finished units list and category filter.
 
         Note: This performs a full refresh which is inefficient for large datasets.
         Consider using incremental update methods for better performance.
         """
         try:
+            # Reload categories in case new recipes/categories were added
+            self.recipe_categories = self._load_recipe_categories()
+            self.search_bar.update_categories(self.recipe_categories)
+
             finished_units = self.service_integrator.execute_service_operation(
                 operation_name="Load All Finished Units",
                 operation_type=OperationType.READ,

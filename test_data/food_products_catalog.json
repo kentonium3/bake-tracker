@@ -9,7 +9,8 @@
       "package_unit": "lb",
       "package_unit_quantity": 25.0,
       "product_name": "Unbleached All-Purpose Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unbleached-all-purpose-flour"
     },
     {
       "ingredient_slug": "allspice_ground",
@@ -17,14 +18,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "product_name": "Ground Allspice",
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "ground-allspice"
     },
     {
       "ingredient_slug": "allspice_whole",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 0.6,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown"
     },
     {
       "ingredient_slug": "almond_extract",
@@ -32,21 +35,24 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "product_name": "Pure Almond Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-almond-extract"
     },
     {
       "ingredient_slug": "almond_extract",
       "brand": "Penzeys",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-2"
     },
     {
       "ingredient_slug": "almonds",
       "brand": "Costco",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-3"
     },
     {
       "ingredient_slug": "amaretto",
@@ -54,7 +60,8 @@
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "product_name": "Disaronno Originale",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "disaronno-originale"
     },
     {
       "ingredient_slug": "baking_powder",
@@ -62,7 +69,8 @@
       "package_unit": "g",
       "package_unit_quantity": 230.0,
       "product_name": "Baking Powder",
-      "package_type": "can"
+      "package_type": "can",
+      "slug": "baking-powder"
     },
     {
       "ingredient_slug": "baking_soda",
@@ -70,14 +78,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "product_name": "Pure Baking Soda",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "pure-baking-soda"
     },
     {
       "ingredient_slug": "bourbon",
       "brand": "Evan Williams",
       "package_unit": "l",
       "package_unit_quantity": 1.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-4"
     },
     {
       "ingredient_slug": "bread_flour",
@@ -85,14 +95,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
       "product_name": "Bread Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "bread-flour"
     },
     {
       "ingredient_slug": "bread_flour",
       "brand": "Wegman's",
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-5"
     },
     {
       "ingredient_slug": "butter_salted",
@@ -100,14 +112,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "product_name": "Kirkland Signature Salted Sweet Cream Butter",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "kirkland-signature-salted-sweet-cream-butter"
     },
     {
       "ingredient_slug": "butter_salted",
       "brand": "Kerry",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
-      "package_type": "package"
+      "package_type": "package",
+      "slug": "unknown-6"
     },
     {
       "ingredient_slug": "butter_unsalted",
@@ -115,22 +129,25 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "product_name": "Kirkland Signature Unsalted Sweet Cream Butter",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "kirkland-signature-unsalted-sweet-cream-butter"
     },
     {
       "ingredient_slug": "butter_unsalted",
       "brand": "Kerry",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
-      "package_type": "package"
+      "package_type": "package",
+      "slug": "unknown-7"
     },
     {
       "ingredient_slug": "butterscotch_chips",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
-      "package_type": "bag"
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
+      "package_type": "bag",
+      "slug": "nestle-toll-house-butterscotch-artificially-flavored-morsels"
     },
     {
       "ingredient_slug": "cake_flour",
@@ -138,35 +155,40 @@
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "product_name": "Unbleached Cake Flour Blend",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unbleached-cake-flour-blend"
     },
     {
       "ingredient_slug": "cake_flour",
       "brand": "Lilly",
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-8"
     },
     {
       "ingredient_slug": "cake_flour",
       "brand": "Wegman's",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-9"
     },
     {
       "ingredient_slug": "oil_canola",
       "brand": "Wegman's",
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-10"
     },
     {
       "ingredient_slug": "caramels",
-      "brand": "Brach\u2019s",
+      "brand": "Brach’s",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-11"
     },
     {
       "ingredient_slug": "cardamom_ground",
@@ -174,14 +196,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.4,
       "product_name": "Ground Cardamom",
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "ground-cardamom"
     },
     {
       "ingredient_slug": "cashews",
       "brand": "Trader Joe's",
       "package_unit": "lb",
       "package_unit_quantity": 16.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-12"
     },
     {
       "ingredient_slug": "chocolate_baking_semi_sweet",
@@ -189,7 +213,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "product_name": "Premium Semi-Sweet Chocolate Baking Bar",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "premium-semi-sweet-chocolate-baking-bar"
     },
     {
       "ingredient_slug": "chocolate_baking_unsweetened",
@@ -197,21 +222,24 @@
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "product_name": "Premium Unsweetened Chocolate Baking Bar",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "premium-unsweetened-chocolate-baking-bar"
     },
     {
       "ingredient_slug": "chocolate_chips_bittersweet",
       "brand": "Guittard",
       "package_unit": "g",
       "package_unit_quantity": 12.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-13"
     },
     {
       "ingredient_slug": "chocolate_chips_bittersweet",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-14"
     },
     {
       "ingredient_slug": "chocolate_chips_dark",
@@ -219,95 +247,108 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
       "product_name": "HERSHEY'S SPECIAL DARK Mildly Sweet Chocolate Baking Chips",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "hersheys-special-dark-mildly-sweet-chocolate-baking-chips"
     },
     {
       "ingredient_slug": "chocolate_chips_espresso",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 9.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-15"
     },
     {
       "ingredient_slug": "chocolate_chips_milk",
       "brand": "Guittard",
       "package_unit": "g",
       "package_unit_quantity": 340.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-16"
     },
     {
       "ingredient_slug": "chocolate_chips_milk",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 11.5,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
-      "package_type": "bag"
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
+      "package_type": "bag",
+      "slug": "nestle-toll-house-milk-chocolate-morsels"
     },
     {
       "ingredient_slug": "chocolate_chips_semi_sweet",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 72.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-17"
     },
     {
       "ingredient_slug": "chocolate_chips_semi_sweet",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
-      "package_type": "bag"
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
+      "package_type": "bag",
+      "slug": "nestle-toll-house-semi-sweet-chocolate-morsels"
     },
     {
       "ingredient_slug": "chocolate_chips_semi_sweet_allergen_free",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
-      "package_type": "bag"
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
+      "package_type": "bag",
+      "slug": "nestle-toll-house-organic-allergen-free-semi-sweet-morsels"
     },
     {
       "ingredient_slug": "chocolate_chips_white",
       "brand": "Guittard",
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-18"
     },
     {
       "ingredient_slug": "chocolate_chips_white",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
-      "package_type": "bag"
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
+      "package_type": "bag",
+      "slug": "nestle-toll-house-premier-white-morsels"
     },
     {
       "ingredient_slug": "chocolate_coating_milk",
       "brand": "Cadbury",
       "package_unit": "oz",
       "package_unit_quantity": 9.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-19"
     },
     {
       "ingredient_slug": "chocolate_coating_milk",
       "brand": "Mars",
       "package_unit": "oz",
       "package_unit_quantity": 12.6,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-20"
     },
     {
       "ingredient_slug": "chocolate_couverture_dark",
       "brand": "Callebaut",
       "package_unit": "kg",
       "package_unit_quantity": 10.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-21"
     },
     {
       "ingredient_slug": "chocolate_couverture_ruby",
       "brand": "Callebaut",
       "package_unit": "kg",
       "package_unit_quantity": 2.5,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-22"
     },
     {
       "ingredient_slug": "chocolate_kisses_dark",
@@ -315,7 +356,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
       "product_name": "HERSHEY'S KISSES SPECIAL DARK Mildly Sweet Chocolate Candy",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "hersheys-kisses-special-dark-mildly-sweet-chocolate-candy"
     },
     {
       "ingredient_slug": "cinnamon_chips",
@@ -323,7 +365,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "product_name": "HERSHEY'S Cinnamon Baking Chips",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "hersheys-cinnamon-baking-chips"
     },
     {
       "ingredient_slug": "cinnamon_ground",
@@ -331,14 +374,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 4.8,
       "product_name": "Ground Cinnamon (Vietnam Extra Fancy)",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "ground-cinnamon-vietnam-extra-fancy"
     },
     {
       "ingredient_slug": "cinnamon_sticks",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-23"
     },
     {
       "ingredient_slug": "cloves_whole",
@@ -346,7 +391,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.5,
       "product_name": "Ground Cloves",
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "ground-cloves"
     },
     {
       "ingredient_slug": "cocoa_powder_black",
@@ -354,28 +400,32 @@
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
       "product_name": "King Arthur Black Cocoa",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "king-arthur-black-cocoa"
     },
     {
       "ingredient_slug": "cocoa_powder_black",
       "brand": "Wincrest",
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "unknown-24"
     },
     {
       "ingredient_slug": "cocoa_powder_black",
       "brand": "deZaan",
       "package_unit": "kg",
       "package_unit_quantity": 1.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-25"
     },
     {
       "ingredient_slug": "cocoa_powder_dutch_processed",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 12.8,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-26"
     },
     {
       "ingredient_slug": "cocoa_powder_natural",
@@ -383,21 +433,24 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "product_name": "Natural Unsweetened Cocoa",
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "natural-unsweetened-cocoa"
     },
     {
       "ingredient_slug": "cocoa_powder_natural",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 12.8,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-27"
     },
     {
       "ingredient_slug": "coconut_shredded_sweetened",
       "brand": "Wegman's",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-28"
     },
     {
       "ingredient_slug": "corn_syrup_dark",
@@ -405,7 +458,8 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 16.0,
       "product_name": "Dark Corn Syrup",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "dark-corn-syrup"
     },
     {
       "ingredient_slug": "corn_syrup_light",
@@ -413,7 +467,8 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 16.0,
       "product_name": "Light Corn Syrup with Real Vanilla",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "light-corn-syrup-with-real-vanilla"
     },
     {
       "ingredient_slug": "cornstarch",
@@ -421,7 +476,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "100% Pure Corn Starch",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "100-pure-corn-starch"
     },
     {
       "ingredient_slug": "cornstarch",
@@ -429,14 +485,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "product_name": "100% Pure Corn Starch",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "100-pure-corn-starch-2"
     },
     {
       "ingredient_slug": "cranberries_dried",
       "brand": "Ocean Spray",
       "package_unit": "oz",
       "package_unit_quantity": 5.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-29"
     },
     {
       "ingredient_slug": "cream_of_tartar",
@@ -444,21 +502,24 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.5,
       "product_name": "Cream of Tartar",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "cream-of-tartar"
     },
     {
       "ingredient_slug": "cream_of_tartar",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 1.8,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-30"
     },
     {
       "ingredient_slug": "currants_dried",
       "brand": "Sun Maid",
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-31"
     },
     {
       "ingredient_slug": "extract_chocolate",
@@ -466,21 +527,24 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "product_name": "Organic Chocolate Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "organic-chocolate-extract"
     },
     {
       "ingredient_slug": "extract_chocolate",
       "brand": "McCormick",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-32"
     },
     {
       "ingredient_slug": "extract_coconut",
       "brand": "McCormick",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-33"
     },
     {
       "ingredient_slug": "extract_coffee",
@@ -488,42 +552,48 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "product_name": "Organic Coffee Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "organic-coffee-extract"
     },
     {
       "ingredient_slug": "extract_mint",
       "brand": "McCormick",
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-34"
     },
     {
       "ingredient_slug": "extract_raspberry",
       "brand": "McCormick",
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-35"
     },
     {
       "ingredient_slug": "extract_vanilla_mexican",
       "brand": "Penzeys",
       "package_unit": "fl oz",
       "package_unit_quantity": 8.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-36"
     },
     {
       "ingredient_slug": "extract_vanilla_oak_aged",
       "brand": "Heilala",
       "package_unit": "ml",
       "package_unit_quantity": 50.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-37"
     },
     {
       "ingredient_slug": "extract_vanilla_spiced",
       "brand": "Heilala",
       "package_unit": "ml",
       "package_unit_quantity": 50.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-38"
     },
     {
       "ingredient_slug": "flour_almond",
@@ -531,7 +601,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "Almond Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "almond-flour"
     },
     {
       "ingredient_slug": "gelatin_powder",
@@ -539,7 +610,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "product_name": "Original Unflavored Gelatin",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "original-unflavored-gelatin"
     },
     {
       "ingredient_slug": "ginger_ground",
@@ -547,7 +619,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.9,
       "product_name": "Ground Ginger",
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "ground-ginger"
     },
     {
       "ingredient_slug": "gluten_free_flour_blend",
@@ -555,36 +628,41 @@
       "package_unit": "oz",
       "package_unit_quantity": 22.0,
       "product_name": "Gluten Free 1-to-1 Baking Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "gluten-free-1-to-1-baking-flour"
     },
     {
       "ingredient_slug": "golden_syrup",
-      "brand": "Lyle\u2019s",
+      "brand": "Lyle’s",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "Golden Syrup",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "golden-syrup"
     },
     {
       "ingredient_slug": "graham_cracker_crumbs",
       "brand": "HoneyMaid",
       "package_unit": "oz",
       "package_unit_quantity": 14.4,
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "unknown-39"
     },
     {
       "ingredient_slug": "hazelnuts",
       "brand": "Trader Joe's",
       "package_unit": "lb",
       "package_unit_quantity": 16.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-40"
     },
     {
       "ingredient_slug": "honey",
       "brand": "Wegman's",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-41"
     },
     {
       "ingredient_slug": "lard",
@@ -592,14 +670,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "Snow Cap Lard",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "snow-cap-lard"
     },
     {
       "ingredient_slug": "lavender_culinary",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 0.4,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-42"
     },
     {
       "ingredient_slug": "lemon_extract",
@@ -607,21 +687,24 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "product_name": "Pure Lemon Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-lemon-extract"
     },
     {
       "ingredient_slug": "liqueur_blackcurrant",
       "brand": "Gabriel Brudier",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-43"
     },
     {
       "ingredient_slug": "liqueur_hazelnut",
       "brand": "Francesca",
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-44"
     },
     {
       "ingredient_slug": "liqueur_orange",
@@ -629,7 +712,8 @@
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "product_name": "Cointreau l'Unique",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "cointreau-lunique"
     },
     {
       "ingredient_slug": "liqueur_orange",
@@ -637,7 +721,8 @@
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "product_name": "Grand Marnier Cordon Rouge",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "grand-marnier-cordon-rouge"
     },
     {
       "ingredient_slug": "liqueur_raspberry",
@@ -645,42 +730,48 @@
       "package_unit": "ml",
       "package_unit_quantity": 375.0,
       "product_name": "Chambord Black Raspberry Liqueur",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "chambord-black-raspberry-liqueur"
     },
     {
       "ingredient_slug": "macadamia_nuts",
       "brand": "Trader Joe's",
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-45"
     },
     {
       "ingredient_slug": "mace_ground",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 0.9,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-46"
     },
     {
       "ingredient_slug": "maple_extract",
       "brand": "McCormick",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-47"
     },
     {
       "ingredient_slug": "maple_syrup",
       "brand": "Costco",
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
-      "package_type": "jug"
+      "package_type": "jug",
+      "slug": "unknown-48"
     },
     {
       "ingredient_slug": "maple_syrup",
       "brand": "Wegman's",
       "package_unit": "fl oz",
       "package_unit_quantity": 32.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-49"
     },
     {
       "ingredient_slug": "mini_chocolate_chips_semi_sweet",
@@ -688,14 +779,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "product_name": "Toll House Mini Semi-Sweet Chocolate Morsels",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "toll-house-mini-semi-sweet-chocolate-morsels"
     },
     {
       "ingredient_slug": "mint_chocolate_candies",
       "brand": "Guittard",
       "package_unit": "g",
       "package_unit_quantity": 12.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-50"
     },
     {
       "ingredient_slug": "molasses_dark",
@@ -703,7 +796,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "Robust Unsulphured Molasses",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "robust-unsulphured-molasses"
     },
     {
       "ingredient_slug": "molasses_light",
@@ -711,43 +805,49 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "Original Unsulphured Molasses",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "original-unsulphured-molasses"
     },
     {
       "ingredient_slug": "nutella",
       "brand": "Nutella",
       "package_unit": "oz",
       "package_unit_quantity": 26.5,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-51"
     },
     {
       "ingredient_slug": "nutmeg_ground_east_indian",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-52"
     },
     {
       "ingredient_slug": "nutmeg_ground_west_indian",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.4,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-53"
     },
     {
       "ingredient_slug": "nutmeg_whole",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-54"
     },
     {
       "ingredient_slug": "oats_rolled",
       "brand": "Quaker",
       "package_unit": "oz",
       "package_unit_quantity": 18.0,
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
-      "package_type": "container"
+      "product_name": "Quaker® Oats Old Fashioned",
+      "package_type": "container",
+      "slug": "quaker-oats-old-fashioned"
     },
     {
       "ingredient_slug": "oil_olive",
@@ -755,7 +855,8 @@
       "package_unit": "l",
       "package_unit_quantity": 3.0,
       "product_name": "Extra Virgin Olive Oil",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "extra-virgin-olive-oil"
     },
     {
       "ingredient_slug": "orange_extract",
@@ -763,7 +864,8 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "product_name": "Organic Orange Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "organic-orange-extract"
     },
     {
       "ingredient_slug": "orange_extract",
@@ -771,14 +873,16 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "product_name": "Pure Orange Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-orange-extract"
     },
     {
       "ingredient_slug": "orange_extract",
       "brand": "Penzeys",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-55"
     },
     {
       "ingredient_slug": "pastry_flour",
@@ -786,14 +890,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "product_name": "King Arthur Pastry Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "king-arthur-pastry-flour"
     },
     {
       "ingredient_slug": "pecans",
       "brand": "Costco",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-56"
     },
     {
       "ingredient_slug": "pectin",
@@ -801,14 +907,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 4.7,
       "product_name": "RealFruit Classic Pectin",
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "realfruit-classic-pectin"
     },
     {
       "ingredient_slug": "pepper_black_ground",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-57"
     },
     {
       "ingredient_slug": "peppermint_extract",
@@ -816,49 +924,56 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "product_name": "Pure Peppermint Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-peppermint-extract"
     },
     {
       "ingredient_slug": "pine_nuts",
       "brand": "Trader Joe's",
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-58"
     },
     {
       "ingredient_slug": "pistachios",
       "brand": "Trader Joe's",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-59"
     },
     {
       "ingredient_slug": "poppy_seeds",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 15.6,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-60"
     },
     {
       "ingredient_slug": "raisins",
       "brand": "Sun Maid",
       "package_unit": "oz",
       "package_unit_quantity": 13.0,
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "unknown-61"
     },
     {
       "ingredient_slug": "raisins",
-      "brand": "Wegman\u2019s",
+      "brand": "Wegman’s",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-62"
     },
     {
       "ingredient_slug": "rum",
       "brand": "Baccardi",
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-63"
     },
     {
       "ingredient_slug": "rum",
@@ -866,21 +981,24 @@
       "package_unit": "l",
       "package_unit_quantity": 1.75,
       "product_name": "Kraken Black Spiced Rum",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "kraken-black-spiced-rum"
     },
     {
       "ingredient_slug": "rum_extract",
       "brand": "McCormick",
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-64"
     },
     {
       "ingredient_slug": "salt_fine",
       "brand": "Morton",
       "package_unit": "oz",
       "package_unit_quantity": 26.0,
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "unknown-65"
     },
     {
       "ingredient_slug": "salt_kosher",
@@ -888,21 +1006,24 @@
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "product_name": "Crystal Kosher Salt",
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "crystal-kosher-salt"
     },
     {
       "ingredient_slug": "salt_kosher",
       "brand": "Morton",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "unknown-66"
     },
     {
       "ingredient_slug": "sea_salt_flaky",
       "brand": "Maldon",
       "package_unit": "g",
       "package_unit_quantity": 240.0,
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "unknown-67"
     },
     {
       "ingredient_slug": "self_rising_flour",
@@ -910,14 +1031,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
       "product_name": "Unbleached Self-Rising Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unbleached-self-rising-flour"
     },
     {
       "ingredient_slug": "self_rising_flour",
       "brand": "Wegman's",
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-68"
     },
     {
       "ingredient_slug": "sesame_seeds",
@@ -925,7 +1048,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "package_type": "jar",
-      "product_name": "Black Sesame Seeds"
+      "product_name": "Black Sesame Seeds",
+      "slug": "black-sesame-seeds"
     },
     {
       "ingredient_slug": "sesame_seeds",
@@ -933,7 +1057,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "package_type": "jar",
-      "product_name": "Black Sesame Seeds"
+      "product_name": "Black Sesame Seeds",
+      "slug": "black-sesame-seeds-2"
     },
     {
       "ingredient_slug": "shortening",
@@ -941,21 +1066,24 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "product_name": "All-Vegetable Shortening Baking Sticks",
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "all-vegetable-shortening-baking-sticks"
     },
     {
       "ingredient_slug": "spice_blend_chinese_five_spice",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 0.9,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-69"
     },
     {
       "ingredient_slug": "spice_blend_mulling",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.6,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-70"
     },
     {
       "ingredient_slug": "sugar_brown_dark",
@@ -963,7 +1091,8 @@
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "product_name": "Premium Pure Cane Dark Brown Sugar",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "premium-pure-cane-dark-brown-sugar"
     },
     {
       "ingredient_slug": "sugar_brown_light",
@@ -971,14 +1100,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "product_name": "Premium Pure Cane Light Brown Sugar",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "premium-pure-cane-light-brown-sugar"
     },
     {
       "ingredient_slug": "sugar_brown_light",
       "brand": "Wegman's",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-71"
     },
     {
       "ingredient_slug": "sugar_granulated",
@@ -986,7 +1117,8 @@
       "package_unit": "lb",
       "package_unit_quantity": 4.0,
       "product_name": "Premium Pure Cane Granulated Sugar 4 lb",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "premium-pure-cane-granulated-sugar-4-lb"
     },
     {
       "ingredient_slug": "sugar_powdered",
@@ -994,14 +1126,16 @@
       "package_unit": "lb",
       "package_unit_quantity": 4.0,
       "product_name": "Confectioners Sugar 10-X Powdered",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "confectioners-sugar-10-x-powdered"
     },
     {
       "ingredient_slug": "sugar_powdered",
       "brand": "U.S.",
       "package_unit": "lb",
       "package_unit_quantity": 7.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-72"
     },
     {
       "ingredient_slug": "sugar_superfine",
@@ -1009,21 +1143,24 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
       "product_name": "Quick Dissolve Superfine Sugar",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "quick-dissolve-superfine-sugar"
     },
     {
       "ingredient_slug": "sweetener_stevia",
       "brand": "truvia",
       "package_unit": "oz",
       "package_unit_quantity": 24.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-73"
     },
     {
       "ingredient_slug": "toblerone",
       "brand": "Toblerone",
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
-      "package_type": "box"
+      "package_type": "box",
+      "slug": "unknown-74"
     },
     {
       "ingredient_slug": "toffee_bits",
@@ -1031,14 +1168,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "heath-bits-o-brickle-english-toffee-bits"
     },
     {
       "ingredient_slug": "turbinado_sugar",
       "brand": "Sugar in the Raw",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-75"
     },
     {
       "ingredient_slug": "vanilla_bean",
@@ -1046,14 +1185,16 @@
       "package_unit": "each",
       "package_unit_quantity": 2.0,
       "product_name": "Premium Vanilla Beans 2-Pack",
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "premium-vanilla-beans-2-pack"
     },
     {
       "ingredient_slug": "vanilla_bean",
       "brand": "Penzeys",
       "package_unit": "each",
       "package_unit_quantity": 3.0,
-      "package_type": "container"
+      "package_type": "container",
+      "slug": "unknown-76"
     },
     {
       "ingredient_slug": "vanilla_extract",
@@ -1061,7 +1202,8 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 16.0,
       "product_name": "Pure Vanilla Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-vanilla-extract"
     },
     {
       "ingredient_slug": "vanilla_extract",
@@ -1069,7 +1211,8 @@
       "package_unit": "ml",
       "package_unit_quantity": 500.0,
       "product_name": "Pure Vanilla Extract",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-vanilla-extract-2"
     },
     {
       "ingredient_slug": "vanilla_paste",
@@ -1077,7 +1220,8 @@
       "package_unit": "g",
       "package_unit_quantity": 65.0,
       "product_name": "Pure Vanilla Bean Paste",
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "pure-vanilla-bean-paste"
     },
     {
       "ingredient_slug": "vanilla_powder_extract_blend",
@@ -1085,7 +1229,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 5.0,
       "product_name": "Vanilla Powder with Extract",
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "vanilla-powder-with-extract"
     },
     {
       "ingredient_slug": "vanilla_powder_pure",
@@ -1093,28 +1238,32 @@
       "package_unit": "g",
       "package_unit_quantity": 25.0,
       "product_name": "Vanilla Powder",
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "vanilla-powder"
     },
     {
       "ingredient_slug": "vanilla_sugar",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 3.4,
-      "package_type": "jar"
+      "package_type": "jar",
+      "slug": "unknown-77"
     },
     {
       "ingredient_slug": "walnuts",
       "brand": "Costco",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "unknown-78"
     },
     {
       "ingredient_slug": "whiskey_irish",
       "brand": "Jamison",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
-      "package_type": "bottle"
+      "package_type": "bottle",
+      "slug": "unknown-79"
     },
     {
       "ingredient_slug": "white_whole_wheat_flour",
@@ -1122,7 +1271,8 @@
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
       "product_name": "White Whole Wheat Flour",
-      "package_type": "bag"
+      "package_type": "bag",
+      "slug": "white-whole-wheat-flour"
     },
     {
       "ingredient_slug": "yeast_active_dry",
@@ -1130,7 +1280,8 @@
       "package_unit": "g",
       "package_unit_quantity": 21.0,
       "product_name": "Active Dry Yeast",
-      "package_type": "packet"
+      "package_type": "packet",
+      "slug": "active-dry-yeast"
     },
     {
       "ingredient_slug": "yeast_instant",
@@ -1138,7 +1289,8 @@
       "package_unit": "g",
       "package_unit_quantity": 21.0,
       "product_name": "RapidRise Instant Yeast",
-      "package_type": "packet"
+      "package_type": "packet",
+      "slug": "rapidrise-instant-yeast"
     }
   ]
 }

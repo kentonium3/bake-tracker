@@ -127,3 +127,24 @@ class SearchBar(ctk.CTkFrame):
             Selected category, or None if all categories
         """
         return self._get_selected_category()
+
+    def update_categories(self, categories: List[str]) -> None:
+        """
+        Update the category dropdown with new categories.
+
+        Args:
+            categories: New list of categories (without "All Categories")
+        """
+        if not hasattr(self, "category_dropdown"):
+            return
+
+        self.categories = categories
+        new_values = ["All Categories"] + categories
+
+        # Preserve current selection if it still exists
+        current = self.category_var.get()
+        if current not in new_values:
+            current = "All Categories"
+
+        self.category_dropdown.configure(values=new_values)
+        self.category_var.set(current)

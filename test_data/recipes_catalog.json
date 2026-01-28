@@ -55,7 +55,10 @@
           "unit": "tbsp"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "almond-biscotti",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Almond Flour Brownies",
@@ -104,7 +107,10 @@
           "unit": "each"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "almond-flour-brownies",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Anzac Cookies",
@@ -162,7 +168,10 @@
           "unit": "tsp"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "anzac-cookies",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Butterscotch Pumpkin Cake",
@@ -238,7 +247,10 @@
           "unit": "cup"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "butterscotch-pumpkin-cake",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Candy-Bar Fudge",
@@ -301,7 +313,10 @@
           "unit": "cup"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "candy-bar-fudge",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Chocolate Truffle Croquembouche",
@@ -356,7 +371,10 @@
           "unit": "lb"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "chocolate-truffle-croquembouche",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Gingerbread Chai Cookies",
@@ -431,7 +449,10 @@
           "unit": "tsp"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "gingerbread-chai-cookies",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Gluten-Free Almond Flour Shortbread Cookies",
@@ -466,7 +487,10 @@
           "unit": "tsp"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "gluten-free-almond-flour-shortbread-cookies",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Holiday Blossoms",
@@ -528,7 +552,10 @@
           "notes": "one candy in center of each cookie"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "holiday-blossoms",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Individual Orange and Poppy Seed Pound Cake",
@@ -590,7 +617,10 @@
           "unit": "cup"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "individual-orange-and-poppy-seed-pound-cake",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Jumbles",
@@ -660,7 +690,10 @@
           "unit": "cup"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "jumbles",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Lavender-Lemon Cake with Honey Glaze",
@@ -746,7 +779,10 @@
           "unit": "tbsp"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "lavender-lemon-cake-with-honey-glaze",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Lemon Bliss Cake",
@@ -806,7 +842,10 @@
           "notes": "freshly squeezed juice for glaze, about 1.5 lemons"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "lemon-bliss-cake",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Marble Fruit Cake",
@@ -929,7 +968,10 @@
           "notes": "diced pared fresh sections"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "marble-fruit-cake",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Mini Mincemeat Pies",
@@ -998,7 +1040,10 @@
           "notes": "for glaze, beaten"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "mini-mincemeat-pies",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Mocha-Toffee Truffles",
@@ -1073,7 +1118,10 @@
           "notes": "melted for optional drizzle"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "mocha-toffee-truffles",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Noel Bell Fruit Cake",
@@ -1166,7 +1214,10 @@
           "notes": "4 oz container, halved"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "noel-bell-fruit-cake",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Pecan Shortbread Christmas Trees",
@@ -1218,7 +1269,10 @@
           "notes": "optional garnish"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "pecan-shortbread-christmas-trees",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Sour Cream-Chocolate Bundt Cake",
@@ -1304,7 +1358,10 @@
           "notes": "whipped"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "sour-cream-chocolate-bundt-cake",
+      "previous_slug": null,
+      "is_production_ready": true
     },
     {
       "name": "Toasted Almond Sablés",
@@ -1355,7 +1412,10 @@
           "unit": "each"
         }
       ],
-      "components": []
+      "components": [],
+      "slug": "toasted-almond-sables",
+      "previous_slug": null,
+      "is_production_ready": true
     }
   ]
 }

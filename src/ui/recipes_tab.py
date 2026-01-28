@@ -95,10 +95,11 @@ class RecipesTab(ctk.CTkFrame):
 
     def _create_search_bar(self):
         """Create the search bar with category filter."""
+        # Note: SearchBar adds "All Categories" internally, so don't add it here
         self.search_bar = SearchBar(
             self,
             search_callback=self._on_search,
-            categories=["All Categories"] + self.recipe_categories,
+            categories=self.recipe_categories,
             placeholder="Search by recipe name...",
         )
         self.search_bar.grid(
@@ -655,8 +656,12 @@ class RecipesTab(ctk.CTkFrame):
             )
 
     def refresh(self):
-        """Refresh the recipe list."""
+        """Refresh the recipe list and category filter."""
         try:
+            # Reload categories in case new categories were added
+            self.recipe_categories = self._load_recipe_categories()
+            self.search_bar.update_categories(self.recipe_categories)
+
             recipes = recipe_service.get_all_recipes()
 
             # Apply readiness filter (T031 - Feature 037)

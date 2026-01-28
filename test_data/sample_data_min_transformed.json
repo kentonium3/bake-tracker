@@ -415,7 +415,8 @@
           "quantity": 12.0,
           "unit": "oz"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "slug": "double-chocolate-chip-cookies",
@@ -484,7 +485,8 @@
           "quantity": 16.0,
           "unit": "oz"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "slug": "fudge-brownies",
@@ -538,7 +540,8 @@
           "quantity": 0.5,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "slug": "vanilla-cupcakes",
@@ -597,7 +600,8 @@
           "quantity": 2.0,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "slug": "chocolate-vanilla-cupcakes",
@@ -653,7 +657,8 @@
           "quantity": 2.0,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "slug": "sugar-cookies",
@@ -707,7 +712,8 @@
           "quantity": 1.0,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "slug": "pumpkin-pie",
@@ -766,7 +772,8 @@
           "quantity": 0.5,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     }
   ],
   "events": [
@@ -811,7 +818,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     },
     {
       "slug": "double_chocolate_chip_cookies_standard",
@@ -824,7 +832,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     },
     {
       "slug": "fudge_brownies_standard",
@@ -837,7 +846,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     },
     {
       "slug": "vanilla_cupcakes_standard",
@@ -850,7 +860,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     },
     {
       "slug": "chocolate_vanilla_cupcakes_standard",
@@ -863,7 +874,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     },
     {
       "slug": "sugar_cookies_standard",
@@ -876,7 +888,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     },
     {
       "slug": "pumpkin_pie_standard",
@@ -889,7 +902,8 @@
       "batch_percentage": null,
       "portion_description": null,
       "inventory_count": 0,
-      "is_archived": false
+      "is_archived": false,
+      "previous_slug": null
     }
   ]
 }

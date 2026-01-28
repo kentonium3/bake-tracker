@@ -7452,7 +7452,8 @@
           "quantity": 2.0,
           "unit": "tbsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Almond Flour Brownies",
@@ -7506,7 +7507,8 @@
           "quantity": 3.0,
           "unit": "each"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Anzac Cookies",
@@ -7570,7 +7572,8 @@
           "quantity": 2.0,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Butterscotch Pumpkin Cake",
@@ -7649,7 +7652,8 @@
           "quantity": 0.33,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Candy-Bar Fudge",
@@ -7713,7 +7717,8 @@
           "quantity": 1.0,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Chocolate Truffle Croquembouche",
@@ -7772,7 +7777,8 @@
           "quantity": 1.75,
           "unit": "lb"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Gingerbread Chai Cookies",
@@ -7851,7 +7857,8 @@
           "quantity": 0.5,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Gluten-Free Almond Flour Shortbread Cookies",
@@ -7890,7 +7897,8 @@
           "quantity": 0.5,
           "unit": "tsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Holiday Blossoms",
@@ -7954,7 +7962,8 @@
           "quantity": 24.0,
           "unit": "each"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Individual Orange and Poppy Seed Pound Cake",
@@ -8018,7 +8027,8 @@
           "quantity": 0.25,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Jumbles",
@@ -8092,7 +8102,8 @@
           "quantity": 2.0,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Lavender-Lemon Cake with Honey Glaze",
@@ -8181,7 +8192,8 @@
           "quantity": 1.0,
           "unit": "tbsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Lemon Bliss Cake",
@@ -8240,7 +8252,8 @@
           "quantity": 0.33,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Marble Fruit Cake",
@@ -8359,7 +8372,8 @@
           "quantity": 0.25,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Mini Mincemeat Pies",
@@ -8428,7 +8442,8 @@
           "quantity": 1.0,
           "unit": "each"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Mocha-Toffee Truffles",
@@ -8507,7 +8522,8 @@
           "quantity": 4.0,
           "unit": "oz"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Noel Bell Fruit Cake",
@@ -8596,7 +8612,8 @@
           "quantity": 0.5,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Pecan Shortbread Christmas Trees",
@@ -8650,7 +8667,8 @@
           "quantity": 1.0,
           "unit": "tbsp"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Sour Cream-Chocolate Bundt Cake",
@@ -8739,7 +8757,8 @@
           "quantity": 1.0,
           "unit": "cup"
         }
-      ]
+      ],
+      "previous_slug": null
     },
     {
       "name": "Toasted Almond Sablés",
@@ -8793,7 +8812,8 @@
           "quantity": 1.0,
           "unit": "each"
         }
-      ]
+      ],
+      "previous_slug": null
     }
   ],
   "finished_units": [],
