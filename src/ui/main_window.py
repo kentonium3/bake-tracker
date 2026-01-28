@@ -51,6 +51,9 @@ class MainWindow(ctk.CTk):
         self.geometry("1400x900")
         self.minsize(1000, 600)
 
+        # Start maximized (after geometry is set as fallback)
+        self.after(10, lambda: self.state("zoomed"))
+
         # Initialize mode manager
         self.mode_manager = ModeManager()
 
@@ -307,13 +310,7 @@ class MainWindow(ctk.CTk):
 
     def _on_exit(self):
         """Handle application exit."""
-        result = messagebox.askyesno(
-            "Exit",
-            "Are you sure you want to exit the application?",
-            parent=self,
-        )
-        if result:
-            self.destroy()
+        self.destroy()
 
     def _show_import_dialog(self):
         """Show the import data dialog."""
