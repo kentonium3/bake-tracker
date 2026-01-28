@@ -6,13 +6,17 @@ This service provides CRUD operations for recipes with:
 - Recipe ingredient management
 - Cost calculations (including FIFO-based actual cost and estimated cost)
 - Search and filtering
+
+Feature 080: Added slug generation for portable recipe identification.
 """
 
+import re
+import unicodedata
 from decimal import Decimal
 from typing import List, Optional, Dict
 
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Session
 
 from sqlalchemy import func
 
@@ -78,6 +82,163 @@ def _validate_leaf_ingredient(ingredient: Ingredient, context: str, session) -> 
 
 
 # ============================================================================
+# Feature 080: Slug Generation for Portable Identification
+# ============================================================================
+
+
+def _generate_slug(name: str) -> str:
+    """
+    Generate a URL-safe slug from a recipe name.
+
+    Feature 080: Creates portable identifiers for recipes matching the pattern
+    used by Supplier, Product, Ingredient, and FinishedUnit.
+
+    Args:
+        name: Recipe name to convert to slug
+
+    Returns:
+        Lowercase slug with hyphens, alphanumeric only, max 200 chars
+
+    Example:
+        >>> _generate_slug("Chocolate Chip Cookies")
+        'chocolate-chip-cookies'
+        >>> _generate_slug("Café au Lait Cake")
+        'cafe-au-lait-cake'
+    """
+    if not name:
+        return "unknown-recipe"
+
+    # Normalize unicode characters (handles accents like é -> e)
+    slug = unicodedata.normalize("NFKD", name)
+    slug = slug.encode("ascii", "ignore").decode("ascii")
+
+    # Convert to lowercase
+    slug = slug.lower()
+
+    # Replace spaces and underscores with hyphens
+    slug = re.sub(r"[\s_]+", "-", slug)
+
+    # Remove non-alphanumeric characters (except hyphens)
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+
+    # Collapse multiple hyphens
+    slug = re.sub(r"-+", "-", slug)
+
+    # Remove leading/trailing hyphens
+    slug = slug.strip("-")
+
+    # Ensure not empty
+    if not slug:
+        return "unknown-recipe"
+
+    # Limit length (200 chars to match column size)
+    if len(slug) > 200:
+        slug = slug[:200].rstrip("-")
+
+    return slug
+
+
+def _generate_unique_slug(
+    name: str, session: Session, exclude_id: Optional[int] = None
+) -> str:
+    """
+    Generate a unique slug for a recipe, adding numeric suffix on collision.
+
+    Feature 080: Ensures slug uniqueness by appending -2, -3, etc. on collision.
+    Mirrors the pattern from FinishedUnitService._generate_unique_slug().
+
+    Args:
+        name: Recipe name to generate slug from
+        session: Database session for uniqueness check
+        exclude_id: Recipe ID to exclude from uniqueness check (for updates)
+
+    Returns:
+        Unique slug string
+
+    Raises:
+        ValidationError: If unable to generate unique slug after 1000 attempts
+
+    Example:
+        If "chocolate-chip-cookies" exists, returns "chocolate-chip-cookies-2"
+    """
+    base_slug = _generate_slug(name)
+
+    # Try base slug first, then add suffixes
+    max_attempts = 1000
+    for attempt in range(max_attempts):
+        if attempt == 0:
+            candidate_slug = base_slug
+        else:
+            candidate_slug = f"{base_slug}-{attempt + 1}"
+
+        # Check uniqueness
+        query = session.query(Recipe).filter(Recipe.slug == candidate_slug)
+        if exclude_id:
+            query = query.filter(Recipe.id != exclude_id)
+
+        existing = query.first()
+
+        if not existing:
+            return candidate_slug
+
+    raise ValidationError(
+        [f"Unable to generate unique slug for '{name}' after {max_attempts} attempts"]
+    )
+
+
+def get_recipe_by_slug(
+    slug: str, session: Optional[Session] = None
+) -> Optional[Recipe]:
+    """
+    Retrieve a recipe by its slug or previous_slug.
+
+    Feature 080: Supports slug-based lookup for import resolution.
+    Checks current slug first, then falls back to previous_slug.
+
+    Args:
+        slug: Slug to search for
+        session: Optional session (creates new one if not provided)
+
+    Returns:
+        Recipe instance if found, None otherwise
+
+    Raises:
+        DatabaseError: If database operation fails
+    """
+    def _query(sess: Session) -> Optional[Recipe]:
+        # Try current slug first
+        recipe = sess.query(Recipe).filter(Recipe.slug == slug).first()
+        if recipe:
+            return recipe
+
+        # Fall back to previous_slug
+        recipe = sess.query(Recipe).filter(Recipe.previous_slug == slug).first()
+        return recipe
+
+    try:
+        if session is not None:
+            recipe = _query(session)
+            if recipe:
+                # Eagerly load relationships
+                _ = recipe.recipe_ingredients
+                for ri in recipe.recipe_ingredients:
+                    _ = ri.ingredient
+            return recipe
+        else:
+            with session_scope() as sess:
+                recipe = _query(sess)
+                if recipe:
+                    # Eagerly load relationships
+                    _ = recipe.recipe_ingredients
+                    for ri in recipe.recipe_ingredients:
+                        _ = ri.ingredient
+                return recipe
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to retrieve recipe by slug: {slug}", e)
+
+
+# ============================================================================
 # CRUD Operations
 # ============================================================================
 
@@ -86,8 +247,11 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
     """
     Create a new recipe with optional ingredients.
 
+    Feature 080: Automatically generates a unique slug from the recipe name
+    if not provided in recipe_data.
+
     Args:
-        recipe_data: Dictionary with recipe fields
+        recipe_data: Dictionary with recipe fields (slug optional, auto-generated)
         ingredients_data: List of ingredient dicts with:
             - ingredient_id: int
             - quantity: float
@@ -109,12 +273,18 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
 
     try:
         with session_scope() as session:
+            # Feature 080: Generate unique slug if not provided
+            slug = recipe_data.get("slug")
+            if not slug:
+                slug = _generate_unique_slug(recipe_data["name"], session)
+
             # Create recipe
             # T032 - Feature 037: is_production_ready defaults to False if not provided
             # F056: yield_quantity, yield_unit, yield_description removed
             # Use FinishedUnit for yield information instead
             recipe = Recipe(
                 name=recipe_data["name"],
+                slug=slug,
                 category=recipe_data["category"],
                 estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
                 source=recipe_data.get("source"),
@@ -335,6 +505,10 @@ def update_recipe(  # noqa: C901
     """
     Update a recipe and optionally its ingredients.
 
+    Feature 080: When the recipe name changes, automatically regenerates the slug
+    and preserves the previous slug in `previous_slug` for one-rename grace period.
+    This allows imports to resolve renamed recipes via the previous_slug fallback.
+
     Args:
         recipe_id: Recipe ID
         recipe_data: Dictionary with recipe fields to update
@@ -362,9 +536,28 @@ def update_recipe(  # noqa: C901
             if not recipe:
                 raise RecipeNotFound(recipe_id)
 
-            # Update recipe fields
+            # Feature 080: Handle name change with slug regeneration
+            old_name = recipe.name
+            new_name = recipe_data.get("name")
+
+            if new_name and new_name != old_name:
+                # Name is changing - regenerate slug and preserve old one
+                old_slug = recipe.slug
+                new_slug = _generate_unique_slug(new_name, session, exclude_id=recipe_id)
+
+                # Preserve the old slug as previous_slug (one-rename grace period)
+                recipe.previous_slug = old_slug
+                recipe.slug = new_slug
+
+            # Update recipe fields (excluding slug which we handle specially)
             for field, value in recipe_data.items():
-                if hasattr(recipe, field):
+                if field == "slug":
+                    # Skip slug - we handle it above on name change
+                    # Or allow explicit slug override from import
+                    if not new_name or new_name == old_name:
+                        # No name change, allow explicit slug update
+                        setattr(recipe, field, value)
+                elif hasattr(recipe, field):
                     setattr(recipe, field, value)
 
             # Update ingredients if provided
