@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: MaterialUnit & FinishedUnit Snapshot Import
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02, WP03]
 base_branch: 081-snapshot-export-coverage-WP03
 base_commit: e7bc2958640944d1a1a5555b53a4b774fac3dc75
@@ -392,3 +392,4 @@ with tempfile.TemporaryDirectory() as export_dir:
 ## Activity Log
 
 - 2026-01-28T18:40:28Z – system – lane=planned – Prompt created.
+- 2026-01-28T20:32:03Z – unknown – shell_pid=77961 – lane=for_review – MaterialUnitSnapshot and FinishedUnitSnapshot import handlers complete
