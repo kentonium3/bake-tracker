@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Amendment Production Validation
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 base_branch: 079-production-aware-planning-calculations-WP01
@@ -17,8 +17,8 @@ phase: Phase 2 - Core Features
 assignee: ''
 agent: "claude-lead"
 shell_pid: "28112"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
@@ -497,3 +497,4 @@ class TestGetRecipesForFinishedGood:
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-28T06:57:05Z – unknown – shell_pid=96468 – lane=for_review – Ready for review: Production-aware amendment validation implemented with 13 new tests. All 29 tests pass.
 - 2026-01-28T12:41:24Z – claude-lead – shell_pid=28112 – lane=doing – Started review via workflow command
+- 2026-01-28T12:42:12Z – claude-lead – shell_pid=28112 – lane=done – Review passed: MODIFY_BATCH and DROP_FG blocked when production exists. Error messages include recipe/FG names. _has_production_for_recipe() and _get_recipes_for_finished_good() helpers correctly implemented. All 29 plan amendment tests pass.
