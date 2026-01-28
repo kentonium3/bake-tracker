@@ -1,10 +1,13 @@
 ---
 work_package_id: WP04
 title: Amendment UI Controls
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
 - WP03
+base_branch: 078-plan-snapshots-amendments-WP03
+base_commit: 72e4d69c1103a2a81579acab0503751940d337c3
+created_at: '2026-01-28T03:59:21.139147+00:00'
 subtasks:
 - T016
 - T017
@@ -14,7 +17,7 @@ subtasks:
 phase: Phase 1 - Core Implementation
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "80435"
 review_status: ''
 reviewed_by: ''
 history:
