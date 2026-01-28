@@ -31,6 +31,7 @@ from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 from src.ui.components.fg_selection_frame import FGSelectionFrame
 from src.ui.components.shopping_summary_frame import ShoppingSummaryFrame
 from src.ui.components.assembly_status_frame import AssemblyStatusFrame
+from src.ui.components.production_progress_frame import ProductionProgressFrame
 from src.services.planning_service import calculate_batch_options
 from src.services.inventory_gap_service import analyze_inventory_gaps
 from src.services.assembly_feasibility_service import calculate_assembly_feasibility
@@ -175,7 +176,8 @@ class PlanningTab(ctk.CTkFrame):
         self.grid_rowconfigure(6, weight=0)  # Amendment controls (F078)
         self.grid_rowconfigure(7, weight=0)  # Shopping summary frame (F076, shifted)
         self.grid_rowconfigure(8, weight=0)  # Assembly status frame (F076, shifted)
-        self.grid_rowconfigure(9, weight=0)  # Status bar (shifted)
+        self.grid_rowconfigure(9, weight=0)  # Production progress frame (F079)
+        self.grid_rowconfigure(10, weight=0)  # Status bar (shifted)
 
         # Build UI
         self._create_action_buttons()
@@ -186,6 +188,7 @@ class PlanningTab(ctk.CTkFrame):
         self._create_plan_state_frame()  # F077
         self._create_shopping_summary_frame()
         self._create_assembly_status_frame()
+        self._create_production_progress_frame()  # F079
         self._create_status_bar()
 
         # Layout widgets
@@ -417,6 +420,11 @@ class PlanningTab(ctk.CTkFrame):
         self._assembly_status_frame = AssemblyStatusFrame(self)
         # Frame starts hidden - shown when event selected
 
+    def _create_production_progress_frame(self) -> None:
+        """Create the production progress frame (F079)."""
+        self._production_progress_frame = ProductionProgressFrame(self)
+        # Frame starts hidden - shown when event selected
+
     def _create_status_bar(self) -> None:
         """Create status bar for displaying feedback."""
         self.status_frame = ctk.CTkFrame(self, height=30)
@@ -465,9 +473,9 @@ class PlanningTab(ctk.CTkFrame):
         # Assembly status frame - row 8 (shifted for F078)
         # Note: _assembly_status_frame.grid() is called in _show_assembly_status()
 
-        # Status bar at bottom (row 9 - shifted for F078)
+        # Status bar at bottom (row 10 - shifted for F079)
         self.status_frame.grid(
-            row=9, column=0, sticky="ew",
+            row=10, column=0, sticky="ew",
             padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
@@ -490,7 +498,7 @@ class PlanningTab(ctk.CTkFrame):
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
 
-        # Clear selection and hide recipe/FG/batch/state/shopping/assembly panels
+        # Clear selection and hide recipe/FG/batch/state/shopping/assembly/progress panels
         self.selected_event = None
         self._selected_event_id = None
         self._hide_recipe_selection()
@@ -499,6 +507,7 @@ class PlanningTab(ctk.CTkFrame):
         self._hide_plan_state_controls()  # F077
         self._hide_shopping_summary()
         self._hide_assembly_status()
+        self._hide_production_progress()  # F079
         self._update_button_states()
 
     def _on_row_select(self, event: Optional[Event]) -> None:
@@ -531,6 +540,7 @@ class PlanningTab(ctk.CTkFrame):
             self._show_plan_state_controls()  # F077
             self._show_shopping_summary()
             self._show_assembly_status()
+            self._show_production_progress()  # F079
         else:
             self._update_status("Ready")
             self._selected_event_id = None
@@ -540,6 +550,7 @@ class PlanningTab(ctk.CTkFrame):
             self._hide_plan_state_controls()  # F077
             self._hide_shopping_summary()
             self._hide_assembly_status()
+            self._hide_production_progress()  # F079
 
     def _show_recipe_selection(self, event_id: int) -> None:
         """
@@ -1004,6 +1015,7 @@ class PlanningTab(ctk.CTkFrame):
             # Refresh other panels that may be affected
             self._update_shopping_summary()
             self._update_assembly_status()
+            self._update_production_progress()  # F079
         except PlanStateError as e:
             self._update_status(f"Cannot lock plan: {e}", is_error=True)
             messagebox.showerror("Lock Failed", str(e))
@@ -1022,6 +1034,7 @@ class PlanningTab(ctk.CTkFrame):
             self._refresh_plan_state_display()
             self._update_shopping_summary()
             self._update_assembly_status()
+            self._update_production_progress()  # F079
         except PlanStateError as e:
             self._update_status(f"Cannot start production: {e}", is_error=True)
             messagebox.showerror("Start Production Failed", str(e))
@@ -1048,6 +1061,7 @@ class PlanningTab(ctk.CTkFrame):
             self._refresh_plan_state_display()
             self._update_shopping_summary()
             self._update_assembly_status()
+            self._update_production_progress()  # F079
         except PlanStateError as e:
             self._update_status(f"Cannot complete production: {e}", is_error=True)
             messagebox.showerror("Complete Production Failed", str(e))
@@ -1080,6 +1094,58 @@ class PlanningTab(ctk.CTkFrame):
         """Hide the assembly status frame."""
         self._assembly_status_frame.grid_forget()
         self._assembly_status_frame.clear()
+
+    # =========================================================================
+    # F079: Production Progress Display
+    # =========================================================================
+
+    def _show_production_progress(self) -> None:
+        """Show and update production progress frame (F079)."""
+        self._update_production_progress()
+        self._production_progress_frame.grid(
+            row=9, column=0, sticky="ew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        )
+
+    def _hide_production_progress(self) -> None:
+        """Hide the production progress frame (F079)."""
+        self._production_progress_frame.grid_forget()
+        self._production_progress_frame.clear()
+
+    def _update_production_progress(self) -> None:
+        """Update the production progress panel with current progress (F079)."""
+        if self._selected_event_id is None:
+            self._production_progress_frame.clear()
+            return
+
+        try:
+            from src.services.planning.progress import get_production_progress
+            progress_list = get_production_progress(self._selected_event_id)
+            self._production_progress_frame.update_progress(progress_list)
+        except Exception as e:
+            # Log but don't fail - production progress is informational
+            print(f"Warning: Could not update production progress: {e}")
+            self._production_progress_frame.clear()
+
+    def _has_production_for_recipe(self, recipe_id: int) -> bool:
+        """
+        Check if recipe has production records for the current event (F079/T020).
+
+        Used to determine if amendment controls should be disabled.
+
+        Args:
+            recipe_id: Recipe ID to check
+
+        Returns:
+            True if recipe has production records, False otherwise
+        """
+        if self._selected_event_id is None:
+            return False
+
+        recipes_with_production = (
+            self._production_progress_frame.get_recipes_with_production()
+        )
+        return recipe_id in recipes_with_production
 
     def _save_batch_decisions(self) -> None:
         """Save all batch decisions for the current event."""
@@ -1449,6 +1515,7 @@ class PlanningTab(ctk.CTkFrame):
                 self._refresh_amendment_history()
                 self._update_shopping_summary()
                 self._update_assembly_status()
+                self._update_production_progress()  # F079: Refresh progress
                 self._update_status("Finished good dropped successfully")
             except Exception as e:
                 self._update_status(f"Error: {e}", is_error=True)
@@ -1498,17 +1565,26 @@ class PlanningTab(ctk.CTkFrame):
                 self._refresh_amendment_history()
                 self._update_shopping_summary()
                 self._update_assembly_status()
+                self._update_production_progress()  # F079: Refresh progress
                 self._update_status("Finished good added successfully")
             except Exception as e:
                 self._update_status(f"Error: {e}", is_error=True)
                 messagebox.showerror("Error", str(e))
 
     def _on_modify_batch_click(self) -> None:
-        """Handle Modify Batch button click (F078)."""
+        """Handle Modify Batch button click (F078).
+
+        F079/T021: Filters out recipes with production records (locked).
+        """
         if not self._selected_event_id:
             return
 
         from src.models import BatchDecision
+
+        # F079: Get recipes with production to filter out locked ones
+        recipes_with_production = (
+            self._production_progress_frame.get_recipes_with_production()
+        )
 
         with session_scope() as session:
             batch_decisions = (
@@ -1521,14 +1597,33 @@ class PlanningTab(ctk.CTkFrame):
                 messagebox.showinfo("No Batch Decisions", "No batch decisions to modify.")
                 return
 
-            # Format: "Recipe Name (current: X batches)"
-            recipe_options = {
-                f"{bd.recipe.name} (current: {bd.batches} batches)": (
-                    bd.recipe_id,
-                    bd.batches,
-                )
-                for bd in batch_decisions
-            }
+            # F079/T021: Filter out recipes with production (locked)
+            # Format: "Recipe Name (current: X batches)" or "(LOCKED)" indicator
+            recipe_options = {}
+            locked_count = 0
+            for bd in batch_decisions:
+                if bd.recipe_id in recipes_with_production:
+                    # Skip locked recipes - they have production
+                    locked_count += 1
+                else:
+                    recipe_options[
+                        f"{bd.recipe.name} (current: {bd.batches} batches)"
+                    ] = (bd.recipe_id, bd.batches)
+
+            if not recipe_options:
+                if locked_count > 0:
+                    messagebox.showinfo(
+                        "All Recipes Locked",
+                        f"All {locked_count} recipe(s) have production records "
+                        "and cannot be modified.\n\n"
+                        "Recipes with production are locked to protect "
+                        "in-progress batches."
+                    )
+                else:
+                    messagebox.showinfo(
+                        "No Batch Decisions", "No batch decisions to modify."
+                    )
+                return
 
         dialog = ModifyBatchDialog(self, recipe_options)
         result = dialog.get_result()
@@ -1544,6 +1639,7 @@ class PlanningTab(ctk.CTkFrame):
                 self._refresh_amendment_history()
                 self._update_shopping_summary()
                 self._update_assembly_status()
+                self._update_production_progress()  # F079: Refresh progress
                 self._update_status("Batch count modified successfully")
             except Exception as e:
                 self._update_status(f"Error: {e}", is_error=True)
