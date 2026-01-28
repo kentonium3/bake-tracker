@@ -1,9 +1,8 @@
 """PlanMode - Mode container for event planning.
 
-PLAN mode contains 3 tabs for event management:
+PLAN mode contains 2 tabs for event management:
 - Events: Event CRUD operations (existing events/assignments)
-- Planning: Create/edit/delete planning events (F068)
-- Planning Workspace: Calculate batch requirements
+- Planning: Create/edit/delete planning events with integrated workspace (F068+)
 
 Implements User Story 8: PLAN Mode for Event Planning (Priority P3)
 Feature 068: Event Management & Planning Data Model
@@ -14,7 +13,6 @@ import customtkinter as ctk
 
 from src.ui.base.base_mode import BaseMode
 from src.ui.dashboards.plan_dashboard import PlanDashboard
-from src.ui.tabs.planning_workspace_tab import PlanningWorkspaceTab
 from src.ui.planning_tab import PlanningTab
 from src.ui.forms.event_planning_form import EventPlanningForm, DeleteEventDialog
 
@@ -40,7 +38,6 @@ class PlanMode(BaseMode):
         # Tab references
         self.events_tab: "EventsTab" = None
         self.planning_tab: PlanningTab = None
-        self.planning_workspace_tab: PlanningWorkspaceTab = None
 
         # Set up dashboard and tabs
         self.setup_dashboard()
@@ -52,7 +49,7 @@ class PlanMode(BaseMode):
         self.set_dashboard(dashboard)
 
     def setup_tabs(self) -> None:
-        """Set up all 3 tabs for PLAN mode."""
+        """Set up all 2 tabs for PLAN mode."""
         from src.ui.events_tab import EventsTab
 
         self.create_tabview()
@@ -64,7 +61,7 @@ class PlanMode(BaseMode):
         self.events_tab = EventsTab(events_frame)
         self._tab_widgets["Events"] = self.events_tab
 
-        # Planning tab (F068 - Event Management)
+        # Planning tab (F068+ - Event Management with integrated workspace)
         planning_frame = self.tabview.add("Planning")
         planning_frame.grid_columnconfigure(0, weight=1)
         planning_frame.grid_rowconfigure(0, weight=1)
@@ -76,14 +73,6 @@ class PlanMode(BaseMode):
         )
         self.planning_tab.grid(row=0, column=0, sticky="nsew")
         self._tab_widgets["Planning"] = self.planning_tab
-
-        # Planning Workspace tab (FR-021)
-        workspace_frame = self.tabview.add("Planning Workspace")
-        workspace_frame.grid_columnconfigure(0, weight=1)
-        workspace_frame.grid_rowconfigure(0, weight=1)
-        self.planning_workspace_tab = PlanningWorkspaceTab(workspace_frame)
-        self.planning_workspace_tab.grid(row=0, column=0, sticky="nsew")
-        self._tab_widgets["Planning Workspace"] = self.planning_workspace_tab
 
     def activate(self) -> None:
         """Called when PLAN mode becomes active."""
@@ -105,7 +94,6 @@ class PlanMode(BaseMode):
             self.events_tab.refresh()
         if self.planning_tab:
             self.planning_tab.refresh()
-        # planning_workspace_tab is placeholder, no data to refresh
 
     # =========================================================================
     # Planning Tab Callbacks (F068)
