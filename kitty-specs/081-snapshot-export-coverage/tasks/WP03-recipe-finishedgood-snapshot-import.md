@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Recipe & FinishedGood Snapshot Import
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 081-snapshot-export-coverage-WP01
 base_commit: 58d09833a9ae87691cf419f8adfaeca5c2ed1ed1
@@ -342,3 +342,4 @@ elif entity_type == "finished_good_snapshots":
 ## Activity Log
 
 - 2026-01-28T18:40:28Z – system – lane=planned – Prompt created.
+- 2026-01-28T20:29:04Z – unknown – shell_pid=76733 – lane=for_review – RecipeSnapshot and FinishedGoodSnapshot import handlers with delete order fixes
