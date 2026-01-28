@@ -160,7 +160,7 @@
 - [x] T022 Implement get_plan_comparison() function returning structured diff
 - [x] T023 Add comparison view panel to `src/ui/planning_tab.py`
 - [x] T024 Implement visual diff highlighting for FG changes (added/dropped)
-- [ ] T025 Implement visual diff highlighting for batch decision changes
+- [x] T025 Implement visual diff highlighting for batch decision changes
 - [ ] T026 Integration test of full workflow: lock → start production → amend → compare
 
 ### Implementation Notes
