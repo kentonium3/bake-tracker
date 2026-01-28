@@ -683,3 +683,295 @@ class TestMissingComponentsStructure:
 
         assert result.missing_components == []
         assert result.status == FeasibilityStatus.CAN_ASSEMBLE
+
+
+class TestProductionAwareFeasibility:
+    """Tests for F079 production-aware feasibility checking."""
+
+    @pytest.fixture
+    def production_aware_setup(self, test_db):
+        """Create event with production targets, runs, and inventory for testing."""
+        from src.models import ProductionRun
+
+        session = test_db()
+
+        # Create event
+        event = Event(
+            name="Production Aware Test",
+            event_date=date(2026, 12, 25),
+            year=2026,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create ingredient
+        flour = Ingredient(
+            display_name="All Purpose Flour",
+            slug="test-flour",
+            category="Flour",
+            hierarchy_level=2,
+        )
+        session.add(flour)
+        session.flush()
+
+        # Create product for inventory
+        product = Product(
+            ingredient_id=flour.id,
+            brand="Test Brand",
+            package_size="5 lb bag",
+            package_unit="cup",
+            package_unit_quantity=Decimal("20.0"),
+        )
+        session.add(product)
+        session.flush()
+
+        # Create recipe
+        cookie_recipe = Recipe(
+            name="Test Cookies",
+            category="Cookies",
+        )
+        session.add(cookie_recipe)
+        session.flush()
+
+        # Add recipe ingredient (2 cups flour per batch)
+        recipe_ing = RecipeIngredient(
+            recipe_id=cookie_recipe.id,
+            ingredient_id=flour.id,
+            quantity=Decimal("2.0"),
+            unit="cup",
+        )
+        session.add(recipe_ing)
+
+        # Create finished unit for production run
+        finished_unit = FinishedUnit(
+            display_name="Test Cookies Unit",
+            slug="test-cookies-unit",
+            recipe_id=cookie_recipe.id,
+            items_per_batch=10,
+            inventory_count=0,
+        )
+        session.add(finished_unit)
+        session.flush()
+
+        # Create production target: 10 batches
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=cookie_recipe.id,
+            target_batches=10,
+        )
+        session.add(target)
+        session.commit()
+
+        return {
+            "event_id": event.id,
+            "recipe_id": cookie_recipe.id,
+            "product_id": product.id,
+            "finished_unit_id": finished_unit.id,
+        }
+
+    def test_production_aware_checks_remaining_batches(
+        self, test_db, production_aware_setup
+    ):
+        """
+        Given: 10 target batches, 7 completed, inventory for 3 batches
+        When: check_production_feasibility(production_aware=True)
+        Then: can_produce is True (checking remaining 3 only)
+        """
+        from src.models import ProductionRun
+
+        session = test_db()
+
+        # Add production run: 7 batches completed
+        run = ProductionRun(
+            event_id=production_aware_setup["event_id"],
+            recipe_id=production_aware_setup["recipe_id"],
+            finished_unit_id=production_aware_setup["finished_unit_id"],
+            num_batches=7,
+            expected_yield=70,
+            actual_yield=70,
+        )
+        session.add(run)
+
+        # Add inventory: 6 cups (enough for 3 batches at 2 cups/batch)
+        inventory = InventoryItem(
+            product_id=production_aware_setup["product_id"],
+            quantity=6.0,
+            unit_cost=0.25,
+        )
+        session.add(inventory)
+        session.commit()
+
+        results = check_production_feasibility(
+            production_aware_setup["event_id"],
+            production_aware=True,
+            session=session,
+        )
+
+        assert len(results) == 1
+        result = results[0]
+        assert result["can_produce"] is True
+        assert result["remaining_batches"] == 3
+
+    def test_insufficient_for_remaining_shows_missing(
+        self, test_db, production_aware_setup
+    ):
+        """
+        Given: 10 target batches, 7 completed, inventory for 1 batch
+        When: check_production_feasibility(production_aware=True)
+        Then: can_produce is False (need 3, can only make 1)
+        """
+        from src.models import ProductionRun
+
+        session = test_db()
+
+        # Add production run: 7 batches completed
+        run = ProductionRun(
+            event_id=production_aware_setup["event_id"],
+            recipe_id=production_aware_setup["recipe_id"],
+            finished_unit_id=production_aware_setup["finished_unit_id"],
+            num_batches=7,
+            expected_yield=70,
+            actual_yield=70,
+        )
+        session.add(run)
+
+        # Add inventory: only 2 cups (enough for 1 batch)
+        inventory = InventoryItem(
+            product_id=production_aware_setup["product_id"],
+            quantity=2.0,
+            unit_cost=0.25,
+        )
+        session.add(inventory)
+        session.commit()
+
+        results = check_production_feasibility(
+            production_aware_setup["event_id"],
+            production_aware=True,
+            session=session,
+        )
+
+        assert len(results) == 1
+        result = results[0]
+        assert result["can_produce"] is False
+        assert result["remaining_batches"] == 3
+        assert len(result["missing"]) > 0
+
+    def test_all_batches_complete_shows_complete_status(
+        self, test_db, production_aware_setup
+    ):
+        """
+        Given: 10 target batches, 10 completed
+        When: check_production_feasibility(production_aware=True)
+        Then: status is COMPLETE, no ingredient check performed
+        """
+        from src.models import ProductionRun
+
+        session = test_db()
+
+        # Add production run: all 10 batches completed
+        run = ProductionRun(
+            event_id=production_aware_setup["event_id"],
+            recipe_id=production_aware_setup["recipe_id"],
+            finished_unit_id=production_aware_setup["finished_unit_id"],
+            num_batches=10,
+            expected_yield=100,
+            actual_yield=100,
+        )
+        session.add(run)
+        session.commit()
+
+        # No inventory needed - production complete
+        results = check_production_feasibility(
+            production_aware_setup["event_id"],
+            production_aware=True,
+            session=session,
+        )
+
+        assert len(results) == 1
+        result = results[0]
+        assert result["remaining_batches"] == 0
+        assert result["can_produce"] is True
+        assert result.get("status") == "COMPLETE"
+
+    def test_legacy_mode_checks_total_batches(
+        self, test_db, production_aware_setup
+    ):
+        """
+        Given: 10 target batches, 7 completed, inventory for 3
+        When: check_production_feasibility(production_aware=False)
+        Then: can_produce is False (checking all 10 batches, need 20 cups)
+        """
+        from src.models import ProductionRun
+
+        session = test_db()
+
+        # Add production run: 7 batches completed (doesn't matter for legacy)
+        run = ProductionRun(
+            event_id=production_aware_setup["event_id"],
+            recipe_id=production_aware_setup["recipe_id"],
+            finished_unit_id=production_aware_setup["finished_unit_id"],
+            num_batches=7,
+            expected_yield=70,
+            actual_yield=70,
+        )
+        session.add(run)
+
+        # Add inventory: 6 cups (enough for 3 batches, not 10)
+        inventory = InventoryItem(
+            product_id=production_aware_setup["product_id"],
+            quantity=6.0,
+            unit_cost=0.25,
+        )
+        session.add(inventory)
+        session.commit()
+
+        results = check_production_feasibility(
+            production_aware_setup["event_id"],
+            production_aware=False,  # Legacy mode
+            session=session,
+        )
+
+        assert len(results) == 1
+        result = results[0]
+        # With only 6 cups, can't make 10 batches (need 20 cups)
+        assert result["can_produce"] is False
+        # remaining_batches should not be present in legacy mode
+        assert "remaining_batches" not in result
+
+    def test_default_is_production_aware(self, test_db, production_aware_setup):
+        """Default behavior should be production_aware=True."""
+        from src.models import ProductionRun
+
+        session = test_db()
+
+        # Add production run: 7 completed
+        run = ProductionRun(
+            event_id=production_aware_setup["event_id"],
+            recipe_id=production_aware_setup["recipe_id"],
+            finished_unit_id=production_aware_setup["finished_unit_id"],
+            num_batches=7,
+            expected_yield=70,
+            actual_yield=70,
+        )
+        session.add(run)
+
+        # Add inventory for 3 batches
+        inventory = InventoryItem(
+            product_id=production_aware_setup["product_id"],
+            quantity=6.0,
+            unit_cost=0.25,
+        )
+        session.add(inventory)
+        session.commit()
+
+        # Call without explicit parameter
+        results = check_production_feasibility(
+            production_aware_setup["event_id"],
+            session=session,
+        )
+
+        # Should check remaining (3 batches), not total (10)
+        assert len(results) == 1
+        result = results[0]
+        assert "remaining_batches" in result  # Production-aware includes this
+        assert result["remaining_batches"] == 3
