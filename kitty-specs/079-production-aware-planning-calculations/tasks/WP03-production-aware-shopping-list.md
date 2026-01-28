@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Production-Aware Shopping List
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 079-production-aware-planning-calculations-WP01
 base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
@@ -15,8 +15,8 @@ phase: Phase 2 - Core Features
 assignee: ''
 agent: "claude-lead"
 shell_pid: "27841"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
@@ -494,3 +494,4 @@ class TestGetItemsToBuy:
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-28T06:51:09Z – unknown – shell_pid=96442 – lane=for_review – Implementation complete: Added production_aware parameter to shopping list functions. All 32 tests pass.
 - 2026-01-28T12:40:36Z – claude-lead – shell_pid=27841 – lane=doing – Started review via workflow command
+- 2026-01-28T12:41:19Z – claude-lead – shell_pid=27841 – lane=done – Review passed: production_aware parameter in get_shopping_list(), get_items_to_buy(), get_shopping_summary(). Uses get_remaining_production_needs and recipe_service.get_aggregated_ingredients for nested recipe support. Returns empty list when all complete. All 32 shopping list tests pass.
