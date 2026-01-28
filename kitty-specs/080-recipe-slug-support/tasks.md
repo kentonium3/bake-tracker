@@ -117,7 +117,7 @@
 **Estimated Size**: ~480 lines
 
 ### Included Subtasks
-- [ ] T019: Update `_import_recipes()` in catalog_import_service.py to use/generate slugs
+- [x] T019: Update `_import_recipes()` in catalog_import_service.py to use/generate slugs
 - [ ] T020: Create `_resolve_recipe()` helper with slug → previous_slug → name fallback
 - [ ] T021: [P] Update finished_units import to use `_resolve_recipe()` helper
 - [ ] T022: [P] Update event_production_targets import to use slug resolution
