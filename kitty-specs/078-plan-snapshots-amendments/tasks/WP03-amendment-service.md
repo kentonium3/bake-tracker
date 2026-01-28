@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Amendment Service
+lane: "doing"
+dependencies: [WP02]
+base_branch: 078-plan-snapshots-amendments-WP02
+base_commit: c82b5959071139d7eb17fea97e57800eb2961e33
+created_at: '2026-01-28T03:46:00.229205+00:00'
 subtasks:
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Amendment Service"
-phase: "Phase 1 - Core Implementation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 1 - Core Implementation
+assignee: ''
+agent: ''
+shell_pid: "78810"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T03:25:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T03:25:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Amendment Service
