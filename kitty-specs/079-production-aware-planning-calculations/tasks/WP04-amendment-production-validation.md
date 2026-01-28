@@ -1,9 +1,12 @@
 ---
 work_package_id: WP04
 title: Amendment Production Validation
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
+base_branch: 079-production-aware-planning-calculations-WP01
+base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
+created_at: '2026-01-28T06:17:43.508038+00:00'
 subtasks:
 - T013
 - T014
@@ -13,7 +16,7 @@ subtasks:
 phase: Phase 2 - Core Features
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "96468"
 review_status: ''
 reviewed_by: ''
 history:
