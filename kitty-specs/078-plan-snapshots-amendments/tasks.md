@@ -123,7 +123,7 @@
 ### Included Subtasks
 - [x] T016 Add amendment controls panel frame to `src/ui/planning_tab.py`
 - [x] T017 Implement DROP_FG dialog with FG selection and reason entry
-- [ ] T018 Implement ADD_FG dialog with available FG selection and quantity/reason entry
+- [x] T018 Implement ADD_FG dialog with available FG selection and quantity/reason entry
 - [ ] T019 Implement MODIFY_BATCH dialog with recipe selection, batch adjustment, and reason
 - [ ] T020 Add amendment history panel showing chronological amendment list
 
