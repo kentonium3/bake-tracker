@@ -156,7 +156,7 @@
 ### Included Subtasks
 - [x] T026: Add round-trip export/import test with slug-enabled recipes
 - [x] T027: Add test for legacy import (no slugs, verify name fallback works)
-- [ ] T028: Add test for previous_slug fallback (rename scenario)
+- [x] T028: Add test for previous_slug fallback (rename scenario)
 - [ ] T029: Add test verifying all FK entities resolve correctly (FinishedUnit, ProductionRun, EventProductionTarget, RecipeComponent)
 
 ### Implementation Notes
