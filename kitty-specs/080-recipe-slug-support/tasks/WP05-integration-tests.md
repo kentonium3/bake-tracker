@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration Tests & Validation
-lane: "doing"
+lane: "done"
 dependencies:
 - WP03
 base_branch: 080-recipe-slug-support-WP04
@@ -16,8 +16,8 @@ phase: Phase 2 - Validation
 assignee: ''
 agent: "claude-code"
 shell_pid: "63764"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
@@ -626,3 +626,4 @@ spec-kitty implement WP05 --base WP04
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-28T18:00:43Z – unknown – shell_pid=60731 – lane=for_review – Ready for review: 17 integration tests covering round-trip export/import, legacy fallback, previous_slug fallback, and FK entity resolution
 - 2026-01-28T18:15:51Z – claude-code – shell_pid=63764 – lane=doing – Started review via workflow command
+- 2026-01-28T18:17:00Z – claude-code – shell_pid=63764 – lane=done – Review passed: All 17 integration tests pass consistently. Coverage includes round-trip export/import (5 tests), legacy name fallback (2 tests), previous_slug resolution (3 tests), and FK entity resolution (7 tests). Tests are well-documented and handle model constraints correctly.
