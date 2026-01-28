@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Service Slug Generation
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 080-recipe-slug-support-WP01
 base_commit: 66d36d44d002cb8ddd617bb2075cb49b881ea664
@@ -16,8 +16,8 @@ subtasks:
 - T012
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "48262"
+agent: "claude-code"
+shell_pid: "57085"
 review_status: ''
 reviewed_by: ''
 history:
@@ -585,3 +585,4 @@ spec-kitty implement WP02 --base WP01
 
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-28T16:57:37Z – claude-opus – shell_pid=48262 – lane=for_review – All T006-T012 subtasks implemented. 143 tests pass (113 existing + 30 new slug tests).
+- 2026-01-28T17:30:45Z – claude-code – shell_pid=57085 – lane=doing – Started review via workflow command
