@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "PlanSnapshot Model Foundation"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "76120"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -407,3 +407,4 @@ class TestPlanSnapshotModel:
 ## Activity Log
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
+- 2026-01-28T03:34:20Z – claude-opus – shell_pid=76120 – lane=doing – Started implementation via workflow command
