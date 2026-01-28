@@ -123,7 +123,7 @@
 - [x] T022: [P] Update event_production_targets import to use slug resolution
 - [x] T023: [P] Update production_runs import to use slug resolution
 - [x] T024: Update recipe component import to use `component_recipe_slug` resolution
-- [ ] T025: Add logging for fallback resolution (previous_slug and name fallbacks)
+- [x] T025: Add logging for fallback resolution (previous_slug and name fallbacks)
 
 ### Implementation Notes
 - Files: `src/services/catalog_import_service.py`, `src/services/coordinated_export_service.py`
