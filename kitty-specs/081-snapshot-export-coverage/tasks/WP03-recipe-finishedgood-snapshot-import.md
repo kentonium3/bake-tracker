@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Recipe & FinishedGood Snapshot Import
+lane: "doing"
+dependencies: [WP01]
+base_branch: 081-snapshot-export-coverage-WP01
+base_commit: 58d09833a9ae87691cf419f8adfaeca5c2ed1ed1
+created_at: '2026-01-28T20:25:51.473325+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Recipe & FinishedGood Snapshot Import"
-phase: "Phase 2 - Import Functions"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+- T014
+phase: Phase 2 - Import Functions
+assignee: ''
+agent: ''
+shell_pid: "76733"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T18:40:28Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T18:40:28Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Recipe & FinishedGood Snapshot Import
