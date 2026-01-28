@@ -157,7 +157,7 @@
 
 ### Included Subtasks
 - [x] T021 Create comparison dataclasses in `src/services/plan_snapshot_service.py`
-- [ ] T022 Implement get_plan_comparison() function returning structured diff
+- [x] T022 Implement get_plan_comparison() function returning structured diff
 - [ ] T023 Add comparison view panel to `src/ui/planning_tab.py`
 - [ ] T024 Implement visual diff highlighting for FG changes (added/dropped)
 - [ ] T025 Implement visual diff highlighting for batch decision changes
