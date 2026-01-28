@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Recipe Model Schema Changes"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "45860"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -304,3 +304,4 @@ print(f'Previous slug column exists: {hasattr(Recipe, \"previous_slug\")}')
 ## Activity Log
 
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-28T16:35:52Z – claude-opus – shell_pid=45860 – lane=doing – Started implementation via workflow command
