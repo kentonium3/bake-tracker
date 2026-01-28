@@ -1295,11 +1295,16 @@ def _import_complete_impl(
     from src.models.event import Event
     from src.models.production_run import ProductionRun
     from src.models.inventory_depletion import InventoryDepletion
+    # Feature 081: Import snapshot models for delete cascade
+    from src.models.recipe_snapshot import RecipeSnapshot
+    from src.models.finished_good_snapshot import FinishedGoodSnapshot
 
     # Delete in reverse dependency order
     session.query(InventoryDepletion).delete()
     session.query(ProductionRun).delete()
     session.query(Event).delete()
+    # Feature 081: Delete snapshots BEFORE their parent entities (FK constraints)
+    session.query(FinishedGoodSnapshot).delete()
     session.query(FinishedGood).delete()
     session.query(FinishedUnit).delete()  # Feature 056: After ProductionRun (which references it)
     session.query(MaterialPurchase).delete()
@@ -1312,6 +1317,8 @@ def _import_complete_impl(
     session.query(Purchase).delete()
     session.query(RecipeComponent).delete()
     session.query(RecipeIngredient).delete()
+    # Feature 081: Delete RecipeSnapshot BEFORE Recipe (FK constraint)
+    session.query(RecipeSnapshot).delete()
     session.query(Recipe).delete()
     session.query(Product).delete()
     session.query(Ingredient).delete()
@@ -1995,6 +2002,109 @@ def _import_entity_records(
                 # Inventory depletions reference inventory_items by complex key
                 # Skip for now as this requires complex FK resolution
                 pass
+
+            elif entity_type == "recipe_snapshots":
+                # Feature 081: RecipeSnapshot import with slug-based FK resolution
+                # Note: Missing parent entities are skipped with warning (FR-013)
+                from src.models.recipe_snapshot import RecipeSnapshot
+                from uuid import UUID
+
+                recipe_slug = record.get("recipe_slug")
+                if not recipe_slug:
+                    logger.warning("RecipeSnapshot skipped: no recipe_slug provided")
+                    continue
+
+                # Resolve recipe FK by slug
+                recipe = session.query(Recipe).filter(Recipe.slug == recipe_slug).first()
+                if not recipe:
+                    logger.warning(
+                        f"RecipeSnapshot skipped: recipe '{recipe_slug}' not found"
+                    )
+                    continue
+
+                # Parse UUID - preserve exactly from export (FR-010)
+                uuid_str = record.get("uuid")
+                uuid_val = UUID(uuid_str) if uuid_str else None
+
+                # Parse snapshot_date - preserve exactly (FR-011)
+                snapshot_date = None
+                snapshot_date_str = record.get("snapshot_date")
+                if snapshot_date_str:
+                    try:
+                        # Handle ISO format with or without timezone
+                        if snapshot_date_str.endswith("Z"):
+                            snapshot_date_str = snapshot_date_str[:-1] + "+00:00"
+                        snapshot_date = datetime.fromisoformat(snapshot_date_str)
+                    except ValueError:
+                        logger.warning(
+                            f"RecipeSnapshot: invalid snapshot_date '{snapshot_date_str}'"
+                        )
+
+                obj = RecipeSnapshot(
+                    uuid=uuid_val,
+                    recipe_id=recipe.id,
+                    snapshot_date=snapshot_date,
+                    scale_factor=record.get("scale_factor", 1.0),
+                    is_backfilled=record.get("is_backfilled", False),
+                    # JSON data preserved exactly (FR-012)
+                    recipe_data=record.get("recipe_data", "{}"),
+                    ingredients_data=record.get("ingredients_data", "[]"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "finished_good_snapshots":
+                # Feature 081: FinishedGoodSnapshot import with slug-based FK resolution
+                # Note: Missing parent entities are skipped with warning (FR-013)
+                from src.models.finished_good_snapshot import FinishedGoodSnapshot
+                from uuid import UUID
+
+                fg_slug = record.get("finished_good_slug")
+                if not fg_slug:
+                    logger.warning(
+                        "FinishedGoodSnapshot skipped: no finished_good_slug provided"
+                    )
+                    continue
+
+                # Resolve finished_good FK by slug
+                finished_good = (
+                    session.query(FinishedGood)
+                    .filter(FinishedGood.slug == fg_slug)
+                    .first()
+                )
+                if not finished_good:
+                    logger.warning(
+                        f"FinishedGoodSnapshot skipped: finished_good '{fg_slug}' not found"
+                    )
+                    continue
+
+                # Parse UUID - preserve exactly from export (FR-010)
+                uuid_str = record.get("uuid")
+                uuid_val = UUID(uuid_str) if uuid_str else None
+
+                # Parse snapshot_date - preserve exactly (FR-011)
+                snapshot_date = None
+                snapshot_date_str = record.get("snapshot_date")
+                if snapshot_date_str:
+                    try:
+                        if snapshot_date_str.endswith("Z"):
+                            snapshot_date_str = snapshot_date_str[:-1] + "+00:00"
+                        snapshot_date = datetime.fromisoformat(snapshot_date_str)
+                    except ValueError:
+                        logger.warning(
+                            f"FinishedGoodSnapshot: invalid snapshot_date '{snapshot_date_str}'"
+                        )
+
+                obj = FinishedGoodSnapshot(
+                    uuid=uuid_val,
+                    finished_good_id=finished_good.id,
+                    snapshot_date=snapshot_date,
+                    is_backfilled=record.get("is_backfilled", False),
+                    # JSON data preserved exactly (FR-012)
+                    definition_data=record.get("definition_data", "{}"),
+                )
+                session.add(obj)
+                imported_count += 1
 
             session.flush()
 
