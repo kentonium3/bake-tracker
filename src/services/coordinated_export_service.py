@@ -1298,6 +1298,8 @@ def _import_complete_impl(
     # Feature 081: Import snapshot models for delete cascade
     from src.models.recipe_snapshot import RecipeSnapshot
     from src.models.finished_good_snapshot import FinishedGoodSnapshot
+    from src.models.material_unit_snapshot import MaterialUnitSnapshot
+    from src.models.finished_unit_snapshot import FinishedUnitSnapshot
 
     # Delete in reverse dependency order
     session.query(InventoryDepletion).delete()
@@ -1306,8 +1308,12 @@ def _import_complete_impl(
     # Feature 081: Delete snapshots BEFORE their parent entities (FK constraints)
     session.query(FinishedGoodSnapshot).delete()
     session.query(FinishedGood).delete()
+    # Feature 081: Delete FinishedUnitSnapshot BEFORE FinishedUnit (FK constraint)
+    session.query(FinishedUnitSnapshot).delete()
     session.query(FinishedUnit).delete()  # Feature 056: After ProductionRun (which references it)
     session.query(MaterialPurchase).delete()
+    # Feature 081: Delete MaterialUnitSnapshot BEFORE MaterialUnit (FK constraint)
+    session.query(MaterialUnitSnapshot).delete()
     session.query(MaterialUnit).delete()
     session.query(MaterialProduct).delete()
     session.query(Material).delete()
@@ -2098,6 +2104,110 @@ def _import_entity_records(
                 obj = FinishedGoodSnapshot(
                     uuid=uuid_val,
                     finished_good_id=finished_good.id,
+                    snapshot_date=snapshot_date,
+                    is_backfilled=record.get("is_backfilled", False),
+                    # JSON data preserved exactly (FR-012)
+                    definition_data=record.get("definition_data", "{}"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "material_unit_snapshots":
+                # Feature 081: MaterialUnitSnapshot import with slug-based FK resolution
+                # Note: Missing parent entities are skipped with warning (FR-013)
+                from src.models.material_unit_snapshot import MaterialUnitSnapshot
+                from uuid import UUID
+
+                mu_slug = record.get("material_unit_slug")
+                if not mu_slug:
+                    logger.warning("MaterialUnitSnapshot skipped: no material_unit_slug provided")
+                    continue
+
+                # Resolve material_unit FK by slug
+                material_unit = (
+                    session.query(MaterialUnit)
+                    .filter(MaterialUnit.slug == mu_slug)
+                    .first()
+                )
+                if not material_unit:
+                    logger.warning(
+                        f"MaterialUnitSnapshot skipped: material_unit '{mu_slug}' not found"
+                    )
+                    continue
+
+                # Parse UUID - preserve exactly from export (FR-010)
+                uuid_str = record.get("uuid")
+                uuid_val = UUID(uuid_str) if uuid_str else None
+
+                # Parse snapshot_date - preserve exactly (FR-011)
+                snapshot_date = None
+                snapshot_date_str = record.get("snapshot_date")
+                if snapshot_date_str:
+                    try:
+                        if snapshot_date_str.endswith("Z"):
+                            snapshot_date_str = snapshot_date_str[:-1] + "+00:00"
+                        snapshot_date = datetime.fromisoformat(snapshot_date_str)
+                    except ValueError:
+                        logger.warning(
+                            f"MaterialUnitSnapshot: invalid snapshot_date '{snapshot_date_str}'"
+                        )
+
+                obj = MaterialUnitSnapshot(
+                    uuid=uuid_val,
+                    material_unit_id=material_unit.id,
+                    snapshot_date=snapshot_date,
+                    is_backfilled=record.get("is_backfilled", False),
+                    # JSON data preserved exactly (FR-012)
+                    definition_data=record.get("definition_data", "{}"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "finished_unit_snapshots":
+                # Feature 081: FinishedUnitSnapshot import with slug-based FK resolution
+                # Note: Missing parent entities are skipped with warning (FR-013)
+                from src.models.finished_unit_snapshot import FinishedUnitSnapshot
+                from uuid import UUID
+
+                fu_slug = record.get("finished_unit_slug")
+                if not fu_slug:
+                    logger.warning(
+                        "FinishedUnitSnapshot skipped: no finished_unit_slug provided"
+                    )
+                    continue
+
+                # Resolve finished_unit FK by slug
+                finished_unit = (
+                    session.query(FinishedUnit)
+                    .filter(FinishedUnit.slug == fu_slug)
+                    .first()
+                )
+                if not finished_unit:
+                    logger.warning(
+                        f"FinishedUnitSnapshot skipped: finished_unit '{fu_slug}' not found"
+                    )
+                    continue
+
+                # Parse UUID - preserve exactly from export (FR-010)
+                uuid_str = record.get("uuid")
+                uuid_val = UUID(uuid_str) if uuid_str else None
+
+                # Parse snapshot_date - preserve exactly (FR-011)
+                snapshot_date = None
+                snapshot_date_str = record.get("snapshot_date")
+                if snapshot_date_str:
+                    try:
+                        if snapshot_date_str.endswith("Z"):
+                            snapshot_date_str = snapshot_date_str[:-1] + "+00:00"
+                        snapshot_date = datetime.fromisoformat(snapshot_date_str)
+                    except ValueError:
+                        logger.warning(
+                            f"FinishedUnitSnapshot: invalid snapshot_date '{snapshot_date_str}'"
+                        )
+
+                obj = FinishedUnitSnapshot(
+                    uuid=uuid_val,
+                    finished_unit_id=finished_unit.id,
                     snapshot_date=snapshot_date,
                     is_backfilled=record.get("is_backfilled", False),
                     # JSON data preserved exactly (FR-012)
