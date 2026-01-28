@@ -89,7 +89,7 @@
 - [x] T014: Add `component_recipe_slug` to recipe component export (nested in recipes.json)
 - [x] T015: [P] Add `recipe_slug` to `_export_finished_units()` (alongside recipe_name)
 - [x] T016: [P] Add `recipe_slug` to `_export_event_production_targets()` (in events.json)
-- [ ] T017: [P] Add `recipe_slug` to `_export_production_runs()` (alongside recipe_name)
+- [x] T017: [P] Add `recipe_slug` to `_export_production_runs()` (alongside recipe_name)
 - [ ] T018: Add unit test verifying all exports include recipe_slug fields
 
 ### Implementation Notes
