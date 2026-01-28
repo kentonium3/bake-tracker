@@ -18,6 +18,7 @@ Usage:
 
 import hashlib
 import json
+import logging
 import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -26,6 +27,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from sqlalchemy.orm import Session, joinedload
+
+logger = logging.getLogger(__name__)
 
 from src.models.ingredient import Ingredient
 from src.models.inventory_item import InventoryItem
@@ -134,6 +137,63 @@ def _calculate_checksum(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
     with open(file_path, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
+
+
+def _resolve_recipe(
+    recipe_slug: Optional[str],
+    recipe_name: Optional[str],
+    session: Session,
+    context: str = "",
+) -> Optional[int]:
+    """Resolve recipe to ID using slug -> previous_slug -> name fallback.
+
+    Feature 080: Centralized recipe resolution with fallback chain for imports.
+
+    Args:
+        recipe_slug: Recipe slug from import data
+        recipe_name: Recipe name from import data (fallback)
+        session: Database session
+        context: Context string for logging (e.g., "FinishedUnit 'Cookies'")
+
+    Returns:
+        Recipe ID if found, None otherwise
+    """
+    from src.models.recipe import Recipe
+
+    if not recipe_slug and not recipe_name:
+        logger.warning(f"{context}: No recipe_slug or recipe_name provided")
+        return None
+
+    # Try slug first
+    if recipe_slug:
+        recipe = session.query(Recipe).filter(Recipe.slug == recipe_slug).first()
+        if recipe:
+            return recipe.id
+
+        # Try previous_slug
+        recipe = session.query(Recipe).filter(Recipe.previous_slug == recipe_slug).first()
+        if recipe:
+            logger.info(
+                f"{context}: Resolved recipe '{recipe_slug}' via previous_slug fallback"
+            )
+            return recipe.id
+
+    # Try name (legacy fallback)
+    if recipe_name:
+        recipe = session.query(Recipe).filter(Recipe.name == recipe_name).first()
+        if recipe:
+            if recipe_slug:
+                logger.info(
+                    f"{context}: Resolved recipe via name fallback "
+                    f"(slug '{recipe_slug}' not found)"
+                )
+            return recipe.id
+
+    # Not found
+    logger.error(
+        f"{context}: Recipe not found - slug='{recipe_slug}', name='{recipe_name}'"
+    )
+    return None
 
 
 def _write_entity_file(
@@ -1317,8 +1377,23 @@ def _import_entity_records(
             elif entity_type == "recipes":
                 # F056: yield_quantity, yield_unit, yield_description removed
                 # Import files may still have these for backward compat, but they're ignored
+                # F080: Import slug and previous_slug fields
+
+                recipe_name = record.get("name", "")
+                recipe_slug = record.get("slug")
+                previous_slug = record.get("previous_slug")
+
+                # Generate slug if not provided (legacy export)
+                if not recipe_slug and recipe_name:
+                    from src.services.recipe_service import _generate_unique_slug
+
+                    recipe_slug = _generate_unique_slug(recipe_name, session)
+                    logger.info(f"Generated slug '{recipe_slug}' for recipe '{recipe_name}'")
+
                 obj = Recipe(
-                    name=record.get("name"),
+                    name=recipe_name,
+                    slug=recipe_slug,
+                    previous_slug=previous_slug,
                     category=record.get("category"),
                     source=record.get("source"),
                     estimated_time_minutes=record.get("estimated_time_minutes"),
@@ -1346,14 +1421,22 @@ def _import_entity_records(
                         session.add(ri_obj)
 
                 # Add recipe components (export uses "components" key)
+                # F080: Use slug-based resolution with fallback
                 for rc in record.get("components", []):
-                    # Look up component by name since we may not have slugs
+                    comp_slug = rc.get("component_recipe_slug")
                     comp_name = rc.get("component_recipe_name")
-                    component = session.query(Recipe).filter(Recipe.name == comp_name).first()
-                    if component:
+
+                    component_id = _resolve_recipe(
+                        comp_slug,
+                        comp_name,
+                        session,
+                        context=f"RecipeComponent for '{recipe_name}'",
+                    )
+
+                    if component_id:
                         rc_obj = RecipeComponent(
                             recipe_id=obj.id,
-                            component_recipe_id=component.id,
+                            component_recipe_id=component_id,
                             quantity=rc.get("quantity"),
                             notes=rc.get("notes"),
                             sort_order=rc.get("sort_order"),
@@ -1364,12 +1447,22 @@ def _import_entity_records(
 
             elif entity_type == "finished_units":
                 # Feature 056: Import FinishedUnit records
+                # Feature 080: Use slug-based recipe resolution
                 from src.models.finished_unit import YieldMode
 
-                # Resolve recipe FK by name
+                # Resolve recipe FK by slug (with fallback)
+                recipe_slug = record.get("recipe_slug")
                 recipe_name = record.get("recipe_name")
-                recipe = session.query(Recipe).filter(Recipe.name == recipe_name).first()
-                if not recipe:
+                display_name = record.get("display_name", "unknown")
+
+                recipe_id = _resolve_recipe(
+                    recipe_slug,
+                    recipe_name,
+                    session,
+                    context=f"FinishedUnit '{display_name}'",
+                )
+
+                if not recipe_id:
                     continue  # Skip if recipe not found
 
                 # Parse yield_mode enum
@@ -1382,7 +1475,7 @@ def _import_entity_records(
                         yield_mode = YieldMode.DISCRETE_COUNT  # Default
 
                 obj = FinishedUnit(
-                    recipe_id=recipe.id,
+                    recipe_id=recipe_id,
                     slug=record.get("slug"),
                     display_name=record.get("display_name"),
                     category=record.get("category"),
@@ -1639,7 +1732,8 @@ def _import_entity_records(
                 imported_count += 1
 
             elif entity_type == "events":
-                from src.models.event import OutputMode
+                from src.models.event import OutputMode, EventProductionTarget, EventAssemblyTarget
+                from src.models.finished_good import FinishedGood
 
                 # Parse output_mode enum
                 output_mode_str = record.get("output_mode")
@@ -1650,24 +1744,72 @@ def _import_entity_records(
                     except ValueError:
                         pass
 
+                event_name = record.get("name", "unknown")
                 obj = Event(
-                    name=record.get("name"),
+                    name=event_name,
                     event_date=_parse_date(record.get("event_date")),
                     year=record.get("year"),
                     output_mode=output_mode,
                     notes=record.get("notes"),
                 )
                 session.add(obj)
+                session.flush()  # Get event ID for FK references
+
+                # Feature 080: Import production targets with slug resolution
+                for target_data in record.get("production_targets", []):
+                    recipe_slug = target_data.get("recipe_slug")
+                    recipe_name = target_data.get("recipe_name")
+
+                    recipe_id = _resolve_recipe(
+                        recipe_slug,
+                        recipe_name,
+                        session,
+                        context=f"EventProductionTarget for event '{event_name}'",
+                    )
+
+                    if recipe_id:
+                        target = EventProductionTarget(
+                            event_id=obj.id,
+                            recipe_id=recipe_id,
+                            target_batches=target_data.get("target_batches"),
+                            notes=target_data.get("notes"),
+                        )
+                        session.add(target)
+
+                # Import assembly targets
+                for target_data in record.get("assembly_targets", []):
+                    fg_slug = target_data.get("finished_good_slug")
+                    if fg_slug:
+                        fg = (
+                            session.query(FinishedGood)
+                            .filter(FinishedGood.slug == fg_slug)
+                            .first()
+                        )
+                        if fg:
+                            target = EventAssemblyTarget(
+                                event_id=obj.id,
+                                finished_good_id=fg.id,
+                                target_quantity=target_data.get("target_quantity"),
+                                notes=target_data.get("notes"),
+                            )
+                            session.add(target)
+
                 imported_count += 1
 
             elif entity_type == "production_runs":
-                # Resolve FKs by name/slug
+                # Feature 080: Resolve recipe FK by slug (with fallback)
+                recipe_slug = record.get("recipe_slug")
                 recipe_name = record.get("recipe_name")
-                recipe = (
-                    session.query(Recipe).filter(Recipe.name == recipe_name).first()
-                    if recipe_name
-                    else None
+
+                recipe_id = _resolve_recipe(
+                    recipe_slug,
+                    recipe_name,
+                    session,
+                    context="ProductionRun",
                 )
+
+                if not recipe_id:
+                    continue  # Skip if recipe not found
 
                 finished_unit_slug = record.get("finished_unit_slug")
                 finished_unit = (
@@ -1685,23 +1827,22 @@ def _import_entity_records(
                     else None
                 )
 
-                if recipe:
-                    obj = ProductionRun(
-                        recipe_id=recipe.id,
-                        finished_unit_id=finished_unit.id if finished_unit else None,
-                        event_id=event.id if event else None,
-                        num_batches=record.get("num_batches"),
-                        expected_yield=record.get("expected_yield"),
-                        actual_yield=record.get("actual_yield"),
-                        produced_at=_parse_date(record.get("produced_at")),
-                        notes=record.get("notes"),
-                        production_status=record.get("production_status"),
-                        loss_quantity=record.get("loss_quantity"),
-                        total_ingredient_cost=record.get("total_ingredient_cost"),
-                        per_unit_cost=record.get("per_unit_cost"),
-                    )
-                    session.add(obj)
-                    imported_count += 1
+                obj = ProductionRun(
+                    recipe_id=recipe_id,
+                    finished_unit_id=finished_unit.id if finished_unit else None,
+                    event_id=event.id if event else None,
+                    num_batches=record.get("num_batches"),
+                    expected_yield=record.get("expected_yield"),
+                    actual_yield=record.get("actual_yield"),
+                    produced_at=_parse_date(record.get("produced_at")),
+                    notes=record.get("notes"),
+                    production_status=record.get("production_status"),
+                    loss_quantity=record.get("loss_quantity"),
+                    total_ingredient_cost=record.get("total_ingredient_cost"),
+                    per_unit_cost=record.get("per_unit_cost"),
+                )
+                session.add(obj)
+                imported_count += 1
 
             elif entity_type == "inventory_depletions":
                 # Inventory depletions reference inventory_items by complex key
