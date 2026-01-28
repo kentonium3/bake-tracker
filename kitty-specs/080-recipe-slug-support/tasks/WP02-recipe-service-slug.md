@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Recipe Service Slug Generation
+lane: "doing"
+dependencies: [WP01]
+base_branch: 080-recipe-slug-support-WP01
+base_commit: 66d36d44d002cb8ddd617bb2075cb49b881ea664
+created_at: '2026-01-28T16:50:29.245025+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Recipe Service Slug Generation"
-phase: "Phase 0 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "48262"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T07:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T07:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Recipe Service Slug Generation
