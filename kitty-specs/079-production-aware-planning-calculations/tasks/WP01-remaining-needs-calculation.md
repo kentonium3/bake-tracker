@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Remaining Needs Calculation"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "94498"
@@ -329,3 +329,4 @@ class TestGetRemainingProductionNeeds:
 
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-28T06:10:05Z – claude-opus – shell_pid=94498 – lane=doing – Started implementation via workflow command
+- 2026-01-28T06:17:08Z – claude-opus – shell_pid=94498 – lane=for_review – Complete: Added remaining_batches/overage_batches fields and get_remaining_production_needs() helper. All 11 tests pass.
