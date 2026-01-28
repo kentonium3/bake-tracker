@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: UI Progress Display
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01, WP04]
 base_branch: 079-production-aware-planning-calculations-WP04
 base_commit: 3902ad097d18b29209277e63cc2860b183755479
@@ -323,3 +323,4 @@ python src/main.py
 ## Activity Log
 
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-28T12:31:43Z – unknown – shell_pid=22519 – lane=for_review – Ready for review: Production progress display with remaining/overage, lock icons, disabled controls for locked recipes
