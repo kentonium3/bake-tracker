@@ -52,7 +52,7 @@
 **Estimated Lines**: ~350
 
 ### Included Subtasks
-- [ ] T006 Add MaterialUnitSnapshot model import and DEPENDENCY_ORDER entry
+- [x] T006 Add MaterialUnitSnapshot model import and DEPENDENCY_ORDER entry
 - [ ] T007 Implement `_export_material_unit_snapshots()` function
 - [ ] T008 Add FinishedUnitSnapshot model import and DEPENDENCY_ORDER entry
 - [ ] T009 Implement `_export_finished_unit_snapshots()` function
