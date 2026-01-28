@@ -156,10 +156,10 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T018 Update progress display to show "X of Y (Z remaining)" format
-- [ ] T019 Add overage indicator when completed > target showing "+N overage"
-- [ ] T020 Add lock icon next to recipes with completed production
-- [ ] T021 Disable/hide amendment controls for locked recipes
+- [x] T018 Update progress display to show "X of Y (Z remaining)" format
+- [x] T019 Add overage indicator when completed > target showing "+N overage"
+- [x] T020 Add lock icon next to recipes with completed production
+- [x] T021 Disable/hide amendment controls for locked recipes
 
 ### Implementation Notes
 1. Modify production progress rendering to include remaining_batches
