@@ -105,4 +105,3 @@ bake-tracker/
 # Spec-kitty workspace tracking (transient)
 .kittify/workspaces/
 # Excluded via sparse-checkout
-kitty-specs/

@@ -1,8 +1,22 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-28T05:18:59Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "af516a3747dac15e275c150256ad2a9267d6d8e2",
+      "branch": "main",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-28T05:18:59Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "af516a3747dac15e275c150256ad2a9267d6d8e2",
+  "created_at": "2026-01-27T22:14:00Z",
   "feature_number": "078",
-  "slug": "078-plan-snapshots-amendments",
   "friendly_name": "Plan Snapshots & Amendments",
   "mission": "software-dev",
-  "source_description": "F078 Plan Snapshots & Amendments - Plan versioning and amendment logging for mid-production changes. When production starts, capture complete plan state as JSON snapshot (recipes, FGs, quantities, batch decisions). Support 3 amendment types: DROP_FG, ADD_FG, MODIFY_BATCH with required reason capture. Append-only amendment log. UI to show amendment history, add amendments, and compare original vs current plan.",
-  "created_at": "2026-01-27T22:14:00Z"
+  "slug": "078-plan-snapshots-amendments",
+  "source_description": "F078 Plan Snapshots & Amendments - Plan versioning and amendment logging for mid-production changes. When production starts, capture complete plan state as JSON snapshot (recipes, FGs, quantities, batch decisions). Support 3 amendment types: DROP_FG, ADD_FG, MODIFY_BATCH with required reason capture. Append-only amendment log. UI to show amendment history, add amendments, and compare original vs current plan."
 }
