@@ -55,7 +55,7 @@
 - [x] T006 Add MaterialUnitSnapshot model import and DEPENDENCY_ORDER entry
 - [x] T007 Implement `_export_material_unit_snapshots()` function
 - [x] T008 Add FinishedUnitSnapshot model import and DEPENDENCY_ORDER entry
-- [ ] T009 Implement `_export_finished_unit_snapshots()` function
+- [x] T009 Implement `_export_finished_unit_snapshots()` function
 - [ ] T010 Complete export orchestration and verify manifest includes all 4 snapshot files
 
 ### Implementation Notes
