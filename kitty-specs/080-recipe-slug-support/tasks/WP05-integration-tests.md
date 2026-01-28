@@ -1,9 +1,12 @@
 ---
 work_package_id: WP05
 title: Integration Tests & Validation
-lane: planned
+lane: "doing"
 dependencies:
 - WP03
+base_branch: 080-recipe-slug-support-WP04
+base_commit: e0b74ad8525ccbbc3834826e3a032f9915f90a56
+created_at: '2026-01-28T17:49:52.672379+00:00'
 subtasks:
 - T026
 - T027
@@ -12,7 +15,7 @@ subtasks:
 phase: Phase 2 - Validation
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "60731"
 review_status: ''
 reviewed_by: ''
 history:
