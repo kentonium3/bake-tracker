@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Comprehensive Test Suite
+lane: "doing"
+dependencies: [WP04]
+base_branch: 081-snapshot-export-coverage-WP04
+base_commit: ffbf0281621a8afb571af77dde5b724de7999feb
+created_at: '2026-01-28T20:32:27.095151+00:00'
 subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-title: "Comprehensive Test Suite"
-phase: "Phase 3 - Testing"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP04"]
+- T019
+- T020
+- T021
+- T022
+- T023
+phase: Phase 3 - Testing
+assignee: ''
+agent: ''
+shell_pid: "78825"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T18:40:28Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T18:40:28Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Comprehensive Test Suite
