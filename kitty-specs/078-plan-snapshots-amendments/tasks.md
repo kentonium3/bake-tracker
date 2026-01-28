@@ -53,11 +53,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T005 Create `src/services/plan_snapshot_service.py` with create_plan_snapshot()
-- [ ] T006 Implement get_plan_snapshot() for retrieval
-- [ ] T007 Integrate snapshot creation into start_production() in `src/services/plan_state_service.py`
-- [ ] T008 Write unit tests for snapshot service in `src/tests/test_plan_snapshot_service.py`
-- [ ] T009 Write integration test for start_production with snapshot creation
+- [x] T005 Create `src/services/plan_snapshot_service.py` with create_plan_snapshot()
+- [x] T006 Implement get_plan_snapshot() for retrieval
+- [x] T007 Integrate snapshot creation into start_production() in `src/services/plan_state_service.py`
+- [x] T008 Write unit tests for snapshot service in `src/tests/test_plan_snapshot_service.py`
+- [x] T009 Write integration test for start_production with snapshot creation
 
 ### Implementation Notes
 - Follow session=None pattern per CLAUDE.md
