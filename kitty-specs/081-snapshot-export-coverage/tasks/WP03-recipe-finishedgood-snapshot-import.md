@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Recipe & FinishedGood Snapshot Import
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 081-snapshot-export-coverage-WP01
 base_commit: 58d09833a9ae87691cf419f8adfaeca5c2ed1ed1
@@ -13,8 +13,8 @@ subtasks:
 - T014
 phase: Phase 2 - Import Functions
 assignee: ''
-agent: ''
-shell_pid: "76733"
+agent: "claude"
+shell_pid: "77815"
 review_status: ''
 reviewed_by: ''
 history:
@@ -343,3 +343,4 @@ elif entity_type == "finished_good_snapshots":
 
 - 2026-01-28T18:40:28Z – system – lane=planned – Prompt created.
 - 2026-01-28T20:29:04Z – unknown – shell_pid=76733 – lane=for_review – RecipeSnapshot and FinishedGoodSnapshot import handlers with delete order fixes
+- 2026-01-28T20:29:11Z – claude – shell_pid=77815 – lane=doing – Started review via workflow command
