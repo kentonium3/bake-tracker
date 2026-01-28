@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Import Service Updates
+lane: "doing"
+dependencies: [WP02]
+base_branch: 080-recipe-slug-support-WP02
+base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
+created_at: '2026-01-28T17:03:11.601916+00:00'
 subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-title: "Import Service Updates"
-phase: "Phase 1 - Export/Import"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T019
+- T020
+- T021
+- T022
+- T023
+- T024
+- T025
+phase: Phase 1 - Export/Import
+assignee: ''
+agent: ''
+shell_pid: "51946"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T07:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T07:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Import Service Updates
