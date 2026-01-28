@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: MaterialUnit & FinishedUnit Snapshot Export
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: 14b21af6aec34176a033e5281672c3e9f43e6b31
@@ -14,8 +14,8 @@ subtasks:
 - T010
 phase: Phase 1 - Export Functions
 assignee: ''
-agent: ''
-shell_pid: "68803"
+agent: "claude-lead"
+shell_pid: "76436"
 review_status: ''
 reviewed_by: ''
 history:
@@ -309,3 +309,4 @@ def _export_finished_unit_snapshots(output_dir: Path, session: Session) -> FileE
 
 - 2026-01-28T18:40:28Z – system – lane=planned – Prompt created.
 - 2026-01-28T18:52:07Z – unknown – shell_pid=68803 – lane=for_review – Export functions implemented for MaterialUnitSnapshot and FinishedUnitSnapshot
+- 2026-01-28T20:24:14Z – claude-lead – shell_pid=76436 – lane=doing – Started review via workflow command
