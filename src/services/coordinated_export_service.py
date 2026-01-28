@@ -48,6 +48,8 @@ from src.models.finished_unit import FinishedUnit
 from src.models.event import Event, EventProductionTarget, EventAssemblyTarget
 from src.models.production_run import ProductionRun
 from src.models.inventory_depletion import InventoryDepletion
+from src.models.recipe_snapshot import RecipeSnapshot
+from src.models.finished_good_snapshot import FinishedGoodSnapshot
 from src.services.database import session_scope
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -125,6 +127,9 @@ DEPENDENCY_ORDER = {
     "events": (16, []),
     "production_runs": (17, ["recipes", "events", "finished_units"]),
     "inventory_depletions": (18, ["inventory_items"]),
+    # Feature 081: Snapshot exports for cost history preservation
+    "recipe_snapshots": (19, ["recipes"]),
+    "finished_good_snapshots": (20, ["finished_goods"]),
 }
 
 
@@ -900,6 +905,75 @@ def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntr
 
 
 # ============================================================================
+# Feature 081: Snapshot Export Functions
+# ============================================================================
+
+
+def _export_recipe_snapshots(output_dir: Path, session: Session) -> FileEntry:
+    """Export all recipe snapshots to JSON file with FK resolution.
+
+    Feature 081: RecipeSnapshot export for cost history preservation.
+    Exports in chronological order (oldest first) per FR-015.
+    """
+    snapshots = (
+        session.query(RecipeSnapshot)
+        .options(joinedload(RecipeSnapshot.recipe))
+        .order_by(RecipeSnapshot.snapshot_date)
+        .all()
+    )
+
+    records = []
+    for snap in snapshots:
+        records.append(
+            {
+                "uuid": str(snap.uuid) if snap.uuid else None,
+                # FK resolved by recipe slug
+                "recipe_slug": snap.recipe.slug if snap.recipe else None,
+                # Snapshot metadata
+                "snapshot_date": snap.snapshot_date.isoformat() if snap.snapshot_date else None,
+                "scale_factor": snap.scale_factor,
+                "is_backfilled": snap.is_backfilled,
+                # JSON data preserved exactly
+                "recipe_data": snap.recipe_data,
+                "ingredients_data": snap.ingredients_data,
+            }
+        )
+
+    return _write_entity_file(output_dir, "recipe_snapshots", records)
+
+
+def _export_finished_good_snapshots(output_dir: Path, session: Session) -> FileEntry:
+    """Export all finished good snapshots to JSON file with FK resolution.
+
+    Feature 081: FinishedGoodSnapshot export for assembly cost history.
+    Exports in chronological order (oldest first) per FR-015.
+    """
+    snapshots = (
+        session.query(FinishedGoodSnapshot)
+        .options(joinedload(FinishedGoodSnapshot.finished_good))
+        .order_by(FinishedGoodSnapshot.snapshot_date)
+        .all()
+    )
+
+    records = []
+    for snap in snapshots:
+        records.append(
+            {
+                "uuid": str(snap.uuid) if snap.uuid else None,
+                # FK resolved by finished_good slug
+                "finished_good_slug": snap.finished_good.slug if snap.finished_good else None,
+                # Snapshot metadata
+                "snapshot_date": snap.snapshot_date.isoformat() if snap.snapshot_date else None,
+                "is_backfilled": snap.is_backfilled,
+                # JSON data preserved exactly
+                "definition_data": snap.definition_data,
+            }
+        )
+
+    return _write_entity_file(output_dir, "finished_good_snapshots", records)
+
+
+# ============================================================================
 # Main Export Functions
 # ============================================================================
 
@@ -975,6 +1049,10 @@ def _export_complete_impl(
     manifest.files.append(_export_events(output_dir, session))
     manifest.files.append(_export_production_runs(output_dir, session))
     manifest.files.append(_export_inventory_depletions(output_dir, session))
+
+    # Feature 081: Snapshot exports for cost history preservation
+    manifest.files.append(_export_recipe_snapshots(output_dir, session))
+    manifest.files.append(_export_finished_good_snapshots(output_dir, session))
 
     # Sort files by import_order
     manifest.files.sort(key=lambda f: f.import_order)
