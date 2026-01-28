@@ -26,7 +26,7 @@
 ### Included Subtasks
 - [x] T001 Extend ProductionProgress dataclass with remaining_batches and overage_batches fields in `src/services/planning/progress.py`
 - [x] T002 Update _get_production_progress_impl() to calculate remaining_batches and overage_batches
-- [ ] T003 Add get_remaining_production_needs() helper function returning Dict[recipe_id, remaining_batches]
+- [x] T003 Add get_remaining_production_needs() helper function returning Dict[recipe_id, remaining_batches]
 - [ ] T004 Write tests for remaining calculation in `src/tests/planning/test_progress.py`
 
 ### Implementation Notes
