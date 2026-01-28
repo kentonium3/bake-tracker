@@ -165,7 +165,8 @@ class TestGetShoppingList:
             ]
         }
 
-        result = get_shopping_list(event_id=1, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_shopping_list(event_id=1, production_aware=False, session=session)
 
         assert len(result) == 2
         assert all(isinstance(item, ShoppingListItem) for item in result)
@@ -210,7 +211,8 @@ class TestGetShoppingList:
             ]
         }
 
-        result = get_shopping_list(event_id=1, include_sufficient=False, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_shopping_list(event_id=1, include_sufficient=False, production_aware=False, session=session)
 
         assert len(result) == 1
         assert result[0].ingredient_slug == "flour"
@@ -223,7 +225,8 @@ class TestGetShoppingList:
 
         mock_event_service.get_shopping_list.return_value = {"items": []}
 
-        result = get_shopping_list(event_id=1, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_shopping_list(event_id=1, production_aware=False, session=session)
 
         assert result == []
 
@@ -257,7 +260,8 @@ class TestGetItemsToBuy:
             ]
         }
 
-        result = get_items_to_buy(event_id=1, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_items_to_buy(event_id=1, production_aware=False, session=session)
 
         assert len(result) == 1
         assert result[0].ingredient_slug == "flour"
@@ -300,7 +304,8 @@ class TestGetShoppingSummary:
             ]
         }
 
-        result = get_shopping_summary(event_id=1, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_shopping_summary(event_id=1, production_aware=False, session=session)
 
         assert result["total_items"] == 3
         assert result["items_sufficient"] == 2  # sugar and eggs
@@ -325,7 +330,8 @@ class TestGetShoppingSummary:
             ]
         }
 
-        result = get_shopping_summary(event_id=1, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_shopping_summary(event_id=1, production_aware=False, session=session)
 
         assert result["all_sufficient"] is True
         assert result["items_to_buy"] == 0
@@ -337,7 +343,8 @@ class TestGetShoppingSummary:
 
         mock_event_service.get_shopping_list.return_value = {"items": []}
 
-        result = get_shopping_summary(event_id=1, session=session)
+        # Use production_aware=False to trigger legacy behavior using event_service
+        result = get_shopping_summary(event_id=1, production_aware=False, session=session)
 
         assert result["total_items"] == 0
         assert result["items_sufficient"] == 0
@@ -520,3 +527,380 @@ class TestIsShoppingComplete:
         result = is_shopping_complete(99999, session=session)
 
         assert result is False
+
+
+# =============================================================================
+# Production-Aware Shopping List Tests (F079 WP03)
+# =============================================================================
+
+
+class TestProductionAwareShoppingList:
+    """Tests for production-aware shopping list calculation (F079 WP03)."""
+
+    @patch("src.services.planning.shopping_list.get_remaining_production_needs")
+    @patch("src.services.planning.shopping_list.recipe_service")
+    @patch("src.services.planning.shopping_list._get_inventory_for_ingredient")
+    def test_partial_production_shows_remaining_needs(
+        self, mock_get_inventory, mock_recipe_service, mock_remaining_needs, test_db
+    ):
+        """
+        Given: 10 batches target (100g flour each), 7 completed, 200g flour in stock
+        When: get_shopping_list(production_aware=True)
+        Then: Shows 100g flour to buy (3 batches * 100g = 300g needed, 200g in stock)
+        """
+        session = test_db()
+
+        # Create event and target
+        from src.models import Event, EventProductionTarget, Recipe
+        from datetime import date
+
+        event = Event(name="Test Event", event_date=date(2024, 12, 25), year=2024)
+        session.add(event)
+        session.flush()
+
+        recipe = Recipe(name="Test Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=10,
+        )
+        session.add(target)
+        session.commit()
+
+        # Mock remaining batches: 3 remaining (10 - 7 completed)
+        mock_remaining_needs.return_value = {recipe.id: 3}
+
+        # Mock recipe ingredients
+        mock_recipe_service.get_aggregated_ingredients.return_value = [
+            {
+                "ingredient_id": 1,
+                "ingredient_slug": "flour",
+                "ingredient_name": "All-Purpose Flour",
+                "total_quantity": 100,  # 100g per batch
+                "unit": "g",
+            }
+        ]
+
+        # Mock inventory: 200g in stock
+        mock_get_inventory.return_value = Decimal("200")
+
+        # Get shopping list
+        items = get_shopping_list(
+            event.id,
+            production_aware=True,
+            session=session,
+        )
+
+        flour_item = next((i for i in items if "flour" in i.ingredient_slug.lower()), None)
+        assert flour_item is not None
+        assert flour_item.needed == Decimal("300")  # 3 remaining * 100g
+        assert flour_item.in_stock == Decimal("200")
+        assert flour_item.to_buy == Decimal("100")
+
+    @patch("src.services.planning.shopping_list.get_remaining_production_needs")
+    def test_all_production_complete_returns_empty_list(
+        self, mock_remaining_needs, test_db
+    ):
+        """
+        Given: All production batches completed
+        When: get_shopping_list(production_aware=True)
+        Then: Returns empty list (nothing needed)
+        """
+        session = test_db()
+
+        # Create event and target
+        from src.models import Event, EventProductionTarget, Recipe
+        from datetime import date
+
+        event = Event(name="Complete Event", event_date=date(2024, 12, 25), year=2024)
+        session.add(event)
+        session.flush()
+
+        recipe = Recipe(name="Complete Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=5,
+        )
+        session.add(target)
+        session.commit()
+
+        # Mock remaining batches: 0 remaining (all complete)
+        mock_remaining_needs.return_value = {recipe.id: 0}
+
+        # Get shopping list
+        items = get_shopping_list(
+            event.id,
+            production_aware=True,
+            session=session,
+        )
+
+        assert items == []
+
+    @patch("src.services.planning.shopping_list.get_remaining_production_needs")
+    @patch("src.services.planning.shopping_list.recipe_service")
+    @patch("src.services.planning.shopping_list._get_inventory_for_ingredient")
+    def test_sufficient_inventory_for_remaining_is_sufficient(
+        self, mock_get_inventory, mock_recipe_service, mock_remaining_needs, test_db
+    ):
+        """
+        Given: Remaining needs 300g flour, 500g in stock
+        When: get_shopping_list(production_aware=True)
+        Then: Flour item shows is_sufficient=True, to_buy=0
+        """
+        session = test_db()
+
+        # Create event and target
+        from src.models import Event, EventProductionTarget, Recipe
+        from datetime import date
+
+        event = Event(name="Sufficient Event", event_date=date(2024, 12, 25), year=2024)
+        session.add(event)
+        session.flush()
+
+        recipe = Recipe(name="Sufficient Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=10,
+        )
+        session.add(target)
+        session.commit()
+
+        # Mock remaining batches: 3 remaining
+        mock_remaining_needs.return_value = {recipe.id: 3}
+
+        # Mock recipe ingredients: 100g flour per batch
+        mock_recipe_service.get_aggregated_ingredients.return_value = [
+            {
+                "ingredient_id": 1,
+                "ingredient_slug": "flour",
+                "ingredient_name": "All-Purpose Flour",
+                "total_quantity": 100,
+                "unit": "g",
+            }
+        ]
+
+        # Mock inventory: 500g in stock (more than needed)
+        mock_get_inventory.return_value = Decimal("500")
+
+        # Get shopping list
+        items = get_shopping_list(
+            event.id,
+            production_aware=True,
+            session=session,
+        )
+
+        flour_item = next((i for i in items if "flour" in i.ingredient_slug.lower()), None)
+        assert flour_item is not None
+        assert flour_item.is_sufficient is True
+        assert flour_item.to_buy == Decimal("0")
+
+    @patch("src.services.planning.shopping_list.event_service")
+    def test_legacy_mode_shows_total_needs(self, mock_event_service, test_db):
+        """
+        Given: 10 batches target (100g flour each), 7 completed
+        When: get_shopping_list(production_aware=False)
+        Then: Shows needs for all 10 batches (1000g flour)
+        """
+        session = test_db()
+
+        # Mock event_service response (legacy behavior)
+        mock_event_service.get_shopping_list.return_value = {
+            "items": [
+                {
+                    "ingredient_id": 1,
+                    "ingredient_slug": "flour",
+                    "ingredient_name": "All-Purpose Flour",
+                    "quantity_needed": 1000.0,  # Total for all 10 batches
+                    "quantity_on_hand": 200.0,
+                    "unit": "g",
+                },
+            ]
+        }
+
+        items = get_shopping_list(
+            event_id=1,
+            production_aware=False,  # Legacy mode
+            session=session,
+        )
+
+        flour_item = next((i for i in items if "flour" in i.ingredient_slug.lower()), None)
+        assert flour_item is not None
+        assert flour_item.needed == Decimal("1000")  # All 10 batches
+
+    @patch("src.services.planning.shopping_list.get_remaining_production_needs")
+    @patch("src.services.planning.shopping_list.recipe_service")
+    @patch("src.services.planning.shopping_list._get_inventory_for_ingredient")
+    def test_default_is_production_aware(
+        self, mock_get_inventory, mock_recipe_service, mock_remaining_needs, test_db
+    ):
+        """Default behavior should be production_aware=True."""
+        session = test_db()
+
+        # Create event and target
+        from src.models import Event, EventProductionTarget, Recipe
+        from datetime import date
+
+        event = Event(name="Default Event", event_date=date(2024, 12, 25), year=2024)
+        session.add(event)
+        session.flush()
+
+        recipe = Recipe(name="Default Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=10,
+        )
+        session.add(target)
+        session.commit()
+
+        # Mock remaining batches
+        mock_remaining_needs.return_value = {recipe.id: 3}
+
+        # Mock recipe ingredients
+        mock_recipe_service.get_aggregated_ingredients.return_value = [
+            {
+                "ingredient_id": 1,
+                "ingredient_slug": "flour",
+                "ingredient_name": "Flour",
+                "total_quantity": 100,
+                "unit": "g",
+            }
+        ]
+
+        mock_get_inventory.return_value = Decimal("0")
+
+        # Call without explicit production_aware parameter
+        items_default = get_shopping_list(event.id, session=session)
+        # Call with explicit production_aware=True
+        items_explicit = get_shopping_list(
+            event.id,
+            production_aware=True,
+            session=session,
+        )
+
+        # Both should return same result
+        assert len(items_default) == len(items_explicit)
+        if items_default:
+            assert items_default[0].needed == items_explicit[0].needed
+
+
+class TestGetItemsToBuyProductionAware:
+    """Tests for get_items_to_buy with production_aware."""
+
+    @patch("src.services.planning.shopping_list.get_remaining_production_needs")
+    @patch("src.services.planning.shopping_list.recipe_service")
+    @patch("src.services.planning.shopping_list._get_inventory_for_ingredient")
+    def test_respects_production_aware_flag(
+        self, mock_get_inventory, mock_recipe_service, mock_remaining_needs, test_db
+    ):
+        """get_items_to_buy should pass through production_aware parameter."""
+        session = test_db()
+
+        # Create event and target
+        from src.models import Event, EventProductionTarget, Recipe
+        from datetime import date
+
+        event = Event(name="Buy Event", event_date=date(2024, 12, 25), year=2024)
+        session.add(event)
+        session.flush()
+
+        recipe = Recipe(name="Buy Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=10,
+        )
+        session.add(target)
+        session.commit()
+
+        # Mock remaining batches
+        mock_remaining_needs.return_value = {recipe.id: 3}
+
+        # Mock recipe ingredients
+        mock_recipe_service.get_aggregated_ingredients.return_value = [
+            {
+                "ingredient_id": 1,
+                "ingredient_slug": "flour",
+                "ingredient_name": "Flour",
+                "total_quantity": 100,
+                "unit": "g",
+            }
+        ]
+
+        # Mock inventory: 0 (need to buy)
+        mock_get_inventory.return_value = Decimal("0")
+
+        from src.services.planning import get_items_to_buy
+
+        items = get_items_to_buy(
+            event.id,
+            production_aware=True,
+            session=session,
+        )
+
+        # Should only return items that need to be purchased
+        assert all(item.to_buy > 0 for item in items)
+
+
+class TestGetShoppingSummaryProductionAware:
+    """Tests for get_shopping_summary with production_aware."""
+
+    @patch("src.services.planning.shopping_list.get_remaining_production_needs")
+    def test_all_complete_shows_empty_summary(self, mock_remaining_needs, test_db):
+        """
+        Given: All production complete
+        When: get_shopping_summary(production_aware=True)
+        Then: Shows 0 total items and all_sufficient=True
+        """
+        session = test_db()
+
+        # Create event and target
+        from src.models import Event, EventProductionTarget, Recipe
+        from datetime import date
+
+        event = Event(name="Summary Event", event_date=date(2024, 12, 25), year=2024)
+        session.add(event)
+        session.flush()
+
+        recipe = Recipe(name="Summary Recipe", category="Test")
+        session.add(recipe)
+        session.flush()
+
+        target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=recipe.id,
+            target_batches=5,
+        )
+        session.add(target)
+        session.commit()
+
+        # All complete
+        mock_remaining_needs.return_value = {recipe.id: 0}
+
+        from src.services.planning import get_shopping_summary
+
+        summary = get_shopping_summary(
+            event.id,
+            production_aware=True,
+            session=session,
+        )
+
+        assert summary["total_items"] == 0
+        assert summary["all_sufficient"] is True
