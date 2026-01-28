@@ -86,7 +86,7 @@
 
 ### Included Subtasks
 - [x] T010 Create `src/services/plan_amendment_service.py` with base create_amendment()
-- [ ] T011 Implement drop_finished_good() with FG existence validation
+- [x] T011 Implement drop_finished_good() with FG existence validation
 - [ ] T012 Implement add_finished_good() with duplicate detection validation
 - [ ] T013 Implement modify_batch_decision() with batch decision existence validation
 - [ ] T014 Implement get_amendments() for chronological history retrieval
