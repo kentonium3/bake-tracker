@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Export Service Updates
+lane: "doing"
+dependencies: [WP02]
+base_branch: 080-recipe-slug-support-WP02
+base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
+created_at: '2026-01-28T16:58:11.308273+00:00'
 subtasks:
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-title: "Export Service Updates"
-phase: "Phase 1 - Export/Import"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T013
+- T014
+- T015
+- T016
+- T017
+- T018
+phase: Phase 1 - Export/Import
+assignee: ''
+agent: ''
+shell_pid: "50556"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T07:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T07:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Export Service Updates
