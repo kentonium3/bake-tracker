@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Comparison View & Integration
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02, WP03, WP04]
 base_branch: 078-plan-snapshots-amendments-WP04
 base_commit: 0474335093934e3aef6864ac6b3f0ec45d45f65b
@@ -723,3 +723,4 @@ class TestFullWorkflowIntegration:
 ## Activity Log
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
+- 2026-01-28T04:09:36Z – unknown – shell_pid=81572 – lane=for_review – Comparison view complete with diff highlighting, color coding, and 15 passing tests
