@@ -1074,14 +1074,23 @@ def _import_recipes_impl(
         .all()
     }
 
-    # Build recipe name -> id lookup for collision detection and FK
-    # F056: yield_quantity, yield_unit removed from lookup
-    existing_recipes = {
-        row.name: {"id": row.id} for row in session.query(Recipe.name, Recipe.id).all()
+    # Build recipe lookups for collision detection and FK resolution
+    # F080: Add slug-based lookups for recipe resolution
+    existing_by_slug = {
+        r.slug: r for r in session.query(Recipe).filter(Recipe.slug.isnot(None)).all()
     }
+    existing_by_previous_slug = {
+        r.previous_slug: r
+        for r in session.query(Recipe).filter(Recipe.previous_slug.isnot(None)).all()
+    }
+    existing_by_name = {r.name: r for r in session.query(Recipe).all()}
+
+    # Backward compat: name-based lookup as dict with id
+    existing_recipes = {name: {"id": r.id} for name, r in existing_by_name.items()}
 
     # Track newly created recipes for component FK resolution within the same import
     new_recipe_ids = {}  # name -> id
+    new_recipe_slugs = {}  # slug -> id
 
     for item in data:
         recipe_name = item.get("name", "")
@@ -1129,13 +1138,37 @@ def _import_recipes_impl(
             continue
 
         # Validate component recipe FKs
+        # F080: Use slug-based resolution with fallback to name
         recipe_components_data = item.get("components", [])
         missing_components = []
         for rc in recipe_components_data:
-            component_name = rc.get("recipe_name", "")
-            # Component must exist in DB or have been created earlier in this import
-            if component_name not in existing_recipes and component_name not in new_recipe_ids:
-                missing_components.append(component_name)
+            comp_slug = rc.get("component_recipe_slug")
+            comp_name = rc.get("component_recipe_name") or rc.get("recipe_name", "")
+
+            # Try to resolve component: slug -> previous_slug -> name
+            component_found = False
+            if comp_slug:
+                if comp_slug in existing_by_slug or comp_slug in new_recipe_slugs:
+                    component_found = True
+                elif comp_slug in existing_by_previous_slug:
+                    component_found = True
+                    logger.info(
+                        f"Component '{comp_slug}' for recipe '{recipe_name}' "
+                        "resolved via previous_slug"
+                    )
+
+            if not component_found and comp_name:
+                if comp_name in existing_by_name or comp_name in new_recipe_ids:
+                    component_found = True
+                    if comp_slug:
+                        logger.info(
+                            f"Component for recipe '{recipe_name}' resolved via name "
+                            f"fallback (slug '{comp_slug}' not found)"
+                        )
+
+            if not component_found:
+                identifier = comp_slug or comp_name or "unknown"
+                missing_components.append(identifier)
 
         if missing_components:
             result.add_error(
@@ -1150,8 +1183,21 @@ def _import_recipes_impl(
         # Create the recipe
         # Default is_production_ready to True for imports (backward compatibility)
         # F056: yield_quantity, yield_unit, yield_description removed
+        # F080: Add slug and previous_slug support
+        from src.services.recipe_service import _generate_unique_slug
+
+        recipe_slug = item.get("slug")
+        previous_slug = item.get("previous_slug")
+
+        # Generate slug if not provided (legacy export)
+        if not recipe_slug and recipe_name:
+            recipe_slug = _generate_unique_slug(recipe_name, session)
+            logger.info(f"Generated slug '{recipe_slug}' for recipe '{recipe_name}'")
+
         recipe = Recipe(
             name=recipe_name,
+            slug=recipe_slug,
+            previous_slug=previous_slug,
             category=item.get("category"),
             source=item.get("source"),
             estimated_time_minutes=item.get("estimated_time_minutes"),
@@ -1175,29 +1221,51 @@ def _import_recipes_impl(
             session.add(recipe_ingredient)
 
         # Create RecipeComponents
+        # F080: Use slug-based resolution with fallback
         for idx, rc in enumerate(recipe_components_data):
-            component_name = rc.get("recipe_name", "")
-            # Resolve component recipe ID
-            if component_name in existing_recipes:
-                component_recipe_id = existing_recipes[component_name]["id"]
-            else:
-                component_recipe_id = new_recipe_ids.get(component_name)
+            comp_slug = rc.get("component_recipe_slug")
+            comp_name = rc.get("component_recipe_name") or rc.get("recipe_name", "")
 
-            recipe_component = RecipeComponent(
-                recipe_id=recipe.id,
-                component_recipe_id=component_recipe_id,
-                quantity=rc.get("quantity", 1.0),
-                notes=rc.get("notes"),
-                sort_order=idx,
-            )
-            session.add(recipe_component)
+            # Resolve component recipe ID using fallback chain
+            component_recipe_id = None
+
+            # Try slug first
+            if comp_slug:
+                if comp_slug in existing_by_slug:
+                    component_recipe_id = existing_by_slug[comp_slug].id
+                elif comp_slug in new_recipe_slugs:
+                    component_recipe_id = new_recipe_slugs[comp_slug]
+                elif comp_slug in existing_by_previous_slug:
+                    component_recipe_id = existing_by_previous_slug[comp_slug].id
+
+            # Fallback to name
+            if component_recipe_id is None and comp_name:
+                if comp_name in existing_by_name:
+                    component_recipe_id = existing_by_name[comp_name].id
+                elif comp_name in new_recipe_ids:
+                    component_recipe_id = new_recipe_ids[comp_name]
+
+            if component_recipe_id:
+                recipe_component = RecipeComponent(
+                    recipe_id=recipe.id,
+                    component_recipe_id=component_recipe_id,
+                    quantity=rc.get("quantity", 1.0),
+                    notes=rc.get("notes"),
+                    sort_order=idx,
+                )
+                session.add(recipe_component)
 
         result.add_success("recipes")
 
         # Track new recipe for component FK resolution
         # F056: yield_quantity, yield_unit removed
+        # F080: Also track by slug for slug-based lookups
         new_recipe_ids[recipe_name] = recipe.id
         existing_recipes[recipe_name] = {"id": recipe.id}
+        if recipe_slug:
+            new_recipe_slugs[recipe_slug] = recipe.id
+            existing_by_slug[recipe_slug] = recipe
+        existing_by_name[recipe_name] = recipe
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
