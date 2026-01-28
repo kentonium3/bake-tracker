@@ -53,7 +53,7 @@
 - [x] T006: Create `_generate_slug(name: str)` static method
 - [x] T007: Create `_generate_unique_slug(name: str, session, exclude_id)` method
 - [x] T008: Update `create_recipe()` to generate slug if not provided
-- [ ] T009: Update `update_recipe()` to handle rename (regenerate slug, preserve previous_slug)
+- [x] T009: Update `update_recipe()` to handle rename (regenerate slug, preserve previous_slug)
 - [ ] T010: [P] Add unit tests for slug generation from various names
 - [ ] T011: [P] Add unit tests for collision handling (-2, -3 suffixes)
 - [ ] T012: [P] Add unit tests for rename behavior (previous_slug preservation)
