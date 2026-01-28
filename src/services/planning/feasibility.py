@@ -206,6 +206,7 @@ def _categorize_blockers(missing_components: List[Dict[str, Any]]) -> BlockerSum
 def check_production_feasibility(
     event_id: int,
     *,
+    production_aware: bool = True,
     session: Optional[Session] = None,
 ) -> List[Dict[str, Any]]:
     """Check production feasibility for all production targets of an event.
@@ -215,6 +216,8 @@ def check_production_feasibility(
 
     Args:
         event_id: Event to check production targets for
+        production_aware: If True (default), check remaining batches only.
+                         If False, check total planned batches (legacy behavior).
         session: Optional database session
 
     Returns:
@@ -222,17 +225,20 @@ def check_production_feasibility(
             - recipe_id: int
             - recipe_name: str
             - target_batches: int
+            - remaining_batches: int (only when production_aware=True)
             - can_produce: bool
             - missing: List[Dict] with ingredient details if not feasible
+            - status: str (COMPLETE when all batches done, only when production_aware=True)
     """
     if session is not None:
-        return _check_production_feasibility_impl(event_id, session)
+        return _check_production_feasibility_impl(event_id, production_aware, session)
     with session_scope() as session:
-        return _check_production_feasibility_impl(event_id, session)
+        return _check_production_feasibility_impl(event_id, production_aware, session)
 
 
 def _check_production_feasibility_impl(
     event_id: int,
+    production_aware: bool,
     session: Session,
 ) -> List[Dict[str, Any]]:
     """Implementation of check_production_feasibility."""
@@ -243,28 +249,60 @@ def _check_production_feasibility_impl(
         .all()
     )
 
+    # Get remaining batches per recipe if production-aware
+    # Lazy import to avoid circular import (progress.py imports feasibility)
+    remaining_by_recipe = {}
+    if production_aware:
+        from src.services.planning.progress import get_remaining_production_needs
+        remaining_by_recipe = get_remaining_production_needs(event_id, session=session)
+
     results = []
 
     for target in targets:
         # Get recipe name
         recipe_name = target.recipe.name if target.recipe else f"Recipe {target.recipe_id}"
 
+        # Determine how many batches to check
+        if production_aware:
+            batches_to_check = remaining_by_recipe.get(target.recipe_id, target.target_batches)
+        else:
+            batches_to_check = target.target_batches
+
+        # Skip ingredient check if no batches remaining (all complete)
+        if production_aware and batches_to_check == 0:
+            results.append(
+                {
+                    "recipe_id": target.recipe_id,
+                    "recipe_name": recipe_name,
+                    "target_batches": target.target_batches,
+                    "remaining_batches": 0,
+                    "can_produce": True,  # Already complete
+                    "missing": [],
+                    "status": "COMPLETE",
+                }
+            )
+            continue
+
         # Use existing check_can_produce with session passed through
         check_result = batch_production_service.check_can_produce(
             target.recipe_id,
-            target.target_batches,
+            batches_to_check,  # Use remaining (or total if not production_aware)
             session=session,
         )
 
-        results.append(
-            {
-                "recipe_id": target.recipe_id,
-                "recipe_name": recipe_name,
-                "target_batches": target.target_batches,
-                "can_produce": check_result["can_produce"],
-                "missing": check_result["missing"],
-            }
-        )
+        result_dict = {
+            "recipe_id": target.recipe_id,
+            "recipe_name": recipe_name,
+            "target_batches": target.target_batches,
+            "can_produce": check_result["can_produce"],
+            "missing": check_result["missing"],
+        }
+
+        # Add remaining_batches only when production_aware
+        if production_aware:
+            result_dict["remaining_batches"] = batches_to_check
+
+        results.append(result_dict)
 
     return results
 
