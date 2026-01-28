@@ -23,10 +23,10 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T001 Create PlanSnapshot model in `src/models/plan_snapshot.py`
-- [ ] T002 Add plan_snapshot relationship to Event model in `src/models/event.py`
-- [ ] T003 Update `src/models/__init__.py` to export PlanSnapshot
-- [ ] T004 Write model unit tests in `src/tests/test_plan_snapshot_model.py`
+- [x] T001 Create PlanSnapshot model in `src/models/plan_snapshot.py`
+- [x] T002 Add plan_snapshot relationship to Event model in `src/models/event.py`
+- [x] T003 Update `src/models/__init__.py` to export PlanSnapshot
+- [x] T004 Write model unit tests in `src/tests/test_plan_snapshot_model.py`
 
 ### Implementation Notes
 - Follow existing model patterns (BaseModel inheritance, SQLAlchemy 2.x)
