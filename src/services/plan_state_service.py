@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from src.models.event import Event, PlanState
 from src.services.database import session_scope
 from src.services.exceptions import PlanStateError, ValidationError
+from src.services.plan_snapshot_service import create_plan_snapshot
 
 
 def _get_event_or_raise(event_id: int, session: Session) -> Event:
@@ -112,6 +113,9 @@ def _start_production_impl(event_id: int, session: Session) -> Event:
             event.plan_state,
             "start production (must be in LOCKED state)"
         )
+
+    # F078: Create snapshot BEFORE state transition
+    create_plan_snapshot(event_id, session)
 
     event.plan_state = PlanState.IN_PRODUCTION
     session.flush()
