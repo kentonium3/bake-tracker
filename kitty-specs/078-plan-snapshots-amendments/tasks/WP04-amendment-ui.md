@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Amendment UI Controls
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 - WP03
@@ -620,3 +620,4 @@ def _format_amendment_summary(self, amendment) -> str:
 ## Activity Log
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
+- 2026-01-28T04:04:37Z – unknown – shell_pid=80435 – lane=for_review – Amendment UI complete with Drop/Add FG and Modify Batch dialogs, history panel, state-based visibility
