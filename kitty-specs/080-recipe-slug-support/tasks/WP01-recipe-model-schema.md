@@ -8,7 +8,7 @@ subtasks:
   - "T005"
 title: "Recipe Model Schema Changes"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "45860"
@@ -305,3 +305,4 @@ print(f'Previous slug column exists: {hasattr(Recipe, \"previous_slug\")}')
 
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-28T16:35:52Z – claude-opus – shell_pid=45860 – lane=doing – Started implementation via workflow command
+- 2026-01-28T16:50:12Z – claude-opus – shell_pid=45860 – lane=for_review – Ready for review: Added slug and previous_slug columns to Recipe model with auto-generation and validation
