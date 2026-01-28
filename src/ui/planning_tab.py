@@ -389,6 +389,22 @@ class PlanningTab(ctk.CTkFrame):
         self._history_content = ctk.CTkFrame(self._amendment_history_frame)
         self._history_content.pack(fill="x")
 
+        # F078: Comparison view (T023-T025)
+        self._comparison_visible = False
+        self._show_comparison_btn = ctk.CTkButton(
+            amendment_header,
+            text="Show Comparison",
+            command=self._toggle_comparison_view,
+            width=130,
+        )
+        self._show_comparison_btn.pack(side="right", padx=5)
+
+        self._comparison_frame = ctk.CTkScrollableFrame(
+            self._amendment_controls_frame,
+            height=200,
+        )
+        # Don't pack initially - shown on demand
+
         # Frame starts hidden
 
     def _create_shopping_summary_frame(self) -> None:
@@ -1255,6 +1271,146 @@ class PlanningTab(ctk.CTkFrame):
         elif amendment.amendment_type.value == "modify_batch":
             return f"{data.get('recipe_name', 'Unknown')}: {data.get('old_batches', '?')} -> {data.get('new_batches', '?')} batches"
         return "Unknown amendment"
+
+    # =========================================================================
+    # F078: Comparison View (T023-T025)
+    # =========================================================================
+
+    def _toggle_comparison_view(self) -> None:
+        """Toggle comparison view visibility (F078)."""
+        if self._comparison_visible:
+            self._comparison_frame.pack_forget()
+            self._show_comparison_btn.configure(text="Show Comparison")
+            self._comparison_visible = False
+        else:
+            self._refresh_comparison_view()
+            self._comparison_frame.pack(fill="x", padx=5, pady=5)
+            self._show_comparison_btn.configure(text="Hide Comparison")
+            self._comparison_visible = True
+
+    def _refresh_comparison_view(self) -> None:
+        """Refresh the comparison view with current data (F078)."""
+        # Clear existing
+        for widget in self._comparison_frame.winfo_children():
+            widget.destroy()
+
+        if not self._selected_event_id:
+            return
+
+        try:
+            from src.services import plan_snapshot_service
+
+            comparison = plan_snapshot_service.get_plan_comparison(
+                self._selected_event_id
+            )
+
+            if not comparison.has_snapshot:
+                ctk.CTkLabel(
+                    self._comparison_frame,
+                    text="No snapshot available (production not started)",
+                    text_color="gray",
+                ).pack(pady=10)
+                return
+
+            # Header
+            header_text = f"Plan Comparison ({comparison.total_changes} changes)"
+            ctk.CTkLabel(
+                self._comparison_frame,
+                text=header_text,
+                font=ctk.CTkFont(size=12, weight="bold"),
+            ).pack(anchor="w", padx=5, pady=5)
+
+            # FG comparison section
+            if comparison.finished_goods:
+                self._render_fg_comparison(comparison.finished_goods)
+
+            # Batch comparison section
+            if comparison.batch_decisions:
+                self._render_batch_comparison(comparison.batch_decisions)
+
+            if not comparison.has_changes:
+                ctk.CTkLabel(
+                    self._comparison_frame,
+                    text="No changes from original plan.",
+                    text_color="gray",
+                ).pack(pady=5)
+
+        except Exception as e:
+            print(f"Warning: Could not refresh comparison view: {e}")
+            ctk.CTkLabel(
+                self._comparison_frame,
+                text=f"Error loading comparison: {e}",
+                text_color="red",
+            ).pack(anchor="w", padx=10, pady=5)
+
+    def _render_fg_comparison(self, fg_items: list) -> None:
+        """Render finished goods comparison section (F078/T024)."""
+        section = ctk.CTkFrame(self._comparison_frame)
+        section.pack(fill="x", padx=5, pady=5)
+
+        ctk.CTkLabel(
+            section, text="Finished Goods", font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        for item in fg_items:
+            row = ctk.CTkFrame(section, fg_color="transparent")
+            row.pack(fill="x", pady=1)
+
+            # Status indicator and color
+            if item.status == "dropped":
+                indicator = "[-]"
+                color = "#ff6b6b"  # Red
+                text = f"{item.fg_name}: was {item.original_quantity}"
+            elif item.status == "added":
+                indicator = "[+]"
+                color = "#51cf66"  # Green
+                text = f"{item.fg_name}: now {item.current_quantity}"
+            elif item.status == "modified":
+                indicator = "[~]"
+                color = "#fcc419"  # Yellow
+                text = f"{item.fg_name}: {item.original_quantity} -> {item.current_quantity}"
+            else:
+                indicator = "[ ]"
+                color = "gray"
+                text = f"{item.fg_name}: {item.current_quantity}"
+
+            ctk.CTkLabel(
+                row, text=f"{indicator} {text}", text_color=color
+            ).pack(anchor="w", padx=10)
+
+    def _render_batch_comparison(self, batch_items: list) -> None:
+        """Render batch decisions comparison section (F078/T025)."""
+        section = ctk.CTkFrame(self._comparison_frame)
+        section.pack(fill="x", padx=5, pady=5)
+
+        ctk.CTkLabel(
+            section, text="Batch Decisions", font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        for item in batch_items:
+            row = ctk.CTkFrame(section, fg_color="transparent")
+            row.pack(fill="x", pady=1)
+
+            if item.status == "modified":
+                indicator = "[~]"
+                color = "#fcc419"  # Yellow
+                text = f"{item.recipe_name}: {item.original_batches} -> {item.current_batches} batches"
+            elif item.status == "dropped":
+                indicator = "[-]"
+                color = "#ff6b6b"  # Red
+                text = f"{item.recipe_name}: was {item.original_batches} batches"
+            elif item.status == "added":
+                indicator = "[+]"
+                color = "#51cf66"  # Green
+                text = f"{item.recipe_name}: now {item.current_batches} batches"
+            else:
+                indicator = "[ ]"
+                color = "gray"
+                text = f"{item.recipe_name}: {item.current_batches} batches"
+
+            ctk.CTkLabel(
+                row, text=f"{indicator} {text}", text_color=color
+            ).pack(anchor="w", padx=10)
 
     def _on_drop_fg_click(self) -> None:
         """Handle Drop FG button click (F078)."""

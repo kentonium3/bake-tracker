@@ -1,6 +1,6 @@
 """Plan Snapshot Service for F078.
 
-Provides functions to create and retrieve plan snapshots.
+Provides functions to create, retrieve, and compare plan snapshots.
 Snapshots capture complete plan state when production starts.
 
 Session Management Pattern (from CLAUDE.md):
@@ -9,9 +9,64 @@ Session Management Pattern (from CLAUDE.md):
 - If session is None, create a new session via session_scope()
 """
 
-from typing import Optional
+from dataclasses import dataclass
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
+
+
+# =============================================================================
+# Comparison Dataclasses (T021)
+# =============================================================================
+
+
+@dataclass
+class FGComparisonItem:
+    """Comparison item for a finished good."""
+
+    fg_id: int
+    fg_name: str
+    original_quantity: Optional[int]  # None if added via amendment
+    current_quantity: Optional[int]  # None if dropped via amendment
+    status: str  # "unchanged", "added", "dropped", "modified"
+
+    @property
+    def is_changed(self) -> bool:
+        return self.status != "unchanged"
+
+
+@dataclass
+class BatchComparisonItem:
+    """Comparison item for a batch decision."""
+
+    recipe_id: int
+    recipe_name: str
+    original_batches: Optional[int]  # None if recipe added
+    current_batches: Optional[int]  # None if recipe removed
+    status: str  # "unchanged", "modified", "added", "dropped"
+
+    @property
+    def is_changed(self) -> bool:
+        return self.status != "unchanged"
+
+
+@dataclass
+class PlanComparison:
+    """Complete plan comparison result."""
+
+    has_snapshot: bool
+    finished_goods: List[FGComparisonItem]
+    batch_decisions: List[BatchComparisonItem]
+
+    @property
+    def total_changes(self) -> int:
+        fg_changes = sum(1 for fg in self.finished_goods if fg.is_changed)
+        batch_changes = sum(1 for bd in self.batch_decisions if bd.is_changed)
+        return fg_changes + batch_changes
+
+    @property
+    def has_changes(self) -> bool:
+        return self.total_changes > 0
 
 from src.models import Event, PlanSnapshot, EventRecipe, EventFinishedGood, BatchDecision
 from src.services.database import session_scope
@@ -155,3 +210,164 @@ def get_plan_snapshot(event_id: int, session: Session = None) -> Optional[PlanSn
             # Ensure data is loaded before session closes
             _ = snapshot.snapshot_data
         return snapshot
+
+
+# =============================================================================
+# Plan Comparison (T022)
+# =============================================================================
+
+
+def _get_plan_comparison_impl(event_id: int, session: Session) -> PlanComparison:
+    """Internal implementation of get_plan_comparison."""
+    # Get snapshot
+    snapshot = session.query(PlanSnapshot).filter(
+        PlanSnapshot.event_id == event_id
+    ).first()
+
+    if snapshot is None:
+        return PlanComparison(
+            has_snapshot=False,
+            finished_goods=[],
+            batch_decisions=[],
+        )
+
+    snapshot_data = snapshot.snapshot_data
+
+    # Parse original FGs from snapshot
+    original_fgs = {
+        fg["fg_id"]: fg
+        for fg in snapshot_data.get("finished_goods", [])
+    }
+
+    # Get current FGs
+    current_event_fgs = session.query(EventFinishedGood).filter(
+        EventFinishedGood.event_id == event_id
+    ).all()
+    current_fgs = {
+        efg.finished_good_id: {
+            "fg_id": efg.finished_good_id,
+            "fg_name": efg.finished_good.display_name if efg.finished_good else "Unknown",
+            "quantity": efg.quantity,
+        }
+        for efg in current_event_fgs
+    }
+
+    # Compare FGs
+    fg_comparison = []
+    all_fg_ids = set(original_fgs.keys()) | set(current_fgs.keys())
+
+    for fg_id in sorted(all_fg_ids):
+        original = original_fgs.get(fg_id)
+        current = current_fgs.get(fg_id)
+
+        if original and current:
+            # Present in both
+            orig_qty = original.get("quantity")
+            curr_qty = current.get("quantity")
+            status = "unchanged" if orig_qty == curr_qty else "modified"
+            fg_comparison.append(FGComparisonItem(
+                fg_id=fg_id,
+                fg_name=original.get("fg_name", "Unknown"),
+                original_quantity=orig_qty,
+                current_quantity=curr_qty,
+                status=status,
+            ))
+        elif original and not current:
+            # Dropped
+            fg_comparison.append(FGComparisonItem(
+                fg_id=fg_id,
+                fg_name=original.get("fg_name", "Unknown"),
+                original_quantity=original.get("quantity"),
+                current_quantity=None,
+                status="dropped",
+            ))
+        elif current and not original:
+            # Added
+            fg_comparison.append(FGComparisonItem(
+                fg_id=fg_id,
+                fg_name=current.get("fg_name", "Unknown"),
+                original_quantity=None,
+                current_quantity=current.get("quantity"),
+                status="added",
+            ))
+
+    # Parse original batch decisions from snapshot
+    original_batches = {
+        bd["recipe_id"]: bd
+        for bd in snapshot_data.get("batch_decisions", [])
+    }
+
+    # Get current batch decisions
+    current_batch_decisions = session.query(BatchDecision).filter(
+        BatchDecision.event_id == event_id
+    ).all()
+    current_batches = {
+        bd.recipe_id: {
+            "recipe_id": bd.recipe_id,
+            "recipe_name": bd.recipe.name if bd.recipe else "Unknown",
+            "batches": bd.batches,
+        }
+        for bd in current_batch_decisions
+    }
+
+    # Compare batches
+    batch_comparison = []
+    all_recipe_ids = set(original_batches.keys()) | set(current_batches.keys())
+
+    for recipe_id in sorted(all_recipe_ids):
+        original = original_batches.get(recipe_id)
+        current = current_batches.get(recipe_id)
+
+        if original and current:
+            orig_count = original.get("batches")
+            curr_count = current.get("batches")
+            status = "unchanged" if orig_count == curr_count else "modified"
+            batch_comparison.append(BatchComparisonItem(
+                recipe_id=recipe_id,
+                recipe_name=original.get("recipe_name", "Unknown"),
+                original_batches=orig_count,
+                current_batches=curr_count,
+                status=status,
+            ))
+        elif original and not current:
+            batch_comparison.append(BatchComparisonItem(
+                recipe_id=recipe_id,
+                recipe_name=original.get("recipe_name", "Unknown"),
+                original_batches=original.get("batches"),
+                current_batches=None,
+                status="dropped",
+            ))
+        elif current and not original:
+            batch_comparison.append(BatchComparisonItem(
+                recipe_id=recipe_id,
+                recipe_name=current.get("recipe_name", "Unknown"),
+                original_batches=None,
+                current_batches=current.get("batches"),
+                status="added",
+            ))
+
+    return PlanComparison(
+        has_snapshot=True,
+        finished_goods=fg_comparison,
+        batch_decisions=batch_comparison,
+    )
+
+
+def get_plan_comparison(event_id: int, session: Session = None) -> PlanComparison:
+    """Compare original plan (snapshot) with current plan state.
+
+    Returns structured comparison showing what changed since
+    production started.
+
+    Args:
+        event_id: Event ID to compare
+        session: Optional session for transaction sharing
+
+    Returns:
+        PlanComparison with original vs current differences
+    """
+    if session is not None:
+        return _get_plan_comparison_impl(event_id, session)
+
+    with session_scope() as session:
+        return _get_plan_comparison_impl(event_id, session)

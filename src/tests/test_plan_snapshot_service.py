@@ -236,3 +236,216 @@ class TestStartProductionIntegration:
 
         # No batch decisions in this test (requires full FinishedUnit setup)
         assert len(data["batch_decisions"]) == 0
+
+
+class TestGetPlanComparison:
+    """Tests for get_plan_comparison function (T022)."""
+
+    def test_returns_no_snapshot_when_none_exists(self, test_db):
+        """Returns has_snapshot=False when no snapshot exists."""
+        session = test_db()
+
+        event = Event(
+            name="No Snapshot",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+        )
+        session.add(event)
+        session.flush()
+
+        comparison = plan_snapshot_service.get_plan_comparison(event.id, session)
+
+        assert not comparison.has_snapshot
+        assert comparison.finished_goods == []
+        assert comparison.batch_decisions == []
+        assert comparison.total_changes == 0
+
+    def test_detects_unchanged_plan(self, test_db):
+        """Detects no changes when plan matches snapshot."""
+        session = test_db()
+
+        # Create FG
+        fg = FinishedGood(
+            display_name="Test Box",
+            slug="test-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Unchanged Plan",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+        )
+        session.add(event)
+        session.flush()
+
+        # Add FG to event
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=5,
+        )
+        session.add(event_fg)
+        session.flush()
+
+        # Create snapshot
+        plan_snapshot_service.create_plan_snapshot(event.id, session)
+
+        # Get comparison (no changes made)
+        comparison = plan_snapshot_service.get_plan_comparison(event.id, session)
+
+        assert comparison.has_snapshot
+        assert len(comparison.finished_goods) == 1
+        assert comparison.finished_goods[0].status == "unchanged"
+        assert not comparison.has_changes
+        assert comparison.total_changes == 0
+
+    def test_detects_dropped_fg(self, test_db):
+        """Detects FG that was dropped after snapshot."""
+        session = test_db()
+
+        # Create FG
+        fg = FinishedGood(
+            display_name="Dropped Box",
+            slug="dropped-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create event
+        event = Event(
+            name="Drop Test",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+        )
+        session.add(event)
+        session.flush()
+
+        # Add FG to event
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=10,
+        )
+        session.add(event_fg)
+        session.flush()
+
+        # Create snapshot
+        plan_snapshot_service.create_plan_snapshot(event.id, session)
+
+        # Drop the FG (simulate amendment)
+        session.delete(event_fg)
+        session.flush()
+
+        # Get comparison
+        comparison = plan_snapshot_service.get_plan_comparison(event.id, session)
+
+        assert comparison.has_snapshot
+        assert len(comparison.finished_goods) == 1
+        assert comparison.finished_goods[0].status == "dropped"
+        assert comparison.finished_goods[0].original_quantity == 10
+        assert comparison.finished_goods[0].current_quantity is None
+        assert comparison.has_changes
+        assert comparison.total_changes == 1
+
+    def test_detects_added_fg(self, test_db):
+        """Detects FG that was added after snapshot."""
+        session = test_db()
+
+        # Create FG
+        fg = FinishedGood(
+            display_name="Added Box",
+            slug="added-box",
+        )
+        session.add(fg)
+        session.flush()
+
+        # Create event (empty initially)
+        event = Event(
+            name="Add Test",
+            event_date=datetime(2026, 12, 25).date(),
+            year=2026,
+        )
+        session.add(event)
+        session.flush()
+
+        # Create snapshot (empty)
+        plan_snapshot_service.create_plan_snapshot(event.id, session)
+
+        # Add FG after snapshot (simulate amendment)
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=7,
+        )
+        session.add(event_fg)
+        session.flush()
+
+        # Get comparison
+        comparison = plan_snapshot_service.get_plan_comparison(event.id, session)
+
+        assert comparison.has_snapshot
+        assert len(comparison.finished_goods) == 1
+        assert comparison.finished_goods[0].status == "added"
+        assert comparison.finished_goods[0].original_quantity is None
+        assert comparison.finished_goods[0].current_quantity == 7
+        assert comparison.has_changes
+        assert comparison.total_changes == 1
+
+
+class TestComparisonDataclasses:
+    """Tests for comparison dataclass properties (T021)."""
+
+    def test_fg_comparison_item_is_changed(self):
+        """FGComparisonItem.is_changed works correctly."""
+        from src.services.plan_snapshot_service import FGComparisonItem
+
+        unchanged = FGComparisonItem(1, "Box", 5, 5, "unchanged")
+        dropped = FGComparisonItem(2, "Box2", 5, None, "dropped")
+        added = FGComparisonItem(3, "Box3", None, 5, "added")
+
+        assert not unchanged.is_changed
+        assert dropped.is_changed
+        assert added.is_changed
+
+    def test_batch_comparison_item_is_changed(self):
+        """BatchComparisonItem.is_changed works correctly."""
+        from src.services.plan_snapshot_service import BatchComparisonItem
+
+        unchanged = BatchComparisonItem(1, "Recipe", 5, 5, "unchanged")
+        modified = BatchComparisonItem(2, "Recipe2", 5, 8, "modified")
+
+        assert not unchanged.is_changed
+        assert modified.is_changed
+
+    def test_plan_comparison_properties(self):
+        """PlanComparison properties work correctly."""
+        from src.services.plan_snapshot_service import (
+            PlanComparison,
+            FGComparisonItem,
+            BatchComparisonItem,
+        )
+
+        comparison = PlanComparison(
+            has_snapshot=True,
+            finished_goods=[
+                FGComparisonItem(1, "Box1", 5, 5, "unchanged"),
+                FGComparisonItem(2, "Box2", 5, None, "dropped"),
+            ],
+            batch_decisions=[
+                BatchComparisonItem(1, "Recipe1", 3, 5, "modified"),
+            ],
+        )
+
+        assert comparison.has_changes
+        assert comparison.total_changes == 2  # 1 dropped FG + 1 modified batch
+
+        empty_comparison = PlanComparison(
+            has_snapshot=True,
+            finished_goods=[FGComparisonItem(1, "Box", 5, 5, "unchanged")],
+            batch_decisions=[],
+        )
+        assert not empty_comparison.has_changes
+        assert empty_comparison.total_changes == 0
