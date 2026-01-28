@@ -7,12 +7,12 @@ subtasks:
   - "T004"
 title: "Remaining Needs Calculation"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-lead"
 shell_pid: "26843"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-28T06:03:15Z"
@@ -331,3 +331,4 @@ class TestGetRemainingProductionNeeds:
 - 2026-01-28T06:10:05Z – claude-opus – shell_pid=94498 – lane=doing – Started implementation via workflow command
 - 2026-01-28T06:17:08Z – claude-opus – shell_pid=94498 – lane=for_review – Complete: Added remaining_batches/overage_batches fields and get_remaining_production_needs() helper. All 11 tests pass.
 - 2026-01-28T12:37:37Z – claude-lead – shell_pid=26843 – lane=doing – Started review via workflow command
+- 2026-01-28T12:39:39Z – claude-lead – shell_pid=26843 – lane=done – Review passed: ProductionProgress DTO correctly extended with remaining_batches/overage_batches. max(0,...) guards prevent negatives. get_remaining_production_needs() helper passes session correctly. All 11 tests pass covering partial, exact, overage, and empty scenarios.
