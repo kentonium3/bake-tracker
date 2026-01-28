@@ -84,10 +84,10 @@
 **Estimated Lines**: ~400
 
 ### Included Subtasks
-- [ ] T011 Add snapshot model imports to import section and update delete order
-- [ ] T012 Implement `recipe_snapshots` import handler in `_import_entity_records()`
-- [ ] T013 Implement `finished_good_snapshots` import handler
-- [ ] T014 Add warning logging for missing parent entities (FR-013)
+- [x] T011 Add snapshot model imports to import section and update delete order
+- [x] T012 Implement `recipe_snapshots` import handler in `_import_entity_records()`
+- [x] T013 Implement `finished_good_snapshots` import handler
+- [x] T014 Add warning logging for missing parent entities (FR-013)
 
 ### Implementation Notes
 - Delete snapshots BEFORE parent entities in `_import_complete_impl()`
