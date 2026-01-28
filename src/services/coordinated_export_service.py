@@ -385,10 +385,14 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
             )
 
         # Build component list with FK resolution fields
+        # Feature 080: Add component_recipe_slug for portable identification
         components = []
         for rc in r.recipe_components:
             components.append(
                 {
+                    "component_recipe_slug": (
+                        rc.component_recipe.slug if rc.component_recipe else None
+                    ),
                     "component_recipe_name": (
                         rc.component_recipe.name if rc.component_recipe else None
                     ),
@@ -400,10 +404,13 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
 
         # F056: yield_quantity, yield_unit, yield_description removed
         # Yield data is now in FinishedUnit records
+        # Feature 080: Add slug and previous_slug for portable identification
         records.append(
             {
                 "uuid": str(r.uuid) if r.uuid else None,
                 "name": r.name,
+                "slug": r.slug,
+                "previous_slug": r.previous_slug,
                 "category": r.category,
                 "source": r.source,
                 "estimated_time_minutes": r.estimated_time_minutes,
@@ -722,7 +729,8 @@ def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
     """Export all finished units to JSON file with FK resolution.
 
     Feature 056: FinishedUnits are the single source of truth for yield tracking.
-    Recipe reference uses recipe.name for lookup during import.
+    Feature 080: Recipe reference uses recipe_slug for portable identification,
+    with recipe_name kept for backward compatibility.
     """
     units = session.query(FinishedUnit).options(joinedload(FinishedUnit.recipe)).all()
 
@@ -733,7 +741,8 @@ def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
                 "uuid": str(fu.uuid) if fu.uuid else None,
                 "slug": fu.slug,
                 "display_name": fu.display_name,
-                # FK resolved by recipe name
+                # Feature 080: FK resolved by recipe slug (preferred) or name (backward compat)
+                "recipe_slug": fu.recipe.slug if fu.recipe else None,
                 "recipe_name": fu.recipe.name if fu.recipe else None,
                 "category": fu.category,
                 "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
@@ -764,10 +773,12 @@ def _export_events(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for e in events:
         # Build production targets list
+        # Feature 080: Add recipe_slug for portable identification
         production_targets = []
         for pt in e.production_targets:
             production_targets.append(
                 {
+                    "recipe_slug": pt.recipe.slug if pt.recipe else None,
                     "recipe_name": pt.recipe.name if pt.recipe else None,
                     "target_batches": pt.target_batches,
                     "notes": pt.notes,
@@ -805,7 +816,11 @@ def _export_events(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
-    """Export all production runs to JSON file with FK resolution."""
+    """Export all production runs to JSON file with FK resolution.
+
+    Feature 080: Recipe reference uses recipe_slug for portable identification,
+    with recipe_name kept for backward compatibility.
+    """
     runs = (
         session.query(ProductionRun)
         .options(
@@ -821,7 +836,8 @@ def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
         records.append(
             {
                 "uuid": str(r.uuid) if r.uuid else None,
-                # FK resolved by names/slugs
+                # Feature 080: FK resolved by slug (preferred) or name (backward compat)
+                "recipe_slug": r.recipe.slug if r.recipe else None,
                 "recipe_name": r.recipe.name if r.recipe else None,
                 "finished_unit_slug": r.finished_unit.slug if r.finished_unit else None,
                 "event_name": r.event.name if r.event else None,
