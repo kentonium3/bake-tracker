@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Export Service Updates
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 080-recipe-slug-support-WP02
 base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
@@ -15,7 +15,7 @@ subtasks:
 - T018
 phase: Phase 1 - Export/Import
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "50556"
 review_status: ''
 reviewed_by: ''
@@ -454,3 +454,4 @@ spec-kitty implement WP03 --base WP02
 ## Activity Log
 
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-28T17:02:54Z – claude-opus – shell_pid=50556 – lane=for_review – All T013-T018 subtasks implemented. 53 tests pass (46 existing export + 7 new slug tests).
