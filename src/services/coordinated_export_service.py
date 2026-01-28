@@ -48,8 +48,11 @@ from src.models.finished_unit import FinishedUnit
 from src.models.event import Event, EventProductionTarget, EventAssemblyTarget
 from src.models.production_run import ProductionRun
 from src.models.inventory_depletion import InventoryDepletion
+# Feature 081: Snapshot models for export
 from src.models.recipe_snapshot import RecipeSnapshot
 from src.models.finished_good_snapshot import FinishedGoodSnapshot
+from src.models.material_unit_snapshot import MaterialUnitSnapshot
+from src.models.finished_unit_snapshot import FinishedUnitSnapshot
 from src.services.database import session_scope
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -130,6 +133,8 @@ DEPENDENCY_ORDER = {
     # Feature 081: Snapshot exports for cost history preservation
     "recipe_snapshots": (19, ["recipes"]),
     "finished_good_snapshots": (20, ["finished_goods"]),
+    "material_unit_snapshots": (21, ["material_units"]),
+    "finished_unit_snapshots": (22, ["finished_units"]),
 }
 
 
@@ -973,6 +978,68 @@ def _export_finished_good_snapshots(output_dir: Path, session: Session) -> FileE
     return _write_entity_file(output_dir, "finished_good_snapshots", records)
 
 
+def _export_material_unit_snapshots(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material unit snapshots to JSON file with FK resolution.
+
+    Feature 081: MaterialUnitSnapshot export for material pricing history.
+    Exports in chronological order (oldest first) per FR-015.
+    """
+    snapshots = (
+        session.query(MaterialUnitSnapshot)
+        .options(joinedload(MaterialUnitSnapshot.material_unit))
+        .order_by(MaterialUnitSnapshot.snapshot_date)
+        .all()
+    )
+
+    records = []
+    for snap in snapshots:
+        records.append(
+            {
+                "uuid": str(snap.uuid) if snap.uuid else None,
+                # FK resolved by material_unit slug
+                "material_unit_slug": snap.material_unit.slug if snap.material_unit else None,
+                # Snapshot metadata
+                "snapshot_date": snap.snapshot_date.isoformat() if snap.snapshot_date else None,
+                "is_backfilled": snap.is_backfilled,
+                # JSON data preserved exactly
+                "definition_data": snap.definition_data,
+            }
+        )
+
+    return _write_entity_file(output_dir, "material_unit_snapshots", records)
+
+
+def _export_finished_unit_snapshots(output_dir: Path, session: Session) -> FileEntry:
+    """Export all finished unit snapshots to JSON file with FK resolution.
+
+    Feature 081: FinishedUnitSnapshot export for unit cost history.
+    Exports in chronological order (oldest first) per FR-015.
+    """
+    snapshots = (
+        session.query(FinishedUnitSnapshot)
+        .options(joinedload(FinishedUnitSnapshot.finished_unit))
+        .order_by(FinishedUnitSnapshot.snapshot_date)
+        .all()
+    )
+
+    records = []
+    for snap in snapshots:
+        records.append(
+            {
+                "uuid": str(snap.uuid) if snap.uuid else None,
+                # FK resolved by finished_unit slug
+                "finished_unit_slug": snap.finished_unit.slug if snap.finished_unit else None,
+                # Snapshot metadata
+                "snapshot_date": snap.snapshot_date.isoformat() if snap.snapshot_date else None,
+                "is_backfilled": snap.is_backfilled,
+                # JSON data preserved exactly
+                "definition_data": snap.definition_data,
+            }
+        )
+
+    return _write_entity_file(output_dir, "finished_unit_snapshots", records)
+
+
 # ============================================================================
 # Main Export Functions
 # ============================================================================
@@ -1053,6 +1120,8 @@ def _export_complete_impl(
     # Feature 081: Snapshot exports for cost history preservation
     manifest.files.append(_export_recipe_snapshots(output_dir, session))
     manifest.files.append(_export_finished_good_snapshots(output_dir, session))
+    manifest.files.append(_export_material_unit_snapshots(output_dir, session))
+    manifest.files.append(_export_finished_unit_snapshots(output_dir, session))
 
     # Sort files by import_order
     manifest.files.sort(key=lambda f: f.import_order)
