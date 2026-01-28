@@ -147,11 +147,11 @@
 **Estimated Lines**: ~450
 
 ### Included Subtasks
-- [ ] T019 Create test fixtures for all 4 snapshot types
-- [ ] T020 Write export unit tests (verify JSON structure)
-- [ ] T021 Write import unit tests (verify FK resolution)
-- [ ] T022 Write round-trip integration test (export → import → export → compare)
-- [ ] T023 Write edge case tests (missing parent, empty export, duplicate UUID)
+- [x] T019 Create test fixtures for all 4 snapshot types
+- [x] T020 Write export unit tests (verify JSON structure)
+- [x] T021 Write import unit tests (verify FK resolution)
+- [x] T022 Write round-trip integration test (export → import → export → compare)
+- [x] T023 Write edge case tests (missing parent, empty export, duplicate UUID)
 
 ### Implementation Notes
 - Place tests in `src/tests/test_snapshot_export_import.py`
