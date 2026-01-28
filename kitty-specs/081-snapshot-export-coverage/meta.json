@@ -4,5 +4,7 @@
   "friendly_name": "Snapshot Export Coverage",
   "mission": "software-dev",
   "source_description": "F081 Snapshot Export Coverage - Add export/import support for RecipeSnapshot, FinishedGoodSnapshot, MaterialUnitSnapshot, and FinishedUnitSnapshot entities. Critical for preserving cost history audit trail during data migrations. Includes 4 export methods, 4 import methods, and orchestration updates.",
-  "created_at": "2026-01-28T18:30:00Z"
+  "created_at": "2026-01-28T18:30:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-28T18:48:36.889653+00:00"
 }
