@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Import Service Updates
-lane: "for_review"
+lane: "doing"
 dependencies: [WP02]
 base_branch: 080-recipe-slug-support-WP02
 base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
@@ -16,8 +16,8 @@ subtasks:
 - T025
 phase: Phase 1 - Export/Import
 assignee: ''
-agent: ''
-shell_pid: "51946"
+agent: "claude-code"
+shell_pid: "60473"
 review_status: ''
 reviewed_by: ''
 history:
@@ -604,3 +604,4 @@ class TestRecipeImportSlugResolution:
 
 - 2026-01-28T07:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-28T17:23:41Z – unknown – shell_pid=51946 – lane=for_review – Ready for review: Import service updates complete with 15 tests passing
+- 2026-01-28T17:49:08Z – claude-code – shell_pid=60473 – lane=doing – Started review via workflow command
