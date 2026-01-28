@@ -87,10 +87,10 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T009 Add production_aware parameter (default True) to get_shopping_list() and related functions
-- [ ] T010 Create _calculate_remaining_ingredient_needs() helper to compute needs for remaining batches
-- [ ] T011 Integrate remaining needs calculation into shopping list flow
-- [ ] T012 [P] Write tests for production-aware shopping list in `src/tests/planning/test_shopping_list.py`
+- [x] T009 Add production_aware parameter (default True) to get_shopping_list() and related functions
+- [x] T010 Create _calculate_remaining_ingredient_needs() helper to compute needs for remaining batches
+- [x] T011 Integrate remaining needs calculation into shopping list flow
+- [x] T012 [P] Write tests for production-aware shopping list in `src/tests/planning/test_shopping_list.py`
 
 ### Implementation Notes
 1. Add `production_aware: bool = True` parameter to get_shopping_list(), get_items_to_buy(), get_shopping_summary()
