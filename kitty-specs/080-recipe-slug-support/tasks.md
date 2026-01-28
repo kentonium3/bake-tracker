@@ -55,7 +55,7 @@
 - [x] T008: Update `create_recipe()` to generate slug if not provided
 - [x] T009: Update `update_recipe()` to handle rename (regenerate slug, preserve previous_slug)
 - [x] T010: [P] Add unit tests for slug generation from various names
-- [ ] T011: [P] Add unit tests for collision handling (-2, -3 suffixes)
+- [x] T011: [P] Add unit tests for collision handling (-2, -3 suffixes)
 - [ ] T012: [P] Add unit tests for rename behavior (previous_slug preservation)
 
 ### Implementation Notes
