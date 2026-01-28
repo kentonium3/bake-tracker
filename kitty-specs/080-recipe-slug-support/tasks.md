@@ -90,7 +90,7 @@
 - [x] T015: [P] Add `recipe_slug` to `_export_finished_units()` (alongside recipe_name)
 - [x] T016: [P] Add `recipe_slug` to `_export_event_production_targets()` (in events.json)
 - [x] T017: [P] Add `recipe_slug` to `_export_production_runs()` (alongside recipe_name)
-- [ ] T018: Add unit test verifying all exports include recipe_slug fields
+- [x] T018: Add unit test verifying all exports include recipe_slug fields
 
 ### Implementation Notes
 - File: `src/services/coordinated_export_service.py`
