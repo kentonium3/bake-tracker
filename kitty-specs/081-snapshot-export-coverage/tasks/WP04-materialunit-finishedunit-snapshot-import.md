@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: MaterialUnit & FinishedUnit Snapshot Import
+lane: "doing"
+dependencies: [WP02, WP03]
+base_branch: 081-snapshot-export-coverage-WP03
+base_commit: e7bc2958640944d1a1a5555b53a4b774fac3dc75
+created_at: '2026-01-28T20:29:36.701686+00:00'
 subtasks:
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-title: "MaterialUnit & FinishedUnit Snapshot Import"
-phase: "Phase 2 - Import Functions"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02", "WP03"]
+- T015
+- T016
+- T017
+- T018
+phase: Phase 2 - Import Functions
+assignee: ''
+agent: ''
+shell_pid: "77961"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T18:40:28Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T18:40:28Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – MaterialUnit & FinishedUnit Snapshot Import
