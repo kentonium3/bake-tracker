@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Amendment Service
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 078-plan-snapshots-amendments-WP02
 base_commit: c82b5959071139d7eb17fea97e57800eb2961e33
@@ -944,3 +944,4 @@ class TestGetAmendments:
 ## Activity Log
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
+- 2026-01-28T03:58:58Z – unknown – shell_pid=78810 – lane=for_review – Amendment service complete with 16 passing tests. All CRUD operations (drop/add FG, modify batch) with state validation and audit trail.
