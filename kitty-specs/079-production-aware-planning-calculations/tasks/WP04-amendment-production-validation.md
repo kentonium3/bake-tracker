@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Amendment Production Validation
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 079-production-aware-planning-calculations-WP01
@@ -495,3 +495,4 @@ class TestGetRecipesForFinishedGood:
 ## Activity Log
 
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-28T06:57:05Z – unknown – shell_pid=96468 – lane=for_review – Ready for review: Production-aware amendment validation implemented with 13 new tests. All 29 tests pass.
