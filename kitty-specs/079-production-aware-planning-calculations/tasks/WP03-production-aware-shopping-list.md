@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Production-Aware Shopping List
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 079-production-aware-planning-calculations-WP01
 base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
@@ -492,3 +492,4 @@ class TestGetItemsToBuy:
 ## Activity Log
 
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-28T06:51:09Z – unknown – shell_pid=96442 – lane=for_review – Implementation complete: Added production_aware parameter to shopping list functions. All 32 tests pass.
