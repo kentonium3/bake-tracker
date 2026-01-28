@@ -85,7 +85,7 @@
 **Estimated Size**: ~380 lines
 
 ### Included Subtasks
-- [ ] T013: Add `slug`, `previous_slug` to `_export_recipes()` in coordinated_export_service.py
+- [x] T013: Add `slug`, `previous_slug` to `_export_recipes()` in coordinated_export_service.py
 - [ ] T014: Add `component_recipe_slug` to recipe component export (nested in recipes.json)
 - [ ] T015: [P] Add `recipe_slug` to `_export_finished_units()` (alongside recipe_name)
 - [ ] T016: [P] Add `recipe_slug` to `_export_event_production_targets()` (in events.json)
