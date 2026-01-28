@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: UI Progress Display
+lane: "doing"
+dependencies: [WP01, WP04]
+base_branch: 079-production-aware-planning-calculations-WP04
+base_commit: 3902ad097d18b29209277e63cc2860b183755479
+created_at: '2026-01-28T12:05:08.190146+00:00'
 subtasks:
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "UI Progress Display"
-phase: "Phase 3 - Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01", "WP04"]
+- T018
+- T019
+- T020
+- T021
+phase: Phase 3 - Polish
+assignee: ''
+agent: ''
+shell_pid: "22519"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T06:03:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T06:03:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – UI Progress Display
