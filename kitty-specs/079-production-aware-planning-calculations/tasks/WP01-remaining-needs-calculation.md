@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Remaining Needs Calculation"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "94498"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -328,3 +328,4 @@ class TestGetRemainingProductionNeeds:
 ## Activity Log
 
 - 2026-01-28T06:03:15Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-28T06:10:05Z – claude-opus – shell_pid=94498 – lane=doing – Started implementation via workflow command
