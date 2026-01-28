@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Snapshot Service & Production Hook
+lane: "doing"
+dependencies: [WP01]
+base_branch: 078-plan-snapshots-amendments-WP01
+base_commit: d2f8686ceba5c554cd7771fbb22fd17de0e66172
+created_at: '2026-01-28T03:40:43.250809+00:00'
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Snapshot Service & Production Hook"
-phase: "Phase 0 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+- T009
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "77663"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T03:25:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T03:25:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Snapshot Service & Production Hook
