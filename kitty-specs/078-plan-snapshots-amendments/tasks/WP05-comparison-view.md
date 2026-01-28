@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Comparison View & Integration
+lane: "doing"
+dependencies: [WP02, WP03, WP04]
+base_branch: 078-plan-snapshots-amendments-WP04
+base_commit: 0474335093934e3aef6864ac6b3f0ec45d45f65b
+created_at: '2026-01-28T04:04:47.586373+00:00'
 subtasks:
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-title: "Comparison View & Integration"
-phase: "Phase 2 - Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02", "WP03", "WP04"]
+- T021
+- T022
+- T023
+- T024
+- T025
+- T026
+phase: Phase 2 - Polish
+assignee: ''
+agent: ''
+shell_pid: "81572"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-28T03:25:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T03:25:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Comparison View & Integration
