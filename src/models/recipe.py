@@ -8,8 +8,12 @@ This module contains:
 
 Feature 037: Added variant support (base_recipe_id, variant_name) and
 production readiness (is_production_ready) fields.
+
+Feature 080: Added slug and previous_slug for portable identification.
 """
 
+import re
+import unicodedata
 from datetime import datetime
 
 from sqlalchemy import (
@@ -24,11 +28,54 @@ from sqlalchemy import (
     CheckConstraint,
     UniqueConstraint,
     Boolean,
+    event,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from .base import BaseModel
 from src.utils.datetime_utils import utc_now
+
+
+def _generate_recipe_slug(name: str) -> str:
+    """Generate a URL-safe slug from recipe name.
+
+    Args:
+        name: Recipe name to convert to slug
+
+    Returns:
+        Lowercase slug with hyphens, alphanumeric only
+    """
+    if not name:
+        return "unknown-recipe"
+
+    # Normalize unicode characters (handles accents like e -> e)
+    slug = unicodedata.normalize("NFKD", name)
+    slug = slug.encode("ascii", "ignore").decode("ascii")
+
+    # Convert to lowercase
+    slug = slug.lower()
+
+    # Replace spaces and underscores with hyphens
+    slug = re.sub(r"[\s_]+", "-", slug)
+
+    # Remove non-alphanumeric characters (except hyphens)
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+
+    # Collapse multiple hyphens
+    slug = re.sub(r"-+", "-", slug)
+
+    # Remove leading/trailing hyphens
+    slug = slug.strip("-")
+
+    # Ensure not empty
+    if not slug:
+        return "unknown-recipe"
+
+    # Limit length (200 chars)
+    if len(slug) > 200:
+        slug = slug[:200].rstrip("-")
+
+    return slug
 
 
 class Recipe(BaseModel):
@@ -53,6 +100,21 @@ class Recipe(BaseModel):
 
     # Basic information
     name = Column(String(200), nullable=False, index=True)
+    # Feature 080: Portable identifier for export/import
+    slug = Column(
+        String(200),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="Unique human-readable identifier for export/import portability",
+    )
+    # Feature 080: Previous slug for one-rename grace period
+    previous_slug = Column(
+        String(200),
+        nullable=True,
+        index=True,
+        comment="Previous slug retained after rename for import compatibility",
+    )
     category = Column(String(100), nullable=False, index=True)
     source = Column(String(500), nullable=True)
 
@@ -124,12 +186,47 @@ class Recipe(BaseModel):
     __table_args__ = (
         Index("idx_recipe_name", "name"),
         Index("idx_recipe_category", "category"),
+        # Feature 080: Slug indexes for portable identification
+        Index("idx_recipe_slug", "slug", unique=True),
+        Index("idx_recipe_previous_slug", "previous_slug"),
         # Feature 037: Prevent self-referential variants
         CheckConstraint(
             "base_recipe_id IS NULL OR base_recipe_id != id",
             name="ck_recipe_no_self_variant",
         ),
     )
+
+    @validates("slug")
+    def validate_slug(self, key, value):
+        """Validate and normalize slug format.
+
+        Feature 080: Ensures slugs conform to expected format:
+        - Lowercase
+        - Alphanumeric and hyphens only
+        - Max 200 characters
+
+        Args:
+            key: The attribute name ('slug')
+            value: The slug value to validate
+
+        Returns:
+            Normalized slug value
+        """
+        if value is None:
+            return value  # Allow None during construction, event listener will populate
+
+        # Check format: lowercase, alphanumeric, hyphens only
+        if not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", value):
+            # Auto-normalize if invalid
+            normalized = re.sub(r"[^\w\s-]", "", value.lower())
+            normalized = re.sub(r"[\s_]+", "-", normalized).strip("-")
+            return normalized or "recipe"
+
+        # Check length
+        if len(value) > 200:
+            return value[:200].rstrip("-")
+
+        return value
 
     def __repr__(self) -> str:
         """String representation of recipe."""
@@ -443,3 +540,19 @@ class RecipeComponent(BaseModel):
             result["component_recipe_name"] = self.component_recipe.name
 
         return result
+
+
+# Feature 080: Event listener for auto-generating recipe slugs
+@event.listens_for(Recipe, "before_insert")
+def _generate_recipe_slug_on_insert(mapper, connection, target):
+    """Auto-generate slug before insert if not provided.
+
+    This ensures every recipe has a slug for portable identification.
+    The slug is generated from the recipe name using lowercase, hyphens,
+    and alphanumeric characters only.
+
+    Note: This provides basic slug generation. For unique slug generation
+    with collision handling, use RecipeService._generate_unique_slug().
+    """
+    if not target.slug and target.name:
+        target.slug = _generate_recipe_slug(target.name)
