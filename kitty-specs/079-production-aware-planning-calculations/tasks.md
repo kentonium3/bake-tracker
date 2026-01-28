@@ -57,7 +57,7 @@
 ### Included Subtasks
 - [x] T005 Add production_aware parameter (default True) to check_production_feasibility() signature
 - [x] T006 Import get_remaining_production_needs() from progress module
-- [ ] T007 Modify _check_production_feasibility_impl() to use remaining batches when production_aware=True
+- [x] T007 Modify _check_production_feasibility_impl() to use remaining batches when production_aware=True
 - [ ] T008 [P] Write tests for production-aware feasibility in `src/tests/planning/test_feasibility.py`
 
 ### Implementation Notes
