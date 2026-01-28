@@ -7,12 +7,19 @@
       "accepted_from_commit": "af516a3747dac15e275c150256ad2a9267d6d8e2",
       "branch": "main",
       "mode": "local"
+    },
+    {
+      "accepted_at": "2026-01-28T05:19:30Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "9f4979d372245621f71da9449e657df3c9763376",
+      "branch": "main",
+      "mode": "local"
     }
   ],
   "acceptance_mode": "local",
-  "accepted_at": "2026-01-28T05:18:59Z",
+  "accepted_at": "2026-01-28T05:19:30Z",
   "accepted_by": "claude",
-  "accepted_from_commit": "af516a3747dac15e275c150256ad2a9267d6d8e2",
+  "accepted_from_commit": "9f4979d372245621f71da9449e657df3c9763376",
   "created_at": "2026-01-27T22:14:00Z",
   "feature_number": "078",
   "friendly_name": "Plan Snapshots & Amendments",
