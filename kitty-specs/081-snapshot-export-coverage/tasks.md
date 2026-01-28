@@ -24,7 +24,7 @@
 - [x] T002 Implement `_export_recipe_snapshots()` function
 - [x] T003 Add FinishedGoodSnapshot model import and DEPENDENCY_ORDER entry
 - [x] T004 Implement `_export_finished_good_snapshots()` function
-- [ ] T005 Update `_export_complete_impl()` to call both export functions
+- [x] T005 Update `_export_complete_impl()` to call both export functions
 
 ### Implementation Notes
 - Follow existing `_export_finished_units()` pattern exactly
