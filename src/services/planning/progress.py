@@ -30,6 +30,8 @@ class ProductionProgress:
         recipe_name: The recipe display name
         target_batches: Number of batches planned to produce
         completed_batches: Number of batches actually produced
+        remaining_batches: Batches still to produce (max(0, target - completed))
+        overage_batches: Batches produced beyond target (max(0, completed - target))
         progress_percent: Percentage complete (0-100+, can exceed 100%)
         is_complete: True if completed_batches >= target_batches
     """
@@ -38,6 +40,8 @@ class ProductionProgress:
     recipe_name: str
     target_batches: int
     completed_batches: int
+    remaining_batches: int
+    overage_batches: int
     progress_percent: float
     is_complete: bool
 
@@ -102,6 +106,10 @@ def _get_production_progress_impl(
         target = item["target_batches"]
         completed = item["produced_batches"]
 
+        # Calculate remaining and overage batches
+        remaining = max(0, target - completed)
+        overage = max(0, completed - target)
+
         # Calculate progress percentage (guard against zero division)
         if target > 0:
             progress_percent = round((completed / target) * 100, 2)
@@ -114,12 +122,35 @@ def _get_production_progress_impl(
                 recipe_name=item["recipe_name"],
                 target_batches=target,
                 completed_batches=completed,
+                remaining_batches=remaining,
+                overage_batches=overage,
                 progress_percent=progress_percent,
                 is_complete=completed >= target,
             )
         )
 
     return results
+
+
+def get_remaining_production_needs(
+    event_id: int,
+    *,
+    session: Optional[Session] = None,
+) -> Dict[int, int]:
+    """Get remaining batches needed per recipe.
+
+    Convenience function that returns a mapping from recipe_id to
+    remaining_batches for use by feasibility and shopping list services.
+
+    Args:
+        event_id: Event to get remaining needs for
+        session: Optional database session
+
+    Returns:
+        Dict mapping recipe_id -> remaining_batches (0 if complete)
+    """
+    progress_list = get_production_progress(event_id, session=session)
+    return {p.recipe_id: p.remaining_batches for p in progress_list}
 
 
 def get_assembly_progress(
