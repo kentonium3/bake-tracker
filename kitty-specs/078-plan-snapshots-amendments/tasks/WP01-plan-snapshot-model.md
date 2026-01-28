@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "PlanSnapshot Model Foundation"
 phase: "Phase 0 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "76120"
@@ -408,3 +408,4 @@ class TestPlanSnapshotModel:
 
 - 2026-01-28T03:25:47Z – system – lane=planned – Prompt created.
 - 2026-01-28T03:34:20Z – claude-opus – shell_pid=76120 – lane=doing – Started implementation via workflow command
+- 2026-01-28T03:40:29Z – claude-opus – shell_pid=76120 – lane=for_review – Ready for review: PlanSnapshot model with tests, Event relationship, exports
