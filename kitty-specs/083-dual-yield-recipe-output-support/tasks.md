@@ -23,7 +23,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Add yield_type column to FinishedUnit model in `src/models/finished_unit.py`
+- [x] T001 Add yield_type column to FinishedUnit model in `src/models/finished_unit.py`
 - [ ] T002 Add CHECK constraint `ck_finished_unit_yield_type_valid` for valid values ('EA', 'SERVING')
 - [ ] T003 Add UNIQUE constraint `uq_finished_unit_recipe_item_unit_yield_type` on (recipe_id, item_unit, yield_type)
 - [ ] T004 Add index `idx_finished_unit_yield_type` for query performance
