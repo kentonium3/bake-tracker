@@ -573,11 +573,13 @@ class FinishedGoodDataTable(DataTable):
             display_name = f"↳ {display_name}"
 
         # Get yield info based on mode
+        # Feature 083: Include yield_type in display
+        yield_type = getattr(row_data, "yield_type", "SERVING") or "SERVING"
         if row_data.yield_mode.value == "discrete_count":
-            yield_info = f"{row_data.items_per_batch} {row_data.item_unit}/batch"
+            yield_info = f"{row_data.items_per_batch} {row_data.item_unit}/batch ({yield_type})"
             type_display = "Discrete Items"
         else:
-            yield_info = f"{row_data.batch_percentage}% of batch"
+            yield_info = f"{row_data.batch_percentage}% of batch ({yield_type})"
             type_display = "Batch Portion"
 
         # Feature 045: Cost columns removed (costs tracked on instances, not definitions)

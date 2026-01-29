@@ -2249,6 +2249,7 @@ def get_finished_units(
         - items_per_batch: int - Items produced per batch (copied from base for variants)
         - item_unit: str - Unit name (e.g., "cookie") (copied from base for variants)
         - yield_mode: str - "discrete_count" or "batch_portion"
+        - yield_type: str - "EA" or "SERVING" (Feature 083: Dual-yield support)
 
     Raises:
         RecipeNotFound: If recipe_id does not exist
@@ -2295,6 +2296,7 @@ def _get_finished_units_impl(recipe_id: int, session) -> List[Dict]:
             "items_per_batch": fu.items_per_batch,
             "item_unit": fu.item_unit,
             "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+            "yield_type": fu.yield_type,  # Feature 083: Dual-yield support
         }
         for fu in finished_units
     ]
