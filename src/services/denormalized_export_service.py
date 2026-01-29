@@ -221,6 +221,7 @@ RECIPES_CONTEXT_RICH_EDITABLE = [
 RECIPES_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
+    "slug",
     "name",
     "category",
     "is_archived",
@@ -1195,6 +1196,7 @@ def _export_recipes_context_rich_impl(output_path: str, session: Session) -> Exp
                 # Primary fields (readonly)
                 "id": recipe.id,
                 "uuid": str(recipe.uuid) if recipe.uuid else None,
+                "slug": recipe.slug,
                 "name": recipe.name,
                 "category": recipe.category,
                 "is_archived": recipe.is_archived,

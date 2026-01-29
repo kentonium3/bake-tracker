@@ -501,9 +501,8 @@ class TestExportComplete:
             assert manifest.export_date != ""
             assert "Seasonal Baking Tracker" in manifest.source
 
-            # Verify all entity files created (6 original + 1 finished_units + 7 material + 4 new = 18)
-            # F058 added material_inventory_items
-            assert len(manifest.files) == 18
+            # Verify all entity files created
+            assert len(manifest.files) == len(DEPENDENCY_ORDER)
 
             # Verify files sorted by import_order
             orders = [f.import_order for f in manifest.files]
@@ -644,9 +643,8 @@ class TestExportComplete:
             with session_scope() as session:
                 manifest = export_complete(tmpdir, session=session)
 
-                # Verify export completed (6 original + 1 finished_units + 7 material + 4 new = 18)
-                # F058 added material_inventory_items
-                assert len(manifest.files) == 18
+                # Verify export completed with all entity files
+                assert len(manifest.files) == len(DEPENDENCY_ORDER)
 
                 # Verify ingredients exported
                 ing_entry = next(
@@ -670,9 +668,7 @@ class TestValidateExport:
             result = validate_export(tmpdir)
 
             assert result["valid"] is True
-            assert (
-                result["files_checked"] == 18
-            )  # 6 original + 1 finished_units + 7 material + 4 new (F058)
+            assert result["files_checked"] == len(DEPENDENCY_ORDER)
             assert result["errors"] == []
 
     def test_validate_export_missing_manifest(self, test_db):
@@ -721,9 +717,7 @@ class TestValidateExport:
             result = validate_export(str(zip_path))
 
             assert result["valid"] is True
-            assert (
-                result["files_checked"] == 18
-            )  # 6 original + 1 finished_units + 7 material + 4 new (F058)
+            assert result["files_checked"] == len(DEPENDENCY_ORDER)
 
 
 # ============================================================================
@@ -768,31 +762,13 @@ class TestExportRoundTrip:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Check order - original entities, finished_units, material entities, then new entities
+            # Check order matches coordinated export dependency order
             entity_order = [f.entity_type for f in manifest.files]
             expected_order = [
-                "suppliers",
-                "ingredients",
-                "products",
-                "recipes",
-                # Feature 056: FinishedUnits after recipes (they reference recipes)
-                "finished_units",
-                "purchases",
-                "inventory_items",
-                # Feature 047: Material entities
-                "material_categories",
-                "material_subcategories",
-                "materials",
-                "material_products",
-                "material_units",
-                "material_purchases",
-                # Feature 058: Material inventory items (FIFO)
-                "material_inventory_items",
-                # Feature 049: Complete backup entities
-                "finished_goods",
-                "events",
-                "production_runs",
-                "inventory_depletions",
+                entity_type
+                for entity_type, (order, _deps) in sorted(
+                    DEPENDENCY_ORDER.items(), key=lambda item: item[1][0]
+                )
             ]
             assert entity_order == expected_order
 
@@ -1111,14 +1087,13 @@ class TestExportInventoryDepletions:
 class TestNewEntitiesEmptyArrays:
     """Tests verifying empty entities export as empty arrays (T008)."""
 
-    def test_all_17_entities_export_with_empty_database(self, test_db, cleanup_test_data):
-        """Verify all 17 entity types export as empty arrays when DB is empty."""
+    def test_all_entities_export_with_empty_database(self, test_db, cleanup_test_data):
+        """Verify all entity types export as empty arrays when DB is empty."""
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Verify all 18 files exist (6 original + 1 finished_units + 7 material + 4 new)
-            # F058 added material_inventory_items
-            assert len(manifest.files) == 18
+            # Verify all files exist
+            assert len(manifest.files) == len(DEPENDENCY_ORDER)
 
             # Verify each file has records: []
             for file_entry in manifest.files:

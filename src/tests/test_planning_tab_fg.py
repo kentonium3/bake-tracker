@@ -37,6 +37,15 @@ def mock_ctk_module():
         def grid_rowconfigure(self, *args, **kwargs):
             pass
 
+        def grid_propagate(self, *args, **kwargs):
+            pass
+
+        def columnconfigure(self, *args, **kwargs):
+            pass
+
+        def rowconfigure(self, *args, **kwargs):
+            pass
+
         def pack(self, *args, **kwargs):
             pass
 
@@ -49,17 +58,42 @@ def mock_ctk_module():
         def configure(self, **kwargs):
             pass
 
+        def winfo_children(self):
+            return []
+
+        def destroy(self):
+            pass
+
     mock_ctk.CTkFrame = MockCTkFrame
     mock_ctk.CTkBaseClass = MockCTkFrame
     mock_ctk.CTkButton = MagicMock
     mock_ctk.CTkLabel = MagicMock
-    mock_ctk.CTkScrollableFrame = MagicMock
+    mock_ctk.CTkScrollableFrame = MockCTkFrame
     mock_ctk.CTkCheckBox = MagicMock
     mock_ctk.CTkFont = MagicMock
     mock_ctk.BooleanVar = MagicMock
 
+    modules_to_reset = [
+        "customtkinter",
+        "src.ui.planning_tab",
+        "src.ui.widgets.data_table",
+        "src.ui.widgets.batch_options_frame",
+        "src.ui.components.shopping_summary_frame",
+        "src.ui.components.fg_selection_frame",
+        "src.ui.components.recipe_selection_frame",
+    ]
+    originals = {name: sys.modules.get(name) for name in modules_to_reset}
+    for name in modules_to_reset:
+        sys.modules.pop(name, None)
+
     with patch.dict(sys.modules, {"customtkinter": mock_ctk}):
         yield mock_ctk
+
+    for name, module in originals.items():
+        if module is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = module
 
 
 class TestPlanningTabFGIntegration:

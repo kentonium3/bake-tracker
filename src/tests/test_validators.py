@@ -247,26 +247,6 @@ class TestIngredientValidation:
         assert is_valid is False
         assert any("category" in e.lower() for e in errors)
 
-    @pytest.mark.skip(
-        reason="TD-001: quantity moved to InventoryItem (formerly PantryItem), not Ingredient"
-    )
-    def test_validate_ingredient_data_negative_quantity(self):
-        """Test ingredient validation with negative quantity - OBSOLETE."""
-        pass
-
-    @pytest.mark.skip(reason="TD-001: conversion_factor replaced by 4-field density model")
-    def test_validate_ingredient_data_zero_conversion_factor(self):
-        """Test ingredient validation with zero conversion factor - OBSOLETE."""
-        pass
-
-    @pytest.mark.skip(
-        reason="TD-001: package_unit (formerly purchase_unit) moved to Product, not Ingredient"
-    )
-    def test_validate_ingredient_data_invalid_unit(self):
-        """Test ingredient validation with invalid package_unit - OBSOLETE."""
-        pass
-
-
 class TestRecipeValidation:
     """Test complete recipe data validation."""
 

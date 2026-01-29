@@ -34,6 +34,8 @@ class TestProductionProgressDataclass:
             recipe_name="Chocolate Chip Cookies",
             target_batches=7,
             completed_batches=4,
+            remaining_batches=3,
+            overage_batches=0,
             progress_percent=57.14,
             is_complete=False,
         )
@@ -42,13 +44,15 @@ class TestProductionProgressDataclass:
         assert progress.recipe_name == "Chocolate Chip Cookies"
         assert progress.target_batches == 7
         assert progress.completed_batches == 4
+        assert progress.remaining_batches == 3
+        assert progress.overage_batches == 0
         assert progress.progress_percent == 57.14
         assert progress.is_complete is False
 
     def test_dataclass_equality(self):
         """Test dataclass equality comparison."""
-        p1 = ProductionProgress(1, "Cookies", 7, 4, 57.14, False)
-        p2 = ProductionProgress(1, "Cookies", 7, 4, 57.14, False)
+        p1 = ProductionProgress(1, "Cookies", 7, 4, 3, 0, 57.14, False)
+        p2 = ProductionProgress(1, "Cookies", 7, 4, 3, 0, 57.14, False)
         assert p1 == p2
 
     def test_complete_progress(self):
@@ -58,6 +62,8 @@ class TestProductionProgressDataclass:
             recipe_name="Cookies",
             target_batches=5,
             completed_batches=5,
+            remaining_batches=0,
+            overage_batches=0,
             progress_percent=100.0,
             is_complete=True,
         )
@@ -336,7 +342,7 @@ class TestGetOverallProgress:
     def test_not_started_status(self, mock_prod, mock_asm):
         """Test 'not_started' status when production_percent == 0."""
         mock_prod.return_value = [
-            ProductionProgress(1, "Cookies", 7, 0, 0.0, False),
+            ProductionProgress(1, "Cookies", 7, 0, 7, 0, 0.0, False),
         ]
         mock_asm.return_value = [
             AssemblyProgress(1, "Gift Box", 50, 0, 0, 0.0, False),
@@ -354,7 +360,7 @@ class TestGetOverallProgress:
     def test_in_progress_status(self, mock_prod, mock_asm):
         """Test 'in_progress' status when partially complete."""
         mock_prod.return_value = [
-            ProductionProgress(1, "Cookies", 7, 4, 57.14, False),
+            ProductionProgress(1, "Cookies", 7, 4, 3, 0, 57.14, False),
         ]
         mock_asm.return_value = [
             AssemblyProgress(1, "Gift Box", 50, 25, 0, 50.0, False),
@@ -373,7 +379,7 @@ class TestGetOverallProgress:
     def test_complete_status(self, mock_prod, mock_asm):
         """Test 'complete' status when production_percent == 100 && assembly_percent == 100."""
         mock_prod.return_value = [
-            ProductionProgress(1, "Cookies", 7, 7, 100.0, True),
+            ProductionProgress(1, "Cookies", 7, 7, 0, 0, 100.0, True),
         ]
         mock_asm.return_value = [
             AssemblyProgress(1, "Gift Box", 50, 50, 0, 100.0, True),
@@ -411,7 +417,7 @@ class TestGetOverallProgress:
     def test_production_only(self, mock_prod, mock_asm):
         """Test with production targets but no assembly targets."""
         mock_prod.return_value = [
-            ProductionProgress(1, "Cookies", 7, 7, 100.0, True),
+            ProductionProgress(1, "Cookies", 7, 7, 0, 0, 100.0, True),
         ]
         mock_asm.return_value = []
 
@@ -445,8 +451,8 @@ class TestGetOverallProgress:
     def test_multiple_targets_averaging(self, mock_prod, mock_asm):
         """Test averaging across multiple targets."""
         mock_prod.return_value = [
-            ProductionProgress(1, "Cookies", 10, 10, 100.0, True),
-            ProductionProgress(2, "Brownies", 5, 2, 40.0, False),
+            ProductionProgress(1, "Cookies", 10, 10, 0, 0, 100.0, True),
+            ProductionProgress(2, "Brownies", 5, 2, 3, 0, 40.0, False),
         ]
         mock_asm.return_value = [
             AssemblyProgress(1, "Gift Box A", 50, 50, 0, 100.0, True),
@@ -472,7 +478,7 @@ class TestGetOverallProgress:
     def test_over_production_capped_in_average(self, mock_prod, mock_asm):
         """Test that over-production is capped at 100% for averaging."""
         mock_prod.return_value = [
-            ProductionProgress(1, "Cookies", 5, 10, 200.0, True),  # 200% progress
+            ProductionProgress(1, "Cookies", 5, 10, 0, 5, 200.0, True),  # 200% progress
         ]
         mock_asm.return_value = [
             AssemblyProgress(1, "Gift Box", 50, 25, 0, 50.0, False),

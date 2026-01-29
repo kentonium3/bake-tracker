@@ -1214,6 +1214,8 @@ def validate_export(export_path: str) -> Dict:
 def import_complete(
     import_path: str,
     session: Optional[Session] = None,
+    *,
+    clear_existing: bool = True,
 ) -> Dict:
     """
     Import a complete backup from a coordinated export directory.
@@ -1233,14 +1235,16 @@ def import_complete(
         - errors: List of any import errors
     """
     if session is not None:
-        return _import_complete_impl(import_path, session)
+        return _import_complete_impl(import_path, session, clear_existing=clear_existing)
     with session_scope() as sess:
-        return _import_complete_impl(import_path, sess)
+        return _import_complete_impl(import_path, sess, clear_existing=clear_existing)
 
 
 def _import_complete_impl(
     import_path: str,
     session: Session,
+    *,
+    clear_existing: bool = True,
 ) -> Dict:
     """Internal implementation of complete import."""
     from src.services import import_export_service
@@ -1277,59 +1281,60 @@ def _import_complete_impl(
         "provisional_products_created": 0,
     }
 
-    # Clear existing data first (replace mode)
-    # Delete in reverse dependency order to avoid FK constraint violations
-    from src.models.supplier import Supplier
-    from src.models.ingredient import Ingredient
-    from src.models.product import Product
-    from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
-    from src.models.purchase import Purchase
-    from src.models.inventory_item import InventoryItem
-    from src.models.material import Material
-    from src.models.material_category import MaterialCategory
-    from src.models.material_subcategory import MaterialSubcategory
-    from src.models.material_product import MaterialProduct
-    from src.models.material_unit import MaterialUnit
-    from src.models.material_purchase import MaterialPurchase
-    from src.models.finished_good import FinishedGood
-    from src.models.event import Event
-    from src.models.production_run import ProductionRun
-    from src.models.inventory_depletion import InventoryDepletion
-    # Feature 081: Import snapshot models for delete cascade
-    from src.models.recipe_snapshot import RecipeSnapshot
-    from src.models.finished_good_snapshot import FinishedGoodSnapshot
-    from src.models.material_unit_snapshot import MaterialUnitSnapshot
-    from src.models.finished_unit_snapshot import FinishedUnitSnapshot
+    if clear_existing:
+        # Clear existing data first (replace mode)
+        # Delete in reverse dependency order to avoid FK constraint violations
+        from src.models.supplier import Supplier
+        from src.models.ingredient import Ingredient
+        from src.models.product import Product
+        from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
+        from src.models.purchase import Purchase
+        from src.models.inventory_item import InventoryItem
+        from src.models.material import Material
+        from src.models.material_category import MaterialCategory
+        from src.models.material_subcategory import MaterialSubcategory
+        from src.models.material_product import MaterialProduct
+        from src.models.material_unit import MaterialUnit
+        from src.models.material_purchase import MaterialPurchase
+        from src.models.finished_good import FinishedGood
+        from src.models.event import Event
+        from src.models.production_run import ProductionRun
+        from src.models.inventory_depletion import InventoryDepletion
+        # Feature 081: Import snapshot models for delete cascade
+        from src.models.recipe_snapshot import RecipeSnapshot
+        from src.models.finished_good_snapshot import FinishedGoodSnapshot
+        from src.models.material_unit_snapshot import MaterialUnitSnapshot
+        from src.models.finished_unit_snapshot import FinishedUnitSnapshot
 
-    # Delete in reverse dependency order
-    session.query(InventoryDepletion).delete()
-    session.query(ProductionRun).delete()
-    session.query(Event).delete()
-    # Feature 081: Delete snapshots BEFORE their parent entities (FK constraints)
-    session.query(FinishedGoodSnapshot).delete()
-    session.query(FinishedGood).delete()
-    # Feature 081: Delete FinishedUnitSnapshot BEFORE FinishedUnit (FK constraint)
-    session.query(FinishedUnitSnapshot).delete()
-    session.query(FinishedUnit).delete()  # Feature 056: After ProductionRun (which references it)
-    session.query(MaterialPurchase).delete()
-    # Feature 081: Delete MaterialUnitSnapshot BEFORE MaterialUnit (FK constraint)
-    session.query(MaterialUnitSnapshot).delete()
-    session.query(MaterialUnit).delete()
-    session.query(MaterialProduct).delete()
-    session.query(Material).delete()
-    session.query(MaterialSubcategory).delete()
-    session.query(MaterialCategory).delete()
-    session.query(InventoryItem).delete()
-    session.query(Purchase).delete()
-    session.query(RecipeComponent).delete()
-    session.query(RecipeIngredient).delete()
-    # Feature 081: Delete RecipeSnapshot BEFORE Recipe (FK constraint)
-    session.query(RecipeSnapshot).delete()
-    session.query(Recipe).delete()
-    session.query(Product).delete()
-    session.query(Ingredient).delete()
-    session.query(Supplier).delete()
-    session.flush()
+        # Delete in reverse dependency order
+        session.query(InventoryDepletion).delete()
+        session.query(ProductionRun).delete()
+        session.query(Event).delete()
+        # Feature 081: Delete snapshots BEFORE their parent entities (FK constraints)
+        session.query(FinishedGoodSnapshot).delete()
+        session.query(FinishedGood).delete()
+        # Feature 081: Delete FinishedUnitSnapshot BEFORE FinishedUnit (FK constraint)
+        session.query(FinishedUnitSnapshot).delete()
+        session.query(FinishedUnit).delete()  # Feature 056: After ProductionRun (which references it)
+        session.query(MaterialPurchase).delete()
+        # Feature 081: Delete MaterialUnitSnapshot BEFORE MaterialUnit (FK constraint)
+        session.query(MaterialUnitSnapshot).delete()
+        session.query(MaterialUnit).delete()
+        session.query(MaterialProduct).delete()
+        session.query(Material).delete()
+        session.query(MaterialSubcategory).delete()
+        session.query(MaterialCategory).delete()
+        session.query(InventoryItem).delete()
+        session.query(Purchase).delete()
+        session.query(RecipeComponent).delete()
+        session.query(RecipeIngredient).delete()
+        # Feature 081: Delete RecipeSnapshot BEFORE Recipe (FK constraint)
+        session.query(RecipeSnapshot).delete()
+        session.query(Recipe).delete()
+        session.query(Product).delete()
+        session.query(Ingredient).delete()
+        session.query(Supplier).delete()
+        session.flush()
 
     # Import each file in dependency order
     for file_info in files:

@@ -678,9 +678,22 @@ class TestHasValidationErrors:
 def mock_ctk_root():
     """Create a mock CTk root for testing."""
     # We need to actually create a Tk instance for CTkFrame to work
+    import os
+    import sys
     import customtkinter as ctk
 
-    root = ctk.CTk()
+    if os.environ.get("BAKE_TRACKER_UI_TESTS") != "1":
+        if sys.platform != "win32" and not (
+            os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
+        ):
+            pytest.skip(
+                "UI tests require a display; set BAKE_TRACKER_UI_TESTS=1 to force"
+            )
+
+    try:
+        root = ctk.CTk()
+    except Exception as exc:  # pragma: no cover - depends on local GUI availability
+        pytest.skip(f"CTk unavailable in this environment: {exc}")
     root.withdraw()  # Hide the window
     yield root
     root.destroy()

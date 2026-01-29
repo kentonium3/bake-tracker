@@ -53,7 +53,7 @@ def test_ingredient(test_db):
         category="dry goods",
     )
     session.add(ingredient)
-    session.flush()
+    session.commit()
     return ingredient
 
 
@@ -67,7 +67,7 @@ def test_recipe(test_db, test_ingredient):
         category="cookies",
     )
     session.add(recipe)
-    session.flush()
+    session.commit()
     return recipe
 
 
@@ -87,7 +87,7 @@ def test_recipe_snapshot(test_db, test_recipe):
         ingredients_data='[{"ingredient": "flour", "quantity": 2.0, "unit": "cups"}]',
     )
     session.add(snapshot)
-    session.flush()
+    session.commit()
     return snapshot
 
 
@@ -101,7 +101,7 @@ def test_finished_good(test_db):
         description="A test gift box",
     )
     session.add(fg)
-    session.flush()
+    session.commit()
     return fg
 
 
@@ -119,7 +119,7 @@ def test_finished_good_snapshot(test_db, test_finished_good):
         definition_data='{"components": [{"type": "cookie", "quantity": 12}]}',
     )
     session.add(snapshot)
-    session.flush()
+    session.commit()
     return snapshot
 
 
@@ -146,10 +146,10 @@ def test_material_hierarchy(test_db):
         name="Gift Box",
         slug="gift-box",
         subcategory_id=subcategory.id,
-        base_unit_type="count",
+        base_unit_type="each",
     )
     session.add(material)
-    session.flush()
+    session.commit()
 
     return {"category": category, "subcategory": subcategory, "material": material}
 
@@ -166,7 +166,7 @@ def test_material_unit(test_db, test_material_hierarchy):
         quantity_per_unit=1.0,
     )
     session.add(unit)
-    session.flush()
+    session.commit()
     return unit
 
 
@@ -184,7 +184,7 @@ def test_material_unit_snapshot(test_db, test_material_unit):
         definition_data='{"material": "gift-box", "size": "small"}',
     )
     session.add(snapshot)
-    session.flush()
+    session.commit()
     return snapshot
 
 
@@ -201,7 +201,7 @@ def test_finished_unit(test_db, test_recipe):
         item_unit="cookie",
     )
     session.add(fu)
-    session.flush()
+    session.commit()
     return fu
 
 
@@ -219,7 +219,7 @@ def test_finished_unit_snapshot(test_db, test_finished_unit):
         definition_data='{"yield_mode": "discrete_count", "items_per_batch": 24}',
     )
     session.add(snapshot)
-    session.flush()
+    session.commit()
     return snapshot
 
 
@@ -414,7 +414,7 @@ class TestImportRecipeSnapshots:
         session.expunge_all()
 
         # Import
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
 
         # Verify import succeeded
         assert result["entity_counts"].get("recipe_snapshots", 0) == 1
@@ -460,7 +460,7 @@ class TestImportRecipeSnapshots:
             json.dump(manifest, f)
 
         # Import should not raise exception
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
 
         # Should have 0 imported (skipped with warning)
         assert result["entity_counts"].get("recipe_snapshots", 0) == 0
@@ -512,7 +512,7 @@ class TestImportFinishedGoodSnapshots:
 
         session.expunge_all()
 
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
         assert result["entity_counts"].get("finished_good_snapshots", 0) == 1
 
 
@@ -560,7 +560,7 @@ class TestImportMaterialUnitSnapshots:
 
         session.expunge_all()
 
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
         assert result["entity_counts"].get("material_unit_snapshots", 0) == 1
 
 
@@ -608,7 +608,7 @@ class TestImportFinishedUnitSnapshots:
 
         session.expunge_all()
 
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
         assert result["entity_counts"].get("finished_unit_snapshots", 0) == 1
 
 
@@ -726,7 +726,7 @@ class TestEdgeCases:
         with open(tmp_path / "manifest.json", "w") as f:
             json.dump(manifest, f)
 
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
 
         # Should have 0 imported
         assert result["entity_counts"].get("recipe_snapshots", 0) == 0
@@ -773,7 +773,7 @@ class TestEdgeCases:
 
         session.expunge_all()
 
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
         assert result["entity_counts"].get("recipe_snapshots", 0) == 1
 
     def test_import_handles_z_suffix_timestamp(self, test_db, test_recipe, tmp_path):
@@ -818,7 +818,7 @@ class TestEdgeCases:
 
         session.expunge_all()
 
-        result = import_complete(str(tmp_path), session)
+        result = import_complete(str(tmp_path), session, clear_existing=False)
         assert result["entity_counts"].get("recipe_snapshots", 0) == 1
 
     def test_multiple_snapshots_same_parent(self, test_db, tmp_path, test_recipe):

@@ -130,14 +130,13 @@ def sample_recipe(test_db, unique_id):
         recipe = Recipe(
             name=f"Test Recipe {unique_id}",
             category="Cookies",
-            yield_quantity=24.0,
-            yield_unit="cookies",
             notes="Original recipe notes",
         )
         session.add(recipe)
         session.commit()
         return {
             "id": recipe.id,
+            "slug": recipe.slug,
             "name": recipe.name,
             "notes": recipe.notes,
         }
@@ -416,18 +415,13 @@ class TestContextRichRoundtrip:
             if material:
                 assert material.description == f"AI-augmented material description {unique_id}"
 
-    @pytest.mark.skip(
-        reason="Recipe model doesn't have slug field - context-rich import uses slug for lookup"
-    )
     def test_recipes_context_rich_roundtrip(
         self, test_db, sample_recipe, temp_export_dir, unique_id
     ):
         """
         Test recipes context-rich export -> modify -> import workflow.
 
-        Note: This test is skipped because the Recipe model doesn't have a slug field.
-        The context-rich import system uses slug-based lookups for entity identification.
-        Once Recipe model is updated to include slug, this test can be enabled.
+        Note: Context-rich import resolves recipes by slug for merge updates.
         """
         # 1. Export context-rich recipes
         export_path = str(temp_export_dir / "aug_recipes.json")
@@ -593,10 +587,11 @@ class TestFullBackupRoundtrip:
             with open(manifest_path) as f:
                 manifest_data = json.load(f)
 
-            # Should have 18 entity files (6 original + 1 finished_units + 7 material + 4 new)
-            # F058 added material_inventory_items
+            # Should include every entity type defined in the coordinated export manifest
             assert "files" in manifest_data
-            assert len(manifest_data["files"]) == 18
+            from src.services.coordinated_export_service import DEPENDENCY_ORDER
+
+            assert len(manifest_data["files"]) == len(DEPENDENCY_ORDER)
 
             # Verify each file entry has required fields
             for file_entry in manifest_data["files"]:

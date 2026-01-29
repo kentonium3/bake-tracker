@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import Any, Dict
 
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, validates
 
 from src.utils.datetime_utils import utc_now
 
@@ -87,6 +87,13 @@ class BaseModel(Base):
                     result[rel_name] = rel_value.to_dict()
 
         return result
+
+    @validates("uuid")
+    def _validate_uuid(self, _key: str, value: Any) -> str:
+        """Normalize UUID values to strings for SQLite compatibility."""
+        if value is None:
+            return value
+        return str(value)
 
     def update_from_dict(self, data: Dict[str, Any]) -> None:
         """

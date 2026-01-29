@@ -374,6 +374,7 @@ def setup_package_status_test_data(test_db, setup_production_test_data):
         "package": package,
         "recipient": recipient,
         "assignment": erp,
+        "assignment_id": erp.id,
     }
 
 
@@ -567,7 +568,7 @@ class TestUpdatePackageStatus:
                     session=session,
                 )
 
-        assert exc_info.value.assignment_id == data["assignment"].id
+        assert exc_info.value.assignment_id == data["assignment_id"]
         assert len(exc_info.value.missing_recipes) > 0
 
     def test_update_status_assignment_not_found(self, test_db, setup_package_status_test_data):
