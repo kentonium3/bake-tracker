@@ -1,0 +1,8 @@
+{
+  "feature_number": "083",
+  "slug": "dual-yield-recipe-output-support",
+  "friendly_name": "Dual-Yield Recipe Output Support",
+  "mission": "software-dev",
+  "source_description": "F084 Dual-Yield Support - Enable recipes to define both EA (whole unit) and SERVING yields",
+  "created_at": "2026-01-29T00:00:00Z"
+}
