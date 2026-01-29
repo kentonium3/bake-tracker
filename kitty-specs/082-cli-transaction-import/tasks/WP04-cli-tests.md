@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: CLI Tests
-lane: "for_review"
+lane: "doing"
 dependencies: []
 subtasks:
 - T011
@@ -10,7 +10,7 @@ subtasks:
 phase: Phase 3 - Testing
 assignee: ''
 agent: "claude"
-shell_pid: "31301"
+shell_pid: "48820"
 review_status: ''
 reviewed_by: ''
 history:
@@ -448,3 +448,4 @@ spec-kitty implement WP04 --base WP03
 - 2026-01-29T04:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-29T05:24:06Z – claude – shell_pid=31301 – lane=doing – Started implementation via workflow command
 - 2026-01-29T13:31:52Z – claude – shell_pid=31301 – lane=for_review – Ready for review: Added 29 tests for CLI transaction import commands
+- 2026-01-29T13:31:59Z – claude – shell_pid=48820 – lane=doing – Started review via workflow command
