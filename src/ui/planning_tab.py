@@ -165,23 +165,17 @@ class PlanningTab(ctk.CTkFrame):
         self._on_edit_event = on_edit_event
         self._on_delete_event = on_delete_event
 
-        # Configure grid
+        # Configure grid (split-pane layout)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=0)  # Action buttons
-        self.grid_rowconfigure(1, weight=1)  # Data table
-        self.grid_rowconfigure(2, weight=0)  # Recipe selection frame
-        self.grid_rowconfigure(3, weight=0)  # FG selection frame (F070)
-        self.grid_rowconfigure(4, weight=0)  # Batch options frame (F073)
-        self.grid_rowconfigure(5, weight=0)  # Plan state controls (F077)
-        self.grid_rowconfigure(6, weight=0)  # Amendment controls (F078)
-        self.grid_rowconfigure(7, weight=0)  # Shopping summary frame (F076, shifted)
-        self.grid_rowconfigure(8, weight=0)  # Assembly status frame (F076, shifted)
-        self.grid_rowconfigure(9, weight=0)  # Production progress frame (F079)
-        self.grid_rowconfigure(10, weight=0)  # Status bar (shifted)
+        self.grid_rowconfigure(1, weight=0)  # Data table (fixed height)
+        self.grid_rowconfigure(2, weight=1)  # Planning sections container (scrollable)
+        self.grid_rowconfigure(3, weight=0)  # Status bar
 
         # Build UI
         self._create_action_buttons()
         self._create_data_table()
+        self._create_planning_container()  # New: scrollable container for all planning sections
         self._create_recipe_selection_frame()
         self._create_fg_selection_frame()
         self._create_batch_options_frame()
@@ -246,12 +240,21 @@ class PlanningTab(ctk.CTkFrame):
             self,
             select_callback=self._on_row_select,
             double_click_callback=self._on_row_double_click,
+            height=100,  # Compact height - shows 2-3 events, maximizes planning space
         )
+
+    def _create_planning_container(self) -> None:
+        """Create scrollable container for all planning sections."""
+        self._planning_container = ctk.CTkScrollableFrame(
+            self,
+            fg_color="transparent",
+        )
+        # Container starts empty - sections will pack into it when event selected
 
     def _create_recipe_selection_frame(self) -> None:
         """Create the recipe selection frame (initially hidden)."""
         self._recipe_selection_frame = RecipeSelectionFrame(
-            self,
+            self._planning_container,
             on_save=self._on_recipe_selection_save,
             on_cancel=self._on_recipe_selection_cancel,
         )
@@ -260,7 +263,7 @@ class PlanningTab(ctk.CTkFrame):
     def _create_fg_selection_frame(self) -> None:
         """Create the FG selection frame (initially hidden)."""
         self._fg_selection_frame = FGSelectionFrame(
-            self,
+            self._planning_container,
             on_save=self._on_fg_selection_save,
             on_cancel=self._on_fg_selection_cancel,
         )
@@ -269,7 +272,7 @@ class PlanningTab(ctk.CTkFrame):
     def _create_batch_options_frame(self) -> None:
         """Create the batch options frame (F073, initially hidden)."""
         # Create container frame for label, widget, and save button
-        self._batch_options_container = ctk.CTkFrame(self)
+        self._batch_options_container = ctk.CTkFrame(self._planning_container)
 
         # Section label
         self._batch_options_label = ctk.CTkLabel(
@@ -300,7 +303,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _create_plan_state_frame(self) -> None:
         """Create the plan state controls frame (F077) and amendment controls (F078)."""
-        self._plan_state_frame = ctk.CTkFrame(self)
+        self._plan_state_frame = ctk.CTkFrame(self._planning_container)
 
         # State label (shows current state)
         self._state_label = ctk.CTkLabel(
@@ -336,7 +339,7 @@ class PlanningTab(ctk.CTkFrame):
         self._complete_btn.pack(side="left", padx=5, pady=8)
 
         # F078: Amendment controls container (only visible in IN_PRODUCTION)
-        self._amendment_controls_frame = ctk.CTkFrame(self)
+        self._amendment_controls_frame = ctk.CTkFrame(self._planning_container)
 
         # Amendment header
         amendment_header = ctk.CTkFrame(self._amendment_controls_frame)
@@ -412,17 +415,17 @@ class PlanningTab(ctk.CTkFrame):
 
     def _create_shopping_summary_frame(self) -> None:
         """Create the shopping summary frame (F076)."""
-        self._shopping_summary_frame = ShoppingSummaryFrame(self)
+        self._shopping_summary_frame = ShoppingSummaryFrame(self._planning_container)
         # Frame starts hidden - shown when event selected
 
     def _create_assembly_status_frame(self) -> None:
         """Create the assembly status frame (F076)."""
-        self._assembly_status_frame = AssemblyStatusFrame(self)
+        self._assembly_status_frame = AssemblyStatusFrame(self._planning_container)
         # Frame starts hidden - shown when event selected
 
     def _create_production_progress_frame(self) -> None:
         """Create the production progress frame (F079)."""
-        self._production_progress_frame = ProductionProgressFrame(self)
+        self._production_progress_frame = ProductionProgressFrame(self._planning_container)
         # Frame starts hidden - shown when event selected
 
     def _create_status_bar(self) -> None:
@@ -435,54 +438,40 @@ class PlanningTab(ctk.CTkFrame):
         )
 
     def _layout_widgets(self) -> None:
-        """Position widgets using grid layout."""
+        """Position widgets using split-pane layout."""
         # Button frame at top
         self.button_frame.grid(
-            row=0, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
         )
         self.create_button.pack(side="left", padx=PADDING_MEDIUM)
         self.edit_button.pack(side="left", padx=PADDING_MEDIUM)
         self.delete_button.pack(side="left", padx=PADDING_MEDIUM)
         self.refresh_button.pack(side="right", padx=PADDING_MEDIUM)
 
-        # Data table takes remaining space
-        self.data_table.grid(
-            row=1, column=0, sticky="nsew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        # Data table with fixed height
+        self.data_table.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+
+        # Planning sections scrollable container (takes remaining space)
+        self._planning_container.grid(
+            row=2, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
 
-        # Recipe selection frame - row 2 (initially not gridded, shown when event selected)
-        # Note: _recipe_selection_frame.grid() is called in _show_recipe_selection()
+        # Planning sections now pack into _planning_container when shown:
+        # - Recipe selection frame: packed in _show_recipe_selection()
+        # - FG selection frame: packed in _show_fg_selection()
+        # - Batch options frame: packed in _show_batch_options()
+        # - Plan state controls: packed in _show_plan_state_controls()
+        # - Amendment controls: packed in _show_amendment_controls()
+        # - Shopping summary: packed in _show_shopping_summary()
+        # - Assembly status: packed in _show_assembly_status()
+        # - Production progress: packed in _show_production_progress()
 
-        # FG selection frame - row 3 (initially not gridded, shown when event selected)
-        # Note: _fg_selection_frame.grid() is called in _show_fg_selection()
-
-        # Batch options frame - row 4 (F073, initially not gridded)
-        # Note: _batch_options_container.grid() is called in _show_batch_options()
-
-        # Plan state controls - row 5 (F077, initially not gridded)
-        # Note: _plan_state_frame.grid() is called in _show_plan_state_controls()
-
-        # Amendment controls - row 6 (F078, initially not gridded)
-        # Note: _amendment_controls_frame.grid() is called in _show_amendment_controls()
-
-        # Shopping summary frame - row 7 (shifted for F078)
-        # Note: _shopping_summary_frame.grid() is called in _show_shopping_summary()
-
-        # Assembly status frame - row 8 (shifted for F078)
-        # Note: _assembly_status_frame.grid() is called in _show_assembly_status()
-
-        # Status bar at bottom (row 10 - shifted for F079)
+        # Status bar at bottom
         self.status_frame.grid(
-            row=10, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
+            row=3, column=0, sticky="ew", padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
-        self.status_label.grid(
-            row=0, column=0, sticky="w",
-            padx=PADDING_MEDIUM, pady=5
-        )
+        self.status_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
     def refresh(self) -> None:
         """Refresh the event list from database."""
@@ -520,9 +509,7 @@ class PlanningTab(ctk.CTkFrame):
         if event is not None:
             # Re-query to get attached object for session safety
             with session_scope() as session:
-                self.selected_event = session.query(Event).filter(
-                    Event.id == event.id
-                ).first()
+                self.selected_event = session.query(Event).filter(Event.id == event.id).first()
                 # Detach from session for use in callbacks
                 if self.selected_event:
                     session.expunge(self.selected_event)
@@ -578,18 +565,15 @@ class PlanningTab(ctk.CTkFrame):
             # Store for cancel functionality
             self._original_recipe_selection = selected_ids.copy()
 
-            # Show frame using grid
-            self._recipe_selection_frame.grid(
-                row=2, column=0, sticky="ew",
-                padx=PADDING_LARGE, pady=PADDING_MEDIUM
-            )
+            # Show frame using pack
+            self._recipe_selection_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
         except Exception as e:
             self._update_status(f"Error loading recipes: {e}", is_error=True)
 
     def _hide_recipe_selection(self) -> None:
         """Hide the recipe selection frame."""
-        self._recipe_selection_frame.grid_forget()
+        self._recipe_selection_frame.pack_forget()
         self._original_recipe_selection = []
 
     def _on_recipe_selection_save(self, selected_ids: List[int]) -> None:
@@ -636,7 +620,7 @@ class PlanningTab(ctk.CTkFrame):
             self._update_status(
                 f"Cannot save: {e.attempted_action} not allowed "
                 f"(plan is {e.current_state.value})",
-                is_error=True
+                is_error=True,
             )
         except Exception as e:
             # Show error but keep UI state
@@ -667,14 +651,10 @@ class PlanningTab(ctk.CTkFrame):
                 event_name = event.name if event else ""
 
                 # Get available FGs (filtered by selected recipes)
-                available_fgs = event_service.get_available_finished_goods(
-                    event_id, session
-                )
+                available_fgs = event_service.get_available_finished_goods(event_id, session)
 
                 # F071: Get existing selections with quantities
-                fg_quantities = event_service.get_event_fg_quantities(
-                    session, event_id
-                )
+                fg_quantities = event_service.get_event_fg_quantities(session, event_id)
 
             # Populate frame
             self._fg_selection_frame.populate_finished_goods(available_fgs, event_name)
@@ -686,18 +666,15 @@ class PlanningTab(ctk.CTkFrame):
             # Store for cancel functionality
             self._original_fg_selection = qty_tuples.copy()
 
-            # Show frame using grid
-            self._fg_selection_frame.grid(
-                row=3, column=0, sticky="ew",
-                padx=PADDING_LARGE, pady=PADDING_MEDIUM
-            )
+            # Show frame using pack
+            self._fg_selection_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
         except Exception as e:
             self._update_status(f"Error loading finished goods: {e}", is_error=True)
 
     def _hide_fg_selection(self) -> None:
         """Hide the FG selection frame."""
-        self._fg_selection_frame.grid_forget()
+        self._fg_selection_frame.pack_forget()
         self._original_fg_selection = []
 
     def _refresh_fg_selection(self) -> None:
@@ -720,9 +697,7 @@ class PlanningTab(ctk.CTkFrame):
 
         # F071: Check for validation errors before saving
         if self._fg_selection_frame.has_validation_errors():
-            self._update_status(
-                "Please fix invalid quantities before saving", is_error=True
-            )
+            self._update_status("Please fix invalid quantities before saving", is_error=True)
             return
 
         try:
@@ -750,7 +725,7 @@ class PlanningTab(ctk.CTkFrame):
             self._update_status(
                 f"Cannot save: {e.attempted_action} not allowed "
                 f"(plan is {e.current_state.value})",
-                is_error=True
+                is_error=True,
             )
         except Exception as e:
             # Show error but keep UI state
@@ -759,9 +734,7 @@ class PlanningTab(ctk.CTkFrame):
     def _on_fg_selection_cancel(self) -> None:
         """Handle FG selection cancel - revert to last saved state."""
         # F071: Use set_selected_with_quantities for quantities
-        self._fg_selection_frame.set_selected_with_quantities(
-            self._original_fg_selection
-        )
+        self._fg_selection_frame.set_selected_with_quantities(self._original_fg_selection)
         self._update_status("Reverted to saved FG selections")
 
     def _show_removed_fg_notification(self, removed_fgs: List[RemovedFGInfo]) -> None:
@@ -795,15 +768,12 @@ class PlanningTab(ctk.CTkFrame):
         """
         self._load_batch_options()
 
-        # Show container using grid
-        self._batch_options_container.grid(
-            row=4, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        # Show container using pack
+        self._batch_options_container.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
     def _hide_batch_options(self) -> None:
         """Hide the batch options frame."""
-        self._batch_options_container.grid_forget()
+        self._batch_options_container.pack_forget()
         self._batch_options_frame.clear()
         self._confirmed_shortfalls.clear()
         self._has_unsaved_batch_changes = False
@@ -861,9 +831,7 @@ class PlanningTab(ctk.CTkFrame):
         """
         # Check if this is a shortfall selection
         selections = self._batch_options_frame.get_selection_with_shortfall_info()
-        selection = next(
-            (s for s in selections if s["finished_unit_id"] == fu_id), None
-        )
+        selection = next((s for s in selections if s["finished_unit_id"] == fu_id), None)
 
         if selection and selection["is_shortfall"]:
             # Show confirmation dialog
@@ -936,16 +904,13 @@ class PlanningTab(ctk.CTkFrame):
         try:
             state = get_plan_state(self._selected_event_id)
             self._update_plan_state_buttons(state)
-            self._plan_state_frame.grid(
-                row=5, column=0, sticky="ew",
-                padx=PADDING_LARGE, pady=PADDING_MEDIUM
-            )
+            self._plan_state_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
         except Exception as e:
             print(f"Warning: Could not show plan state controls: {e}")
 
     def _hide_plan_state_controls(self) -> None:
         """Hide the plan state controls frame (F077)."""
-        self._plan_state_frame.grid_forget()
+        self._plan_state_frame.pack_forget()
         self._state_label.configure(text="Plan State: --")
 
     def _update_plan_state_buttons(self, state: PlanState) -> None:
@@ -1051,7 +1016,7 @@ class PlanningTab(ctk.CTkFrame):
         if not messagebox.askyesno(
             "Complete Production",
             "Are you sure you want to mark production as complete?\n\n"
-            "This will make the plan read-only. No further changes will be allowed."
+            "This will make the plan read-only. No further changes will be allowed.",
         ):
             return
 
@@ -1072,27 +1037,21 @@ class PlanningTab(ctk.CTkFrame):
     def _show_shopping_summary(self) -> None:
         """Show and update shopping summary frame."""
         self._update_shopping_summary()
-        self._shopping_summary_frame.grid(
-            row=7, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        self._shopping_summary_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
     def _hide_shopping_summary(self) -> None:
         """Hide the shopping summary frame."""
-        self._shopping_summary_frame.grid_forget()
+        self._shopping_summary_frame.pack_forget()
         self._shopping_summary_frame.clear()
 
     def _show_assembly_status(self) -> None:
         """Show and update assembly status frame."""
         self._update_assembly_status()
-        self._assembly_status_frame.grid(
-            row=8, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        self._assembly_status_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
     def _hide_assembly_status(self) -> None:
         """Hide the assembly status frame."""
-        self._assembly_status_frame.grid_forget()
+        self._assembly_status_frame.pack_forget()
         self._assembly_status_frame.clear()
 
     # =========================================================================
@@ -1102,14 +1061,11 @@ class PlanningTab(ctk.CTkFrame):
     def _show_production_progress(self) -> None:
         """Show and update production progress frame (F079)."""
         self._update_production_progress()
-        self._production_progress_frame.grid(
-            row=9, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        self._production_progress_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
     def _hide_production_progress(self) -> None:
         """Hide the production progress frame (F079)."""
-        self._production_progress_frame.grid_forget()
+        self._production_progress_frame.pack_forget()
         self._production_progress_frame.clear()
 
     def _update_production_progress(self) -> None:
@@ -1120,6 +1076,7 @@ class PlanningTab(ctk.CTkFrame):
 
         try:
             from src.services.planning.progress import get_production_progress
+
             progress_list = get_production_progress(self._selected_event_id)
             self._production_progress_frame.update_progress(progress_list)
         except Exception as e:
@@ -1142,9 +1099,7 @@ class PlanningTab(ctk.CTkFrame):
         if self._selected_event_id is None:
             return False
 
-        recipes_with_production = (
-            self._production_progress_frame.get_recipes_with_production()
-        )
+        recipes_with_production = self._production_progress_frame.get_recipes_with_production()
         return recipe_id in recipes_with_production
 
     def _save_batch_decisions(self) -> None:
@@ -1170,7 +1125,9 @@ class PlanningTab(ctk.CTkFrame):
                     finished_unit_id=fu_id,
                     batches=selection["batches"],
                     is_shortfall=is_shortfall,
-                    confirmed_shortfall=fu_id in self._confirmed_shortfalls if is_shortfall else False,
+                    confirmed_shortfall=(
+                        fu_id in self._confirmed_shortfalls if is_shortfall else False
+                    ),
                 )
                 save_batch_decision(self._selected_event_id, decision)
 
@@ -1189,7 +1146,7 @@ class PlanningTab(ctk.CTkFrame):
             self._update_status(
                 f"Cannot save: {e.attempted_action} not allowed "
                 f"(plan is {e.current_state.value})",
-                is_error=True
+                is_error=True,
             )
         except ValidationError as e:
             self._update_status(f"Validation error: {e}", is_error=True)
@@ -1255,15 +1212,12 @@ class PlanningTab(ctk.CTkFrame):
 
     def _show_amendment_controls(self) -> None:
         """Show amendment controls frame and refresh history (F078)."""
-        self._amendment_controls_frame.grid(
-            row=6, column=0, sticky="ew",
-            padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        self._amendment_controls_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
         self._refresh_amendment_history()
 
     def _hide_amendment_controls(self) -> None:
         """Hide the amendment controls frame (F078)."""
-        self._amendment_controls_frame.grid_forget()
+        self._amendment_controls_frame.pack_forget()
         # Clear history content
         for widget in self._history_content.winfo_children():
             widget.destroy()
@@ -1279,6 +1233,7 @@ class PlanningTab(ctk.CTkFrame):
 
         try:
             from src.services import plan_amendment_service
+
             amendments = plan_amendment_service.get_amendments(self._selected_event_id)
 
             if not amendments:
@@ -1366,9 +1321,7 @@ class PlanningTab(ctk.CTkFrame):
         try:
             from src.services import plan_snapshot_service
 
-            comparison = plan_snapshot_service.get_plan_comparison(
-                self._selected_event_id
-            )
+            comparison = plan_snapshot_service.get_plan_comparison(self._selected_event_id)
 
             if not comparison.has_snapshot:
                 ctk.CTkLabel(
@@ -1414,9 +1367,9 @@ class PlanningTab(ctk.CTkFrame):
         section = ctk.CTkFrame(self._comparison_frame)
         section.pack(fill="x", padx=5, pady=5)
 
-        ctk.CTkLabel(
-            section, text="Finished Goods", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w")
+        ctk.CTkLabel(section, text="Finished Goods", font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w"
+        )
 
         for item in fg_items:
             row = ctk.CTkFrame(section, fg_color="transparent")
@@ -1440,18 +1393,18 @@ class PlanningTab(ctk.CTkFrame):
                 color = "gray"
                 text = f"{item.fg_name}: {item.current_quantity}"
 
-            ctk.CTkLabel(
-                row, text=f"{indicator} {text}", text_color=color
-            ).pack(anchor="w", padx=10)
+            ctk.CTkLabel(row, text=f"{indicator} {text}", text_color=color).pack(
+                anchor="w", padx=10
+            )
 
     def _render_batch_comparison(self, batch_items: list) -> None:
         """Render batch decisions comparison section (F078/T025)."""
         section = ctk.CTkFrame(self._comparison_frame)
         section.pack(fill="x", padx=5, pady=5)
 
-        ctk.CTkLabel(
-            section, text="Batch Decisions", font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w")
+        ctk.CTkLabel(section, text="Batch Decisions", font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w"
+        )
 
         for item in batch_items:
             row = ctk.CTkFrame(section, fg_color="transparent")
@@ -1460,7 +1413,9 @@ class PlanningTab(ctk.CTkFrame):
             if item.status == "modified":
                 indicator = "[~]"
                 color = "#fcc419"  # Yellow
-                text = f"{item.recipe_name}: {item.original_batches} -> {item.current_batches} batches"
+                text = (
+                    f"{item.recipe_name}: {item.original_batches} -> {item.current_batches} batches"
+                )
             elif item.status == "dropped":
                 indicator = "[-]"
                 color = "#ff6b6b"  # Red
@@ -1474,9 +1429,9 @@ class PlanningTab(ctk.CTkFrame):
                 color = "gray"
                 text = f"{item.recipe_name}: {item.current_batches} batches"
 
-            ctk.CTkLabel(
-                row, text=f"{indicator} {text}", text_color=color
-            ).pack(anchor="w", padx=10)
+            ctk.CTkLabel(row, text=f"{indicator} {text}", text_color=color).pack(
+                anchor="w", padx=10
+            )
 
     def _on_drop_fg_click(self) -> None:
         """Handle Drop FG button click (F078)."""
@@ -1508,9 +1463,8 @@ class PlanningTab(ctk.CTkFrame):
             fg_id, reason = result
             try:
                 from src.services import plan_amendment_service
-                plan_amendment_service.drop_finished_good(
-                    self._selected_event_id, fg_id, reason
-                )
+
+                plan_amendment_service.drop_finished_good(self._selected_event_id, fg_id, reason)
                 self._refresh_fg_selection()
                 self._refresh_amendment_history()
                 self._update_shopping_summary()
@@ -1558,6 +1512,7 @@ class PlanningTab(ctk.CTkFrame):
             fg_id, quantity, reason = result
             try:
                 from src.services import plan_amendment_service
+
                 plan_amendment_service.add_finished_good(
                     self._selected_event_id, fg_id, quantity, reason
                 )
@@ -1582,9 +1537,7 @@ class PlanningTab(ctk.CTkFrame):
         from src.models import BatchDecision
 
         # F079: Get recipes with production to filter out locked ones
-        recipes_with_production = (
-            self._production_progress_frame.get_recipes_with_production()
-        )
+        recipes_with_production = self._production_progress_frame.get_recipes_with_production()
 
         with session_scope() as session:
             batch_decisions = (
@@ -1606,9 +1559,10 @@ class PlanningTab(ctk.CTkFrame):
                     # Skip locked recipes - they have production
                     locked_count += 1
                 else:
-                    recipe_options[
-                        f"{bd.recipe.name} (current: {bd.batches} batches)"
-                    ] = (bd.recipe_id, bd.batches)
+                    recipe_options[f"{bd.recipe.name} (current: {bd.batches} batches)"] = (
+                        bd.recipe_id,
+                        bd.batches,
+                    )
 
             if not recipe_options:
                 if locked_count > 0:
@@ -1617,12 +1571,10 @@ class PlanningTab(ctk.CTkFrame):
                         f"All {locked_count} recipe(s) have production records "
                         "and cannot be modified.\n\n"
                         "Recipes with production are locked to protect "
-                        "in-progress batches."
+                        "in-progress batches.",
                     )
                 else:
-                    messagebox.showinfo(
-                        "No Batch Decisions", "No batch decisions to modify."
-                    )
+                    messagebox.showinfo("No Batch Decisions", "No batch decisions to modify.")
                 return
 
         dialog = ModifyBatchDialog(self, recipe_options)
@@ -1632,6 +1584,7 @@ class PlanningTab(ctk.CTkFrame):
             recipe_id, new_batches, reason = result
             try:
                 from src.services import plan_amendment_service
+
                 plan_amendment_service.modify_batch_decision(
                     self._selected_event_id, recipe_id, new_batches, reason
                 )
@@ -1670,9 +1623,7 @@ class DropFGDialog(ctk.CTkToplevel):
         options = list(fg_options.keys())
         if options:
             self.fg_var.set(options[0])
-        self.fg_dropdown = ctk.CTkOptionMenu(
-            self, variable=self.fg_var, values=options, width=350
-        )
+        self.fg_dropdown = ctk.CTkOptionMenu(self, variable=self.fg_var, values=options, width=350)
         self.fg_dropdown.pack(pady=5)
 
         # Reason entry
@@ -1683,12 +1634,10 @@ class DropFGDialog(ctk.CTkToplevel):
         # Buttons
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         btn_frame.pack(pady=15)
-        ctk.CTkButton(
-            btn_frame, text="Drop", command=self._on_confirm, fg_color="darkred"
-        ).pack(side="left", padx=10)
-        ctk.CTkButton(btn_frame, text="Cancel", command=self.destroy).pack(
+        ctk.CTkButton(btn_frame, text="Drop", command=self._on_confirm, fg_color="darkred").pack(
             side="left", padx=10
         )
+        ctk.CTkButton(btn_frame, text="Cancel", command=self.destroy).pack(side="left", padx=10)
 
         self.wait_window()
 
@@ -1729,9 +1678,7 @@ class AddFGDialog(ctk.CTkToplevel):
         options = list(fg_options.keys())
         if options:
             self.fg_var.set(options[0])
-        self.fg_dropdown = ctk.CTkOptionMenu(
-            self, variable=self.fg_var, values=options, width=350
-        )
+        self.fg_dropdown = ctk.CTkOptionMenu(self, variable=self.fg_var, values=options, width=350)
         self.fg_dropdown.pack(pady=5)
 
         # Quantity entry
@@ -1748,12 +1695,8 @@ class AddFGDialog(ctk.CTkToplevel):
         # Buttons
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         btn_frame.pack(pady=15)
-        ctk.CTkButton(btn_frame, text="Add", command=self._on_confirm).pack(
-            side="left", padx=10
-        )
-        ctk.CTkButton(btn_frame, text="Cancel", command=self.destroy).pack(
-            side="left", padx=10
-        )
+        ctk.CTkButton(btn_frame, text="Add", command=self._on_confirm).pack(side="left", padx=10)
+        ctk.CTkButton(btn_frame, text="Cancel", command=self.destroy).pack(side="left", padx=10)
 
         self.wait_window()
 
@@ -1828,12 +1771,8 @@ class ModifyBatchDialog(ctk.CTkToplevel):
         # Buttons
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         btn_frame.pack(pady=15)
-        ctk.CTkButton(btn_frame, text="Modify", command=self._on_confirm).pack(
-            side="left", padx=10
-        )
-        ctk.CTkButton(btn_frame, text="Cancel", command=self.destroy).pack(
-            side="left", padx=10
-        )
+        ctk.CTkButton(btn_frame, text="Modify", command=self._on_confirm).pack(side="left", padx=10)
+        ctk.CTkButton(btn_frame, text="Cancel", command=self.destroy).pack(side="left", padx=10)
 
         self.wait_window()
 
