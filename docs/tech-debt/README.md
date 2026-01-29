@@ -25,7 +25,7 @@ Files follow the pattern: `TD###_short_description.md`
 
 | ID | Description | Priority | Effort | Area |
 |----|-------------|----------|--------|------|
-| [TD001](TD001_consolidate_slug_utils.md) | Consolidate duplicate slug generation functions | Low | Small | src/utils/slug_utils.py |
+| [TD001](<./TD001_consolidate_slug_utils.md>) | Consolidate duplicate slug generation functions | Low | Small | src/utils/slug_utils.py |
 
 ## Resolved Items
 
