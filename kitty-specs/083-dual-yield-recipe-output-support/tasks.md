@@ -27,7 +27,7 @@
 - [x] T002 Add CHECK constraint `ck_finished_unit_yield_type_valid` for valid values ('EA', 'SERVING')
 - [x] T003 Add UNIQUE constraint `uq_finished_unit_recipe_item_unit_yield_type` on (recipe_id, item_unit, yield_type)
 - [x] T004 Add index `idx_finished_unit_yield_type` for query performance
-- [ ] T005 Write model-level unit tests in `src/tests/models/test_finished_unit_yield_type.py`
+- [x] T005 Write model-level unit tests in `src/tests/models/test_finished_unit_yield_type.py`
 
 ### Implementation Notes
 1. Add column after `yield_mode` in model definition
