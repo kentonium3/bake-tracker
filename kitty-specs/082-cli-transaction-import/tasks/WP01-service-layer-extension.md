@@ -6,10 +6,10 @@ subtasks:
   - "T003"
 title: "Service Layer Extension"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "24063"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -272,3 +272,4 @@ No dependencies - this is the foundation WP.
 ## Activity Log
 
 - 2026-01-29T04:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-29T04:55:42Z – claude – shell_pid=24063 – lane=doing – Started implementation via workflow command
