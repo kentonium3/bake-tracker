@@ -70,9 +70,9 @@ WP01 (foundation)
 **Prompt**: [WP02-purchase-import-cli.md](tasks/WP02-purchase-import-cli.md)
 
 **Subtasks**:
-- [ ] T004: Add `import-purchases` CLI parser
-- [ ] T005: Implement `import_purchases_cmd()` handler
-- [ ] T006: Wire into main dispatch
+- [x] T004: Add `import-purchases` CLI parser
+- [x] T005: Implement `import_purchases_cmd()` handler
+- [x] T006: Wire into main dispatch
 
 **Implementation Notes**:
 - Follow catalog-import pattern exactly
