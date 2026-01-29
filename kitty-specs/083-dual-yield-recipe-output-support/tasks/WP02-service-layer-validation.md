@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Service Layer – yield_type Validation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 083-dual-yield-recipe-output-support-WP01
 base_commit: ab69e594ec263da2dfdb1bfb5a310aebe407727f
@@ -478,3 +478,4 @@ class TestUpdateFinishedUnitYieldType:
 ## Activity Log
 
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-29T17:20:01Z – unknown – shell_pid=68797 – lane=for_review – Ready for review: Added yield_type validation to service layer
