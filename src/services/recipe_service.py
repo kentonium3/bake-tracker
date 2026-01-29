@@ -2381,7 +2381,7 @@ def _create_recipe_variant_impl(
         notes=f"Variant of {base.name}",
         base_recipe_id=base_recipe_id,
         variant_name=variant_name,
-        is_production_ready=False,  # Variants start experimental
+        is_production_ready=True,  # Variants default to production ready
     )
 
     session.add(variant)
