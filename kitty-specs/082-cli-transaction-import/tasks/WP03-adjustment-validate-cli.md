@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Adjustment & Validate CLI
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: 082-cli-transaction-import-WP01
 base_commit: 459e9ec305c9dc420b06961dd93a05dcb7a75d5e
@@ -369,3 +369,4 @@ spec-kitty implement WP03 --base WP01
 ## Activity Log
 
 - 2026-01-29T04:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-29T05:20:01Z – unknown – shell_pid=26350 – lane=for_review – Ready for review: Added import-adjustments and validate-import CLI commands
