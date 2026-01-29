@@ -55,10 +55,10 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T006 Add VALID_YIELD_TYPES constant and validate_yield_type() function in `src/services/finished_unit_service.py`
-- [ ] T007 Update create_finished_unit() to accept and validate yield_type parameter
-- [ ] T008 Update update_finished_unit() to validate yield_type changes
-- [ ] T009 Write service-level unit tests in `src/tests/services/test_finished_unit_yield_type.py`
+- [x] T006 Add VALID_YIELD_TYPES constant and validate_yield_type() function in `src/services/finished_unit_service.py`
+- [x] T007 Update create_finished_unit() to accept and validate yield_type parameter
+- [x] T008 Update update_finished_unit() to validate yield_type changes
+- [x] T009 Write service-level unit tests in `src/tests/services/test_finished_unit_yield_type.py`
 
 ### Implementation Notes
 1. Follow existing validation pattern: return `List[str]` of error messages
