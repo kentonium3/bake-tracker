@@ -94,10 +94,10 @@ WP01 (foundation)
 **Prompt**: [WP03-adjustment-validate-cli.md](tasks/WP03-adjustment-validate-cli.md)
 
 **Subtasks**:
-- [ ] T007: Add `import-adjustments` CLI parser
-- [ ] T008: Implement `import_adjustments_cmd()` handler
-- [ ] T009: Add `validate-import` CLI parser
-- [ ] T010: Implement `validate_import_cmd()` handler
+- [x] T007: Add `import-adjustments` CLI parser
+- [x] T008: Implement `import_adjustments_cmd()` handler
+- [x] T009: Add `validate-import` CLI parser
+- [x] T010: Implement `validate_import_cmd()` handler
 
 **Implementation Notes**:
 - validate-import uses dry_run=True to validate without changes
