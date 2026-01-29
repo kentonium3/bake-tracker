@@ -85,11 +85,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T010 [P] Update `_export_finished_units()` to include yield_type field in `src/services/coordinated_export_service.py`
-- [ ] T011 [P] Update import to read yield_type with default='SERVING' for backward compatibility
-- [ ] T012 Add import validation for yield_type values (must be 'EA' or 'SERVING')
-- [ ] T013 Handle UNIQUE constraint violations during import (recipe_id + item_unit + yield_type)
-- [ ] T014 Write export/import round-trip tests in `src/tests/services/test_export_import_yield_type.py`
+- [x] T010 [P] Update `_export_finished_units()` to include yield_type field in `src/services/coordinated_export_service.py`
+- [x] T011 [P] Update import to read yield_type with default='SERVING' for backward compatibility
+- [x] T012 Add import validation for yield_type values (must be 'EA' or 'SERVING')
+- [x] T013 Handle UNIQUE constraint violations during import (recipe_id + item_unit + yield_type)
+- [x] T014 Write export/import round-trip tests in `src/tests/services/test_export_import_yield_type.py`
 
 ### Implementation Notes
 1. Export pattern documented in research.md Q3
