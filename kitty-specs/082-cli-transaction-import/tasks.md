@@ -44,9 +44,9 @@ WP01 (foundation)
 **Prompt**: [WP01-service-layer-extension.md](tasks/WP01-service-layer-extension.md)
 
 **Subtasks**:
-- [ ] T001: Add `strict_mode` parameter to `import_purchases()` [P]
-- [ ] T002: Add `strict_mode` parameter to `import_adjustments()` [P]
-- [ ] T003: Add `result_to_json()` helper function
+- [x] T001: Add `strict_mode` parameter to `import_purchases()` [P]
+- [x] T002: Add `strict_mode` parameter to `import_adjustments()` [P]
+- [x] T003: Add `result_to_json()` helper function
 
 **Implementation Notes**:
 - Modify transaction_import_service.py to accept strict_mode parameter
