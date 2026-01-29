@@ -756,6 +756,7 @@ def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
                 "recipe_name": fu.recipe.name if fu.recipe else None,
                 "category": fu.category,
                 "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+                "yield_type": fu.yield_type,  # Feature 083: Dual-yield support
                 "items_per_batch": fu.items_per_batch,
                 "item_unit": fu.item_unit,
                 "batch_percentage": float(fu.batch_percentage) if fu.batch_percentage else None,
@@ -1639,14 +1640,44 @@ def _import_entity_records(
                     except ValueError:
                         yield_mode = YieldMode.DISCRETE_COUNT  # Default
 
+                # Feature 083: Parse and validate yield_type
+                VALID_YIELD_TYPES = ("EA", "SERVING")
+                yield_type = record.get("yield_type", "SERVING")  # Default for backward compat
+                if yield_type not in VALID_YIELD_TYPES:
+                    logger.warning(
+                        f"Invalid yield_type '{yield_type}' for finished_unit "
+                        f"'{record.get('slug', 'unknown')}', defaulting to 'SERVING'"
+                    )
+                    yield_type = "SERVING"
+
+                # Feature 083: Check for duplicate (recipe_id, item_unit, yield_type)
+                item_unit = record.get("item_unit")
+                existing = (
+                    session.query(FinishedUnit)
+                    .filter(
+                        FinishedUnit.recipe_id == recipe_id,
+                        FinishedUnit.item_unit == item_unit,
+                        FinishedUnit.yield_type == yield_type,
+                    )
+                    .first()
+                )
+                if existing:
+                    logger.warning(
+                        f"Skipping duplicate finished_unit: recipe_id={recipe_id}, "
+                        f"item_unit='{item_unit}', yield_type='{yield_type}' "
+                        f"(slug: {record.get('slug', 'unknown')})"
+                    )
+                    continue  # Skip this record
+
                 obj = FinishedUnit(
                     recipe_id=recipe_id,
                     slug=record.get("slug"),
                     display_name=record.get("display_name"),
                     category=record.get("category"),
                     yield_mode=yield_mode,
+                    yield_type=yield_type,  # Feature 083: Dual-yield support
                     items_per_batch=record.get("items_per_batch"),
-                    item_unit=record.get("item_unit"),
+                    item_unit=item_unit,
                     batch_percentage=record.get("batch_percentage"),
                     portion_description=record.get("portion_description"),
                     inventory_count=record.get("inventory_count", 0),
