@@ -1,8 +1,11 @@
 ---
 work_package_id: WP02
 title: Purchase Import CLI
-lane: planned
+lane: "doing"
 dependencies: []
+base_branch: 082-cli-transaction-import-WP01
+base_commit: 459e9ec305c9dc420b06961dd93a05dcb7a75d5e
+created_at: '2026-01-29T05:07:13.507333+00:00'
 subtasks:
 - T004
 - T005
@@ -10,7 +13,7 @@ subtasks:
 phase: Phase 2 - CLI Commands
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "26197"
 review_status: ''
 reviewed_by: ''
 history:
