@@ -52,7 +52,9 @@ class MainWindow(ctk.CTk):
         self.minsize(1000, 600)
 
         # Start maximized (after geometry is set as fallback)
-        self.after(10, lambda: self.state("zoomed"))
+        # Use platform-appropriate method for maximizing
+        # Delay to allow window to fully initialize before entering fullscreen
+        self.after(500, self._maximize_window)
 
         # Initialize mode manager
         self.mode_manager = ModeManager()
@@ -307,6 +309,15 @@ class MainWindow(ctk.CTk):
     # =========================================================================
     # Menu Actions (preserved from original implementation)
     # =========================================================================
+
+    def _maximize_window(self):
+        """Maximize window using platform-appropriate method."""
+        import sys
+        if sys.platform == "darwin":  # macOS
+            # Use fullscreen mode to ensure all UI elements are accessible
+            self.attributes("-fullscreen", True)
+        else:  # Windows/Linux
+            self.state("zoomed")
 
     def _on_exit(self):
         """Handle application exit."""
