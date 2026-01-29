@@ -363,6 +363,7 @@ def _try_create_provisional_from_slug(
 def import_purchases(
     file_path: str,
     dry_run: bool = False,
+    strict_mode: bool = False,
     session: Optional[Session] = None,
 ) -> ImportResult:
     """
@@ -398,10 +399,10 @@ def import_purchases(
         }
     """
     if session is not None:
-        return _import_purchases_impl(file_path, dry_run, session)
+        return _import_purchases_impl(file_path, dry_run, strict_mode, session)
 
     with session_scope() as sess:
-        result = _import_purchases_impl(file_path, dry_run, sess)
+        result = _import_purchases_impl(file_path, dry_run, strict_mode, sess)
         if dry_run:
             sess.rollback()
         return result
@@ -410,6 +411,7 @@ def import_purchases(
 def _import_purchases_impl(
     file_path: str,
     dry_run: bool,
+    strict_mode: bool,
     session: Session,
 ) -> ImportResult:
     """
@@ -472,12 +474,21 @@ def _import_purchases_impl(
         return result
 
     for purchase_data in purchases_data:
+        # Track failed count before processing to detect new failures
+        failed_before = result.failed
+
         _process_single_purchase(
             purchase_data,
             default_supplier_name,
             result,
             session,
         )
+
+        # In strict mode, return early on first failure
+        if strict_mode and result.failed > failed_before:
+            if dry_run:
+                session.rollback()
+            return result
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
@@ -614,6 +625,7 @@ def _process_single_purchase(
 def import_adjustments(
     file_path: str,
     dry_run: bool = False,
+    strict_mode: bool = False,
     session: Optional[Session] = None,
 ) -> ImportResult:
     """
@@ -652,10 +664,10 @@ def import_adjustments(
         json.JSONDecodeError: If JSON is invalid
     """
     if session is not None:
-        return _import_adjustments_impl(file_path, dry_run, session)
+        return _import_adjustments_impl(file_path, dry_run, strict_mode, session)
 
     with session_scope() as sess:
-        result = _import_adjustments_impl(file_path, dry_run, sess)
+        result = _import_adjustments_impl(file_path, dry_run, strict_mode, sess)
         if dry_run:
             sess.rollback()
         return result
@@ -664,6 +676,7 @@ def import_adjustments(
 def _import_adjustments_impl(
     file_path: str,
     dry_run: bool,
+    strict_mode: bool,
     session: Session,
 ) -> ImportResult:
     """
@@ -723,11 +736,20 @@ def _import_adjustments_impl(
 
     # Process each adjustment
     for adj_data in adjustments_data:
+        # Track failed count before processing to detect new failures
+        failed_before = result.failed
+
         _process_single_adjustment(
             adj_data,
             result,
             session,
         )
+
+        # In strict mode, return early on first failure
+        if strict_mode and result.failed > failed_before:
+            if dry_run:
+                session.rollback()
+            return result
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
