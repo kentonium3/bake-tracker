@@ -1,8 +1,8 @@
 # Architecture Document
 
 > **Document Status:** Living architecture overview
-> **Last Updated:** 2026-01-19
-> **Schema Version:** v0.7+ (post-F059)
+> **Last Updated:** 2026-01-29
+> **Schema Version:** v0.7+ (post-F059, F083 CLI commands)
 
 ## Navigation
 
@@ -330,6 +330,25 @@ The JSON import serves as a primitive batch API enabling AI-assisted data entry:
 
 This pattern is foundational for future voice/chat AI interfaces.
 
+### 5.4 CLI Transaction Import Commands (F083)
+
+CLI commands enable headless transaction import for mobile AI workflows:
+
+| Command | Purpose |
+|---------|---------|
+| `import-purchases` | Import purchase transactions from JSON |
+| `import-adjustments` | Import inventory adjustments from JSON |
+| `validate-import` | Validate import file without database changes |
+
+**Key features:**
+- `--dry-run`: Preview changes without database modification
+- `--json`: Machine-readable output for AI pipeline integration
+- `--resolve-mode strict`: Fail fast on FK resolution errors (vs lenient skip-and-continue)
+
+These commands wrap `transaction_import_service`, keeping business logic in the service layer while providing a thin CLI interface suitable for mobile companion apps (BT Mobile) and automated pipelines.
+
+See `spec_import_export.md` Appendix N for complete CLI documentation.
+
 ---
 
 ## 6. Feature Maturity Assessment
@@ -384,7 +403,7 @@ quadrantChart
 | **Catalog** | Material Units | Functional | Assembly material requirements |
 | **Inventory** | Food FIFO | Mature | Purchase-linked lots |
 | **Inventory** | Materials FIFO | Mature | F058 foundation |
-| **Import/Export** | Unified export/import | Mature | v4.1 format |
+| **Import/Export** | Unified export/import | Mature | v4.3 format |
 | **Import/Export** | Catalog import | Mature | ADD_ONLY/AUGMENT modes |
 | **Assembly** | Finished Goods | Partial | Definition exists, cost tracking incomplete |
 | **Assembly** | Bundles/Packages | Partial | Structure exists, workflow incomplete |
@@ -574,5 +593,5 @@ When designing new features, verify compliance with core patterns:
 ---
 
 **Document Status:** Living architecture overview
-**Last Updated:** 2026-01-19
+**Last Updated:** 2026-01-29
 **Reviewed by:** Kent Gale, Claude Opus 4.5

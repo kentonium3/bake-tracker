@@ -4,7 +4,7 @@
 
 **Status:** IMPLEMENTED
 **Created:** 2025-12-10
-**Last Updated:** 2025-12-28
+**Last Updated:** 2026-01-29
 **Previous Version:** v0.5 (TD-001 cleanup, Features 011-014)
 
 ---
@@ -1056,6 +1056,10 @@ Add new entities to import/export:
 
 ## Document History
 
+- **2026-01-29:** Added reference to F083 CLI Transaction Import
+  - F083 adds CLI commands (`import-purchases`, `import-adjustments`, `validate-import`)
+  - Service-layer enhancement, no schema changes
+  - See `spec_import_export.md` Appendix N for CLI documentation
 - **2025-12-28:** Major update to reflect current implementation status
   - Changed status from PLANNING to IMPLEMENTED
   - Added Implementation Status summary table

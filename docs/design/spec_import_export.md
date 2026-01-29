@@ -1,12 +1,20 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 4.2
+**Version:** 4.3
 **Status:** Current
 
 > **NOTE**: This application only accepts v4.0+ format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
+
+### v4.3 (2026-01-29 - Feature 083)
+- **Added**: CLI commands for transaction import (`import-purchases`, `import-adjustments`, `validate-import`)
+- **Added**: `--strict` mode for import commands (fail on first FK resolution error)
+- **Added**: `--dry-run` flag for all import commands (preview without database changes)
+- **Added**: `--json` flag for CLI commands (machine-readable output)
+- **Added**: `--resolve-mode` flag for FK resolution strategy (`strict`/`lenient`)
+- **Note**: CLI commands wrap `transaction_import_service` for AI-assisted mobile workflows
 
 ### v4.2 (2026-01-19 - Feature 058/059)
 - **Added**: `material_purchases` entity with full schema (FIFO cost capture)
@@ -2267,6 +2275,165 @@ print(f"Imported: {result.created}, Skipped: {result.skipped}")
 
 ---
 
+## Appendix N: CLI Transaction Import Commands (F083)
+
+The CLI provides commands for transaction import to enable AI-assisted mobile workflows without requiring the desktop UI.
+
+### N.1 Overview
+
+Three CLI commands wrap the `transaction_import_service`:
+
+| Command | Purpose |
+|---------|---------|
+| `import-purchases` | Import purchase transactions from JSON |
+| `import-adjustments` | Import inventory adjustments from JSON |
+| `validate-import` | Validate import file without database changes |
+
+### N.2 Common Flags
+
+All import commands support these flags:
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--dry-run` | Preview import without database changes | False |
+| `--json` | Output machine-readable JSON instead of human text | False |
+| `--resolve-mode` | FK resolution strategy: `strict` or `lenient` | `lenient` |
+
+### N.3 import-purchases Command
+
+Import purchase transactions with FIFO lot creation.
+
+**Usage**:
+```bash
+bake-tracker import-purchases <file.json> [OPTIONS]
+```
+
+**Options**:
+```bash
+--dry-run          Preview changes without modifying database
+--json             Output results as JSON
+--resolve-mode     FK resolution: 'strict' (fail on first error) or 'lenient' (skip bad records)
+```
+
+**Examples**:
+```bash
+# Basic import
+bake-tracker import-purchases purchases_20260129.json
+
+# Preview with JSON output
+bake-tracker import-purchases purchases_20260129.json --dry-run --json
+
+# Strict mode - fail on first FK resolution error
+bake-tracker import-purchases purchases_20260129.json --resolve-mode strict
+```
+
+**JSON Output Format**:
+```json
+{
+  "success": true,
+  "imported": 5,
+  "skipped": 1,
+  "failed": 0,
+  "errors": [],
+  "warnings": ["Skipped record 3: Unknown product slug"],
+  "entity_counts": {
+    "purchases": 5,
+    "inventory_items": 5
+  }
+}
+```
+
+### N.4 import-adjustments Command
+
+Import inventory adjustments with reason codes.
+
+**Usage**:
+```bash
+bake-tracker import-adjustments <file.json> [OPTIONS]
+```
+
+**Options**:
+```bash
+--dry-run          Preview changes without modifying database
+--json             Output results as JSON
+--resolve-mode     FK resolution: 'strict' (fail on first error) or 'lenient' (skip bad records)
+```
+
+**Examples**:
+```bash
+# Basic import
+bake-tracker import-adjustments adjustments_20260129.json
+
+# Strict mode with JSON output
+bake-tracker import-adjustments adjustments_20260129.json --resolve-mode strict --json
+```
+
+### N.5 validate-import Command
+
+Validate an import file without making any database changes. Useful for pre-flight checks.
+
+**Usage**:
+```bash
+bake-tracker validate-import <file.json> [OPTIONS]
+```
+
+**Options**:
+```bash
+--json             Output validation results as JSON
+--resolve-mode     FK resolution: 'strict' or 'lenient'
+```
+
+**Examples**:
+```bash
+# Validate a purchases file
+bake-tracker validate-import purchases_20260129.json
+
+# Validate with JSON output for AI processing
+bake-tracker validate-import adjustments_20260129.json --json
+```
+
+**JSON Output Format**:
+```json
+{
+  "valid": true,
+  "import_type": "purchases",
+  "record_count": 6,
+  "errors": [],
+  "warnings": []
+}
+```
+
+### N.6 Resolve Mode Behavior
+
+| Mode | Behavior |
+|------|----------|
+| `lenient` (default) | Skip records with FK resolution failures, continue processing |
+| `strict` | Fail immediately on first FK resolution error, return early |
+
+**Strict mode** is recommended for automated pipelines where partial imports are unacceptable.
+
+**Lenient mode** is useful for bulk imports where some records may have unknown products.
+
+### N.7 Error Handling
+
+CLI commands return appropriate exit codes:
+- `0`: Success (all records imported or validation passed)
+- `1`: Partial success (some records skipped in lenient mode)
+- `2`: Failure (file not found, invalid JSON, strict mode violation)
+
+With `--json` flag, errors are included in the output:
+```json
+{
+  "success": false,
+  "imported": 0,
+  "failed": 1,
+  "errors": ["Row 1: Product slug 'unknown:Brand:5.0:lb' not found"],
+  "warnings": []
+}
+```
+
+---
+
 **Document Status**: Current
-**Version**: 4.1
-**Last Updated**: 2026-01-12
+**Version**: 4.3
+**Last Updated**: 2026-01-29
