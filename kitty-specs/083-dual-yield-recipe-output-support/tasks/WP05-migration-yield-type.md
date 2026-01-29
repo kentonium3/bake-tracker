@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Migration – Transform Existing Data
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP01
 base_branch: 083-dual-yield-recipe-output-support-WP01
@@ -14,8 +14,8 @@ subtasks:
 - T024
 phase: Phase 3 - Deployment
 assignee: ''
-agent: ''
-shell_pid: "77182"
+agent: "claude-opus"
+shell_pid: "79235"
 review_status: ''
 reviewed_by: ''
 history:
@@ -670,3 +670,4 @@ with session_scope() as session:
 
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-29T18:02:47Z – unknown – shell_pid=77182 – lane=for_review – Ready for review: Migration script, docs, and tests. All 8 migration tests pass. Full suite passes (3235 tests).
+- 2026-01-29T18:02:53Z – claude-opus – shell_pid=79235 – lane=doing – Started review via workflow command
