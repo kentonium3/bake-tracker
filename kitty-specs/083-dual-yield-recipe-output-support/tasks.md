@@ -152,7 +152,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T021 Create migration script `scripts/migrate_add_yield_type.py` to transform export JSON
+- [x] T021 Create migration script `scripts/migrate_add_yield_type.py` to transform export JSON
 - [ ] T022 Document migration procedure in `docs/migrations/083-dual-yield-migration.md`
 - [ ] T023 Test full export → transform → import cycle
 - [ ] T024 Verify no data loss after migration (record counts, field values)
