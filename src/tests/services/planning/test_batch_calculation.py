@@ -361,19 +361,20 @@ class TestAggregateByRecipe:
 
         # Create multiple FinishedUnits - some sharing recipes
         # F056: items_per_batch holds yield data (was Recipe.yield_quantity)
+        # F083: Each (recipe_id, item_unit, yield_type) must be unique
         large_cookie = FinishedUnit(
             display_name="Large Sugar Cookie",
             slug="large-sugar-cookie",
             recipe_id=cookie_recipe.id,
             items_per_batch=36,  # From Recipe's former yield_quantity
-            item_unit="cookies",
+            item_unit="large cookie",  # Unique item_unit for this yield
         )
         small_cookie = FinishedUnit(
             display_name="Small Sugar Cookie",
             slug="small-sugar-cookie",
             recipe_id=cookie_recipe.id,  # Same recipe!
             items_per_batch=36,
-            item_unit="cookies",
+            item_unit="small cookie",  # Different item_unit to satisfy unique constraint
         )
         brownie = FinishedUnit(
             display_name="Walnut Brownie",
