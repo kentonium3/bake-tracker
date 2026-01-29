@@ -128,6 +128,7 @@ from src.services.import_export_service import (
     export_events_to_json,
     export_all_to_json,
     import_all_from_json_v4,
+    ImportResult,
 )
 
 
@@ -275,6 +276,36 @@ def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
 def check_cascade_delete_risks(import_data: dict, is_coordinated: bool = False) -> list:
     """Deprecated: Use check_import_risks instead. Returns cascade_risks only."""
     return check_import_risks(import_data, is_coordinated)["cascade_risks"]
+
+
+def result_to_json(result: ImportResult) -> dict:
+    """Convert ImportResult to structured dict for JSON output.
+
+    Used by CLI commands to provide machine-readable output for AI workflows
+    and scripting. The output format is suitable for json.dumps().
+
+    Args:
+        result: ImportResult from an import operation
+
+    Returns:
+        dict suitable for json.dumps() with:
+        - success: bool (True if no failures)
+        - imported: int (successful count)
+        - skipped: int (skipped count)
+        - failed: int (error count)
+        - errors: list[dict] (error details with field paths)
+        - warnings: list[dict] (warning details)
+        - entity_counts: dict (per-entity breakdown)
+    """
+    return {
+        "success": result.failed == 0,
+        "imported": result.successful,
+        "skipped": result.skipped,
+        "failed": result.failed,
+        "errors": result.errors,
+        "warnings": result.warnings,
+        "entity_counts": result.entity_counts,
+    }
 
 
 def export_all(output_file: str):
