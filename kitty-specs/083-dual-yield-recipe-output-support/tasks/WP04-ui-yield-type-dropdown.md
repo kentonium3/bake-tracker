@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: UI – yield_type Dropdown
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 083-dual-yield-recipe-output-support-WP02
 base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
@@ -452,3 +452,4 @@ else:
 ## Activity Log
 
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-29T17:50:15Z – unknown – shell_pid=73866 – lane=for_review – Ready for review: UI dropdown for yield_type, recipe detail display, FinishedGoodDataTable display. All tests pass (3220).
