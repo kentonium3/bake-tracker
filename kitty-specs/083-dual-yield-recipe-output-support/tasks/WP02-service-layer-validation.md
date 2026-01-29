@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Service Layer – yield_type Validation
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 083-dual-yield-recipe-output-support-WP01
 base_commit: ab69e594ec263da2dfdb1bfb5a310aebe407727f
@@ -15,8 +15,8 @@ phase: Phase 1 - Foundation
 assignee: ''
 agent: "claude-opus"
 shell_pid: "71152"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned
@@ -480,3 +480,4 @@ class TestUpdateFinishedUnitYieldType:
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-29T17:20:01Z – unknown – shell_pid=68797 – lane=for_review – Ready for review: Added yield_type validation to service layer
 - 2026-01-29T17:20:06Z – claude-opus – shell_pid=71152 – lane=doing – Started review via workflow command
+- 2026-01-29T17:20:55Z – claude-opus – shell_pid=71152 – lane=done – Review passed: VALID_YIELD_TYPES, validate_yield_type(), create/update validation all correctly implemented. 16 tests pass, no regressions.
