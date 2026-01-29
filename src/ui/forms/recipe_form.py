@@ -400,6 +400,7 @@ class YieldTypeRow(ctk.CTkFrame):
         display_name: str = "",
         item_unit: str = "",
         items_per_batch: int = 1,
+        yield_type: str = "SERVING",  # Feature 083: Dual-yield support
         readonly_structure: bool = False,
     ):
         """
@@ -412,6 +413,7 @@ class YieldTypeRow(ctk.CTkFrame):
             display_name: Yield type name (e.g., "Large Cookie")
             item_unit: Unit of the finished item (e.g., "cookie", "piece")
             items_per_batch: Number of items per batch
+            yield_type: Type of yield - 'EA' (whole unit) or 'SERVING' (consumption unit)
             readonly_structure: If True, structural fields (unit, quantity) are read-only
                                 but display_name remains editable. Used for variants (F066).
         """
@@ -421,11 +423,12 @@ class YieldTypeRow(ctk.CTkFrame):
         self.finished_unit_id = finished_unit_id
         self.readonly_structure = readonly_structure
 
-        # Configure grid (Name / Unit / Quantity / Remove)
+        # Configure grid (Name / Unit / Type / Quantity / Remove)
         self.grid_columnconfigure(0, weight=3)  # Name (wider)
         self.grid_columnconfigure(1, weight=1)  # Unit
-        self.grid_columnconfigure(2, weight=1)  # Quantity
-        self.grid_columnconfigure(3, weight=0)  # Remove button
+        self.grid_columnconfigure(2, weight=1)  # Type (Feature 083)
+        self.grid_columnconfigure(3, weight=1)  # Quantity
+        self.grid_columnconfigure(4, weight=0)  # Remove button
 
         # Name entry (Description) - always editable (T014)
         self.name_entry = ctk.CTkEntry(
@@ -443,11 +446,22 @@ class YieldTypeRow(ctk.CTkFrame):
         if readonly_structure:
             self.unit_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
 
+        # Feature 083: yield_type dropdown
+        self.yield_type_dropdown = ctk.CTkOptionMenu(
+            self,
+            values=["SERVING", "EA"],
+            width=100,
+        )
+        self.yield_type_dropdown.set(yield_type)
+        self.yield_type_dropdown.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
+        if readonly_structure:
+            self.yield_type_dropdown.configure(state="disabled", fg_color="gray25")
+
         # Items per batch entry (Quantity) - read-only for variants (T013)
         self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty/batch")
         if items_per_batch:
             self.quantity_entry.insert(0, str(items_per_batch))
-        self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
+        self.quantity_entry.grid(row=0, column=3, padx=PADDING_MEDIUM, pady=5)
         if readonly_structure:
             self.quantity_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
 
@@ -461,7 +475,7 @@ class YieldTypeRow(ctk.CTkFrame):
             fg_color="darkred",
             hover_color="red",
         )
-        self.remove_button.grid(row=0, column=3, padx=(PADDING_MEDIUM, 0), pady=5)
+        self.remove_button.grid(row=0, column=4, padx=(PADDING_MEDIUM, 0), pady=5)
         if readonly_structure:
             self.remove_button.grid_remove()  # Hide for variants
 
@@ -470,11 +484,13 @@ class YieldTypeRow(ctk.CTkFrame):
         Get yield type data from this row.
 
         Returns:
-            Dictionary with id, display_name, item_unit, items_per_batch, or None if invalid
+            Dictionary with id, display_name, item_unit, items_per_batch, yield_type
+            or None if invalid
         """
         name = self.name_entry.get().strip()
         unit = self.unit_entry.get().strip()
         quantity_str = self.quantity_entry.get().strip()
+        yield_type = self.yield_type_dropdown.get()  # Feature 083
 
         # Validate name
         if not name:
@@ -497,6 +513,7 @@ class YieldTypeRow(ctk.CTkFrame):
             "display_name": name,
             "item_unit": unit,
             "items_per_batch": items_per_batch,
+            "yield_type": yield_type,  # Feature 083
         }
 
 
@@ -780,6 +797,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             row += 1
 
         # F067: Column labels for yield inputs
+        # Feature 083: Added Type column
         labels_frame = ctk.CTkFrame(parent, fg_color="transparent")
         labels_frame.grid(
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM
@@ -787,8 +805,9 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Configure columns to match YieldTypeRow proportions
         labels_frame.grid_columnconfigure(0, weight=3)  # Name column (wider)
         labels_frame.grid_columnconfigure(1, weight=1)  # Unit column
-        labels_frame.grid_columnconfigure(2, weight=1)  # Qty column
-        labels_frame.grid_columnconfigure(3, weight=0)  # Spacer for remove button area
+        labels_frame.grid_columnconfigure(2, weight=1)  # Type column (Feature 083)
+        labels_frame.grid_columnconfigure(3, weight=1)  # Qty column
+        labels_frame.grid_columnconfigure(4, weight=0)  # Spacer for remove button area
 
         name_label = ctk.CTkLabel(
             labels_frame, text="Finished Unit Name", font=ctk.CTkFont(size=11)
@@ -800,10 +819,16 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         unit_label.grid(row=0, column=1, sticky="w", padx=PADDING_MEDIUM)
 
+        # Feature 083: Type column label
+        type_label = ctk.CTkLabel(
+            labels_frame, text="Type", font=ctk.CTkFont(size=11)
+        )
+        type_label.grid(row=0, column=2, sticky="w", padx=PADDING_MEDIUM)
+
         qty_label = ctk.CTkLabel(
             labels_frame, text="Qty/Batch", font=ctk.CTkFont(size=11)
         )
-        qty_label.grid(row=0, column=2, sticky="w", padx=PADDING_MEDIUM)
+        qty_label.grid(row=0, column=3, sticky="w", padx=PADDING_MEDIUM)
         row += 1
 
         # Yield types container
@@ -1228,6 +1253,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         display_name: str = "",
         item_unit: str = "",
         items_per_batch: int = 1,
+        yield_type: str = "SERVING",  # Feature 083: Dual-yield support
     ):
         """
         Add a new yield type row.
@@ -1237,6 +1263,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             display_name: Yield type name
             item_unit: Unit of the finished item (e.g., "cookie", "piece")
             items_per_batch: Number of items per batch
+            yield_type: Type of yield - 'EA' (whole unit) or 'SERVING' (consumption unit)
         """
         row = YieldTypeRow(
             self.yield_types_frame,
@@ -1245,6 +1272,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             display_name,
             item_unit,
             items_per_batch,
+            yield_type,  # Feature 083
             readonly_structure=self.is_variant,  # F066: structural fields read-only for variants
         )
         row.grid(row=len(self.yield_type_rows), column=0, sticky="ew", pady=2)
@@ -1255,6 +1283,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         if self.is_variant:
             row.unit_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
             row.quantity_entry.configure(state="readonly", fg_color="gray25", text_color="gray60")
+            row.yield_type_dropdown.configure(state="disabled", fg_color="gray25")  # Feature 083
             row.remove_button.grid_remove()
 
     def _remove_yield_type_row(self, row: YieldTypeRow):
@@ -1347,6 +1376,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                     display_name=yt.display_name,
                     item_unit=yt.item_unit or "",
                     items_per_batch=yt.items_per_batch or 1,
+                    yield_type=yt.yield_type or "SERVING",  # Feature 083
                 )
         except Exception:
             pass

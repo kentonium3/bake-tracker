@@ -532,6 +532,7 @@ class RecipesTab(ctk.CTkFrame):
                         recipe_id=recipe_id,
                         item_unit=data.get("item_unit"),
                         items_per_batch=data["items_per_batch"],
+                        yield_type=data.get("yield_type", "SERVING"),  # Feature 083
                     )
                 else:
                     # Update existing
@@ -541,6 +542,7 @@ class RecipesTab(ctk.CTkFrame):
                         display_name=data["display_name"],
                         item_unit=data.get("item_unit"),
                         items_per_batch=data["items_per_batch"],
+                        yield_type=data.get("yield_type"),  # Feature 083
                     )
 
             # Delete removed yield types
@@ -581,10 +583,12 @@ class RecipesTab(ctk.CTkFrame):
                 for fu, y in zip(recipe_fus, base_yields):
                     items = y.get("items_per_batch")
                     unit = y.get("item_unit", "")
+                    # Feature 083: Include yield_type in display
+                    yield_type = fu.get("yield_type", "SERVING")
                     if items:
-                        details.append(f"  - {fu['display_name']}: {items} {unit}/batch")
+                        details.append(f"  - {fu['display_name']}: {items} {unit}/batch ({yield_type})")
                     else:
-                        details.append(f"  - {fu['display_name']}: Yield not specified")
+                        details.append(f"  - {fu['display_name']}: Yield not specified ({yield_type})")
             else:
                 details.append("Yield Types: None defined (edit recipe to add)")
 
