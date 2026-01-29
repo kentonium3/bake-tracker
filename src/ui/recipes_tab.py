@@ -542,7 +542,7 @@ class RecipesTab(ctk.CTkFrame):
                         display_name=data["display_name"],
                         item_unit=data.get("item_unit"),
                         items_per_batch=data["items_per_batch"],
-                        yield_type=data.get("yield_type"),  # Feature 083
+                        yield_type=data.get("yield_type", "SERVING"),  # Feature 083
                     )
 
             # Delete removed yield types

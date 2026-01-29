@@ -287,8 +287,8 @@ class TestExportImportRoundTrip:
 class TestImportDuplicateHandling:
     """Test duplicate handling during import."""
 
-    def test_import_skips_duplicate_finished_unit(self, test_db):
-        """Import skips duplicate (recipe_id, item_unit, yield_type)."""
+    def test_import_skips_duplicate_slug(self, test_db):
+        """Import skips finished_unit with duplicate slug."""
         # Create recipe and existing finished_unit
         with session_scope() as session:
             recipe = Recipe(name="Test Recipe", slug="test-recipe", category="Test")
@@ -307,7 +307,7 @@ class TestImportDuplicateHandling:
             session.add(existing_fu)
             session.commit()
 
-        # Try to import FU with same (recipe_id, item_unit, yield_type)
+        # Try to import FU with same slug
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)
 
@@ -324,12 +324,71 @@ class TestImportDuplicateHandling:
                 "version": "1.0",
                 "entity_type": "finished_units",
                 "records": [{
-                    "slug": "duplicate-fu",  # Different slug
-                    "display_name": "Duplicate FU",
+                    "slug": "existing-fu",  # Same slug - should be skipped
+                    "display_name": "Different Name",
                     "recipe_slug": "test-recipe",
                     "yield_mode": "discrete_count",
                     "yield_type": "SERVING",
-                    "items_per_batch": 12,  # Different batch size
+                    "items_per_batch": 12,
+                    "item_unit": "cookie",
+                    "inventory_count": 0,
+                }]
+            }
+            with open(tmp_path / "finished_units.json", "w") as f:
+                json.dump(fu_data, f)
+
+            # Import should skip the duplicate slug
+            import_complete(tmp_path, clear_existing=False)
+
+        # Verify only original exists (not overwritten)
+        with session_scope() as session:
+            all_fus = session.query(FinishedUnit).all()
+            assert len(all_fus) == 1
+            assert all_fus[0].slug == "existing-fu"
+            assert all_fus[0].display_name == "Existing FU"  # Original, not imported
+
+    def test_import_allows_same_unit_and_yield_type_different_slug(self, test_db):
+        """Import allows multiple finished_units with same (item_unit, yield_type) but different slugs."""
+        # Create recipe and existing finished_unit
+        with session_scope() as session:
+            recipe = Recipe(name="Test Recipe", slug="test-recipe", category="Test")
+            session.add(recipe)
+            session.flush()
+
+            existing_fu = FinishedUnit(
+                slug="large-cookie",
+                display_name="Large Cookie",
+                recipe_id=recipe.id,
+                item_unit="cookie",
+                items_per_batch=24,
+                yield_type="SERVING",
+            )
+            session.add(existing_fu)
+            session.commit()
+
+        # Import FU with same (item_unit, yield_type) but different slug
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+
+            manifest = {
+                "version": "3.2",
+                "files": [
+                    {"entity_type": "finished_units", "filename": "finished_units.json", "import_order": 10}
+                ]
+            }
+            with open(tmp_path / "manifest.json", "w") as f:
+                json.dump(manifest, f)
+
+            fu_data = {
+                "version": "1.0",
+                "entity_type": "finished_units",
+                "records": [{
+                    "slug": "small-cookie",  # Different slug
+                    "display_name": "Small Cookie",
+                    "recipe_slug": "test-recipe",
+                    "yield_mode": "discrete_count",
+                    "yield_type": "SERVING",  # Same yield_type
+                    "items_per_batch": 12,
                     "item_unit": "cookie",  # Same item_unit
                     "inventory_count": 0,
                 }]
@@ -337,14 +396,15 @@ class TestImportDuplicateHandling:
             with open(tmp_path / "finished_units.json", "w") as f:
                 json.dump(fu_data, f)
 
-            # Import should skip the duplicate
-            result = import_complete(tmp_path, clear_existing=False)
+            import_complete(tmp_path, clear_existing=False)
 
-        # Verify only original exists
+        # Verify both exist
         with session_scope() as session:
             all_fus = session.query(FinishedUnit).all()
-            assert len(all_fus) == 1
-            assert all_fus[0].slug == "existing-fu"
+            assert len(all_fus) == 2
+            slugs = {fu.slug for fu in all_fus}
+            assert "large-cookie" in slugs
+            assert "small-cookie" in slugs
 
     def test_import_allows_different_yield_types_same_item_unit(self, test_db):
         """Import allows same item_unit with different yield_type."""

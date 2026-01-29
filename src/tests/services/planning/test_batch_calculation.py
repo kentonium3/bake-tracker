@@ -361,7 +361,7 @@ class TestAggregateByRecipe:
 
         # Create multiple FinishedUnits - some sharing recipes
         # F056: items_per_batch holds yield data (was Recipe.yield_quantity)
-        # F083: Each (recipe_id, item_unit, yield_type) must be unique
+        # F083: Multiple sizes can share same item_unit and yield_type
         large_cookie = FinishedUnit(
             display_name="Large Sugar Cookie",
             slug="large-sugar-cookie",

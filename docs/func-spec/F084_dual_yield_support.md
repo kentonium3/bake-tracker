@@ -1,6 +1,6 @@
 # F084: Dual-Yield Support for Recipe Outputs
 
-**Version**: 1.0
+**Version**: 1.1 (Post-Implementation Clarification)
 **Priority**: HIGH
 **Type**: Service Layer + Schema Enhancement
 
@@ -356,6 +356,43 @@ get_yield_for_planning(recipe_id, prefer_servings=True):
 - Used for consumption planning, serving counts
 - May be same as EA (cookies) or different (cake slices)
 
+### Recipe Variants and Multiple Yields
+
+**IMPORTANT CLARIFICATION (Post-Implementation):**
+
+The original spec suggested constraints that are too restrictive for real-world use cases. The actual implementation supports **multiple finished_units with the same yield_type** to accommodate recipe variants (e.g., different cake sizes from the same recipe).
+
+**Example: Single Cake Recipe with Multiple Size Options**
+
+A recipe can define multiple finished_units that represent different variants:
+
+| Description | Unit | Type | Qty/Batch |
+|------------|------|------|--------|
+| Large cake | cake | EA | 1 |
+| Large cake | slice | SERVING | 16 |
+| Medium cake | cake | EA | 1 |
+| Medium cake | slice | SERVING | 8 |
+| Small cake | cake | EA | 1 |
+| Small cake | slice | SERVING | 4 |
+
+**What This Enables:**
+- User can select which size variant to use when planning
+- Each variant has both EA (whole unit) and SERVING (portions) defined
+- Planning service can choose appropriate yield based on variant selection
+- Same base recipe → different output configurations
+
+**Constraints That DO Apply:**
+- Each finished_unit must have valid yield_type ('EA' or 'SERVING')
+- Recipe must have at least ONE finished_unit
+- unit_description differentiates variants (e.g., "Large cake", "Medium cake")
+
+**Constraints That DO NOT Apply:**
+- ❌ "Maximum one EA per recipe" - FALSE, can have multiple EA definitions for variants
+- ❌ "Maximum one SERVING per recipe" - FALSE, can have multiple SERVING definitions for variants
+- ❌ "UNIQUE(recipe_id, yield_type)" - FALSE, uniqueness is on (recipe_id, unit_description, yield_type)
+
+This flexibility supports the baker's mental model where one recipe can be executed at different scales or configurations.
+
 ### Data Model Separation
 
 **unit_description (user-facing):**
@@ -457,6 +494,22 @@ get_yield_for_planning(recipe_id, prefer_servings=True):
 3. Transform export data (split unit → unit_description + yield_type)
 4. Import transformed data
 5. Validate all recipes still present and correct
+
+---
+
+## Revision History
+
+**Version 1.1 (2026-01-29)**: Post-implementation clarification
+- Added "Recipe Variants and Multiple Yields" section to Architecture Principles
+- Clarified that multiple finished_units with same yield_type ARE allowed
+- Corrected constraint documentation: uniqueness is on (recipe_id, unit_description, yield_type), not (recipe_id, yield_type)
+- Added real-world example showing Large/Medium/Small cake variants
+- Original spec was too restrictive; actual implementation correctly supports recipe variants
+
+**Version 1.0 (2026-01-XX)**: Initial specification
+- Defined dual-yield capability
+- Split unit field into unit_description + yield_type
+- Established EA vs SERVING semantics
 
 ---
 

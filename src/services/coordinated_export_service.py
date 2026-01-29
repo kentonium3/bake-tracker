@@ -1650,24 +1650,20 @@ def _import_entity_records(
                     )
                     yield_type = "SERVING"
 
-                # Feature 083: Check for duplicate (recipe_id, item_unit, yield_type)
+                # Check for duplicate slug (globally unique)
                 item_unit = record.get("item_unit")
-                existing = (
-                    session.query(FinishedUnit)
-                    .filter(
-                        FinishedUnit.recipe_id == recipe_id,
-                        FinishedUnit.item_unit == item_unit,
-                        FinishedUnit.yield_type == yield_type,
+                slug = record.get("slug")
+                if slug:
+                    existing = (
+                        session.query(FinishedUnit)
+                        .filter(FinishedUnit.slug == slug)
+                        .first()
                     )
-                    .first()
-                )
-                if existing:
-                    logger.warning(
-                        f"Skipping duplicate finished_unit: recipe_id={recipe_id}, "
-                        f"item_unit='{item_unit}', yield_type='{yield_type}' "
-                        f"(slug: {record.get('slug', 'unknown')})"
-                    )
-                    continue  # Skip this record
+                    if existing:
+                        logger.warning(
+                            f"Skipping duplicate finished_unit with slug '{slug}'"
+                        )
+                        continue  # Skip this record
 
                 obj = FinishedUnit(
                     recipe_id=recipe_id,

@@ -432,7 +432,7 @@ class YieldTypeRow(ctk.CTkFrame):
 
         # Name entry (Description) - always editable (T014)
         self.name_entry = ctk.CTkEntry(
-            self, width=200, placeholder_text="Description (e.g., Large Cookie)"
+            self, width=300, placeholder_text="Description (e.g., Large Cookie)"
         )
         if display_name:
             self.name_entry.insert(0, display_name)
@@ -590,7 +590,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        self.geometry("700x750")
+        self.geometry("850x750")
         self.resizable(False, False)
 
         # Center on parent
@@ -1511,6 +1511,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                     "display_name": row_name,
                     "item_unit": row_unit,
                     "items_per_batch": items_per_batch,
+                    "yield_type": row.yield_type_dropdown.get(),  # Feature 083
                 }
             )
 

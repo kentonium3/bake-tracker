@@ -485,7 +485,7 @@ class TestBatchCalculationIntegration:
     def test_multiple_fus_same_recipe_preserved(self, test_db):
         """Multiple FUs from same recipe are preserved separately."""
         # Setup one recipe with two FUs (different yields)
-        # F083: Each (recipe_id, item_unit, yield_type) must be unique
+        # F083: Multiple sizes can share same item_unit and yield_type
         recipe = Recipe(name="Cake Recipe", category="Cakes")
         test_db.add(recipe)
         test_db.flush()

@@ -152,14 +152,9 @@ class FinishedUnit(BaseModel):
         Index("idx_finished_unit_recipe_inventory", "recipe_id", "inventory_count"),
         # Unique constraints
         UniqueConstraint("slug", name="uq_finished_unit_slug"),
-        # Feature 083: Unique constraint on (recipe_id, item_unit, yield_type)
-        # Allows same item_unit to have both EA and SERVING yields
-        UniqueConstraint(
-            "recipe_id",
-            "item_unit",
-            "yield_type",
-            name="uq_finished_unit_recipe_item_unit_yield_type",
-        ),
+        # Note: No constraint on (recipe_id, item_unit, yield_type) because
+        # a recipe may have multiple sizes (Large/Medium/Small) all using
+        # the same unit (e.g., "cake") and yield_type (EA or SERVING)
         # Check constraints
         CheckConstraint("inventory_count >= 0", name="ck_finished_unit_inventory_non_negative"),
         CheckConstraint(

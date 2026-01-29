@@ -4,8 +4,7 @@ Feature 083 - Dual-Yield Support: Tests verify:
 - yield_type column defaults to 'SERVING'
 - yield_type accepts 'EA' value
 - CHECK constraint rejects invalid yield_type values
-- UNIQUE constraint allows same item_unit with different yield_types
-- UNIQUE constraint rejects duplicate (recipe_id, item_unit, yield_type)
+- Multiple sizes (Large/Medium/Small) can share same item_unit and yield_type
 """
 
 import pytest
@@ -122,40 +121,52 @@ class TestFinishedUnitYieldType:
         assert fu_ea.yield_type == "EA"
         assert fu_serving.yield_type == "SERVING"
 
-    def test_unique_constraint_rejects_duplicate_yield_type(self, test_db):
-        """Cannot have two FinishedUnits with same (recipe_id, item_unit, yield_type)."""
+    def test_allows_multiple_sizes_same_unit_and_yield_type(self, test_db):
+        """Multiple FinishedUnits can share (recipe_id, item_unit, yield_type) for different sizes."""
         session = test_db()
 
         recipe = Recipe(name="Cake Recipe", slug="cake-recipe", category="Cakes")
         session.add(recipe)
         session.flush()
 
-        # Create first EA yield
-        fu1 = FinishedUnit(
-            slug="test-cake-1",
-            display_name="Small Cake 1",
+        # Create Large, Medium, Small cakes - all with same item_unit and yield_type
+        fu_large = FinishedUnit(
+            slug="large-cake",
+            display_name="Large Cake",
             recipe_id=recipe.id,
-            item_unit="small cake",
+            item_unit="cake",
             items_per_batch=1,
             yield_mode=YieldMode.DISCRETE_COUNT,
             yield_type="EA",
         )
 
-        # Try to create second EA yield with same item_unit
-        fu2 = FinishedUnit(
-            slug="test-cake-2",
-            display_name="Small Cake 2",
+        fu_medium = FinishedUnit(
+            slug="medium-cake",
+            display_name="Medium Cake",
             recipe_id=recipe.id,
-            item_unit="small cake",  # Same item_unit
+            item_unit="cake",  # Same item_unit
             items_per_batch=1,
             yield_mode=YieldMode.DISCRETE_COUNT,
-            yield_type="EA",  # Same yield_type - should fail!
+            yield_type="EA",  # Same yield_type - now allowed!
         )
 
-        session.add_all([fu1, fu2])
+        fu_small = FinishedUnit(
+            slug="small-cake",
+            display_name="Small Cake",
+            recipe_id=recipe.id,
+            item_unit="cake",  # Same item_unit
+            items_per_batch=1,
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            yield_type="EA",  # Same yield_type - now allowed!
+        )
 
-        with pytest.raises(IntegrityError):
-            session.commit()
+        session.add_all([fu_large, fu_medium, fu_small])
+        session.commit()
+
+        # All three should be created successfully
+        assert fu_large.id is not None
+        assert fu_medium.id is not None
+        assert fu_small.id is not None
 
     def test_to_dict_includes_yield_type(self, test_db):
         """to_dict() includes yield_type field."""
