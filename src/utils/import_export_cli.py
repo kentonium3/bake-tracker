@@ -308,6 +308,190 @@ def result_to_json(result: ImportResult) -> dict:
     }
 
 
+# ============================================================================
+# F083: Transaction Import CLI Handlers
+# ============================================================================
+
+
+def import_purchases_cmd(args) -> int:
+    """Handle import-purchases command.
+
+    Args:
+        args: Parsed arguments with input_file, dry_run, json_output, resolve_mode
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    import json
+
+    from src.services.transaction_import_service import import_purchases
+
+    input_file = args.input_file
+    dry_run = args.dry_run
+    json_output = args.json_output
+    strict_mode = args.resolve_mode == "strict"
+
+    # Validate file exists
+    if not Path(input_file).exists():
+        if json_output:
+            print(json.dumps({"success": False, "error": f"File not found: {input_file}"}))
+        else:
+            print(f"Error: File not found: {input_file}")
+        return 1
+
+    try:
+        result = import_purchases(
+            file_path=input_file,
+            dry_run=dry_run,
+            strict_mode=strict_mode,
+        )
+
+        if json_output:
+            output = result_to_json(result)
+            output["dry_run"] = dry_run
+            output["resolve_mode"] = args.resolve_mode
+            print(json.dumps(output, indent=2))
+        else:
+            print(result.get_summary())
+            if dry_run:
+                print("\n[DRY RUN] No changes committed to database.")
+
+        return 0 if result.failed == 0 else 1
+
+    except Exception as e:
+        if json_output:
+            print(json.dumps({"success": False, "error": str(e)}))
+        else:
+            print(f"Error: {e}")
+        return 1
+
+
+def import_adjustments_cmd(args) -> int:
+    """Handle import-adjustments command.
+
+    Args:
+        args: Parsed arguments with input_file, dry_run, json_output, resolve_mode
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    import json
+
+    from src.services.transaction_import_service import import_adjustments
+
+    input_file = args.input_file
+    dry_run = args.dry_run
+    json_output = args.json_output
+    strict_mode = args.resolve_mode == "strict"
+
+    # Validate file exists
+    if not Path(input_file).exists():
+        if json_output:
+            print(json.dumps({"success": False, "error": f"File not found: {input_file}"}))
+        else:
+            print(f"Error: File not found: {input_file}")
+        return 1
+
+    try:
+        result = import_adjustments(
+            file_path=input_file,
+            dry_run=dry_run,
+            strict_mode=strict_mode,
+        )
+
+        if json_output:
+            output = result_to_json(result)
+            output["dry_run"] = dry_run
+            output["resolve_mode"] = args.resolve_mode
+            print(json.dumps(output, indent=2))
+        else:
+            print(result.get_summary())
+            if dry_run:
+                print("\n[DRY RUN] No changes committed to database.")
+
+        return 0 if result.failed == 0 else 1
+
+    except Exception as e:
+        if json_output:
+            print(json.dumps({"success": False, "error": str(e)}))
+        else:
+            print(f"Error: {e}")
+        return 1
+
+
+def validate_import_cmd(args) -> int:
+    """Handle validate-import command.
+
+    Validates import file schema without database changes.
+    Internally uses import with dry_run=True.
+
+    Args:
+        args: Parsed arguments with input_file, import_type, json_output, resolve_mode
+
+    Returns:
+        0 if validation passes, 1 if validation fails
+    """
+    import json
+
+    from src.services.transaction_import_service import (
+        import_purchases,
+        import_adjustments,
+    )
+
+    input_file = args.input_file
+    import_type = args.import_type
+    json_output = args.json_output
+    strict_mode = args.resolve_mode == "strict"
+
+    # Validate file exists
+    if not Path(input_file).exists():
+        if json_output:
+            print(json.dumps({"success": False, "error": f"File not found: {input_file}"}))
+        else:
+            print(f"Error: File not found: {input_file}")
+        return 1
+
+    try:
+        # Route to appropriate import function with dry_run=True
+        if import_type == "purchase":
+            result = import_purchases(
+                file_path=input_file,
+                dry_run=True,  # Always dry-run for validation
+                strict_mode=strict_mode,
+            )
+        else:  # adjustment
+            result = import_adjustments(
+                file_path=input_file,
+                dry_run=True,  # Always dry-run for validation
+                strict_mode=strict_mode,
+            )
+
+        if json_output:
+            output = result_to_json(result)
+            output["validation_only"] = True
+            output["import_type"] = import_type
+            output["resolve_mode"] = args.resolve_mode
+            print(json.dumps(output, indent=2))
+        else:
+            if result.failed == 0:
+                print(f"Validation passed for {import_type} file")
+                print(f"  Records: {result.total_records}")
+                if result.warnings:
+                    print(f"  Warnings: {len(result.warnings)}")
+            else:
+                print(f"Validation failed for {import_type} file")
+                print(result.get_summary())
+
+        return 0 if result.failed == 0 else 1
+
+    except Exception as e:
+        if json_output:
+            print(json.dumps({"success": False, "error": str(e)}))
+        else:
+            print(f"Validation error: {e}")
+        return 1
+
+
 def export_all(output_file: str):
     """Export all data in v3.2 format."""
     print(f"Exporting all data to {output_file}...")
@@ -1640,63 +1824,6 @@ def catalog_validate_cmd(input_file: str) -> int:
 
 
 # ============================================================================
-# F083 Transaction Import Commands
-# ============================================================================
-
-
-def import_purchases_cmd(args) -> int:
-    """Handle import-purchases command.
-
-    Args:
-        args: Parsed arguments with input_file, dry_run, json_output, resolve_mode
-
-    Returns:
-        0 on success, 1 on failure
-    """
-    import json
-    from src.services.transaction_import_service import import_purchases
-
-    input_file = args.input_file
-    dry_run = args.dry_run
-    json_output = args.json_output
-    strict_mode = args.resolve_mode == "strict"
-
-    # Validate file exists
-    if not Path(input_file).exists():
-        if json_output:
-            print(json.dumps({"success": False, "error": f"File not found: {input_file}"}))
-        else:
-            print(f"Error: File not found: {input_file}")
-        return 1
-
-    try:
-        result = import_purchases(
-            file_path=input_file,
-            dry_run=dry_run,
-            strict_mode=strict_mode,
-        )
-
-        if json_output:
-            output = result_to_json(result)
-            output["dry_run"] = dry_run
-            output["resolve_mode"] = args.resolve_mode
-            print(json.dumps(output, indent=2))
-        else:
-            print(result.get_summary())
-            if dry_run:
-                print("\n[DRY RUN] No changes committed to database.")
-
-        return 0 if result.failed == 0 else 1
-
-    except Exception as e:
-        if json_output:
-            print(json.dumps({"success": False, "error": str(e)}))
-        else:
-            print(f"Error: {e}")
-        return 1
-
-
-# ============================================================================
 # F030 Import Commands
 # ============================================================================
 
@@ -2622,6 +2749,71 @@ supported. Use the 'import' command with a complete v3.2 format file.
         "Example: import-purchases receipt.json --dry-run --json"
     )
 
+    # F083: Import adjustments command
+    import_adjustments_parser = subparsers.add_parser(
+        "import-adjustments",
+        help="Import inventory adjustments from JSON file"
+    )
+    import_adjustments_parser.add_argument(
+        "input_file",
+        help="JSON file with inventory adjustments"
+    )
+    import_adjustments_parser.add_argument(
+        "-d", "--dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="Validate without modifying database"
+    )
+    import_adjustments_parser.add_argument(
+        "--json",
+        dest="json_output",
+        action="store_true",
+        help="Output results as JSON (for AI workflows)"
+    )
+    import_adjustments_parser.add_argument(
+        "--resolve-mode",
+        dest="resolve_mode",
+        choices=["auto", "strict"],
+        default="auto",
+        help="FK resolution: 'auto' (default) uses best-match, 'strict' fails on unresolved"
+    )
+    import_adjustments_parser.epilog = (
+        "Example: import-adjustments inventory_count.json --dry-run --json"
+    )
+
+    # F083: Validate import command
+    validate_import_parser = subparsers.add_parser(
+        "validate-import",
+        help="Validate import file schema without modifying database"
+    )
+    validate_import_parser.add_argument(
+        "input_file",
+        help="JSON file to validate"
+    )
+    validate_import_parser.add_argument(
+        "-t", "--type",
+        dest="import_type",
+        choices=["purchase", "adjustment"],
+        required=True,
+        help="Type of import file: 'purchase' or 'adjustment'"
+    )
+    validate_import_parser.add_argument(
+        "--json",
+        dest="json_output",
+        action="store_true",
+        help="Output validation results as JSON"
+    )
+    validate_import_parser.add_argument(
+        "--resolve-mode",
+        dest="resolve_mode",
+        choices=["auto", "strict"],
+        default="auto",
+        help="FK resolution mode for validation"
+    )
+    validate_import_parser.epilog = (
+        "Example: validate-import receipt.json --type=purchase --json"
+    )
+
     # F059: Material purchase command
     mat_purchase_parser = subparsers.add_parser(
         "purchase-material",
@@ -2755,6 +2947,10 @@ supported. Use the 'import' command with a complete v3.2 format file.
         return catalog_validate_cmd(args.input_file)
     elif args.command == "import-purchases":
         return import_purchases_cmd(args)
+    elif args.command == "import-adjustments":
+        return import_adjustments_cmd(args)
+    elif args.command == "validate-import":
+        return validate_import_cmd(args)
     elif args.command == "purchase-material":
         return handle_material_purchase(args)
     else:
