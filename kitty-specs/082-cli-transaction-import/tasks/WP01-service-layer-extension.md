@@ -6,7 +6,7 @@ subtasks:
   - "T003"
 title: "Service Layer Extension"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "24063"
@@ -273,3 +273,4 @@ No dependencies - this is the foundation WP.
 
 - 2026-01-29T04:45:00Z – system – lane=planned – Prompt created.
 - 2026-01-29T04:55:42Z – claude – shell_pid=24063 – lane=doing – Started implementation via workflow command
+- 2026-01-29T05:06:48Z – claude – shell_pid=24063 – lane=for_review – Ready for review: Added strict_mode to import_purchases/import_adjustments and result_to_json helper. All 3191 tests pass.
