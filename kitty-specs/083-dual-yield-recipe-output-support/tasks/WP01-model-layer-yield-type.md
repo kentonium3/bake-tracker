@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Model Layer – Add yield_type Field"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "64508"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -383,3 +383,4 @@ class TestFinishedUnitYieldType:
 ## Activity Log
 
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2026-01-29T16:39:14Z – claude-opus – shell_pid=64508 – lane=doing – Started implementation via workflow command
