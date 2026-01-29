@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Model Layer – Add yield_type Field"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "64508"
+shell_pid: "68199"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -385,3 +385,4 @@ class TestFinishedUnitYieldType:
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-29T16:39:14Z – claude-opus – shell_pid=64508 – lane=doing – Started implementation via workflow command
 - 2026-01-29T17:05:22Z – claude-opus – shell_pid=64508 – lane=for_review – Ready for review: Added yield_type column with CHECK, UNIQUE constraints, index, and tests. Updated test fixtures to comply with new constraint.
+- 2026-01-29T17:05:30Z – claude-opus – shell_pid=68199 – lane=doing – Started review via workflow command
