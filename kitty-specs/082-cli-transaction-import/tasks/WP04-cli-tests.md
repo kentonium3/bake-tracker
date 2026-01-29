@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: CLI Tests
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks:
 - T011
@@ -9,8 +9,8 @@ subtasks:
 - T013
 phase: Phase 3 - Testing
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude"
+shell_pid: "31301"
 review_status: ''
 reviewed_by: ''
 history:
@@ -446,3 +446,4 @@ spec-kitty implement WP04 --base WP03
 ## Activity Log
 
 - 2026-01-29T04:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-29T05:24:06Z – claude – shell_pid=31301 – lane=doing – Started implementation via workflow command
