@@ -121,7 +121,7 @@
 - [x] T015 Add yield_type dropdown to YieldTypeRow component in `src/ui/forms/recipe_form.py`
 - [x] T016 Update grid configuration and column headers to include "Type" column
 - [x] T017 Update form validation to require yield_type selection
-- [ ] T018 Update `_save_yield_types()` in `src/ui/recipes_tab.py` to persist yield_type
+- [x] T018 Update `_save_yield_types()` in `src/ui/recipes_tab.py` to persist yield_type
 - [ ] T019 Update recipe detail display to show yield_type in `src/ui/recipes_tab.py`
 - [ ] T020 [P] Update FinishedGoodDataTable yield info display in `src/ui/widgets/data_table.py`
 
