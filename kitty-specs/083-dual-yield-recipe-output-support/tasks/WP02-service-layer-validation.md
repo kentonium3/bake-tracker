@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Service Layer – yield_type Validation
+lane: "doing"
+dependencies: [WP01]
+base_branch: 083-dual-yield-recipe-output-support-WP01
+base_commit: ab69e594ec263da2dfdb1bfb5a310aebe407727f
+created_at: '2026-01-29T17:08:15.481563+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Service Layer – yield_type Validation"
-phase: "Phase 1 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+- T009
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "68797"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-29T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-29T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Service Layer – yield_type Validation
