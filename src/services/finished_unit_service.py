@@ -290,9 +290,9 @@ class FinishedUnitService:
                     if not recipe:
                         raise ValidationError(f"Recipe ID {recipe_id} does not exist")
 
-                    # Validate name uniqueness within recipe
+                    # Validate name uniqueness within recipe (per yield_type)
                     FinishedUnitService._validate_name_unique_in_recipe(
-                        display_name.strip(), recipe_id, session
+                        display_name.strip(), recipe_id, session, yield_type
                     )
 
                     # Create FinishedUnit with validated data
@@ -410,16 +410,19 @@ class FinishedUnitService:
                 if effective_name:
                     effective_name = effective_name.strip()
                 effective_recipe_id = updates.get("recipe_id", unit.recipe_id)
+                effective_yield_type = updates.get("yield_type", unit.yield_type or "SERVING")
 
-                # Check if name or recipe is changing
+                # Check if name, recipe, or yield_type is changing
                 name_changing = "display_name" in updates and effective_name != unit.display_name
                 recipe_changing = "recipe_id" in updates and effective_recipe_id != unit.recipe_id
+                yield_type_changing = "yield_type" in updates and effective_yield_type != unit.yield_type
 
-                if name_changing or recipe_changing:
+                if name_changing or recipe_changing or yield_type_changing:
                     FinishedUnitService._validate_name_unique_in_recipe(
                         effective_name,
                         effective_recipe_id,
                         session,
+                        effective_yield_type,
                         exclude_id=finished_unit_id,
                     )
 
@@ -725,26 +728,32 @@ class FinishedUnitService:
         display_name: str,
         recipe_id: int,
         session: Session,
+        yield_type: str = "SERVING",
         exclude_id: Optional[int] = None,
     ) -> None:
         """
-        Validate that display_name is unique within a recipe.
+        Validate that (display_name, yield_type) is unique within a recipe.
 
         Uses case-insensitive comparison to prevent duplicates like
         "Large Cookie" vs "large cookie".
+
+        Feature 083: Allows same display_name with different yield_types,
+        e.g., "Large Cake (EA)" and "Large Cake (SERVING)" are both valid.
 
         Args:
             display_name: The name to validate
             recipe_id: The recipe ID to check within
             session: SQLAlchemy session to use
+            yield_type: The yield type (EA or SERVING)
             exclude_id: Optional FinishedUnit ID to exclude (for updates)
 
         Raises:
-            ValidationError: If a duplicate name exists for this recipe
+            ValidationError: If a duplicate (name, yield_type) exists for this recipe
         """
         query = session.query(FinishedUnit).filter(
             FinishedUnit.recipe_id == recipe_id,
             func.lower(FinishedUnit.display_name) == func.lower(display_name.strip()),
+            FinishedUnit.yield_type == yield_type,
         )
         if exclude_id is not None:
             query = query.filter(FinishedUnit.id != exclude_id)
@@ -752,7 +761,8 @@ class FinishedUnitService:
         existing = query.first()
         if existing:
             raise ValidationError(
-                f"A yield type named '{display_name}' already exists for this recipe"
+                f"A yield type named '{display_name}' with type '{yield_type}' "
+                f"already exists for this recipe"
             )
 
 
