@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Export/Import – yield_type Field
+lane: "doing"
+dependencies: [WP02]
+base_branch: 083-dual-yield-recipe-output-support-WP02
+base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
+created_at: '2026-01-29T17:21:08.300878+00:00'
 subtasks:
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Export/Import – yield_type Field"
-phase: "Phase 2 - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T010
+- T011
+- T012
+- T013
+- T014
+phase: Phase 2 - Integration
+assignee: ''
+agent: ''
+shell_pid: "71472"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-29T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-29T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Export/Import – yield_type Field
