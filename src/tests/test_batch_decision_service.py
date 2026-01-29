@@ -68,26 +68,26 @@ def batch_decision_setup(test_db):
     session.add(recipe)
     session.flush()
 
-    # Create first finished unit (24 cookies per batch)
+    # Create first finished unit (24 small cookies per batch)
     fu1 = FinishedUnit(
         recipe_id=recipe.id,
         display_name="Small Cookies",
         slug="small-cookies",
         yield_mode=YieldMode.DISCRETE_COUNT,
         items_per_batch=24,
-        item_unit="cookies",
+        item_unit="small cookie",  # Unique item_unit for this yield type
     )
     session.add(fu1)
     session.flush()
 
-    # Create second finished unit (12 cookies per batch)
+    # Create second finished unit (12 large cookies per batch)
     fu2 = FinishedUnit(
         recipe_id=recipe.id,
         display_name="Large Cookies",
         slug="large-cookies",
         yield_mode=YieldMode.DISCRETE_COUNT,
         items_per_batch=12,
-        item_unit="cookies",
+        item_unit="large cookie",  # Different item_unit to satisfy unique constraint
     )
     session.add(fu2)
     session.commit()
