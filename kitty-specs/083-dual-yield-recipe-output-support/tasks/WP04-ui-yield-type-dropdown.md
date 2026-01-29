@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: UI – yield_type Dropdown
+lane: "doing"
+dependencies: [WP02]
+base_branch: 083-dual-yield-recipe-output-support-WP02
+base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
+created_at: '2026-01-29T17:34:12.053054+00:00'
 subtasks:
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-title: "UI – yield_type Dropdown"
-phase: "Phase 2 - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T015
+- T016
+- T017
+- T018
+- T019
+- T020
+phase: Phase 2 - Integration
+assignee: ''
+agent: ''
+shell_pid: "73866"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-29T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-29T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – UI – yield_type Dropdown
