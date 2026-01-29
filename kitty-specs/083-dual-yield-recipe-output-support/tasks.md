@@ -155,7 +155,7 @@
 - [x] T021 Create migration script `scripts/migrate_add_yield_type.py` to transform export JSON
 - [x] T022 Document migration procedure in `docs/migrations/083-dual-yield-migration.md`
 - [x] T023 Test full export → transform → import cycle
-- [ ] T024 Verify no data loss after migration (record counts, field values)
+- [x] T024 Verify no data loss after migration (record counts, field values)
 
 ### Implementation Notes
 1. Constitutional schema change strategy: export → reset → import
