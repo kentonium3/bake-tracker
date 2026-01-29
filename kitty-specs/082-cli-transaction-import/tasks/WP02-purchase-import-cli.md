@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Purchase Import CLI
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: 082-cli-transaction-import-WP01
 base_commit: 459e9ec305c9dc420b06961dd93a05dcb7a75d5e
@@ -293,3 +293,4 @@ app import-purchases test.json --dry-run --resolve-mode=strict
 ## Activity Log
 
 - 2026-01-29T04:45:00Z – system – lane=planned – Prompt created.
+- 2026-01-29T05:12:31Z – unknown – shell_pid=26197 – lane=for_review – Ready for review: Added import-purchases CLI with --dry-run, --json, --resolve-mode flags. All tests pass.
