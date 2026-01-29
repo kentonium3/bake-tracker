@@ -34,6 +34,33 @@ from .exceptions import ServiceError, ValidationError, DatabaseError
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
+# Feature 083: Yield Type Validation
+# =============================================================================
+
+# Valid yield type values
+VALID_YIELD_TYPES = {"EA", "SERVING"}
+
+
+def validate_yield_type(yield_type: str) -> List[str]:
+    """Validate yield_type value.
+
+    Feature 083: Dual-Yield Support
+
+    Args:
+        yield_type: The yield type to validate ('EA' or 'SERVING')
+
+    Returns:
+        List of error messages (empty if valid)
+    """
+    errors = []
+    if not yield_type:
+        errors.append("yield_type is required")
+    elif yield_type not in VALID_YIELD_TYPES:
+        errors.append(f"yield_type must be 'EA' or 'SERVING', got '{yield_type}'")
+    return errors
+
+
 # Custom exceptions for FinishedUnit service
 class FinishedUnitNotFoundError(ServiceError):
     """Raised when a FinishedUnit cannot be found."""
@@ -248,6 +275,12 @@ class FinishedUnitService:
                 if recipe_id is None:
                     raise ValidationError("Recipe ID is required and cannot be None")
 
+                # Feature 083: Validate yield_type (default to 'SERVING' for backward compatibility)
+                yield_type = kwargs.get("yield_type", "SERVING")
+                yield_type_errors = validate_yield_type(yield_type)
+                if yield_type_errors:
+                    raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
+
                 with session_scope() as session:
                     # Generate unique slug (more robust against race conditions)
                     slug = FinishedUnitService._generate_unique_slug(display_name.strip(), session)
@@ -264,12 +297,14 @@ class FinishedUnitService:
 
                     # Create FinishedUnit with validated data
                     # Feature 045: unit_cost removed from FinishedUnit model
+                    # Feature 083: yield_type added for dual-yield support
                     unit_data = {
                         "slug": slug,
                         "display_name": display_name.strip(),
                         "recipe_id": recipe_id,
                         "inventory_count": kwargs.get("inventory_count", 0),
                         "yield_mode": kwargs.get("yield_mode"),
+                        "yield_type": yield_type,  # Feature 083: Dual-yield support
                         "items_per_batch": kwargs.get("items_per_batch"),
                         "item_unit": kwargs.get("item_unit"),
                         "batch_percentage": kwargs.get("batch_percentage"),
@@ -353,6 +388,13 @@ class FinishedUnitService:
                         updates["slug"] = new_slug
 
                 # Feature 045: unit_cost validation removed (field no longer exists)
+
+                # Feature 083: Validate yield_type if being updated
+                if "yield_type" in updates:
+                    yield_type = updates["yield_type"]
+                    yield_type_errors = validate_yield_type(yield_type)
+                    if yield_type_errors:
+                        raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
 
                 if "inventory_count" in updates and updates["inventory_count"] < 0:
                     raise ValidationError("Inventory count must be non-negative")
