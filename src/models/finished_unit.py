@@ -89,6 +89,17 @@ class FinishedUnit(BaseModel):
     # Yield mode (preserved from original FinishedGood)
     yield_mode = Column(Enum(YieldMode), nullable=False, default=YieldMode.DISCRETE_COUNT)
 
+    # Yield type classification (Feature 083 - Dual-Yield Support)
+    # 'EA' = whole deliverable unit (1 cake, 1 pie)
+    # 'SERVING' = individual consumption unit (slice, cookie)
+    yield_type = Column(
+        String(10),
+        nullable=False,
+        default="SERVING",
+        index=True,
+        doc="Yield classification: 'EA' (whole unit) or 'SERVING' (consumption unit)",
+    )
+
     # For DISCRETE_COUNT mode (cookies, truffles, etc.)
     items_per_batch = Column(Integer, nullable=True)
     item_unit = Column(String(50), nullable=True)  # "cookie", "truffle", "piece"
@@ -136,10 +147,20 @@ class FinishedUnit(BaseModel):
         Index("idx_finished_unit_category", "category"),
         Index("idx_finished_unit_inventory", "inventory_count"),
         Index("idx_finished_unit_created_at", "created_at"),
+        Index("idx_finished_unit_yield_type", "yield_type"),  # Feature 083: yield_type index
         # Composite indexes for complex queries
         Index("idx_finished_unit_recipe_inventory", "recipe_id", "inventory_count"),
         # Unique constraints
         UniqueConstraint("slug", name="uq_finished_unit_slug"),
+        # Feature 083: Unique constraint on (recipe_id, item_unit, yield_type)
+        # Allows same item_unit to have both EA and SERVING yields
+        UniqueConstraint(
+            "recipe_id",
+            "item_unit",
+            "yield_type",
+            name="uq_finished_unit_recipe_item_unit_yield_type",
+        ),
+        # Check constraints
         CheckConstraint("inventory_count >= 0", name="ck_finished_unit_inventory_non_negative"),
         CheckConstraint(
             "items_per_batch IS NULL OR items_per_batch > 0",
@@ -148,6 +169,11 @@ class FinishedUnit(BaseModel):
         CheckConstraint(
             "batch_percentage IS NULL OR (batch_percentage > 0 AND batch_percentage <= 100)",
             name="ck_finished_unit_batch_percentage_valid",
+        ),
+        # Feature 083: Valid yield_type values
+        CheckConstraint(
+            "yield_type IN ('EA', 'SERVING')",
+            name="ck_finished_unit_yield_type_valid",
         ),
     )
 
@@ -243,6 +269,9 @@ class FinishedUnit(BaseModel):
 
         # Convert enum to string
         result["yield_mode"] = self.yield_mode.value if self.yield_mode else None
+
+        # Include yield_type (Feature 083)
+        result["yield_type"] = self.yield_type
 
         # Convert Decimal fields to float for JSON serialization
         result["batch_percentage"] = float(self.batch_percentage) if self.batch_percentage else None

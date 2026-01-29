@@ -485,6 +485,7 @@ class TestBatchCalculationIntegration:
     def test_multiple_fus_same_recipe_preserved(self, test_db):
         """Multiple FUs from same recipe are preserved separately."""
         # Setup one recipe with two FUs (different yields)
+        # F083: Each (recipe_id, item_unit, yield_type) must be unique
         recipe = Recipe(name="Cake Recipe", category="Cakes")
         test_db.add(recipe)
         test_db.flush()
@@ -494,7 +495,7 @@ class TestBatchCalculationIntegration:
             display_name="Large Cake",
             yield_mode=YieldMode.BATCH_PORTION,
             batch_percentage=100,  # 1 cake per batch
-            item_unit="cake",
+            item_unit="large cake",  # Unique item_unit for this yield
             recipe_id=recipe.id,
         )
         fu_small = FinishedUnit(
@@ -502,7 +503,7 @@ class TestBatchCalculationIntegration:
             display_name="Small Cake",
             yield_mode=YieldMode.BATCH_PORTION,
             batch_percentage=25,  # 4 small cakes per batch
-            item_unit="cake",
+            item_unit="small cake",  # Different item_unit to satisfy unique constraint
             recipe_id=recipe.id,
         )
         test_db.add_all([fu_large, fu_small])
