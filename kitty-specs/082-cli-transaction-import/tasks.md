@@ -120,9 +120,9 @@ WP01 (foundation)
 **Prompt**: [WP04-cli-tests.md](tasks/WP04-cli-tests.md)
 
 **Subtasks**:
-- [ ] T011: Add tests for import-purchases command
-- [ ] T012: Add tests for import-adjustments command
-- [ ] T013: Add tests for validate-import command
+- [x] T011: Add tests for import-purchases command
+- [x] T012: Add tests for import-adjustments command
+- [x] T013: Add tests for validate-import command
 
 **Implementation Notes**:
 - Test happy path, error cases, flag combinations
