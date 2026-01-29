@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: UI – yield_type Dropdown
-lane: "doing"
+lane: "done"
 dependencies: [WP02]
 base_branch: 083-dual-yield-recipe-output-support-WP02
 base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
@@ -17,8 +17,8 @@ phase: Phase 2 - Integration
 assignee: ''
 agent: "claude-opus"
 shell_pid: "76751"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned
@@ -454,3 +454,4 @@ else:
 - 2026-01-29T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2026-01-29T17:50:15Z – unknown – shell_pid=73866 – lane=for_review – Ready for review: UI dropdown for yield_type, recipe detail display, FinishedGoodDataTable display. All tests pass (3220).
 - 2026-01-29T17:50:22Z – claude-opus – shell_pid=76751 – lane=doing – Started review via workflow command
+- 2026-01-29T17:51:16Z – claude-opus – shell_pid=76751 – lane=done – Review passed: All subtasks T015-T020 implemented correctly. Dropdown defaults to SERVING, column headers aligned, variant handling correct. All tests pass (3220).
