@@ -45,6 +45,23 @@ UNIT_TYPES = {
     "each": {"each"},
 }
 
+# Feature 085: Display names for dropdown menus
+LINEAR_UNIT_NAMES = {
+    "cm": "Centimeters (cm)",
+    "mm": "Millimeters (mm)",
+    "inches": "Inches (in)",
+    "feet": "Feet (ft)",
+    "yards": "Yards (yd)",
+    "meters": "Meters (m)",
+}
+
+AREA_UNIT_NAMES = {
+    "square_cm": "Square Centimeters (sq cm)",
+    "square_inches": "Square Inches (sq in)",
+    "square_feet": "Square Feet (sq ft)",
+    "square_meters": "Square Meters (sq m)",
+}
+
 
 # ============================================================================
 # Validation Functions
@@ -257,3 +274,108 @@ def convert_units(
         return False, None, error
 
     return True, result, None
+
+
+# ============================================================================
+# Feature 085: Dropdown Helpers
+# ============================================================================
+
+
+def get_linear_unit_options() -> list[tuple[str, str]]:
+    """
+    Return list of (code, display_name) tuples for linear unit dropdown.
+
+    Feature 085: Provides options for MaterialUnit dialog dropdown.
+
+    Returns:
+        List of tuples like [('cm', 'Centimeters (cm)'), ('inches', 'Inches (in)'), ...]
+        Ordered by: cm first (default), then alphabetically by code
+    """
+    options = []
+    # cm first as it's the base unit
+    options.append(("cm", LINEAR_UNIT_NAMES["cm"]))
+    # Add others alphabetically
+    for code in sorted(LINEAR_TO_CM.keys()):
+        if code != "cm":
+            options.append((code, LINEAR_UNIT_NAMES[code]))
+    return options
+
+
+def get_area_unit_options() -> list[tuple[str, str]]:
+    """
+    Return list of (code, display_name) tuples for area unit dropdown.
+
+    Feature 085: Provides options for MaterialUnit dialog dropdown (area products).
+
+    Returns:
+        List of tuples like [('square_cm', 'Square Centimeters (sq cm)'), ...]
+        Ordered by: square_cm first (default), then alphabetically by code
+    """
+    options = []
+    # square_cm first as it's the base unit
+    options.append(("square_cm", AREA_UNIT_NAMES["square_cm"]))
+    # Add others alphabetically
+    for code in sorted(AREA_TO_SQUARE_CM.keys()):
+        if code != "square_cm":
+            options.append((code, AREA_UNIT_NAMES[code]))
+    return options
+
+
+def convert_to_cm(value: float, from_unit: str) -> float:
+    """
+    Convert a linear measurement to centimeters.
+
+    Feature 085: Simple wrapper for UI usage.
+
+    Args:
+        value: The quantity to convert
+        from_unit: The source unit code ('cm', 'inches', 'feet', 'yards', 'meters', 'mm')
+
+    Returns:
+        The equivalent value in centimeters
+
+    Raises:
+        ValueError: If from_unit is not a valid linear unit code
+        ValueError: If value is negative
+
+    Examples:
+        >>> convert_to_cm(8, 'inches')
+        20.32
+        >>> convert_to_cm(1, 'yards')
+        91.44
+    """
+    if value < 0:
+        raise ValueError(f"Value must be non-negative, got {value}")
+
+    from_unit_lower = from_unit.lower()
+    if from_unit_lower not in LINEAR_TO_CM:
+        raise ValueError(
+            f"Unknown unit '{from_unit}'. Valid units: {list(LINEAR_TO_CM.keys())}"
+        )
+
+    return float(Decimal(str(value)) * LINEAR_TO_CM[from_unit_lower])
+
+
+def convert_from_cm(value: float, to_unit: str) -> float:
+    """
+    Convert centimeters to another linear unit (for display).
+
+    Feature 085: Simple wrapper for UI usage.
+
+    Args:
+        value: The value in centimeters
+        to_unit: The target unit code
+
+    Returns:
+        The equivalent value in the target unit
+
+    Raises:
+        ValueError: If to_unit is not a valid linear unit code
+    """
+    to_unit_lower = to_unit.lower()
+    if to_unit_lower not in LINEAR_TO_CM:
+        raise ValueError(
+            f"Unknown unit '{to_unit}'. Valid units: {list(LINEAR_TO_CM.keys())}"
+        )
+
+    return float(Decimal(str(value)) / LINEAR_TO_CM[to_unit_lower])
