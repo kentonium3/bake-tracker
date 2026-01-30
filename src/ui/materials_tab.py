@@ -2745,9 +2745,9 @@ class MaterialProductsTab:
             try:
                 material_catalog_service.update_product(
                     product_id=dialog.result["id"],
-                    material_id=dialog.result["material_id"],
-                    package_quantity=dialog.result["package_quantity"],
-                    package_unit=dialog.result["package_unit"],
+                    name=dialog.result.get("name"),
+                    package_quantity=dialog.result.get("package_quantity"),
+                    package_unit=dialog.result.get("package_unit"),
                     supplier_id=dialog.result.get("supplier_id"),
                     sku=dialog.result.get("sku"),
                     notes=dialog.result.get("notes"),

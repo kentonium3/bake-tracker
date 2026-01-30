@@ -1193,6 +1193,8 @@ def update_product(
     product_id: int,
     name: Optional[str] = None,
     brand: Optional[str] = None,
+    package_quantity: Optional[float] = None,
+    package_unit: Optional[str] = None,
     supplier_id: Optional[int] = None,
     sku: Optional[str] = None,
     is_hidden: Optional[bool] = None,
@@ -1202,7 +1204,7 @@ def update_product(
     session: Optional[Session] = None,
 ) -> MaterialProduct:
     """
-    Update product fields. Cannot change package_quantity or package_unit.
+    Update product fields.
 
     Feature 059: Added is_provisional parameter for provisional product enrichment.
     When updating a provisional product, if all required fields become complete,
@@ -1212,6 +1214,8 @@ def update_product(
         product_id: Product ID to update
         name: New name (optional)
         brand: New brand (optional)
+        package_quantity: New package quantity (optional)
+        package_unit: New package unit (optional)
         supplier_id: New supplier ID (optional)
         sku: New SKU (optional)
         is_hidden: Hide/show product (optional)
@@ -1224,7 +1228,7 @@ def update_product(
         Updated MaterialProduct instance
 
     Raises:
-        ValidationError: If product not found or name is empty
+        ValidationError: If product not found, name is empty, or package_quantity <= 0
     """
 
     def _impl(sess: Session) -> MaterialProduct:
@@ -1239,6 +1243,14 @@ def update_product(
 
         if brand is not None:
             product.brand = brand.strip() if brand else None
+
+        if package_quantity is not None:
+            if package_quantity <= 0:
+                raise ValidationError(["Package quantity must be greater than 0"])
+            product.package_quantity = package_quantity
+
+        if package_unit is not None:
+            product.package_unit = package_unit.strip() if package_unit else None
 
         if supplier_id is not None:
             product.supplier_id = supplier_id
