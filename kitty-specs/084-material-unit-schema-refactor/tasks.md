@@ -227,7 +227,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 **Estimated Size**: ~400 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T032 Add MaterialUnits list display in MaterialProduct form in `src/ui/tabs/materials_tab.py`
+- [x] T032 Add MaterialUnits list display in MaterialProduct form in `src/ui/tabs/materials_tab.py`
 - [ ] T033 Add conditional "Add Unit" button (hidden for package_count products) in `src/ui/tabs/materials_tab.py`
 - [ ] T034 [P] Add edit/delete functionality for MaterialUnits in `src/ui/tabs/materials_tab.py`
 - [ ] T035 [P] Add MaterialUnit create/edit dialog in `src/ui/dialogs/material_unit_dialog.py`
