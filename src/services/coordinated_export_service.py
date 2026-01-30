@@ -121,7 +121,7 @@ DEPENDENCY_ORDER = {
     "material_subcategories": (9, ["material_categories"]),
     "materials": (10, ["material_subcategories"]),
     "material_products": (11, ["materials", "suppliers"]),
-    "material_units": (12, ["materials"]),
+    "material_units": (12, ["material_products"]),
     "material_purchases": (13, ["material_products", "suppliers"]),
     # Feature 058: Material inventory items (FIFO)
     "material_inventory_items": (14, ["material_products", "material_purchases"]),
@@ -621,14 +621,18 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
 
 def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
     """Export all material units to JSON file with FK resolution."""
-    units = session.query(MaterialUnit).options(joinedload(MaterialUnit.material)).all()
+    units = (
+        session.query(MaterialUnit).options(joinedload(MaterialUnit.material_product)).all()
+    )
 
     records = []
     for u in units:
         records.append(
             {
                 "uuid": str(u.uuid) if u.uuid else None,
-                "material_slug": u.material.slug if u.material else None,
+                "material_product_slug": (
+                    u.material_product.slug if u.material_product else None
+                ),
                 "name": u.name,
                 "slug": u.slug,
                 "quantity_per_unit": u.quantity_per_unit,

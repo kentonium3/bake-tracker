@@ -91,6 +91,7 @@ def full_material_catalog(db_session, sample_supplier):
     prod = MaterialProduct(
         material_id=mat.id,
         name="30m Roll Red Satin",
+        slug="michaels-red-satin-30m",
         brand="Michaels",
         package_quantity=3000,  # 30m = 3000 cm
         package_unit="cm",
@@ -102,7 +103,7 @@ def full_material_catalog(db_session, sample_supplier):
 
     # Unit
     unit = MaterialUnit(
-        material_id=mat.id,
+        material_product_id=prod.id,
         name="6-inch ribbon",
         slug="6-inch-ribbon",
         quantity_per_unit=6,
@@ -320,6 +321,8 @@ class TestImportExportRoundtrip:
                 subcat_data = json.load(f)
             with open(Path(tmpdir) / "materials.json") as f:
                 mat_data = json.load(f)
+            with open(Path(tmpdir) / "material_products.json") as f:
+                product_data = json.load(f)
             with open(Path(tmpdir) / "material_units.json") as f:
                 unit_data = json.load(f)
 
@@ -335,6 +338,7 @@ class TestImportExportRoundtrip:
             import_material_categories(cat_data["records"], session=db_session)
             import_material_subcategories(subcat_data["records"], session=db_session)
             import_materials(mat_data["records"], session=db_session)
+            import_material_products(product_data["records"], session=db_session)
             import_material_units(unit_data["records"], session=db_session)
 
             # Verify relationships
@@ -345,7 +349,8 @@ class TestImportExportRoundtrip:
 
             unit = db_session.query(MaterialUnit).filter_by(slug="6-inch-ribbon").first()
             assert unit is not None
-            assert unit.material.slug == "red-satin"
+            assert unit.material_product.slug == "michaels-red-satin-30m"
+            assert unit.material_product.material.slug == "red-satin"
 
 
 # =============================================================================
@@ -390,7 +395,7 @@ class TestImportErrorHandling:
         data = [
             {
                 "name": "Bad Unit",
-                "material_slug": "red-satin",
+                "material_product_slug": "michaels-red-satin-30m",
                 "quantity_per_unit": 0,  # Invalid
             }
         ]
