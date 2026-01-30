@@ -191,7 +191,7 @@ class EnhancedImportResult:
 # Format Detection Types
 # ============================================================================
 
-FormatType = Literal["context_rich", "normalized", "purchases", "adjustments", "unknown"]
+FormatType = Literal["context_rich", "normalized", "coordinated", "purchases", "adjustments", "unknown"]
 
 
 @dataclass
@@ -228,6 +228,8 @@ class FormatDetectionResult:
             return f"Context-Rich ({entity_name})"
         elif self.format_type == "normalized":
             return f"Normalized Backup (v{self.version or 'unknown'})"
+        elif self.format_type == "coordinated":
+            return f"Coordinated Backup (v{self.version or 'unknown'})"
         elif self.format_type == "purchases":
             return "Purchase Transactions"
         elif self.format_type == "adjustments":
@@ -345,6 +347,19 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
         result.export_type = data.get("entity_type")
         result.entity_count = len(data.get("records", []))
         return result
+
+    # Check for coordinated backup manifest (manifest.json)
+    # These have version and files array with entity metadata
+    if "version" in data and "files" in data and isinstance(data.get("files"), list):
+        files = data.get("files", [])
+        # Verify it looks like a manifest (files have entity_type and filename)
+        if files and all("entity_type" in f and "filename" in f for f in files[:3]):
+            result.format_type = "coordinated"
+            result.version = data.get("version")
+            result.source = data.get("source")
+            # Count total records from manifest metadata
+            result.entity_count = sum(f.get("record_count", 0) for f in files)
+            return result
 
     # Unknown format - try to provide some info
     result.format_type = "unknown"
