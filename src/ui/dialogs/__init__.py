@@ -7,5 +7,6 @@ that require focused input before returning to the main application.
 
 from src.ui.dialogs.adjustment_dialog import AdjustmentDialog
 from src.ui.dialogs.material_adjustment_dialog import MaterialAdjustmentDialog
+from src.ui.dialogs.material_unit_dialog import MaterialUnitDialog
 
-__all__ = ["AdjustmentDialog", "MaterialAdjustmentDialog"]
+__all__ = ["AdjustmentDialog", "MaterialAdjustmentDialog", "MaterialUnitDialog"]

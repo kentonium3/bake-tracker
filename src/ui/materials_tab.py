@@ -459,6 +459,7 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
     Dialog for creating or editing a material product.
 
     Feature 048: Modal dialog matching MaterialFormDialog pattern.
+    Feature 084: Added MaterialUnits sub-section for editing products.
     """
 
     def __init__(
@@ -487,9 +488,12 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         self.material_id = material_id
         self.result: Optional[Dict[str, Any]] = None
 
-        # Configure window
+        # Feature 084: Track product_id for MaterialUnit operations
+        self.current_product_id: Optional[int] = product.get("id") if product else None
+
+        # Configure window - increased height for units section (Feature 084)
         self.title(title)
-        self.geometry("500x450")
+        self.geometry("500x650")
         self.resizable(False, False)
 
         # Center on parent
@@ -640,14 +644,265 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         self.notes_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
+        # Feature 084: MaterialUnits sub-section (only for existing products)
+        self._create_units_section(form_frame, row)
+
+    def _create_units_section(self, form_frame: ctk.CTkFrame, start_row: int):
+        """
+        Create MaterialUnits sub-section.
+
+        Feature 084: Show units list with Add/Edit/Delete functionality.
+        Only visible for existing products (new products must save first).
+        """
+        row = start_row
+
+        # Separator
+        separator = ctk.CTkFrame(form_frame, height=2, fg_color="gray40")
+        separator.grid(row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=(15, 5))
+        row += 1
+
+        # Units section header
+        units_label = ctk.CTkLabel(
+            form_frame,
+            text="Material Units",
+            font=ctk.CTkFont(size=14, weight="bold")
+        )
+        units_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=(5, 5))
+        row += 1
+
+        if not self.current_product_id:
+            # New product - show placeholder message
+            placeholder_label = ctk.CTkLabel(
+                form_frame,
+                text="Save product to manage Material Units",
+                text_color="gray",
+            )
+            placeholder_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+            self.units_tree = None
+            self.add_unit_btn = None
+            self.edit_unit_btn = None
+            self.delete_unit_btn = None
+            return
+
+        # Units list using ttk.Treeview
+        units_tree_frame = ctk.CTkFrame(form_frame)
+        units_tree_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
+
+        columns = ("name", "quantity_per_unit")
+        self.units_tree = ttk.Treeview(
+            units_tree_frame,
+            columns=columns,
+            show="headings",
+            height=4,
+            selectmode="browse",
+        )
+        self.units_tree.heading("name", text="Name")
+        self.units_tree.heading("quantity_per_unit", text="Qty per Unit")
+        self.units_tree.column("name", width=200)
+        self.units_tree.column("quantity_per_unit", width=120)
+        self.units_tree.pack(fill="x", expand=True)
+
+        # Bind selection event
+        self.units_tree.bind("<<TreeviewSelect>>", self._on_units_tree_select)
+        row += 1
+
+        # Units action buttons
+        units_btn_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
+        units_btn_frame.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
+        # Add Unit button - conditionally visible based on material type
+        self.add_unit_btn = ctk.CTkButton(
+            units_btn_frame,
+            text="Add Unit",
+            command=self._on_add_unit_click,
+            width=90,
+            height=28,
+        )
+        self.add_unit_btn.pack(side="left", padx=(0, 5))
+
+        # Edit button
+        self.edit_unit_btn = ctk.CTkButton(
+            units_btn_frame,
+            text="Edit",
+            command=self._on_edit_unit_click,
+            width=70,
+            height=28,
+            state="disabled",
+        )
+        self.edit_unit_btn.pack(side="left", padx=(0, 5))
+
+        # Delete button
+        self.delete_unit_btn = ctk.CTkButton(
+            units_btn_frame,
+            text="Delete",
+            command=self._on_delete_unit_click,
+            width=70,
+            height=28,
+            fg_color="darkred",
+            state="disabled",
+        )
+        self.delete_unit_btn.pack(side="left", padx=(0, 5))
+
+        # Load units and update visibility
+        self._refresh_units_list()
+        self._update_add_unit_button_visibility()
+
+    def _refresh_units_list(self):
+        """Refresh the MaterialUnits list for current product."""
+        if not self.units_tree or not self.current_product_id:
+            return
+
+        # Clear existing items
+        for item in self.units_tree.get_children():
+            self.units_tree.delete(item)
+
+        # Load units from service
+        try:
+            units = material_unit_service.list_units(self.current_product_id)
+            for unit in units:
+                self.units_tree.insert("", "end", values=(
+                    unit.name,
+                    f"{unit.quantity_per_unit:.4f}",
+                ), iid=str(unit.id))
+        except Exception as e:
+            print(f"Error loading units: {e}")
+
+    def _update_add_unit_button_visibility(self):
+        """
+        Show Add Unit button only for linear/area products.
+
+        Feature 084: "each" type products auto-generate units, so Add button hidden.
+        """
+        if not self.add_unit_btn:
+            return
+
+        # Get the selected material's base_unit type
+        material_name = self.material_var.get()
+        if material_name in self._materials:
+            base_unit = self._materials[material_name].get("base_unit", "each")
+            if base_unit == "each":
+                # "each" type products have auto-generated units - hide Add button
+                self.add_unit_btn.pack_forget()
+            else:
+                # Linear/area products need manual unit creation - show Add button
+                if not self.add_unit_btn.winfo_ismapped():
+                    self.add_unit_btn.pack(side="left", padx=(0, 5), before=self.edit_unit_btn)
+        else:
+            # No material selected - hide Add button
+            self.add_unit_btn.pack_forget()
+
+    def _on_units_tree_select(self, event=None):
+        """Update button states based on selection."""
+        if not self.units_tree:
+            return
+
+        selection = self.units_tree.selection()
+        state = "normal" if selection else "disabled"
+        if self.edit_unit_btn:
+            self.edit_unit_btn.configure(state=state)
+        if self.delete_unit_btn:
+            self.delete_unit_btn.configure(state=state)
+
+    def _on_add_unit_click(self):
+        """Open dialog to add new unit."""
+        from src.ui.dialogs.material_unit_dialog import MaterialUnitDialog
+
+        if not self.current_product_id:
+            messagebox.showwarning("Save First", "Please save the product before adding units.")
+            return
+
+        dialog = MaterialUnitDialog(self, product_id=self.current_product_id)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            self._refresh_units_list()
+
+    def _on_edit_unit_click(self):
+        """Open edit dialog for selected unit."""
+        from src.ui.dialogs.material_unit_dialog import MaterialUnitDialog
+
+        if not self.units_tree:
+            return
+
+        selection = self.units_tree.selection()
+        if not selection:
+            messagebox.showwarning("No Selection", "Please select a unit to edit.")
+            return
+
+        unit_id = int(selection[0])
+
+        # Get unit data
+        try:
+            unit = material_unit_service.get_unit(unit_id=unit_id)
+            unit_data = {
+                "id": unit.id,
+                "name": unit.name,
+                "quantity_per_unit": unit.quantity_per_unit,
+                "description": unit.description,
+            }
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load unit: {e}")
+            return
+
+        dialog = MaterialUnitDialog(
+            self,
+            unit_id=unit_id,
+            product_id=self.current_product_id,
+            unit_data=unit_data,
+        )
+        self.wait_window(dialog)
+
+        if dialog.result:
+            self._refresh_units_list()
+
+    def _on_delete_unit_click(self):
+        """Delete selected unit with confirmation."""
+        if not self.units_tree:
+            return
+
+        selection = self.units_tree.selection()
+        if not selection:
+            messagebox.showwarning("No Selection", "Please select a unit to delete.")
+            return
+
+        unit_id = int(selection[0])
+
+        # Get unit for confirmation
+        try:
+            unit = material_unit_service.get_unit(unit_id=unit_id)
+            unit_name = unit.name
+        except Exception:
+            unit_name = f"Unit #{unit_id}"
+
+        # Confirm deletion
+        if not messagebox.askyesno(
+            "Confirm Delete",
+            f"Delete unit '{unit_name}'?\n\nThis cannot be undone."
+        ):
+            return
+
+        try:
+            material_unit_service.delete_unit(unit_id)
+            self._refresh_units_list()
+        except material_unit_service.MaterialUnitInUseError as e:
+            messagebox.showerror(
+                "Cannot Delete",
+                f"Unit is in use by compositions:\n{', '.join(e.fg_names[:5])}"
+                + (f"\n... and {len(e.fg_names) - 5} more" if len(e.fg_names) > 5 else "")
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete unit: {e}")
+
     def _on_material_change(self, value: str):
-        """Handle material selection - set default package unit."""
+        """Handle material selection - set default package unit and update button visibility."""
         if value in self._materials:
             base_unit = self._materials[value].get("base_unit", "each")
             # Only set if empty
             if not self.unit_entry.get():
                 self.unit_entry.delete(0, "end")
                 self.unit_entry.insert(0, base_unit)
+            # Feature 084: Update Add Unit button visibility based on material type
+            self._update_add_unit_button_visibility()
 
     def _create_buttons(self):
         """Create dialog buttons."""
