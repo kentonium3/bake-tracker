@@ -6,13 +6,14 @@ through a flexible association object pattern with proper referential integrity
 constraints.
 
 Key Features:
-- Polymorphic references supporting both FinishedUnit and FinishedGood components
-- Constraint ensuring exactly one component type is specified per composition
+- Polymorphic references supporting FinishedUnit, FinishedGood, packaging, and MaterialUnit
+- 4-way XOR constraint ensuring exactly one component type is specified per composition
 - Sort ordering for consistent component presentation
 - Component quantity and notes for assembly instructions
-"""
 
-from datetime import datetime
+Feature 084: Removed material_id column and 5-way XOR constraint.
+All material compositions must now use material_unit_id.
+"""
 
 from sqlalchemy import (
     Column,
@@ -77,11 +78,9 @@ class Composition(BaseModel):
         Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=True, index=True
     )
     # Feature 047: Materials Management System - material component references
+    # Feature 084: material_id removed - use material_unit_id for all material compositions
     material_unit_id = Column(
         Integer, ForeignKey("material_units.id", ondelete="RESTRICT"), nullable=True, index=True
-    )
-    material_id = Column(
-        Integer, ForeignKey("materials.id", ondelete="RESTRICT"), nullable=True, index=True
     )
 
     # Component attributes
@@ -115,10 +114,10 @@ class Composition(BaseModel):
     )
     packaging_product = relationship("Product", foreign_keys=[packaging_product_id], lazy="joined")
     # Feature 047: Materials Management System
+    # Feature 084: material_component removed - use material_unit_component only
     material_unit_component = relationship(
         "MaterialUnit", foreign_keys=[material_unit_id], lazy="joined"
     )
-    material_component = relationship("Material", foreign_keys=[material_id], lazy="joined")
 
     # Table constraints and indexes
     __table_args__ = (
@@ -130,22 +129,25 @@ class Composition(BaseModel):
         Index("idx_composition_packaging_product", "packaging_product_id"),
         Index("idx_composition_sort_order", "assembly_id", "sort_order"),
         # Feature 047: Material component indexes
+        # Feature 084: idx_composition_material removed (material_id column removed)
         Index("idx_composition_material_unit", "material_unit_id"),
-        Index("idx_composition_material", "material_id"),
         # Parent XOR constraint: exactly one of assembly_id or package_id must be set
         CheckConstraint(
             "(assembly_id IS NOT NULL AND package_id IS NULL) OR "
             "(assembly_id IS NULL AND package_id IS NOT NULL)",
             name="ck_composition_exactly_one_parent",
         ),
-        # Component XOR constraint: exactly one component type must be set (5-way)
-        # Feature 047: Extended from 3-way to include material_unit_id and material_id
+        # Component XOR constraint: exactly one component type must be set (4-way)
+        # Feature 084: Reduced from 5-way to 4-way (material_id removed)
         CheckConstraint(
-            "(finished_unit_id IS NOT NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL AND material_unit_id IS NULL AND material_id IS NULL) OR "
-            "(finished_unit_id IS NULL AND finished_good_id IS NOT NULL AND packaging_product_id IS NULL AND material_unit_id IS NULL AND material_id IS NULL) OR "
-            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NOT NULL AND material_unit_id IS NULL AND material_id IS NULL) OR "
-            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL AND material_unit_id IS NOT NULL AND material_id IS NULL) OR "
-            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL AND material_unit_id IS NULL AND material_id IS NOT NULL)",
+            "(finished_unit_id IS NOT NULL AND finished_good_id IS NULL AND "
+            "packaging_product_id IS NULL AND material_unit_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NOT NULL AND "
+            "packaging_product_id IS NULL AND material_unit_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND "
+            "packaging_product_id IS NOT NULL AND material_unit_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND "
+            "packaging_product_id IS NULL AND material_unit_id IS NOT NULL)",
             name="ck_composition_exactly_one_component",
         ),
         # Positive quantity constraint
@@ -166,10 +168,10 @@ class Composition(BaseModel):
             "package_id", "packaging_product_id", name="uq_composition_package_packaging"
         ),
         # Feature 047: Material component uniqueness constraints
+        # Feature 084: uq_composition_assembly_material removed (material_id column removed)
         UniqueConstraint(
             "assembly_id", "material_unit_id", name="uq_composition_assembly_material_unit"
         ),
-        UniqueConstraint("assembly_id", "material_id", name="uq_composition_assembly_material"),
     )
 
     def __repr__(self) -> str:
@@ -186,9 +188,7 @@ class Composition(BaseModel):
         elif self.material_unit_id:
             component_type = "material_unit"
             component_id = self.material_unit_id
-        elif self.material_id:
-            component_type = "material"
-            component_id = self.material_id
+        # Feature 084: Removed material_id branch
         else:
             component_type = "unknown"
             component_id = None
@@ -207,7 +207,9 @@ class Composition(BaseModel):
 
         Returns:
             "finished_unit", "finished_good", "packaging_product",
-            "material_unit", "material", or "unknown"
+            "material_unit", or "unknown"
+
+        Note (Feature 084): "material" type removed - use material_unit_id only.
         """
         if self.finished_unit_id is not None:
             return "finished_unit"
@@ -217,8 +219,7 @@ class Composition(BaseModel):
             return "packaging_product"
         elif self.material_unit_id is not None:
             return "material_unit"
-        elif self.material_id is not None:
-            return "material"
+        # Feature 084: Removed material_id branch
         else:
             return "unknown"
 
@@ -229,13 +230,15 @@ class Composition(BaseModel):
 
         Returns:
             Component ID or None if no valid component
+
+        Note (Feature 084): material_id removed from component types.
         """
         return (
             self.finished_unit_id
             or self.finished_good_id
             or self.packaging_product_id
             or self.material_unit_id
-            or self.material_id
+            # Feature 084: Removed material_id
         )
 
     @property
@@ -245,6 +248,8 @@ class Composition(BaseModel):
 
         Returns:
             Component display name or "Unknown Component"
+
+        Note (Feature 084): material_component removed - use material_unit_component only.
         """
         if self.finished_unit_component:
             return self.finished_unit_component.display_name
@@ -254,9 +259,7 @@ class Composition(BaseModel):
             return self.packaging_product.display_name
         elif self.material_unit_component:
             return self.material_unit_component.name
-        elif self.material_component:
-            # Generic material placeholder - show material name with indicator
-            return f"{self.material_component.name} (selection pending)"
+        # Feature 084: Removed material_component branch
         else:
             return "Unknown Component"
 
@@ -267,9 +270,10 @@ class Composition(BaseModel):
         Uses dynamic cost calculation via calculate_current_cost() for
         FinishedUnit and FinishedGood components (F046).
 
-        For MaterialUnit components (F047), calls the material_unit_service.
-        For generic Material placeholders, returns estimated cost as average
-        across all products of that material.
+        For MaterialUnit components (F047), calculates from relationship data.
+
+        Note (Feature 084): Generic Material placeholder support removed.
+        All material compositions must use material_unit_id.
 
         Returns:
             Unit cost for the component (dynamic calculation, not stored)
@@ -285,71 +289,39 @@ class Composition(BaseModel):
             # MaterialUnit - calculate cost from relationship data
             # cost = weighted_avg_cost * quantity_per_unit
             return self._calculate_material_unit_cost()
-        elif self.material_component:
-            # Generic Material placeholder - estimate cost from products
-            return self._estimate_material_cost()
+        # Feature 084: Removed material_component branch
         else:
             return 0.0
 
-    def _estimate_material_cost(self) -> float:
-        """
-        Estimate cost for a generic Material placeholder.
-
-        Calculates average weighted cost across all products for the material
-        using FIFO inventory items (Feature 058).
-
-        Returns:
-            Estimated cost or 0.0 if no products/inventory
-        """
-        if not self.material_component:
-            return 0.0
-
-        products = self.material_component.products
-        if not products:
-            return 0.0
-
-        # Calculate inventory-weighted average from MaterialInventoryItem records (F058)
-        total_value = 0.0
-        total_inventory = 0.0
-        for product in products:
-            for item in product.inventory_items:
-                if item.quantity_remaining > 0.001:  # Avoid float dust
-                    total_value += item.quantity_remaining * float(item.cost_per_unit or 0)
-                    total_inventory += item.quantity_remaining
-
-        if total_inventory == 0:
-            return 0.0
-
-        avg_cost_per_base_unit = total_value / total_inventory
-        # For generic materials, we don't know the quantity_per_unit
-        # Return per-base-unit cost (UI should clarify this is estimated)
-        return avg_cost_per_base_unit
+    # Feature 084: _estimate_material_cost() removed - generic Material placeholder
+    # support has been removed. All material compositions use material_unit_id.
 
     def _calculate_material_unit_cost(self) -> float:
         """
         Calculate cost for a MaterialUnit component from relationship data.
 
         Cost = weighted_avg_cost * quantity_per_unit, using inventory-weighted
-        average across all products of the material.
+        average from the parent MaterialProduct's inventory items.
+
+        Note (Feature 084): MaterialUnit now points to MaterialProduct (not Material).
+        Cost is calculated from the specific product's FIFO inventory, not across
+        all products of a material.
 
         Returns:
             Cost per unit or 0.0 if no products/inventory
         """
-        if not self.material_unit_component or not self.material_unit_component.material:
+        if not self.material_unit_component or not self.material_unit_component.material_product:
             return 0.0
 
-        products = self.material_unit_component.material.products
-        if not products:
-            return 0.0
+        product = self.material_unit_component.material_product
 
         # Calculate inventory-weighted average cost per base unit (F058: FIFO inventory)
         total_value = 0.0
         total_inventory = 0.0
-        for product in products:
-            for item in product.inventory_items:
-                if item.quantity_remaining > 0.001:  # Avoid float dust
-                    total_value += item.quantity_remaining * float(item.cost_per_unit or 0)
-                    total_inventory += item.quantity_remaining
+        for item in product.inventory_items:
+            if item.quantity_remaining > 0.001:  # Avoid float dust
+                total_value += item.quantity_remaining * float(item.cost_per_unit or 0)
+                total_inventory += item.quantity_remaining
 
         if total_inventory == 0:
             return 0.0
@@ -362,23 +334,22 @@ class Composition(BaseModel):
         """
         Calculate available inventory for a MaterialUnit from relationship data.
 
-        Available = sum(product.current_inventory) / quantity_per_unit
+        Available = sum(product.inventory_items.quantity_remaining) / quantity_per_unit
         (how many times we can use this unit)
+
+        Note (Feature 084): MaterialUnit now points to a specific MaterialProduct,
+        so availability is calculated from that product's inventory only.
 
         Returns:
             Number of available units (integer, truncated down)
         """
-        if not self.material_unit_component or not self.material_unit_component.material:
+        if not self.material_unit_component or not self.material_unit_component.material_product:
             return 0
 
-        products = self.material_unit_component.material.products
-        if not products:
-            return 0
+        product = self.material_unit_component.material_product
 
         # Sum remaining inventory across all FIFO lots (F058)
-        total_base_units = sum(
-            item.quantity_remaining for p in products for item in p.inventory_items
-        )
+        total_base_units = sum(item.quantity_remaining for item in product.inventory_items)
         quantity_per_unit = self.material_unit_component.quantity_per_unit
 
         if quantity_per_unit <= 0:
@@ -401,6 +372,8 @@ class Composition(BaseModel):
         """
         Get the available inventory for the referenced component.
 
+        Note (Feature 084): Generic Material support removed.
+
         Returns:
             Available inventory count
         """
@@ -411,9 +384,7 @@ class Composition(BaseModel):
         elif self.material_unit_component:
             # MaterialUnit - calculate availability from relationship data
             return self._calculate_material_unit_availability()
-        elif self.material_component:
-            # Generic Material - no specific availability (resolved at assembly time)
-            return 0
+        # Feature 084: Removed material_component branch
         else:
             return 0
 
@@ -437,6 +408,8 @@ class Composition(BaseModel):
         """
         Validate that exactly one component type is specified.
 
+        Note (Feature 084): Reduced from 5-way to 4-way XOR (material_id removed).
+
         Returns:
             True if constraint is satisfied
         """
@@ -444,16 +417,15 @@ class Composition(BaseModel):
         good_specified = self.finished_good_id is not None
         packaging_specified = self.packaging_product_id is not None
         material_unit_specified = self.material_unit_id is not None
-        material_specified = self.material_id is not None
+        # Feature 084: Removed material_specified
 
-        # Exactly one should be true (5-way XOR)
+        # Exactly one should be true (4-way XOR)
         count = sum(
             [
                 unit_specified,
                 good_specified,
                 packaging_specified,
                 material_unit_specified,
-                material_specified,
             ]
         )
         return count == 1
@@ -636,6 +608,9 @@ class Composition(BaseModel):
         Used when a specific material consumption unit is defined
         (e.g., "6-inch ribbon" where quantity_per_unit = 6 inches).
 
+        Note (Feature 084): This is now the ONLY way to add material components
+        to compositions. Generic Material placeholders are no longer supported.
+
         Args:
             assembly_id: Parent FinishedGood ID
             material_unit_id: Component MaterialUnit ID
@@ -644,7 +619,7 @@ class Composition(BaseModel):
             sort_order: Display order
 
         Returns:
-            New Composition instance with is_generic=False
+            New Composition instance
         """
         return cls(
             assembly_id=assembly_id,
@@ -653,49 +628,14 @@ class Composition(BaseModel):
             finished_good_id=None,
             packaging_product_id=None,
             material_unit_id=material_unit_id,
-            material_id=None,
+            # Feature 084: Removed material_id=None (column removed)
             component_quantity=quantity,
             component_notes=notes,
             sort_order=sort_order,
             is_generic=False,
         )
 
-    @classmethod
-    def create_material_placeholder_composition(
-        cls,
-        assembly_id: int,
-        material_id: int,
-        quantity: int = 1,
-        notes: str = None,
-        sort_order: int = 0,
-    ) -> "Composition":
-        """
-        Factory method to create composition with generic Material placeholder.
-
-        Used when the specific material unit will be chosen at assembly time.
-        The material_id references the abstract Material, and the actual
-        product/unit selection is deferred.
-
-        Args:
-            assembly_id: Parent FinishedGood ID
-            material_id: Component Material ID (generic placeholder)
-            quantity: Number of units in composition
-            notes: Component-specific notes
-            sort_order: Display order
-
-        Returns:
-            New Composition instance with is_generic=True
-        """
-        return cls(
-            assembly_id=assembly_id,
-            package_id=None,
-            finished_unit_id=None,
-            finished_good_id=None,
-            packaging_product_id=None,
-            material_unit_id=None,
-            material_id=material_id,
-            component_quantity=quantity,
-            component_notes=notes,
-            sort_order=sort_order,
-            is_generic=True,
-        )
+    # Feature 084: create_material_placeholder_composition() removed
+    # Generic Material placeholders are no longer supported.
+    # All material compositions must use material_unit_id via
+    # create_material_unit_composition().
