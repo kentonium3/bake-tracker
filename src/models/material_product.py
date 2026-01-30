@@ -120,6 +120,13 @@ class MaterialProduct(BaseModel):
         cascade="all, delete-orphan",
         lazy="select",
     )
+    # Feature 084: MaterialUnits are now children of MaterialProduct
+    material_units = relationship(
+        "MaterialUnit",
+        back_populates="material_product",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
     # Indexes and constraints
     # Feature 058: Removed CheckConstraints for current_inventory and weighted_avg_cost

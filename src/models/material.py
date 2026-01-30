@@ -32,7 +32,9 @@ class Material(BaseModel):
     Relationships:
         subcategory: Many-to-One with MaterialSubcategory
         products: One-to-Many with MaterialProduct (cascade delete)
-        units: One-to-Many with MaterialUnit
+
+    Note (Feature 084): MaterialUnits are now children of MaterialProduct,
+    not Material. Access units via material.products[*].material_units.
     """
 
     __tablename__ = "materials"
@@ -63,11 +65,9 @@ class Material(BaseModel):
         cascade="all, delete-orphan",
         lazy="select",
     )
-    units = relationship(
-        "MaterialUnit",
-        back_populates="material",
-        lazy="select",
-    )
+    # Feature 084: Removed 'units' relationship - MaterialUnits are now
+    # children of MaterialProduct, not Material. Access units via:
+    # material.products[*].material_units
 
     # Indexes and constraints
     __table_args__ = (
@@ -94,7 +94,7 @@ class Material(BaseModel):
         Convert material to dictionary.
 
         Args:
-            include_relationships: If True, include subcategory, products, and units
+            include_relationships: If True, include subcategory and products
 
         Returns:
             Dictionary representation
@@ -106,6 +106,7 @@ class Material(BaseModel):
             if self.subcategory:
                 result["subcategory"] = self.subcategory.to_dict(False)
             result["products"] = [p.to_dict(False) for p in self.products]
-            result["units"] = [u.to_dict(False) for u in self.units]
+            # Feature 084: Removed units from to_dict - units are now
+            # accessed via products[*].material_units
 
         return result
