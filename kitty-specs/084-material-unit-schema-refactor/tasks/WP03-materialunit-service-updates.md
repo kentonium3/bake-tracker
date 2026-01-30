@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: MaterialUnit Service Updates
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01, WP02]
 base_branch: 084-material-unit-schema-refactor-WP03-merge-base
 base_commit: 0fca8101b8fcd2f23ecc38a2e0b83bfeced97b75
@@ -482,3 +482,4 @@ def _generate_unique_slug(name: str, session: Session, material_product_id: int)
 ## Activity Log
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-30T17:51:29Z – unknown – shell_pid=30558 – lane=for_review – Service and tests updated for material_product_id FK
