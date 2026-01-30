@@ -261,7 +261,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 - [x] T037 Update Units tab to read-only (remove "Add Unit" button) in `src/ui/tabs/materials_tab.py`
 - [x] T038 Update Units tab columns (Name, Material, Product, Quantity per Unit) in `src/ui/tabs/materials_tab.py`
 - [x] T039 [P] Create MaterialProduct detail popup dialog in `src/ui/dialogs/material_product_popup.py`
-- [ ] T040 Add click handler to show popup on row click in `src/ui/tabs/materials_tab.py`
+- [x] T040 Add click handler to show popup on row click in `src/ui/tabs/materials_tab.py`
 
 ### Implementation Notes
 1. Remove any "Add Unit" or "Create" buttons from Units tab
