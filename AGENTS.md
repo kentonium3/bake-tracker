@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+**Note:** For spec-kitty workflow rules (lane transitions, encoding, path references), see `.kittify/AGENTS.md`.
+
 ## Project Structure & Module Organization
 - `src/` holds application code: `models/` (SQLAlchemy schema), `services/` (business logic), `ui/` (CustomTkinter), `utils/`, and `tests/` (pytest).
 - `docs/` contains architecture, schema, and user docs; `kitty-specs/` stores feature specs and plans.

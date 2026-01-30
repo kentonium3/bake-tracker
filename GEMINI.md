@@ -98,6 +98,16 @@ The project follows standard Python development practices and uses several tools
 
 Comprehensive documentation can be found in the `docs/` directory, including requirements, architecture, user guide, and database schema.
 
+## Spec-Kitty Workflow
+
+This project uses spec-kitty for feature development. **All AI agents must follow the workflow rules in `.kittify/AGENTS.md`.**
+
+Key rules:
+- Use exact file paths (never "the tasks folder")
+- UTF-8 encoding only (no smart quotes from Word/Office)
+- Never manually edit task frontmatter - use `spec-kitty agent tasks` commands
+- Follow the skill prompts exactly when executing `/spec-kitty.*` commands
+
 ## Contributing
 
 This is a personal project. Issues and suggestions are welcome via GitHub. The project acknowledges assistance from Claude Code in its development.

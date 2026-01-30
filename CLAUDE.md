@@ -175,7 +175,7 @@ Use the `gemini-parallel-dev` agent for tasks that:
 
 ## Spec-Kitty Workflow Compliance (NON-NEGOTIABLE)
 
-This project uses spec-kitty (v0.11.x) for feature development. The workflow is AUTHORITATIVE.
+This project uses spec-kitty (v0.13.x) for feature development. The workflow is AUTHORITATIVE.
 
 ### Golden Rule: Follow the Skill Prompts
 
@@ -218,13 +218,16 @@ If acceptance fails due to missing metadata, this indicates workflow commands we
 The general command structure is:
 ```bash
 # Move work package between lanes
-spec-kitty agent tasks move-task <WP_ID> --to <lane> [--agent <name>] [--note "..."]
+spec-kitty agent tasks move-task <WP_ID> --to <lane> [--assignee <name>] [--note "..."]
 
 # Mark subtask status in tasks.md
 spec-kitty agent tasks mark-status <TASK_ID> --status done|pending
+
+# List tasks with optional filtering
+spec-kitty agent tasks list-tasks [--lane <lane>]
 ```
 
-**Important:** Feature slug is auto-detected from git branch. Always run from the feature worktree.
+**Important:** Feature slug is auto-detected from git branch. Always run from the feature worktree. Use `--help` on any command to see current options.
 
 ### Session Start Checklist
 

@@ -284,9 +284,9 @@ When making architectural choices, ask:
 
 **Spec-Kitty driven development with documentation-first approach.**
 
-- Feature specifications MUST be created in `/kitty-specs/` before implementation
+- Feature specifications MUST be created in `kitty-specs/` before implementation
 - Implementation plans MUST define technical approach and complexity justifications
-- Tasks MUST be tracked in `/tasks/` directory with clear status (backlog/doing/done)
+- Tasks MUST be tracked in `kitty-specs/<feature>/tasks/` directory with lane status in frontmatter
 - Documentation MUST be updated before feature is marked complete
 - Git commits MUST reference feature numbers and follow conventional commit format
 
