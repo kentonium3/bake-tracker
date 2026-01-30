@@ -294,7 +294,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 ### Included Subtasks
 - [x] T041 Create scripts/migrate_material_units.py skeleton with CLI interface
 - [x] T042 Implement MaterialUnit duplication transformation (N products × M units) in `scripts/migrate_material_units.py`
-- [ ] T043 Implement orphan detection (Materials with 0 products → unmigrateable) in `scripts/migrate_material_units.py`
+- [x] T043 Implement orphan detection (Materials with 0 products → unmigrateable) in `scripts/migrate_material_units.py`
 - [ ] T044 Implement Composition material_id skip logging in `scripts/migrate_material_units.py`
 - [ ] T045 Add migration script tests in `src/tests/test_migrate_material_units.py`
 
