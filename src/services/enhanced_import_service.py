@@ -282,8 +282,9 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
     1. Context-Rich: Has _meta.editable_fields
     2. Purchases: import_type == "purchases"
     3. Adjustments: import_type in ("adjustments", "inventory_updates")
-    4. Normalized: Has version and application == "bake-tracker"
-    5. Unknown: None of the above
+    4. Normalized (full backup): Has version and application == "bake-tracker"
+    5. Normalized (per-entity): Has version, entity_type, and records
+    6. Unknown: None of the above
 
     Args:
         data: Parsed JSON data
@@ -323,7 +324,7 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
         result.entity_count = len(adjustments)
         return result
 
-    # Check for normalized backup/catalog format
+    # Check for normalized backup/catalog format (full backup with application field)
     if "version" in data and data.get("application") == "bake-tracker":
         result.format_type = "normalized"
         result.version = data.get("version")
@@ -334,6 +335,15 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
             if isinstance(value, list) and key not in ("_meta", "files"):
                 entity_count += len(value)
         result.entity_count = entity_count
+        return result
+
+    # Check for per-entity backup format (individual files like events.json, materials.json)
+    # These have version, entity_type, and records but no application field
+    if "version" in data and "entity_type" in data and "records" in data:
+        result.format_type = "normalized"
+        result.version = data.get("version")
+        result.export_type = data.get("entity_type")
+        result.entity_count = len(data.get("records", []))
         return result
 
     # Unknown format - try to provide some info
