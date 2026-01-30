@@ -48,7 +48,7 @@
 
 ### Included Subtasks
 - [x] T004 Debug _on_units_tree_select handler to identify why buttons stay disabled
-- [ ] T005 Fix button enablement to work for all material types (each, linear_cm, square_cm)
+- [x] T005 Fix button enablement to work for all material types (each, linear_cm, square_cm)
 
 ### Implementation Notes
 - Handler at `materials_tab.py:794-804` appears correct
