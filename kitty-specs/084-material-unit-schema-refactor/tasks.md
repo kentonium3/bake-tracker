@@ -133,7 +133,7 @@ These work packages can execute in parallel once Wave 1 is complete.
 - [x] T018 Add auto-generation logic to create_material_product() in `src/services/material_product_service.py`
 - [x] T019 Implement _should_auto_generate_unit() helper in `src/services/material_product_service.py`
 - [x] T020 Implement _create_auto_generated_unit() helper in `src/services/material_product_service.py`
-- [ ] T021 [P] Add slug generation for auto-generated units in `src/services/material_product_service.py`
+- [x] T021 [P] Add slug generation for auto-generated units in `src/services/material_product_service.py`
 - [ ] T022 Add MaterialProduct service tests for auto-generation in `src/tests/test_material_product_service.py`
 
 ### Implementation Notes
