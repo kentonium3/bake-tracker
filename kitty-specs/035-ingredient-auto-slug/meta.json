@@ -36,5 +36,6 @@
   "merged_push": true,
   "merged_strategy": "merge",
   "slug": "035-ingredient-auto-slug",
-  "source_description": "Phase 3 of ingredient hierarchy: auto-generate slugs on creation, deletion protection for catalog entities, denormalize historical records before delete, clear/reset filter buttons"
+  "source_description": "Phase 3 of ingredient hierarchy: auto-generate slugs on creation, deletion protection for catalog entities, denormalize historical records before delete, clear/reset filter buttons",
+  "target_branch": "main"
 }

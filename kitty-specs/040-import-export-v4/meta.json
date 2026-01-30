@@ -20,5 +20,6 @@
   "feature_number": "040",
   "friendly_name": "Import/Export v4.0 Upgrade",
   "slug": "040-import-export-v4",
-  "source_description": "Upgrade import/export to v4.0 schema supporting F037 recipe structure, F039 event output_mode, BT Mobile purchase imports, and percentage-based inventory updates"
+  "source_description": "Upgrade import/export to v4.0 schema supporting F037 recipe structure, F039 event output_mode, BT Mobile purchase imports, and percentage-based inventory updates",
+  "target_branch": "main"
 }

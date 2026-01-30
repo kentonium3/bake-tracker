@@ -36,5 +36,6 @@
   "merged_push": true,
   "merged_strategy": "merge",
   "slug": "036-ingredient-hierarchy-comprehensive",
-  "source_description": "Phase 4 of F033-F036 ingredient hierarchy implementation. Run comprehensive tests against all 13 requirement test cases, validate Phase 1-3 implementations work correctly in integration, conduct user acceptance testing, and fix any discovered edge cases."
+  "source_description": "Phase 4 of F033-F036 ingredient hierarchy implementation. Run comprehensive tests against all 13 requirement test cases, validate Phase 1-3 implementations work correctly in integration, conduct user acceptance testing, and fix any discovered edge cases.",
+  "target_branch": "main"
 }

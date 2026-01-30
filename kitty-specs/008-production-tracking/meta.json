@@ -36,5 +36,6 @@
   "merged_push": false,
   "merged_strategy": "merge",
   "slug": "008-production-tracking",
-  "source_description": "Track production lifecycle: mark recipe batches as produced (with FIFO inventory consumption and actual cost capture), track package assembly and delivery status, top-level production dashboard showing all active production across events, event-level and recipe-level actual vs planned cost comparisons. Dependencies: Feature 006 (Event Planning), Feature 005 (FIFO Recipe Costing)."
+  "source_description": "Track production lifecycle: mark recipe batches as produced (with FIFO inventory consumption and actual cost capture), track package assembly and delivery status, top-level production dashboard showing all active production across events, event-level and recipe-level actual vs planned cost comparisons. Dependencies: Feature 006 (Event Planning), Feature 005 (FIFO Recipe Costing).",
+  "target_branch": "main"
 }

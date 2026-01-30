@@ -34,5 +34,6 @@
   "feature_number": "007",
   "friendly_name": "Variant-Aware Shopping List Recommendations",
   "slug": "007-variant-aware-shopping",
-  "source_description": "Enhance shopping list to include variant-aware purchase recommendations with preferred variant logic, cost per unit, package size context, and total estimated cost"
+  "source_description": "Enhance shopping list to include variant-aware purchase recommendations with preferred variant logic, cost per unit, package size context, and total estimated cost",
+  "target_branch": "main"
 }

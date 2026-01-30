@@ -20,5 +20,6 @@
   "feature_number": "014",
   "friendly_name": "Production & Assembly Recording UI",
   "slug": "014-production-assembly-recording",
-  "source_description": "Add UI components for recording batch production and assembly operations, including FinishedUnit detail view updates, new FinishedGood detail view, recording dialogs with availability checks, and a Production Dashboard tab"
+  "source_description": "Add UI components for recording batch production and assembly operations, including FinishedUnit detail view updates, new FinishedGood detail view, recording dialogs with availability checks, and a Production Dashboard tab",
+  "target_branch": "main"
 }

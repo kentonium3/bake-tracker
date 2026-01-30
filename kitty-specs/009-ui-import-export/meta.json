@@ -20,5 +20,6 @@
   "feature_number": "009",
   "friendly_name": "UI Import/Export with v3.0 Schema",
   "slug": "009-ui-import-export",
-  "source_description": "Add File menu with Import/Export UI backed by v3.0 specification reflecting current schema"
+  "source_description": "Add File menu with Import/Export UI backed by v3.0 specification reflecting current schema",
+  "target_branch": "main"
 }

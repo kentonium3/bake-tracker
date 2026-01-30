@@ -22,5 +22,6 @@
   "friendly_name": "Purchase Management with Provisional Products",
   "mission": "software-dev",
   "slug": "057-purchase-management-provisional-products",
-  "source_description": "See docs/design/_F0XX_purchase_management_refactored.md for input on the next feature."
+  "source_description": "See docs/design/_F0XX_purchase_management_refactored.md for input on the next feature.",
+  "target_branch": "main"
 }

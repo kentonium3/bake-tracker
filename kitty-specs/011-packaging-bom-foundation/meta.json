@@ -20,5 +20,6 @@
   "feature_number": "011",
   "friendly_name": "Packaging & BOM Foundation",
   "slug": "011-packaging-bom-foundation",
-  "source_description": "Add support for packaging materials as trackable inventory items that can be consumed when assembling finished goods and packages"
+  "source_description": "Add support for packaging materials as trackable inventory items that can be consumed when assembling finished goods and packages",
+  "target_branch": "main"
 }

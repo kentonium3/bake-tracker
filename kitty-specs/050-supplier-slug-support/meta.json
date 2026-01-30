@@ -12,5 +12,6 @@
   "acceptance_mode": "local",
   "accepted_at": "2026-01-13T06:34:41Z",
   "accepted_by": "kentgale",
-  "accepted_from_commit": "f622d59069ec6033f3a4db4fdc186bbc38b91581"
+  "accepted_from_commit": "f622d59069ec6033f3a4db4fdc186bbc38b91581",
+  "target_branch": "main"
 }

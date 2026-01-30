@@ -21,5 +21,6 @@
   "friendly_name": "Finished Units Yield Type Management",
   "mission": "software-dev",
   "slug": "044-finished-units-yield-type-management",
-  "source_description": "See docs/design/F044_finished_units_functionality_ui.md for the feature spec inputs."
+  "source_description": "See docs/design/F044_finished_units_functionality_ui.md for the feature spec inputs.",
+  "target_branch": "main"
 }

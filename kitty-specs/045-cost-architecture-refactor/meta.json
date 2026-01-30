@@ -21,5 +21,6 @@
   "friendly_name": "Cost Architecture Refactor",
   "mission": "software-dev",
   "slug": "045-cost-architecture-refactor",
-  "source_description": "See docs/design/F045_cost_architecture_refactor.md for the feature spec inputs."
+  "source_description": "See docs/design/F045_cost_architecture_refactor.md for the feature spec inputs.",
+  "target_branch": "main"
 }

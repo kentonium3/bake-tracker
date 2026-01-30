@@ -22,5 +22,6 @@
   "friendly_name": "Workflow-Aligned Navigation Cleanup",
   "mission": "software-dev",
   "slug": "055-workflow-aligned-navigation-cleanup",
-  "source_description": "See docs/design/F055_ui_navigation_cleanup.md for the functional spec."
+  "source_description": "See docs/design/F055_ui_navigation_cleanup.md for the functional spec.",
+  "target_branch": "main"
 }

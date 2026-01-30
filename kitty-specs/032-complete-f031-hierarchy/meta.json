@@ -20,5 +20,6 @@
   "feature_number": "032",
   "friendly_name": "Complete F031 Hierarchy UI Implementation",
   "slug": "032-complete-f031-hierarchy",
-  "source_description": "Complete the UI implementation for F031 Ingredient Hierarchy. Update Ingredients Tab, Ingredient Edit Form, Products Tab, Inventory Tab, and Inventory Edit Form to use three-tier hierarchy instead of deprecated category field."
+  "source_description": "Complete the UI implementation for F031 Ingredient Hierarchy. Update Ingredients Tab, Ingredient Edit Form, Products Tab, Inventory Tab, and Inventory Edit Form to use three-tier hierarchy instead of deprecated category field.",
+  "target_branch": "main"
 }

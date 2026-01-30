@@ -21,5 +21,6 @@
   "feature_number": "020",
   "friendly_name": "Enhanced Catalog Import",
   "slug": "020-enhanced-catalog-import",
-  "source_description": "Feature 020: Enhanced Data Import - Separate catalog import pathway for ingredients, products, and recipes with ADD_ONLY and AUGMENT modes"
+  "source_description": "Feature 020: Enhanced Data Import - Separate catalog import pathway for ingredients, products, and recipes with ADD_ONLY and AUGMENT modes",
+  "target_branch": "main"
 }

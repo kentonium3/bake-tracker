@@ -6,5 +6,6 @@
   "source_description": "F084 Dual-Yield Support - Enable recipes to define both EA (whole unit) and SERVING yields",
   "created_at": "2026-01-29T00:00:00Z",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-29T17:08:13.002714+00:00"
+  "vcs_locked_at": "2026-01-29T17:08:13.002714+00:00",
+  "target_branch": "main"
 }

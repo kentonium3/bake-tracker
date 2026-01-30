@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.13.7
+  version: 0.13.9
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-01-27T10:27:02.045044'
+  last_upgraded_at: '2026-01-30T11:09:08.536490'
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -77,3 +77,7 @@ migrations:
     notes: 'Updated: .claude/commands/spec-kitty.implement.md; Updated: .gemini/commands/spec-kitty.implement.md;
       Updated: .cursor/commands/spec-kitty.implement.md; Updated: .codex/prompts/spec-kitty.implement.md;
       Updated 4 agent implement templates (software-dev)'
+  - id: 0.13.8_target_branch
+    applied_at: '2026-01-30T11:09:08.536477'
+    result: success
+    notes: Added target_branch=main to 004-finishedunit-model-refactoring

@@ -20,5 +20,6 @@
   "feature_number": "038",
   "friendly_name": "UI Mode Restructure",
   "slug": "038-ui-mode-restructure",
-  "source_description": "Restructure application UI from flat 11-tab navigation to 5-mode workflow architecture (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE) with consistent tab layouts, mode-specific dashboards, and clear navigation."
+  "source_description": "Restructure application UI from flat 11-tab navigation to 5-mode workflow architecture (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE) with consistent tab layouts, mode-specific dashboards, and clear navigation.",
+  "target_branch": "main"
 }

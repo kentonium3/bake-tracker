@@ -4,5 +4,6 @@
   "friendly_name": "Variant Yield Inheritance",
   "mission": "software-dev",
   "source_description": "See docs/func-spec/F063_recipe_variant_yield_inheritance.md for the feature inputs.",
-  "created_at": "2025-01-24T06:45:00Z"
+  "created_at": "2025-01-24T06:45:00Z",
+  "target_branch": "main"
 }

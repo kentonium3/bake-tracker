@@ -20,5 +20,6 @@
   "feature_number": "022",
   "friendly_name": "Unit Reference Table & UI Dropdowns",
   "slug": "022-unit-reference-table",
-  "source_description": "Create database-backed unit reference table to replace free-form unit entry with searchable dropdowns in UI"
+  "source_description": "Create database-backed unit reference table to replace free-form unit entry with searchable dropdowns in UI",
+  "target_branch": "main"
 }

@@ -36,5 +36,6 @@
   "merged_push": false,
   "merged_strategy": "merge",
   "slug": "034-cascading-filters-recipe",
-  "source_description": "Phase 2 of ingredient hierarchy gap analysis: Fix cascading filters in Product/Inventory tabs and verify/fix recipe integration with L2-only validation"
+  "source_description": "Phase 2 of ingredient hierarchy gap analysis: Fix cascading filters in Product/Inventory tabs and verify/fix recipe integration with L2-only validation",
+  "target_branch": "main"
 }

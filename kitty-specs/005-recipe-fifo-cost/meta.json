@@ -36,5 +36,6 @@
   "merged_push": false,
   "merged_strategy": "merge",
   "slug": "005-recipe-fifo-cost",
-  "source_description": "Update RecipeService to calculate recipe costs using actual pantry inventory costs via FIFO consumption logic"
+  "source_description": "Update RecipeService to calculate recipe costs using actual pantry inventory costs via FIFO consumption logic",
+  "target_branch": "main"
 }

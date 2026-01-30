@@ -20,5 +20,6 @@
   "feature_number": "017",
   "friendly_name": "Event Reporting & Production Dashboard",
   "slug": "017-event-reporting-production",
-  "source_description": "Feature 017: Reporting & Event Planning - Shopping list CSV export, event summary reports (planned vs actual), cost analysis views, recipient history, and production dashboard as default view"
+  "source_description": "Feature 017: Reporting & Event Planning - Shopping list CSV export, event summary reports (planned vs actual), cost analysis views, recipient history, and production dashboard as default view",
+  "target_branch": "main"
 }

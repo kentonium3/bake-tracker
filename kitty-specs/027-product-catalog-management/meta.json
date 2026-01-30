@@ -33,5 +33,6 @@
   "merged_push": true,
   "merged_strategy": "merge",
   "slug": "027-product-catalog-management",
-  "source_description": "Foundation feature for product catalog CRUD, supplier tracking, and purchase history"
+  "source_description": "Foundation feature for product catalog CRUD, supplier tracking, and purchase history",
+  "target_branch": "main"
 }

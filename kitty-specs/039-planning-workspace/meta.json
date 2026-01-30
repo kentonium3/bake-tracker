@@ -36,5 +36,6 @@
   "merged_push": false,
   "merged_strategy": "merge",
   "slug": "039-planning-workspace",
-  "source_description": "Planning Workspace - automatic batch calculation to prevent underproduction, with event requirements input, optimal batch calculation, ingredient aggregation, inventory gap analysis, shopping list generation, assembly feasibility validation, and progress tracking"
+  "source_description": "Planning Workspace - automatic batch calculation to prevent underproduction, with event requirements input, optimal batch calculation, ingredient aggregation, inventory gap analysis, shopping list generation, assembly feasibility validation, and progress tracking",
+  "target_branch": "main"
 }

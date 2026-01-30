@@ -22,5 +22,6 @@
   "feature_number": "018",
   "friendly_name": "Event Production Dashboard",
   "slug": "018-event-production-dashboard",
-  "source_description": "Event Production Dashboard - Mission control view showing production status at a glance"
+  "source_description": "Event Production Dashboard - Mission control view showing production status at a glance",
+  "target_branch": "main"
 }

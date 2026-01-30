@@ -20,5 +20,6 @@
   "slug": "075-inventory-gap-analysis",
   "source_description": "see docs/func-spec/F075_inventory_gap_analysis.md for the feature's inputs",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T21:23:55.007179+00:00"
+  "vcs_locked_at": "2026-01-27T21:23:55.007179+00:00",
+  "target_branch": "main"
 }

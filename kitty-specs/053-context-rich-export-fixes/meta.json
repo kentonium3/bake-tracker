@@ -22,5 +22,6 @@
   "friendly_name": "Context-Rich Export Fixes",
   "mission": "software-dev",
   "slug": "053-context-rich-export-fixes",
-  "source_description": "See docs/design/F053_context_rich_export_fixes.md for this feature's input."
+  "source_description": "See docs/design/F053_context_rich_export_fixes.md for this feature's input.",
+  "target_branch": "main"
 }

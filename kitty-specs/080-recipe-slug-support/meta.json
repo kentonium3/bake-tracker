@@ -23,5 +23,6 @@
   "slug": "080-recipe-slug-support",
   "source_description": "F080 Recipe Slug Support - Add unique slug field to Recipe model and update all FK resolution to use slugs for data portability. Schema enhancement matching existing Supplier/Product/Ingredient slug patterns. Includes export/import support with backward compatibility.",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-28T16:50:26.744266+00:00"
+  "vcs_locked_at": "2026-01-28T16:50:26.744266+00:00",
+  "target_branch": "main"
 }

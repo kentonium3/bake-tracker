@@ -6,5 +6,6 @@
   "source_description": "F079 Production-Aware Calculations - Integrate production status with planning calculations to show remaining needs (not total needs), real-time assembly feasibility based on actual production, and protect in-progress batches from amendments",
   "created_at": "2026-01-28T10:30:00Z",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-28T06:17:29.680373+00:00"
+  "vcs_locked_at": "2026-01-28T06:17:29.680373+00:00",
+  "target_branch": "main"
 }

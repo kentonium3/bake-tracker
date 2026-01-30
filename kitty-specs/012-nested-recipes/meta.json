@@ -20,5 +20,6 @@
   "feature_number": "012",
   "friendly_name": "Nested Recipes",
   "slug": "012-nested-recipes",
-  "source_description": "Add hierarchical recipe support where parent recipes can include other recipes as components with batch multiplier quantities, recursive cost calculation, shopping list aggregation, and circular reference prevention. Maximum 3 levels of nesting."
+  "source_description": "Add hierarchical recipe support where parent recipes can include other recipes as components with batch multiplier quantities, recursive cost calculation, shopping list aggregation, and circular reference prevention. Maximum 3 levels of nesting.",
+  "target_branch": "main"
 }

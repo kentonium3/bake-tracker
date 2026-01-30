@@ -36,5 +36,6 @@
   "merged_push": true,
   "merged_strategy": "merge",
   "slug": "030-enhanced-export-import",
-  "source_description": "See docs/design/F030_enhanced_export_import.md for the feature specification."
+  "source_description": "See docs/design/F030_enhanced_export_import.md for the feature specification.",
+  "target_branch": "main"
 }

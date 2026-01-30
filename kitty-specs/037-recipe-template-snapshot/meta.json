@@ -46,5 +46,6 @@
   "merged_push": true,
   "merged_strategy": "merge",
   "slug": "037-recipe-template-snapshot",
-  "source_description": "Recipe redesign implementing template/snapshot architecture for versioning, base/variant relationships, batch scaling, and production readiness flags"
+  "source_description": "Recipe redesign implementing template/snapshot architecture for versioning, base/variant relationships, batch scaling, and production readiness flags",
+  "target_branch": "main"
 }

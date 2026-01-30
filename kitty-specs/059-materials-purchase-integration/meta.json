@@ -4,5 +4,6 @@
   "friendly_name": "Materials Purchase Integration & Workflows",
   "mission": "software-dev",
   "source_description": "See docs/design/F059_materials_purchase_integration.md for this feature's input.",
-  "created_at": "2026-01-18T00:00:00Z"
+  "created_at": "2026-01-18T00:00:00Z",
+  "target_branch": "main"
 }

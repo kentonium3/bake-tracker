@@ -20,5 +20,6 @@
   "feature_number": "041",
   "friendly_name": "Manual Inventory Adjustments",
   "slug": "041-manual-inventory-adjustments",
-  "source_description": "Manual adjustment interface for inventory items supporting both additions and depletions. Depletions handle spoilage, gifts, corrections, ad hoc usage. Additions handle found inventory with smart defaults (date=today, price=last purchase price, supplier optional). Low friction UX with live preview. Based on docs/design/_F041_manual_inventory_adjust.md"
+  "source_description": "Manual adjustment interface for inventory items supporting both additions and depletions. Depletions handle spoilage, gifts, corrections, ad hoc usage. Additions handle found inventory with smart defaults (date=today, price=last purchase price, supplier optional). Low friction UX with live preview. Based on docs/design/_F041_manual_inventory_adjust.md",
+  "target_branch": "main"
 }

@@ -4,5 +4,6 @@
   "friendly_name": "Architecture Hardening - Service Boundaries & Session Management",
   "mission": "software-dev",
   "source_description": "see docs/func-spec/F060_architecture_hardening_service_boundaries.md for this feature's inputs.",
-  "created_at": "2026-01-20T00:00:00Z"
+  "created_at": "2026-01-20T00:00:00Z",
+  "target_branch": "main"
 }

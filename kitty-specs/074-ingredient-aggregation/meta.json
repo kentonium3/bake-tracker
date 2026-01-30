@@ -20,5 +20,6 @@
   "slug": "074-ingredient-aggregation",
   "source_description": "see docs/func-spec/F074_ingredient_aggregation.md for the feature's inputs",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T20:40:28.969190+00:00"
+  "vcs_locked_at": "2026-01-27T20:40:28.969190+00:00",
+  "target_branch": "main"
 }

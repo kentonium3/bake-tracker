@@ -20,5 +20,6 @@
   "slug": "076-assembly-feasibility-single-screen-planning",
   "source_description": "see docs/func-spec/F076_assembly_feasibility_single_screen_ui.md for the feature's inputs",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T22:01:13.365219+00:00"
+  "vcs_locked_at": "2026-01-27T22:01:13.365219+00:00",
+  "target_branch": "main"
 }

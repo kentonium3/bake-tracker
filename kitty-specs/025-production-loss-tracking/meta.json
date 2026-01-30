@@ -36,5 +36,6 @@
   "merged_push": true,
   "merged_strategy": "squash",
   "slug": "025-production-loss-tracking",
-  "source_description": "Track production losses (burnt, broken, contaminated) with cost accounting and reporting"
+  "source_description": "Track production losses (burnt, broken, contaminated) with cost accounting and reporting",
+  "target_branch": "main"
 }

@@ -20,5 +20,6 @@
   "feature_number": "016",
   "friendly_name": "Event-Centric Production Model",
   "slug": "016-event-centric-production",
-  "source_description": "Add event_id FK to ProductionRun and AssemblyRun, create EventProductionTarget and EventAssemblyTarget tables, add fulfillment_status to EventRecipientPackage, with service methods for target management and progress calculation"
+  "source_description": "Add event_id FK to ProductionRun and AssemblyRun, create EventProductionTarget and EventAssemblyTarget tables, add fulfillment_status to EventRecipientPackage, with service methods for target management and progress calculation",
+  "target_branch": "main"
 }

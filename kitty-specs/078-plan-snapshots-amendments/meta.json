@@ -25,5 +25,6 @@
   "friendly_name": "Plan Snapshots & Amendments",
   "mission": "software-dev",
   "slug": "078-plan-snapshots-amendments",
-  "source_description": "F078 Plan Snapshots & Amendments - Plan versioning and amendment logging for mid-production changes. When production starts, capture complete plan state as JSON snapshot (recipes, FGs, quantities, batch decisions). Support 3 amendment types: DROP_FG, ADD_FG, MODIFY_BATCH with required reason capture. Append-only amendment log. UI to show amendment history, add amendments, and compare original vs current plan."
+  "source_description": "F078 Plan Snapshots & Amendments - Plan versioning and amendment logging for mid-production changes. When production starts, capture complete plan state as JSON snapshot (recipes, FGs, quantities, batch decisions). Support 3 amendment types: DROP_FG, ADD_FG, MODIFY_BATCH with required reason capture. Append-only amendment log. UI to show amendment history, add amendments, and compare original vs current plan.",
+  "target_branch": "main"
 }

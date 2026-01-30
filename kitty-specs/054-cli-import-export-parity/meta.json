@@ -22,5 +22,6 @@
   "friendly_name": "CLI Import/Export Parity",
   "mission": "software-dev",
   "slug": "054-cli-import-export-parity",
-  "source_description": "See docs/design/F054_cli_import_export_parity.md for this feature's inputs."
+  "source_description": "See docs/design/F054_cli_import_export_parity.md for this feature's inputs.",
+  "target_branch": "main"
 }

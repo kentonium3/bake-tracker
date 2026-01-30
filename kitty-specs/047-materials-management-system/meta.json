@@ -12,5 +12,6 @@
   "acceptance_mode": "local",
   "accepted_at": "2026-01-11T01:16:19Z",
   "accepted_by": "claude",
-  "accepted_from_commit": "93e74f7d2ef533d0c1f5b8a399ec2415dd97aa2f"
+  "accepted_from_commit": "93e74f7d2ef533d0c1f5b8a399ec2415dd97aa2f",
+  "target_branch": "main"
 }

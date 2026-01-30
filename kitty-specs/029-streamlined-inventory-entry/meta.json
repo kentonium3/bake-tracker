@@ -36,5 +36,6 @@
   "merged_push": false,
   "merged_strategy": "merge",
   "slug": "029-streamlined-inventory-entry",
-  "source_description": "Transform inventory entry from tedious data entry into intelligent, flow-optimized experience with type-ahead filtering, recency intelligence, session memory, inline product creation, and smart defaults. Target: reduce 20-item data entry from 15-20 minutes to 5 minutes."
+  "source_description": "Transform inventory entry from tedious data entry into intelligent, flow-optimized experience with type-ahead filtering, recency intelligence, session memory, inline product creation, and smart defaults. Target: reduce 20-item data entry from 15-20 minutes to 5 minutes.",
+  "target_branch": "main"
 }

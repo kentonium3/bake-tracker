@@ -20,5 +20,6 @@
   "slug": "077-plan-state-management",
   "source_description": "see docs/func-spec/F077_plan_state_management.md for the feature's inputs",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T22:38:37.455539+00:00"
+  "vcs_locked_at": "2026-01-27T22:38:37.455539+00:00",
+  "target_branch": "main"
 }
