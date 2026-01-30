@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Auto-Generation in MaterialProduct Service
+lane: "for_review"
+dependencies: [WP01, WP03]
+base_branch: 084-material-unit-schema-refactor-WP03
+base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
+created_at: '2026-01-30T17:52:17.289342+00:00'
 subtasks:
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-title: "Auto-Generation in MaterialProduct Service"
-phase: "Wave 2 - Service Layer"
-lane: "doing"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01", "WP03"]
+- T018
+- T019
+- T020
+- T021
+- T022
+phase: Wave 2 - Service Layer
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Auto-Generation in MaterialProduct Service
@@ -472,3 +475,4 @@ Depends on WP01 (MaterialUnit FK) and WP03 (MaterialUnit service must work).
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T17:52:03Z – unknown – lane=doing – Starting auto-generation implementation
+- 2026-01-30T17:58:51Z – unknown – lane=for_review – Auto-generation implemented and tested with 7 new tests. All 64 catalog service tests pass.
