@@ -130,7 +130,7 @@ These work packages can execute in parallel once Wave 1 is complete.
 **Estimated Size**: ~350 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T018 Add auto-generation logic to create_material_product() in `src/services/material_product_service.py`
+- [x] T018 Add auto-generation logic to create_material_product() in `src/services/material_product_service.py`
 - [ ] T019 Implement _should_auto_generate_unit() helper in `src/services/material_product_service.py`
 - [ ] T020 Implement _create_auto_generated_unit() helper in `src/services/material_product_service.py`
 - [ ] T021 [P] Add slug generation for auto-generated units in `src/services/material_product_service.py`
