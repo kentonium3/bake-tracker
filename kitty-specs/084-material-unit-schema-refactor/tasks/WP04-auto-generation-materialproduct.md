@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Auto-Generation in MaterialProduct Service
-lane: "doing"
+lane: "done"
 dependencies: [WP01, WP03]
 base_branch: 084-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -16,8 +16,8 @@ phase: Wave 2 - Service Layer
 assignee: ''
 agent: "claude-opus"
 shell_pid: "43970"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
@@ -477,3 +477,4 @@ Depends on WP01 (MaterialUnit FK) and WP03 (MaterialUnit service must work).
 - 2026-01-30T17:52:03Z – unknown – lane=doing – Starting auto-generation implementation
 - 2026-01-30T17:58:51Z – unknown – lane=for_review – Auto-generation implemented and tested with 7 new tests. All 64 catalog service tests pass.
 - 2026-01-30T18:40:09Z – claude-opus – shell_pid=43970 – lane=doing – Started review via workflow command
+- 2026-01-30T18:40:58Z – claude-opus – shell_pid=43970 – lane=done – Review passed: Auto-generation for each-type products works correctly, linear/square types excluded, quantity_per_unit=1.0, atomic session handling, 7 tests pass
