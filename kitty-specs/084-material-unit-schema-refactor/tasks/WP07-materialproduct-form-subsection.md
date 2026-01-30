@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: MaterialProduct Form Sub-Section UI
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03, WP04]
 base_branch: 084-material-unit-schema-refactor-WP04
 base_commit: 631b3b57cd9633165fb85cf9c6cd26afb95ad74b
@@ -554,3 +554,4 @@ python src/main.py
 ## Activity Log
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-30T18:30:05Z – unknown – shell_pid=38722 – lane=for_review – Implementation complete: MaterialUnits sub-section added to MaterialProduct form
