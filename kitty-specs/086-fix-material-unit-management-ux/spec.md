@@ -1,6 +1,6 @@
 # Feature Specification: Fix MaterialUnit Management and Entry UX
 
-**Feature Branch**: `085-fix-material-unit-management-ux`
+**Feature Branch**: `086-fix-material-unit-management-ux`
 **Created**: 2026-01-30
 **Status**: Draft
 **Input**: User description: "Fix MaterialUnit management for linear products - Edit/Delete buttons disabled, Material Units tab shows no units, Add Unit dialog requires manual cm conversion"

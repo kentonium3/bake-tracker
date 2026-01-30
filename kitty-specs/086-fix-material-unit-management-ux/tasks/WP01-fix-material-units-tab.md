@@ -66,8 +66,8 @@ No dependencies - this WP starts fresh from main.
 **Background**: Feature 084 changed the MaterialUnit schema - units are now children of MaterialProduct (not Material). The Material Units tab query likely still references the old relationship and returns no results.
 
 **Related Documents**:
-- Spec: `kitty-specs/085-fix-material-unit-management-ux/spec.md` (FR-001)
-- Plan: `kitty-specs/085-fix-material-unit-management-ux/plan.md` (Issue 1)
+- Spec: `kitty-specs/086-fix-material-unit-management-ux/spec.md` (FR-001)
+- Plan: `kitty-specs/086-fix-material-unit-management-ux/plan.md` (Issue 1)
 - Constitution: `.kittify/memory/constitution.md` (Principle V: Layered Architecture)
 
 **Key Files**:

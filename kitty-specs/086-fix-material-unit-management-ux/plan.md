@@ -1,7 +1,7 @@
 # Implementation Plan: Fix MaterialUnit Management and Entry UX
 
-**Branch**: `085-fix-material-unit-management-ux` | **Date**: 2026-01-30 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/kitty-specs/085-fix-material-unit-management-ux/spec.md`
+**Branch**: `086-fix-material-unit-management-ux` | **Date**: 2026-01-30 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/kitty-specs/086-fix-material-unit-management-ux/spec.md`
 
 ## Summary
 
@@ -45,7 +45,7 @@ Technical approach: UI-layer fixes for issues 1-2, add conversion utility to ser
 ### Documentation (this feature)
 
 ```
-kitty-specs/085-fix-material-unit-management-ux/
+kitty-specs/086-fix-material-unit-management-ux/
 ├── spec.md              # Feature specification
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output (minimal - no unknowns)

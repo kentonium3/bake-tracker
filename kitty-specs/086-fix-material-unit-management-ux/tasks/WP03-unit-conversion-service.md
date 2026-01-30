@@ -70,8 +70,8 @@ No dependencies - this WP starts fresh from main.
 **Background**: Currently, the MaterialUnit dialog requires users to enter quantities in centimeters. For linear products like ribbon, users want to enter "8 inches" or "1 yard" and have the system convert automatically. This service provides the conversion logic.
 
 **Related Documents**:
-- Spec: `kitty-specs/085-fix-material-unit-management-ux/spec.md` (FR-003, FR-004)
-- Plan: `kitty-specs/085-fix-material-unit-management-ux/plan.md` (Issue 3)
+- Spec: `kitty-specs/086-fix-material-unit-management-ux/spec.md` (FR-003, FR-004)
+- Plan: `kitty-specs/086-fix-material-unit-management-ux/plan.md` (Issue 3)
 - Constitution: `.kittify/memory/constitution.md` (Principle IV: TDD, Principle V: Layered Architecture)
 
 **Conversion Factors** (from spec):

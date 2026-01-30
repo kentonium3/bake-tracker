@@ -3,7 +3,7 @@ work_package_id: WP04
 title: Enhance MaterialUnit Dialog
 lane: "done"
 dependencies: [WP03]
-base_branch: 085-fix-material-unit-management-ux-WP03
+base_branch: 086-fix-material-unit-management-ux-WP03
 base_commit: 4e723dcba6e32c83f9e9300bfff6a577715837d0
 created_at: '2026-01-30T23:07:02.795967+00:00'
 subtasks:
@@ -72,8 +72,8 @@ spec-kitty implement WP04 --base WP03
 **Background**: The current MaterialUnitDialog asks for "Qty per Unit" with a confusing placeholder. Users must manually convert measurements to centimeters. This enhancement adds a unit selector dropdown for linear products.
 
 **Related Documents**:
-- Spec: `kitty-specs/085-fix-material-unit-management-ux/spec.md` (FR-003, FR-004, User Story 3)
-- Plan: `kitty-specs/085-fix-material-unit-management-ux/plan.md` (Issue 3)
+- Spec: `kitty-specs/086-fix-material-unit-management-ux/spec.md` (FR-003, FR-004, User Story 3)
+- Plan: `kitty-specs/086-fix-material-unit-management-ux/plan.md` (Issue 3)
 
 **Dependency**: This WP requires `unit_conversion_service.py` from WP03.
 

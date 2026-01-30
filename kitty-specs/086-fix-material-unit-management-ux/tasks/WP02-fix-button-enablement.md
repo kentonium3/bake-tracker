@@ -71,8 +71,8 @@ No dependencies - this WP starts fresh from main.
 - Button references are None
 
 **Related Documents**:
-- Spec: `kitty-specs/085-fix-material-unit-management-ux/spec.md` (FR-002, User Story 2)
-- Plan: `kitty-specs/085-fix-material-unit-management-ux/plan.md` (Issue 2)
+- Spec: `kitty-specs/086-fix-material-unit-management-ux/spec.md` (FR-002, User Story 2)
+- Plan: `kitty-specs/086-fix-material-unit-management-ux/plan.md` (Issue 2)
 
 **Key Code Location** (`src/ui/materials_tab.py:794-804`):
 ```python

@@ -1,6 +1,6 @@
 # Work Packages: Fix MaterialUnit Management and Entry UX
 
-**Inputs**: Design documents from `/kitty-specs/085-fix-material-unit-management-ux/`
+**Inputs**: Design documents from `/kitty-specs/086-fix-material-unit-management-ux/`
 **Prerequisites**: plan.md (required), spec.md (user stories), research.md
 
 **Tests**: Unit tests required for the new conversion service (WP03).

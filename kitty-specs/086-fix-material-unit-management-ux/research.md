@@ -1,6 +1,6 @@
 # Research: Fix MaterialUnit Management and Entry UX
 
-**Feature**: 085-fix-material-unit-management-ux
+**Feature**: 086-fix-material-unit-management-ux
 **Date**: 2026-01-30
 
 ## Overview
