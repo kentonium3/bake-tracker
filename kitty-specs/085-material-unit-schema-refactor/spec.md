@@ -1,6 +1,6 @@
 # Feature Specification: MaterialUnit Schema Refactor
 
-**Feature Branch**: `084-material-unit-schema-refactor`
+**Feature Branch**: `085-material-unit-schema-refactor`
 **Created**: 2026-01-30
 **Status**: Draft
 **Input**: F085 MaterialUnit Schema Refactor - Change MaterialUnit parent from Material to MaterialProduct, add auto-generation for "each" type products, remove generic Material references from Composition model

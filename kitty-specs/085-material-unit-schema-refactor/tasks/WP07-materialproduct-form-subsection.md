@@ -3,7 +3,7 @@ work_package_id: WP07
 title: MaterialProduct Form Sub-Section UI
 lane: "done"
 dependencies: [WP03, WP04]
-base_branch: 084-material-unit-schema-refactor-WP04
+base_branch: 085-material-unit-schema-refactor-WP04
 base_commit: 631b3b57cd9633165fb85cf9c6cd26afb95ad74b
 created_at: '2026-01-30T18:19:26.373055+00:00'
 subtasks:
@@ -55,8 +55,8 @@ Depends on WP03 (MaterialUnit service) and WP04 (auto-generation).
 ## Context & Constraints
 
 **Reference Documents**:
-- Spec: `kitty-specs/084-material-unit-schema-refactor/spec.md` (FR-009 to FR-011)
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
+- Spec: `kitty-specs/085-material-unit-schema-refactor/spec.md` (FR-009 to FR-011)
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
 
 **UI Pattern Reference**:
 - Study: `src/ui/tabs/recipes_tab.py` - Recipe→FinishedUnits sub-form

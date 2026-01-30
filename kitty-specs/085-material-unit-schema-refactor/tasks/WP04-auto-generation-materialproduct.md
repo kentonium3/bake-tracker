@@ -3,7 +3,7 @@ work_package_id: WP04
 title: Auto-Generation in MaterialProduct Service
 lane: "done"
 dependencies: [WP01, WP03]
-base_branch: 084-material-unit-schema-refactor-WP03
+base_branch: 085-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
 created_at: '2026-01-30T17:52:17.289342+00:00'
 subtasks:
@@ -55,9 +55,9 @@ Depends on WP01 (MaterialUnit FK) and WP03 (MaterialUnit service must work).
 ## Context & Constraints
 
 **Reference Documents**:
-- Spec: `kitty-specs/084-material-unit-schema-refactor/spec.md` (FR-003)
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
-- Data Model: `kitty-specs/084-material-unit-schema-refactor/data-model.md`
+- Spec: `kitty-specs/085-material-unit-schema-refactor/spec.md` (FR-003)
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
+- Data Model: `kitty-specs/085-material-unit-schema-refactor/data-model.md`
 
 **Auto-Generation Rules** (from data-model.md):
 | Condition | Action |

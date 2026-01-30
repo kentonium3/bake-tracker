@@ -1,7 +1,7 @@
 # Implementation Plan: MaterialUnit Schema Refactor
 
-**Branch**: `084-material-unit-schema-refactor` | **Date**: 2026-01-30 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `kitty-specs/084-material-unit-schema-refactor/spec.md`
+**Branch**: `085-material-unit-schema-refactor` | **Date**: 2026-01-30 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `kitty-specs/085-material-unit-schema-refactor/spec.md`
 
 ## Summary
 
@@ -46,7 +46,7 @@ Refactor MaterialUnit to be a child of MaterialProduct (instead of Material) to 
 ### Documentation (this feature)
 
 ```
-kitty-specs/084-material-unit-schema-refactor/
+kitty-specs/085-material-unit-schema-refactor/
 ├── spec.md              # Feature specification
 ├── plan.md              # This file
 ├── research.md          # Pattern research findings

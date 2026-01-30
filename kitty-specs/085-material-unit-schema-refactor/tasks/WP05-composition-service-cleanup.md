@@ -3,7 +3,7 @@ work_package_id: WP05
 title: Composition Service Cleanup
 lane: "done"
 dependencies: [WP02]
-base_branch: 084-material-unit-schema-refactor-WP02
+base_branch: 085-material-unit-schema-refactor-WP02
 base_commit: 96b9a8deef6854c3ee7f4cee16b0c7bc0d577e6d
 created_at: '2026-01-30T17:59:19.271836+00:00'
 subtasks:
@@ -53,8 +53,8 @@ Depends on WP02 (Composition model cleanup).
 ## Context & Constraints
 
 **Reference Documents**:
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
-- Spec: `kitty-specs/084-material-unit-schema-refactor/spec.md` (FR-006 to FR-008)
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
+- Spec: `kitty-specs/085-material-unit-schema-refactor/spec.md` (FR-006 to FR-008)
 
 **Key Points**:
 - material_unit_id is the ONLY path for material components now

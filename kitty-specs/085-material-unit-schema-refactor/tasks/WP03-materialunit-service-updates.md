@@ -3,7 +3,7 @@ work_package_id: WP03
 title: MaterialUnit Service Updates
 lane: "done"
 dependencies: [WP01, WP02]
-base_branch: 084-material-unit-schema-refactor-WP03-merge-base
+base_branch: 085-material-unit-schema-refactor-WP03-merge-base
 base_commit: 0fca8101b8fcd2f23ecc38a2e0b83bfeced97b75
 created_at: '2026-01-30T17:42:33.647616+00:00'
 subtasks:
@@ -55,9 +55,9 @@ Depends on WP01 and WP02 (schema changes must be complete).
 ## Context & Constraints
 
 **Reference Documents**:
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
-- Research: `kitty-specs/084-material-unit-schema-refactor/research.md`
-- Data Model: `kitty-specs/084-material-unit-schema-refactor/data-model.md`
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
+- Research: `kitty-specs/085-material-unit-schema-refactor/research.md`
+- Data Model: `kitty-specs/085-material-unit-schema-refactor/data-model.md`
 
 **Key Patterns** (from research.md):
 ```python

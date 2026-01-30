@@ -3,7 +3,7 @@ work_package_id: WP02
 title: Composition material_id Removal
 lane: "done"
 dependencies: [WP01]
-base_branch: 084-material-unit-schema-refactor-WP01
+base_branch: 085-material-unit-schema-refactor-WP01
 base_commit: 64b0d902e56932294608362cfea41eec2fba009a
 created_at: '2026-01-30T17:35:56.645658+00:00'
 subtasks:
@@ -59,8 +59,8 @@ Depends on WP01 (MaterialUnit FK must exist before Composition cleanup).
 
 **Reference Documents**:
 - Constitution: `.kittify/memory/constitution.md`
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
-- Data Model: `kitty-specs/084-material-unit-schema-refactor/data-model.md`
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
+- Data Model: `kitty-specs/085-material-unit-schema-refactor/data-model.md`
 
 **Key Pattern** (from plan.md):
 ```python

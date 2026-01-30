@@ -53,9 +53,9 @@ No dependencies - this is the starting work package.
 
 **Reference Documents**:
 - Constitution: `.kittify/memory/constitution.md`
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
-- Data Model: `kitty-specs/084-material-unit-schema-refactor/data-model.md`
-- Spec: `kitty-specs/084-material-unit-schema-refactor/spec.md`
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
+- Data Model: `kitty-specs/085-material-unit-schema-refactor/data-model.md`
+- Spec: `kitty-specs/085-material-unit-schema-refactor/spec.md`
 
 **Key Patterns** (from research.md):
 - FK Pattern: Follow FinishedUnit→Recipe relationship as template

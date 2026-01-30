@@ -3,7 +3,7 @@ work_package_id: WP09
 title: Migration Transformation Script
 lane: "done"
 dependencies: [WP06]
-base_branch: 084-material-unit-schema-refactor-WP06
+base_branch: 085-material-unit-schema-refactor-WP06
 base_commit: d9c2ca251e85fea7ce79202b8f26d1eacdec9076
 created_at: '2026-01-30T18:15:23.377609+00:00'
 subtasks:
@@ -55,9 +55,9 @@ Depends on WP06 (must match final export/import format).
 ## Context & Constraints
 
 **Reference Documents**:
-- Spec: `kitty-specs/084-material-unit-schema-refactor/spec.md` (FR-018, FR-019)
-- Data Model: `kitty-specs/084-material-unit-schema-refactor/data-model.md`
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
+- Spec: `kitty-specs/085-material-unit-schema-refactor/spec.md` (FR-018, FR-019)
+- Data Model: `kitty-specs/085-material-unit-schema-refactor/data-model.md`
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
 
 **Migration Strategy** (from data-model.md):
 ```

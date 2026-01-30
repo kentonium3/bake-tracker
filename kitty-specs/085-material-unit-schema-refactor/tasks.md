@@ -1,6 +1,6 @@
 # Work Packages: MaterialUnit Schema Refactor
 
-**Inputs**: Design documents from `kitty-specs/084-material-unit-schema-refactor/`
+**Inputs**: Design documents from `kitty-specs/085-material-unit-schema-refactor/`
 **Prerequisites**: plan.md (required), spec.md (user stories), research.md, data-model.md
 
 **Tests**: Service layer tests required (>80% coverage target per SC-007).

@@ -3,7 +3,7 @@ work_package_id: WP08
 title: Units Tab Read-Only + Detail Popup
 lane: "done"
 dependencies: [WP03]
-base_branch: 084-material-unit-schema-refactor-WP03
+base_branch: 085-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
 created_at: '2026-01-30T18:30:25.245474+00:00'
 subtasks:
@@ -53,8 +53,8 @@ Depends on WP03 (MaterialUnit service for queries with product info).
 ## Context & Constraints
 
 **Reference Documents**:
-- Spec: `kitty-specs/084-material-unit-schema-refactor/spec.md` (FR-012 to FR-014)
-- Plan: `kitty-specs/084-material-unit-schema-refactor/plan.md`
+- Spec: `kitty-specs/085-material-unit-schema-refactor/spec.md` (FR-012 to FR-014)
+- Plan: `kitty-specs/085-material-unit-schema-refactor/plan.md`
 
 **Planning Decision**:
 - Changed from accordion expansion to modal/popup (simpler, avoids new UI component)

@@ -1,6 +1,6 @@
 {
-  "feature_number": "084",
-  "slug": "084-material-unit-schema-refactor",
+  "feature_number": "085",
+  "slug": "085-material-unit-schema-refactor",
   "friendly_name": "MaterialUnit Schema Refactor",
   "mission": "software-dev",
   "source_description": "F085 MaterialUnit Schema Refactor - Change MaterialUnit parent from Material to MaterialProduct, add auto-generation for \"each\" type products, remove generic Material references from Composition model",
