@@ -1,4 +1,4 @@
-# F086: FinishedGoods Creation UX
+# F087: FinishedGoods Creation UX
 
 **Version**: 1.0
 **Date**: 2026-01-29
