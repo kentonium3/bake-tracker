@@ -4,5 +4,7 @@
   "friendly_name": "MaterialUnit Schema Refactor",
   "mission": "software-dev",
   "source_description": "F085 MaterialUnit Schema Refactor - Change MaterialUnit parent from Material to MaterialProduct, add auto-generation for \"each\" type products, remove generic Material references from Composition model",
-  "created_at": "2026-01-30T00:00:00Z"
+  "created_at": "2026-01-30T00:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-30T17:35:54.122955+00:00"
 }
