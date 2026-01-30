@@ -3,10 +3,15 @@
 This module provides business logic for managing MaterialUnits and calculating
 availability and costs. Part of Feature 047: Materials Management System.
 
+Feature 084: MaterialUnits now belong to MaterialProduct (not Material).
+- CRUD operations use material_product_id
+- Slug uniqueness scoped to product
+- Name uniqueness enforced per product
+
 Key Features:
 - MaterialUnit CRUD operations
-- Available inventory aggregation across products
-- Cost calculation with weighted average
+- Available inventory from parent MaterialProduct
+- Cost calculation from product's FIFO inventory
 - Consumption preview without modifying inventory
 
 All functions accept optional session parameter per CLAUDE.md session management rules.
@@ -16,12 +21,13 @@ from typing import Optional, List, Dict, Any
 from decimal import Decimal
 import json
 import math
+import re
+import unicodedata
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..models import (
-    Material,
     MaterialProduct,
     MaterialUnit,
     MaterialUnitSnapshot,
@@ -30,7 +36,6 @@ from ..models import (
 )
 from .database import session_scope
 from .exceptions import ValidationError
-from .material_catalog_service import slugify
 
 
 # =============================================================================
@@ -46,21 +51,34 @@ class MaterialUnitNotFoundError(Exception):
         super().__init__(f"Material unit not found: {unit_id}")
 
 
-class MaterialNotFoundError(Exception):
-    """Raised when a material is not found."""
+class MaterialProductNotFoundError(Exception):
+    """Raised when a material product is not found."""
 
-    def __init__(self, material_id: int):
-        self.material_id = material_id
-        super().__init__(f"Material not found: {material_id}")
+    def __init__(self, product_id: int):
+        self.product_id = product_id
+        super().__init__(f"Material product not found: {product_id}")
+
+
+# Feature 084: Deprecated - no longer used
+# class MaterialNotFoundError(Exception):
+#     """Raised when a material is not found."""
+#     pass
 
 
 class MaterialUnitInUseError(Exception):
     """Raised when attempting to delete a unit that is in use."""
 
-    def __init__(self, unit_id: int, usage_count: int):
+    def __init__(self, unit_id: int, usage_count: int, fg_names: List[str] = None):
         self.unit_id = unit_id
         self.usage_count = usage_count
-        super().__init__(f"Material unit {unit_id} is used in {usage_count} composition(s)")
+        self.fg_names = fg_names or []
+        if fg_names:
+            super().__init__(
+                f"MaterialUnit {unit_id} is used in {usage_count} composition(s): "
+                f"{', '.join(set(fg_names))}"
+            )
+        else:
+            super().__init__(f"MaterialUnit {unit_id} is used in {usage_count} composition(s)")
 
 
 class SnapshotCreationError(Exception):
@@ -70,33 +88,91 @@ class SnapshotCreationError(Exception):
 
 
 # =============================================================================
+# Slug Generation (Feature 084: hyphen style, scoped to product)
+# =============================================================================
+
+
+def _generate_material_unit_slug(name: str) -> str:
+    """Generate URL-safe slug from name using hyphen style.
+
+    Feature 084: Uses hyphen separators (not underscore) per research.md pattern.
+    """
+    if not name:
+        return "unknown-unit"
+
+    # Normalize unicode
+    slug = unicodedata.normalize("NFKD", name)
+    slug = slug.encode("ascii", "ignore").decode("ascii")
+    slug = slug.lower()
+
+    # Replace spaces and underscores with hyphens
+    slug = re.sub(r"[\s_]+", "-", slug)
+
+    # Remove non-alphanumeric except hyphens
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+
+    # Collapse multiple hyphens
+    slug = re.sub(r"-+", "-", slug)
+
+    # Strip leading/trailing hyphens
+    slug = slug.strip("-")
+
+    return slug if slug else "unknown-unit"
+
+
+def _generate_unique_slug(
+    name: str,
+    session: Session,
+    material_product_id: int,
+    exclude_id: Optional[int] = None,
+) -> str:
+    """Generate unique slug within product scope.
+
+    Feature 084: Slugs are unique within a MaterialProduct, not globally.
+    Same slug can exist for different products.
+    """
+    base_slug = _generate_material_unit_slug(name)
+    max_attempts = 1000
+
+    for attempt in range(max_attempts):
+        candidate = base_slug if attempt == 0 else f"{base_slug}-{attempt + 1}"
+
+        query = session.query(MaterialUnit).filter(
+            MaterialUnit.material_product_id == material_product_id,
+            MaterialUnit.slug == candidate,
+        )
+        if exclude_id:
+            query = query.filter(MaterialUnit.id != exclude_id)
+
+        if not query.first():
+            return candidate
+
+    raise ValidationError(
+        [f"Unable to generate unique slug for '{name}' after {max_attempts} attempts"]
+    )
+
+
+# =============================================================================
 # Internal Implementation Functions
 # =============================================================================
 
 
-def _generate_unique_slug(base_slug: str, session: Session) -> str:
-    """Generate a unique slug by appending numbers if needed."""
-    slug = base_slug
-    counter = 1
-    while session.query(MaterialUnit).filter_by(slug=slug).first():
-        slug = f"{base_slug}_{counter}"
-        counter += 1
-    return slug
-
-
 def _create_unit_impl(
-    material_id: int,
+    material_product_id: int,
     name: str,
     quantity_per_unit: float,
     slug: Optional[str],
     description: Optional[str],
     session: Session,
 ) -> MaterialUnit:
-    """Implementation for create_unit."""
-    # Validate material exists
-    material = session.query(Material).filter_by(id=material_id).first()
-    if not material:
-        raise MaterialNotFoundError(material_id)
+    """Implementation for create_unit.
+
+    Feature 084: Changed from material_id to material_product_id.
+    """
+    # Validate material product exists
+    product = session.query(MaterialProduct).filter_by(id=material_product_id).first()
+    if not product:
+        raise MaterialProductNotFoundError(material_product_id)
 
     # Validate quantity_per_unit > 0
     if quantity_per_unit <= 0:
@@ -106,18 +182,41 @@ def _create_unit_impl(
     if not name or not name.strip():
         raise ValidationError(["name cannot be empty"])
 
-    # Generate slug if not provided
+    clean_name = name.strip()
+
+    # Feature 084: Check name uniqueness within product
+    existing_name = (
+        session.query(MaterialUnit)
+        .filter(
+            MaterialUnit.material_product_id == material_product_id,
+            MaterialUnit.name == clean_name,
+        )
+        .first()
+    )
+    if existing_name:
+        raise ValidationError(
+            [f"MaterialUnit with name '{clean_name}' already exists for this product"]
+        )
+
+    # Generate or validate slug (scoped to product)
     if slug:
-        # Validate slug uniqueness
-        existing = session.query(MaterialUnit).filter_by(slug=slug).first()
-        if existing:
-            raise ValidationError([f"Slug '{slug}' already exists"])
+        # Validate provided slug is unique within product
+        existing_slug = (
+            session.query(MaterialUnit)
+            .filter(
+                MaterialUnit.material_product_id == material_product_id,
+                MaterialUnit.slug == slug,
+            )
+            .first()
+        )
+        if existing_slug:
+            raise ValidationError([f"Slug '{slug}' already exists for this product"])
     else:
-        slug = _generate_unique_slug(slugify(name), session)
+        slug = _generate_unique_slug(clean_name, session, material_product_id)
 
     unit = MaterialUnit(
-        material_id=material_id,
-        name=name.strip(),
+        material_product_id=material_product_id,
+        name=clean_name,
         slug=slug,
         quantity_per_unit=quantity_per_unit,
         description=description,
@@ -149,13 +248,16 @@ def _get_unit_impl(
 
 
 def _list_units_impl(
-    material_id: Optional[int],
+    material_product_id: Optional[int],
     session: Session,
 ) -> List[MaterialUnit]:
-    """Implementation for list_units."""
+    """Implementation for list_units.
+
+    Feature 084: Changed filter from material_id to material_product_id.
+    """
     query = session.query(MaterialUnit)
-    if material_id is not None:
-        query = query.filter(MaterialUnit.material_id == material_id)
+    if material_product_id is not None:
+        query = query.filter(MaterialUnit.material_product_id == material_product_id)
     return query.order_by(MaterialUnit.name).all()
 
 
@@ -165,15 +267,35 @@ def _update_unit_impl(
     description: Optional[str],
     session: Session,
 ) -> MaterialUnit:
-    """Implementation for update_unit."""
+    """Implementation for update_unit.
+
+    Feature 084: Added name uniqueness check within product.
+    """
     unit = session.query(MaterialUnit).filter_by(id=unit_id).first()
     if not unit:
         raise MaterialUnitNotFoundError(unit_id)
 
     if name is not None:
-        if not name.strip():
+        clean_name = name.strip()
+        if not clean_name:
             raise ValidationError(["name cannot be empty"])
-        unit.name = name.strip()
+
+        # Feature 084: Check name uniqueness within same product (excluding self)
+        if clean_name != unit.name:
+            existing = (
+                session.query(MaterialUnit)
+                .filter(
+                    MaterialUnit.material_product_id == unit.material_product_id,
+                    MaterialUnit.name == clean_name,
+                    MaterialUnit.id != unit_id,
+                )
+                .first()
+            )
+            if existing:
+                raise ValidationError(
+                    [f"MaterialUnit with name '{clean_name}' already exists for this product"]
+                )
+            unit.name = clean_name
 
     if description is not None:
         unit.description = description
@@ -186,19 +308,29 @@ def _delete_unit_impl(
     unit_id: int,
     session: Session,
 ) -> bool:
-    """Implementation for delete_unit."""
+    """Implementation for delete_unit.
+
+    Feature 084: Added validation to prevent deletion if referenced by Composition.
+    """
     unit = session.query(MaterialUnit).filter_by(id=unit_id).first()
     if not unit:
         raise MaterialUnitNotFoundError(unit_id)
 
-    # Check if used in any Composition (once WP05 adds material_unit_id)
-    # For now, check if the column exists before querying
-    if hasattr(Composition, "material_unit_id") and Composition.material_unit_id is not None:
-        usage_count = (
-            session.query(Composition).filter(Composition.material_unit_id == unit_id).count()
-        )
-        if usage_count > 0:
-            raise MaterialUnitInUseError(unit_id, usage_count)
+    # Check if used in any Composition
+    references = session.query(Composition).filter(Composition.material_unit_id == unit_id).all()
+
+    if references:
+        # Build list of FinishedGoods/Packages that reference this unit
+        fg_names = []
+        for comp in references:
+            if comp.assembly:
+                fg_names.append(comp.assembly.display_name or f"Assembly #{comp.assembly_id}")
+            elif comp.package:
+                fg_names.append(f"Package #{comp.package_id}")
+            else:
+                fg_names.append(f"Composition #{comp.id}")
+
+        raise MaterialUnitInUseError(unit_id, len(references), fg_names)
 
     session.delete(unit)
     session.flush()
@@ -209,28 +341,29 @@ def _get_available_inventory_impl(
     unit_id: int,
     session: Session,
 ) -> int:
-    """Implementation for get_available_inventory."""
+    """Implementation for get_available_inventory.
+
+    Feature 084: Changed to get inventory from parent MaterialProduct only.
+    """
     unit = session.query(MaterialUnit).filter_by(id=unit_id).first()
     if not unit:
         raise MaterialUnitNotFoundError(unit_id)
 
-    # Get all products for this material
-    products = (
-        session.query(MaterialProduct).filter(MaterialProduct.material_id == unit.material_id).all()
-    )
+    # Get inventory from parent product (Feature 084: single product, not all products)
+    product = unit.material_product
+    if not product:
+        return 0
 
-    # Sum inventory across all products using MaterialInventoryItem (F058 FIFO)
-    total_inventory = Decimal("0")
-    for product in products:
-        inv_items = (
-            session.query(MaterialInventoryItem)
-            .filter(
-                MaterialInventoryItem.material_product_id == product.id,
-                MaterialInventoryItem.quantity_remaining >= 0.001,
-            )
-            .all()
+    # Sum inventory from FIFO lots (F058)
+    inv_items = (
+        session.query(MaterialInventoryItem)
+        .filter(
+            MaterialInventoryItem.material_product_id == product.id,
+            MaterialInventoryItem.quantity_remaining >= 0.001,
         )
-        total_inventory += sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
+        .all()
+    )
+    total_inventory = sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
 
     # Calculate complete units available (floor)
     if unit.quantity_per_unit <= 0:
@@ -243,38 +376,36 @@ def _get_current_cost_impl(
     unit_id: int,
     session: Session,
 ) -> Decimal:
-    """Implementation for get_current_cost."""
+    """Implementation for get_current_cost.
+
+    Feature 084: Changed to get cost from parent MaterialProduct only.
+    """
     unit = session.query(MaterialUnit).filter_by(id=unit_id).first()
     if not unit:
         raise MaterialUnitNotFoundError(unit_id)
 
-    # Get all products for this material
-    products = (
-        session.query(MaterialProduct).filter(MaterialProduct.material_id == unit.material_id).all()
-    )
-
-    if not products:
+    product = unit.material_product
+    if not product:
         return Decimal("0")
 
-    # Calculate inventory-weighted average cost using MaterialInventoryItem (F058 FIFO)
+    # Calculate weighted average cost from FIFO inventory (F058)
+    inv_items = (
+        session.query(MaterialInventoryItem)
+        .filter(
+            MaterialInventoryItem.material_product_id == product.id,
+            MaterialInventoryItem.quantity_remaining >= 0.001,
+        )
+        .all()
+    )
+
     total_value = Decimal("0")
     total_inventory = Decimal("0")
 
-    for product in products:
-        inv_items = (
-            session.query(MaterialInventoryItem)
-            .filter(
-                MaterialInventoryItem.material_product_id == product.id,
-                MaterialInventoryItem.quantity_remaining >= 0.001,
-            )
-            .all()
-        )
-
-        for item in inv_items:
-            inv = Decimal(str(item.quantity_remaining))
-            cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
-            total_value += inv * cost
-            total_inventory += inv
+    for item in inv_items:
+        inv = Decimal(str(item.quantity_remaining))
+        cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
+        total_value += inv * cost
+        total_inventory += inv
 
     if total_inventory == 0:
         return Decimal("0")
@@ -293,7 +424,10 @@ def _preview_consumption_impl(
     quantity_needed: int,
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation for preview_consumption."""
+    """Implementation for preview_consumption.
+
+    Feature 084: Changed to use parent MaterialProduct only.
+    """
     unit = session.query(MaterialUnit).filter_by(id=unit_id).first()
     if not unit:
         raise MaterialUnitNotFoundError(unit_id)
@@ -301,42 +435,38 @@ def _preview_consumption_impl(
     # Calculate total base units needed
     base_units_needed = quantity_needed * unit.quantity_per_unit
 
-    # Get products for this material
-    products = (
-        session.query(MaterialProduct).filter(MaterialProduct.material_id == unit.material_id).all()
+    product = unit.material_product
+    if not product:
+        return {
+            "can_fulfill": False,
+            "quantity_needed": quantity_needed,
+            "base_units_needed": base_units_needed,
+            "available_base_units": 0,
+            "available_units": 0,
+            "shortage_base_units": base_units_needed,
+            "shortage_units": quantity_needed,
+            "allocations": [],
+            "total_cost": "0.00",
+        }
+
+    # Get inventory from FIFO lots (F058)
+    inv_items = (
+        session.query(MaterialInventoryItem)
+        .filter(
+            MaterialInventoryItem.material_product_id == product.id,
+            MaterialInventoryItem.quantity_remaining >= 0.001,
+        )
+        .all()
     )
 
-    # Build inventory data per product using MaterialInventoryItem (F058 FIFO)
-    product_inventory = {}  # product_id -> (inventory, weighted_cost)
     total_inventory = Decimal("0")
+    total_value = Decimal("0")
 
-    for product in products:
-        inv_items = (
-            session.query(MaterialInventoryItem)
-            .filter(
-                MaterialInventoryItem.material_product_id == product.id,
-                MaterialInventoryItem.quantity_remaining >= 0.001,
-            )
-            .all()
-        )
-
-        product_inv = Decimal("0")
-        product_value = Decimal("0")
-
-        for item in inv_items:
-            qty = Decimal(str(item.quantity_remaining))
-            cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
-            product_inv += qty
-            product_value += qty * cost
-
-        if product_inv > 0:
-            weighted_cost = product_value / product_inv
-            product_inventory[product.id] = {
-                "product": product,
-                "inventory": float(product_inv),
-                "weighted_cost": weighted_cost,
-            }
-            total_inventory += product_inv
+    for item in inv_items:
+        qty = Decimal(str(item.quantity_remaining))
+        cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
+        total_inventory += qty
+        total_value += qty * cost
 
     total_inv_float = float(total_inventory)
 
@@ -344,36 +474,25 @@ def _preview_consumption_impl(
     can_fulfill = total_inv_float >= base_units_needed
     shortage = 0 if can_fulfill else base_units_needed - total_inv_float
 
-    # Allocate proportionally across products
+    # Calculate cost
     allocations = []
     total_cost = Decimal("0")
 
-    if product_inventory and base_units_needed > 0:
-        units_to_allocate = min(base_units_needed, total_inv_float)
+    if total_inventory > 0 and base_units_needed > 0:
+        weighted_cost = total_value / total_inventory
+        units_to_consume = min(base_units_needed, total_inv_float)
+        line_cost = Decimal(str(units_to_consume)) * weighted_cost
 
-        for product_id, data in product_inventory.items():
-            product = data["product"]
-            product_inv = data["inventory"]
-            weighted_cost = data["weighted_cost"]
-
-            if total_inv_float > 0:
-                # Proportional allocation
-                proportion = product_inv / total_inv_float
-                base_units = proportion * units_to_allocate
-
-                line_cost = Decimal(str(base_units)) * weighted_cost
-
-                allocations.append(
-                    {
-                        "product_id": product.id,
-                        "product_name": product.display_name,
-                        "base_units_consumed": round(base_units, 2),
-                        "unit_cost": str(weighted_cost.quantize(Decimal("0.0001"))),
-                        "total_cost": str(line_cost.quantize(Decimal("0.01"))),
-                    }
-                )
-
-                total_cost += line_cost
+        allocations.append(
+            {
+                "product_id": product.id,
+                "product_name": product.display_name,
+                "base_units_consumed": round(units_to_consume, 2),
+                "unit_cost": str(weighted_cost.quantize(Decimal("0.0001"))),
+                "total_cost": str(line_cost.quantize(Decimal("0.01"))),
+            }
+        )
+        total_cost = line_cost
 
     return {
         "can_fulfill": can_fulfill,
@@ -402,7 +521,7 @@ def _preview_consumption_impl(
 
 
 def create_unit(
-    material_id: int,
+    material_product_id: int,
     name: str,
     quantity_per_unit: float,
     slug: Optional[str] = None,
@@ -411,8 +530,10 @@ def create_unit(
 ) -> MaterialUnit:
     """Create a new MaterialUnit.
 
+    Feature 084: Changed from material_id to material_product_id.
+
     Args:
-        material_id: ID of the parent Material
+        material_product_id: ID of the parent MaterialProduct
         name: Unit display name (e.g., "6-inch Red Ribbon")
         quantity_per_unit: Base units consumed per use (must be > 0)
         slug: Optional URL-friendly identifier (auto-generated if not provided)
@@ -423,22 +544,26 @@ def create_unit(
         Created MaterialUnit
 
     Raises:
-        MaterialNotFoundError: If material_id doesn't exist
-        ValidationError: If validation fails
+        MaterialProductNotFoundError: If material_product_id doesn't exist
+        ValidationError: If validation fails (name empty, duplicate name/slug, etc.)
 
     Example:
         >>> unit = create_unit(
-        ...     material_id=1,
+        ...     material_product_id=1,
         ...     name="6-inch ribbon",
-        ...     quantity_per_unit=6
+        ...     quantity_per_unit=15.24
         ... )
         >>> unit.slug
-        '6_inch_ribbon'
+        '6-inch-ribbon'
     """
     if session is not None:
-        return _create_unit_impl(material_id, name, quantity_per_unit, slug, description, session)
+        return _create_unit_impl(
+            material_product_id, name, quantity_per_unit, slug, description, session
+        )
     with session_scope() as sess:
-        return _create_unit_impl(material_id, name, quantity_per_unit, slug, description, sess)
+        return _create_unit_impl(
+            material_product_id, name, quantity_per_unit, slug, description, sess
+        )
 
 
 def get_unit(
@@ -467,22 +592,24 @@ def get_unit(
 
 
 def list_units(
-    material_id: Optional[int] = None,
+    material_product_id: Optional[int] = None,
     session: Optional[Session] = None,
 ) -> List[MaterialUnit]:
-    """List MaterialUnits, optionally filtered by material.
+    """List MaterialUnits, optionally filtered by product.
+
+    Feature 084: Changed filter from material_id to material_product_id.
 
     Args:
-        material_id: Filter by material (optional)
+        material_product_id: Filter by product (optional)
         session: Optional database session
 
     Returns:
         List of MaterialUnits ordered by name
     """
     if session is not None:
-        return _list_units_impl(material_id, session)
+        return _list_units_impl(material_product_id, session)
     with session_scope() as sess:
-        return _list_units_impl(material_id, sess)
+        return _list_units_impl(material_product_id, sess)
 
 
 def update_unit(
@@ -495,6 +622,8 @@ def update_unit(
 
     Note: quantity_per_unit cannot be changed after creation.
 
+    Feature 084: Name uniqueness validated within product.
+
     Args:
         unit_id: Unit to update
         name: New name (optional)
@@ -506,6 +635,7 @@ def update_unit(
 
     Raises:
         MaterialUnitNotFoundError: If unit not found
+        ValidationError: If name is empty or duplicate within product
     """
     if session is not None:
         return _update_unit_impl(unit_id, name, description, session)
@@ -518,6 +648,8 @@ def delete_unit(
     session: Optional[Session] = None,
 ) -> bool:
     """Delete a MaterialUnit.
+
+    Feature 084: Deletion fails if unit is referenced by any Composition.
 
     Args:
         unit_id: Unit to delete
@@ -543,9 +675,12 @@ def get_available_inventory(
     """Get available inventory in complete units.
 
     Calculates how many complete MaterialUnits can be fulfilled from
-    the current inventory across all products of the material.
+    the current inventory of the parent MaterialProduct.
 
-    Formula: floor(sum(product.current_inventory) / quantity_per_unit)
+    Feature 084: Changed from aggregating across all products of a material
+    to using only the parent MaterialProduct's inventory.
+
+    Formula: floor(product.inventory / quantity_per_unit)
 
     Args:
         unit_id: MaterialUnit ID
@@ -558,10 +693,10 @@ def get_available_inventory(
         MaterialUnitNotFoundError: If unit not found
 
     Example:
-        >>> # Material has 1200 inches total inventory
-        >>> # MaterialUnit "6-inch ribbon" has quantity_per_unit = 6
+        >>> # Product has 1200 cm inventory
+        >>> # MaterialUnit "6-inch ribbon" has quantity_per_unit = 15.24 cm
         >>> get_available_inventory(unit.id)
-        200  # floor(1200 / 6)
+        78  # floor(1200 / 15.24)
     """
     if session is not None:
         return _get_available_inventory_impl(unit_id, session)
@@ -576,8 +711,11 @@ def get_current_cost(
     """Get current cost for one MaterialUnit.
 
     Calculates the cost by:
-    1. Computing inventory-weighted average cost across products
+    1. Computing inventory-weighted average cost from parent product
     2. Multiplying by quantity_per_unit
+
+    Feature 084: Changed from aggregating across all products of a material
+    to using only the parent MaterialProduct's inventory.
 
     Args:
         unit_id: MaterialUnit ID
@@ -590,12 +728,10 @@ def get_current_cost(
         MaterialUnitNotFoundError: If unit not found
 
     Example:
-        >>> # Product A: 800 inches at $0.10/inch
-        >>> # Product B: 400 inches at $0.14/inch
-        >>> # Weighted avg = (800*0.10 + 400*0.14) / 1200 = $0.1133/inch
-        >>> # Unit is 6 inches: cost = 6 * 0.1133 = $0.68
+        >>> # Product has 1000 cm at $0.10/cm weighted avg
+        >>> # Unit is 15.24 cm: cost = 15.24 * 0.10 = $1.524
         >>> get_current_cost(unit.id)
-        Decimal('0.68')
+        Decimal('1.5240')
     """
     if session is not None:
         return _get_current_cost_impl(unit_id, session)
@@ -608,11 +744,14 @@ def preview_consumption(
     quantity_needed: int,
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
-    """Preview what products would be consumed for a given quantity.
+    """Preview what inventory would be consumed for a given quantity.
 
     This is a read-only operation that calculates the allocation plan
     without modifying inventory. Use this to show the user what would
     happen before committing to actual consumption.
+
+    Feature 084: Changed from allocating across multiple products to
+    using only the parent MaterialProduct.
 
     Args:
         unit_id: MaterialUnit ID
@@ -628,7 +767,7 @@ def preview_consumption(
             - available_units: int
             - shortage_base_units: float (0 if can_fulfill)
             - shortage_units: int (0 if can_fulfill)
-            - allocations: list of product allocations
+            - allocations: list with single product allocation
             - total_cost: Decimal as string
 
     Raises:
@@ -639,7 +778,7 @@ def preview_consumption(
         >>> preview['can_fulfill']
         True
         >>> preview['total_cost']
-        '34.00'
+        '76.20'
     """
     if session is not None:
         return _preview_consumption_impl(unit_id, quantity_needed, session)
@@ -660,6 +799,8 @@ def create_material_unit_snapshot(
 ) -> dict:
     """
     Create immutable snapshot of MaterialUnit definition.
+
+    Feature 084: Updated to use material_product relationship.
 
     Args:
         material_unit_id: Source MaterialUnit ID
@@ -693,12 +834,17 @@ def _create_material_unit_snapshot_impl(
     assembly_run_id: Optional[int],
     session: Session,
 ) -> dict:
-    """Internal implementation of snapshot creation."""
+    """Internal implementation of snapshot creation.
+
+    Feature 084: Updated to use material_product relationship.
+    """
     mu = session.query(MaterialUnit).filter_by(id=material_unit_id).first()
     if not mu:
         raise SnapshotCreationError(f"MaterialUnit {material_unit_id} not found")
 
-    material = mu.material
+    # Feature 084: Use material_product → material chain
+    product = mu.material_product
+    material = product.material if product else None
     material_category = None
     if material and material.subcategory and material.subcategory.category:
         material_category = material.subcategory.category.name
@@ -707,7 +853,10 @@ def _create_material_unit_snapshot_impl(
         "slug": mu.slug,
         "name": mu.name,
         "description": mu.description,
-        "material_id": mu.material_id,
+        # Feature 084: Changed from material_id to material_product_id
+        "material_product_id": mu.material_product_id,
+        "material_product_name": product.name if product else None,
+        "material_id": material.id if material else None,
         "material_name": material.name if material else None,
         "material_category": material_category,
         "quantity_per_unit": mu.quantity_per_unit,

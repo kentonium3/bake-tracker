@@ -2,6 +2,8 @@
 
 Tests MaterialUnit CRUD operations, availability calculations, cost calculations,
 and consumption preview for the Materials Management System (Feature 047).
+
+Feature 084: Updated to use material_product_id instead of material_id.
 """
 
 import pytest
@@ -17,7 +19,8 @@ from src.services.material_unit_service import (
     get_current_cost,
     preview_consumption,
     MaterialUnitNotFoundError,
-    MaterialNotFoundError,
+    MaterialProductNotFoundError,
+    MaterialUnitInUseError,
 )
 from src.services.material_catalog_service import (
     create_category,
@@ -27,7 +30,7 @@ from src.services.material_catalog_service import (
 )
 from src.services.material_purchase_service import record_purchase
 from src.services.exceptions import ValidationError
-from src.models import Supplier
+from src.models import Supplier, MaterialProduct, Composition, FinishedGood
 
 
 @pytest.fixture
@@ -60,65 +63,66 @@ def sample_material(db_session):
 
 
 @pytest.fixture
-def material_with_products(db_session, sample_material, sample_supplier):
-    """Create material with two products totaling 1200 cm.
+def sample_product(db_session, sample_material, sample_supplier):
+    """Create a sample MaterialProduct for testing.
 
-    Product A: 800 cm at $0.10/cm
-    Product B: 400 cm at $0.14/cm
-
-    Note: Using cm directly as package_unit since base_unit_type is linear_cm (F058).
+    Feature 084: MaterialUnits now belong to MaterialProduct, not Material.
     """
-    from datetime import date
-
-    # Product A: 800 cm
-    prod_a = create_product(
+    product = create_product(
         material_id=sample_material.id,
-        name="800cm Roll",
-        package_quantity=800,
+        name="Red Satin 100cm Roll",
+        package_quantity=100,
         package_unit="cm",
         supplier_id=sample_supplier.id,
         session=db_session,
     )
-
-    # Product B: 400 cm
-    prod_b = create_product(
-        material_id=sample_material.id,
-        name="400cm Roll",
-        package_quantity=400,
-        package_unit="cm",
-        supplier_id=sample_supplier.id,
-        session=db_session,
-    )
-
-    # Record purchases
-    # Product A: 1 package of 800cm at $80 = $0.10/cm
-    record_purchase(
-        product_id=prod_a.id,
-        supplier_id=sample_supplier.id,
-        purchase_date=date.today(),
-        packages_purchased=1,
-        package_price=Decimal("80.00"),
-        session=db_session,
-    )
-
-    # Product B: 1 package of 400cm at $56 = $0.14/cm
-    record_purchase(
-        product_id=prod_b.id,
-        supplier_id=sample_supplier.id,
-        purchase_date=date.today(),
-        packages_purchased=1,
-        package_price=Decimal("56.00"),
-        session=db_session,
-    )
-
-    return sample_material
+    return product
 
 
 @pytest.fixture
-def sample_unit(db_session, sample_material):
-    """Create a sample MaterialUnit."""
-    return create_unit(
+def second_product(db_session, sample_material, sample_supplier):
+    """Create a second MaterialProduct for testing cross-product uniqueness.
+
+    Feature 084: Same name/slug allowed for different products.
+    """
+    product = create_product(
         material_id=sample_material.id,
+        name="Red Satin 200cm Roll",
+        package_quantity=200,
+        package_unit="cm",
+        supplier_id=sample_supplier.id,
+        session=db_session,
+    )
+    return product
+
+
+@pytest.fixture
+def product_with_inventory(db_session, sample_product, sample_supplier):
+    """Create a MaterialProduct with 1000 cm inventory at $0.10/cm.
+
+    Feature 084: Inventory calculations now use single product.
+    """
+    from datetime import date
+
+    record_purchase(
+        product_id=sample_product.id,
+        supplier_id=sample_supplier.id,
+        purchase_date=date.today(),
+        packages_purchased=10,  # 10 * 100cm = 1000cm
+        package_price=Decimal("10.00"),  # $10 per 100cm = $0.10/cm
+        session=db_session,
+    )
+    return sample_product
+
+
+@pytest.fixture
+def sample_unit(db_session, sample_product):
+    """Create a sample MaterialUnit.
+
+    Feature 084: Uses material_product_id instead of material_id.
+    """
+    return create_unit(
+        material_product_id=sample_product.id,
         name="6-inch ribbon",
         quantity_per_unit=6,
         session=db_session,
@@ -128,10 +132,13 @@ def sample_unit(db_session, sample_material):
 class TestCreateUnit:
     """Tests for create_unit function."""
 
-    def test_create_unit_basic(self, db_session, sample_material):
-        """Create a basic MaterialUnit."""
+    def test_create_unit_basic(self, db_session, sample_product):
+        """Create a basic MaterialUnit.
+
+        Feature 084: Uses material_product_id, slug uses hyphen style.
+        """
         unit = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="6-inch ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -140,107 +147,142 @@ class TestCreateUnit:
         assert unit is not None
         assert unit.name == "6-inch ribbon"
         assert unit.quantity_per_unit == 6
-        assert unit.slug == "6_inch_ribbon"
-        assert unit.material_id == sample_material.id
+        assert unit.slug == "6-inch-ribbon"  # Feature 084: hyphen style
+        assert unit.material_product_id == sample_product.id
 
-    def test_create_unit_custom_slug(self, db_session, sample_material):
+    def test_create_unit_custom_slug(self, db_session, sample_product):
         """Create unit with custom slug."""
         unit = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="6-inch ribbon",
             quantity_per_unit=6,
-            slug="six_inch",
+            slug="six-inch",
             session=db_session,
         )
 
-        assert unit.slug == "six_inch"
+        assert unit.slug == "six-inch"
 
-    def test_create_unit_duplicate_slug(self, db_session, sample_material):
-        """Duplicate slug raises error."""
+    def test_create_unit_duplicate_slug(self, db_session, sample_product):
+        """Duplicate slug within same product raises error."""
         create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="Unit 1",
             quantity_per_unit=6,
-            slug="test_slug",
+            slug="test-slug",
             session=db_session,
         )
 
         with pytest.raises(ValidationError) as exc:
             create_unit(
-                material_id=sample_material.id,
+                material_product_id=sample_product.id,
                 name="Unit 2",
                 quantity_per_unit=6,
-                slug="test_slug",
+                slug="test-slug",
                 session=db_session,
             )
         assert "already exists" in str(exc.value)
 
-    def test_create_unit_auto_slug_uniqueness(self, db_session, sample_material):
-        """Auto-generated slugs are unique."""
+    def test_create_unit_same_slug_different_product(
+        self, db_session, sample_product, second_product
+    ):
+        """Same slug allowed for different products.
+
+        Feature 084: Slug uniqueness is scoped to product.
+        """
         unit1 = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="Test Unit",
             quantity_per_unit=6,
+            slug="test-slug",
             session=db_session,
         )
+        # Should not raise - different product
         unit2 = create_unit(
-            material_id=sample_material.id,
+            material_product_id=second_product.id,
+            name="Test Unit",
+            quantity_per_unit=6,
+            slug="test-slug",
+            session=db_session,
+        )
+
+        assert unit1.slug == "test-slug"
+        assert unit2.slug == "test-slug"
+        assert unit1.material_product_id != unit2.material_product_id
+
+    def test_create_unit_auto_slug_uniqueness(self, db_session, sample_product):
+        """Auto-generated slugs are unique within product.
+
+        Feature 084: Collision adds numeric suffix with hyphen.
+        """
+        # Create first unit with auto-generated slug
+        unit1 = create_unit(
+            material_product_id=sample_product.id,
             name="Test Unit",
             quantity_per_unit=6,
             session=db_session,
         )
+        assert unit1.slug == "test-unit"
 
-        assert unit1.slug != unit2.slug
-        assert unit1.slug == "test_unit"
-        assert unit2.slug == "test_unit_1"
+        # Create second unit with name that normalizes to same base slug
+        # This should get auto-generated suffix for collision avoidance
+        unit2 = create_unit(
+            material_product_id=sample_product.id,
+            name="Test-Unit!",  # Normalizes to "test-unit", but taken by unit1
+            quantity_per_unit=6,
+            session=db_session,
+        )
+        assert unit2.slug == "test-unit-2"  # Feature 084: hyphen suffix
 
-    def test_create_unit_invalid_material(self, db_session):
-        """Invalid material_id raises error."""
-        with pytest.raises(MaterialNotFoundError):
+    def test_create_unit_invalid_product(self, db_session):
+        """Invalid material_product_id raises error.
+
+        Feature 084: Changed from MaterialNotFoundError to MaterialProductNotFoundError.
+        """
+        with pytest.raises(MaterialProductNotFoundError):
             create_unit(
-                material_id=99999,
+                material_product_id=99999,
                 name="Test",
                 quantity_per_unit=6,
                 session=db_session,
             )
 
-    def test_create_unit_zero_quantity(self, db_session, sample_material):
+    def test_create_unit_zero_quantity(self, db_session, sample_product):
         """Zero quantity_per_unit raises error."""
         with pytest.raises(ValidationError) as exc:
             create_unit(
-                material_id=sample_material.id,
+                material_product_id=sample_product.id,
                 name="Test",
                 quantity_per_unit=0,
                 session=db_session,
             )
         assert "positive" in str(exc.value)
 
-    def test_create_unit_negative_quantity(self, db_session, sample_material):
+    def test_create_unit_negative_quantity(self, db_session, sample_product):
         """Negative quantity_per_unit raises error."""
         with pytest.raises(ValidationError) as exc:
             create_unit(
-                material_id=sample_material.id,
+                material_product_id=sample_product.id,
                 name="Test",
                 quantity_per_unit=-1,
                 session=db_session,
             )
         assert "positive" in str(exc.value)
 
-    def test_create_unit_empty_name(self, db_session, sample_material):
+    def test_create_unit_empty_name(self, db_session, sample_product):
         """Empty name raises error."""
         with pytest.raises(ValidationError) as exc:
             create_unit(
-                material_id=sample_material.id,
+                material_product_id=sample_product.id,
                 name="",
                 quantity_per_unit=6,
                 session=db_session,
             )
         assert "empty" in str(exc.value)
 
-    def test_create_unit_with_description(self, db_session, sample_material):
+    def test_create_unit_with_description(self, db_session, sample_product):
         """Create unit with description."""
         unit = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="Test",
             quantity_per_unit=6,
             description="Test description",
@@ -248,6 +290,52 @@ class TestCreateUnit:
         )
 
         assert unit.description == "Test description"
+
+    def test_create_unit_duplicate_name(self, db_session, sample_product):
+        """Duplicate name within same product raises error.
+
+        Feature 084: Name uniqueness enforced per product.
+        """
+        create_unit(
+            material_product_id=sample_product.id,
+            name="Test Unit",
+            quantity_per_unit=6,
+            session=db_session,
+        )
+
+        with pytest.raises(ValidationError) as exc:
+            create_unit(
+                material_product_id=sample_product.id,
+                name="Test Unit",
+                quantity_per_unit=12,
+                session=db_session,
+            )
+        assert "already exists" in str(exc.value)
+
+    def test_create_unit_same_name_different_product(
+        self, db_session, sample_product, second_product
+    ):
+        """Same name allowed for different products.
+
+        Feature 084: Name uniqueness is scoped to product.
+        """
+        unit1 = create_unit(
+            material_product_id=sample_product.id,
+            name="Test Unit",
+            quantity_per_unit=6,
+            session=db_session,
+        )
+        # Should not raise - different product
+        unit2 = create_unit(
+            material_product_id=second_product.id,
+            name="Test Unit",
+            quantity_per_unit=6,
+            session=db_session,
+        )
+
+        assert unit1.name == "Test Unit"
+        assert unit2.name == "Test Unit"
+        assert unit1.material_product_id != unit2.material_product_id
 
 
 class TestGetUnit:
@@ -277,27 +365,25 @@ class TestGetUnit:
 class TestListUnits:
     """Tests for list_units function."""
 
-    def test_list_all_units(self, db_session, sample_material):
+    def test_list_all_units(self, db_session, sample_product):
         """List all units."""
-        create_unit(sample_material.id, "Unit 1", 6, session=db_session)
-        create_unit(sample_material.id, "Unit 2", 12, session=db_session)
+        create_unit(sample_product.id, "Unit 1", 6, session=db_session)
+        create_unit(sample_product.id, "Unit 2", 12, session=db_session)
 
         units = list_units(session=db_session)
         assert len(units) == 2
 
-    def test_list_units_by_material(self, db_session, sample_material):
-        """List units filtered by material."""
-        create_unit(sample_material.id, "Unit 1", 6, session=db_session)
+    def test_list_units_by_product(self, db_session, sample_product, second_product):
+        """List units filtered by product.
 
-        # Create another material with unit
-        cat = create_category("Boxes", session=db_session)
-        subcat = create_subcategory(cat.id, "Small", session=db_session)
-        other_mat = create_material(subcat.id, "Gift Box", "each", session=db_session)
-        create_unit(other_mat.id, "Single box", 1, session=db_session)
+        Feature 084: Changed from material_id filter to material_product_id.
+        """
+        create_unit(sample_product.id, "Unit 1", 6, session=db_session)
+        create_unit(second_product.id, "Unit 2", 12, session=db_session)
 
-        ribbon_units = list_units(material_id=sample_material.id, session=db_session)
-        assert len(ribbon_units) == 1
-        assert ribbon_units[0].name == "Unit 1"
+        product_units = list_units(material_product_id=sample_product.id, session=db_session)
+        assert len(product_units) == 1
+        assert product_units[0].name == "Unit 1"
 
 
 class TestUpdateUnit:
@@ -332,6 +418,27 @@ class TestUpdateUnit:
             update_unit(unit_id=sample_unit.id, name="", session=db_session)
         assert "empty" in str(exc.value)
 
+    def test_update_unit_duplicate_name(self, db_session, sample_product):
+        """Update to duplicate name within product raises error.
+
+        Feature 084: Name uniqueness enforced per product on update.
+        """
+        create_unit(sample_product.id, "Unit 1", 6, session=db_session)
+        unit2 = create_unit(sample_product.id, "Unit 2", 12, session=db_session)
+
+        with pytest.raises(ValidationError) as exc:
+            update_unit(unit_id=unit2.id, name="Unit 1", session=db_session)
+        assert "already exists" in str(exc.value)
+
+    def test_update_unit_same_name_no_change(self, db_session, sample_unit):
+        """Update with same name (no change) succeeds."""
+        updated = update_unit(
+            unit_id=sample_unit.id,
+            name=sample_unit.name,
+            session=db_session,
+        )
+        assert updated.name == sample_unit.name
+
 
 class TestDeleteUnit:
     """Tests for delete_unit function."""
@@ -351,42 +458,70 @@ class TestDeleteUnit:
         with pytest.raises(MaterialUnitNotFoundError):
             delete_unit(99999, session=db_session)
 
+    def test_delete_unit_referenced_by_composition(self, db_session, sample_unit):
+        """Delete unit referenced by Composition raises error.
+
+        Feature 084: Deletion blocked if unit is used in compositions.
+        """
+        # Create a FinishedGood to act as assembly parent
+        fg = FinishedGood(
+            display_name="Test FG",
+            slug="test-fg",
+        )
+        db_session.add(fg)
+        db_session.flush()
+
+        # Create Composition referencing the MaterialUnit
+        comp = Composition(
+            assembly_id=fg.id,
+            material_unit_id=sample_unit.id,
+            component_quantity=2,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        with pytest.raises(MaterialUnitInUseError) as exc:
+            delete_unit(sample_unit.id, session=db_session)
+        assert "composition" in str(exc.value).lower()
+
 
 class TestGetAvailableInventory:
     """Tests for get_available_inventory function."""
 
-    def test_available_inventory_calculation(self, db_session, material_with_products):
-        """Available inventory aggregates across products."""
-        # Total inventory: 800 + 400 = 1200 cm
+    def test_available_inventory_calculation(self, db_session, product_with_inventory):
+        """Available inventory from parent product.
+
+        Feature 084: Inventory from single parent product, not aggregated.
+        Product has 1000 cm inventory.
+        """
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
 
         available = get_available_inventory(unit.id, session=db_session)
-        # floor(1200 / 6) = 200
-        assert available == 200
+        # floor(1000 / 6) = 166
+        assert available == 166
 
-    def test_available_inventory_not_round(self, db_session, material_with_products):
+    def test_available_inventory_not_round(self, db_session, product_with_inventory):
         """Available inventory uses floor not round."""
-        # Total inventory: 1200 cm
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="7-cm ribbon",
             quantity_per_unit=7,
             session=db_session,
         )
 
         available = get_available_inventory(unit.id, session=db_session)
-        # floor(1200 / 7) = floor(171.43) = 171
-        assert available == 171
+        # floor(1000 / 7) = floor(142.86) = 142
+        assert available == 142
 
-    def test_available_inventory_no_products(self, db_session, sample_material):
-        """No products returns 0 inventory."""
+    def test_available_inventory_no_inventory(self, db_session, sample_product):
+        """No inventory returns 0."""
         unit = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -404,27 +539,27 @@ class TestGetAvailableInventory:
 class TestGetCurrentCost:
     """Tests for get_current_cost function."""
 
-    def test_current_cost_weighted_average(self, db_session, material_with_products):
-        """Cost uses inventory-weighted average."""
-        # Product A: 800 cm at $0.10/cm
-        # Product B: 400 cm at $0.14/cm
-        # Weighted avg = (800*0.10 + 400*0.14) / 1200 = (80 + 56) / 1200 = 0.1133...
+    def test_current_cost_calculation(self, db_session, product_with_inventory):
+        """Cost calculated from parent product inventory.
 
+        Feature 084: Cost from single parent product.
+        Product has 1000 cm at $0.10/cm.
+        """
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
 
         cost = get_current_cost(unit.id, session=db_session)
-        # Cost = 6 * 0.1133... = 0.68
-        assert cost == Decimal("0.6800")
+        # Cost = 6 * $0.10 = $0.60
+        assert cost == Decimal("0.6000")
 
-    def test_current_cost_no_products(self, db_session, sample_material):
-        """No products returns 0 cost."""
+    def test_current_cost_no_inventory(self, db_session, sample_product):
+        """No inventory returns 0 cost."""
         unit = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -442,10 +577,13 @@ class TestGetCurrentCost:
 class TestPreviewConsumption:
     """Tests for preview_consumption function."""
 
-    def test_preview_sufficient_inventory(self, db_session, material_with_products):
-        """Preview with sufficient inventory."""
+    def test_preview_sufficient_inventory(self, db_session, product_with_inventory):
+        """Preview with sufficient inventory.
+
+        Feature 084: Single product allocation, not multiple.
+        """
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -457,29 +595,33 @@ class TestPreviewConsumption:
         assert preview["quantity_needed"] == 50
         assert preview["base_units_needed"] == 300  # 50 * 6
         assert preview["shortage_base_units"] == 0
-        assert len(preview["allocations"]) == 2  # Both products used
+        assert len(preview["allocations"]) == 1  # Feature 084: Single product
 
-    def test_preview_insufficient_inventory(self, db_session, material_with_products):
+    def test_preview_insufficient_inventory(self, db_session, product_with_inventory):
         """Preview with insufficient inventory."""
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
 
-        # Try to consume more than available (200 units max)
-        preview = preview_consumption(unit.id, quantity_needed=300, session=db_session)
+        # Try to consume more than available (166 units * 6 = 996 base units available)
+        # Need 200 units * 6 = 1200 base units
+        preview = preview_consumption(unit.id, quantity_needed=200, session=db_session)
 
         assert preview["can_fulfill"] is False
-        assert preview["quantity_needed"] == 300
-        assert preview["base_units_needed"] == 1800  # 300 * 6
-        assert preview["shortage_base_units"] == 600  # 1800 - 1200
+        assert preview["quantity_needed"] == 200
+        assert preview["base_units_needed"] == 1200  # 200 * 6
+        assert preview["shortage_base_units"] == 200  # 1200 - 1000
 
-    def test_preview_proportional_allocation(self, db_session, material_with_products):
-        """Allocations are proportional to inventory."""
+    def test_preview_single_product_allocation(self, db_session, product_with_inventory):
+        """Allocation is from single parent product.
+
+        Feature 084: No multi-product allocation anymore.
+        """
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -487,19 +629,15 @@ class TestPreviewConsumption:
 
         preview = preview_consumption(unit.id, quantity_needed=100, session=db_session)
 
-        # Total inventory: 1200 cm (800 A + 400 B)
-        # Consuming 600 cm (100 * 6)
-        # Product A (800/1200 = 66.7%) should get 400 cm
-        # Product B (400/1200 = 33.3%) should get 200 cm
+        # Single product allocation
+        assert len(preview["allocations"]) == 1
+        assert preview["allocations"][0]["product_id"] == product_with_inventory.id
+        assert preview["allocations"][0]["base_units_consumed"] == 600.0  # 100 * 6
 
-        allocations = {a["product_name"]: a["base_units_consumed"] for a in preview["allocations"]}
-        assert allocations["800cm Roll"] == 400.0  # 66.7% of 600
-        assert allocations["400cm Roll"] == 200.0  # 33.3% of 600
-
-    def test_preview_no_inventory(self, db_session, sample_material):
+    def test_preview_no_inventory(self, db_session, sample_product):
         """Preview with no inventory."""
         unit = create_unit(
-            material_id=sample_material.id,
+            material_product_id=sample_product.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -516,10 +654,14 @@ class TestPreviewConsumption:
         with pytest.raises(MaterialUnitNotFoundError):
             preview_consumption(99999, quantity_needed=10, session=db_session)
 
-    def test_preview_includes_cost(self, db_session, material_with_products):
-        """Preview includes cost calculation."""
+    def test_preview_includes_cost(self, db_session, product_with_inventory):
+        """Preview includes cost calculation.
+
+        Feature 084: Cost from single product.
+        Product has 1000 cm at $0.10/cm.
+        """
         unit = create_unit(
-            material_id=material_with_products.id,
+            material_product_id=product_with_inventory.id,
             name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
@@ -527,8 +669,5 @@ class TestPreviewConsumption:
 
         preview = preview_consumption(unit.id, quantity_needed=50, session=db_session)
 
-        # 50 units * 6 inches = 300 inches
-        # Product A: 200 inches at $0.10 = $20
-        # Product B: 100 inches at $0.14 = $14
-        # Total = $34
-        assert float(preview["total_cost"]) == pytest.approx(34.0, rel=0.01)
+        # 50 units * 6 cm = 300 cm at $0.10/cm = $30
+        assert float(preview["total_cost"]) == pytest.approx(30.0, rel=0.01)
