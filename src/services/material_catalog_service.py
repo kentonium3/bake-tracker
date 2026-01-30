@@ -5,6 +5,7 @@ This service provides CRUD operations for the material catalog hierarchy:
 MaterialCategory > MaterialSubcategory > Material > MaterialProduct
 
 Part of Feature 047: Materials Management System.
+Feature 084: Added MaterialUnit auto-generation for "each" type products.
 
 Session Management Pattern:
 - All functions accept optional `session` parameter
@@ -13,6 +14,7 @@ Session Management Pattern:
 """
 
 import re
+import unicodedata
 from decimal import Decimal
 from typing import List, Optional
 
@@ -24,6 +26,7 @@ from src.models import (
     Material,
     MaterialProduct,
     MaterialInventoryItem,
+    MaterialUnit,
     Composition,
 )
 from src.services.database import session_scope
@@ -89,6 +92,125 @@ def _generate_unique_slug(
 
         counter += 1
         slug = f"{base_slug}_{counter}"
+
+
+# ============================================================================
+# MaterialUnit Auto-Generation (Feature 084)
+# ============================================================================
+
+
+def _should_auto_generate_unit(product: MaterialProduct, material: Material) -> bool:
+    """
+    Determine if product should have auto-generated MaterialUnit.
+
+    Feature 084: Auto-generate only for "each" type materials (discrete items
+    like bags, boxes, pieces). Do not auto-generate for continuous materials
+    (linear_cm for ribbon/wire, square_cm for fabric/paper).
+
+    Args:
+        product: The MaterialProduct to check
+        material: The parent Material
+
+    Returns:
+        True if auto-generation should occur, False otherwise
+    """
+    return material.base_unit_type == "each"
+
+
+def _generate_material_unit_slug(name: str) -> str:
+    """
+    Generate URL-safe slug from name using hyphen style.
+
+    Feature 084: Uses hyphen separators (not underscore) for MaterialUnit slugs.
+    """
+    if not name:
+        return "unknown-unit"
+
+    # Normalize unicode
+    slug = unicodedata.normalize("NFKD", name)
+    slug = slug.encode("ascii", "ignore").decode("ascii")
+    slug = slug.lower()
+
+    # Replace spaces and underscores with hyphens
+    slug = re.sub(r"[\s_]+", "-", slug)
+
+    # Remove non-alphanumeric except hyphens
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+
+    # Collapse multiple hyphens
+    slug = re.sub(r"-+", "-", slug)
+
+    # Strip leading/trailing hyphens
+    slug = slug.strip("-")
+
+    # Limit length
+    if len(slug) > 200:
+        slug = slug[:200].rstrip("-")
+
+    return slug if slug else "unknown-unit"
+
+
+def _generate_unique_material_unit_slug(
+    name: str,
+    session: Session,
+    material_product_id: int,
+) -> str:
+    """
+    Generate unique slug within product scope.
+
+    Feature 084: Slugs are unique within a MaterialProduct, not globally.
+    """
+    base_slug = _generate_material_unit_slug(name)
+    max_attempts = 1000
+
+    for attempt in range(max_attempts):
+        candidate = base_slug if attempt == 0 else f"{base_slug}-{attempt + 1}"
+
+        existing = (
+            session.query(MaterialUnit)
+            .filter(
+                MaterialUnit.material_product_id == material_product_id,
+                MaterialUnit.slug == candidate,
+            )
+            .first()
+        )
+        if not existing:
+            return candidate
+
+    raise ValidationError([f"Unable to generate unique slug for '{name}'"])
+
+
+def _create_auto_generated_unit(
+    product: MaterialProduct,
+    session: Session,
+) -> MaterialUnit:
+    """
+    Create auto-generated MaterialUnit for a product.
+
+    Feature 084: Creates a unit named "1 {product.name}" with quantity_per_unit=1.0.
+    Used for discrete/each-type products where one unit = one item.
+
+    Args:
+        product: The MaterialProduct to create unit for
+        session: Database session (must be same as product creation for atomicity)
+
+    Returns:
+        The created MaterialUnit
+    """
+    unit_name = f"1 {product.name}"
+    unique_slug = _generate_unique_material_unit_slug(unit_name, session, product.id)
+
+    unit = MaterialUnit(
+        material_product_id=product.id,
+        name=unit_name,
+        slug=unique_slug,
+        quantity_per_unit=1.0,
+        description=f"Auto-generated unit for {product.name}",
+    )
+    session.add(unit)
+    session.flush()
+
+    return unit
 
 
 # ============================================================================
@@ -948,6 +1070,11 @@ def create_product(
         sess.add(product)
         sess.flush()
         sess.refresh(product)
+
+        # Feature 084: Auto-generate MaterialUnit for "each" type products
+        if _should_auto_generate_unit(product, material):
+            _create_auto_generated_unit(product, sess)
+
         return product
 
     if session is not None:

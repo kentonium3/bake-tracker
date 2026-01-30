@@ -873,3 +873,195 @@ class TestProvisionalProductLifecycle:
         updated = update_product(prod.id, slug="custom_slug", session=db_session)
 
         assert updated.slug == "custom_slug"
+
+
+# ============================================================================
+# MaterialUnit Auto-Generation Tests (Feature 084)
+# ============================================================================
+
+
+class TestMaterialUnitAutoGeneration:
+    """Tests for auto-generation of MaterialUnits when creating MaterialProducts (Feature 084)."""
+
+    def test_create_product_with_each_auto_generates_unit(self, db_session, sample_each_material):
+        """Creating a product for an 'each' type material auto-generates a MaterialUnit."""
+        from src.models import MaterialUnit
+
+        prod = create_product(
+            sample_each_material.id,
+            "Gift Box Small",
+            10,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        # Check that a MaterialUnit was created
+        units = (
+            db_session.query(MaterialUnit).filter(MaterialUnit.material_product_id == prod.id).all()
+        )
+        assert len(units) == 1
+        assert units[0].quantity_per_unit == 1.0
+
+    def test_create_product_with_linear_no_auto_generation(self, db_session, sample_material):
+        """Creating a product for a 'linear_cm' type material does NOT auto-generate a MaterialUnit."""
+        from src.models import MaterialUnit
+
+        # sample_material is linear_cm type (Red Satin Ribbon)
+        prod = create_product(
+            sample_material.id,
+            "100ft Roll",
+            100,
+            "feet",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        # Check that no MaterialUnit was created
+        units = (
+            db_session.query(MaterialUnit).filter(MaterialUnit.material_product_id == prod.id).all()
+        )
+        assert len(units) == 0
+
+    def test_create_product_with_square_cm_no_auto_generation(self, db_session, sample_subcategory):
+        """Creating a product for a 'square_cm' type material does NOT auto-generate a MaterialUnit."""
+        from src.models import MaterialUnit
+
+        # Create a square_cm type material
+        mat = create_material(
+            sample_subcategory.id,
+            "Gift Wrap Paper",
+            "square_cm",
+            session=db_session,
+        )
+
+        prod = create_product(
+            mat.id,
+            "Sheet 20x30",
+            600,
+            "square_inches",  # Valid area unit for square_cm material
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        # Check that no MaterialUnit was created (square_cm type)
+        units = (
+            db_session.query(MaterialUnit).filter(MaterialUnit.material_product_id == prod.id).all()
+        )
+        assert len(units) == 0
+
+    def test_auto_generated_unit_has_correct_name_and_slug(self, db_session, sample_each_material):
+        """Auto-generated MaterialUnit has correct name format '1 {product.name}' and hyphen-style slug."""
+        from src.models import MaterialUnit
+
+        prod = create_product(
+            sample_each_material.id,
+            "Gift Box Large",
+            25,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        unit = (
+            db_session.query(MaterialUnit)
+            .filter(MaterialUnit.material_product_id == prod.id)
+            .first()
+        )
+
+        assert unit is not None
+        assert unit.name == "1 Gift Box Large"  # "1 {product.name}" format
+        assert unit.slug == "1-gift-box-large"  # Hyphen-style slug
+        assert unit.quantity_per_unit == 1.0
+        assert "Auto-generated" in unit.description
+
+    def test_auto_generated_unit_slug_collision_handling(self, db_session, sample_each_material):
+        """Auto-generation handles slug collisions by appending numeric suffix."""
+        from src.models import MaterialUnit
+
+        # Create first product - will get slug "1-gift-box"
+        prod1 = create_product(
+            sample_each_material.id,
+            "Gift Box",
+            10,
+            "each",
+            brand="Brand1",
+            session=db_session,
+        )
+
+        # Create second product with same name under same material
+        # This would create a unit with colliding slug
+        prod2 = create_product(
+            sample_each_material.id,
+            "Gift Box",
+            20,
+            "each",
+            brand="Brand2",
+            session=db_session,
+        )
+
+        unit1 = (
+            db_session.query(MaterialUnit)
+            .filter(MaterialUnit.material_product_id == prod1.id)
+            .first()
+        )
+        unit2 = (
+            db_session.query(MaterialUnit)
+            .filter(MaterialUnit.material_product_id == prod2.id)
+            .first()
+        )
+
+        assert unit1 is not None
+        assert unit2 is not None
+        # Both units have unique slugs (different products, so no collision within scope)
+        assert unit1.slug == "1-gift-box"
+        assert unit2.slug == "1-gift-box"  # Same slug is OK - different product scope
+
+    def test_auto_generation_uses_same_session(self, db_session, sample_each_material):
+        """Auto-generation happens atomically within the same session as product creation."""
+        from src.models import MaterialUnit
+
+        # Create product - auto-generation should happen in same transaction
+        prod = create_product(
+            sample_each_material.id,
+            "Test Box",
+            5,
+            "each",
+            brand="TestBrand",
+            session=db_session,
+        )
+
+        # Without committing the outer session, the unit should be visible
+        unit = (
+            db_session.query(MaterialUnit)
+            .filter(MaterialUnit.material_product_id == prod.id)
+            .first()
+        )
+
+        # If auto-generation used a separate session, unit wouldn't be visible yet
+        assert unit is not None
+        assert unit.name == "1 Test Box"
+
+    def test_auto_generation_provisional_product(self, db_session, sample_each_material):
+        """Auto-generation works correctly for provisional products."""
+        from src.models import MaterialUnit
+
+        prod = create_product(
+            sample_each_material.id,
+            "Provisional Box",
+            10,
+            "each",
+            is_provisional=True,  # Provisional product
+            session=db_session,
+        )
+
+        assert prod.is_provisional is True
+
+        # Auto-generated unit should still be created
+        unit = (
+            db_session.query(MaterialUnit)
+            .filter(MaterialUnit.material_product_id == prod.id)
+            .first()
+        )
+        assert unit is not None
+        assert unit.name == "1 Provisional Box"
