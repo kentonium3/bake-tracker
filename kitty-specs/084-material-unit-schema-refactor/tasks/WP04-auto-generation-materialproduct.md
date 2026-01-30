@@ -8,7 +8,7 @@ subtasks:
   - "T022"
 title: "Auto-Generation in MaterialProduct Service"
 phase: "Wave 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
 agent: ""
 shell_pid: ""
@@ -471,3 +471,4 @@ Depends on WP01 (MaterialUnit FK) and WP03 (MaterialUnit service must work).
 ## Activity Log
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-30T17:52:03Z – unknown – lane=doing – Starting auto-generation implementation
