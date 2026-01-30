@@ -60,13 +60,13 @@ These work packages must complete before Wave 2 can begin.
 **Estimated Size**: ~400 lines (7 subtasks)
 
 ### Included Subtasks
-- [ ] T006 Remove material_id column from Composition in `src/models/composition.py`
-- [ ] T007 Update XOR CheckConstraint from 5-way to 4-way in `src/models/composition.py`
-- [ ] T008 Remove create_material_placeholder_composition() factory method in `src/models/composition.py`
-- [ ] T009 Update component_type, component_id, component_name properties in `src/models/composition.py`
-- [ ] T010 Remove material branch from get_component_cost() and _estimate_material_cost() in `src/models/composition.py`
-- [ ] T011 Update validate_polymorphic_constraint() for 4-way validation in `src/models/composition.py`
-- [ ] T012 Update Composition model tests in `src/tests/test_composition.py`
+- [x] T006 Remove material_id column from Composition in `src/models/composition.py`
+- [x] T007 Update XOR CheckConstraint from 5-way to 4-way in `src/models/composition.py`
+- [x] T008 Remove create_material_placeholder_composition() factory method in `src/models/composition.py`
+- [x] T009 Update component_type, component_id, component_name properties in `src/models/composition.py`
+- [x] T010 Remove material branch from get_component_cost() and _estimate_material_cost() in `src/models/composition.py`
+- [x] T011 Update validate_polymorphic_constraint() for 4-way validation in `src/models/composition.py`
+- [x] T012 Update Composition model tests in `src/tests/test_composition.py`
 
 ### Implementation Notes
 1. Remove material_id column and material_component relationship
