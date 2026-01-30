@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Units Tab Read-Only + Detail Popup
-lane: "for_review"
+lane: "doing"
 dependencies: [WP03]
 base_branch: 084-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -13,8 +13,8 @@ subtasks:
 - T040
 phase: Wave 3 - Export/Import & UI
 assignee: ''
-agent: ''
-shell_pid: "41099"
+agent: "claude-opus"
+shell_pid: "45237"
 review_status: ''
 reviewed_by: ''
 history:
@@ -448,3 +448,4 @@ python src/main.py
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T18:34:00Z – unknown – shell_pid=41099 – lane=for_review – Implementation complete: Units tab now read-only with product popup
+- 2026-01-30T18:43:51Z – claude-opus – shell_pid=45237 – lane=doing – Started review via workflow command
