@@ -231,7 +231,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 - [x] T033 Add conditional "Add Unit" button (hidden for package_count products) in `src/ui/tabs/materials_tab.py`
 - [x] T034 [P] Add edit/delete functionality for MaterialUnits in `src/ui/tabs/materials_tab.py`
 - [x] T035 [P] Add MaterialUnit create/edit dialog in `src/ui/dialogs/material_unit_dialog.py`
-- [ ] T036 Integrate MaterialUnits with MaterialProduct save workflow in `src/ui/tabs/materials_tab.py`
+- [x] T036 Integrate MaterialUnits with MaterialProduct save workflow in `src/ui/tabs/materials_tab.py`
 
 ### Implementation Notes
 1. Follow Recipe→FinishedUnits sub-form pattern from recipes_tab.py
