@@ -105,7 +105,7 @@
 - [x] T009 Detect linear product and conditionally show unit dropdown
 - [x] T010 Add CTkComboBox with unit options from conversion service
 - [x] T011 Implement conversion on save using `convert_to_cm()`
-- [ ] T012 Update placeholder text and add conversion hint display
+- [x] T012 Update placeholder text and add conversion hint display
 
 ### Implementation Notes
 - Only show dropdown for linear products (base_unit_type == 'linear_cm')
