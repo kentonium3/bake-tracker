@@ -1,0 +1,8 @@
+{
+  "feature_number": "085",
+  "slug": "085-fix-material-unit-management-ux",
+  "friendly_name": "Fix MaterialUnit Management and Entry UX",
+  "mission": "software-dev",
+  "source_description": "Fix MaterialUnit management for linear products and improve unit creation UX - Edit/Delete buttons disabled for linear units, Material Units tab shows no units, Add Unit dialog requires manual cm conversion",
+  "created_at": "2026-01-30T00:00:00Z"
+}
