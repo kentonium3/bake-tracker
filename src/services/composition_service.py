@@ -1707,6 +1707,8 @@ class CompositionService:
 
         Feature 047: Provides detailed cost analysis for assemblies with
         material components.
+        Feature 084: Removed generic Material placeholder support.
+        All material compositions must use material_unit_id.
 
         Args:
             assembly_id: ID of the FinishedGood assembly
@@ -1715,10 +1717,10 @@ class CompositionService:
         Returns:
             Dictionary with:
                 - food_cost: Decimal (FinishedUnit and FinishedGood components)
-                - material_cost: Decimal (MaterialUnit and Material components)
+                - material_cost: Decimal (MaterialUnit components only)
                 - packaging_cost: Decimal (packaging_product components)
                 - total_cost: Decimal
-                - has_estimated_costs: bool (True if any generic materials)
+                - has_estimated_costs: bool (always False, reserved for future)
                 - component_details: list of individual component costs
 
         Performance:
@@ -1761,12 +1763,9 @@ class CompositionService:
                     elif comp.material_unit_id:
                         material_cost += total_cost
                         detail["cost_category"] = "material"
-                    elif comp.material_id:
-                        # Generic material - mark as estimated
-                        material_cost += total_cost
-                        detail["cost_category"] = "material"
-                        detail["is_estimated"] = True
-                        has_estimated_costs = True
+                    # Feature 084: Removed material_id branch
+                    # Generic material placeholder support has been removed.
+                    # All material compositions must use material_unit_id.
                     elif comp.packaging_product_id:
                         packaging_cost += total_cost
                         detail["cost_category"] = "packaging"
@@ -1957,6 +1956,9 @@ def get_cost_breakdown(assembly_id: int, session: Optional[Session] = None) -> d
     """
     Get cost breakdown for an assembly, separating food, material, and packaging costs.
 
+    Feature 084: Generic Material placeholder support removed.
+    All material compositions must use material_unit_id.
+
     Args:
         assembly_id: The FinishedGood ID to analyze
         session: Optional database session
@@ -1964,10 +1966,10 @@ def get_cost_breakdown(assembly_id: int, session: Optional[Session] = None) -> d
     Returns:
         dict with:
             - food_cost: Decimal (FinishedUnit and FinishedGood components)
-            - material_cost: Decimal (MaterialUnit and Material components)
+            - material_cost: Decimal (MaterialUnit components only)
             - packaging_cost: Decimal (packaging_product components)
             - total_cost: Decimal
-            - has_estimated_costs: bool (True if any generic materials)
+            - has_estimated_costs: bool (always False, reserved for future)
             - component_details: list of individual component costs
     """
     return CompositionService.get_cost_breakdown(assembly_id, session)
