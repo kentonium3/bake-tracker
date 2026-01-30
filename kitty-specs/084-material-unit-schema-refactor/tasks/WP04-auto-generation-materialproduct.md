@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Auto-Generation in MaterialProduct Service
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01, WP03]
 base_branch: 084-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -14,8 +14,8 @@ subtasks:
 - T022
 phase: Wave 2 - Service Layer
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "claude-opus"
+shell_pid: "43970"
 review_status: ''
 reviewed_by: ''
 history:
@@ -476,3 +476,4 @@ Depends on WP01 (MaterialUnit FK) and WP03 (MaterialUnit service must work).
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T17:52:03Z – unknown – lane=doing – Starting auto-generation implementation
 - 2026-01-30T17:58:51Z – unknown – lane=for_review – Auto-generation implemented and tested with 7 new tests. All 64 catalog service tests pass.
+- 2026-01-30T18:40:09Z – claude-opus – shell_pid=43970 – lane=doing – Started review via workflow command
