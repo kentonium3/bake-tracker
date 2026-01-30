@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Export/Import Updates
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 084-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -473,3 +473,4 @@ if material_product_id is None:
 ## Activity Log
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-30T18:14:45Z – unknown – shell_pid=34519 – lane=for_review – All subtasks complete, 10 tests added, 143 tests passing
