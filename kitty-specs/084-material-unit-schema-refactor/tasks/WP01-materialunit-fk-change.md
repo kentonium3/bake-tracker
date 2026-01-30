@@ -8,7 +8,7 @@ subtasks:
   - "T005"
 title: "MaterialUnit FK Change"
 phase: "Wave 1 - Schema Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "27103"
@@ -323,3 +323,4 @@ No dependencies - this is the starting work package.
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T17:24:46Z – claude-opus – shell_pid=27103 – lane=doing – Started implementation via workflow command
+- 2026-01-30T17:35:09Z – claude-opus – shell_pid=27103 – lane=for_review – Ready for review: MaterialUnit FK changed from Material to MaterialProduct, compound unique constraints added, 19 model tests pass
