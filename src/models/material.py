@@ -26,7 +26,7 @@ class Material(BaseModel):
         name: Material display name (e.g., "Red Satin Ribbon")
         slug: URL-friendly identifier (e.g., "red-satin-ribbon")
         description: Optional description text
-        base_unit_type: Unit type for inventory ('each', 'linear_inches', 'square_inches')
+        base_unit_type: Unit type for inventory ('each', 'linear_cm', 'square_cm')
         notes: User notes
 
     Relationships:
@@ -51,7 +51,7 @@ class Material(BaseModel):
     name = Column(String(200), nullable=False)
     slug = Column(String(200), nullable=False, unique=True, index=True)
     description = Column(Text, nullable=True)
-    base_unit_type = Column(String(20), nullable=False)  # 'each', 'linear_inches', 'square_inches'
+    base_unit_type = Column(String(20), nullable=False)  # 'each', 'linear_cm', 'square_cm'
     notes = Column(Text, nullable=True)
 
     # Relationships
