@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Fix Edit/Delete Button Enablement
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: 9d1d78d6fdf94f828079a4fe6874f921a3b1a70f
@@ -11,8 +11,8 @@ subtasks:
 - T005
 phase: Phase 1 - Bug Fixes
 assignee: ''
-agent: ''
-shell_pid: "74720"
+agent: "claude-opus"
+shell_pid: "77879"
 review_status: ''
 reviewed_by: ''
 history:
@@ -258,3 +258,4 @@ self.edit_unit_btn.update()  # Force UI refresh
 
 - 2026-01-30T22:39:29Z – system – lane=planned – Prompt created.
 - 2026-01-30T23:03:07Z – unknown – shell_pid=74720 – lane=for_review – Added update_idletasks() calls to ensure button state changes are reflected, and moved visibility update to after form population
+- 2026-01-30T23:03:12Z – claude-opus – shell_pid=77879 – lane=doing – Started review via workflow command
