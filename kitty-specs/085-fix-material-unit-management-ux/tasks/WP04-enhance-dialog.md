@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Enhance MaterialUnit Dialog
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 085-fix-material-unit-management-ux-WP03
 base_commit: 4e723dcba6e32c83f9e9300bfff6a577715837d0
@@ -402,3 +402,4 @@ spec-kitty implement WP04 --base WP03
 ## Activity Log
 
 - 2026-01-30T22:39:29Z – system – lane=planned – Prompt created.
+- 2026-01-30T23:10:44Z – unknown – shell_pid=79634 – lane=for_review – Implementation complete: Linear product detection, unit dropdown, conversion to cm, preview label
