@@ -2899,40 +2899,47 @@ class MaterialUnitsTab:
         clear_button.pack(side="left", padx=10, pady=5)
 
     def _create_action_buttons(self):
-        """Create action buttons for CRUD operations."""
-        button_frame = ctk.CTkFrame(self.parent_frame, fg_color="transparent")
-        button_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+        """
+        Create info label for read-only Units tab.
 
-        # Add Unit button
-        add_button = ctk.CTkButton(
-            button_frame,
-            text="+ Add Unit",
-            command=self._add_unit,
-            width=110,
-            height=36,
-        )
-        add_button.grid(row=0, column=0, padx=(0, PADDING_MEDIUM))
+        Feature 084: Removed Add/Edit buttons - Units tab is now read-only.
+        Users manage units via the MaterialProduct form.
+        """
+        info_frame = ctk.CTkFrame(self.parent_frame, fg_color="transparent")
+        info_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
 
-        # Edit button
-        self.edit_button = ctk.CTkButton(
-            button_frame,
-            text="Edit",
-            command=self._edit_unit,
-            width=100,
-            height=36,
-            state="disabled",
+        # Info label explaining where to manage units
+        info_label = ctk.CTkLabel(
+            info_frame,
+            text="View all units. To add or edit units, use the MaterialProduct form.",
+            font=ctk.CTkFont(size=11, slant="italic"),
+            text_color="gray",
         )
-        self.edit_button.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
+        info_label.pack(side="left", padx=10)
+
+        # Hint for double-click
+        hint_label = ctk.CTkLabel(
+            info_frame,
+            text="Double-click a row to view product details.",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        hint_label.pack(side="right", padx=10)
 
     def _create_grid(self):
-        """Create the units grid using ttk.Treeview."""
+        """
+        Create the units grid using ttk.Treeview.
+
+        Feature 084: Added Product column to show parent MaterialProduct.
+        """
         grid_container = ctk.CTkFrame(self.parent_frame)
         grid_container.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns: material, name, qty_per_unit, available, cost
-        columns = ("material", "name", "qty_per_unit", "available", "cost")
+        # Define columns: name, material, product, qty_per_unit, available, cost
+        # Feature 084: Added product column
+        columns = ("name", "material", "product", "qty_per_unit", "available", "cost")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -2942,13 +2949,19 @@ class MaterialUnitsTab:
 
         # Configure column headings with click-to-sort
         self.tree.heading(
+            "name", text="Name", anchor="w", command=lambda: self._on_header_click("name")
+        )
+        self.tree.heading(
             "material",
             text="Material",
             anchor="w",
             command=lambda: self._on_header_click("material"),
         )
         self.tree.heading(
-            "name", text="Unit Name", anchor="w", command=lambda: self._on_header_click("name")
+            "product",
+            text="Product",
+            anchor="w",
+            command=lambda: self._on_header_click("product"),
         )
         self.tree.heading(
             "qty_per_unit",
@@ -2967,11 +2980,12 @@ class MaterialUnitsTab:
         )
 
         # Configure column widths
-        self.tree.column("material", width=150, minwidth=100)
-        self.tree.column("name", width=150, minwidth=100)
+        self.tree.column("name", width=140, minwidth=100)
+        self.tree.column("material", width=130, minwidth=100)
+        self.tree.column("product", width=150, minwidth=100)
         self.tree.column("qty_per_unit", width=80, minwidth=60, anchor="e")
-        self.tree.column("available", width=80, minwidth=60, anchor="e")
-        self.tree.column("cost", width=100, minwidth=80, anchor="e")
+        self.tree.column("available", width=70, minwidth=50, anchor="e")
+        self.tree.column("cost", width=90, minwidth=70, anchor="e")
 
         # Add vertical scrollbar
         y_scrollbar = ttk.Scrollbar(
@@ -3017,50 +3031,66 @@ class MaterialUnitsTab:
             self.update_status(f"Error loading units: {e}")
 
     def _load_all_units(self) -> List[Dict[str, Any]]:
-        """Load all units with material info and computed values."""
+        """
+        Load all units with material and product info.
+
+        Feature 084: Updated to load product info since MaterialUnit now
+        references MaterialProduct (not Material directly).
+        """
         units = []
         try:
-            # Service returns ORM objects - use _get_value helper for safe access
-            categories = material_catalog_service.list_categories()
-            for cat in categories:
-                cat_id = _get_value(cat, "id")
-                subcategories = material_catalog_service.list_subcategories(cat_id)
-                for subcat in subcategories:
-                    subcat_id = _get_value(subcat, "id")
-                    mats = material_catalog_service.list_materials(subcat_id)
-                    for mat in mats:
-                        mat_id = _get_value(mat, "id")
-                        mat_name = _get_value(mat, "name")
-                        # Get units for this material
-                        mat_units = material_unit_service.list_units(mat_id)
-                        for unit in mat_units:
-                            unit_id = _get_value(unit, "id")
-                            unit_name = _get_value(unit, "name")
-                            qty = _get_value(unit, "quantity_per_unit") or 1
-                            desc = _get_value(unit, "description") or ""
-                            # Get computed values
-                            try:
-                                available = material_unit_service.get_available_inventory(unit_id)
-                            except Exception:
-                                available = 0
-                            try:
-                                cost = material_unit_service.get_current_cost(unit_id)
-                            except Exception:
-                                cost = None
-                            units.append(
-                                {
-                                    "id": unit_id,
-                                    "name": unit_name,
-                                    "material_name": mat_name,
-                                    "material_id": mat_id,
-                                    "quantity_per_unit": qty,
-                                    "description": desc,
-                                    "available": available,
-                                    "cost": cost,
-                                }
-                            )
+            # Load all units (no filter = all units)
+            all_units = material_unit_service.list_units()
+            for unit in all_units:
+                unit_id = _get_value(unit, "id")
+                unit_name = _get_value(unit, "name")
+                qty = _get_value(unit, "quantity_per_unit") or 1
+                desc = _get_value(unit, "description") or ""
+
+                # Feature 084: Get product and material info from unit relationships
+                product_id = _get_value(unit, "material_product_id")
+                product_name = ""
+                material_name = ""
+                material_id = None
+
+                # Get product info
+                if hasattr(unit, "material_product") and unit.material_product:
+                    product = unit.material_product
+                    product_name = _get_value(product, "name") or ""
+                    # Get material from product
+                    if hasattr(product, "material") and product.material:
+                        material = product.material
+                        material_name = _get_value(material, "name") or ""
+                        material_id = _get_value(material, "id")
+
+                # Get computed values
+                try:
+                    available = material_unit_service.get_available_inventory(unit_id)
+                except Exception:
+                    available = 0
+                try:
+                    cost = material_unit_service.get_current_cost(unit_id)
+                except Exception:
+                    cost = None
+
+                units.append(
+                    {
+                        "id": unit_id,
+                        "name": unit_name,
+                        "material_name": material_name,
+                        "material_id": material_id,
+                        "product_name": product_name,
+                        "product_id": product_id,
+                        "quantity_per_unit": qty,
+                        "description": desc,
+                        "available": available,
+                        "cost": cost,
+                    }
+                )
         except Exception as e:
             print(f"Error loading units: {e}")
+            import traceback
+            traceback.print_exc()
         return units
 
     def _load_material_dropdown(self):
@@ -3069,7 +3099,11 @@ class MaterialUnitsTab:
         self.material_filter_dropdown.configure(values=["All Materials"] + material_names)
 
     def _update_display(self):
-        """Update the displayed list based on current filters."""
+        """
+        Update the displayed list based on current filters.
+
+        Feature 084: Updated column order and added product column.
+        """
         # Clear existing items
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -3084,10 +3118,12 @@ class MaterialUnitsTab:
             cost = unit.get("cost")
             cost_display = f"${cost:.4f}" if cost is not None else "-"
 
+            # Column order: name, material, product, qty_per_unit, available, cost
             values = (
-                unit.get("material_name", ""),
                 unit.get("name", ""),
-                str(qty),
+                unit.get("material_name", ""),
+                unit.get("product_name", ""),
+                f"{qty:.4f}",
                 str(available),
                 cost_display,
             )
@@ -3102,7 +3138,11 @@ class MaterialUnitsTab:
             self.update_status(f"{count} unit{'s' if count != 1 else ''}")
 
     def _apply_filters(self) -> List[Dict[str, Any]]:
-        """Apply search, dropdown filters, and sorting."""
+        """
+        Apply search, dropdown filters, and sorting.
+
+        Feature 084: Added product column to sorting options.
+        """
         filtered = self.units
 
         # Material filter
@@ -3110,17 +3150,20 @@ class MaterialUnitsTab:
         if mat_filter and mat_filter != "All Materials":
             filtered = [u for u in filtered if u.get("material_name") == mat_filter]
 
-        # Search filter
+        # Search filter (searches unit name and product name)
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                u for u in filtered if search_text in normalize_for_search(u.get("name", ""))
+                u for u in filtered
+                if search_text in normalize_for_search(u.get("name", ""))
+                or search_text in normalize_for_search(u.get("product_name", ""))
             ]
 
         # Apply sorting
         sort_key_map = {
-            "material": "material_name",
             "name": "name",
+            "material": "material_name",
+            "product": "product_name",
             "qty_per_unit": "quantity_per_unit",
             "available": "available",
             "cost": "cost",
@@ -3165,89 +3208,36 @@ class MaterialUnitsTab:
         selection = self.tree.selection()
         if selection:
             self.selected_unit_id = int(selection[0])
-            self._enable_selection_buttons()
         else:
             self.selected_unit_id = None
-            self._disable_selection_buttons()
 
     def _on_double_click(self, event):
-        """Handle double-click to edit."""
+        """
+        Handle double-click to show product popup.
+
+        Feature 084: Changed from edit dialog to read-only product popup.
+        """
+        from src.ui.dialogs.material_product_popup import MaterialProductPopup
+
         selection = self.tree.selection()
-        if selection:
-            self.selected_unit_id = int(selection[0])
-            self._edit_unit()
-
-    def _enable_selection_buttons(self):
-        """Enable buttons that require selection."""
-        self.edit_button.configure(state="normal")
-
-    def _disable_selection_buttons(self):
-        """Disable buttons that require selection."""
-        self.edit_button.configure(state="disabled")
-
-    def _add_unit(self):
-        """Open dialog to add a new unit."""
-        dialog = MaterialUnitFormDialog(
-            self.parent_frame,
-            unit=None,
-            title="Add Unit",
-        )
-        if dialog.winfo_exists():
-            self.parent_frame.wait_window(dialog)
-
-        if dialog.result:
-            try:
-                material_unit_service.create_unit(
-                    material_id=dialog.result["material_id"],
-                    name=dialog.result["name"],
-                    quantity_per_unit=dialog.result["quantity_per_unit"],
-                    description=dialog.result.get("description"),
-                )
-                self.refresh()
-                self.update_status(f"Created unit: {dialog.result['name']}")
-            except ValidationError as e:
-                messagebox.showerror("Error", str(e))
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to create unit: {e}")
-
-    def _edit_unit(self):
-        """Open dialog to edit selected unit."""
-        if not self.selected_unit_id:
+        if not selection:
             return
 
-        # Find unit data by ID
+        unit_id = int(selection[0])
+
+        # Find unit data to get product_id
         unit_data = None
         for unit in self.units:
-            if unit["id"] == self.selected_unit_id:
+            if unit["id"] == unit_id:
                 unit_data = unit
                 break
 
         if not unit_data:
-            self.update_status("Unit not found")
             return
 
-        dialog = MaterialUnitFormDialog(
-            self.parent_frame,
-            unit=unit_data,
-            title="Edit Unit",
-        )
-        if dialog.winfo_exists():
-            self.parent_frame.wait_window(dialog)
-
-        if dialog.result:
-            try:
-                material_unit_service.update_unit(
-                    unit_id=dialog.result["id"],
-                    material_id=dialog.result["material_id"],
-                    quantity_per_unit=dialog.result["quantity_per_unit"],
-                    description=dialog.result.get("description"),
-                )
-                self.refresh()
-                self.update_status(f"Updated unit: {dialog.result['name']}")
-            except ValidationError as e:
-                messagebox.showerror("Error", str(e))
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to update unit: {e}")
+        product_id = unit_data.get("product_id")
+        if product_id:
+            MaterialProductPopup(self.parent_frame, product_id=product_id)
 
     def update_status(self, message: str):
         """Update the status bar message."""
