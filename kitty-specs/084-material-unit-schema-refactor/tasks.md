@@ -102,7 +102,7 @@ These work packages can execute in parallel once Wave 1 is complete.
 - [x] T013 Update MaterialUnit service CRUD to use material_product_id in `src/services/material_unit_service.py`
 - [x] T014 Add name uniqueness validation scoped to product in `src/services/material_unit_service.py`
 - [x] T015 [P] Add slug generation scoped to product in `src/services/material_unit_service.py`
-- [ ] T016 Add deletion validation (prevent if referenced by Composition) in `src/services/material_unit_service.py`
+- [x] T016 Add deletion validation (prevent if referenced by Composition) in `src/services/material_unit_service.py`
 - [ ] T017 Update MaterialUnit service tests in `src/tests/test_material_unit_service.py`
 
 ### Implementation Notes
