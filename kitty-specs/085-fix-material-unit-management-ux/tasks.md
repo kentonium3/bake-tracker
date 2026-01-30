@@ -74,7 +74,7 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T006 Create `src/services/unit_conversion_service.py` with LINEAR_UNITS dict
+- [x] T006 Create `src/services/unit_conversion_service.py` with LINEAR_UNITS dict
 - [ ] T007 Implement `convert_to_cm()` and `get_linear_unit_options()` functions
 - [ ] T008 Write comprehensive tests for the conversion service
 
