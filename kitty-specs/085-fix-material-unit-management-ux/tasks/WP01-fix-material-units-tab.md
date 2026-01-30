@@ -6,10 +6,10 @@ subtasks:
   - "T003"
 title: "Fix Material Units Tab Query"
 phase: "Phase 1 - Bug Fixes"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "73516"
+shell_pid: "74395"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -238,3 +238,4 @@ No dependencies - this WP starts fresh from main.
 - 2026-01-30T22:39:29Z – system – lane=planned – Prompt created.
 - 2026-01-30T22:46:16Z – claude-opus – shell_pid=73516 – lane=doing – Started implementation via workflow command
 - 2026-01-30T22:48:38Z – claude-opus – shell_pid=73516 – lane=for_review – Ready for review: Added eager loading to list_units() to fix Material Units tab showing no units
+- 2026-01-30T22:49:43Z – claude-opus – shell_pid=74395 – lane=doing – Started review via workflow command
