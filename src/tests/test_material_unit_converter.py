@@ -23,6 +23,13 @@ from src.services.material_unit_converter import (
     convert_to_base_units,
     convert_from_base_units,
     convert_units,
+    # Feature 085: Simple wrappers and dropdown helpers
+    convert_to_cm,
+    convert_from_cm,
+    get_linear_unit_options,
+    get_area_unit_options,
+    LINEAR_UNIT_NAMES,
+    AREA_UNIT_NAMES,
 )
 
 
@@ -536,3 +543,143 @@ class TestConversionFactors:
 
         # Each units
         assert "each" in UNIT_TYPES["each"]
+
+
+# ============================================================================
+# Feature 085: Simple Wrapper Function Tests
+# ============================================================================
+
+
+class TestConvertToCmWrapper:
+    """Tests for convert_to_cm simple wrapper function (Feature 085)."""
+
+    def test_convert_inches_to_cm(self):
+        """8 inches should convert to 20.32 cm."""
+        result = convert_to_cm(8, "inches")
+        assert result == pytest.approx(20.32)
+
+    def test_convert_feet_to_cm(self):
+        """1 foot should convert to 30.48 cm."""
+        result = convert_to_cm(1, "feet")
+        assert result == pytest.approx(30.48)
+
+    def test_convert_yards_to_cm(self):
+        """1 yard should convert to 91.44 cm."""
+        result = convert_to_cm(1, "yards")
+        assert result == pytest.approx(91.44)
+
+    def test_convert_meters_to_cm(self):
+        """1 meter should convert to 100 cm."""
+        result = convert_to_cm(1, "meters")
+        assert result == pytest.approx(100.0)
+
+    def test_convert_cm_to_cm(self):
+        """cm to cm should return same value."""
+        result = convert_to_cm(50, "cm")
+        assert result == pytest.approx(50.0)
+
+    def test_convert_zero(self):
+        """Zero should convert to zero."""
+        result = convert_to_cm(0, "inches")
+        assert result == 0.0
+
+    def test_convert_fractional(self):
+        """Fractional values should work."""
+        result = convert_to_cm(0.5, "inches")
+        assert result == pytest.approx(1.27)
+
+    def test_invalid_unit_raises(self):
+        """Invalid unit should raise ValueError."""
+        with pytest.raises(ValueError, match="Unknown unit"):
+            convert_to_cm(10, "miles")
+
+    def test_negative_value_raises(self):
+        """Negative value should raise ValueError."""
+        with pytest.raises(ValueError, match="non-negative"):
+            convert_to_cm(-5, "inches")
+
+
+class TestConvertFromCmWrapper:
+    """Tests for convert_from_cm simple wrapper function (Feature 085)."""
+
+    def test_convert_cm_to_inches(self):
+        """20.32 cm should convert to 8 inches."""
+        result = convert_from_cm(20.32, "inches")
+        assert result == pytest.approx(8.0)
+
+    def test_convert_cm_to_yards(self):
+        """91.44 cm should convert to 1 yard."""
+        result = convert_from_cm(91.44, "yards")
+        assert result == pytest.approx(1.0)
+
+    def test_convert_cm_to_feet(self):
+        """30.48 cm should convert to 1 foot."""
+        result = convert_from_cm(30.48, "feet")
+        assert result == pytest.approx(1.0)
+
+    def test_invalid_unit_raises(self):
+        """Invalid unit should raise ValueError."""
+        with pytest.raises(ValueError, match="Unknown unit"):
+            convert_from_cm(10, "miles")
+
+
+class TestGetLinearUnitOptions:
+    """Tests for get_linear_unit_options function (Feature 085)."""
+
+    def test_returns_all_linear_units(self):
+        """Should return all defined linear units."""
+        options = get_linear_unit_options()
+        codes = [code for code, _ in options]
+        assert len(codes) == len(LINEAR_TO_CM)
+        for unit in LINEAR_TO_CM:
+            assert unit in codes
+
+    def test_cm_is_first(self):
+        """cm should be the first option (default)."""
+        options = get_linear_unit_options()
+        assert options[0][0] == "cm"
+
+    def test_returns_tuples(self):
+        """Should return (code, display_name) tuples."""
+        options = get_linear_unit_options()
+        for code, name in options:
+            assert isinstance(code, str)
+            assert isinstance(name, str)
+            assert "(" in name  # e.g., "Inches (in)"
+
+    def test_display_names_from_lookup(self):
+        """Display names should come from LINEAR_UNIT_NAMES."""
+        options = get_linear_unit_options()
+        for code, name in options:
+            assert name == LINEAR_UNIT_NAMES[code]
+
+
+class TestGetAreaUnitOptions:
+    """Tests for get_area_unit_options function (Feature 085)."""
+
+    def test_returns_all_area_units(self):
+        """Should return all defined area units."""
+        options = get_area_unit_options()
+        codes = [code for code, _ in options]
+        assert len(codes) == len(AREA_TO_SQUARE_CM)
+        for unit in AREA_TO_SQUARE_CM:
+            assert unit in codes
+
+    def test_square_cm_is_first(self):
+        """square_cm should be the first option (default)."""
+        options = get_area_unit_options()
+        assert options[0][0] == "square_cm"
+
+    def test_returns_tuples(self):
+        """Should return (code, display_name) tuples."""
+        options = get_area_unit_options()
+        for code, name in options:
+            assert isinstance(code, str)
+            assert isinstance(name, str)
+            assert "(" in name or "Square" in name
+
+    def test_display_names_from_lookup(self):
+        """Display names should come from AREA_UNIT_NAMES."""
+        options = get_area_unit_options()
+        for code, name in options:
+            assert name == AREA_UNIT_NAMES[code]
