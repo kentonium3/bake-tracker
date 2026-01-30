@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Migration Transformation Script
-lane: "for_review"
+lane: "doing"
 dependencies: [WP06]
 base_branch: 084-material-unit-schema-refactor-WP06
 base_commit: d9c2ca251e85fea7ce79202b8f26d1eacdec9076
@@ -14,8 +14,8 @@ subtasks:
 - T045
 phase: Wave 4 - Migration
 assignee: ''
-agent: ''
-shell_pid: "37570"
+agent: "claude-opus"
+shell_pid: "45575"
 review_status: ''
 reviewed_by: ''
 history:
@@ -793,3 +793,4 @@ cat /tmp/migration.log
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T18:18:37Z – unknown – shell_pid=37570 – lane=for_review – All subtasks complete, 20 tests passing, CLI verified with sample data
+- 2026-01-30T18:44:38Z – claude-opus – shell_pid=45575 – lane=doing – Started review via workflow command
