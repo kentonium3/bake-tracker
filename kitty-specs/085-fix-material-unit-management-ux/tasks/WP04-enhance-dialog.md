@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Enhance MaterialUnit Dialog
+lane: "doing"
+dependencies: [WP03]
+base_branch: 085-fix-material-unit-management-ux-WP03
+base_commit: 4e723dcba6e32c83f9e9300bfff6a577715837d0
+created_at: '2026-01-30T23:07:02.795967+00:00'
 subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Enhance MaterialUnit Dialog"
-phase: "Phase 2 - Enhancement"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T009
+- T010
+- T011
+- T012
+phase: Phase 2 - Enhancement
+assignee: ''
+agent: ''
+shell_pid: "79634"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T22:39:29Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T22:39:29Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Enhance MaterialUnit Dialog
