@@ -24,7 +24,6 @@ from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
 )
-from src.ui.widgets.data_table import DataTable
 from src.ui.widgets.dialogs import show_confirmation
 from src.ui.widgets.batch_options_frame import BatchOptionsFrame
 from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
@@ -49,79 +48,6 @@ from src.services.plan_state_service import (
     complete_production,
 )
 from tkinter import messagebox
-
-
-class PlanningEventDataTable(DataTable):
-    """
-    Specialized data table for displaying planning events.
-
-    Shows columns: Name, Date, Attendees, Plan State
-    """
-
-    def __init__(
-        self,
-        parent,
-        select_callback: Optional[Callable[[Any], None]] = None,
-        double_click_callback: Optional[Callable[[Any], None]] = None,
-        height: int = 500,
-    ):
-        """
-        Initialize planning event data table.
-
-        Args:
-            parent: Parent widget
-            select_callback: Callback for row selection
-            double_click_callback: Callback for row double-click
-            height: Height of the table in pixels
-        """
-        columns = [
-            ("Name", 250),
-            ("Date", 120),
-            ("Attendees", 100),
-            ("Plan State", 140),
-        ]
-        super().__init__(
-            parent,
-            columns=columns,
-            on_row_select=select_callback,
-            on_row_double_click=double_click_callback,
-            height=height,
-        )
-
-    def _get_row_values(self, row_data: Any) -> List[str]:
-        """
-        Extract planning event-specific row values.
-
-        Args:
-            row_data: Event object
-
-        Returns:
-            List of formatted values for display
-        """
-        # Format date
-        if row_data.event_date:
-            date_str = row_data.event_date.strftime("%Y-%m-%d")
-        else:
-            date_str = "-"
-
-        # Format attendees (display "-" for NULL)
-        if row_data.expected_attendees is not None:
-            attendees_str = str(row_data.expected_attendees)
-        else:
-            attendees_str = "-"
-
-        # Format plan state (e.g., "in_production" -> "In Production")
-        if row_data.plan_state:
-            state_str = row_data.plan_state.value.replace("_", " ").title()
-        else:
-            state_str = "-"
-
-        return [
-            row_data.name or "",
-            date_str,
-            attendees_str,
-            state_str,
-        ]
 
 
 class PlanningTab(ctk.CTkFrame):
@@ -165,16 +91,16 @@ class PlanningTab(ctk.CTkFrame):
         self._on_edit_event = on_edit_event
         self._on_delete_event = on_delete_event
 
-        # Configure grid (split-pane layout)
+        # Configure grid (planning-focused layout)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0)  # Action buttons
-        self.grid_rowconfigure(1, weight=0)  # Data table (fixed height)
-        self.grid_rowconfigure(2, weight=1)  # Planning sections container (scrollable)
-        self.grid_rowconfigure(3, weight=0)  # Status bar
+        self.grid_rowconfigure(0, weight=0)  # Event selector header (compact)
+        self.grid_rowconfigure(
+            1, weight=1
+        )  # Planning sections container (scrollable, takes almost all space)
+        self.grid_rowconfigure(2, weight=0)  # Status bar
 
         # Build UI
-        self._create_action_buttons()
-        self._create_data_table()
+        self._create_event_selector()  # New: compact dropdown-based event selector
         self._create_planning_container()  # New: scrollable container for all planning sections
         self._create_recipe_selection_frame()
         self._create_fg_selection_frame()
@@ -194,54 +120,69 @@ class PlanningTab(ctk.CTkFrame):
         # Load initial data
         self.refresh()
 
-    def _create_action_buttons(self) -> None:
-        """Create action buttons for CRUD operations."""
-        self.button_frame = ctk.CTkFrame(self, fg_color="transparent")
+    def _create_event_selector(self) -> None:
+        """Create compact event selector header (replaces table)."""
+        self.selector_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.selector_frame.grid_columnconfigure(1, weight=1)  # Event display expands
 
-        # Create button - always enabled
+        # Left side: Create Event button
         self.create_button = ctk.CTkButton(
-            self.button_frame,
+            self.selector_frame,
             text="Create Event",
             command=self._on_create_click,
-            width=140,
+            width=120,
         )
 
-        # Edit button - enabled when event selected
+        # Center: Event dropdown and info display
+        self.event_selector_container = ctk.CTkFrame(self.selector_frame)
+
+        # Dropdown label
+        ctk.CTkLabel(
+            self.event_selector_container,
+            text="Event:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(side="left", padx=(10, 5))
+
+        # Event dropdown
+        self._event_var = ctk.StringVar(value="Select an event...")
+        self.event_dropdown = ctk.CTkOptionMenu(
+            self.event_selector_container,
+            variable=self._event_var,
+            values=["No events available"],
+            command=self._on_event_dropdown_change,
+            width=300,
+        )
+        self.event_dropdown.pack(side="left", padx=5)
+
+        # Event details display (date, attendees, state)
+        self.event_details_label = ctk.CTkLabel(
+            self.event_selector_container,
+            text="",
+            text_color="gray",
+        )
+        self.event_details_label.pack(side="left", padx=10)
+
+        # Right side: Edit and Delete buttons
         self.edit_button = ctk.CTkButton(
-            self.button_frame,
-            text="Edit Event",
+            self.selector_frame,
+            text="Edit",
             command=self._on_edit_click,
-            width=120,
+            width=80,
             state="disabled",
         )
 
-        # Delete button - enabled when event selected, styled red
         self.delete_button = ctk.CTkButton(
-            self.button_frame,
-            text="Delete Event",
+            self.selector_frame,
+            text="Delete",
             command=self._on_delete_click,
-            width=120,
+            width=80,
             state="disabled",
             fg_color="darkred",
             hover_color="red",
         )
 
-        # Refresh button
-        self.refresh_button = ctk.CTkButton(
-            self.button_frame,
-            text="Refresh",
-            command=self.refresh,
-            width=100,
-        )
-
-    def _create_data_table(self) -> None:
-        """Create the data table for displaying events."""
-        self.data_table = PlanningEventDataTable(
-            self,
-            select_callback=self._on_row_select,
-            double_click_callback=self._on_row_double_click,
-            height=100,  # Compact height - shows 2-3 events, maximizes planning space
-        )
+        # Store event mapping (name -> event object)
+        self._event_map = {}
 
     def _create_planning_container(self) -> None:
         """Create scrollable container for all planning sections."""
@@ -438,22 +379,19 @@ class PlanningTab(ctk.CTkFrame):
         )
 
     def _layout_widgets(self) -> None:
-        """Position widgets using split-pane layout."""
-        # Button frame at top
-        self.button_frame.grid(
-            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+        """Position widgets using planning-focused layout."""
+        # Compact event selector at top
+        self.selector_frame.grid(
+            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
         )
-        self.create_button.pack(side="left", padx=PADDING_MEDIUM)
-        self.edit_button.pack(side="left", padx=PADDING_MEDIUM)
-        self.delete_button.pack(side="left", padx=PADDING_MEDIUM)
-        self.refresh_button.pack(side="right", padx=PADDING_MEDIUM)
+        self.create_button.grid(row=0, column=0, sticky="w", padx=(0, PADDING_MEDIUM))
+        self.event_selector_container.grid(row=0, column=1, sticky="ew", padx=PADDING_MEDIUM)
+        self.edit_button.grid(row=0, column=2, sticky="e", padx=PADDING_MEDIUM)
+        self.delete_button.grid(row=0, column=3, sticky="e")
 
-        # Data table with fixed height
-        self.data_table.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
-
-        # Planning sections scrollable container (takes remaining space)
+        # Planning sections scrollable container (takes almost all screen space)
         self._planning_container.grid(
-            row=2, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
+            row=1, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
 
         # Planning sections now pack into _planning_container when shown:
@@ -468,76 +406,130 @@ class PlanningTab(ctk.CTkFrame):
 
         # Status bar at bottom
         self.status_frame.grid(
-            row=3, column=0, sticky="ew", padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
+            row=2, column=0, sticky="ew", padx=PADDING_LARGE, pady=(0, PADDING_LARGE)
         )
         self.status_frame.grid_columnconfigure(0, weight=1)
         self.status_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
     def refresh(self) -> None:
-        """Refresh the event list from database."""
+        """Refresh the event dropdown from database."""
         try:
             with session_scope() as session:
                 events = event_service.get_events_for_planning(session)
 
-                # Store data for display
-                self.data_table.set_data(events)
+                # Filter to incomplete events (Draft, Locked, In Production - not Completed)
+                from src.models import PlanState
 
-                self._update_status(f"Loaded {len(events)} event(s)")
+                incomplete_events = [e for e in events if e.plan_state != PlanState.COMPLETED]
+
+                # If no incomplete events, show last 5 events
+                if not incomplete_events:
+                    display_events = events[:5] if len(events) > 5 else events
+                else:
+                    display_events = incomplete_events
+
+                # Build dropdown options and event map
+                if display_events:
+                    event_names = [e.name for e in display_events]
+                    self._event_map = {e.name: e for e in display_events}
+                    self.event_dropdown.configure(values=event_names)
+
+                    # If we had a previously selected event, try to keep it selected
+                    if self.selected_event and self.selected_event.name in event_names:
+                        self._event_var.set(self.selected_event.name)
+                    else:
+                        # Select first event by default
+                        self._event_var.set(event_names[0])
+                        self._on_event_dropdown_change(event_names[0])
+                else:
+                    # No events available
+                    self.event_dropdown.configure(values=["No events available"])
+                    self._event_var.set("No events available")
+                    self._event_map = {}
+                    self._clear_selection()
+
+                self._update_status(f"Loaded {len(display_events)} event(s)")
 
         except Exception as e:
             self._update_status(f"Error loading events: {e}", is_error=True)
+            self._clear_selection()
 
-        # Clear selection and hide recipe/FG/batch/state/shopping/assembly/progress panels
+    def _clear_selection(self) -> None:
+        """Clear event selection and hide all planning panels."""
         self.selected_event = None
         self._selected_event_id = None
+        self.event_details_label.configure(text="")
         self._hide_recipe_selection()
         self._hide_fg_selection()
         self._hide_batch_options()
-        self._hide_plan_state_controls()  # F077
+        self._hide_plan_state_controls()
         self._hide_shopping_summary()
         self._hide_assembly_status()
-        self._hide_production_progress()  # F079
+        self._hide_production_progress()
         self._update_button_states()
 
-    def _on_row_select(self, event: Optional[Event]) -> None:
+    def _on_event_dropdown_change(self, event_name: str) -> None:
         """
-        Handle row selection.
+        Handle event dropdown selection change.
 
         Args:
-            event: Selected Event object (None if deselected)
+            event_name: Selected event name from dropdown
         """
-        if event is not None:
-            # Re-query to get attached object for session safety
-            with session_scope() as session:
-                self.selected_event = session.query(Event).filter(Event.id == event.id).first()
-                # Detach from session for use in callbacks
-                if self.selected_event:
-                    session.expunge(self.selected_event)
-        else:
-            self.selected_event = None
+        if event_name == "No events available" or event_name not in self._event_map:
+            self._clear_selection()
+            return
 
+        # Get the selected event
+        event = self._event_map[event_name]
+
+        # Re-query to get attached object for session safety
+        with session_scope() as session:
+            self.selected_event = session.query(Event).filter(Event.id == event.id).first()
+            if self.selected_event:
+                session.expunge(self.selected_event)
+
+        if not self.selected_event:
+            self._clear_selection()
+            return
+
+        # Update UI
+        self._selected_event_id = self.selected_event.id
+        self._update_event_details_display()
         self._update_button_states()
 
-        if self.selected_event:
-            self._update_status(f"Selected: {self.selected_event.name}")
-            self._selected_event_id = self.selected_event.id
-            self._show_recipe_selection(self.selected_event.id)
-            self._show_fg_selection(self.selected_event.id)
-            self._show_batch_options(self.selected_event.id)
-            self._show_plan_state_controls()  # F077
-            self._show_shopping_summary()
-            self._show_assembly_status()
-            self._show_production_progress()  # F079
-        else:
-            self._update_status("Ready")
-            self._selected_event_id = None
-            self._hide_recipe_selection()
-            self._hide_fg_selection()
-            self._hide_batch_options()
-            self._hide_plan_state_controls()  # F077
-            self._hide_shopping_summary()
-            self._hide_assembly_status()
-            self._hide_production_progress()  # F079
+        # Show planning sections
+        self._show_recipe_selection(self.selected_event.id)
+        self._show_fg_selection(self.selected_event.id)
+        self._show_batch_options(self.selected_event.id)
+        self._show_plan_state_controls()
+        self._show_shopping_summary()
+        self._show_assembly_status()
+        self._show_production_progress()
+
+        self._update_status(f"Selected: {self.selected_event.name}")
+
+    def _update_event_details_display(self) -> None:
+        """Update the event details label with date, attendees, and state."""
+        if not self.selected_event:
+            self.event_details_label.configure(text="")
+            return
+
+        details = []
+
+        # Date
+        if self.selected_event.event_date:
+            details.append(self.selected_event.event_date.strftime("%Y-%m-%d"))
+
+        # Attendees
+        if self.selected_event.expected_attendees:
+            details.append(f"{self.selected_event.expected_attendees} attendees")
+
+        # Plan state
+        if self.selected_event.plan_state:
+            state_str = self.selected_event.plan_state.value.replace("_", " ").title()
+            details.append(f"[{state_str}]")
+
+        self.event_details_label.configure(text=" • ".join(details) if details else "")
 
     def _show_recipe_selection(self, event_id: int) -> None:
         """
@@ -1152,17 +1144,6 @@ class PlanningTab(ctk.CTkFrame):
             self._update_status(f"Validation error: {e}", is_error=True)
         except Exception as e:
             self._update_status(f"Failed to save batch decisions: {e}", is_error=True)
-
-    def _on_row_double_click(self, event: Event) -> None:
-        """
-        Handle row double-click (opens edit).
-
-        Args:
-            event: Double-clicked Event object
-        """
-        self._on_row_select(event)
-        if self.selected_event and self._on_edit_event:
-            self._on_edit_event(self.selected_event)
 
     def _update_button_states(self) -> None:
         """Update button enabled/disabled states based on selection."""
