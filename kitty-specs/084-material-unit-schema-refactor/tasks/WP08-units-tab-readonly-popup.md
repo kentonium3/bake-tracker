@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Units Tab Read-Only + Detail Popup
+lane: "doing"
+dependencies: [WP03]
+base_branch: 084-material-unit-schema-refactor-WP03
+base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
+created_at: '2026-01-30T18:30:25.245474+00:00'
 subtasks:
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-title: "Units Tab Read-Only + Detail Popup"
-phase: "Wave 3 - Export/Import & UI"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T037
+- T038
+- T039
+- T040
+phase: Wave 3 - Export/Import & UI
+assignee: ''
+agent: ''
+shell_pid: "41099"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 – Units Tab Read-Only + Detail Popup
