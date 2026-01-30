@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Composition Service Cleanup
-lane: "doing"
+lane: "done"
 dependencies: [WP02]
 base_branch: 084-material-unit-schema-refactor-WP02
 base_commit: 96b9a8deef6854c3ee7f4cee16b0c7bc0d577e6d
@@ -15,8 +15,8 @@ phase: Wave 2 - Service Layer
 assignee: ''
 agent: "claude-opus"
 shell_pid: "44233"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
@@ -357,3 +357,4 @@ Depends on WP02 (Composition model cleanup).
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T18:02:01Z – unknown – shell_pid=33841 – lane=for_review – Removed material_id support from composition service. All 35 composition tests pass.
 - 2026-01-30T18:41:04Z – claude-opus – shell_pid=44233 – lane=doing – Started review via workflow command
+- 2026-01-30T18:41:34Z – claude-opus – shell_pid=44233 – lane=done – Review passed: material_id completely removed from composition service, only comment reference remains, 21 tests pass
