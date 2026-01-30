@@ -99,7 +99,7 @@ These work packages can execute in parallel once Wave 1 is complete.
 **Estimated Size**: ~380 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T013 Update MaterialUnit service CRUD to use material_product_id in `src/services/material_unit_service.py`
+- [x] T013 Update MaterialUnit service CRUD to use material_product_id in `src/services/material_unit_service.py`
 - [ ] T014 Add name uniqueness validation scoped to product in `src/services/material_unit_service.py`
 - [ ] T015 [P] Add slug generation scoped to product in `src/services/material_unit_service.py`
 - [ ] T016 Add deletion validation (prevent if referenced by Composition) in `src/services/material_unit_service.py`
