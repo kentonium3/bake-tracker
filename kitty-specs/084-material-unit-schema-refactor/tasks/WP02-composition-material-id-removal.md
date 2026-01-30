@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Composition material_id Removal
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 084-material-unit-schema-refactor-WP01
 base_commit: 64b0d902e56932294608362cfea41eec2fba009a
@@ -18,8 +18,8 @@ phase: Wave 1 - Schema Foundation
 assignee: ''
 agent: "claude-opus"
 shell_pid: "43497"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
@@ -430,3 +430,4 @@ CheckConstraint(
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T17:41:16Z – unknown – shell_pid=28991 – lane=for_review – Ready for review: material_id column removed, XOR constraint updated to 4-way, 14 model tests pass
 - 2026-01-30T18:38:51Z – claude-opus – shell_pid=43497 – lane=doing – Started review via workflow command
+- 2026-01-30T18:39:21Z – claude-opus – shell_pid=43497 – lane=done – Review passed: material_id column removed, 4-way XOR constraint implemented, factory methods cleaned up, 14 composition tests pass
