@@ -3,13 +3,20 @@ Dialog for creating/editing a MaterialUnit.
 
 Feature 084: MaterialUnit Schema Refactor - WP07.
 MaterialUnits are now children of MaterialProduct, not Material.
+
+Feature 085: Added unit dropdown for linear products with auto-conversion to cm.
 """
 
 import customtkinter as ctk
 from tkinter import messagebox
-from typing import Optional
+from typing import Optional, Dict
 
 from src.services import material_unit_service
+from src.services import material_product_service
+from src.services.material_unit_converter import (
+    get_linear_unit_options,
+    convert_to_cm,
+)
 from src.services.exceptions import ValidationError
 
 
@@ -49,9 +56,17 @@ class MaterialUnitDialog(ctk.CTkToplevel):
         self.unit_data = unit_data
         self.result = None  # Will be True if saved successfully
 
+        # Feature 085: Detect if this is a linear product for unit dropdown
+        self.base_unit_type = self._get_material_base_unit_type()
+        self.unit_dropdown = None
+        self._unit_code_map = None
+        self.preview_label = None
+
         # Configure window
         self.title("Edit Unit" if unit_id else "Add Unit")
-        self.geometry("400x280")
+        # Feature 085: Increase height for linear products (unit dropdown + preview)
+        height = 350 if self._is_linear_product() and not unit_id else 280
+        self.geometry(f"400x{height}")
         self.resizable(False, False)
 
         # Center on parent
@@ -121,11 +136,53 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             self.qty_entry = None
         else:
             # New mode - editable
+            # Feature 085: T012 - Update placeholder based on product type
+            if self._is_linear_product():
+                placeholder = "e.g., 8 (then select unit)"
+            else:
+                placeholder = "e.g., 1.0"
+
             self.qty_entry = ctk.CTkEntry(
-                form_frame, placeholder_text="e.g., 0.1524 (6 inches in meters)"
+                form_frame, placeholder_text=placeholder
             )
             self.qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
+
+        # Feature 085: T010 - Add unit dropdown for linear products (new mode only)
+        if self._is_linear_product() and not self.unit_id:
+            ctk.CTkLabel(form_frame, text="Unit:").grid(
+                row=row, column=0, sticky="w", padx=10, pady=5
+            )
+
+            # Get options from conversion service
+            options = get_linear_unit_options()
+            option_names = [name for _, name in options]
+
+            # Store code mapping for conversion on save
+            self._unit_code_map = {name: code for code, name in options}
+
+            self.unit_dropdown = ctk.CTkComboBox(
+                form_frame,
+                values=option_names,
+                width=200,
+                command=self._update_conversion_preview,
+            )
+            self.unit_dropdown.set(option_names[0])  # Default to cm
+            self.unit_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=5)
+            row += 1
+
+            # Feature 085: T012 - Add conversion preview label
+            self.preview_label = ctk.CTkLabel(
+                form_frame,
+                text="",
+                text_color="gray",
+            )
+            self.preview_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10)
+
+            # Bind quantity entry to update preview on keypress
+            if self.qty_entry:
+                self.qty_entry.bind("<KeyRelease>", self._update_conversion_preview)
+            row += 1
 
         # Description field (optional)
         ctk.CTkLabel(form_frame, text="Description:").grid(
@@ -198,14 +255,23 @@ class MaterialUnitDialog(ctk.CTkToplevel):
                 # Create new unit - validate quantity
                 qty_str = self.qty_entry.get().strip() if self.qty_entry else "1.0"
                 try:
-                    quantity_per_unit = float(qty_str)
-                    if quantity_per_unit <= 0:
+                    quantity = float(qty_str)
+                    if quantity <= 0:
                         raise ValueError("Must be positive")
                 except ValueError:
                     messagebox.showerror(
-                        "Validation Error", "Quantity per Unit must be a positive number."
+                        "Validation Error", "Quantity must be a positive number."
                     )
                     return
+
+                # Feature 085: T011 - Convert to cm if linear product with dropdown
+                if self.unit_dropdown and self._unit_code_map:
+                    selected_display = self.unit_dropdown.get()
+                    unit_code = self._unit_code_map.get(selected_display, "cm")
+                    quantity_per_unit = convert_to_cm(quantity, unit_code)
+                else:
+                    # "each" type or no dropdown - use value as-is
+                    quantity_per_unit = quantity
 
                 if not self.product_id:
                     messagebox.showerror(
@@ -230,3 +296,64 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             messagebox.showerror("Error", "Product not found. Please save the product first.")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save unit: {e}")
+
+    def _get_material_base_unit_type(self) -> str:
+        """
+        Get the base_unit_type for the product's parent material.
+
+        Feature 085: T009 - Detect linear product in dialog.
+
+        Returns:
+            The base_unit_type string ('linear_cm', 'square_cm', or 'each')
+        """
+        if not self.product_id:
+            return "each"  # Default if no product
+
+        try:
+            product = material_product_service.get_product(self.product_id)
+            if product and product.material:
+                return product.material.base_unit_type or "each"
+        except Exception:
+            pass  # Fall through to default
+
+        return "each"  # Default if not found
+
+    def _is_linear_product(self) -> bool:
+        """
+        Check if this is a linear measurement product.
+
+        Feature 085: T009 - Helper for conditional UI.
+
+        Returns:
+            True if the product's material has base_unit_type == 'linear_cm'
+        """
+        return self.base_unit_type == "linear_cm"
+
+    def _update_conversion_preview(self, event=None):
+        """
+        Update the conversion preview label.
+
+        Feature 085: T012 - Shows live conversion as user types.
+        """
+        if not self.preview_label or not self.unit_dropdown or not self._unit_code_map:
+            return
+
+        try:
+            qty_str = self.qty_entry.get().strip() if self.qty_entry else ""
+            if not qty_str:
+                self.preview_label.configure(text="")
+                return
+
+            qty = float(qty_str)
+            if qty <= 0:
+                self.preview_label.configure(text="")
+                return
+
+            selected_display = self.unit_dropdown.get()
+            unit_code = self._unit_code_map.get(selected_display, "cm")
+            result_cm = convert_to_cm(qty, unit_code)
+            self.preview_label.configure(
+                text=f"= {result_cm:.2f} cm (stored value)"
+            )
+        except (ValueError, TypeError):
+            self.preview_label.configure(text="")
