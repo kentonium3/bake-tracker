@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: MaterialUnit Service Updates
+lane: "doing"
+dependencies: [WP01, WP02]
+base_branch: 084-material-unit-schema-refactor-WP03-merge-base
+base_commit: 0fca8101b8fcd2f23ecc38a2e0b83bfeced97b75
+created_at: '2026-01-30T17:42:33.647616+00:00'
 subtasks:
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-title: "MaterialUnit Service Updates"
-phase: "Wave 2 - Service Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01", "WP02"]
+- T013
+- T014
+- T015
+- T016
+- T017
+phase: Wave 2 - Service Layer
+assignee: ''
+agent: ''
+shell_pid: "30558"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – MaterialUnit Service Updates
