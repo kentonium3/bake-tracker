@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "MaterialUnit FK Change"
 phase: "Wave 1 - Schema Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "27103"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -322,3 +322,4 @@ No dependencies - this is the starting work package.
 ## Activity Log
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
+- 2026-01-30T17:24:46Z – claude-opus – shell_pid=27103 – lane=doing – Started implementation via workflow command
