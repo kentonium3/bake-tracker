@@ -292,7 +292,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 **Estimated Size**: ~380 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T041 Create scripts/migrate_material_units.py skeleton with CLI interface
+- [x] T041 Create scripts/migrate_material_units.py skeleton with CLI interface
 - [ ] T042 Implement MaterialUnit duplication transformation (N products × M units) in `scripts/migrate_material_units.py`
 - [ ] T043 Implement orphan detection (Materials with 0 products → unmigrateable) in `scripts/migrate_material_units.py`
 - [ ] T044 Implement Composition material_id skip logging in `scripts/migrate_material_units.py`
