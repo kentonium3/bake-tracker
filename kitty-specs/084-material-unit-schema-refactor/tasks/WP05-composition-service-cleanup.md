@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Composition Service Cleanup
+lane: "doing"
+dependencies: [WP02]
+base_branch: 084-material-unit-schema-refactor-WP02
+base_commit: 96b9a8deef6854c3ee7f4cee16b0c7bc0d577e6d
+created_at: '2026-01-30T17:59:19.271836+00:00'
 subtasks:
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-title: "Composition Service Cleanup"
-phase: "Wave 2 - Service Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T023
+- T024
+- T025
+- T026
+phase: Wave 2 - Service Layer
+assignee: ''
+agent: ''
+shell_pid: "33841"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Composition Service Cleanup
