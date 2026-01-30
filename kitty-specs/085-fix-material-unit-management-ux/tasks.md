@@ -104,7 +104,7 @@
 ### Included Subtasks
 - [x] T009 Detect linear product and conditionally show unit dropdown
 - [x] T010 Add CTkComboBox with unit options from conversion service
-- [ ] T011 Implement conversion on save using `convert_to_cm()`
+- [x] T011 Implement conversion on save using `convert_to_cm()`
 - [ ] T012 Update placeholder text and add conversion hint display
 
 ### Implementation Notes
