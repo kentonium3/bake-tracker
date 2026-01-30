@@ -1,6 +1,6 @@
 # Work Packages: Dual-Yield Recipe Output Support
 
-**Inputs**: Design documents from `kitty-specs/083-dual-yield-recipe-output-support/`
+**Inputs**: Design documents from `kitty-specs/084-dual-yield-recipe-output-support/`
 **Prerequisites**: plan.md (required), spec.md (user stories), research.md, data-model.md
 
 **Tests**: Included for service layer validation per TDD constitution principle.
@@ -153,7 +153,7 @@
 
 ### Included Subtasks
 - [x] T021 Create migration script `scripts/migrate_add_yield_type.py` to transform export JSON
-- [x] T022 Document migration procedure in `docs/migrations/083-dual-yield-migration.md`
+- [x] T022 Document migration procedure in `docs/migrations/084-dual-yield-migration.md`
 - [x] T023 Test full export → transform → import cycle
 - [x] T024 Verify no data loss after migration (record counts, field values)
 

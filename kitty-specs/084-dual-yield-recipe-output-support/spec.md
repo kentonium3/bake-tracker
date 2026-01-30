@@ -1,6 +1,6 @@
 # Feature Specification: Dual-Yield Recipe Output Support
 
-**Feature Branch**: `083-dual-yield-recipe-output-support`
+**Feature Branch**: `084-dual-yield-recipe-output-support`
 **Created**: 2026-01-29
 **Status**: Draft
 **Input**: F084 Dual-Yield Support - Enable recipes to define both EA (whole unit) and SERVING yields

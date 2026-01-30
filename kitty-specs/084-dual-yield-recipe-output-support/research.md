@@ -1,6 +1,6 @@
 # Research: Dual-Yield Recipe Output Support
 
-**Feature**: 083-dual-yield-recipe-output-support
+**Feature**: 084-dual-yield-recipe-output-support
 **Date**: 2026-01-29
 **Status**: Complete
 

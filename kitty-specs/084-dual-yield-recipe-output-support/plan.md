@@ -1,7 +1,7 @@
 # Implementation Plan: Dual-Yield Recipe Output Support
 
-**Branch**: `083-dual-yield-recipe-output-support` | **Date**: 2026-01-29 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `kitty-specs/083-dual-yield-recipe-output-support/spec.md`
+**Branch**: `084-dual-yield-recipe-output-support` | **Date**: 2026-01-29 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `kitty-specs/084-dual-yield-recipe-output-support/spec.md`
 
 ## Summary
 
@@ -51,7 +51,7 @@ Add `yield_type` field ('EA' or 'SERVING') to FinishedUnit model, enabling recip
 ### Documentation (this feature)
 
 ```
-kitty-specs/083-dual-yield-recipe-output-support/
+kitty-specs/084-dual-yield-recipe-output-support/
 ├── spec.md              # Feature specification
 ├── plan.md              # This file
 ├── research.md          # Research findings

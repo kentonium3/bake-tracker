@@ -3,7 +3,7 @@ work_package_id: WP02
 title: Service Layer – yield_type Validation
 lane: "done"
 dependencies: [WP01]
-base_branch: 083-dual-yield-recipe-output-support-WP01
+base_branch: 084-dual-yield-recipe-output-support-WP01
 base_commit: ab69e594ec263da2dfdb1bfb5a310aebe407727f
 created_at: '2026-01-29T17:08:15.481563+00:00'
 subtasks:
@@ -72,8 +72,8 @@ Add service-layer validation for yield_type during FinishedUnit CRUD operations:
 ## Context & Constraints
 
 **Reference documents**:
-- `kitty-specs/083-dual-yield-recipe-output-support/research.md` - Validation patterns (Q4)
-- `kitty-specs/083-dual-yield-recipe-output-support/data-model.md` - Validation rules
+- `kitty-specs/084-dual-yield-recipe-output-support/research.md` - Validation patterns (Q4)
+- `kitty-specs/084-dual-yield-recipe-output-support/data-model.md` - Validation rules
 - `.kittify/memory/constitution.md` - TDD requirements
 
 **Existing validation pattern** (from research.md):

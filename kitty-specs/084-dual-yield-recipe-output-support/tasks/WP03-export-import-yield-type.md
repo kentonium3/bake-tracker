@@ -3,7 +3,7 @@ work_package_id: WP03
 title: Export/Import – yield_type Field
 lane: "done"
 dependencies: [WP02]
-base_branch: 083-dual-yield-recipe-output-support-WP02
+base_branch: 084-dual-yield-recipe-output-support-WP02
 base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
 created_at: '2026-01-29T17:21:08.300878+00:00'
 subtasks:
@@ -74,8 +74,8 @@ Update export to include yield_type; update import to read and validate yield_ty
 ## Context & Constraints
 
 **Reference documents**:
-- `kitty-specs/083-dual-yield-recipe-output-support/research.md` - Export/import patterns (Q3)
-- `kitty-specs/083-dual-yield-recipe-output-support/data-model.md` - Export format
+- `kitty-specs/084-dual-yield-recipe-output-support/research.md` - Export/import patterns (Q3)
+- `kitty-specs/084-dual-yield-recipe-output-support/data-model.md` - Export format
 - `.kittify/memory/constitution.md` - Principle VI: Schema Change Strategy
 
 **Current export structure** (from research.md):

@@ -70,8 +70,8 @@ Add `yield_type` column to the FinishedUnit model with appropriate constraints:
 ## Context & Constraints
 
 **Reference documents**:
-- `kitty-specs/083-dual-yield-recipe-output-support/data-model.md` - Schema changes
-- `kitty-specs/083-dual-yield-recipe-output-support/research.md` - Constraint patterns (Q2)
+- `kitty-specs/084-dual-yield-recipe-output-support/data-model.md` - Schema changes
+- `kitty-specs/084-dual-yield-recipe-output-support/research.md` - Constraint patterns (Q2)
 - `.kittify/memory/constitution.md` - Architecture principles
 
 **Existing patterns** (from research.md):

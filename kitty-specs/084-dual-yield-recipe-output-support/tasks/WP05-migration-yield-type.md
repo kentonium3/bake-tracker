@@ -4,7 +4,7 @@ title: Migration – Transform Existing Data
 lane: "done"
 dependencies:
 - WP01
-base_branch: 083-dual-yield-recipe-output-support-WP01
+base_branch: 084-dual-yield-recipe-output-support-WP01
 base_commit: ab69e594ec263da2dfdb1bfb5a310aebe407727f
 created_at: '2026-01-29T17:51:36.781371+00:00'
 subtasks:
@@ -75,8 +75,8 @@ Create migration script and documentation for upgrading existing databases:
 ## Context & Constraints
 
 **Reference documents**:
-- `kitty-specs/083-dual-yield-recipe-output-support/research.md` - Migration strategy (Q6)
-- `kitty-specs/083-dual-yield-recipe-output-support/data-model.md` - Transformation rule
+- `kitty-specs/084-dual-yield-recipe-output-support/research.md` - Migration strategy (Q6)
+- `kitty-specs/084-dual-yield-recipe-output-support/data-model.md` - Transformation rule
 - `.kittify/memory/constitution.md` - Principle VI: Schema Change Strategy
 
 **Constitutional migration workflow**:
@@ -234,7 +234,7 @@ if __name__ == "__main__":
 **Purpose**: Provide clear instructions for users upgrading to this version.
 
 **Steps**:
-1. Create `docs/migrations/083-dual-yield-migration.md`:
+1. Create `docs/migrations/084-dual-yield-migration.md`:
 
 ```markdown
 # Migration Guide: 083 Dual-Yield Recipe Output Support
@@ -346,7 +346,7 @@ If you encounter issues, please open an issue on GitHub with:
 - Steps to reproduce
 ```
 
-**Files**: `docs/migrations/083-dual-yield-migration.md` (new file)
+**Files**: `docs/migrations/084-dual-yield-migration.md` (new file)
 
 **Parallel**: Yes - can be developed alongside T021
 
@@ -609,7 +609,7 @@ with session_scope() as session:
 ```
 ```
 
-**Files**: Update `docs/migrations/083-dual-yield-migration.md`
+**Files**: Update `docs/migrations/084-dual-yield-migration.md`
 
 **Notes**:
 - Checklist for manual verification

@@ -3,7 +3,7 @@ work_package_id: WP04
 title: UI – yield_type Dropdown
 lane: "done"
 dependencies: [WP02]
-base_branch: 083-dual-yield-recipe-output-support-WP02
+base_branch: 084-dual-yield-recipe-output-support-WP02
 base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
 created_at: '2026-01-29T17:34:12.053054+00:00'
 subtasks:
@@ -78,7 +78,7 @@ Add yield_type dropdown to recipe form; update displays to show yield_type:
 ## Context & Constraints
 
 **Reference documents**:
-- `kitty-specs/083-dual-yield-recipe-output-support/research.md` - UI patterns (Q5)
+- `kitty-specs/084-dual-yield-recipe-output-support/research.md` - UI patterns (Q5)
 - `.kittify/memory/constitution.md` - User-centric design principles
 
 **Current YieldTypeRow layout** (research.md Q5):
