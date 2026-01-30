@@ -19,9 +19,9 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T001 Investigate Material Units tab to find the broken query
-- [ ] T002 Fix query to use MaterialProduct → MaterialUnit relationship (F084 schema)
-- [ ] T003 Add product name column to the listing for context
+- [x] T001 Investigate Material Units tab to find the broken query
+- [x] T002 Fix query to use MaterialProduct → MaterialUnit relationship (F084 schema)
+- [x] T003 Add product name column to the listing for context
 
 ### Implementation Notes
 - The F084 schema change moved MaterialUnit from Material to MaterialProduct
