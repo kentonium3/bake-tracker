@@ -199,7 +199,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 - [x] T027 Update MaterialUnit export to use material_product_slug in `src/services/import_export_service.py`
 - [x] T028 Update MaterialUnit import to resolve material_product_slug in `src/services/catalog_import_service.py`
 - [x] T029 [P] Update Composition export to not include material_id in `src/services/import_export_service.py`
-- [ ] T030 [P] Update Composition import to skip records with material_id in `src/services/catalog_import_service.py`
+- [x] T030 [P] Update Composition import to skip records with material_id in `src/services/catalog_import_service.py`
 - [ ] T031 Add export/import tests for MaterialUnit with new FK in `src/tests/test_import_export_service.py`
 
 ### Implementation Notes
