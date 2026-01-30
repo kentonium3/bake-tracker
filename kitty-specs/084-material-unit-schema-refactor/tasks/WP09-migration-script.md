@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP09"
+work_package_id: WP09
+title: Migration Transformation Script
+lane: "doing"
+dependencies: [WP06]
+base_branch: 084-material-unit-schema-refactor-WP06
+base_commit: d9c2ca251e85fea7ce79202b8f26d1eacdec9076
+created_at: '2026-01-30T18:15:23.377609+00:00'
 subtasks:
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-title: "Migration Transformation Script"
-phase: "Wave 4 - Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP06"]
+- T041
+- T042
+- T043
+- T044
+- T045
+phase: Wave 4 - Migration
+assignee: ''
+agent: ''
+shell_pid: "37570"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 – Migration Transformation Script
