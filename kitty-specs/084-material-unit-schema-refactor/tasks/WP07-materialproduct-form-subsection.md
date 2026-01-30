@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: MaterialProduct Form Sub-Section UI
+lane: "doing"
+dependencies: [WP03, WP04]
+base_branch: 084-material-unit-schema-refactor-WP04
+base_commit: 631b3b57cd9633165fb85cf9c6cd26afb95ad74b
+created_at: '2026-01-30T18:19:26.373055+00:00'
 subtasks:
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-title: "MaterialProduct Form Sub-Section UI"
-phase: "Wave 3 - Export/Import & UI"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03", "WP04"]
+- T032
+- T033
+- T034
+- T035
+- T036
+phase: Wave 3 - Export/Import & UI
+assignee: ''
+agent: ''
+shell_pid: "38722"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – MaterialProduct Form Sub-Section UI
