@@ -196,7 +196,7 @@ These work packages can execute in parallel once Wave 2 is complete.
 **Estimated Size**: ~380 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T027 Update MaterialUnit export to use material_product_slug in `src/services/import_export_service.py`
+- [x] T027 Update MaterialUnit export to use material_product_slug in `src/services/import_export_service.py`
 - [ ] T028 Update MaterialUnit import to resolve material_product_slug in `src/services/catalog_import_service.py`
 - [ ] T029 [P] Update Composition export to not include material_id in `src/services/import_export_service.py`
 - [ ] T030 [P] Update Composition import to skip records with material_id in `src/services/catalog_import_service.py`
