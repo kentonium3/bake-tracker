@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Export/Import Updates
-lane: "doing"
+lane: "done"
 dependencies: [WP03]
 base_branch: 084-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -16,8 +16,8 @@ phase: Wave 3 - Export/Import & UI
 assignee: ''
 agent: "claude-opus"
 shell_pid: "44477"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
@@ -475,3 +475,4 @@ if material_product_id is None:
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T18:14:45Z – unknown – shell_pid=34519 – lane=for_review – All subtasks complete, 10 tests added, 143 tests passing
 - 2026-01-30T18:41:40Z – claude-opus – shell_pid=44477 – lane=doing – Started review via workflow command
+- 2026-01-30T18:42:54Z – claude-opus – shell_pid=44477 – lane=done – Review passed: Export uses material_product_slug, import resolves correctly, composition excludes material_id, roundtrip works, 10 Feature 084 tests pass
