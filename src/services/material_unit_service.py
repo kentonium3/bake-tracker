@@ -24,7 +24,7 @@ import math
 import re
 import unicodedata
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..models import (
@@ -250,12 +250,21 @@ def _get_unit_impl(
 def _list_units_impl(
     material_product_id: Optional[int],
     session: Session,
+    include_relationships: bool = False,
 ) -> List[MaterialUnit]:
     """Implementation for list_units.
 
     Feature 084: Changed filter from material_id to material_product_id.
+    Feature 085: Added include_relationships flag for eager loading.
     """
     query = session.query(MaterialUnit)
+
+    # Feature 085: Eager load relationships when needed for UI display
+    if include_relationships:
+        query = query.options(
+            joinedload(MaterialUnit.material_product).joinedload(MaterialProduct.material)
+        )
+
     if material_product_id is not None:
         query = query.filter(MaterialUnit.material_product_id == material_product_id)
     return query.order_by(MaterialUnit.name).all()
@@ -593,23 +602,26 @@ def get_unit(
 
 def list_units(
     material_product_id: Optional[int] = None,
+    include_relationships: bool = False,
     session: Optional[Session] = None,
 ) -> List[MaterialUnit]:
     """List MaterialUnits, optionally filtered by product.
 
     Feature 084: Changed filter from material_id to material_product_id.
+    Feature 085: Added include_relationships for eager loading.
 
     Args:
-        material_product_id: Filter by product (optional)
+        material_product_id: Filter by product (optional, None = all units)
+        include_relationships: If True, eager load material_product and material
         session: Optional database session
 
     Returns:
         List of MaterialUnits ordered by name
     """
     if session is not None:
-        return _list_units_impl(material_product_id, session)
+        return _list_units_impl(material_product_id, session, include_relationships)
     with session_scope() as sess:
-        return _list_units_impl(material_product_id, sess)
+        return _list_units_impl(material_product_id, sess, include_relationships)
 
 
 def update_unit(

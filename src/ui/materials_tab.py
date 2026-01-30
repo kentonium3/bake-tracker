@@ -3039,8 +3039,9 @@ class MaterialUnitsTab:
         """
         units = []
         try:
-            # Load all units (no filter = all units)
-            all_units = material_unit_service.list_units()
+            # Load all units with relationships for display
+            # Feature 085: Use include_relationships=True to eager load product/material
+            all_units = material_unit_service.list_units(include_relationships=True)
             for unit in all_units:
                 unit_id = _get_value(unit, "id")
                 unit_name = _get_value(unit, "name")
