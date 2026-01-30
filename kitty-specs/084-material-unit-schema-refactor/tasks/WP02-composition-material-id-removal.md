@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Composition material_id Removal
+lane: "doing"
+dependencies: [WP01]
+base_branch: 084-material-unit-schema-refactor-WP01
+base_commit: 64b0d902e56932294608362cfea41eec2fba009a
+created_at: '2026-01-30T17:35:56.645658+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Composition material_id Removal"
-phase: "Wave 1 - Schema Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Wave 1 - Schema Foundation
+assignee: ''
+agent: ''
+shell_pid: "28991"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Composition material_id Removal
