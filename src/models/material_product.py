@@ -39,12 +39,22 @@ class MaterialProduct(BaseModel):
         slug: URL-friendly identifier for stable import/export references
         brand: Brand name (e.g., "Michaels")
         sku: Supplier SKU (nullable)
-        package_quantity: Quantity per package (e.g., 100 for 100ft)
-        package_unit: Unit of package (e.g., 'feet', 'yards', 'each')
-        quantity_in_base_units: Converted quantity in base units (cm)
+        package_quantity: User-supplied quantity per package in package_unit
+        package_unit: User-supplied unit (e.g., 'feet', 'yards', 'each')
+        quantity_in_base_units: Normalized quantity for calculations (see note below)
         is_hidden: Hide from selection lists
         is_provisional: Product created with minimal info, needs completion (F059)
         notes: User notes
+
+    Note on package_quantity vs quantity_in_base_units:
+        - package_quantity + package_unit: User-friendly representation in any unit
+          the user prefers (e.g., 500 yards, 100 feet, 25 each)
+        - quantity_in_base_units: Normalized value for internal calculations:
+          * For "each" type materials: equals package_quantity (no conversion)
+          * For linear materials: converted to centimeters (cm)
+          * For area materials: converted to square centimeters (sq cm)
+        Example: A 500-yard ribbon spool would have:
+          package_quantity=500, package_unit='yards', quantity_in_base_units=45720 (cm)
 
     Relationships:
         material: Many-to-One with Material
@@ -85,15 +95,8 @@ class MaterialProduct(BaseModel):
 
     # Visibility and status
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
-    # Feature 059: Provisional products created via CLI with minimal info
-    is_provisional = Column(Boolean, nullable=False, default=False, index=True)
-
-    # Feature 059: Provisional product support
-    # Provisional products are created with minimal metadata and can be enriched later
-    is_provisional = Column(Boolean, nullable=False, default=False, index=True)
-
-    # Feature 059: Provisional product flag for products created via CLI
-    # with minimal information that need enrichment later
+    # Feature 059: Provisional products created via CLI with minimal info,
+    # can be enriched later with complete metadata
     is_provisional = Column(Boolean, nullable=False, default=False, index=True)
 
     # Additional information
