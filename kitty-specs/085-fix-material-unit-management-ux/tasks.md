@@ -76,7 +76,7 @@
 ### Included Subtasks
 - [x] T006 Create `src/services/unit_conversion_service.py` with LINEAR_UNITS dict
 - [x] T007 Implement `convert_to_cm()` and `get_linear_unit_options()` functions
-- [ ] T008 Write comprehensive tests for the conversion service
+- [x] T008 Write comprehensive tests for the conversion service
 
 ### Implementation Notes
 - Conversion factors: cm=1.0, in=2.54, ft=30.48, yd=91.44, m=100.0
