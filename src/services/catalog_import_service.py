@@ -2179,19 +2179,24 @@ def _import_material_units_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of material unit import."""
+    """Internal implementation of material unit import.
+
+    Feature 084: MaterialUnit now references MaterialProduct (not Material).
+    Import uses material_product_slug to resolve the FK.
+    Old format (material_slug) is handled with a warning for migration.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
 
-    material_lookup = {row.slug: row.id for row in session.query(Material).all()}
+    # Feature 084: Changed from Material to MaterialProduct lookup
+    product_lookup = {row.slug: row.id for row in session.query(MaterialProduct).all()}
 
     existing_slugs = {row.slug: row for row in session.query(MaterialUnit).all()}
 
     for item in data:
         slug = item.get("slug", "")
         name = item.get("name", "")
-        material_slug = item.get("material_slug", "")
         identifier = slug or name or "unknown"
 
         if not name:
@@ -2204,13 +2209,29 @@ def _import_material_units_impl(
             )
             continue
 
-        if not material_slug:
+        # Feature 084: Use material_product_slug instead of material_slug
+        material_product_slug = item.get("material_product_slug", "")
+
+        # Handle old format (material_slug) with warning
+        if not material_product_slug:
+            old_slug = item.get("material_slug", "")
+            if old_slug:
+                result.add_error(
+                    "material_units",
+                    identifier,
+                    "migration_required",
+                    f"Old format detected (material_slug='{old_slug}'). "
+                    f"Use material_product_slug instead.",
+                    "Run migration script (WP09) or update export file to use "
+                    "material_product_slug referencing a MaterialProduct",
+                )
+                continue
             result.add_error(
                 "material_units",
                 identifier,
                 "validation",
-                "Missing required field: material_slug",
-                "Add 'material_slug' referencing an existing material",
+                "Missing required field: material_product_slug",
+                "Add 'material_product_slug' referencing an existing MaterialProduct",
             )
             continue
 
@@ -2225,14 +2246,15 @@ def _import_material_units_impl(
             )
             continue
 
-        material_id = material_lookup.get(material_slug)
-        if material_id is None:
+        # Feature 084: Resolve MaterialProduct FK
+        material_product_id = product_lookup.get(material_product_slug)
+        if material_product_id is None:
             result.add_error(
                 "material_units",
                 identifier,
                 "fk_missing",
-                f"Material '{material_slug}' not found",
-                "Import the material first or check the slug spelling",
+                f"MaterialProduct '{material_product_slug}' not found",
+                "Import the material product first or check the slug spelling",
             )
             continue
 
@@ -2255,8 +2277,9 @@ def _import_material_units_impl(
                 result.add_skip("material_units", slug, "No null fields to update")
             continue
 
+        # Feature 084: Use material_product_id instead of material_id
         unit = MaterialUnit(
-            material_id=material_id,
+            material_product_id=material_product_id,
             name=name,
             slug=slug,
             quantity_per_unit=quantity_per_unit,

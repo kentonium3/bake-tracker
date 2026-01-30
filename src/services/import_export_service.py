@@ -52,6 +52,7 @@ from src.models.plan_amendment import PlanAmendment, AmendmentType
 from src.models.recipe import Recipe, RecipeComponent, RecipeIngredient
 from src.models.material import Material
 from src.models.material_product import MaterialProduct
+from src.models.material_unit import MaterialUnit  # Feature 084
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
 from src.utils.constants import (
@@ -884,6 +885,7 @@ def export_compositions_to_json() -> List[Dict]:
                 joinedload(Composition.finished_unit_component),
                 joinedload(Composition.finished_good_component),
                 joinedload(Composition.packaging_product),  # Feature 011
+                joinedload(Composition.material_unit_component),  # Feature 084
                 joinedload(Composition.assignments),  # Feature 026
             )
             .all()
@@ -905,15 +907,18 @@ def export_compositions_to_json() -> List[Dict]:
                 comp_data["finished_good_slug"] = None
                 comp_data["package_name"] = None
 
-            # Component reference - XOR: finished_unit OR finished_good OR packaging_product (Feature 011)
+            # Component reference - XOR: 4-way (Feature 084: material_id removed)
+            # finished_unit OR finished_good OR packaging_product OR material_unit
             if comp.finished_unit_component:
                 comp_data["finished_unit_slug"] = comp.finished_unit_component.slug
                 comp_data["finished_good_component_slug"] = None
                 comp_data["packaging_product_id"] = None
+                comp_data["material_unit_slug"] = None
             elif comp.finished_good_component:
                 comp_data["finished_unit_slug"] = None
                 comp_data["finished_good_component_slug"] = comp.finished_good_component.slug
                 comp_data["packaging_product_id"] = None
+                comp_data["material_unit_slug"] = None
             elif comp.packaging_product:
                 comp_data["finished_unit_slug"] = None
                 comp_data["finished_good_component_slug"] = None
@@ -925,10 +930,18 @@ def export_compositions_to_json() -> List[Dict]:
                     else None
                 )
                 comp_data["packaging_product_brand"] = comp.packaging_product.brand
+                comp_data["material_unit_slug"] = None
+            elif comp.material_unit_component:
+                # Feature 084: Export material_unit_slug for material compositions
+                comp_data["finished_unit_slug"] = None
+                comp_data["finished_good_component_slug"] = None
+                comp_data["packaging_product_id"] = None
+                comp_data["material_unit_slug"] = comp.material_unit_component.slug
             else:
                 comp_data["finished_unit_slug"] = None
                 comp_data["finished_good_component_slug"] = None
                 comp_data["packaging_product_id"] = None
+                comp_data["material_unit_slug"] = None
 
             # Feature 026: is_generic flag for deferred packaging
             comp_data["is_generic"] = comp.is_generic or False
@@ -1232,6 +1245,7 @@ def export_all_to_json(
             "material_subcategories": [],
             "materials": [],
             "material_products": [],
+            "material_units": [],  # Feature 084
             # Planning entities (Feature 068)
             "event_recipes": [],
             "event_finished_goods": [],
@@ -1725,6 +1739,28 @@ def export_all_to_json(
                     }
                 )
 
+        # Add material units (Feature 084)
+        with session_scope() as session:
+            mat_units = (
+                session.query(MaterialUnit)
+                .options(joinedload(MaterialUnit.material_product))
+                .all()
+            )
+            for u in mat_units:
+                export_data["material_units"].append(
+                    {
+                        "uuid": str(u.uuid) if u.uuid else None,
+                        # Feature 084: Use material_product_slug (not material_slug)
+                        "material_product_slug": (
+                            u.material_product.slug if u.material_product else None
+                        ),
+                        "name": u.name,
+                        "slug": u.slug,
+                        "quantity_per_unit": u.quantity_per_unit,
+                        "description": u.description,
+                    }
+                )
+
         # Add planning entities (Feature 068)
         with session_scope() as session:
             # Build event name lookup for FK references
@@ -1797,7 +1833,8 @@ def export_all_to_json(
                 "products": ["products"],
                 "recipes": ["recipes", "finished_units", "compositions"],
                 "materials": ["material_categories", "material_subcategories", "materials"],
-                "material_products": ["material_products"],
+                # Feature 084: Include material_units with material_products
+                "material_products": ["material_products", "material_units"],
             }
 
             # Build set of keys to keep
@@ -1841,6 +1878,7 @@ def export_all_to_json(
             + len(export_data["material_subcategories"])
             + len(export_data["materials"])
             + len(export_data["material_products"])
+            + len(export_data["material_units"])  # Feature 084
             # Planning entities (Feature 068)
             + len(export_data["event_recipes"])
             + len(export_data["event_finished_goods"])
@@ -1885,6 +1923,7 @@ def export_all_to_json(
         )
         result.add_entity_count("materials", len(export_data["materials"]))
         result.add_entity_count("material_products", len(export_data["material_products"]))
+        result.add_entity_count("material_units", len(export_data["material_units"]))  # F084
         # Planning entities (Feature 068)
         result.add_entity_count("event_recipes", len(export_data["event_recipes"]))
         result.add_entity_count("event_finished_goods", len(export_data["event_finished_goods"]))
@@ -2059,6 +2098,8 @@ def import_compositions_from_json(
     Import Composition records from v3.0/v3.1 format data.
 
     Feature 011: Supports package_id and packaging_product_id for packaging compositions.
+    Feature 084: Supports material_unit_slug for material compositions.
+                 Deprecated material_slug is rejected with error and migration guidance.
 
     Args:
         data: List of composition dictionaries
@@ -2078,7 +2119,20 @@ def import_compositions_from_json(
             finished_good_component_slug = record.get("finished_good_component_slug")
             packaging_ingredient_slug = record.get("packaging_ingredient_slug")  # Feature 011
             packaging_product_brand = record.get("packaging_product_brand")  # Feature 011
+            material_unit_slug = record.get("material_unit_slug")  # Feature 084
             quantity = float(record.get("component_quantity", 1.0))  # Ensure float
+
+            # Feature 084: Check for deprecated material_slug (old format)
+            deprecated_material_slug = record.get("material_slug")
+            if deprecated_material_slug:
+                parent_name = finished_good_slug or package_name or "unknown"
+                result.add_skip(
+                    "composition",
+                    parent_name,
+                    f"Skipped: material_slug='{deprecated_material_slug}' is deprecated. "
+                    "Convert to material_unit_slug using migration script (WP09).",
+                )
+                continue
 
             # Validate quantity
             if quantity <= 0:
@@ -2101,11 +2155,13 @@ def import_compositions_from_json(
                 )
                 continue
 
-            # Component XOR validation: must have exactly one component type
+            # Component XOR validation: must have exactly one component type (4-way)
+            # Feature 084: Added material_unit_slug, removed material_slug
             component_refs = [
                 finished_unit_slug,
                 finished_good_component_slug,
                 packaging_ingredient_slug,
+                material_unit_slug,
             ]
             non_null_components = [x for x in component_refs if x is not None]
             if len(non_null_components) != 1:
@@ -2143,6 +2199,7 @@ def import_compositions_from_json(
             finished_unit_id = None
             finished_good_id = None
             packaging_product_id = None
+            material_unit_id = None  # Feature 084
 
             if finished_unit_slug:
                 fu = session.query(FinishedUnit).filter_by(slug=finished_unit_slug).first()
@@ -2200,6 +2257,17 @@ def import_compositions_from_json(
                     )
                     continue
                 packaging_product_id = product.id
+            elif material_unit_slug:
+                # Feature 084: Resolve material unit by slug
+                mat_unit = session.query(MaterialUnit).filter_by(slug=material_unit_slug).first()
+                if not mat_unit:
+                    result.add_error(
+                        "composition",
+                        finished_good_slug or package_name,
+                        f"MaterialUnit not found: {material_unit_slug}",
+                    )
+                    continue
+                material_unit_id = mat_unit.id
 
             # Check for duplicate
             if skip_duplicates:
@@ -2211,6 +2279,7 @@ def import_compositions_from_json(
                         finished_unit_id=finished_unit_id,
                         finished_good_id=finished_good_id,
                         packaging_product_id=packaging_product_id,
+                        material_unit_id=material_unit_id,  # Feature 084
                     )
                     .first()
                 )
@@ -2220,6 +2289,7 @@ def import_compositions_from_json(
                         finished_unit_slug
                         or finished_good_component_slug
                         or packaging_ingredient_slug
+                        or material_unit_slug  # Feature 084
                     )
                     result.add_skip(
                         "composition", f"{parent_name}->{component_name}", "Already exists"
@@ -2233,6 +2303,7 @@ def import_compositions_from_json(
                 finished_unit_id=finished_unit_id,
                 finished_good_id=finished_good_id,
                 packaging_product_id=packaging_product_id,  # Feature 011
+                material_unit_id=material_unit_id,  # Feature 084
                 component_quantity=quantity,
                 sort_order=record.get("sort_order", 0),
                 component_notes=record.get("notes"),

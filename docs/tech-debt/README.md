@@ -25,7 +25,10 @@ Files follow the pattern: `TD###_short_description.md`
 
 | ID | Description | Priority | Effort | Area |
 |----|-------------|----------|--------|------|
-| [TD001](<./TD001_consolidate_slug_utils.md>) | Consolidate duplicate slug generation functions | Low | Small | src/utils/slug_utils.py |
+| [TD-008](<./TD-008_materials_composition_layering_and_quantity_validation.md>) | Materials composition layering and quantity validation | Medium | Medium | Materials system |
+| [TD-010](<./TD-010_purchase_service_boundary_violations.md>) | Purchase service boundary violations | Medium | Medium | src/services/purchase_service.py |
+| [TD-011](<./TD-011_consolidate_slug_utils.md>) | Consolidate duplicate slug generation functions | Low | Small | src/utils/slug_utils.py |
+| [TD-012](<./TD-012_import_slug_upgrade_via_previous_slug.md>) | Import does not upgrade slugs via previous_slug | High | Small | src/services/enhanced_import_service.py |
 
 ## Resolved Items
 
