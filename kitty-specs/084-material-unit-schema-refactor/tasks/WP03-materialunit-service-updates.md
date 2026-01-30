@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: MaterialUnit Service Updates
-lane: "doing"
+lane: "done"
 dependencies: [WP01, WP02]
 base_branch: 084-material-unit-schema-refactor-WP03-merge-base
 base_commit: 0fca8101b8fcd2f23ecc38a2e0b83bfeced97b75
@@ -16,8 +16,8 @@ phase: Wave 2 - Service Layer
 assignee: ''
 agent: "claude-opus"
 shell_pid: "43729"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
@@ -484,3 +484,4 @@ def _generate_unique_slug(name: str, session: Session, material_product_id: int)
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T17:51:29Z – unknown – shell_pid=30558 – lane=for_review – Service and tests updated for material_product_id FK
 - 2026-01-30T18:39:27Z – claude-opus – shell_pid=43729 – lane=doing – Started review via workflow command
+- 2026-01-30T18:40:03Z – claude-opus – shell_pid=43729 – lane=done – Review passed: All CRUD operations use material_product_id, name/slug uniqueness per product, composition reference deletion protection, 40 service tests pass
