@@ -512,6 +512,9 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         # Populate if editing
         if self.product:
             self._populate_form()
+            # Feature 085: Update button visibility AFTER material is set
+            # This ensures linear products show the Add button correctly
+            self._update_add_unit_button_visibility()
 
         # Show dialog after UI is complete
         self.deiconify()
@@ -792,16 +795,30 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             self.add_unit_btn.pack_forget()
 
     def _on_units_tree_select(self, event=None):
-        """Update button states based on selection."""
+        """
+        Update button states based on selection.
+
+        Feature 085: Explicitly update widgets after state change to ensure
+        CTk/tkinter properly reflects the new state. Also ensure this works
+        for ALL material types (each, linear_cm, square_cm).
+        """
         if not self.units_tree:
             return
 
         selection = self.units_tree.selection()
         state = "normal" if selection else "disabled"
+
+        # Feature 085: Update Edit button state
         if self.edit_unit_btn:
             self.edit_unit_btn.configure(state=state)
+            # Force widget update to ensure state change is reflected
+            self.edit_unit_btn.update_idletasks()
+
+        # Feature 085: Update Delete button state
         if self.delete_unit_btn:
             self.delete_unit_btn.configure(state=state)
+            # Force widget update to ensure state change is reflected
+            self.delete_unit_btn.update_idletasks()
 
     def _on_add_unit_click(self):
         """Open dialog to add new unit."""
