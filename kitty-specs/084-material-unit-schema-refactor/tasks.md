@@ -29,11 +29,11 @@ These work packages must complete before Wave 2 can begin.
 **Estimated Size**: ~350 lines (5 subtasks)
 
 ### Included Subtasks
-- [ ] T001 Update MaterialUnit model FK from material_id to material_product_id in `src/models/material_unit.py`
-- [ ] T002 Add UniqueConstraint for (material_product_id, slug) and (material_product_id, name) in `src/models/material_unit.py`
-- [ ] T003 Add material_units relationship to MaterialProduct in `src/models/material_product.py`
-- [ ] T004 Remove units relationship from Material in `src/models/material.py`
-- [ ] T005 Update MaterialUnit model tests in `src/tests/test_material_unit.py`
+- [x] T001 Update MaterialUnit model FK from material_id to material_product_id in `src/models/material_unit.py`
+- [x] T002 Add UniqueConstraint for (material_product_id, slug) and (material_product_id, name) in `src/models/material_unit.py`
+- [x] T003 Add material_units relationship to MaterialProduct in `src/models/material_product.py`
+- [x] T004 Remove units relationship from Material in `src/models/material.py`
+- [x] T005 Update MaterialUnit model tests in `src/tests/test_material_unit.py`
 
 ### Implementation Notes
 1. Change FK definition: `material_id` → `material_product_id` with CASCADE delete
