@@ -161,7 +161,7 @@ These work packages can execute in parallel once Wave 1 is complete.
 **Estimated Size**: ~280 lines (4 subtasks)
 
 ### Included Subtasks
-- [ ] T023 Remove material_id support from CompositionService in `src/services/composition_service.py`
+- [x] T023 Remove material_id support from CompositionService in `src/services/composition_service.py`
 - [ ] T024 Update create_composition() to reject material_id parameter in `src/services/composition_service.py`
 - [ ] T025 Update get_compositions() to not return material_id in `src/services/composition_service.py`
 - [ ] T026 Update Composition service tests in `src/tests/test_composition_service.py`
