@@ -47,7 +47,7 @@
 **Estimated Size**: ~200 lines
 
 ### Included Subtasks
-- [ ] T004 Debug _on_units_tree_select handler to identify why buttons stay disabled
+- [x] T004 Debug _on_units_tree_select handler to identify why buttons stay disabled
 - [ ] T005 Fix button enablement to work for all material types (each, linear_cm, square_cm)
 
 ### Implementation Notes
