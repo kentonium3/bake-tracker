@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: MaterialProduct Form Sub-Section UI
-lane: "for_review"
+lane: "doing"
 dependencies: [WP03, WP04]
 base_branch: 084-material-unit-schema-refactor-WP04
 base_commit: 631b3b57cd9633165fb85cf9c6cd26afb95ad74b
@@ -14,8 +14,8 @@ subtasks:
 - T036
 phase: Wave 3 - Export/Import & UI
 assignee: ''
-agent: ''
-shell_pid: "38722"
+agent: "claude-opus"
+shell_pid: "45019"
 review_status: ''
 reviewed_by: ''
 history:
@@ -555,3 +555,4 @@ python src/main.py
 
 - 2026-01-30T17:11:03Z – system – lane=planned – Prompt generated via /spec-kitty.tasks
 - 2026-01-30T18:30:05Z – unknown – shell_pid=38722 – lane=for_review – Implementation complete: MaterialUnits sub-section added to MaterialProduct form
+- 2026-01-30T18:43:00Z – claude-opus – shell_pid=45019 – lane=doing – Started review via workflow command
