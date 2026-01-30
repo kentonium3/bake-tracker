@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Create Unit Conversion Service
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: 527cc40cbd4164ef113901a1abb11301bc54c24a
@@ -12,8 +12,8 @@ subtasks:
 - T008
 phase: Phase 2 - Enhancement
 assignee: ''
-agent: ''
-shell_pid: "78063"
+agent: "claude-opus"
+shell_pid: "79454"
 review_status: ''
 reviewed_by: ''
 history:
@@ -427,3 +427,4 @@ No dependencies - this WP starts fresh from main.
 
 - 2026-01-30T22:39:29Z – system – lane=planned – Prompt created.
 - 2026-01-30T23:06:36Z – unknown – shell_pid=78063 – lane=for_review – Added dropdown helpers and simple wrappers to existing material_unit_converter.py - all 77 tests pass
+- 2026-01-30T23:06:40Z – claude-opus – shell_pid=79454 – lane=doing – Started review via workflow command
