@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Export/Import Updates
+lane: "doing"
+dependencies: [WP03]
+base_branch: 084-material-unit-schema-refactor-WP03
+base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
+created_at: '2026-01-30T18:02:17.872122+00:00'
 subtasks:
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-title: "Export/Import Updates"
-phase: "Wave 3 - Export/Import & UI"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T027
+- T028
+- T029
+- T030
+- T031
+phase: Wave 3 - Export/Import & UI
+assignee: ''
+agent: ''
+shell_pid: "34519"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – Export/Import Updates
