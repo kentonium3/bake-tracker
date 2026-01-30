@@ -8,12 +8,12 @@ subtasks:
   - "T005"
 title: "MaterialUnit FK Change"
 phase: "Wave 1 - Schema Foundation"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "42490"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-30T17:11:03Z"
@@ -325,3 +325,4 @@ No dependencies - this is the starting work package.
 - 2026-01-30T17:24:46Z – claude-opus – shell_pid=27103 – lane=doing – Started implementation via workflow command
 - 2026-01-30T17:35:09Z – claude-opus – shell_pid=27103 – lane=for_review – Ready for review: MaterialUnit FK changed from Material to MaterialProduct, compound unique constraints added, 19 model tests pass
 - 2026-01-30T18:35:22Z – claude-opus – shell_pid=42490 – lane=doing – Started review via workflow command
+- 2026-01-30T18:38:46Z – claude-opus – shell_pid=42490 – lane=done – Review passed: MaterialUnit FK correctly changed to MaterialProduct, compound unique constraints implemented, cascade delete-orphan working, 19 model tests pass
