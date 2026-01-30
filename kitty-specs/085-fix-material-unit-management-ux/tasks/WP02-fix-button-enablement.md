@@ -1,23 +1,26 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T004"
-  - "T005"
-title: "Fix Edit/Delete Button Enablement"
-phase: "Phase 1 - Bug Fixes"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP02
+title: Fix Edit/Delete Button Enablement
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 9d1d78d6fdf94f828079a4fe6874f921a3b1a70f
+created_at: '2026-01-30T22:51:22.957347+00:00'
+subtasks:
+- T004
+- T005
+phase: Phase 1 - Bug Fixes
+assignee: ''
+agent: ''
+shell_pid: "74720"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T22:39:29Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T22:39:29Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Fix Edit/Delete Button Enablement
