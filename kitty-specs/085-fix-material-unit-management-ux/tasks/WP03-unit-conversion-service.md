@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP03"
-subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Create Unit Conversion Service"
-phase: "Phase 2 - Enhancement"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP03
+title: Create Unit Conversion Service
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 527cc40cbd4164ef113901a1abb11301bc54c24a
+created_at: '2026-01-30T23:03:36.944381+00:00'
+subtasks:
+- T006
+- T007
+- T008
+phase: Phase 2 - Enhancement
+assignee: ''
+agent: ''
+shell_pid: "78063"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-30T22:39:29Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T22:39:29Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Create Unit Conversion Service
