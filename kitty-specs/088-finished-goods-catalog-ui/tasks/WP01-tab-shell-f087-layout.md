@@ -1,13 +1,15 @@
 ---
 work_package_id: "WP01"
 title: "Tab Shell with F087 Layout"
-lane: "for_review"
+lane: "done"
 dependencies: []
 subtasks: ["T001", "T002", "T003", "T004", "T005", "T006", "T007"]
 priority: "P0"
 estimated_lines: 350
 agent: "claude-lead"
 shell_pid: "21510"
+reviewed_by: "Kent Gale"
+review_status: "approved"
 history:
   - date: "2026-01-30"
     action: "created"
@@ -359,3 +361,4 @@ spec-kitty implement WP01
 
 - 2026-01-31T04:31:45Z – claude-lead – shell_pid=21510 – lane=doing – Started implementation via workflow command
 - 2026-01-31T04:37:53Z – claude-lead – shell_pid=21510 – lane=for_review – Ready for review: Implemented F087 ttk.Treeview layout with assembly type filter, click-to-sort columns, and integration with RecipesGroupTab as third sub-tab.
+- 2026-01-31T04:42:33Z – claude-lead – shell_pid=21510 – lane=done – Review passed: F087 ttk.Treeview layout implemented correctly with assembly type filter, click-to-sort columns, and proper integration with RecipesGroupTab.
