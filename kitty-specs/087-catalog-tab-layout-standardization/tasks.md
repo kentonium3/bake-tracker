@@ -21,7 +21,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T001 Create ttk.Treeview with columns (Name, Category, Yield) in `src/ui/recipes_tab.py`
+- [x] T001 Create ttk.Treeview with columns (Name, Category, Yield) in `src/ui/recipes_tab.py`
 - [ ] T002 Add vertical scrollbar configuration for native trackpad scrolling
 - [ ] T003 Implement column header click-to-sort functionality
 - [ ] T004 Implement row selection callback (<<TreeviewSelect>>)
