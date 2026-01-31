@@ -6,7 +6,8 @@ and ingredient management.
 """
 
 import customtkinter as ctk
-from typing import Optional
+from tkinter import ttk
+from typing import Optional, List
 
 from src.models.recipe import Recipe
 from src.services import recipe_service
@@ -18,7 +19,6 @@ from src.utils.constants import (
     COLOR_ERROR,
 )
 from src.ui.widgets.search_bar import SearchBar
-from src.ui.widgets.data_table import RecipeDataTable
 from src.ui.widgets.dialogs import (
     show_confirmation,
     show_error,
@@ -54,6 +54,13 @@ class RecipesTab(ctk.CTkFrame):
 
         self.selected_recipe: Optional[Recipe] = None
         self.recipe_categories = self._load_recipe_categories()
+
+        # Track current recipes for selection lookup
+        self._current_recipes: List[Recipe] = []
+
+        # Track current sort state for column header sorting
+        self.sort_column = "name"
+        self.sort_ascending = True
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -178,15 +185,59 @@ class RecipesTab(ctk.CTkFrame):
         self.readiness_dropdown.grid(row=0, column=6, padx=PADDING_MEDIUM)
 
     def _create_data_table(self):
-        """Create the data table for displaying recipes."""
-        self.data_table = RecipeDataTable(
-            self,
-            select_callback=self._on_row_select,
-            double_click_callback=self._on_row_double_click,
+        """Create the data table for displaying recipes using ttk.Treeview."""
+        # Container frame for grid and scrollbar (like IngredientsTab)
+        self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
+        self.grid_container.grid(
+            row=2, column=0, sticky="nsew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
-        self.data_table.grid(
-            row=2, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        self.grid_container.grid_columnconfigure(0, weight=1)
+        self.grid_container.grid_rowconfigure(0, weight=1)
+
+        # Define columns matching RecipeDataTable
+        columns = ("name", "category", "yield")
+        self.tree = ttk.Treeview(
+            self.grid_container,
+            columns=columns,
+            show="headings",
+            selectmode="browse",
         )
+
+        # Configure column headings with click-to-sort
+        self.tree.heading(
+            "name", text="Recipe Name", anchor="w",
+            command=lambda: self._on_header_click("name")
+        )
+        self.tree.heading(
+            "category", text="Category", anchor="w",
+            command=lambda: self._on_header_click("category")
+        )
+        self.tree.heading(
+            "yield", text="Yield", anchor="w",
+            command=lambda: self._on_header_click("yield")
+        )
+
+        # Configure column widths to match RecipeDataTable
+        self.tree.column("name", width=330, minwidth=200)
+        self.tree.column("category", width=120, minwidth=80)
+        self.tree.column("yield", width=150, minwidth=100)
+
+        # Add vertical scrollbar for trackpad scrolling
+        y_scrollbar = ttk.Scrollbar(
+            self.grid_container,
+            orient="vertical",
+            command=self.tree.yview,
+        )
+        self.tree.configure(yscrollcommand=y_scrollbar.set)
+
+        # Grid the tree and scrollbar
+        self.tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+
+        # Bind selection and double-click events
+        self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+        self.tree.bind("<Double-1>", self._on_tree_double_click)
 
     def _create_status_bar(self):
         """Create status bar for displaying info."""
@@ -209,6 +260,113 @@ class RecipesTab(ctk.CTkFrame):
         search_text = self.search_bar.get_search_term()
         category = self.search_bar.get_category()
         self._on_search(search_text, category)
+
+    def _on_header_click(self, column: str):
+        """Handle column header click for sorting."""
+        if self.sort_column == column:
+            self.sort_ascending = not self.sort_ascending
+        else:
+            self.sort_column = column
+            self.sort_ascending = True
+        self._refresh_tree_display()
+
+    def _on_tree_select(self, event):
+        """Handle tree selection change."""
+        selection = self.tree.selection()
+        if selection:
+            recipe_id = int(selection[0])
+            recipe = self._get_recipe_by_id(recipe_id)
+            self._on_row_select(recipe)
+        else:
+            self._on_row_select(None)
+
+    def _on_tree_double_click(self, event):
+        """Handle double-click on recipe row."""
+        selection = self.tree.selection()
+        if selection:
+            recipe_id = int(selection[0])
+            recipe = self._get_recipe_by_id(recipe_id)
+            if recipe:
+                self._on_row_double_click(recipe)
+
+    def _get_recipe_by_id(self, recipe_id: int) -> Optional[Recipe]:
+        """Find recipe by ID in current data."""
+        return next(
+            (r for r in self._current_recipes if r.id == recipe_id),
+            None
+        )
+
+    def _refresh_tree_display(self):
+        """Refresh the tree display with current recipes, sorting, and variant grouping."""
+        # Clear existing items
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        recipes = self._current_recipes
+        if not recipes:
+            return
+
+        # Separate base recipes and variants
+        base_recipes = [r for r in recipes if r.base_recipe_id is None]
+        variants = [r for r in recipes if r.base_recipe_id is not None]
+
+        # Sort base recipes by current sort column
+        base_recipes = self._sort_recipes(base_recipes)
+
+        # Group variants by base_recipe_id
+        variants_by_base = {}
+        for v in variants:
+            base_id = v.base_recipe_id
+            if base_id not in variants_by_base:
+                variants_by_base[base_id] = []
+            variants_by_base[base_id].append(v)
+
+        # Sort variants within each group
+        for base_id in variants_by_base:
+            variants_by_base[base_id] = self._sort_recipes(variants_by_base[base_id])
+
+        # Insert into tree: base recipe, then its variants
+        for recipe in base_recipes:
+            self._insert_recipe_row(recipe, is_variant=False)
+            # Insert variants for this base
+            for variant in variants_by_base.get(recipe.id, []):
+                self._insert_recipe_row(variant, is_variant=True)
+
+    def _sort_recipes(self, recipes: List[Recipe]) -> List[Recipe]:
+        """Sort recipes by current sort column."""
+        def get_sort_key(r):
+            if self.sort_column == "name":
+                return (r.name or "").lower()
+            elif self.sort_column == "category":
+                return (r.category or "").lower()
+            elif self.sort_column == "yield":
+                # Sort by first yield type's items_per_batch
+                if r.finished_units:
+                    primary_unit = r.finished_units[0]
+                    return primary_unit.items_per_batch or 0
+                return 0
+            return ""
+
+        return sorted(recipes, key=get_sort_key, reverse=not self.sort_ascending)
+
+    def _insert_recipe_row(self, recipe: Recipe, is_variant: bool):
+        """Insert a recipe row into the tree."""
+        name = recipe.name or ""
+        if is_variant:
+            name = f"↳ {name}"
+
+        category = recipe.category or ""
+
+        # Get yield display (from RecipeDataTable._get_row_values logic)
+        yield_display = "No yield types"
+        if recipe.finished_units:
+            primary_unit = recipe.finished_units[0]
+            items = primary_unit.items_per_batch or 0
+            unit = primary_unit.item_unit or "each"
+            yield_display = f"{items:.0f} {unit}"
+
+        values = (name, category, yield_display)
+        self.tree.insert("", "end", iid=str(recipe.id), values=values)
 
     def _on_search(self, search_text: str, category: Optional[str] = None):
         """
@@ -238,7 +396,9 @@ class RecipesTab(ctk.CTkFrame):
                 recipes = [r for r in recipes if not r.is_production_ready]
             # "All" shows all recipes (no filtering)
 
-            self.data_table.set_data(recipes)
+            # Store recipes for selection lookup and refresh display
+            self._current_recipes = recipes
+            self._refresh_tree_display()
             self._update_status(f"Found {len(recipes)} recipe(s)")
         except Exception as e:
             show_error("Search Error", f"Failed to search recipes: {str(e)}", parent=self)
@@ -676,7 +836,9 @@ class RecipesTab(ctk.CTkFrame):
                 recipes = [r for r in recipes if not r.is_production_ready]
             # "All" shows all recipes (no filtering)
 
-            self.data_table.set_data(recipes)
+            # Store recipes for selection lookup and refresh display
+            self._current_recipes = recipes
+            self._refresh_tree_display()
             self._update_status(f"Loaded {len(recipes)} recipe(s)")
         except Exception as e:
             show_error(
