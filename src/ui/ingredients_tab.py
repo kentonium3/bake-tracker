@@ -92,16 +92,14 @@ class IngredientsTab(ctk.CTkFrame):
         self._l1_map: Dict[str, Dict[str, Any]] = {}  # L1 name -> ingredient dict
         self._updating_filters = False  # Re-entry guard for cascading filter updates
 
-        # Configure grid
+        # Configure grid - 4-row layout (no title)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0)  # Title
-        self.grid_rowconfigure(1, weight=0)  # Search/filter
-        self.grid_rowconfigure(2, weight=0)  # Action buttons
-        self.grid_rowconfigure(3, weight=1)  # Ingredient list
-        self.grid_rowconfigure(4, weight=0)  # Status bar
+        self.grid_rowconfigure(0, weight=0)  # Search/filter (fixed)
+        self.grid_rowconfigure(1, weight=0)  # Action buttons (fixed)
+        self.grid_rowconfigure(2, weight=1)  # Ingredient list (expandable)
+        self.grid_rowconfigure(3, weight=0)  # Status bar (fixed)
 
         # Create UI components
-        self._create_title()
         self._create_search_filter()
         self._create_action_buttons()
         self._create_ingredient_list()
@@ -113,15 +111,6 @@ class IngredientsTab(ctk.CTkFrame):
         # Show initial state - data will be loaded when tab is selected
         self._show_initial_state()
 
-    def _create_title(self):
-        """Create the title label."""
-        title_label = ctk.CTkLabel(
-            self,
-            text="My Ingredients",
-            font=ctk.CTkFont(size=24, weight="bold"),
-        )
-        title_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
-
     def _create_search_filter(self):
         """Create search and filter controls with cascading hierarchy filters.
 
@@ -130,7 +119,7 @@ class IngredientsTab(ctk.CTkFrame):
         Layout: Search | L0 Dropdown | L1 Dropdown | Clear
         """
         filter_frame = ctk.CTkFrame(self, fg_color="transparent")
-        filter_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+        filter_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=PADDING_MEDIUM)
 
         # Search entry (left)
         search_label = ctk.CTkLabel(filter_frame, text="Search:")
@@ -189,7 +178,7 @@ class IngredientsTab(ctk.CTkFrame):
     def _create_action_buttons(self):
         """Create action buttons for CRUD operations."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
+        button_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=PADDING_MEDIUM)
 
         # Add button
         add_button = ctk.CTkButton(
@@ -217,11 +206,11 @@ class IngredientsTab(ctk.CTkFrame):
         # Container frame for grid and scrollbar
         self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.grid(
-            row=3,
+            row=2,
             column=0,
             sticky="nsew",
             padx=5,
-            pady=5,
+            pady=PADDING_MEDIUM,
         )
         self.grid_container.grid_columnconfigure(0, weight=1)
         self.grid_container.grid_rowconfigure(0, weight=1)
@@ -379,11 +368,11 @@ class IngredientsTab(ctk.CTkFrame):
             height=30,
         )
         self.status_label.grid(
-            row=4,
+            row=3,
             column=0,
             sticky="ew",
             padx=5,
-            pady=(5, 10),
+            pady=PADDING_MEDIUM,
         )
 
     def refresh(self):
