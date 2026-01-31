@@ -5,14 +5,182 @@ This dialog provides a modal form for managing FinishedGood records, which
 represent assembled packages containing multiple FinishedUnits and/or other
 FinishedGoods (e.g., gift boxes, variety packs, seasonal collections).
 
-Feature 088: Finished Goods Catalog UI - WP04
+Feature 088: Finished Goods Catalog UI - WP04, WP05
 """
 
 import customtkinter as ctk
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Callable
 
 from src.models.finished_good import FinishedGood
 from src.models.assembly_type import AssemblyType
+from src.services import finished_unit_service
+
+
+class ComponentSelectionPopup(ctk.CTkToplevel):
+    """
+    Popup dialog for selecting a component with category filter and search.
+
+    Used by FinishedGoodFormDialog to select FinishedUnits to add as
+    components of a FinishedGood (gift box, variety pack, etc.).
+    """
+
+    def __init__(
+        self,
+        parent,
+        title: str,
+        items: List[tuple],  # [(id, display_name, category), ...]
+        categories: List[str],
+        on_select: Callable[[int, str], None],
+    ):
+        """
+        Initialize the component selection popup.
+
+        Args:
+            parent: Parent window
+            title: Dialog title
+            items: List of tuples (id, display_name, category)
+            categories: List of category names for filter dropdown
+            on_select: Callback function when item is selected (id, display_name)
+        """
+        super().__init__(parent)
+
+        self.items = items
+        self.categories = categories
+        self.on_select = on_select
+        self.filtered_items = items.copy()
+
+        # Window configuration
+        self.title(title)
+        self.geometry("400x500")
+        self.resizable(True, True)
+        self.minsize(350, 400)
+
+        # Modal behavior
+        self.transient(parent)
+        self.grab_set()
+
+        self._create_widgets()
+        self._center_on_parent(parent)
+
+    def _center_on_parent(self, parent):
+        """Center the dialog on its parent window."""
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_w = parent.winfo_width()
+        parent_h = parent.winfo_height()
+        dialog_w = self.winfo_width()
+        dialog_h = self.winfo_height()
+        x = parent_x + (parent_w - dialog_w) // 2
+        y = parent_y + (parent_h - dialog_h) // 2
+        self.geometry(f"+{x}+{y}")
+
+    def _create_widgets(self):
+        """Create all popup widgets."""
+        # Filter frame
+        filter_frame = ctk.CTkFrame(self)
+        filter_frame.pack(fill="x", padx=10, pady=10)
+
+        # Category filter
+        ctk.CTkLabel(filter_frame, text="Category:").pack(side="left", padx=5)
+        self.category_dropdown = ctk.CTkComboBox(
+            filter_frame,
+            values=["All"] + self.categories,
+            command=self._on_filter_changed,
+            state="readonly",
+            width=120,
+        )
+        self.category_dropdown.set("All")
+        self.category_dropdown.pack(side="left", padx=5)
+
+        # Search entry
+        self.search_entry = ctk.CTkEntry(
+            filter_frame,
+            placeholder_text="Search...",
+        )
+        self.search_entry.pack(side="left", fill="x", expand=True, padx=5)
+        self.search_entry.bind("<KeyRelease>", self._on_search_changed)
+
+        # Items list
+        self.items_frame = ctk.CTkScrollableFrame(self)
+        self.items_frame.pack(fill="both", expand=True, padx=10, pady=5)
+
+        self._refresh_items_list()
+
+        # Cancel button
+        cancel_btn = ctk.CTkButton(
+            self,
+            text="Cancel",
+            command=self.destroy,
+            fg_color="gray",
+        )
+        cancel_btn.pack(pady=10)
+
+    def _on_filter_changed(self, category: str):
+        """Handle category filter change."""
+        self._apply_filters()
+
+    def _on_search_changed(self, event):
+        """Handle search text change."""
+        self._apply_filters()
+
+    def _apply_filters(self):
+        """Apply category and search filters to items list."""
+        category = self.category_dropdown.get()
+        search = self.search_entry.get().lower().strip()
+
+        self.filtered_items = []
+        for item_id, display_name, item_category in self.items:
+            # Category filter
+            if category != "All" and item_category != category:
+                continue
+            # Search filter
+            if search and search not in display_name.lower():
+                continue
+            self.filtered_items.append((item_id, display_name, item_category))
+
+        self._refresh_items_list()
+
+    def _refresh_items_list(self):
+        """Refresh the items list display."""
+        # Clear existing items
+        for widget in self.items_frame.winfo_children():
+            widget.destroy()
+
+        if not self.filtered_items:
+            no_items = ctk.CTkLabel(
+                self.items_frame,
+                text="No items match your search",
+                text_color="gray",
+            )
+            no_items.pack(pady=20)
+            return
+
+        for item_id, display_name, category in self.filtered_items:
+            item_frame = ctk.CTkFrame(self.items_frame)
+            item_frame.pack(fill="x", pady=2)
+
+            # Display name with category in parentheses if available
+            label_text = f"{display_name} ({category})" if category else display_name
+            label = ctk.CTkLabel(
+                item_frame,
+                text=label_text,
+                anchor="w",
+            )
+            label.pack(side="left", padx=5, fill="x", expand=True)
+
+            select_btn = ctk.CTkButton(
+                item_frame,
+                text="Select",
+                width=60,
+                command=lambda id=item_id, name=display_name: self._select_item(id, name),
+            )
+            select_btn.pack(side="right", padx=5)
+
+    def _select_item(self, item_id: int, display_name: str):
+        """Handle item selection."""
+        self.on_select(item_id, display_name)
+        self.destroy()
 
 
 class FinishedGoodFormDialog(ctk.CTkToplevel):
@@ -65,6 +233,9 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
 
         self.finished_good = finished_good
         self.result: Optional[Dict] = None
+
+        # Foods components list storage (WP05)
+        self._foods_components: List[Dict] = []
 
         # Window configuration
         if finished_good:
@@ -121,6 +292,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         self._create_basic_info_section()
         self._create_packaging_section()
         self._create_notes_section()
+        self._create_foods_section()  # WP05: Foods (FinishedUnits) section
 
         # Button frame at bottom (not scrollable)
         self.button_frame = ctk.CTkFrame(self.main_frame)
@@ -200,6 +372,150 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         )
         self.notes_text.grid(row=6, column=0, columnspan=2, sticky="ew", pady=5)
 
+    def _create_foods_section(self):
+        """Create the Foods (FinishedUnits) section (WP05)."""
+        # Section header with Add button
+        self.foods_header_frame = ctk.CTkFrame(
+            self.form_scroll,
+            fg_color="transparent",
+        )
+        self.foods_header_frame.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(15, 5))
+
+        foods_label = ctk.CTkLabel(
+            self.foods_header_frame,
+            text="Foods (Finished Units)",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        foods_label.pack(side="left")
+
+        self.add_food_btn = ctk.CTkButton(
+            self.foods_header_frame,
+            text="+ Add Food",
+            width=100,
+            command=self._on_add_food,
+        )
+        self.add_food_btn.pack(side="right")
+
+        # Foods list container
+        self.foods_list_frame = ctk.CTkScrollableFrame(
+            self.form_scroll,
+            height=150,
+        )
+        self.foods_list_frame.grid(row=8, column=0, columnspan=2, sticky="ew", pady=5)
+
+        # Initial display
+        self._refresh_foods_list()
+
+    def _get_food_categories(self) -> List[str]:
+        """Get unique categories from FinishedUnits."""
+        units = finished_unit_service.get_all_finished_units()
+        categories = set()
+        for unit in units:
+            if unit.category:
+                categories.add(unit.category)
+        return sorted(list(categories))
+
+    def _on_add_food(self):
+        """Open food selection popup (WP05: T032)."""
+        units = finished_unit_service.get_all_finished_units()
+
+        # Build items list: (id, display_name, category)
+        items = [(u.id, u.display_name, u.category or "") for u in units]
+        categories = self._get_food_categories()
+
+        popup = ComponentSelectionPopup(
+            self,
+            title="Select Food",
+            items=items,
+            categories=categories,
+            on_select=self._show_quantity_dialog,
+        )
+
+    def _show_quantity_dialog(self, item_id: int, display_name: str):
+        """Show quantity input dialog after selecting food (WP05: T032)."""
+        dialog = ctk.CTkInputDialog(
+            text=f"Quantity for {display_name}:",
+            title="Enter Quantity",
+        )
+        quantity_str = dialog.get_input()
+
+        if quantity_str:
+            try:
+                quantity = int(quantity_str)
+                if quantity <= 0:
+                    raise ValueError("Must be positive")
+                self._add_food_component(item_id, display_name, quantity)
+            except ValueError:
+                # Invalid input - silently ignore
+                pass
+
+    def _add_food_component(self, food_id: int, display_name: str, quantity: int):
+        """Add a food component and update display (WP05: T033)."""
+        # Check for duplicates - if found, add to quantity
+        for comp in self._foods_components:
+            if comp["id"] == food_id:
+                # Update quantity instead of adding duplicate
+                comp["quantity"] += quantity
+                self._refresh_foods_list()
+                return
+
+        # Add new component
+        self._foods_components.append({
+            "type": "finished_unit",
+            "id": food_id,
+            "quantity": quantity,
+            "display_name": display_name,
+            "sort_order": len(self._foods_components),
+        })
+        self._refresh_foods_list()
+
+    def _refresh_foods_list(self):
+        """Refresh the foods list display (WP05: T033)."""
+        # Clear existing
+        for widget in self.foods_list_frame.winfo_children():
+            widget.destroy()
+
+        if not self._foods_components:
+            empty_label = ctk.CTkLabel(
+                self.foods_list_frame,
+                text="No foods added yet",
+                text_color="gray",
+            )
+            empty_label.pack(pady=10)
+            return
+
+        for i, comp in enumerate(self._foods_components):
+            row_frame = ctk.CTkFrame(self.foods_list_frame)
+            row_frame.pack(fill="x", pady=2)
+
+            # Name and quantity
+            name_label = ctk.CTkLabel(
+                row_frame,
+                text=f"{comp['display_name']} x {comp['quantity']}",
+                anchor="w",
+            )
+            name_label.pack(side="left", padx=5, fill="x", expand=True)
+
+            # Remove button (WP05: T034)
+            remove_btn = ctk.CTkButton(
+                row_frame,
+                text="Remove",
+                width=70,
+                fg_color="red",
+                hover_color="darkred",
+                command=lambda idx=i: self._remove_food_component(idx),
+            )
+            remove_btn.pack(side="right", padx=5)
+
+    def _remove_food_component(self, index: int):
+        """Remove a food component by index (WP05: T034)."""
+        if 0 <= index < len(self._foods_components):
+            del self._foods_components[index]
+            # Update sort_order for remaining items
+            for i, comp in enumerate(self._foods_components):
+                comp["sort_order"] = i
+            self._refresh_foods_list()
+
     def _create_buttons(self):
         """Create Save and Cancel buttons."""
         # Cancel button
@@ -242,6 +558,25 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         if self.finished_good.notes:
             self.notes_text.insert("1.0", self.finished_good.notes)
 
+        # Populate foods from existing components (WP05: Edit mode integration)
+        if self.finished_good.components:
+            for comp in self.finished_good.components:
+                if comp.finished_unit_id is not None:
+                    # Get display name from the relationship
+                    display_name = (
+                        comp.finished_unit_component.display_name
+                        if comp.finished_unit_component
+                        else f"Food #{comp.finished_unit_id}"
+                    )
+                    self._foods_components.append({
+                        "type": "finished_unit",
+                        "id": comp.finished_unit_id,
+                        "quantity": comp.component_quantity,
+                        "display_name": display_name,
+                        "sort_order": comp.sort_order or len(self._foods_components),
+                    })
+            self._refresh_foods_list()
+
     def _show_error(self, message: str):
         """Show error indication on the name field."""
         # Highlight the name field with red border
@@ -274,13 +609,13 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
             self._show_error("Name is required")
             return
 
-        # Build result
+        # Build result with foods components (WP05: T034)
         self.result = {
             "display_name": name,
             "assembly_type": self._get_assembly_type(),
             "packaging_instructions": self.packaging_text.get("1.0", "end-1c").strip(),
             "notes": self.notes_text.get("1.0", "end-1c").strip(),
-            "components": [],  # WP05/WP06 will populate this
+            "components": self._foods_components.copy(),  # Include foods
         }
         self.destroy()
 
