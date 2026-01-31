@@ -54,12 +54,12 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T008 Enhance `create_finished_good()` in `src/services/finished_good_service.py` to accept `components` list parameter
-- [ ] T009 [P] Implement atomic component creation using Composition factory methods
-- [ ] T010 [P] Add input validation for component data structure
-- [ ] T011 Add service layer tests for create with foods components
-- [ ] T012 [P] Add service layer tests for create with materials components
-- [ ] T013 [P] Add service layer tests for create with nested FinishedGood components
+- [x] T008 Enhance `create_finished_good()` in `src/services/finished_good_service.py` to accept `components` list parameter
+- [x] T009 [P] Implement atomic component creation using Composition factory methods
+- [x] T010 [P] Add input validation for component data structure
+- [x] T011 Add service layer tests for create with foods components
+- [x] T012 [P] Add service layer tests for create with materials components
+- [x] T013 [P] Add service layer tests for create with nested FinishedGood components
 
 ### Implementation Notes
 - Component data structure: `[{"type": "finished_unit"|"material_unit"|"finished_good", "id": int, "quantity": int, "notes": str|None, "sort_order": int}]`
