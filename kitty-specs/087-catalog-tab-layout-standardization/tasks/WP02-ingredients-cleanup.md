@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: IngredientsTab Layout Cleanup
+lane: "doing"
+dependencies: [WP01]
+base_branch: 087-catalog-tab-layout-standardization-WP01
+base_commit: 3fa9a8a9fe5337dea329dbf424521b0b5b73b4bd
+created_at: '2026-01-31T02:54:52.871618+00:00'
 subtasks:
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-title: "IngredientsTab Layout Cleanup"
-phase: "Phase 2 - Layout Standardization"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T008
+- T009
+- T010
+- T011
+phase: Phase 2 - Layout Standardization
+assignee: ''
+agent: ''
+shell_pid: "7520"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-31T02:38:50Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-31T02:38:50Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – IngredientsTab Layout Cleanup
