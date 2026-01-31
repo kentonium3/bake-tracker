@@ -23,7 +23,7 @@
 ### Included Subtasks
 - [x] T001 Create ttk.Treeview with columns (Name, Category, Yield) in `src/ui/recipes_tab.py`
 - [x] T002 Add vertical scrollbar configuration for native trackpad scrolling
-- [ ] T003 Implement column header click-to-sort functionality
+- [x] T003 Implement column header click-to-sort functionality
 - [ ] T004 Implement row selection callback (<<TreeviewSelect>>)
 - [ ] T005 Implement double-click callback (<Double-1>) for edit dialog
 - [ ] T006 Implement variant grouping (sort variants after base, prefix with "↳")
