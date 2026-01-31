@@ -4,5 +4,7 @@
   "friendly_name": "Catalog Tab Layout Standardization",
   "mission": "software-dev",
   "source_description": "F087 Catalog Tab Layout Standardization - Standardize all catalog tabs to use consistent 3-row layout (filters, actions, grid), remove unnecessary title labels, convert RecipeDataTable to ttk.Treeview for trackpad scrolling, reduce padding. Pure UI refactoring with no functionality changes.",
-  "created_at": "2026-01-30T21:30:00Z"
+  "created_at": "2026-01-30T21:30:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-31T02:54:49.726300+00:00"
 }
