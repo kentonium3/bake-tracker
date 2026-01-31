@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Tab Integration and CRUD Wiring
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP02
@@ -542,3 +542,4 @@ spec-kitty implement WP07 --base WP06
 ## Activity Log
 
 - 2026-01-31T05:05:04Z – unknown – lane=doing – CRUD integration already complete from merged WPs
+- 2026-01-31T05:05:45Z – unknown – lane=for_review – Ready for review - all CRUD functionality verified
