@@ -84,11 +84,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T012 [P] Remove "Product Catalog" header in `src/ui/products_tab.py`
-- [ ] T013 [P] Merge toolbar + filters + search into 2 rows (filters+search row 0, toolbar row 1)
-- [ ] T014 [P] Update grid row indices (header removed, controls consolidated)
-- [ ] T015 [P] Update grid_rowconfigure calls (row 0→filters, row 1→buttons, row 2→grid)
-- [ ] T016 [P] Reduce vertical padding to PADDING_MEDIUM
+- [x] T012 [P] Remove "Product Catalog" header in `src/ui/products_tab.py`
+- [x] T013 [P] Merge toolbar + filters + search into 2 rows (filters+search row 0, toolbar row 1)
+- [x] T014 [P] Update grid row indices (header removed, controls consolidated)
+- [x] T015 [P] Update grid_rowconfigure calls (row 0→filters, row 1→buttons, row 2→grid)
+- [x] T016 [P] Reduce vertical padding to PADDING_MEDIUM
 
 ### Implementation Notes
 - Current structure: header(0), toolbar(1), filters(2), search(3), grid(4)
