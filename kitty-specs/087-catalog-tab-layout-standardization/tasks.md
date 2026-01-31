@@ -55,10 +55,10 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T008 [P] Remove "My Ingredients" title label from `src/ui/ingredients_tab.py`
-- [ ] T009 [P] Update grid row indices (shift all rows up by 1)
-- [ ] T010 [P] Update grid_rowconfigure calls (row 0→search, row 1→buttons, row 2→grid, row 3→status)
-- [ ] T011 [P] Reduce vertical padding to PADDING_MEDIUM consistently
+- [x] T008 [P] Remove "My Ingredients" title label from `src/ui/ingredients_tab.py`
+- [x] T009 [P] Update grid row indices (shift all rows up by 1)
+- [x] T010 [P] Update grid_rowconfigure calls (row 0→search, row 1→buttons, row 2→grid, row 3→status)
+- [x] T011 [P] Reduce vertical padding to PADDING_MEDIUM consistently
 
 ### Implementation Notes
 - Remove _create_title() method and its grid() call
