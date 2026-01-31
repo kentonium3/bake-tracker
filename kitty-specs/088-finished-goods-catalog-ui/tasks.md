@@ -192,14 +192,14 @@
 **Estimated Size**: ~520 lines
 
 ### Included Subtasks
-- [ ] T035 Create Materials section with Add Material button
-- [ ] T036 Implement material selection with Material category/subcategory filter
-- [ ] T037 Add type-ahead search for MaterialUnits (search by name and product name)
-- [ ] T038 Add quantity input with decimal validation (materials support fractional)
-- [ ] T039 Display added materials list with Product column
-- [ ] T040 Create Components section with Add Component button
-- [ ] T041 Implement component selection with Assembly Type filter
-- [ ] T042 Add circular reference check on selection (filter out invalid choices)
+- [x] T035 Create Materials section with Add Material button
+- [x] T036 Implement material selection with Material category/subcategory filter
+- [x] T037 Add type-ahead search for MaterialUnits (search by name and product name)
+- [x] T038 Add quantity input with decimal validation (materials support fractional)
+- [x] T039 Display added materials list with Product column
+- [x] T040 Create Components section with Add Component button
+- [x] T041 Implement component selection with Assembly Type filter
+- [x] T042 Add circular reference check on selection (filter out invalid choices)
 
 ### Implementation Notes
 - Materials: Load via `material_unit_service.get_all_material_units()` or similar
