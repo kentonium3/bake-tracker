@@ -71,31 +71,20 @@ class MaterialsTab(ctk.CTkFrame):
 
         self._data_loaded = False
 
-        # Configure grid - single column layout with title and tabview
+        # Configure grid - single column layout with tabview only (no title)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0)  # Title
-        self.grid_rowconfigure(1, weight=1)  # Tabview
+        self.grid_rowconfigure(0, weight=1)  # Tabview (fills space)
 
         # Create UI components
-        self._create_title()
         self._create_tabview()
 
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-    def _create_title(self):
-        """Create the title label."""
-        title_label = ctk.CTkLabel(
-            self,
-            text="Materials Catalog",
-            font=ctk.CTkFont(size=24, weight="bold"),
-        )
-        title_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5))
-
     def _create_tabview(self):
         """Create the 3-tab container for Materials, Products, and Units."""
         self.tabview = ctk.CTkTabview(self)
-        self.tabview.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.tabview.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Add tabs
         self.tabview.add("Materials Catalog")
