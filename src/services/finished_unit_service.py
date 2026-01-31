@@ -309,7 +309,7 @@ class FinishedUnitService:
                         "item_unit": kwargs.get("item_unit"),
                         "batch_percentage": kwargs.get("batch_percentage"),
                         "portion_description": kwargs.get("portion_description"),
-                        "category": kwargs.get("category"),
+                        "category": kwargs.get("category") or recipe.category,
                         "production_notes": kwargs.get("production_notes"),
                         "notes": kwargs.get("notes"),
                     }
