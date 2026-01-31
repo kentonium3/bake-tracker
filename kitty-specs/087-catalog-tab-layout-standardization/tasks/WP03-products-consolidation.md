@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: ProductsTab Row Consolidation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 087-catalog-tab-layout-standardization-WP01
 base_commit: 3fa9a8a9fe5337dea329dbf424521b0b5b73b4bd
@@ -351,3 +351,4 @@ Manual verification:
 ## Activity Log
 
 - 2026-01-31T02:38:50Z – system – lane=planned – Prompt created.
+- 2026-01-31T03:02:54Z – unknown – shell_pid=7638 – lane=for_review – ProductsTab consolidated to 3-row layout
