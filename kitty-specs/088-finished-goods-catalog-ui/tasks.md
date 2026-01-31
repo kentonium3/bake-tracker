@@ -122,13 +122,13 @@
 **Estimated Size**: ~380 lines
 
 ### Included Subtasks
-- [ ] T021 Create `src/ui/forms/finished_good_form.py` dialog shell (CTkToplevel modal)
-- [ ] T022 Add scrollable form container for sections
-- [ ] T023 Add Basic Info section (Name entry with validation, Assembly Type dropdown)
-- [ ] T024 Add Packaging Instructions textarea
-- [ ] T025 Add Notes textarea
-- [ ] T026 Add Save/Cancel buttons with basic validation (name required)
-- [ ] T027 Implement form population for edit mode (load existing FinishedGood data)
+- [x] T021 Create `src/ui/forms/finished_good_form.py` dialog shell (CTkToplevel modal)
+- [x] T022 Add scrollable form container for sections
+- [x] T023 Add Basic Info section (Name entry with validation, Assembly Type dropdown)
+- [x] T024 Add Packaging Instructions textarea
+- [x] T025 Add Notes textarea
+- [x] T026 Add Save/Cancel buttons with basic validation (name required)
+- [x] T027 Implement form population for edit mode (load existing FinishedGood data)
 
 ### Implementation Notes
 - Follow `RecipeFormDialog` pattern from `src/ui/forms/recipe_form.py`
