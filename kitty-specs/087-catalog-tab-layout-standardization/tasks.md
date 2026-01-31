@@ -115,12 +115,12 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T017 [P] Remove "Materials Catalog" title from `src/ui/materials_tab.py` (lines 86-93)
-- [ ] T018 [P] Update outer grid_rowconfigure (tabview at row 0 with weight=1)
-- [ ] T019 [P] Apply 3-row pattern to MaterialsCatalogTab (filters row 0, buttons row 1, grid row 2)
-- [ ] T020 [P] Apply 3-row pattern to MaterialProductsTab
-- [ ] T021 [P] Apply 3-row pattern to MaterialUnitsTab
-- [ ] T022 [P] Verify ttk.Treeview grids use weight=1 in all sub-tabs
+- [x] T017 [P] Remove "Materials Catalog" title from `src/ui/materials_tab.py` (lines 86-93)
+- [x] T018 [P] Update outer grid_rowconfigure (tabview at row 0 with weight=1)
+- [x] T019 [P] Apply 3-row pattern to MaterialsCatalogTab (filters row 0, buttons row 1, grid row 2)
+- [x] T020 [P] Apply 3-row pattern to MaterialProductsTab
+- [x] T021 [P] Apply 3-row pattern to MaterialUnitsTab
+- [x] T022 [P] Verify ttk.Treeview grids use weight=1 in all sub-tabs
 
 ### Implementation Notes
 - MaterialsTab outer: remove _create_title(), shift tabview to row 0
