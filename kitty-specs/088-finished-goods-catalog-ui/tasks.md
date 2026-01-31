@@ -230,15 +230,15 @@
 **Estimated Size**: ~420 lines
 
 ### Included Subtasks
-- [ ] T043 Wire Create New button to open form dialog (create mode)
-- [ ] T044 Wire Edit button and double-click to open form dialog (edit mode)
-- [ ] T045 Implement form result handling and service layer calls
-- [ ] T046 Implement list refresh after create/edit operations
-- [ ] T047 Wire Delete button with confirmation dialog
-- [ ] T048 Implement delete with error handling (show blocked reason)
-- [ ] T049 Implement search functionality (filter tree by name)
-- [ ] T050 Implement assembly type filter functionality
-- [ ] T051 Implement row selection state and button enable/disable
+- [x] T043 Wire Create New button to open form dialog (create mode)
+- [x] T044 Wire Edit button and double-click to open form dialog (edit mode)
+- [x] T045 Implement form result handling and service layer calls
+- [x] T046 Implement list refresh after create/edit operations
+- [x] T047 Wire Delete button with confirmation dialog
+- [x] T048 Implement delete with error handling (show blocked reason)
+- [x] T049 Implement search functionality (filter tree by name)
+- [x] T050 Implement assembly type filter functionality
+- [x] T051 Implement row selection state and button enable/disable
 
 ### Implementation Notes
 - Create: Call `finished_good_service.create_finished_good()` with form result
