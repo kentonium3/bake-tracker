@@ -662,3 +662,446 @@ class TestLegacyFormatCompatibility:
         assert fg.id is not None
         assert len(fg.components) == 1
         assert fg.components[0].finished_unit_id == finished_unit.id
+
+
+# =============================================================================
+# T014-T020: WP03 - Update and Validation Tests
+# =============================================================================
+
+
+class TestUpdateWithComponents:
+    """Test update functionality with component replacement (T014, T018)."""
+
+    def test_update_finished_good_basic_fields(self, db_session, finished_unit):
+        """Test updating basic fields of a FinishedGood."""
+        fg = finished_good_service.create_finished_good(
+            display_name="Original Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
+            session=db_session,
+        )
+        original_id = fg.id
+
+        updated = finished_good_service.update_finished_good(
+            fg.id,
+            display_name="Updated Box Name",
+            assembly_type=AssemblyType.HOLIDAY_SET,
+            notes="New notes here",
+            session=db_session,
+        )
+
+        assert updated.id == original_id
+        assert updated.display_name == "Updated Box Name"
+        assert updated.assembly_type == AssemblyType.HOLIDAY_SET
+        assert updated.notes == "New notes here"
+
+    def test_update_finished_good_replace_components(
+        self, db_session, finished_unit, another_finished_unit
+    ):
+        """Test replacing components atomically (old deleted, new created)."""
+        # Create with initial component
+        fg = finished_good_service.create_finished_good(
+            display_name="Replaceable Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 5}],
+            session=db_session,
+        )
+
+        original_count = len(fg.components)
+        assert original_count == 1
+        assert fg.components[0].finished_unit_id == finished_unit.id
+
+        # Replace with different component
+        new_components = [
+            {"type": "finished_unit", "id": another_finished_unit.id, "quantity": 10}
+        ]
+        finished_good_service.update_finished_good(
+            fg.id,
+            components=new_components,
+            session=db_session,
+        )
+
+        # Refresh to get updated state from database
+        db_session.expire(fg)
+        db_session.refresh(fg)
+
+        # Verify components were replaced
+        assert len(fg.components) == 1
+        assert fg.components[0].finished_unit_id == another_finished_unit.id
+        assert fg.components[0].component_quantity == 10
+
+    def test_update_finished_good_clear_components(self, db_session, finished_unit):
+        """Test clearing all components with empty list."""
+        fg = finished_good_service.create_finished_good(
+            display_name="Box to Clear",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 3}],
+            session=db_session,
+        )
+        assert len(fg.components) == 1
+
+        # Clear all components
+        updated = finished_good_service.update_finished_good(
+            fg.id,
+            components=[],
+            session=db_session,
+        )
+
+        # Refresh to get updated state
+        db_session.refresh(updated)
+        assert len(updated.components) == 0
+
+    def test_update_finished_good_with_nested_component(
+        self, db_session, finished_unit, inner_finished_good
+    ):
+        """Test updating to include a nested FinishedGood."""
+        fg = finished_good_service.create_finished_good(
+            display_name="To Be Nested",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
+            session=db_session,
+        )
+
+        # Update to include both types
+        new_components = [
+            {"type": "finished_unit", "id": finished_unit.id, "quantity": 3, "sort_order": 0},
+            {"type": "finished_good", "id": inner_finished_good.id, "quantity": 1, "sort_order": 1},
+        ]
+        finished_good_service.update_finished_good(
+            fg.id,
+            components=new_components,
+            session=db_session,
+        )
+
+        # Refresh to get updated state from database
+        db_session.expire(fg)
+        db_session.refresh(fg)
+
+        assert len(fg.components) == 2
+
+        # Verify sort order preserved
+        sorted_comps = sorted(fg.components, key=lambda c: c.sort_order)
+        assert sorted_comps[0].finished_unit_id == finished_unit.id
+        assert sorted_comps[1].finished_good_id == inner_finished_good.id
+
+    def test_update_finished_good_preserves_unchanged_fields(
+        self, db_session, finished_unit
+    ):
+        """Test that update preserves fields not explicitly changed."""
+        fg = finished_good_service.create_finished_good(
+            display_name="Preserve Test",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            packaging_instructions="Original instructions",
+            notes="Original notes",
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Only update display_name
+        updated = finished_good_service.update_finished_good(
+            fg.id,
+            display_name="New Name Only",
+            session=db_session,
+        )
+
+        # Other fields should be preserved
+        assert updated.display_name == "New Name Only"
+        assert updated.packaging_instructions == "Original instructions"
+        assert updated.notes == "Original notes"
+        assert len(updated.components) == 1
+
+
+# =============================================================================
+# T015, T019: Circular Reference Detection Tests
+# =============================================================================
+
+
+class TestCircularReferenceDetection:
+    """Test circular reference detection during create and update (T015, T019)."""
+
+    def test_circular_reference_self_create(self, db_session, finished_unit):
+        """Test that self-reference is rejected on create."""
+        # First create the FinishedGood without nested components
+        fg = finished_good_service.create_finished_good(
+            display_name="Self Reference Test",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Try to update to reference itself
+        with pytest.raises(Exception) as exc:
+            finished_good_service.update_finished_good(
+                fg.id,
+                components=[{"type": "finished_good", "id": fg.id, "quantity": 1}],
+                session=db_session,
+            )
+        assert "itself" in str(exc.value).lower()
+
+    def test_circular_reference_direct(self, db_session, finished_unit):
+        """Test direct cycle detection (A -> B -> A)."""
+        # Create A (empty for now, will add component later)
+        fg_a = finished_good_service.create_finished_good(
+            display_name="FG A",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            session=db_session,
+        )
+
+        # Create B containing A
+        fg_b = finished_good_service.create_finished_good(
+            display_name="FG B",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_good", "id": fg_a.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Try to add B to A - should fail (creates A -> B -> A)
+        with pytest.raises(Exception) as exc:
+            finished_good_service.update_finished_good(
+                fg_a.id,
+                components=[{"type": "finished_good", "id": fg_b.id, "quantity": 1}],
+                session=db_session,
+            )
+        assert "circular reference" in str(exc.value).lower()
+
+    def test_circular_reference_transitive(self, db_session, finished_unit):
+        """Test transitive cycle detection (A -> B -> C -> A)."""
+        # Create A (empty initially)
+        fg_a = finished_good_service.create_finished_good(
+            display_name="FG A Transitive",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            session=db_session,
+        )
+
+        # Create B containing A
+        fg_b = finished_good_service.create_finished_good(
+            display_name="FG B Transitive",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_good", "id": fg_a.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Create C containing B
+        fg_c = finished_good_service.create_finished_good(
+            display_name="FG C Transitive",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_good", "id": fg_b.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Try to add C to A - should fail (creates A -> C -> B -> A)
+        with pytest.raises(Exception) as exc:
+            finished_good_service.update_finished_good(
+                fg_a.id,
+                components=[{"type": "finished_good", "id": fg_c.id, "quantity": 1}],
+                session=db_session,
+            )
+        assert "circular reference" in str(exc.value).lower()
+
+    def test_valid_non_circular_nesting(self, db_session, finished_unit):
+        """Test that valid (non-circular) nesting is allowed."""
+        # Create A containing FinishedUnit
+        fg_a = finished_good_service.create_finished_good(
+            display_name="FG A Valid",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
+            session=db_session,
+        )
+
+        # Create B containing A - this should succeed (A -> B is fine)
+        fg_b = finished_good_service.create_finished_good(
+            display_name="FG B Valid",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_good", "id": fg_a.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # B should have A as a component
+        assert len(fg_b.components) == 1
+        assert fg_b.components[0].finished_good_id == fg_a.id
+
+
+# =============================================================================
+# T016, T017, T020: Delete Safety Checks Tests
+# =============================================================================
+
+
+class TestDeleteSafetyChecks:
+    """Test delete safety checks (T016, T017, T020)."""
+
+    def test_delete_blocked_by_finished_good_reference(self, db_session, finished_unit):
+        """Test delete is blocked when referenced by another FinishedGood."""
+        # Create inner FG
+        inner = finished_good_service.create_finished_good(
+            display_name="Inner Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Create outer FG containing inner
+        outer = finished_good_service.create_finished_good(
+            display_name="Outer Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_good", "id": inner.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Try to delete inner - should fail
+        with pytest.raises(ValueError) as exc:
+            finished_good_service.delete_finished_good(inner.id, session=db_session)
+
+        assert "Outer Box" in str(exc.value)
+        assert "referenced by" in str(exc.value).lower()
+
+    def test_delete_succeeds_no_references(self, db_session, finished_unit):
+        """Test delete succeeds when there are no references."""
+        fg = finished_good_service.create_finished_good(
+            display_name="Standalone Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+        fg_id = fg.id
+
+        result = finished_good_service.delete_finished_good(fg_id, session=db_session)
+        assert result is True
+
+        # Verify deleted
+        deleted = db_session.query(FinishedGood).filter_by(id=fg_id).first()
+        assert deleted is None
+
+    def test_delete_cascades_compositions(self, db_session, finished_unit):
+        """Test that deleting FinishedGood cascades to Composition records."""
+        fg = finished_good_service.create_finished_good(
+            display_name="Test Cascade Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[
+                {"type": "finished_unit", "id": finished_unit.id, "quantity": 2},
+            ],
+            session=db_session,
+        )
+        fg_id = fg.id
+
+        # Verify composition exists
+        comps_before = db_session.query(Composition).filter_by(assembly_id=fg_id).count()
+        assert comps_before == 1
+
+        # Delete
+        finished_good_service.delete_finished_good(fg_id, session=db_session)
+
+        # Verify compositions also deleted
+        remaining = db_session.query(Composition).filter_by(assembly_id=fg_id).count()
+        assert remaining == 0
+
+    def test_delete_not_found_returns_false(self, db_session):
+        """Test delete returns False for non-existent ID."""
+        result = finished_good_service.delete_finished_good(99999, session=db_session)
+        assert result is False
+
+    def test_delete_after_removing_reference(self, db_session, finished_unit):
+        """Test delete succeeds after reference is removed."""
+        # Create inner FG
+        inner = finished_good_service.create_finished_good(
+            display_name="Inner to Remove",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Create outer FG containing inner
+        outer = finished_good_service.create_finished_good(
+            display_name="Outer Container",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_good", "id": inner.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # First, try to delete inner - should fail
+        with pytest.raises(ValueError):
+            finished_good_service.delete_finished_good(inner.id, session=db_session)
+
+        # Remove reference by updating outer to have no components
+        finished_good_service.update_finished_good(
+            outer.id,
+            components=[],
+            session=db_session,
+        )
+
+        # Now delete should succeed
+        result = finished_good_service.delete_finished_good(inner.id, session=db_session)
+        assert result is True
+
+
+# =============================================================================
+# Event Reference Tests (T017)
+# =============================================================================
+
+
+class TestEventReferenceChecks:
+    """Test delete safety checks for event references (T017)."""
+
+    def test_delete_blocked_by_event_reference(self, db_session, finished_unit):
+        """Test delete is blocked when referenced by an event."""
+        from src.models.event_finished_good import EventFinishedGood
+        from src.models.event import Event
+        from datetime import date
+
+        # Create FinishedGood
+        fg = finished_good_service.create_finished_good(
+            display_name="Event Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Create an event
+        event = Event(
+            name="Christmas 2024",
+            event_date=date(2024, 12, 25),
+            year=2024,
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        # Link FinishedGood to event
+        event_fg = EventFinishedGood(
+            event_id=event.id,
+            finished_good_id=fg.id,
+            quantity=10,
+        )
+        db_session.add(event_fg)
+        db_session.flush()
+
+        # Try to delete - should fail
+        with pytest.raises(ValueError) as exc:
+            finished_good_service.delete_finished_good(fg.id, session=db_session)
+
+        assert "Christmas 2024" in str(exc.value)
+        assert "event" in str(exc.value).lower()
+
+    def test_delete_succeeds_without_event_reference(self, db_session, finished_unit):
+        """Test delete succeeds when not referenced by any events."""
+        from src.models.event import Event
+        from datetime import date
+
+        # Create FinishedGood
+        fg = finished_good_service.create_finished_good(
+            display_name="Non-Event Box",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
+            session=db_session,
+        )
+
+        # Create an event (but don't link the FG to it)
+        event = Event(
+            name="Unrelated Event",
+            event_date=date(2024, 1, 1),
+            year=2024,
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        # Delete should succeed since FG is not linked to event
+        result = finished_good_service.delete_finished_good(fg.id, session=db_session)
+        assert result is True

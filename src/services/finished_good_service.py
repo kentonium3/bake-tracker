@@ -317,13 +317,32 @@ class FinishedGoodService:
         return finished_good
 
     @staticmethod
-    def update_finished_good(finished_good_id: int, **updates) -> FinishedGood:
+    def update_finished_good(
+        finished_good_id: int,
+        display_name: Optional[str] = None,
+        assembly_type: Optional[AssemblyType] = None,
+        components: Optional[List[Dict]] = None,
+        packaging_instructions: Optional[str] = None,
+        notes: Optional[str] = None,
+        session=None,
+        **updates
+    ) -> FinishedGood:
         """
-        Update an existing FinishedGood.
+        Update an existing FinishedGood with optional component replacement.
 
         Args:
             finished_good_id: ID of FinishedGood to update
-            **updates: Dictionary of fields to update
+            display_name: Optional new display name
+            assembly_type: Optional new assembly type
+            components: Optional list of components to replace existing ones atomically.
+                Structure: [{"type": "finished_unit"|"material_unit"|"finished_good",
+                            "id": int, "quantity": int, "notes": str|None, "sort_order": int}]
+                When provided, ALL existing components are deleted and replaced with new ones.
+                Use empty list [] to clear all components.
+            packaging_instructions: Optional new packaging instructions
+            notes: Optional new notes
+            session: Optional database session for transaction sharing
+            **updates: Additional optional fields (inventory_count, description)
 
         Returns:
             Updated FinishedGood instance
@@ -331,106 +350,326 @@ class FinishedGoodService:
         Raises:
             FinishedGoodNotFoundError: If assembly doesn't exist
             ValidationError: If validation fails
+            InvalidComponentError: If components are invalid
+            CircularReferenceError: If circular references detected
 
         Performance:
             Must complete in <1s per contract
         """
+        if session is not None:
+            return FinishedGoodService._update_finished_good_impl(
+                finished_good_id, display_name, assembly_type, components,
+                packaging_instructions, notes, session, **updates
+            )
+
         try:
             with session_scope() as session:
-                assembly = (
-                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+                return FinishedGoodService._update_finished_good_impl(
+                    finished_good_id, display_name, assembly_type, components,
+                    packaging_instructions, notes, session, **updates
                 )
-
-                if not assembly:
-                    raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
-
-                # Validate updates
-                if "display_name" in updates:
-                    display_name = updates["display_name"]
-                    if not display_name or not display_name.strip():
-                        raise ValidationError("Display name cannot be empty")
-
-                    # Update slug if display name changed
-                    if display_name.strip() != assembly.display_name:
-                        new_slug = FinishedGoodService._generate_unique_slug(
-                            display_name.strip(), session, assembly.id
-                        )
-                        updates["slug"] = new_slug
-
-                # Feature 045: total_cost validation removed (field no longer exists on model)
-
-                if "inventory_count" in updates and updates["inventory_count"] < 0:
-                    raise ValidationError("Inventory count must be non-negative")
-
-                if "assembly_type" in updates and not isinstance(
-                    updates["assembly_type"], AssemblyType
-                ):
-                    raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
-
-                # Apply updates
-                for field, value in updates.items():
-                    if hasattr(assembly, field):
-                        setattr(assembly, field, value)
-
-                assembly.updated_at = utc_now()
-                session.flush()
-
-                logger.info(f"Updated FinishedGood ID {finished_good_id}: {assembly.display_name}")
-                return assembly
-
+        except IntegrityError as e:
+            logger.error(f"Integrity error updating FinishedGood: {e}")
+            if "uq_finished_good_slug" in str(e):
+                raise ValidationError(
+                    f"Slug already exists for display name '{display_name}'"
+                )
+            else:
+                raise DatabaseError(f"Database integrity error: {e}")
         except SQLAlchemyError as e:
             logger.error(f"Database error updating FinishedGood ID {finished_good_id}: {e}")
             raise DatabaseError(f"Failed to update FinishedGood: {e}")
 
     @staticmethod
-    def delete_finished_good(finished_good_id: int) -> bool:
+    def _update_finished_good_impl(
+        finished_good_id: int,
+        display_name: Optional[str],
+        assembly_type: Optional[AssemblyType],
+        components: Optional[List[Dict]],
+        packaging_instructions: Optional[str],
+        notes: Optional[str],
+        session,
+        **updates
+    ) -> FinishedGood:
+        """Internal implementation of update_finished_good with session."""
+        assembly = (
+            session.query(FinishedGood)
+            .options(selectinload(FinishedGood.components))
+            .filter(FinishedGood.id == finished_good_id)
+            .first()
+        )
+
+        if not assembly:
+            raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
+
+        # Validate and update display_name
+        if display_name is not None:
+            if not display_name or not display_name.strip():
+                raise ValidationError("Display name cannot be empty")
+            # Update slug if display name changed
+            if display_name.strip() != assembly.display_name:
+                new_slug = FinishedGoodService._generate_unique_slug(
+                    display_name.strip(), session, assembly.id
+                )
+                assembly.slug = new_slug
+            assembly.display_name = display_name.strip()
+
+        # Validate and update assembly_type
+        if assembly_type is not None:
+            if not isinstance(assembly_type, AssemblyType):
+                raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
+            assembly.assembly_type = assembly_type
+
+        # Update packaging_instructions
+        if packaging_instructions is not None:
+            assembly.packaging_instructions = packaging_instructions
+
+        # Update notes
+        if notes is not None:
+            assembly.notes = notes
+
+        # Handle additional updates from **updates
+        if "inventory_count" in updates and updates["inventory_count"] < 0:
+            raise ValidationError("Inventory count must be non-negative")
+
+        if "description" in updates:
+            assembly.description = updates["description"]
+
+        if "inventory_count" in updates:
+            assembly.inventory_count = updates["inventory_count"]
+
+        # Replace components if provided (atomically delete all and create new)
+        if components is not None:
+            # Validate new components (including circular reference check) BEFORE making changes
+            if components:  # Only validate if there are components
+                FinishedGoodService._validate_components(components, session)
+                FinishedGoodService._validate_no_circular_references(
+                    finished_good_id, components, session
+                )
+
+            # Delete existing compositions
+            session.query(Composition).filter_by(assembly_id=finished_good_id).delete()
+
+            # Create new compositions
+            for component_spec in components:
+                composition = FinishedGoodService._create_composition(
+                    finished_good_id, component_spec, session
+                )
+                session.add(composition)
+
+            # Validate business rules with new component count
+            component_count = len(components)
+            is_valid, errors = validate_assembly_type_business_rules(
+                assembly.assembly_type, component_count, Decimal("0.0000")
+            )
+            if not is_valid:
+                raise ValidationError(
+                    [f"Assembly type validation failed: {'; '.join(errors)}"]
+                )
+
+        assembly.updated_at = utc_now()
+        session.flush()
+
+        logger.info(f"Updated FinishedGood ID {finished_good_id}: {assembly.display_name}")
+        return assembly
+
+    @staticmethod
+    def delete_finished_good(finished_good_id: int, session=None) -> bool:
         """
         Delete a FinishedGood assembly.
 
+        Performs safety checks to prevent deleting FinishedGoods that are:
+        - Referenced as components by other FinishedGoods
+        - Used in event planning (EventFinishedGood)
+
         Args:
             finished_good_id: ID of FinishedGood to delete
+            session: Optional database session for transaction sharing
 
         Returns:
             True if deleted, False if not found
 
         Raises:
+            ValueError: If FinishedGood is referenced by other assemblies or events
             DatabaseError: If database operation fails
 
         Performance:
             Must complete in <1s per contract
         """
+        if session is not None:
+            return FinishedGoodService._delete_finished_good_impl(finished_good_id, session)
+
         try:
             with session_scope() as session:
-                assembly = (
-                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
-                )
-
-                if not assembly:
-                    logger.debug(f"FinishedGood ID {finished_good_id} not found for deletion")
-                    return False
-
-                # Check if this assembly is used as a component in other assemblies
-                usage_count = (
-                    session.query(Composition)
-                    .filter(Composition.finished_good_id == finished_good_id)
-                    .count()
-                )
-
-                if usage_count > 0:
-                    logger.warning(
-                        f"FinishedGood '{assembly.display_name}' is used in {usage_count} other assemblies"
-                    )
-
-                # Delete the assembly (cascade will handle compositions)
-                display_name = assembly.display_name
-                session.delete(assembly)
-
-                logger.info(f"Deleted FinishedGood ID {finished_good_id}: {display_name}")
-                return True
+                return FinishedGoodService._delete_finished_good_impl(finished_good_id, session)
 
         except SQLAlchemyError as e:
             logger.error(f"Database error deleting FinishedGood ID {finished_good_id}: {e}")
             raise DatabaseError(f"Failed to delete FinishedGood: {e}")
+
+    @staticmethod
+    def _delete_finished_good_impl(finished_good_id: int, session) -> bool:
+        """Internal implementation of delete_finished_good with session."""
+        assembly = (
+            session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+        )
+
+        if not assembly:
+            logger.debug(f"FinishedGood ID {finished_good_id} not found for deletion")
+            return False
+
+        # Check for FinishedGood references (used as component in other assemblies)
+        fg_refs = FinishedGoodService._check_finished_good_references(finished_good_id, session)
+        if fg_refs:
+            truncated = fg_refs[:3]
+            suffix = "..." if len(fg_refs) > 3 else ""
+            raise ValueError(
+                f"Cannot delete: referenced by {len(fg_refs)} Finished Good(s): "
+                f"{', '.join(truncated)}{suffix}"
+            )
+
+        # Check for event references (used in event planning)
+        event_refs = FinishedGoodService._check_event_references(finished_good_id, session)
+        if event_refs:
+            truncated = event_refs[:3]
+            suffix = "..." if len(event_refs) > 3 else ""
+            raise ValueError(
+                f"Cannot delete: used in {len(event_refs)} event(s): "
+                f"{', '.join(truncated)}{suffix}"
+            )
+
+        # Delete the assembly (cascade will handle compositions)
+        display_name = assembly.display_name
+        session.delete(assembly)
+
+        logger.info(f"Deleted FinishedGood ID {finished_good_id}: {display_name}")
+        return True
+
+    @staticmethod
+    def _check_finished_good_references(finished_good_id: int, session) -> List[str]:
+        """
+        Check if this FinishedGood is referenced by other FinishedGoods.
+
+        Args:
+            finished_good_id: ID to check for references
+            session: Database session
+
+        Returns:
+            List of referencing FinishedGood display names
+        """
+        refs = session.query(Composition).filter_by(finished_good_id=finished_good_id).all()
+        referencing_names = []
+        for ref in refs:
+            parent = session.get(FinishedGood, ref.assembly_id)
+            if parent:
+                referencing_names.append(parent.display_name)
+        return referencing_names
+
+    @staticmethod
+    def _check_event_references(finished_good_id: int, session) -> List[str]:
+        """
+        Check if this FinishedGood is referenced by events.
+
+        Args:
+            finished_good_id: ID to check for event references
+            session: Database session
+
+        Returns:
+            List of event names that reference this FinishedGood
+        """
+        from src.models.event_finished_good import EventFinishedGood
+        from src.models.event import Event
+
+        refs = session.query(EventFinishedGood).filter_by(
+            finished_good_id=finished_good_id
+        ).all()
+        event_names = []
+        for ref in refs:
+            event = session.get(Event, ref.event_id)
+            if event:
+                event_names.append(event.name)
+        return event_names
+
+    @staticmethod
+    def _validate_no_circular_references(
+        current_fg_id: int, components: List[Dict], session
+    ) -> None:
+        """
+        Validate that adding these components won't create circular references.
+
+        A circular reference occurs when:
+        1. Component is the current FinishedGood itself (A -> A)
+        2. Component contains the current FinishedGood (A -> B where B -> A)
+        3. Component's descendants contain current FinishedGood (transitive closure)
+
+        Args:
+            current_fg_id: ID of the FinishedGood being updated
+            components: List of component specifications to add
+            session: Database session
+
+        Raises:
+            CircularReferenceError: If adding any component would create a cycle
+        """
+        # Extract finished_good component IDs
+        fg_component_ids = [
+            c.get("id") or c.get("component_id")
+            for c in components
+            if (c.get("type") or c.get("component_type")) == "finished_good"
+        ]
+
+        if not fg_component_ids:
+            return  # No nested FinishedGoods, no cycle possible
+
+        # Check for self-reference
+        if current_fg_id in fg_component_ids:
+            raise CircularReferenceError(
+                "Cannot add a FinishedGood as a component of itself"
+            )
+
+        # Check for cycles using BFS
+        for target_id in fg_component_ids:
+            if FinishedGoodService._would_create_cycle(current_fg_id, target_id, session):
+                target = session.get(FinishedGood, target_id)
+                target_name = target.display_name if target else f"ID {target_id}"
+                raise CircularReferenceError(
+                    f"Cannot add '{target_name}' as component: "
+                    f"it would create a circular reference"
+                )
+
+    @staticmethod
+    def _would_create_cycle(current_fg_id: int, target_fg_id: int, session) -> bool:
+        """
+        Check if adding target_fg_id as a component of current_fg_id would create a cycle.
+
+        Uses breadth-first search to check if target_fg_id (or any of its descendants)
+        contains current_fg_id.
+
+        Args:
+            current_fg_id: ID of the FinishedGood being updated
+            target_fg_id: ID of the FinishedGood being added as a component
+            session: Database session
+
+        Returns:
+            True if adding target would create a cycle, False otherwise
+        """
+        visited = set()
+        queue = [target_fg_id]
+
+        while queue:
+            fg_id = queue.pop(0)
+            if fg_id in visited:
+                continue
+            visited.add(fg_id)
+
+            # Get all FinishedGood components of this fg
+            compositions = session.query(Composition).filter_by(assembly_id=fg_id).all()
+            for comp in compositions:
+                if comp.finished_good_id is not None:
+                    if comp.finished_good_id == current_fg_id:
+                        return True  # Cycle detected!
+                    queue.append(comp.finished_good_id)
+
+        return False
 
     # Component Management
 
@@ -1515,6 +1754,34 @@ def search_finished_goods(query: str) -> List[FinishedGood]:
 def get_assemblies_by_type(assembly_type: AssemblyType) -> List[FinishedGood]:
     """Get all assemblies of a specific type."""
     return FinishedGoodService.get_assemblies_by_type(assembly_type)
+
+
+def update_finished_good(
+    finished_good_id: int,
+    display_name: Optional[str] = None,
+    assembly_type: Optional[AssemblyType] = None,
+    components: Optional[List[Dict]] = None,
+    packaging_instructions: Optional[str] = None,
+    notes: Optional[str] = None,
+    session=None,
+    **updates
+) -> FinishedGood:
+    """Update a FinishedGood assembly with optional component replacement."""
+    return FinishedGoodService.update_finished_good(
+        finished_good_id,
+        display_name=display_name,
+        assembly_type=assembly_type,
+        components=components,
+        packaging_instructions=packaging_instructions,
+        notes=notes,
+        session=session,
+        **updates
+    )
+
+
+def delete_finished_good(finished_good_id: int, session=None) -> bool:
+    """Delete a FinishedGood with safety checks for references."""
+    return FinishedGoodService.delete_finished_good(finished_good_id, session=session)
 
 
 # =============================================================================
