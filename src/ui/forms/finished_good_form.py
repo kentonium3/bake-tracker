@@ -5,7 +5,7 @@ This dialog provides a modal form for managing FinishedGood records, which
 represent assembled packages containing multiple FinishedUnits and/or other
 FinishedGoods (e.g., gift boxes, variety packs, seasonal collections).
 
-Feature 088: Finished Goods Catalog UI - WP04, WP05
+Feature 088: Finished Goods Catalog UI - WP04, WP05, WP06
 """
 
 import customtkinter as ctk
@@ -14,6 +14,8 @@ from typing import Optional, Dict, List, Callable
 from src.models.finished_good import FinishedGood
 from src.models.assembly_type import AssemblyType
 from src.services import finished_unit_service
+from src.services import material_unit_service
+from src.services import finished_good_service
 
 
 class ComponentSelectionPopup(ctk.CTkToplevel):
@@ -237,6 +239,12 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         # Foods components list storage (WP05)
         self._foods_components: List[Dict] = []
 
+        # Materials components list storage (WP06)
+        self._materials_components: List[Dict] = []
+
+        # Nested FinishedGoods components list storage (WP06)
+        self._nested_components: List[Dict] = []
+
         # Window configuration
         if finished_good:
             self.title(f"Edit: {finished_good.display_name}")
@@ -293,6 +301,8 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         self._create_packaging_section()
         self._create_notes_section()
         self._create_foods_section()  # WP05: Foods (FinishedUnits) section
+        self._create_materials_section()  # WP06: Materials (MaterialUnits) section
+        self._create_components_section()  # WP06: Components (nested FinishedGoods) section
 
         # Button frame at bottom (not scrollable)
         self.button_frame = ctk.CTkFrame(self.main_frame)
@@ -423,7 +433,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         items = [(u.id, u.display_name, u.category or "") for u in units]
         categories = self._get_food_categories()
 
-        popup = ComponentSelectionPopup(
+        ComponentSelectionPopup(
             self,
             title="Select Food",
             items=items,
@@ -516,6 +526,338 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
                 comp["sort_order"] = i
             self._refresh_foods_list()
 
+    # ==========================================================================
+    # WP06: Materials (MaterialUnits) Section
+    # ==========================================================================
+
+    def _create_materials_section(self):
+        """Create the Materials (MaterialUnits) section (WP06: T035)."""
+        # Section header with Add button
+        self.materials_header_frame = ctk.CTkFrame(
+            self.form_scroll,
+            fg_color="transparent",
+        )
+        self.materials_header_frame.grid(row=9, column=0, columnspan=2, sticky="ew", pady=(15, 5))
+
+        materials_label = ctk.CTkLabel(
+            self.materials_header_frame,
+            text="Materials",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        materials_label.pack(side="left")
+
+        self.add_material_btn = ctk.CTkButton(
+            self.materials_header_frame,
+            text="+ Add Material",
+            width=120,
+            command=self._on_add_material,
+        )
+        self.add_material_btn.pack(side="right")
+
+        # Materials list container
+        self.materials_list_frame = ctk.CTkScrollableFrame(
+            self.form_scroll,
+            height=120,
+        )
+        self.materials_list_frame.grid(row=10, column=0, columnspan=2, sticky="ew", pady=5)
+
+        # Initial display
+        self._refresh_materials_list()
+
+    def _get_material_categories(self) -> List[str]:
+        """Get unique categories from MaterialUnits (WP06: T036)."""
+        units = material_unit_service.list_units(include_relationships=True)
+        categories = set()
+        for unit in units:
+            if unit.material_product and unit.material_product.material:
+                material = unit.material_product.material
+                if material.subcategory and material.subcategory.category:
+                    categories.add(material.subcategory.category.name)
+        return sorted(list(categories))
+
+    def _on_add_material(self):
+        """Open material selection popup (WP06: T036)."""
+        units = material_unit_service.list_units(include_relationships=True)
+
+        # Build items list: (id, display_name, category)
+        items = []
+        for u in units:
+            product_name = u.material_product.name if u.material_product else ""
+            display = f"{u.name} ({product_name})" if product_name else u.name
+            # Get category from material hierarchy
+            category = ""
+            if u.material_product and u.material_product.material:
+                material = u.material_product.material
+                if material.subcategory and material.subcategory.category:
+                    category = material.subcategory.category.name
+            items.append((u.id, display, category))
+
+        categories = self._get_material_categories()
+
+        ComponentSelectionPopup(
+            self,
+            title="Select Material",
+            items=items,
+            categories=categories,
+            on_select=self._show_material_quantity_dialog,
+        )
+
+    def _show_material_quantity_dialog(self, item_id: int, display_name: str):
+        """Show quantity input dialog for material (accepts decimals) (WP06: T038)."""
+        dialog = ctk.CTkInputDialog(
+            text=f"Quantity for {display_name}:",
+            title="Enter Quantity",
+        )
+        quantity_str = dialog.get_input()
+
+        if quantity_str:
+            try:
+                quantity = float(quantity_str)
+                if quantity <= 0:
+                    raise ValueError("Must be positive")
+                self._add_material_component(item_id, display_name, quantity)
+            except ValueError:
+                # Invalid input - silently ignore
+                pass
+
+    def _add_material_component(self, material_id: int, display_name: str, quantity: float):
+        """Add a material component and update display (WP06: T038)."""
+        # Check for duplicates - if found, add to quantity
+        for comp in self._materials_components:
+            if comp["id"] == material_id:
+                # Update quantity instead of adding duplicate
+                comp["quantity"] += quantity
+                self._refresh_materials_list()
+                return
+
+        # Add new component
+        self._materials_components.append({
+            "type": "material_unit",
+            "id": material_id,
+            "quantity": quantity,
+            "display_name": display_name,
+            "sort_order": len(self._materials_components),
+        })
+        self._refresh_materials_list()
+
+    def _refresh_materials_list(self):
+        """Refresh the materials list display (WP06: T039)."""
+        # Clear existing
+        for widget in self.materials_list_frame.winfo_children():
+            widget.destroy()
+
+        if not self._materials_components:
+            empty_label = ctk.CTkLabel(
+                self.materials_list_frame,
+                text="No materials added yet",
+                text_color="gray",
+            )
+            empty_label.pack(pady=10)
+            return
+
+        for i, comp in enumerate(self._materials_components):
+            row_frame = ctk.CTkFrame(self.materials_list_frame)
+            row_frame.pack(fill="x", pady=2)
+
+            # Format quantity nicely (show decimal only if needed)
+            qty = comp["quantity"]
+            qty_str = f"{qty:.1f}" if qty % 1 else str(int(qty))
+
+            # Name and quantity
+            name_label = ctk.CTkLabel(
+                row_frame,
+                text=f"{comp['display_name']} x {qty_str}",
+                anchor="w",
+            )
+            name_label.pack(side="left", padx=5, fill="x", expand=True)
+
+            # Remove button
+            remove_btn = ctk.CTkButton(
+                row_frame,
+                text="Remove",
+                width=70,
+                fg_color="red",
+                hover_color="darkred",
+                command=lambda idx=i: self._remove_material_component(idx),
+            )
+            remove_btn.pack(side="right", padx=5)
+
+    def _remove_material_component(self, index: int):
+        """Remove a material component by index (WP06: T039)."""
+        if 0 <= index < len(self._materials_components):
+            del self._materials_components[index]
+            # Update sort_order for remaining items
+            for i, comp in enumerate(self._materials_components):
+                comp["sort_order"] = i
+            self._refresh_materials_list()
+
+    # ==========================================================================
+    # WP06: Components (Nested FinishedGoods) Section
+    # ==========================================================================
+
+    def _create_components_section(self):
+        """Create the Components (nested FinishedGoods) section (WP06: T040)."""
+        # Section header with Add button
+        self.components_header_frame = ctk.CTkFrame(
+            self.form_scroll,
+            fg_color="transparent",
+        )
+        self.components_header_frame.grid(row=11, column=0, columnspan=2, sticky="ew", pady=(15, 5))
+
+        components_label = ctk.CTkLabel(
+            self.components_header_frame,
+            text="Components (Finished Goods)",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        components_label.pack(side="left")
+
+        self.add_component_btn = ctk.CTkButton(
+            self.components_header_frame,
+            text="+ Add Component",
+            width=130,
+            command=self._on_add_component,
+        )
+        self.add_component_btn.pack(side="right")
+
+        # Components list container
+        self.components_list_frame = ctk.CTkScrollableFrame(
+            self.form_scroll,
+            height=120,
+        )
+        self.components_list_frame.grid(row=12, column=0, columnspan=2, sticky="ew", pady=5)
+
+        # Initial display
+        self._refresh_components_list()
+
+    def _get_assembly_type_options(self) -> List[str]:
+        """Get assembly type options for filtering (WP06: T041)."""
+        return list(self._type_to_enum.keys())
+
+    def _on_add_component(self):
+        """Open component selection popup (WP06: T041)."""
+        goods = finished_good_service.get_all_finished_goods()
+
+        # Filter out self if editing (can't add self as component)
+        current_id = self.finished_good.id if self.finished_good else None
+
+        # Build items list, filtering out invalid options
+        items = []
+        for fg in goods:
+            if fg.id == current_id:
+                continue  # Can't add self as component
+
+            # Check for circular reference in edit mode (WP06: T042)
+            if current_id is not None:
+                if not finished_good_service.FinishedGoodService.validate_no_circular_references(
+                    current_id, fg.id
+                ):
+                    continue  # Skip items that would create circular reference
+
+            type_display = self._enum_to_type.get(fg.assembly_type, "Custom Order")
+            items.append((fg.id, fg.display_name, type_display))
+
+        assembly_types = self._get_assembly_type_options()
+
+        ComponentSelectionPopup(
+            self,
+            title="Select Component",
+            items=items,
+            categories=assembly_types,
+            on_select=self._on_component_selected,
+        )
+
+    def _on_component_selected(self, item_id: int, display_name: str):
+        """Handle component selection (WP06: T042)."""
+        # In create mode, no additional validation needed (already filtered in popup)
+        # In edit mode, validation was done during popup item filtering
+        # Show quantity dialog
+        self._show_component_quantity_dialog(item_id, display_name)
+
+    def _show_component_quantity_dialog(self, item_id: int, display_name: str):
+        """Show quantity input dialog for component (WP06: T042)."""
+        dialog = ctk.CTkInputDialog(
+            text=f"Quantity for {display_name}:",
+            title="Enter Quantity",
+        )
+        quantity_str = dialog.get_input()
+
+        if quantity_str:
+            try:
+                quantity = int(quantity_str)
+                if quantity <= 0:
+                    raise ValueError("Must be positive")
+                self._add_nested_component(item_id, display_name, quantity)
+            except ValueError:
+                # Invalid input - silently ignore
+                pass
+
+    def _add_nested_component(self, component_id: int, display_name: str, quantity: int):
+        """Add a nested FinishedGood component (WP06: T042)."""
+        # Check for duplicates - if found, add to quantity
+        for comp in self._nested_components:
+            if comp["id"] == component_id:
+                # Update quantity instead of adding duplicate
+                comp["quantity"] += quantity
+                self._refresh_components_list()
+                return
+
+        # Add new component
+        self._nested_components.append({
+            "type": "finished_good",
+            "id": component_id,
+            "quantity": quantity,
+            "display_name": display_name,
+            "sort_order": len(self._nested_components),
+        })
+        self._refresh_components_list()
+
+    def _refresh_components_list(self):
+        """Refresh the components list display (WP06: T042)."""
+        # Clear existing
+        for widget in self.components_list_frame.winfo_children():
+            widget.destroy()
+
+        if not self._nested_components:
+            empty_label = ctk.CTkLabel(
+                self.components_list_frame,
+                text="No components added yet",
+                text_color="gray",
+            )
+            empty_label.pack(pady=10)
+            return
+
+        for i, comp in enumerate(self._nested_components):
+            row_frame = ctk.CTkFrame(self.components_list_frame)
+            row_frame.pack(fill="x", pady=2)
+
+            # Name and quantity
+            name_label = ctk.CTkLabel(
+                row_frame,
+                text=f"{comp['display_name']} x {comp['quantity']}",
+                anchor="w",
+            )
+            name_label.pack(side="left", padx=5, fill="x", expand=True)
+
+            # Remove button
+            remove_btn = ctk.CTkButton(
+                row_frame,
+                text="Remove",
+                width=70,
+                fg_color="red",
+                hover_color="darkred",
+                command=lambda idx=i: self._remove_nested_component(idx),
+            )
+            remove_btn.pack(side="right", padx=5)
+
+    def _remove_nested_component(self, index: int):
+        """Remove a nested FinishedGood component by index (WP06: T042)."""
+        if 0 <= index < len(self._nested_components):
+            del self._nested_components[index]
+            # Update sort_order for remaining items
+            for i, comp in enumerate(self._nested_components):
+                comp["sort_order"] = i
+            self._refresh_components_list()
+
     def _create_buttons(self):
         """Create Save and Cancel buttons."""
         # Cancel button
@@ -558,11 +900,11 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         if self.finished_good.notes:
             self.notes_text.insert("1.0", self.finished_good.notes)
 
-        # Populate foods from existing components (WP05: Edit mode integration)
+        # Populate all component types from existing components (WP05/WP06: Edit mode integration)
         if self.finished_good.components:
             for comp in self.finished_good.components:
                 if comp.finished_unit_id is not None:
-                    # Get display name from the relationship
+                    # FinishedUnit component (Foods)
                     display_name = (
                         comp.finished_unit_component.display_name
                         if comp.finished_unit_component
@@ -575,7 +917,37 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
                         "display_name": display_name,
                         "sort_order": comp.sort_order or len(self._foods_components),
                     })
+                elif comp.material_unit_id is not None:
+                    # MaterialUnit component (Materials) - WP06
+                    mu = comp.material_unit_component
+                    if mu:
+                        product_name = mu.material_product.name if mu.material_product else ""
+                        display_name = f"{mu.name} ({product_name})" if product_name else mu.name
+                    else:
+                        display_name = f"Material #{comp.material_unit_id}"
+                    self._materials_components.append({
+                        "type": "material_unit",
+                        "id": comp.material_unit_id,
+                        "quantity": comp.component_quantity,
+                        "display_name": display_name,
+                        "sort_order": comp.sort_order or len(self._materials_components),
+                    })
+                elif comp.finished_good_id is not None:
+                    # Nested FinishedGood component (Components) - WP06
+                    fg = comp.finished_good_component
+                    display_name = fg.display_name if fg else f"Component #{comp.finished_good_id}"
+                    self._nested_components.append({
+                        "type": "finished_good",
+                        "id": comp.finished_good_id,
+                        "quantity": comp.component_quantity,
+                        "display_name": display_name,
+                        "sort_order": comp.sort_order or len(self._nested_components),
+                    })
+
+            # Refresh all lists
             self._refresh_foods_list()
+            self._refresh_materials_list()
+            self._refresh_components_list()
 
     def _show_error(self, message: str):
         """Show error indication on the name field."""
@@ -609,13 +981,24 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
             self._show_error("Name is required")
             return
 
-        # Build result with foods components (WP05: T034)
+        # Combine all component types (WP06)
+        all_components = (
+            self._foods_components.copy()
+            + self._materials_components.copy()
+            + self._nested_components.copy()
+        )
+
+        # Re-assign sort_order across all types
+        for i, comp in enumerate(all_components):
+            comp["sort_order"] = i
+
+        # Build result with all components (WP05/WP06)
         self.result = {
             "display_name": name,
             "assembly_type": self._get_assembly_type(),
             "packaging_instructions": self.packaging_text.get("1.0", "end-1c").strip(),
             "notes": self.notes_text.get("1.0", "end-1c").strip(),
-            "components": self._foods_components.copy(),  # Include foods
+            "components": all_components,
         }
         self.destroy()
 
