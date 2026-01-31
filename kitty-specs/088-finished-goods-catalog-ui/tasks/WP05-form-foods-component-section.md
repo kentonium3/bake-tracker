@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Form Dialog - Foods Component Section
-lane: "doing"
+lane: "for_review"
 dependencies: [WP04]
 base_branch: 088-finished-goods-catalog-ui-WP04
 base_commit: 40e715ff668323f3a6f8de2b53a59e9afa66139b
@@ -535,3 +535,7 @@ def _populate_form(self):
 3. Test remove functionality at various positions
 4. Verify edit mode correctly loads existing components
 5. Check that result dict has correct format for service layer
+
+## Activity Log
+
+- 2026-01-31T04:49:16Z – unknown – shell_pid=26193 – lane=for_review – Ready for review: Implemented Foods section with ComponentSelectionPopup, category filter, search, quantity input, and duplicate handling
