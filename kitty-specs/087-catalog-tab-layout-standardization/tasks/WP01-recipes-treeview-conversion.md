@@ -10,10 +10,10 @@ subtasks:
   - "T007"
 title: "RecipesTab ttk.Treeview Conversion"
 phase: "Phase 1 - Core Pattern Validation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "4735"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -428,3 +428,4 @@ No automated tests required - manual verification:
 > **CRITICAL**: Activity log entries MUST be in chronological order (oldest first, newest last).
 
 - 2026-01-31T02:38:50Z – system – lane=planned – Prompt created.
+- 2026-01-31T02:44:42Z – claude-opus – shell_pid=4735 – lane=doing – Started implementation via workflow command
