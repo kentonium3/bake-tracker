@@ -87,13 +87,13 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T014 Implement `update_finished_good()` with component replacement (delete old, create new)
-- [ ] T015 Add `validate_no_circular_references()` using graph traversal
-- [ ] T016 Add delete safety checks (check if referenced by other FinishedGoods)
-- [ ] T017 Add delete safety checks (check if referenced by events/planning)
-- [ ] T018 Add service tests for update with component changes
-- [ ] T019 Add service tests for circular reference detection (self, direct, transitive)
-- [ ] T020 Add service tests for delete safety checks
+- [x] T014 Implement `update_finished_good()` with component replacement (delete old, create new)
+- [x] T015 Add `validate_no_circular_references()` using graph traversal
+- [x] T016 Add delete safety checks (check if referenced by other FinishedGoods)
+- [x] T017 Add delete safety checks (check if referenced by events/planning)
+- [x] T018 Add service tests for update with component changes
+- [x] T019 Add service tests for circular reference detection (self, direct, transitive)
+- [x] T020 Add service tests for delete safety checks
 
 ### Implementation Notes
 - Update strategy: Delete all existing Compositions, create new ones (simpler than diff)
