@@ -1,7 +1,7 @@
 ---
 work_package_id: "WP04"
 title: "Form Dialog - Basic Structure"
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks: ["T021", "T022", "T023", "T024", "T025", "T026", "T027"]
 priority: "P1"
@@ -473,3 +473,4 @@ spec-kitty implement WP04
 ## Activity Log
 
 - 2026-01-31T04:32:19Z – gemini-wp04 – shell_pid=21873 – lane=doing – Started implementation via workflow command
+- 2026-01-31T04:34:57Z – gemini-wp04 – shell_pid=21873 – lane=for_review – Ready for review: All subtasks implemented. Dialog supports create/edit with Name, Assembly Type dropdown, Packaging Instructions textarea, Notes textarea, and Save/Cancel validation.
