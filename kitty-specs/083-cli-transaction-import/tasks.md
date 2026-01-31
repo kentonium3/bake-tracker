@@ -1,6 +1,6 @@
 # Tasks: CLI Transaction Import Commands
 
-**Feature**: 082-cli-transaction-import
+**Feature**: 083-cli-transaction-import
 **Created**: 2026-01-28
 **Status**: Planning Complete
 

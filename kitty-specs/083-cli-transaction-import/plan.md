@@ -1,7 +1,7 @@
 # Implementation Plan: CLI Transaction Import Commands
 
-**Branch**: `082-cli-transaction-import` | **Date**: 2026-01-28 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/kitty-specs/082-cli-transaction-import/spec.md`
+**Branch**: `083-cli-transaction-import` | **Date**: 2026-01-28 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/kitty-specs/083-cli-transaction-import/spec.md`
 
 ## Summary
 
@@ -39,7 +39,7 @@ Add CLI commands to wrap existing `transaction_import_service.py` methods, enabl
 ### Documentation (this feature)
 
 ```
-kitty-specs/082-cli-transaction-import/
+kitty-specs/083-cli-transaction-import/
 ├── plan.md              # This file
 ├── spec.md              # Feature specification
 ├── checklists/

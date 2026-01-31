@@ -1,6 +1,6 @@
 # Feature Specification: CLI Transaction Import Commands
 
-**Feature Branch**: `082-cli-transaction-import`
+**Feature Branch**: `083-cli-transaction-import`
 **Created**: 2026-01-28
 **Status**: Draft
 **Input**: F083 CLI Transaction Import Parity - Add CLI commands for transaction import (purchases, adjustments) with schema validation and FK resolution modes to enable mobile AI workflows.

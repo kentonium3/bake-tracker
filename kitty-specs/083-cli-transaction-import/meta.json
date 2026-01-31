@@ -1,6 +1,6 @@
 {
-  "feature_number": "082",
-  "slug": "082-cli-transaction-import",
+  "feature_number": "083",
+  "slug": "083-cli-transaction-import",
   "friendly_name": "CLI Transaction Import Commands",
   "mission": "software-dev",
   "source_description": "F083 CLI Transaction Import Parity - Add CLI commands for transaction import (purchases, adjustments) with schema validation and FK resolution modes to enable mobile AI workflows. Wraps existing transaction_import_service.",

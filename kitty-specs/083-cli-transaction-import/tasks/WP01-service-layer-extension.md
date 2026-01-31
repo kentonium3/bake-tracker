@@ -66,7 +66,7 @@ No dependencies - this is the foundation WP.
 - `src/services/transaction_import_service.py` - Add strict_mode parameter
 - `src/utils/import_export_cli.py` - Add result_to_json() helper (near other helpers)
 
-**Research Reference**: See `kitty-specs/082-cli-transaction-import/research/fk-resolution-analysis.md`
+**Research Reference**: See `kitty-specs/083-cli-transaction-import/research/fk-resolution-analysis.md`
 
 **Key Constraint**: Must maintain backward compatibility - default behavior unchanged.
 
