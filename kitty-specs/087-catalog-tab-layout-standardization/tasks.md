@@ -26,7 +26,7 @@
 - [x] T003 Implement column header click-to-sort functionality
 - [x] T004 Implement row selection callback (<<TreeviewSelect>>)
 - [x] T005 Implement double-click callback (<Double-1>) for edit dialog
-- [ ] T006 Implement variant grouping (sort variants after base, prefix with "↳")
+- [x] T006 Implement variant grouping (sort variants after base, prefix with "↳")
 - [ ] T007 Remove RecipeDataTable import and update grid placement
 
 ### Implementation Notes
