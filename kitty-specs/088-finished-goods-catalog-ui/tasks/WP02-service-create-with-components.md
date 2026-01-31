@@ -1,11 +1,13 @@
 ---
 work_package_id: "WP02"
 title: "Service Layer - Create with Components"
-lane: "planned"
+lane: "doing"
 dependencies: []
 subtasks: ["T008", "T009", "T010", "T011", "T012", "T013"]
 priority: "P0"
 estimated_lines: 400
+agent: "gemini-wp02"
+shell_pid: "21725"
 history:
   - date: "2026-01-30"
     action: "created"
@@ -440,3 +442,7 @@ spec-kitty implement WP02
 3. Ensure validation provides clear error messages
 4. Confirm tests cover all three component types
 5. Check for proper transaction atomicity (all or nothing)
+
+## Activity Log
+
+- 2026-01-31T04:32:11Z – gemini-wp02 – shell_pid=21725 – lane=doing – Started implementation via workflow command
