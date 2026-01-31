@@ -5,7 +5,6 @@ including inventory validation, consumption recording with snapshots, and
 inventory decrements. Part of Feature 047: Materials Management System.
 
 Key Features:
-- Find pending generic materials requiring resolution
 - Validate material availability before assembly
 - Record material consumption with full snapshots
 - Atomic inventory decrements
@@ -22,7 +21,6 @@ from sqlalchemy.orm import Session
 from ..models import (
     Composition,
     FinishedGood,
-    Material,
     MaterialProduct,
     MaterialUnit,
     MaterialConsumption,
@@ -79,67 +77,9 @@ def _get_pending_materials_impl(
     session: Session,
 ) -> List[Dict[str, Any]]:
     """Implementation for get_pending_materials."""
-    # Find compositions with generic material placeholders (material_id set)
-    compositions = (
-        session.query(Composition)
-        .filter(Composition.assembly_id == finished_good_id)
-        .filter(Composition.material_id.isnot(None))
-        .all()
-    )
-
-    pending = []
-    for comp in compositions:
-        material = session.query(Material).filter_by(id=comp.material_id).first()
-        if not material:
-            continue
-
-        # Get products for this material
-        products = (
-            session.query(MaterialProduct).filter(MaterialProduct.material_id == material.id).all()
-        )
-
-        available_products = []
-        for prod in products:
-            # Get inventory from MaterialInventoryItem (F058 FIFO)
-            inv_items = (
-                session.query(MaterialInventoryItem)
-                .filter(
-                    MaterialInventoryItem.material_product_id == prod.id,
-                    MaterialInventoryItem.quantity_remaining >= 0.001,
-                )
-                .all()
-            )
-
-            product_inv = Decimal("0")
-            product_value = Decimal("0")
-            for item in inv_items:
-                qty = Decimal(str(item.quantity_remaining))
-                cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
-                product_inv += qty
-                product_value += qty * cost
-
-            if product_inv > 0:
-                weighted_cost = product_value / product_inv
-                available_products.append(
-                    {
-                        "product_id": prod.id,
-                        "name": prod.display_name,
-                        "available_inventory": float(product_inv),
-                        "unit_cost": weighted_cost,
-                    }
-                )
-
-        pending.append(
-            {
-                "composition_id": comp.id,
-                "material_id": material.id,
-                "material_name": material.name,
-                "quantity_needed": comp.component_quantity,
-                "available_products": available_products,
-            }
-        )
-
-    return pending
+    # Feature 084: generic material placeholders removed (material_id column removed).
+    # Pending materials are no longer applicable.
+    return []
 
 
 def _validate_material_availability_impl(
@@ -153,20 +93,17 @@ def _validate_material_availability_impl(
     Args:
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
-        material_assignments: Dict mapping composition_id -> {product_id: quantity_to_consume}
-            for generic materials. Allows split allocation across multiple products.
+        material_assignments: Deprecated (generic material placeholders removed).
         session: Database session
 
     Returns:
         Validation result dict
     """
-    material_assignments = material_assignments or {}
-
     # Get all material compositions for this FinishedGood
     compositions = (
         session.query(Composition)
         .filter(Composition.assembly_id == finished_good_id)
-        .filter((Composition.material_unit_id.isnot(None)) | (Composition.material_id.isnot(None)))
+        .filter(Composition.material_unit_id.isnot(None))
         .all()
     )
 
@@ -206,120 +143,6 @@ def _validate_material_availability_impl(
                     "available_units": available_units,
                     "base_available": base_available,
                     "sufficient": sufficient,
-                }
-            )
-
-        elif comp.material_id:
-            # Generic Material placeholder - requires assignment (supports split allocation)
-            material = session.query(Material).filter_by(id=comp.material_id).first()
-            if not material:
-                errors.append(f"Material {comp.material_id} not found")
-                continue
-
-            base_units_needed = comp.component_quantity * assembly_quantity
-
-            # Check if assignment provided
-            if comp.id not in material_assignments:
-                errors.append(
-                    f"Generic material '{material.name}' (composition {comp.id}) "
-                    f"requires product assignment"
-                )
-                material_requirements.append(
-                    {
-                        "composition_id": comp.id,
-                        "is_generic": True,
-                        "material_name": material.name,
-                        "base_units_needed": base_units_needed,
-                        "available": 0,
-                        "sufficient": False,
-                        "assignment_required": True,
-                    }
-                )
-                continue
-
-            # Get the allocations for this composition
-            allocations = material_assignments[comp.id]
-
-            # Support both old format (single product_id) and new format (dict)
-            if isinstance(allocations, int):
-                # Legacy format: single product_id - convert to new format
-                allocations = {allocations: base_units_needed}
-
-            # Validate allocations
-            if not allocations:
-                errors.append(
-                    f"Generic material '{material.name}' (composition {comp.id}) "
-                    f"requires at least one product allocation"
-                )
-                continue
-
-            # Calculate total allocated quantity
-            total_allocated = sum(allocations.values())
-
-            # Validate total matches needed quantity
-            if abs(total_allocated - base_units_needed) > 0.001:  # Float tolerance
-                errors.append(
-                    f"Material '{material.name}' allocation mismatch: "
-                    f"allocated {total_allocated}, need {base_units_needed}"
-                )
-                continue
-
-            # Validate each product allocation
-            allocation_details = []
-            all_sufficient = True
-            total_available = 0
-
-            for product_id, quantity_to_use in allocations.items():
-                product = session.query(MaterialProduct).filter_by(id=product_id).first()
-
-                if not product:
-                    errors.append(f"Assigned product {product_id} not found")
-                    all_sufficient = False
-                    continue
-
-                if product.material_id != material.id:
-                    errors.append(f"Product {product_id} is not for material '{material.name}'")
-                    all_sufficient = False
-                    continue
-
-                # Get inventory from MaterialInventoryItem (F058 FIFO)
-                inv_items = (
-                    session.query(MaterialInventoryItem)
-                    .filter(
-                        MaterialInventoryItem.material_product_id == product.id,
-                        MaterialInventoryItem.quantity_remaining >= 0.001,
-                    )
-                    .all()
-                )
-                product_inventory = sum(item.quantity_remaining for item in inv_items)
-
-                if product_inventory < quantity_to_use:
-                    errors.append(
-                        f"Product '{product.display_name}' has insufficient inventory "
-                        f"(need {quantity_to_use}, have {product_inventory})"
-                    )
-                    all_sufficient = False
-
-                total_available += product_inventory
-                allocation_details.append(
-                    {
-                        "product_id": product_id,
-                        "product_name": product.display_name,
-                        "quantity_to_use": quantity_to_use,
-                        "available": product_inventory,
-                        "sufficient": product_inventory >= quantity_to_use,
-                    }
-                )
-
-            material_requirements.append(
-                {
-                    "composition_id": comp.id,
-                    "is_generic": True,
-                    "material_name": material.name,
-                    "base_units_needed": base_units_needed,
-                    "total_available": total_available,
-                    "sufficient": all_sufficient,
-                    "allocations": allocation_details,
                 }
             )
 
@@ -414,8 +237,6 @@ def _record_material_consumption_impl(
         ValidationError: If material availability validation fails
         InsufficientMaterialError: If inventory insufficient during consumption
     """
-    material_assignments = material_assignments or {}
-
     # First validate availability - this enforces "no bypass" rule
     validation = _validate_material_availability_impl(
         finished_good_id, assembly_quantity, material_assignments, session
@@ -428,7 +249,7 @@ def _record_material_consumption_impl(
     compositions = (
         session.query(Composition)
         .filter(Composition.assembly_id == finished_good_id)
-        .filter((Composition.material_unit_id.isnot(None)) | (Composition.material_id.isnot(None)))
+        .filter(Composition.material_unit_id.isnot(None))
         .all()
     )
 
@@ -436,172 +257,57 @@ def _record_material_consumption_impl(
 
     for comp in compositions:
         if comp.material_unit_id:
-            # Specific MaterialUnit - consume proportionally from products
+            # MaterialUnit is scoped to a specific MaterialProduct (Feature 084).
             unit = session.query(MaterialUnit).filter_by(id=comp.material_unit_id).first()
-            if not unit:
+            if not unit or not unit.material_product:
                 continue
+
+            product = unit.material_product
+            material = product.material
 
             # Calculate needed units with proper rounding (avoid int() truncation)
             raw_needed = comp.component_quantity * assembly_quantity
             needed_units = round(raw_needed)
             base_units_needed = needed_units * unit.quantity_per_unit
 
-            # Get material for snapshot
-            material = session.query(Material).filter_by(id=unit.material_id).first()
-            if not material:
-                continue
+            # Use FIFO decrement and get cost from the result
+            fifo_result = _decrement_inventory(product, base_units_needed, session)
+            unit_cost = (
+                fifo_result["total_cost"] / Decimal(str(base_units_needed))
+                if base_units_needed > 0
+                else Decimal("0")
+            )
+            total_cost = fifo_result["total_cost"]
 
-            # Get products with inventory for FIFO consumption (F058)
-            products = (
-                session.query(MaterialProduct)
-                .filter(MaterialProduct.material_id == material.id)
-                .all()
+            # Get inventory_item_id from first breakdown entry if available
+            inv_item_id = (
+                fifo_result["breakdown"][0]["inventory_item_id"]
+                if fifo_result.get("breakdown")
+                else None
             )
 
-            # Calculate total available inventory from MaterialInventoryItem
-            total_inventory = 0
-            products_with_inventory = []
-            for product in products:
-                inv_items = (
-                    session.query(MaterialInventoryItem)
-                    .filter(
-                        MaterialInventoryItem.material_product_id == product.id,
-                        MaterialInventoryItem.quantity_remaining >= 0.001,
-                    )
-                    .all()
-                )
-                product_inv = sum(item.quantity_remaining for item in inv_items)
-                if product_inv > 0:
-                    products_with_inventory.append((product, product_inv))
-                    total_inventory += product_inv
-
-            if not products_with_inventory:
-                raise InsufficientMaterialError(unit.name, base_units_needed, 0)
-
-            if total_inventory < base_units_needed:
-                raise InsufficientMaterialError(unit.name, base_units_needed, total_inventory)
-
-            # Consume proportionally from each product using FIFO
-            remaining_to_consume = base_units_needed
-
-            for product, product_inv in products_with_inventory:
-                if remaining_to_consume <= 0:
-                    break
-
-                # Proportional allocation (consume from this product)
-                proportion = product_inv / total_inventory
-                to_consume = min(
-                    proportion * base_units_needed,
-                    product_inv,
-                    remaining_to_consume,
-                )
-
-                if to_consume <= 0:
-                    continue
-
-                # Use FIFO decrement and get cost from the result
-                fifo_result = _decrement_inventory(product, to_consume, session)
-                unit_cost = (
-                    fifo_result["total_cost"] / Decimal(str(to_consume))
-                    if to_consume > 0
-                    else Decimal("0")
-                )
-                total_cost = fifo_result["total_cost"]
-
-                # Create consumption record with full snapshot
-                # Get inventory_item_id from first breakdown entry if available
-                inv_item_id = (
-                    fifo_result["breakdown"][0]["inventory_item_id"]
-                    if fifo_result.get("breakdown")
-                    else None
-                )
-
-                consumption = MaterialConsumption(
-                    assembly_run_id=assembly_run_id,
-                    product_id=product.id,
-                    inventory_item_id=inv_item_id,  # F058: Link to FIFO lot
-                    quantity_consumed=to_consume,
-                    unit_cost=unit_cost,
-                    total_cost=total_cost,
-                    # Snapshot fields
-                    product_name=product.display_name,
-                    material_name=material.name,
-                    subcategory_name=material.subcategory.name if material.subcategory else "",
-                    category_name=(
-                        material.subcategory.category.name
-                        if material.subcategory and material.subcategory.category
-                        else ""
-                    ),
-                    supplier_name=product.supplier.name if product.supplier else None,
-                )
-                session.add(consumption)
-                consumptions.append(consumption)
-
-                remaining_to_consume -= to_consume
-
-        elif comp.material_id:
-            # Generic Material - use assigned product(s) with split allocation support
-            if comp.id not in material_assignments:
-                raise MaterialAssignmentRequiredError(
-                    comp.material_component.name if comp.material_component else "Unknown",
-                    comp.id,
-                )
-
-            material = session.query(Material).filter_by(id=comp.material_id).first()
-            if not material:
-                raise ValidationError([f"Material {comp.material_id} not found"])
-
-            base_units_needed = comp.component_quantity * assembly_quantity
-
-            # Get allocations - support both old and new format
-            allocations = material_assignments[comp.id]
-            if isinstance(allocations, int):
-                # Legacy format: single product_id - convert to new format
-                allocations = {allocations: base_units_needed}
-
-            # Process each allocation (supports split across multiple products)
-            for product_id, quantity_to_use in allocations.items():
-                product = session.query(MaterialProduct).filter_by(id=product_id).first()
-                if not product:
-                    raise ValidationError([f"Assigned product {product_id} not found"])
-
-                # Use FIFO decrement and get cost from the result (F058)
-                fifo_result = _decrement_inventory(product, quantity_to_use, session)
-                unit_cost = (
-                    fifo_result["total_cost"] / Decimal(str(quantity_to_use))
-                    if quantity_to_use > 0
-                    else Decimal("0")
-                )
-                total_cost = fifo_result["total_cost"]
-
-                # Get inventory_item_id from first breakdown entry if available
-                inv_item_id = (
-                    fifo_result["breakdown"][0]["inventory_item_id"]
-                    if fifo_result.get("breakdown")
-                    else None
-                )
-
-                # Create consumption record with full snapshot
-                consumption = MaterialConsumption(
-                    assembly_run_id=assembly_run_id,
-                    product_id=product.id,
-                    inventory_item_id=inv_item_id,  # F058: Link to FIFO lot
-                    quantity_consumed=quantity_to_use,
-                    unit_cost=unit_cost,
-                    total_cost=total_cost,
-                    # Snapshot fields
-                    product_name=product.display_name,
-                    material_name=material.name,
-                    subcategory_name=material.subcategory.name if material.subcategory else "",
-                    category_name=(
-                        material.subcategory.category.name
-                        if material.subcategory and material.subcategory.category
-                        else ""
-                    ),
-                    supplier_name=product.supplier.name if product.supplier else None,
-                )
-                session.add(consumption)
-                consumptions.append(consumption)
+            consumption = MaterialConsumption(
+                assembly_run_id=assembly_run_id,
+                product_id=product.id,
+                inventory_item_id=inv_item_id,  # F058: Link to FIFO lot
+                quantity_consumed=base_units_needed,
+                unit_cost=unit_cost,
+                total_cost=total_cost,
+                # Snapshot fields
+                product_name=product.display_name,
+                material_name=material.name if material else "",
+                subcategory_name=(
+                    material.subcategory.name if material and material.subcategory else ""
+                ),
+                category_name=(
+                    material.subcategory.category.name
+                    if material and material.subcategory and material.subcategory.category
+                    else ""
+                ),
+                supplier_name=product.supplier.name if product.supplier else None,
+            )
+            session.add(consumption)
+            consumptions.append(consumption)
 
     session.flush()
     return consumptions
@@ -616,29 +322,21 @@ def get_pending_materials(
     finished_good_id: int,
     session: Optional[Session] = None,
 ) -> List[Dict[str, Any]]:
-    """Find generic materials requiring resolution for a FinishedGood.
+    """Find materials requiring resolution for a FinishedGood.
 
-    Identifies compositions with generic Material placeholders (material_id set)
-    that need a specific product selected before assembly.
+    Feature 084 removed generic material placeholders, so this now returns
+    an empty list to preserve API compatibility.
 
     Args:
         finished_good_id: FinishedGood to check
         session: Optional database session
 
     Returns:
-        List of dicts with:
-            - composition_id: int
-            - material_id: int
-            - material_name: str
-            - quantity_needed: float
-            - available_products: List of available products with inventory
+        List of dicts (empty under Feature 084).
 
     Example:
         >>> pending = get_pending_materials(fg.id)
-        >>> for p in pending:
-        ...     print(f"{p['material_name']} needs {p['quantity_needed']}")
-        ...     for prod in p['available_products']:
-        ...         print(f"  - {prod['name']}: {prod['available_inventory']}")
+        >>> assert pending == []
     """
     if session is not None:
         return _get_pending_materials_impl(finished_good_id, session)
@@ -654,17 +352,13 @@ def validate_material_availability(
 ) -> Dict[str, Any]:
     """Check that all materials have sufficient inventory.
 
-    Validates both specific MaterialUnit components and generic Material
-    placeholders with their assigned products. Supports split allocation
-    where a material need can be fulfilled from multiple products.
+    Validates MaterialUnit components only. Generic material placeholders
+    were removed in Feature 084; material_assignments is ignored.
 
     Args:
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
-        material_assignments: Dict mapping composition_id to either:
-            - int (legacy): single product_id (system calculates quantity)
-            - Dict[int, float] (new): {product_id: quantity_to_use, ...}
-              for split allocation across multiple products
+        material_assignments: Deprecated (generic material placeholders removed).
         session: Optional database session
 
     Returns:

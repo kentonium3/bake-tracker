@@ -23,7 +23,6 @@ from .shopping_lists_tab import ShoppingListsTab
 # Feature 055: Group tabs for Catalog mode navigation restructure
 from .ingredients_group_tab import IngredientsGroupTab
 from .recipes_group_tab import RecipesGroupTab
-from .packaging_group_tab import PackagingGroupTab
 
 __all__ = [
     "AssemblyTab",
@@ -35,5 +34,4 @@ __all__ = [
     # Feature 055 group tabs
     "IngredientsGroupTab",
     "RecipesGroupTab",
-    "PackagingGroupTab",
 ]

@@ -83,7 +83,7 @@ class MaterialsTab(ctk.CTkFrame):
 
     def _create_tabview(self):
         """Create the 3-tab container for Materials, Products, and Units."""
-        self.tabview = ctk.CTkTabview(self)
+        self.tabview = ctk.CTkTabview(self, command=self._on_tab_change)
         self.tabview.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Add tabs
@@ -108,6 +108,23 @@ class MaterialsTab(ctk.CTkFrame):
         self.catalog_tab = MaterialsCatalogTab(catalog_tab, self)
         self.products_tab = MaterialProductsTab(products_tab, self)
         self.units_tab = MaterialUnitsTab(units_tab, self)
+
+    def _on_tab_change(self):
+        """Handle sub-tab change - refresh the active sub-tab.
+
+        This ensures units added from the product form show up in the
+        Material Units tab when the user navigates to it.
+        """
+        if not self._data_loaded:
+            return
+
+        current_tab = self.tabview.get()
+        if current_tab == "Materials Catalog":
+            self.catalog_tab.refresh()
+        elif current_tab == "Material Products":
+            self.products_tab.refresh()
+        elif current_tab == "Material Units":
+            self.units_tab.refresh()
 
     def refresh(self):
         """Refresh all sub-tabs."""
@@ -740,7 +757,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         self._update_add_unit_button_visibility()
 
     def _refresh_units_list(self):
-        """Refresh the MaterialUnits list for current product."""
+        """Refresh the MaterialUnits list for current product.
+
+        Feature 086: Smart quantity formatting based on material's base_unit_type.
+        """
         if not self.units_tree or not self.current_product_id:
             return
 
@@ -748,13 +768,29 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         for item in self.units_tree.get_children():
             self.units_tree.delete(item)
 
+        # Get base_unit_type from currently selected material
+        base_unit_type = "each"
+        material_name = self.material_var.get()
+        if material_name in self._materials:
+            base_unit_type = self._materials[material_name].get("base_unit", "each")
+
         # Load units from service
         try:
             units = material_unit_service.list_units(self.current_product_id)
             for unit in units:
+                # Feature 086: Smart quantity formatting
+                qty = unit.quantity_per_unit
+                if base_unit_type == "each":
+                    if qty == int(qty):
+                        qty_display = str(int(qty))
+                    else:
+                        qty_display = f"{qty:.2f}"
+                else:
+                    qty_display = f"{qty:.2f}"
+
                 self.units_tree.insert("", "end", values=(
                     unit.name,
-                    f"{unit.quantity_per_unit:.4f}",
+                    qty_display,
                 ), iid=str(unit.id))
         except Exception as e:
             print(f"Error loading units: {e}")
@@ -817,11 +853,17 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             messagebox.showwarning("Save First", "Please save the product before adding units.")
             return
 
-        dialog = MaterialUnitDialog(self, product_id=self.current_product_id)
-        self.wait_window(dialog)
+        try:
+            # Use nametowidget('.') to get true root window for nested dialog
+            root = self.nametowidget('.')
+            dialog = MaterialUnitDialog(root, product_id=self.current_product_id)
+            self.wait_window(dialog)
 
-        if dialog.result:
-            self._refresh_units_list()
+            if dialog.result:
+                self._refresh_units_list()
+        except Exception as e:
+            print(f"Error opening MaterialUnitDialog: {e}")
+            messagebox.showerror("Error", f"Failed to open unit dialog: {e}")
 
     def _on_edit_unit_click(self):
         """Open edit dialog for selected unit."""
@@ -850,16 +892,22 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Error", f"Failed to load unit: {e}")
             return
 
-        dialog = MaterialUnitDialog(
-            self,
-            unit_id=unit_id,
-            product_id=self.current_product_id,
-            unit_data=unit_data,
-        )
-        self.wait_window(dialog)
+        try:
+            # Use nametowidget('.') to get true root window for nested dialog
+            root = self.nametowidget('.')
+            dialog = MaterialUnitDialog(
+                root,
+                unit_id=unit_id,
+                product_id=self.current_product_id,
+                unit_data=unit_data,
+            )
+            self.wait_window(dialog)
 
-        if dialog.result:
-            self._refresh_units_list()
+            if dialog.result:
+                self._refresh_units_list()
+        except Exception as e:
+            print(f"Error opening MaterialUnitDialog: {e}")
+            messagebox.showerror("Error", f"Failed to open unit dialog: {e}")
 
     def _on_delete_unit_click(self):
         """Delete selected unit with confirmation."""
@@ -1127,13 +1175,18 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         ).grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
-        # Package info
+        # Package info - format as integer if whole number
+        if self.package_quantity == int(self.package_quantity):
+            pkg_qty_display = f"{int(self.package_quantity):,}"
+        else:
+            pkg_qty_display = f"{self.package_quantity:,.2f}"
+
         ctk.CTkLabel(form_frame, text="Package:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
         ctk.CTkLabel(
             form_frame,
-            text=f"{self.package_quantity:,.1f} {self.package_unit} per package",
+            text=f"{pkg_qty_display} {self.package_unit} per package",
             anchor="w",
         ).grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
@@ -1209,7 +1262,12 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         try:
             packages = int(self.packages_entry.get().strip())
             total_units = packages * self.package_quantity
-            self.total_units_label.configure(text=f"{total_units:,.1f} {self.package_unit}")
+            # Format as integer if whole number
+            if total_units == int(total_units):
+                total_display = f"{int(total_units):,}"
+            else:
+                total_display = f"{total_units:,.2f}"
+            self.total_units_label.configure(text=f"{total_display} {self.package_unit}")
         except (ValueError, TypeError):
             self.total_units_label.configure(text="-")
             self.unit_cost_label.configure(text="-")
@@ -2553,6 +2611,13 @@ class MaterialProductsTab:
                             # Inventory is now tracked at MaterialUnit level via FIFO
                             pkg_qty = _get_value(prod, "package_quantity") or 1
                             pkg_unit = _get_value(prod, "package_unit") or mat_base_unit or "each"
+
+                            # Format package quantity - show as integer if whole number
+                            if pkg_qty == int(pkg_qty):
+                                pkg_qty_display = str(int(pkg_qty))
+                            else:
+                                pkg_qty_display = f"{pkg_qty:.2f}"
+
                             products.append(
                                 {
                                     "id": _get_value(prod, "id"),
@@ -2562,7 +2627,7 @@ class MaterialProductsTab:
                                     "base_unit": mat_base_unit,
                                     "package_quantity": pkg_qty,
                                     "package_unit": pkg_unit,
-                                    "package_display": f"{pkg_qty} {pkg_unit}",
+                                    "package_display": f"{pkg_qty_display} {pkg_unit}",
                                     "supplier_name": _get_value(prod, "supplier_name") or "",
                                     "supplier_id": _get_value(prod, "supplier_id"),
                                     "sku": _get_value(prod, "sku") or "",
@@ -3059,6 +3124,7 @@ class MaterialUnitsTab:
                 product_name = ""
                 material_name = ""
                 material_id = None
+                base_unit_type = "each"  # Default
 
                 # Get product info
                 if hasattr(unit, "material_product") and unit.material_product:
@@ -3069,6 +3135,7 @@ class MaterialUnitsTab:
                         material = product.material
                         material_name = _get_value(material, "name") or ""
                         material_id = _get_value(material, "id")
+                        base_unit_type = _get_value(material, "base_unit_type") or "each"
 
                 # Get computed values
                 try:
@@ -3089,6 +3156,7 @@ class MaterialUnitsTab:
                         "product_name": product_name,
                         "product_id": product_id,
                         "quantity_per_unit": qty,
+                        "base_unit_type": base_unit_type,
                         "description": desc,
                         "available": available,
                         "cost": cost,
@@ -3110,6 +3178,7 @@ class MaterialUnitsTab:
         Update the displayed list based on current filters.
 
         Feature 084: Updated column order and added product column.
+        Feature 086: Smart quantity formatting based on base_unit_type.
         """
         # Clear existing items
         for item in self.tree.get_children():
@@ -3125,12 +3194,26 @@ class MaterialUnitsTab:
             cost = unit.get("cost")
             cost_display = f"${cost:.4f}" if cost is not None else "-"
 
+            # Feature 086: Smart quantity formatting
+            # - "each" type: show as integer (no decimals for whole units)
+            # - linear/square: show with 2 decimal places (cm precision)
+            base_type = unit.get("base_unit_type", "each")
+            if base_type == "each":
+                # For "each" type, show as integer if it's a whole number
+                if qty == int(qty):
+                    qty_display = str(int(qty))
+                else:
+                    qty_display = f"{qty:.2f}"
+            else:
+                # For linear_cm or square_cm, show 2 decimal places
+                qty_display = f"{qty:.2f}"
+
             # Column order: name, material, product, qty_per_unit, available, cost
             values = (
                 unit.get("name", ""),
                 unit.get("material_name", ""),
                 unit.get("product_name", ""),
-                f"{qty:.4f}",
+                qty_display,
                 str(available),
                 cost_display,
             )

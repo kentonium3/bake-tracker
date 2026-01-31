@@ -4,6 +4,10 @@ Packaging features are not yet fully implemented. This tab serves as a placehold
 for future functionality that will manage package assembly and fulfillment tracking.
 
 Implements FR-026: Packaging tab is placeholder (coming soon).
+
+Note: PackagesTab (src/ui/packages_tab.py) contains existing package definition UI
+that was previously in Catalog > Packaging. It should be evaluated for reuse when
+implementing this feature.
 """
 
 from typing import Any

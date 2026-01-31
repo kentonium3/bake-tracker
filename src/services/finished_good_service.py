@@ -1675,18 +1675,6 @@ def _snapshot_component(
             "component_name": mu_snapshot["definition_data"]["name"],
         }
 
-    elif composition.material_id:
-        # Generic material placeholder - no snapshot needed
-        material = composition.material_component
-        return {
-            **base_data,
-            "component_type": "material",
-            "snapshot_id": None,  # No snapshot for generic placeholder
-            "original_id": composition.material_id,
-            "component_slug": None,
-            "component_name": material.name if material else "Unknown Material",
-        }
-
     elif composition.packaging_product_id:
         # Packaging product - out of scope, skip
         return None

@@ -1,7 +1,7 @@
-# F087: FinishedGoods Creation UX
+# F088: FinishedGoods Creation UX
 
 **Version**: 1.0
-**Date**: 2026-01-29
+**Date**: 2026-01-30
 **Priority**: HIGH
 **Type**: Full Stack (UI + Service Layer)
 
@@ -18,7 +18,7 @@ Current gaps:
 - ❌ Planning module blocked - cannot create deliverable products for events
 - ❌ Real user testing blocked - Marianne cannot define her actual product catalog
 
-This spec removes the non-functional Packaging tab, adds a new Finished Goods tab to Catalog mode, and implements single-form creation/edit UI with filtered component selection for foods, materials, and nested assemblies.
+This spec removes the non-functional Packaging tab, adds a new Finished Goods tab to Catalog mode following the F087 standardized layout pattern, and implements single-form creation/edit UI with filtered component selection for foods, materials, and nested assemblies.
 
 ---
 
@@ -57,12 +57,13 @@ Catalog Mode Tabs
 ├─ ✅ Ingredients (Ingredient Catalog, Food Products)
 ├─ ✅ Materials (Categories, Products, Units)
 ├─ ✅ Recipes (Recipes Catalog, Finished Units)
-└─ ✅ Finished Goods (NEW - single view)
-    ├─ List view of all FinishedGoods
-    └─ Create/Edit form with three component sections
+└─ ✅ Finished Goods (NEW - single view, F087 standardized layout)
+    ├─ Row 0: Search/Filter controls
+    ├─ Row 1: Action buttons
+    └─ Row 2: List/Form view (ttk.Treeview + edit form)
 
-Finished Goods Tab
-├─ List View
+Finished Goods Tab (F087 Pattern)
+├─ List View (ttk.Treeview for trackpad scrolling)
 │   ├─ Name, Assembly Type, Component Count
 │   ├─ Actions: Create New, Edit, Delete
 │   └─ Filter/Search capabilities
@@ -95,30 +96,36 @@ User Workflow
 
 **Before implementation, spec-kitty planning phase MUST read and understand:**
 
-1. **Existing Catalog Tab Patterns**
+1. **F087 Standardized Tab Layout Pattern**
+   - Find: `docs/func-spec/F087_catalog_tab_layout_standardization.md` - THE PATTERN TO FOLLOW
+   - Study: 3-row layout (controls, actions, grid)
+   - Note: No title labels, ttk.Treeview for data, trackpad scrolling support
+   - **CRITICAL:** FinishedGoods tab MUST follow F087 pattern exactly
+
+2. **Existing Catalog Tab Patterns**
    - Find: `src/ui/modes/catalog_mode.py` - Current 4 tab structure
    - Find: `src/ui/tabs/packaging_group_tab.py` - Tab to be REMOVED
    - Find: `src/ui/tabs/recipes_group_tab.py` - Pattern for group tab structure
    - Note: How tabs are added to CatalogMode, grid configuration, refresh patterns
 
-2. **List View + Form Patterns**
+3. **List View + Form Patterns**
    - Find: `src/ui/finished_units_tab.py` - List + create/edit form pattern
-   - Find: `src/ui/recipes_tab.py` - Another list + form example
+   - Find: `src/ui/recipes_tab.py` - Another list + form example (will be F087 compliant)
    - Study: How list displays data, how create/edit forms are structured
    - Note: Action buttons (Create, Edit, Delete), refresh logic
 
-3. **Component Selection UI Patterns**
+4. **Component Selection UI Patterns**
    - Find: Recipe ingredient selection UI - How ingredients are added to recipes
    - Find: Any existing dropdown + search filter combinations
    - Study: How to populate filtered dropdowns, how type-ahead search works
    - Note: CustomTkinter dropdown widgets, filter event handlers
 
-4. **FinishedGood Service Layer**
+5. **FinishedGood Service Layer**
    - Find: `src/services/finished_good_service.py` - Existing CRUD operations
    - Study: How to create FinishedGood with Compositions
    - Note: Circular reference validation, component validation
 
-5. **Composition Service Patterns**
+6. **Composition Service Patterns**
    - Find: `src/models/composition.py` - Factory methods for creating compositions
    - Study: `create_unit_composition()`, `create_assembly_composition()`, `create_material_unit_composition()`
    - Note: How to build Composition records with correct foreign keys
@@ -127,9 +134,10 @@ User Workflow
 
 ## Requirements Reference
 
-This specification implements the second half of the MaterialUnit/FinishedGoods refactor identified in planning discussions:
+This specification implements the final piece of the MaterialUnit/FinishedGoods refactor identified in planning discussions:
 - F085 provides product-specific MaterialUnits (schema foundation)
-- F086 provides UI to assemble FinishedGoods using those MaterialUnits
+- F087 establishes standardized catalog tab layout pattern
+- F088 provides UI to assemble FinishedGoods using F087 pattern and MaterialUnits
 - Together they unblock planning module user testing
 
 ---
@@ -155,47 +163,59 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-2: Add Finished Goods Tab to Catalog Mode
+### FR-2: Add Finished Goods Tab Following F087 Pattern
 
 **What it must do:**
 - Add "Finished Goods" top-level tab to CatalogMode (4th tab)
-- Create new FinishedGoodsTab widget (not a group tab - single view)
+- Create new FinishedGoodsTab widget following F087 standardized layout:
+  - Row 0: Search/Filter controls (weight=0)
+  - Row 1: Action buttons (weight=0)
+  - Row 2: ttk.Treeview list view (weight=1)
+  - Row 3: Status bar if needed (weight=0)
+- NO title label (per F087 standard)
+- Use ttk.Treeview for data display (trackpad scrolling)
 - Position after Recipes tab in tab order
-- Configure grid layout for list + form display
 - Implement lazy data loading on first activation
 - Add to CatalogMode.refresh_all_tabs() method
 
-**Pattern reference:** Study how Materials tab is added to CatalogMode (also a single non-group tab)
+**Pattern reference:** Study F087 spec + post-F087 Recipes/Ingredients/Products tabs
 
 **Success criteria:**
 - [ ] Finished Goods tab appears in Catalog mode after Recipes
-- [ ] Tab activates correctly when clicked
-- [ ] Grid layout configured properly
+- [ ] Tab follows F087 3-row layout exactly
+- [ ] No title label present
+- [ ] ttk.Treeview used for list display
+- [ ] Trackpad scrolling works
 - [ ] Lazy loading prevents data fetch until first view
 - [ ] Refresh works correctly
 
 ---
 
-### FR-3: Implement FinishedGoods List View
+### FR-3: Implement FinishedGoods List View (ttk.Treeview)
 
 **What it must do:**
-- Display table/list of all FinishedGoods
+- Display ttk.Treeview of all FinishedGoods
 - Show columns: Name, Assembly Type, Component Count, Notes (truncated)
-- Add "Create New" button above list
-- Add "Edit" and "Delete" buttons/actions per row
-- Implement search/filter by name
-- Implement filter by assembly type (dropdown)
+- Add "Create New" button in row 1 (action buttons row)
+- Add "Edit" and "Delete" buttons in row 1
+- Implement search entry in row 0 (filter controls row)
+- Implement filter by assembly type dropdown in row 0
 - Handle empty state with helpful message
 - Refresh list after create/edit/delete operations
+- Support row selection
+- Support double-click to edit
 
-**Pattern reference:** Study FinishedUnitsTab list view implementation
+**Pattern reference:** Study post-F087 RecipesTab ttk.Treeview implementation
 
 **Success criteria:**
-- [ ] List displays all FinishedGoods with correct columns
+- [ ] ttk.Treeview displays all FinishedGoods with correct columns
+- [ ] Trackpad scrolling works (two-finger swipe)
 - [ ] "Create New" button opens create form
 - [ ] "Edit" button opens edit form with selected FinishedGood
+- [ ] Double-click opens edit form
 - [ ] "Delete" button prompts for confirmation, then deletes
-- [ ] Search and filters work correctly
+- [ ] Search filters list as user types
+- [ ] Assembly type filter works correctly
 - [ ] Empty state displays helpful message
 - [ ] List refreshes after data changes
 
@@ -435,6 +455,15 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 
 **Complete when:**
 
+### F087 Pattern Compliance
+- [ ] Finished Goods tab follows F087 3-row layout exactly
+- [ ] No title label present
+- [ ] Row 0: Search/Filter controls (weight=0)
+- [ ] Row 1: Action buttons (weight=0)
+- [ ] Row 2: ttk.Treeview grid (weight=1)
+- [ ] Trackpad scrolling works (two-finger swipe)
+- [ ] Compact vertical layout maximizes data display
+
 ### Tab Structure
 - [ ] Packaging tab removed from Catalog mode
 - [ ] Finished Goods tab appears as 4th tab in Catalog
@@ -443,10 +472,11 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 - [ ] Tab refreshes correctly with other catalog tabs
 
 ### List View
-- [ ] All FinishedGoods display in list
+- [ ] All FinishedGoods display in ttk.Treeview
 - [ ] Columns show correct data (Name, Type, Component Count, Notes)
 - [ ] "Create New" button opens create form
 - [ ] "Edit" button opens edit form with correct data
+- [ ] Double-click opens edit form
 - [ ] "Delete" button confirms and deletes (if allowed)
 - [ ] Search and filters work correctly
 - [ ] Empty state displays helpful message
@@ -488,10 +518,20 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 - [ ] Error messages clear and actionable
 - [ ] Component lists display in consistent order (sort_order preserved)
 - [ ] No UI lag when adding/removing components
+- [ ] Visual consistency with other F087-compliant tabs
 
 ---
 
 ## Architecture Principles
+
+### F087 Layout Standard Compliance
+
+**Follow established catalog tab pattern:**
+- No title label (tab name already identifies content)
+- 3-row structure (controls, actions, grid)
+- ttk.Treeview for data display (trackpad scrolling)
+- Fixed controls at top, expandable grid below
+- Matches Recipes, Ingredients, Products, Materials tabs post-F087
 
 ### Single-Form Component Assembly
 
@@ -534,6 +574,7 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 - Category filters reduce cognitive load
 - Real user (Marianne) can define actual product catalog
 - Unblocks user testing of planning module
+- F087 pattern provides consistent, familiar experience
 
 ✅ **Principle II: Data Integrity**
 - Validation prevents invalid assemblies (zero components, circular refs)
@@ -551,9 +592,9 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 - No business logic in UI widgets
 
 ✅ **Principle VII: Pragmatic Aspiration**
-- Build for desktop today (single form, immediate feedback)
-- Architect for tomorrow (component structure supports API wrappers)
-- Pattern matches existing catalog management (Recipes, Products)
+- Build for desktop today (F087 pattern, trackpad scrolling)
+- Establish pattern for tomorrow (consistent catalog management)
+- Pattern matches existing catalog tabs (Recipes, Products, Materials)
 
 ---
 
@@ -575,33 +616,54 @@ This specification implements the second half of the MaterialUnit/FinishedGoods 
 - Context: User wants to delete old FinishedGood but system prevents it
 - Mitigation: Error message clearly explains which records reference it; user can remove references first
 
+**Risk: F087 pattern not followed exactly (inconsistent with other tabs)**
+- Context: Deviating from F087 pattern breaks user expectations
+- Mitigation: Explicit requirement to follow F087 spec; planning phase must verify pattern match
+
 ---
 
 ## Notes for Implementation
 
 **Pattern Discovery (Planning Phase):**
-- Study FinishedUnitsTab → apply list view pattern to FinishedGoodsTab
+- Study F087 spec FIRST - this is the mandatory layout pattern
+- Study post-F087 RecipesTab → apply ttk.Treeview + 3-row layout
+- Study FinishedUnitsTab → apply list view pattern (but with F087 layout)
 - Study Recipe create/edit form → apply component section pattern
 - Study how Recipe handles RecipeIngredient → apply to Composition handling
 - Study Materials tab structure → understand non-group tab in Catalog mode
 
 **Key Patterns to Copy:**
+- F087 layout: 3-row structure → FinishedGoods tab MUST follow exactly
 - Tab structure: Materials tab → FinishedGoods tab (single view, not group)
-- List + form: FinishedUnitsTab pattern → FinishedGoodsTab pattern
+- List view: Post-F087 RecipesTab ttk.Treeview → FinishedGoods list
 - Component selection: Recipe ingredients → FinishedGood components
 - Service transactions: Recipe creation → FinishedGood creation
 
 **Focus Areas:**
+- F087 pattern compliance (mandatory, non-negotiable)
 - Component selection UI usability (filters, search, clarity)
 - Circular reference validation (graph traversal, clear errors)
 - Transaction management (atomic saves, rollback on failure)
 - Real user testing (Marianne can define actual products)
+- Trackpad scrolling verification (two-finger swipe works)
 
 **UI Component Selection Approach:**
 - Investigate existing dropdown + search patterns in codebase
 - Consider ComboBox or filtered list widgets for component selection
 - Ensure type-ahead search provides immediate visual feedback
 - Test with realistic catalog sizes (50+ FinishedUnits, 30+ MaterialUnits)
+
+**Implementation Order:**
+1. Remove Packaging tab from Catalog mode
+2. Create FinishedGoodsTab shell following F087 pattern exactly
+3. Implement ttk.Treeview list view with trackpad scrolling
+4. Implement create/edit form with basic info
+5. Add Foods component section
+6. Add Materials component section
+7. Add Components section with circular reference prevention
+8. Implement service layer enhancements
+9. Test complete workflow end-to-end
+10. User testing with Marianne
 
 ---
 

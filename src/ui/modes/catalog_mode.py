@@ -1,10 +1,12 @@
 """CatalogMode - Mode container for catalog management.
 
-Feature 055: CATALOG mode restructured into 4 logical groups:
+Feature 055: CATALOG mode restructured into 3 logical groups:
 - Ingredients: Ingredient Catalog, Food Products
 - Materials: Material Catalog, Material Units, Material Products
 - Recipes: Recipes Catalog, Finished Units
-- Packaging: Finished Goods, Packages
+
+Feature 086: Removed Packaging group (Finished Units was redundant with Recipes,
+Packages will be refactored into MAKE or Delivery mode).
 
 Implements User Story 4: CATALOG Mode for Definitions (Priority P2)
 """
@@ -18,18 +20,16 @@ from src.ui.dashboards.catalog_dashboard import CatalogDashboard
 if TYPE_CHECKING:
     from src.ui.tabs.ingredients_group_tab import IngredientsGroupTab
     from src.ui.tabs.recipes_group_tab import RecipesGroupTab
-    from src.ui.tabs.packaging_group_tab import PackagingGroupTab
     from src.ui.materials_tab import MaterialsTab
 
 
 class CatalogMode(BaseMode):
     """Mode container for catalog management.
 
-    Feature 055: Restructured into 4 logical groups with nested tabs:
+    Feature 055: Restructured into 3 logical groups with nested tabs:
     - Ingredients group: Ingredient Catalog, Food Products
     - Materials: Material Catalog, Material Units, Material Products
     - Recipes group: Recipes Catalog, Finished Units
-    - Packaging group: Finished Goods, Packages
     """
 
     def __init__(self, master: Any, **kwargs):
@@ -45,7 +45,6 @@ class CatalogMode(BaseMode):
         self.ingredients_group: "IngredientsGroupTab" = None
         self.materials_tab: "MaterialsTab" = None
         self.recipes_group: "RecipesGroupTab" = None
-        self.packaging_group: "PackagingGroupTab" = None
 
         # Set up dashboard and tabs
         self.setup_dashboard()
@@ -57,10 +56,9 @@ class CatalogMode(BaseMode):
         self.set_dashboard(dashboard)
 
     def setup_tabs(self) -> None:
-        """Set up 4 group tabs for CATALOG mode (Feature 055)."""
+        """Set up 3 group tabs for CATALOG mode (Feature 055, updated F086)."""
         from src.ui.tabs.ingredients_group_tab import IngredientsGroupTab
         from src.ui.tabs.recipes_group_tab import RecipesGroupTab
-        from src.ui.tabs.packaging_group_tab import PackagingGroupTab
         from src.ui.materials_tab import MaterialsTab
 
         self.create_tabview()
@@ -87,14 +85,6 @@ class CatalogMode(BaseMode):
         self.recipes_group = RecipesGroupTab(recipes_frame, mode=self)
         self.recipes_group.grid(row=0, column=0, sticky="nsew")
         self._tab_widgets["Recipes"] = self.recipes_group
-
-        # Packaging group (Finished Goods + Packages)
-        packaging_frame = self.tabview.add("Packaging")
-        packaging_frame.grid_columnconfigure(0, weight=1)
-        packaging_frame.grid_rowconfigure(0, weight=1)
-        self.packaging_group = PackagingGroupTab(packaging_frame, mode=self)
-        self.packaging_group.grid(row=0, column=0, sticky="nsew")
-        self._tab_widgets["Packaging"] = self.packaging_group
 
     def _add_placeholder(self, frame: ctk.CTkFrame, title: str, message: str) -> None:
         """Add a placeholder message to a frame.
@@ -127,10 +117,6 @@ class CatalogMode(BaseMode):
             if not getattr(self.recipes_group, "_data_loaded", False):
                 self.recipes_group._data_loaded = True
                 self.after(30, self.recipes_group.refresh)
-        if self.packaging_group:
-            if not getattr(self.packaging_group, "_data_loaded", False):
-                self.packaging_group._data_loaded = True
-                self.after(40, self.packaging_group.refresh)
 
     def refresh_all_tabs(self) -> None:
         """Refresh all group tabs in CATALOG mode (Feature 055)."""
@@ -140,5 +126,3 @@ class CatalogMode(BaseMode):
             self.materials_tab.refresh()
         if self.recipes_group:
             self.recipes_group.refresh()
-        if self.packaging_group:
-            self.packaging_group.refresh()

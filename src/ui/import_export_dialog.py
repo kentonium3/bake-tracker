@@ -1418,25 +1418,45 @@ class ImportDialog(ctk.CTkToplevel):
         try:
             if is_coordinated:
                 # Use coordinated import for manifest-based backups
-                result = coordinated_export_service.import_complete(str(file_path))
+                result_dict = coordinated_export_service.import_complete(str(file_path))
 
                 summary_lines = [
-                    f"Restored {result['successful']} records",
-                    f"from {result['files_imported']} entity files.",
+                    f"Restored {result_dict['successful']} records",
+                    f"from {result_dict['files_imported']} entity files.",
                     "",
                 ]
-                if result["entity_counts"]:
+                if result_dict["entity_counts"]:
                     summary_lines.append("Records by entity:")
-                    for entity, count in result["entity_counts"].items():
+                    for entity, count in result_dict["entity_counts"].items():
                         summary_lines.append(f"  {entity}: {count}")
 
-                if result["errors"]:
+                if result_dict["errors"]:
                     summary_lines.append("")
                     summary_lines.append("Errors:")
-                    for err in result["errors"][:5]:
+                    for err in result_dict["errors"][:5]:
                         summary_lines.append(f"  - {err}")
 
                 summary_text = "\n".join(summary_lines)
+
+                # Wrap dict result in object for _write_import_log compatibility
+                from dataclasses import dataclass, field as dataclass_field
+
+                @dataclass
+                class CoordinatedImportResult:
+                    total_records: int = 0
+                    successful: int = 0
+                    files_imported: int = 0
+                    entity_counts: dict = dataclass_field(default_factory=dict)
+                    errors: list = dataclass_field(default_factory=list)
+                    warnings: list = dataclass_field(default_factory=list)
+
+                result = CoordinatedImportResult(
+                    total_records=result_dict.get("successful", 0),
+                    successful=result_dict.get("successful", 0),
+                    files_imported=result_dict.get("files_imported", 0),
+                    entity_counts=result_dict.get("entity_counts", {}),
+                    errors=result_dict.get("errors", []),
+                )
             else:
                 # FR-012: Run schema validation before single-file backup restore
                 # Note: import_data was already loaded above for cascade check

@@ -1836,6 +1836,28 @@ def _import_entity_records(
                     session.add(obj)
                     imported_count += 1
 
+            elif entity_type == "material_units":
+                # Feature 084: Import MaterialUnits (children of MaterialProduct)
+                product_slug = record.get("material_product_slug")
+                if not product_slug:
+                    continue  # Skip if no product reference
+
+                product = (
+                    session.query(MaterialProduct)
+                    .filter(MaterialProduct.slug == product_slug)
+                    .first()
+                )
+                if product:
+                    obj = MaterialUnit(
+                        material_product_id=product.id,
+                        name=record.get("name"),
+                        slug=record.get("slug"),
+                        quantity_per_unit=record.get("quantity_per_unit", 1.0),
+                        description=record.get("description"),
+                    )
+                    session.add(obj)
+                    imported_count += 1
+
             elif entity_type == "material_purchases":
                 # Resolve product FK
                 product_slug = record.get("product_slug")

@@ -12,7 +12,7 @@ from tkinter import messagebox
 from typing import Optional, Dict
 
 from src.services import material_unit_service
-from src.services import material_product_service
+from src.services import material_catalog_service
 from src.services.material_unit_converter import (
     get_linear_unit_options,
     convert_to_cm,
@@ -46,9 +46,6 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             unit_data: Pre-loaded unit data dict (optional, for edit mode)
         """
         super().__init__(parent)
-
-        # Modal pattern - hide while building
-        self.withdraw()
 
         self.parent_window = parent
         self.unit_id = unit_id
@@ -84,16 +81,10 @@ class MaterialUnitDialog(ctk.CTkToplevel):
         if unit_id and unit_data:
             self._populate_form()
 
-        # Show dialog after UI is complete
-        self.deiconify()
-        self.update()
-        try:
-            self.wait_visibility()
-            self.grab_set()
-        except Exception:
-            if not self.winfo_exists():
-                return
-        self.lift()
+        # Make dialog modal - use simpler pattern matching working dialogs
+        self.update_idletasks()
+        self.wait_visibility()
+        self.grab_set()
         self.focus_force()
 
     def _create_form(self):
@@ -123,9 +114,20 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             qty_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
             qty_frame.grid(row=row, column=1, sticky="w", padx=10, pady=5)
             qty_value = self.unit_data.get("quantity_per_unit", 1.0) if self.unit_data else 1.0
+
+            # Feature 086: Smart quantity formatting based on base_unit_type
+            if self.base_unit_type == "each":
+                if qty_value == int(qty_value):
+                    qty_display = str(int(qty_value))
+                else:
+                    qty_display = f"{qty_value:.2f}"
+            else:
+                # Linear/square types show 2 decimal places (cm precision)
+                qty_display = f"{qty_value:.2f}"
+
             ctk.CTkLabel(
                 qty_frame,
-                text=f"{qty_value:.4f}",
+                text=qty_display,
                 font=ctk.CTkFont(weight="bold"),
             ).pack(side="left")
             ctk.CTkLabel(
@@ -290,7 +292,7 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             self.destroy()
 
         except ValidationError as e:
-            error_msg = str(e.messages[0]) if e.messages else str(e)
+            error_msg = str(e.errors[0]) if e.errors else str(e)
             messagebox.showerror("Validation Error", error_msg)
         except material_unit_service.MaterialProductNotFoundError:
             messagebox.showerror("Error", "Product not found. Please save the product first.")
@@ -310,11 +312,23 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             return "each"  # Default if no product
 
         try:
-            product = material_product_service.get_product(self.product_id)
-            if product and product.material:
-                return product.material.base_unit_type or "each"
-        except Exception:
-            pass  # Fall through to default
+            # Get product first to get its material_id
+            product = material_catalog_service.get_product(self.product_id)
+            if not product:
+                return "each"
+
+            # material_id is a column value, not a relationship - safe to access
+            material_id = product.material_id
+            if not material_id:
+                return "each"
+
+            # Now get the material separately to avoid lazy loading issue
+            material = material_catalog_service.get_material(material_id=material_id)
+            if material:
+                return material.base_unit_type or "each"
+        except Exception as e:
+            print(f"MaterialUnitDialog: Error getting material base unit type: {e}")
+            # Fall through to default
 
         return "each"  # Default if not found
 

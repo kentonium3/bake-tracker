@@ -193,7 +193,7 @@ class MainWindow(ctk.CTk):
         self._create_deliver_mode()
 
     def _create_catalog_mode(self):
-        """Create CATALOG mode with 4 group tabs using CatalogMode class (F055)."""
+        """Create CATALOG mode with 3 group tabs using CatalogMode class (F055, F086)."""
         mode = CatalogMode(self.mode_content)
 
         # Store tab references for backward compatibility
@@ -202,14 +202,12 @@ class MainWindow(ctk.CTk):
         self.products_tab = mode.ingredients_group.products_tab
         self.recipes_tab = mode.recipes_group.recipes_tab
         self.finished_units_tab = mode.recipes_group.finished_units_tab
-        self.packages_tab = mode.packaging_group.packages_tab
         self.materials_tab = mode.materials_tab  # Not a group, still direct
 
         self._tab_refs["ingredients"] = self.ingredients_tab
         self._tab_refs["products"] = self.products_tab
         self._tab_refs["recipes"] = self.recipes_tab
         self._tab_refs["finished_units"] = self.finished_units_tab
-        self._tab_refs["packages"] = self.packages_tab
         self._tab_refs["materials"] = self.materials_tab
 
         self.mode_manager.register_mode("CATALOG", mode)
@@ -483,7 +481,6 @@ class MainWindow(ctk.CTk):
         self.recipes_tab.refresh()
         self.materials_tab.refresh()
         self.finished_units_tab.refresh()
-        self.packages_tab.refresh()
         self.recipients_tab.refresh()
         self.events_tab.refresh()
         self.planning_tab.refresh()  # F068: Planning tab
@@ -508,10 +505,6 @@ class MainWindow(ctk.CTk):
     def refresh_finished_units(self):
         """Refresh the finished units tab."""
         self.finished_units_tab.refresh()
-
-    def refresh_packages(self):
-        """Refresh the packages tab."""
-        self.packages_tab.refresh()
 
     def refresh_recipients(self):
         """Refresh the recipients tab."""
