@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Form Dialog - Materials and Components Sections
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP03
 - WP05
@@ -606,3 +606,7 @@ def _populate_form(self):
 3. Test circular reference detection in edit mode
 4. Verify self is excluded from component selection
 5. Check that edit mode loads all component types correctly
+
+## Activity Log
+
+- 2026-01-31T04:58:22Z – unknown – shell_pid=29214 – lane=for_review – Ready for review: Materials and Components sections implemented with category filters, decimal quantity support, and circular reference validation
