@@ -30,9 +30,9 @@ The Planning system serves critical business functions:
 
 **Solution:** Automatic batch calculation from finished goods requirements. The system explodes event requirements (bundles, packages) down to FinishedUnit quantities, maps these to recipes, calculates optimal yield options, and presents a complete production plan.
 
-**Mental Model:** Planning follows the cook's natural thinking process:
+**Mental Model:** Planning follows the baker's natural thinking process:
 ```
-Event → Finished Goods → Recipes → Inventory → Purchasing → Production → Assembly → Delivery
+Event → Recipes → Finished Goods → Batches → Ingredients → Inventory/Purchasing → Production → Assembly
 ```
 
 ---
@@ -44,43 +44,50 @@ Event → Finished Goods → Recipes → Inventory → Purchasing → Production
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 1. EVENT DEFINITION                                     │
-│    "Christmas 2025: 50 gift bags needed"                │
+│    "Christmas 2025: I want to make gift bags"           │
 └─────────────────────────────────────────────────────────┘
                       ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 2. FINISHED GOODS REQUIREMENTS                          │
-│    "Each gift bag: 6 cookies + 3 brownies"              │
+│ 2. RECIPE SELECTION                                     │
+│    "I'll make Sugar Cookies and Brownies"               │
+│    Select: Sugar Cookie Recipe, Brownie Recipe          │
+└─────────────────────────────────────────────────────────┘
+                      ↓
+┌─────────────────────────────────────────────────────────┐
+│ 3. FINISHED GOODS REQUIREMENTS                          │
+│    "I need 50 gift bags"                                │
+│    Each gift bag: 6 cookies + 3 brownies                │
 │    Total needed: 300 cookies, 150 brownies              │
 └─────────────────────────────────────────────────────────┘
                       ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 3. RECIPE SELECTION & BATCH CALCULATION                 │
+│ 4. BATCH CALCULATION                                    │
 │    Sugar Cookie Recipe (48 per batch): 7 batches        │
 │    Brownie Recipe (24 per batch): 7 batches             │
 └─────────────────────────────────────────────────────────┘
                       ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 4. INGREDIENT AGGREGATION                               │
+│ 5. INGREDIENT AGGREGATION                               │
 │    Flour: 14 cups (7 batches cookies × 2 cups)          │
 │    Chocolate chips: 7 cups (variants)                    │
 │    Cocoa powder: 3.5 cups (brownies)                     │
 └─────────────────────────────────────────────────────────┘
                       ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 5. INVENTORY GAP ANALYSIS                               │
+│ 6. INVENTORY GAP ANALYSIS / SHOPPING                    │
 │    Need: 14 cups flour                                   │
 │    Have: 5 cups flour                                    │
 │    Must purchase: 9 cups flour                           │
 └─────────────────────────────────────────────────────────┘
                       ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 6. PRODUCTION EXECUTION                                  │
+│ 7. PRODUCTION EXECUTION                                  │
 │    Make 7 batches cookies (336 produced, 36 extra)      │
 │    Make 7 batches brownies (168 produced, 18 extra)     │
 └─────────────────────────────────────────────────────────┘
                       ↓
 ┌─────────────────────────────────────────────────────────┐
-│ 7. ASSEMBLY FEASIBILITY & COMPLETION                    │
+│ 8. ASSEMBLY FEASIBILITY & COMPLETION                    │
 │    ✅ Have 336 cookies (need 300)                       │
 │    ✅ Have 168 brownies (need 150)                      │
 │    ✅ Can assemble 50 gift bags                         │
