@@ -12,13 +12,13 @@
 FinishedGoods currently exist in the data model but have no creation or management UI, which blocks the ability to define assembled products for event planning and prevents validation of the planning module with real user workflows.
 
 Current gaps:
-- ❌ No UI for creating FinishedGoods (Packaging tab exists but non-functional)
+- ❌ No UI for creating FinishedGoods
 - ❌ Cannot assemble foods (FinishedUnits) with materials (MaterialUnits) into deliverable products
 - ❌ Cannot nest assemblies (FinishedGoods containing other FinishedGoods)
 - ❌ Planning module blocked - cannot create deliverable products for events
 - ❌ Real user testing blocked - Marianne cannot define her actual product catalog
 
-This spec removes the non-functional Packaging tab, adds a new Finished Goods tab to Catalog mode following the F087 standardized layout pattern, and implements single-form creation/edit UI with filtered component selection for foods, materials, and nested assemblies.
+This spec adds a new Finished Goods tab to Catalog mode following the F087 standardized layout pattern, and implements single-form creation/edit UI with filtered component selection for foods, materials, and nested assemblies.
 
 ---
 
@@ -30,9 +30,7 @@ Catalog Mode Tabs
 ├─ ✅ Ingredients (Ingredient Catalog, Food Products)
 ├─ ✅ Materials (Categories, Products, Units)
 ├─ ✅ Recipes (Recipes Catalog, Finished Units)
-└─ ❌ Packaging (exists but broken/redundant)
-    ├─ Finished Units (DUPLICATE of Recipes tab)
-    └─ Packages (separate deferred feature)
+└─ ❌ No Finished Goods tab
 
 FinishedGood Model
 ├─ ✅ Exists in schema
@@ -103,8 +101,7 @@ User Workflow
    - **CRITICAL:** FinishedGoods tab MUST follow F087 pattern exactly
 
 2. **Existing Catalog Tab Patterns**
-   - Find: `src/ui/modes/catalog_mode.py` - Current 4 tab structure
-   - Find: `src/ui/tabs/packaging_group_tab.py` - Tab to be REMOVED
+   - Find: `src/ui/modes/catalog_mode.py` - Current 3 tab structure
    - Find: `src/ui/tabs/recipes_group_tab.py` - Pattern for group tab structure
    - Note: How tabs are added to CatalogMode, grid configuration, refresh patterns
 
@@ -144,26 +141,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ## Functional Requirements
 
-### FR-1: Remove Packaging Tab from Catalog Mode
-
-**What it must do:**
-- Remove "Packaging" tab from CatalogMode
-- Remove PackagingGroupTab import and initialization
-- Remove finished_units_tab and packages_tab from PackagingGroupTab
-- Clean up any references to PackagingGroupTab in codebase
-- Ensure Recipes tab still has Finished Units sub-tab (not affected)
-
-**Pattern reference:** Study how tabs are added/removed in catalog_mode.py
-
-**Success criteria:**
-- [ ] Packaging tab does not appear in Catalog mode
-- [ ] PackagingGroupTab file can be deleted or archived
-- [ ] Recipes → Finished Units sub-tab still works correctly
-- [ ] No broken imports or references to removed tab
-
----
-
-### FR-2: Add Finished Goods Tab Following F087 Pattern
+### FR-1: Add Finished Goods Tab Following F087 Pattern
 
 **What it must do:**
 - Add "Finished Goods" top-level tab to CatalogMode (4th tab)
@@ -191,7 +169,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-3: Implement FinishedGoods List View (ttk.Treeview)
+### FR-2: Implement FinishedGoods List View (ttk.Treeview)
 
 **What it must do:**
 - Display ttk.Treeview of all FinishedGoods
@@ -221,7 +199,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-4: Implement FinishedGood Create/Edit Form - Basic Info
+### FR-3: Implement FinishedGood Create/Edit Form - Basic Info
 
 **What it must do:**
 - Create form with fields: Name, Assembly Type (dropdown), Packaging Instructions (text area), Notes (text area)
@@ -250,7 +228,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-5: Implement Foods Component Section (FinishedUnits)
+### FR-4: Implement Foods Component Section (FinishedUnits)
 
 **What it must do:**
 - Display "Foods" section in create/edit form
@@ -285,7 +263,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-6: Implement Materials Component Section (MaterialUnits)
+### FR-5: Implement Materials Component Section (MaterialUnits)
 
 **What it must do:**
 - Display "Materials" section in create/edit form
@@ -320,7 +298,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-7: Implement Components Section (Nested FinishedGoods)
+### FR-6: Implement Components Section (Nested FinishedGoods)
 
 **What it must do:**
 - Display "Components" section in create/edit form
@@ -356,7 +334,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-8: Implement Service Layer for FinishedGood Creation with Components
+### FR-7: Implement Service Layer for FinishedGood Creation with Components
 
 **What it must do:**
 - Enhance FinishedGoodService.create() to accept component data
@@ -387,7 +365,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-9: Implement Service Layer for FinishedGood Update with Components
+### FR-8: Implement Service Layer for FinishedGood Update with Components
 
 **What it must do:**
 - Enhance FinishedGoodService.update() to accept component data
@@ -415,7 +393,7 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 
 ---
 
-### FR-10: Implement FinishedGood Deletion with Safety Checks
+### FR-9: Implement FinishedGood Deletion with Safety Checks
 
 **What it must do:**
 - Check if FinishedGood is referenced by other FinishedGoods (as component)
@@ -465,7 +443,6 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 - [ ] Compact vertical layout maximizes data display
 
 ### Tab Structure
-- [ ] Packaging tab removed from Catalog mode
 - [ ] Finished Goods tab appears as 4th tab in Catalog
 - [ ] Tab activates and displays correctly
 - [ ] Lazy loading works on first activation
@@ -654,16 +631,15 @@ This specification implements the final piece of the MaterialUnit/FinishedGoods 
 - Test with realistic catalog sizes (50+ FinishedUnits, 30+ MaterialUnits)
 
 **Implementation Order:**
-1. Remove Packaging tab from Catalog mode
-2. Create FinishedGoodsTab shell following F087 pattern exactly
-3. Implement ttk.Treeview list view with trackpad scrolling
-4. Implement create/edit form with basic info
-5. Add Foods component section
-6. Add Materials component section
-7. Add Components section with circular reference prevention
-8. Implement service layer enhancements
-9. Test complete workflow end-to-end
-10. User testing with Marianne
+1. Create FinishedGoodsTab shell following F087 pattern exactly
+2. Implement ttk.Treeview list view with trackpad scrolling
+3. Implement create/edit form with basic info
+4. Add Foods component section
+5. Add Materials component section
+6. Add Components section with circular reference prevention
+7. Implement service layer enhancements
+8. Test complete workflow end-to-end
+9. User testing with Marianne
 
 ---
 
