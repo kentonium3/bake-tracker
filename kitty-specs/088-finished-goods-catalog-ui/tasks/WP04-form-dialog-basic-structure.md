@@ -1,11 +1,13 @@
 ---
 work_package_id: "WP04"
 title: "Form Dialog - Basic Structure"
-lane: "planned"
+lane: "doing"
 dependencies: []
 subtasks: ["T021", "T022", "T023", "T024", "T025", "T026", "T027"]
 priority: "P1"
 estimated_lines: 380
+agent: "gemini-wp04"
+shell_pid: "21873"
 history:
   - date: "2026-01-30"
     action: "created"
@@ -467,3 +469,7 @@ spec-kitty implement WP04
 3. Test edit mode with existing FinishedGood
 4. Verify scrolling works when form content exceeds window
 5. Check that result dict has correct structure
+
+## Activity Log
+
+- 2026-01-31T04:32:19Z – gemini-wp04 – shell_pid=21873 – lane=doing – Started implementation via workflow command
