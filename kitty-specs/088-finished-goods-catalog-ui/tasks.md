@@ -19,13 +19,13 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Create `src/ui/finished_goods_tab.py` with F087 3-row layout shell
-- [ ] T002 Add SearchBar with assembly type filter dropdown
-- [ ] T003 Create ttk.Treeview with columns (Name, Assembly Type, Component Count, Notes)
-- [ ] T004 Add action buttons frame (Create New, Edit, Delete) - disabled initially
-- [ ] T005 Add status bar with status messages
-- [ ] T006 Implement empty state message when no FinishedGoods exist
-- [ ] T007 Add tab to `src/ui/modes/catalog_mode.py` as 4th tab after Recipes
+- [x] T001 Create `src/ui/finished_goods_tab.py` with F087 3-row layout shell
+- [x] T002 Add SearchBar with assembly type filter dropdown
+- [x] T003 Create ttk.Treeview with columns (Name, Assembly Type, Component Count, Notes)
+- [x] T004 Add action buttons frame (Create New, Edit, Delete) - disabled initially
+- [x] T005 Add status bar with status messages
+- [x] T006 Implement empty state message when no FinishedGoods exist
+- [x] T007 Add tab to `src/ui/modes/catalog_mode.py` as 4th tab after Recipes
 
 ### Implementation Notes
 - Copy F087 pattern from `src/ui/recipes_tab.py` (3-row layout with ttk.Treeview)
