@@ -25,7 +25,7 @@
 - [x] T002 Add vertical scrollbar configuration for native trackpad scrolling
 - [x] T003 Implement column header click-to-sort functionality
 - [x] T004 Implement row selection callback (<<TreeviewSelect>>)
-- [ ] T005 Implement double-click callback (<Double-1>) for edit dialog
+- [x] T005 Implement double-click callback (<Double-1>) for edit dialog
 - [ ] T006 Implement variant grouping (sort variants after base, prefix with "↳")
 - [ ] T007 Remove RecipeDataTable import and update grid placement
 
