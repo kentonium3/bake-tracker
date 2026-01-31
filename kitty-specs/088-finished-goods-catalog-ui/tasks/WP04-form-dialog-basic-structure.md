@@ -1,13 +1,15 @@
 ---
 work_package_id: "WP04"
 title: "Form Dialog - Basic Structure"
-lane: "for_review"
+lane: "done"
 dependencies: []
 subtasks: ["T021", "T022", "T023", "T024", "T025", "T026", "T027"]
 priority: "P1"
 estimated_lines: 380
 agent: "gemini-wp04"
 shell_pid: "21873"
+reviewed_by: "Kent Gale"
+review_status: "approved"
 history:
   - date: "2026-01-30"
     action: "created"
@@ -474,3 +476,4 @@ spec-kitty implement WP04
 
 - 2026-01-31T04:32:19Z – gemini-wp04 – shell_pid=21873 – lane=doing – Started implementation via workflow command
 - 2026-01-31T04:34:57Z – gemini-wp04 – shell_pid=21873 – lane=for_review – Ready for review: All subtasks implemented. Dialog supports create/edit with Name, Assembly Type dropdown, Packaging Instructions textarea, Notes textarea, and Save/Cancel validation.
+- 2026-01-31T04:42:44Z – gemini-wp04 – shell_pid=21873 – lane=done – Review passed: Form dialog properly implements modal behavior, all 5 AssemblyType options, validation, and edit mode population.
