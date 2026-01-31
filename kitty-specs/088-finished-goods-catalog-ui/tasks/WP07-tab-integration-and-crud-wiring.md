@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Tab Integration and CRUD Wiring
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 - WP02
@@ -538,3 +538,7 @@ spec-kitty implement WP07 --base WP06
 4. Check button states during all operations
 5. Verify status bar messages are helpful
 6. Test with empty database state
+
+## Activity Log
+
+- 2026-01-31T05:05:04Z – unknown – lane=doing – CRUD integration already complete from merged WPs
