@@ -156,13 +156,13 @@
 **Estimated Size**: ~480 lines
 
 ### Included Subtasks
-- [ ] T028 Create Foods section frame with section header and Add Food button
-- [ ] T029 Create ComponentSelectionPopup for food selection (reusable base class)
-- [ ] T030 Add category filter dropdown (populated from Recipe categories)
-- [ ] T031 Add type-ahead search CTkComboBox for FinishedUnits
-- [ ] T032 Add quantity input entry with integer validation
-- [ ] T033 Implement added foods list display (CTkScrollableFrame with rows)
-- [ ] T034 Add Remove button per row with callback
+- [x] T028 Create Foods section frame with section header and Add Food button
+- [x] T029 Create ComponentSelectionPopup for food selection (reusable base class)
+- [x] T030 Add category filter dropdown (populated from Recipe categories)
+- [x] T031 Add type-ahead search CTkComboBox for FinishedUnits
+- [x] T032 Add quantity input entry with integer validation
+- [x] T033 Implement added foods list display (CTkScrollableFrame with rows)
+- [x] T034 Add Remove button per row with callback
 
 ### Implementation Notes
 - Load FinishedUnits via `finished_unit_service.get_all_finished_units()`
