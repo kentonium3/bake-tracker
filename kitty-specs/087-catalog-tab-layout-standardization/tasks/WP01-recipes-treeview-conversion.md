@@ -10,10 +10,10 @@ subtasks:
   - "T007"
 title: "RecipesTab ttk.Treeview Conversion"
 phase: "Phase 1 - Core Pattern Validation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "4735"
+shell_pid: "5999"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -430,3 +430,4 @@ No automated tests required - manual verification:
 - 2026-01-31T02:38:50Z – system – lane=planned – Prompt created.
 - 2026-01-31T02:44:42Z – claude-opus – shell_pid=4735 – lane=doing – Started implementation via workflow command
 - 2026-01-31T02:48:49Z – claude-opus – shell_pid=4735 – lane=for_review – RecipesTab ttk.Treeview conversion complete. Ready for review: trackpad scrolling, column sorting, selection/double-click callbacks, variant grouping preserved.
+- 2026-01-31T02:48:58Z – claude-opus – shell_pid=5999 – lane=doing – Started review via workflow command
