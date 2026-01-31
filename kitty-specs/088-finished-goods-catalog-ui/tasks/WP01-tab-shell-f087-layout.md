@@ -1,11 +1,13 @@
 ---
 work_package_id: "WP01"
 title: "Tab Shell with F087 Layout"
-lane: "planned"
+lane: "doing"
 dependencies: []
 subtasks: ["T001", "T002", "T003", "T004", "T005", "T006", "T007"]
 priority: "P0"
 estimated_lines: 350
+agent: "claude-lead"
+shell_pid: "21510"
 history:
   - date: "2026-01-30"
     action: "created"
@@ -352,3 +354,7 @@ spec-kitty implement WP01
 3. Test trackpad scrolling in treeview
 4. Confirm empty state message appears when no data
 5. Verify tab position is 4th in Catalog mode
+
+## Activity Log
+
+- 2026-01-31T04:31:45Z – claude-lead – shell_pid=21510 – lane=doing – Started implementation via workflow command
