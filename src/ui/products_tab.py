@@ -54,20 +54,16 @@ class ProductsTab(ctk.CTkFrame):
         # Feature 034: Re-entry guard for cascading filter updates
         self._updating_filters = False
 
-        # Configure grid
+        # Configure grid - 3-row layout (no header)
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0)  # Header - fixed height
-        self.grid_rowconfigure(1, weight=0)  # Toolbar - fixed height
-        self.grid_rowconfigure(2, weight=0)  # Filters - fixed height
-        self.grid_rowconfigure(3, weight=0)  # Search - fixed height
-        self.grid_rowconfigure(4, weight=1)  # Grid - expandable
+        self.grid_rowconfigure(0, weight=0)  # Filters + Search (fixed)
+        self.grid_rowconfigure(1, weight=0)  # Toolbar + Checkboxes (fixed)
+        self.grid_rowconfigure(2, weight=1)  # Grid (expandable)
 
         # Create UI components
-        self._create_header()
-        self._create_toolbar()
-        self._create_filters()
-        self._create_search()
-        self._create_grid()
+        self._create_filters()  # Row 0 - includes search
+        self._create_toolbar()  # Row 1 - includes checkboxes + count
+        self._create_grid()     # Row 2
 
         # Configure parent to expand
         parent.grid_columnconfigure(0, weight=1)
@@ -79,21 +75,8 @@ class ProductsTab(ctk.CTkFrame):
         # Show loading state - data loaded on tab selection
         self._show_initial_state()
 
-    def _create_header(self):
-        """Create the header with title."""
-        header_frame = ctk.CTkFrame(self)
-        header_frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ew")
-        header_frame.grid_columnconfigure(0, weight=1)
-
-        title = ctk.CTkLabel(
-            header_frame,
-            text="Product Catalog",
-            font=ctk.CTkFont(size=24, weight="bold"),
-        )
-        title.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-
     def _create_toolbar(self):
-        """Create toolbar with action buttons."""
+        """Create toolbar with action buttons, checkboxes, and count."""
         toolbar_frame = ctk.CTkFrame(self)
         toolbar_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
@@ -106,10 +89,54 @@ class ProductsTab(ctk.CTkFrame):
         )
         self.add_btn.pack(side="left", padx=5, pady=5)
 
+        # Show Hidden checkbox (moved from _create_search)
+        self.show_hidden_var = ctk.BooleanVar(value=False)
+        self.show_hidden_cb = ctk.CTkCheckBox(
+            toolbar_frame,
+            text="Show Hidden",
+            variable=self.show_hidden_var,
+            command=self._on_filter_change,
+        )
+        self.show_hidden_cb.pack(side="left", padx=15, pady=5)
+
+        # F057: Needs Review checkbox with badge (moved from _create_search)
+        review_frame = ctk.CTkFrame(toolbar_frame, fg_color="transparent")
+        review_frame.pack(side="left", padx=10, pady=5)
+
+        self.needs_review_var = ctk.BooleanVar(value=False)
+        self.needs_review_cb = ctk.CTkCheckBox(
+            review_frame,
+            text="Needs Review",
+            variable=self.needs_review_var,
+            command=self._on_needs_review_change,
+        )
+        self.needs_review_cb.pack(side="left")
+
+        # Badge for count
+        self.review_badge = ctk.CTkLabel(
+            review_frame,
+            text="",
+            font=ctk.CTkFont(size=10, weight="bold"),
+            fg_color="#FF6B35",  # Orange badge
+            text_color="white",
+            corner_radius=10,
+            width=24,
+            height=20,
+        )
+        # Badge hidden by default, shown when count > 0
+
+        # Product count label (moved from _create_search)
+        self.count_label = ctk.CTkLabel(
+            toolbar_frame,
+            text="",
+            font=ctk.CTkFont(size=12),
+        )
+        self.count_label.pack(side="right", padx=10, pady=5)
+
     def _create_filters(self):
-        """Create filter controls with cascading hierarchy filters."""
+        """Create filter controls with cascading hierarchy filters and search."""
         filter_frame = ctk.CTkFrame(self)
-        filter_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        filter_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
         # Feature 032: Cascading hierarchy filters (L0 -> L1 -> L2)
         # L0 (Root Category) filter
@@ -193,74 +220,25 @@ class ProductsTab(ctk.CTkFrame):
         )
         clear_button.pack(side="left", padx=10, pady=5)
 
-    def _create_search(self):
-        """Create search box and Show Hidden checkbox."""
-        search_frame = ctk.CTkFrame(self)
-        search_frame.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
-
-        # Search label and entry
-        search_label = ctk.CTkLabel(search_frame, text="Search:")
-        search_label.pack(side="left", padx=(5, 2), pady=5)
+        # Search entry (moved from _create_search, consolidated into filter row)
+        search_label = ctk.CTkLabel(filter_frame, text="Search:")
+        search_label.pack(side="left", padx=(15, 2), pady=5)
 
         self.search_var = ctk.StringVar()
         self.search_var.trace_add("write", self._on_search_change)
         self.search_entry = ctk.CTkEntry(
-            search_frame,
+            filter_frame,
             textvariable=self.search_var,
-            width=250,
-            placeholder_text="Search products...",
+            width=150,  # Reduced width to fit in single row
+            placeholder_text="Search...",
         )
         self.search_entry.pack(side="left", padx=5, pady=5)
-
-        # Show Hidden checkbox
-        self.show_hidden_var = ctk.BooleanVar(value=False)
-        self.show_hidden_cb = ctk.CTkCheckBox(
-            search_frame,
-            text="Show Hidden",
-            variable=self.show_hidden_var,
-            command=self._on_filter_change,
-        )
-        self.show_hidden_cb.pack(side="left", padx=20, pady=5)
-
-        # F057: Needs Review checkbox with badge
-        review_frame = ctk.CTkFrame(search_frame, fg_color="transparent")
-        review_frame.pack(side="left", padx=10, pady=5)
-
-        self.needs_review_var = ctk.BooleanVar(value=False)
-        self.needs_review_cb = ctk.CTkCheckBox(
-            review_frame,
-            text="Needs Review",
-            variable=self.needs_review_var,
-            command=self._on_needs_review_change,
-        )
-        self.needs_review_cb.pack(side="left")
-
-        # Badge for count
-        self.review_badge = ctk.CTkLabel(
-            review_frame,
-            text="",
-            font=ctk.CTkFont(size=10, weight="bold"),
-            fg_color="#FF6B35",  # Orange badge
-            text_color="white",
-            corner_radius=10,
-            width=24,
-            height=20,
-        )
-        # Badge hidden by default, shown when count > 0
-
-        # Product count label
-        self.count_label = ctk.CTkLabel(
-            search_frame,
-            text="",
-            font=ctk.CTkFont(size=12),
-        )
-        self.count_label.pack(side="right", padx=10, pady=5)
 
     def _create_grid(self):
         """Create the product grid using ttk.Treeview."""
         # Container frame for grid and scrollbar
         grid_container = ctk.CTkFrame(self)
-        grid_container.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
+        grid_container.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
