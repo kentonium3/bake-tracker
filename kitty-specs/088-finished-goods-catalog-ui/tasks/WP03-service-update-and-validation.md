@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Service Layer - Update and Validation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 088-finished-goods-catalog-ui-WP02
 base_commit: 8bdd6490de7fdc390af16873f9e19f46b067fef5
@@ -540,3 +540,7 @@ spec-kitty implement WP03 --base WP02
 3. Confirm delete safety checks query correct tables
 4. Test with deeply nested FinishedGoods (3+ levels)
 5. Verify error messages are user-friendly
+
+## Activity Log
+
+- 2026-01-31T04:52:02Z – unknown – shell_pid=26038 – lane=for_review – Ready for review: Implements update_finished_good with component replacement, circular reference validation, and delete safety checks. All 37 tests passing.
