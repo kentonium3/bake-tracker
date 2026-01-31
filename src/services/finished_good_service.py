@@ -29,6 +29,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .database import get_db_session, session_scope
 from ..models import FinishedGood, FinishedUnit, Composition, AssemblyType
+from ..models.material_unit import MaterialUnit
 from ..models.assembly_type import (
     validate_assembly_type_business_rules,
     calculate_packaging_cost,
@@ -182,16 +183,24 @@ class FinishedGoodService:
 
     @staticmethod
     def create_finished_good(
-        display_name: str, assembly_type: AssemblyType, components: List[dict] = None, **kwargs
+        display_name: str,
+        assembly_type: AssemblyType = AssemblyType.CUSTOM_ORDER,
+        components: Optional[List[Dict]] = None,
+        session=None,
+        **kwargs
     ) -> FinishedGood:
         """
-        Create a new assembly package.
+        Create a new assembly package with optional components.
 
         Args:
             display_name: Required string name
-            assembly_type: AssemblyType enum value
-            components: List of component specifications with quantities
-            **kwargs: Additional optional fields
+            assembly_type: AssemblyType enum value (default: CUSTOM_ORDER)
+            components: Optional list of component specifications with structure:
+                [{"type": "finished_unit"|"material_unit"|"finished_good",
+                  "id": int, "quantity": int, "notes": str|None, "sort_order": int}]
+            session: Optional database session for transaction sharing
+            **kwargs: Additional optional fields (description, packaging_instructions,
+                     notes, inventory_count)
 
         Returns:
             Created FinishedGood instance
@@ -199,97 +208,113 @@ class FinishedGoodService:
         Raises:
             ValidationError: If validation fails
             InvalidComponentError: If components are invalid
-            InsufficientInventoryError: If components unavailable
             CircularReferenceError: If circular references detected
 
         Performance:
             Must complete in <2s for assemblies with up to 20 components per contract
         """
+        # Validate required fields before starting transaction
+        if not display_name or not display_name.strip():
+            raise ValidationError(["Display name is required and cannot be empty"])
+
+        if not isinstance(assembly_type, AssemblyType):
+            raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
+
+        # Use session management pattern
+        if session is not None:
+            return FinishedGoodService._create_finished_good_impl(
+                display_name, assembly_type, components, session, **kwargs
+            )
+
         try:
-            # Validate required fields
-            if not display_name or not display_name.strip():
-                raise ValidationError(["Display name is required and cannot be empty"])
-
-            if not isinstance(assembly_type, AssemblyType):
-                raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
-
-            # Generate unique slug
-            slug = FinishedGoodService._generate_slug(display_name.strip())
-
             with session_scope() as session:
-                # Check slug uniqueness
-                existing = session.query(FinishedGood).filter(FinishedGood.slug == slug).first()
-
-                if existing:
-                    # Generate unique slug with suffix
-                    slug = FinishedGoodService._generate_unique_slug(display_name.strip(), session)
-
-                # Validate components if provided
-                if components:
-                    FinishedGoodService._validate_components(components, session)
-
-                # Create FinishedGood with validated data
-                assembly_data = {
-                    "slug": slug,
-                    "display_name": display_name.strip(),
-                    "assembly_type": assembly_type,
-                    "inventory_count": kwargs.get("inventory_count", 0),
-                    "description": kwargs.get("description"),
-                    "packaging_instructions": kwargs.get("packaging_instructions"),
-                    "notes": kwargs.get("notes"),
-                }
-
-                # Remove None values
-                assembly_data = {k: v for k, v in assembly_data.items() if v is not None}
-
-                finished_good = FinishedGood(**assembly_data)
-                session.add(finished_good)
-                session.flush()  # Get the ID
-
-                # Add components if provided
-                if components:
-                    for component_spec in components:
-                        composition = FinishedGoodService._create_composition(
-                            finished_good.id, component_spec, session
-                        )
-                        session.add(composition)
-
-                    # Validate business rules (cost parameter removed in F045)
-                    component_count = len(components)
-                    is_valid, errors = validate_assembly_type_business_rules(
-                        assembly_type, component_count, Decimal("0.0000")
-                    )
-                    if not is_valid:
-                        raise ValidationError(
-                            [f"Assembly type validation failed: {'; '.join(errors)}"]
-                        )
-
-                else:
-                    # No components provided, validate minimum requirements
-                    component_count = 0
-                    is_valid, errors = validate_assembly_type_business_rules(
-                        assembly_type, component_count, Decimal("0.0000")
-                    )
-                    if not is_valid:
-                        raise ValidationError(
-                            [f"Assembly type validation failed: {'; '.join(errors)}"]
-                        )
-
-                logger.info(
-                    f"Created FinishedGood assembly: {finished_good.display_name} (ID: {finished_good.id})"
+                return FinishedGoodService._create_finished_good_impl(
+                    display_name, assembly_type, components, session, **kwargs
                 )
-                return finished_good
-
         except IntegrityError as e:
             logger.error(f"Integrity error creating FinishedGood: {e}")
             if "uq_finished_good_slug" in str(e):
-                raise ValidationError(f"Slug '{slug}' already exists")
+                raise ValidationError(
+                    f"Slug already exists for display name '{display_name}'"
+                )
             else:
                 raise DatabaseError(f"Database integrity error: {e}")
-
         except SQLAlchemyError as e:
             logger.error(f"Database error creating FinishedGood: {e}")
             raise DatabaseError(f"Failed to create FinishedGood: {e}")
+
+    @staticmethod
+    def _create_finished_good_impl(
+        display_name: str,
+        assembly_type: AssemblyType,
+        components: Optional[List[Dict]],
+        session,
+        **kwargs
+    ) -> FinishedGood:
+        """Internal implementation of create_finished_good with session."""
+        # Generate unique slug
+        slug = FinishedGoodService._generate_slug(display_name.strip())
+
+        # Check slug uniqueness
+        existing = session.query(FinishedGood).filter(FinishedGood.slug == slug).first()
+        if existing:
+            # Generate unique slug with suffix
+            slug = FinishedGoodService._generate_unique_slug(display_name.strip(), session)
+
+        # Validate components if provided (before creating FinishedGood)
+        if components:
+            FinishedGoodService._validate_components(components, session)
+
+        # Create FinishedGood with validated data
+        assembly_data = {
+            "slug": slug,
+            "display_name": display_name.strip(),
+            "assembly_type": assembly_type,
+            "inventory_count": kwargs.get("inventory_count", 0),
+            "description": kwargs.get("description"),
+            "packaging_instructions": kwargs.get("packaging_instructions"),
+            "notes": kwargs.get("notes"),
+        }
+
+        # Remove None values
+        assembly_data = {k: v for k, v in assembly_data.items() if v is not None}
+
+        finished_good = FinishedGood(**assembly_data)
+        session.add(finished_good)
+        session.flush()  # Get the ID for compositions
+
+        # Add components if provided (atomically within the same transaction)
+        if components:
+            for component_spec in components:
+                composition = FinishedGoodService._create_composition(
+                    finished_good.id, component_spec, session
+                )
+                session.add(composition)
+
+            # Validate business rules (cost parameter removed in F045)
+            component_count = len(components)
+            is_valid, errors = validate_assembly_type_business_rules(
+                assembly_type, component_count, Decimal("0.0000")
+            )
+            if not is_valid:
+                raise ValidationError(
+                    [f"Assembly type validation failed: {'; '.join(errors)}"]
+                )
+        else:
+            # No components provided, validate minimum requirements
+            component_count = 0
+            is_valid, errors = validate_assembly_type_business_rules(
+                assembly_type, component_count, Decimal("0.0000")
+            )
+            if not is_valid:
+                raise ValidationError(
+                    [f"Assembly type validation failed: {'; '.join(errors)}"]
+                )
+
+        logger.info(
+            f"Created FinishedGood assembly: {finished_good.display_name} (ID: {finished_good.id})"
+        )
+        return finished_good
 
     @staticmethod
     def update_finished_good(finished_good_id: int, **updates) -> FinishedGood:
@@ -1013,53 +1038,135 @@ class FinishedGoodService:
 
     @staticmethod
     def _validate_components(components: List[dict], session: Session) -> None:
-        """Validate component specifications."""
-        for component_spec in components:
-            if "component_type" not in component_spec:
-                raise ValidationError("Component must specify 'component_type'")
+        """
+        Validate component data structure and references.
 
-            if "component_id" not in component_spec:
-                raise ValidationError("Component must specify 'component_id'")
+        Supports both legacy format (component_type/component_id) and new format (type/id).
 
-            if "quantity" not in component_spec or component_spec["quantity"] <= 0:
-                raise ValidationError("Component must specify positive quantity")
+        Component data structure (new format):
+            {"type": "finished_unit"|"material_unit"|"finished_good",
+             "id": int, "quantity": int, "notes": str|None, "sort_order": int}
 
-            component_type = component_spec["component_type"]
-            component_id = component_spec["component_id"]
+        Args:
+            components: List of component specification dictionaries
+            session: Database session for reference validation
 
-            if component_type == "finished_unit":
-                component = (
-                    session.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
+        Raises:
+            ValidationError: If component data structure is invalid
+            InvalidComponentError: If referenced component doesn't exist
+        """
+        if not components:
+            return
+
+        valid_types = {"finished_unit", "material_unit", "finished_good"}
+
+        for i, comp in enumerate(components):
+            # Support both legacy (component_type/component_id) and new (type/id) keys
+            comp_type = comp.get("type") or comp.get("component_type")
+            comp_id = comp.get("id") or comp.get("component_id")
+
+            # Check required fields
+            if not comp_type:
+                raise ValidationError([f"Component {i}: missing 'type' field"])
+            if comp_id is None:
+                raise ValidationError([f"Component {i}: missing 'id' field"])
+
+            if comp_type not in valid_types:
+                raise ValidationError(
+                    [f"Component {i}: invalid type '{comp_type}'. "
+                     f"Must be one of: {', '.join(valid_types)}"]
                 )
-                if not component:
-                    raise InvalidComponentError(f"FinishedUnit ID {component_id} not found")
-            elif component_type == "finished_good":
-                component = (
-                    session.query(FinishedGood).filter(FinishedGood.id == component_id).first()
-                )
-                if not component:
-                    raise InvalidComponentError(f"FinishedGood ID {component_id} not found")
-            else:
-                raise ValidationError(["Component type must be 'finished_unit' or 'finished_good'"])
+
+            # Validate quantity if present
+            quantity = comp.get("quantity", 1)
+            if quantity <= 0:
+                raise ValidationError([f"Component {i}: quantity must be positive"])
+
+            # Validate reference exists
+            FinishedGoodService._validate_component_reference(comp_type, comp_id, session, i)
+
+    @staticmethod
+    def _validate_component_reference(
+        comp_type: str, comp_id: int, session: Session, index: int
+    ) -> None:
+        """
+        Validate that the referenced component exists in the database.
+
+        Args:
+            comp_type: Component type ("finished_unit", "material_unit", "finished_good")
+            comp_id: Component ID
+            session: Database session
+            index: Component index for error messages
+
+        Raises:
+            InvalidComponentError: If referenced component doesn't exist
+        """
+        if comp_type == "finished_unit":
+            exists = session.query(FinishedUnit).filter_by(id=comp_id).first()
+            if not exists:
+                raise InvalidComponentError(f"Component {index}: FinishedUnit {comp_id} not found")
+        elif comp_type == "material_unit":
+            exists = session.query(MaterialUnit).filter_by(id=comp_id).first()
+            if not exists:
+                raise InvalidComponentError(f"Component {index}: MaterialUnit {comp_id} not found")
+        elif comp_type == "finished_good":
+            exists = session.query(FinishedGood).filter_by(id=comp_id).first()
+            if not exists:
+                raise InvalidComponentError(f"Component {index}: FinishedGood {comp_id} not found")
 
     @staticmethod
     def _create_composition(
         assembly_id: int, component_spec: dict, session: Session
     ) -> Composition:
-        """Create composition from component specification."""
-        composition_data = {
-            "assembly_id": assembly_id,
-            "component_quantity": component_spec["quantity"],
-            "component_notes": component_spec.get("notes"),
-            "sort_order": component_spec.get("sort_order", 0),
-        }
+        """
+        Create composition from component specification using factory methods.
 
-        if component_spec["component_type"] == "finished_unit":
-            composition_data["finished_unit_id"] = component_spec["component_id"]
+        Supports both legacy format (component_type/component_id) and new format (type/id).
+
+        Args:
+            assembly_id: Parent FinishedGood ID
+            component_spec: Component specification dictionary
+            session: Database session (for future use)
+
+        Returns:
+            New Composition instance (not yet added to session)
+
+        Raises:
+            ValueError: If component type is unknown
+        """
+        # Support both legacy (component_type/component_id) and new (type/id) keys
+        comp_type = component_spec.get("type") or component_spec.get("component_type")
+        comp_id = component_spec.get("id") or component_spec.get("component_id")
+        quantity = component_spec.get("quantity", 1)
+        notes = component_spec.get("notes") or component_spec.get("component_notes")
+        sort_order = component_spec.get("sort_order", 0)
+
+        if comp_type == "finished_unit":
+            return Composition.create_unit_composition(
+                assembly_id=assembly_id,
+                finished_unit_id=comp_id,
+                quantity=quantity,
+                notes=notes,
+                sort_order=sort_order,
+            )
+        elif comp_type == "material_unit":
+            return Composition.create_material_unit_composition(
+                assembly_id=assembly_id,
+                material_unit_id=comp_id,
+                quantity=quantity,
+                notes=notes,
+                sort_order=sort_order,
+            )
+        elif comp_type == "finished_good":
+            return Composition.create_assembly_composition(
+                assembly_id=assembly_id,
+                finished_good_id=comp_id,
+                quantity=quantity,
+                notes=notes,
+                sort_order=sort_order,
+            )
         else:
-            composition_data["finished_good_id"] = component_spec["component_id"]
-
-        return Composition(**composition_data)
+            raise ValueError(f"Unknown component type: {comp_type}")
 
     @staticmethod
     def _get_flattened_components(finished_good_id: int, session: Session) -> List[dict]:
@@ -1378,9 +1485,17 @@ def get_all_finished_goods() -> List[FinishedGood]:
     return FinishedGoodService.get_all_finished_goods()
 
 
-def create_finished_good(display_name: str, assembly_type: AssemblyType, **kwargs) -> FinishedGood:
-    """Create a new FinishedGood assembly."""
-    return FinishedGoodService.create_finished_good(display_name, assembly_type, **kwargs)
+def create_finished_good(
+    display_name: str,
+    assembly_type: AssemblyType = AssemblyType.CUSTOM_ORDER,
+    components: Optional[List[Dict]] = None,
+    session=None,
+    **kwargs
+) -> FinishedGood:
+    """Create a new FinishedGood assembly with optional components."""
+    return FinishedGoodService.create_finished_good(
+        display_name, assembly_type, components=components, session=session, **kwargs
+    )
 
 
 def add_component(
