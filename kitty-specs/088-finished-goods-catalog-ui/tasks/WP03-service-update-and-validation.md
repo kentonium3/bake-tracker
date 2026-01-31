@@ -1,15 +1,19 @@
 ---
-work_package_id: "WP03"
-title: "Service Layer - Update and Validation"
-lane: "planned"
-dependencies: ["WP02"]
-subtasks: ["T014", "T015", "T016", "T017", "T018", "T019", "T020"]
-priority: "P0"
-estimated_lines: 450
+work_package_id: WP03
+title: Service Layer - Update and Validation
+lane: "doing"
+dependencies: [WP02]
+base_branch: 088-finished-goods-catalog-ui-WP02
+base_commit: 8bdd6490de7fdc390af16873f9e19f46b067fef5
+created_at: '2026-01-31T04:45:27.350747+00:00'
+subtasks: [T014, T015, T016, T017, T018, T019, T020]
+shell_pid: "26038"
 history:
-  - date: "2026-01-30"
-    action: "created"
-    agent: "claude"
+- date: '2026-01-30'
+  action: created
+  agent: claude
+estimated_lines: 450
+priority: P0
 ---
 
 # WP03: Service Layer - Update and Validation
