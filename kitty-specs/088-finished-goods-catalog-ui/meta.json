@@ -4,5 +4,7 @@
   "friendly_name": "Finished Goods Catalog UI",
   "mission": "software-dev",
   "source_description": "F088 FinishedGoods Creation UX - Add Finished Goods tab to Catalog mode following F087 layout pattern. Implement ttk.Treeview list view, create/edit form with Foods (FinishedUnits), Materials (MaterialUnits), and Components (nested FinishedGoods) sections. Category filters + type-ahead search for component selection. Service layer enhancements for atomic creation/update with circular reference validation.",
-  "created_at": "2026-01-30T21:45:00Z"
+  "created_at": "2026-01-30T21:45:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-31T04:45:24.827616+00:00"
 }
