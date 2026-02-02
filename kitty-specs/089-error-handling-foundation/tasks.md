@@ -28,7 +28,7 @@
 - [x] T003 Migrate legacy `ServiceException` subclasses to inherit from `ServiceError`
 - [x] T004 Fix duplicate `MaterialInventoryItemNotFoundError` definition (lines 176 & 261)
 - [x] T005 Add comprehensive docstrings with usage examples to all exceptions
-- [ ] T006 Deprecate `ServiceException` class with deprecation warning
+- [x] T006 Deprecate `ServiceException` class with deprecation warning
 
 ### Implementation Notes
 - Update `ServiceError.__init__` to accept `correlation_id: Optional[str] = None`
