@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Centralized Error Handler
+lane: "doing"
+dependencies: [WP01, WP02]
+base_branch: 089-error-handling-foundation-WP02
+base_commit: 482779c0655df9df1b3be0466d69bb983d32d5ee
+created_at: '2026-02-02T23:58:43.238523+00:00'
 subtasks:
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-title: "Centralized Error Handler"
-phase: "Phase 1 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01", "WP02"]
+- T014
+- T015
+- T016
+- T017
+- T018
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "59805"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Centralized Error Handler
