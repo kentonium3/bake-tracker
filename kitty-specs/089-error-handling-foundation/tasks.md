@@ -23,7 +23,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T001 Update `ServiceError` base class with correlation_id and http_status_code support
+- [x] T001 Update `ServiceError` base class with correlation_id and http_status_code support
 - [ ] T002 Create optional category base classes (NotFoundError, ValidationError, ConflictError, BusinessRuleError)
 - [ ] T003 Migrate legacy `ServiceException` subclasses to inherit from `ServiceError`
 - [ ] T004 Fix duplicate `MaterialInventoryItemNotFoundError` definition (lines 176 & 261)
