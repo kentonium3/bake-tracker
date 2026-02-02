@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Service-Local Exception Fixes
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 089-error-handling-foundation-WP01
 base_commit: be5e03b905e93818cd37cfd807cfa896db403337
@@ -405,3 +405,4 @@ for service_path in services:
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-02T23:58:33Z – unknown – shell_pid=57620 – lane=for_review – Ready for review: All 60+ service-local exceptions now inherit from ServiceError with http_status_code
