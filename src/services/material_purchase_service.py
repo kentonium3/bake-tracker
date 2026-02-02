@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 
 from ..models import MaterialProduct, MaterialPurchase, MaterialInventoryItem, Supplier
 from .database import session_scope
-from .exceptions import ValidationError
+from .exceptions import ValidationError, ServiceError
 from . import material_unit_converter
 
 
@@ -30,20 +30,46 @@ from . import material_unit_converter
 # =============================================================================
 
 
-class MaterialProductNotFoundError(Exception):
-    """Raised when a material product is not found."""
+class MaterialProductNotFoundError(ServiceError):
+    """Raised when a material product is not found.
 
-    def __init__(self, product_id: int):
+    Args:
+        product_id: The material product ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, product_id: int, correlation_id: Optional[str] = None):
         self.product_id = product_id
-        super().__init__(f"Material product not found: {product_id}")
+        super().__init__(
+            f"Material product not found: {product_id}",
+            correlation_id=correlation_id,
+            product_id=product_id
+        )
 
 
-class SupplierNotFoundError(Exception):
-    """Raised when a supplier is not found."""
+class SupplierNotFoundError(ServiceError):
+    """Raised when a supplier is not found.
 
-    def __init__(self, supplier_id: int):
+    Args:
+        supplier_id: The supplier ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, supplier_id: int, correlation_id: Optional[str] = None):
         self.supplier_id = supplier_id
-        super().__init__(f"Supplier not found: {supplier_id}")
+        super().__init__(
+            f"Supplier not found: {supplier_id}",
+            correlation_id=correlation_id,
+            supplier_id=supplier_id
+        )
 
 
 # =============================================================================

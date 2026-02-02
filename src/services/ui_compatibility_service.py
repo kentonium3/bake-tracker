@@ -148,17 +148,39 @@ class AssemblyItemLike(Protocol):
     assembly_type: str
 
 
-# Exception classes for better error handling
-class CompatibilityOperationFailed(Exception):
-    """Raised when a compatibility operation fails completely."""
+from src.services.exceptions import ServiceError
 
-    def __init__(self, operation_name: str, original_error: Optional[Exception] = None):
+
+# Exception classes for better error handling
+class CompatibilityOperationFailed(ServiceError):
+    """Raised when a compatibility operation fails completely.
+
+    Args:
+        operation_name: The name of the operation that failed
+        original_error: The original exception that caused the failure
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 500 Server Error
+    """
+
+    http_status_code = 500
+
+    def __init__(
+        self,
+        operation_name: str,
+        original_error: Optional[Exception] = None,
+        correlation_id: Optional[str] = None
+    ):
         self.operation_name = operation_name
         self.original_error = original_error
         message = f"Compatibility operation '{operation_name}' failed"
         if original_error:
             message += f": {original_error}"
-        super().__init__(message)
+        super().__init__(
+            message,
+            correlation_id=correlation_id,
+            operation_name=operation_name
+        )
 
 
 class CompatibilityMode(Enum):
