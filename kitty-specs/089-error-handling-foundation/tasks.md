@@ -25,7 +25,7 @@
 ### Included Subtasks
 - [x] T001 Update `ServiceError` base class with correlation_id and http_status_code support
 - [x] T002 Create optional category base classes (NotFoundError, ValidationError, ConflictError, BusinessRuleError)
-- [ ] T003 Migrate legacy `ServiceException` subclasses to inherit from `ServiceError`
+- [x] T003 Migrate legacy `ServiceException` subclasses to inherit from `ServiceError`
 - [ ] T004 Fix duplicate `MaterialInventoryItemNotFoundError` definition (lines 176 & 261)
 - [ ] T005 Add comprehensive docstrings with usage examples to all exceptions
 - [ ] T006 Deprecate `ServiceException` class with deprecation warning
