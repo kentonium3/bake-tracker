@@ -36,6 +36,8 @@ from src.models import (
 )
 from src.models.event import EventAssemblyTarget, EventRecipientPackage
 
+from src.services.exceptions import ServiceError
+
 logger = logging.getLogger(__name__)
 
 
@@ -44,62 +46,143 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-class PackagingServiceError(Exception):
-    """Base exception for packaging service errors."""
+class PackagingServiceError(ServiceError):
+    """Base exception for packaging service errors.
 
-    pass
+    HTTP Status: 400 Bad Request (default for packaging errors)
+    """
+
+    http_status_code = 400
 
 
 class GenericProductNotFoundError(PackagingServiceError):
-    """Raised when a generic product type is not found."""
+    """Raised when a generic product type is not found.
 
-    def __init__(self, product_name: str):
+    Args:
+        product_name: The product name that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, product_name: str, correlation_id: Optional[str] = None):
         self.product_name = product_name
-        super().__init__(f"No packaging products found with product_name '{product_name}'")
+        super().__init__(
+            f"No packaging products found with product_name '{product_name}'",
+            correlation_id=correlation_id,
+            product_name=product_name
+        )
 
 
 class CompositionNotFoundError(PackagingServiceError):
-    """Raised when a composition is not found."""
+    """Raised when a composition is not found.
 
-    def __init__(self, composition_id: int):
+    Args:
+        composition_id: The composition ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, composition_id: int, correlation_id: Optional[str] = None):
         self.composition_id = composition_id
-        super().__init__(f"Composition with ID {composition_id} not found")
+        super().__init__(
+            f"Composition with ID {composition_id} not found",
+            correlation_id=correlation_id,
+            composition_id=composition_id
+        )
 
 
 class NotGenericCompositionError(PackagingServiceError):
-    """Raised when operation requires a generic composition but found non-generic."""
+    """Raised when operation requires a generic composition but found non-generic.
 
-    def __init__(self, composition_id: int):
+    Args:
+        composition_id: The composition ID
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, composition_id: int, correlation_id: Optional[str] = None):
         self.composition_id = composition_id
-        super().__init__(f"Composition {composition_id} is not a generic composition")
+        super().__init__(
+            f"Composition {composition_id} is not a generic composition",
+            correlation_id=correlation_id,
+            composition_id=composition_id
+        )
 
 
 class InvalidAssignmentError(PackagingServiceError):
-    """Raised when assignment validation fails."""
+    """Raised when assignment validation fails.
 
-    pass
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
 
 
 class InsufficientInventoryError(PackagingServiceError):
-    """Raised when there is insufficient inventory for assignment."""
+    """Raised when there is insufficient inventory for assignment.
 
-    def __init__(self, inventory_item_id: int, requested: float, available: float):
+    Args:
+        inventory_item_id: The inventory item ID
+        requested: Quantity requested
+        available: Quantity available
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(
+        self,
+        inventory_item_id: int,
+        requested: float,
+        available: float,
+        correlation_id: Optional[str] = None
+    ):
         self.inventory_item_id = inventory_item_id
         self.requested = requested
         self.available = available
         super().__init__(
             f"Insufficient inventory for item {inventory_item_id}: "
-            f"requested {requested}, available {available}"
+            f"requested {requested}, available {available}",
+            correlation_id=correlation_id,
+            inventory_item_id=inventory_item_id,
+            requested=requested,
+            available=available
         )
 
 
 class ProductMismatchError(PackagingServiceError):
-    """Raised when assigned product doesn't match the generic requirement."""
+    """Raised when assigned product doesn't match the generic requirement.
 
-    def __init__(self, expected_name: str, actual_name: str):
+    Args:
+        expected_name: Expected product name
+        actual_name: Actual product name
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, expected_name: str, actual_name: str, correlation_id: Optional[str] = None):
         self.expected_name = expected_name
         self.actual_name = actual_name
-        super().__init__(f"Product name mismatch: expected '{expected_name}', got '{actual_name}'")
+        super().__init__(
+            f"Product name mismatch: expected '{expected_name}', got '{actual_name}'",
+            correlation_id=correlation_id,
+            expected_name=expected_name,
+            actual_name=actual_name
+        )
 
 
 # =============================================================================
