@@ -110,6 +110,7 @@ from .progress import (
     ProductionProgress,
     AssemblyProgress,
 )
+from src.services.exceptions import ServiceError
 
 
 # =============================================================================
@@ -117,45 +118,98 @@ from .progress import (
 # =============================================================================
 
 
-class PlanningError(Exception):
-    """Base exception for planning service errors."""
+class PlanningError(ServiceError):
+    """Base exception for planning service errors.
 
-    pass
+    HTTP Status: 400 Bad Request (default for planning errors)
+    """
+
+    http_status_code = 400
 
 
 class StalePlanError(PlanningError):
-    """Plan is stale and needs recalculation."""
+    """Plan is stale and needs recalculation.
 
-    def __init__(self, reason: str):
+    Args:
+        reason: Reason why the plan is stale
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (state conflict)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, reason: str, correlation_id: Optional[str] = None):
         self.reason = reason
-        super().__init__(f"Plan is stale: {reason}")
+        super().__init__(
+            f"Plan is stale: {reason}",
+            correlation_id=correlation_id,
+            reason=reason
+        )
 
 
 class IncompleteRequirementsError(PlanningError):
-    """Event requirements are incomplete."""
+    """Event requirements are incomplete.
 
-    def __init__(self, missing: List[str]):
+    Args:
+        missing: List of missing requirements
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, missing: List[str], correlation_id: Optional[str] = None):
         self.missing = missing
-        super().__init__(f"Missing requirements: {', '.join(missing)}")
+        super().__init__(
+            f"Missing requirements: {', '.join(missing)}",
+            correlation_id=correlation_id,
+            missing=missing
+        )
 
 
 class EventNotConfiguredError(PlanningError):
-    """Event output_mode not set."""
+    """Event output_mode not set.
 
-    def __init__(self, event_id: int):
+    Args:
+        event_id: The event ID
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, event_id: int, correlation_id: Optional[str] = None):
         self.event_id = event_id
         super().__init__(
             f"Event {event_id} has no output_mode configured. "
-            f"Set output_mode to BUNDLED or BULK_COUNT before calculating plan."
+            f"Set output_mode to BUNDLED or BULK_COUNT before calculating plan.",
+            correlation_id=correlation_id,
+            event_id=event_id
         )
 
 
 class EventNotFoundError(PlanningError):
-    """Event not found."""
+    """Event not found.
 
-    def __init__(self, event_id: int):
+    Args:
+        event_id: The event ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, event_id: int, correlation_id: Optional[str] = None):
         self.event_id = event_id
-        super().__init__(f"Event {event_id} not found")
+        super().__init__(
+            f"Event {event_id} not found",
+            correlation_id=correlation_id,
+            event_id=event_id
+        )
 
 
 # =============================================================================
