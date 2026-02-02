@@ -40,6 +40,7 @@ from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
 from src.models.supplier import Supplier
 from src.services.material_catalog_service import slugify
+from src.services.exceptions import ServiceError
 
 
 # ============================================================================
@@ -47,10 +48,13 @@ from src.services.material_catalog_service import slugify
 # ============================================================================
 
 
-class CatalogImportError(Exception):
-    """Raised when catalog import fails due to file/format issues."""
+class CatalogImportError(ServiceError):
+    """Raised when catalog import fails due to file/format issues.
 
-    pass
+    HTTP Status: 400 Bad Request
+    """
+
+    http_status_code = 400
 
 
 # ============================================================================

@@ -27,7 +27,7 @@ from ..models import (
     MaterialInventoryItem,
 )
 from .database import session_scope
-from .exceptions import ValidationError
+from .exceptions import ValidationError, ServiceError
 from .material_unit_service import get_current_cost, get_available_inventory
 
 
@@ -36,34 +36,76 @@ from .material_unit_service import get_current_cost, get_available_inventory
 # =============================================================================
 
 
-class MaterialConsumptionError(Exception):
-    """Base exception for material consumption errors."""
+class MaterialConsumptionError(ServiceError):
+    """Base exception for material consumption errors.
 
-    pass
+    HTTP Status: 400 Bad Request (default for material errors)
+    """
+
+    http_status_code = 400
 
 
 class InsufficientMaterialError(MaterialConsumptionError):
-    """Raised when material inventory is insufficient for consumption."""
+    """Raised when material inventory is insufficient for consumption.
 
-    def __init__(self, material_name: str, needed: float, available: float):
+    Args:
+        material_name: The material name
+        needed: Quantity needed
+        available: Quantity available
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(
+        self,
+        material_name: str,
+        needed: float,
+        available: float,
+        correlation_id: Optional[str] = None
+    ):
         self.material_name = material_name
         self.needed = needed
         self.available = available
         super().__init__(
             f"Material '{material_name}' has insufficient inventory "
-            f"(need {needed}, have {available})"
+            f"(need {needed}, have {available})",
+            correlation_id=correlation_id,
+            material_name=material_name,
+            needed=needed,
+            available=available
         )
 
 
 class MaterialAssignmentRequiredError(MaterialConsumptionError):
-    """Raised when generic material requires product assignment but none provided."""
+    """Raised when generic material requires product assignment but none provided.
 
-    def __init__(self, material_name: str, composition_id: int):
+    Args:
+        material_name: The material name
+        composition_id: The composition ID
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(
+        self,
+        material_name: str,
+        composition_id: int,
+        correlation_id: Optional[str] = None
+    ):
         self.material_name = material_name
         self.composition_id = composition_id
         super().__init__(
             f"Generic material '{material_name}' (composition {composition_id}) "
-            f"requires product assignment"
+            f"requires product assignment",
+            correlation_id=correlation_id,
+            material_name=material_name,
+            composition_id=composition_id
         )
 
 

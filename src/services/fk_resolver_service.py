@@ -37,6 +37,7 @@ from src.models.supplier import Supplier
 from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.services.supplier_service import generate_supplier_slug
+from src.services.exceptions import ServiceError
 
 
 # ============================================================================
@@ -44,20 +45,41 @@ from src.services.supplier_service import generate_supplier_slug
 # ============================================================================
 
 
-class FKResolutionError(Exception):
-    """Raised when FK resolution fails due to validation or logic errors."""
+class FKResolutionError(ServiceError):
+    """Raised when FK resolution fails due to validation or logic errors.
 
-    pass
+    HTTP Status: 400 Bad Request
+    """
+
+    http_status_code = 400
 
 
 class EntityCreationError(FKResolutionError):
-    """Raised when entity creation fails due to missing required fields."""
+    """Raised when entity creation fails due to missing required fields.
 
-    def __init__(self, entity_type: str, missing_fields: List[str]):
+    Args:
+        entity_type: The entity type being created
+        missing_fields: List of missing required fields
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(
+        self,
+        entity_type: str,
+        missing_fields: List[str],
+        correlation_id: Optional[str] = None
+    ):
         self.entity_type = entity_type
         self.missing_fields = missing_fields
         super().__init__(
-            f"Cannot create {entity_type}: missing required fields: {', '.join(missing_fields)}"
+            f"Cannot create {entity_type}: missing required fields: {', '.join(missing_fields)}",
+            correlation_id=correlation_id,
+            entity_type=entity_type,
+            missing_fields=missing_fields
         )
 
 
