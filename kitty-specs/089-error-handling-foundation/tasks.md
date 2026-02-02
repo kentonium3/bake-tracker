@@ -27,7 +27,7 @@
 - [x] T002 Create optional category base classes (NotFoundError, ValidationError, ConflictError, BusinessRuleError)
 - [x] T003 Migrate legacy `ServiceException` subclasses to inherit from `ServiceError`
 - [x] T004 Fix duplicate `MaterialInventoryItemNotFoundError` definition (lines 176 & 261)
-- [ ] T005 Add comprehensive docstrings with usage examples to all exceptions
+- [x] T005 Add comprehensive docstrings with usage examples to all exceptions
 - [ ] T006 Deprecate `ServiceException` class with deprecation warning
 
 ### Implementation Notes
