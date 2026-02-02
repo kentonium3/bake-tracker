@@ -57,13 +57,13 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T007 [P] Update `batch_production_service.py` exceptions (7 classes)
-- [ ] T008 [P] Update `assembly_service.py` exceptions (7 classes)
-- [ ] T009 [P] Update `production_service.py` exceptions (6 classes)
-- [ ] T010 [P] Update `event_service.py` exceptions (7 classes)
-- [ ] T011 [P] Update `planning/planning_service.py` exceptions (5 classes)
-- [ ] T012 [P] Update `package_service.py` and `packaging_service.py` exceptions (12 classes)
-- [ ] T013 [P] Update remaining services: `material_*`, `fk_resolver_service`, `recipient_service`, `catalog_import_service`
+- [x] T007 [P] Update `batch_production_service.py` exceptions (7 classes)
+- [x] T008 [P] Update `assembly_service.py` exceptions (7 classes)
+- [x] T009 [P] Update `production_service.py` exceptions (6 classes)
+- [x] T010 [P] Update `event_service.py` exceptions (7 classes)
+- [x] T011 [P] Update `planning/planning_service.py` exceptions (5 classes)
+- [x] T012 [P] Update `package_service.py` and `packaging_service.py` exceptions (12 classes)
+- [x] T013 [P] Update remaining services: `material_*`, `fk_resolver_service`, `recipient_service`, `catalog_import_service`
 
 ### Implementation Notes
 - Import `ServiceError` from `src.services.exceptions`
