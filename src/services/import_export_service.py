@@ -1958,10 +1958,16 @@ def _legacy_import_removed():
 # ============================================================================
 
 
-class ImportVersionError(Exception):
-    """Raised when import file has incompatible version."""
+from src.services.exceptions import ServiceError
 
-    pass
+
+class ImportVersionError(ServiceError):
+    """Raised when import file has incompatible version.
+
+    HTTP Status: 400 Bad Request
+    """
+
+    http_status_code = 400
 
 
 def _clear_all_tables(session) -> None:

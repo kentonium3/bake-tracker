@@ -22,12 +22,17 @@ from src.models import Recipe, RecipeIngredient, RecipeSnapshot
 from src.models.finished_unit import FinishedUnit, YieldMode
 from src.services.database import session_scope
 from src.utils.datetime_utils import utc_now
+from src.services.exceptions import ServiceError
+from typing import Optional as OptionalType
 
 
-class SnapshotCreationError(Exception):
-    """Raised when snapshot creation fails."""
+class SnapshotCreationError(ServiceError):
+    """Raised when snapshot creation fails.
 
-    pass
+    HTTP Status: 500 Server Error
+    """
+
+    http_status_code = 500
 
 
 def create_recipe_snapshot(
