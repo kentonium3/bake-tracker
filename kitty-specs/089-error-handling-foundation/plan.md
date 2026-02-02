@@ -1,108 +1,141 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Error Handling Foundation
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `src/specify_cli/missions/software-dev/command-templates/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `089-error-handling-foundation` | **Date**: 2026-02-02 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/kitty-specs/089-error-handling-foundation/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Establish a consolidated exception hierarchy with `ServiceError` as the single base class, create a centralized UI error handler for user-friendly messages, and update all 88 files with generic `Exception` catches to use the three-tier catch pattern. This foundation enables better debugging, consistent user experience, and prepares for web migration HTTP status code mapping.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+ (type hints required)
+**Primary Dependencies**: CustomTkinter (UI), SQLAlchemy 2.x (ORM), tkinter.messagebox (error display)
+**Storage**: SQLite with WAL mode (no changes for this feature)
+**Testing**: pytest (unit tests for error handler, exception hierarchy tests)
+**Target Platform**: Desktop (macOS, Windows, Linux)
+**Project Type**: Single desktop application
+**Performance Goals**: N/A (error handling has no performance requirements)
+**Constraints**: Must not break existing functionality; backward-compatible migration
+**Scale/Scope**: 88 files with generic catches, 60+ exception classes, 461 `except Exception` occurrences
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Requirement | Status |
+|-----------|-------------|--------|
+| **VI.A.1 Exception Hierarchy** | All domain exceptions MUST inherit from `ServiceError` base class | ✅ Core requirement of this feature |
+| **VI.A.1** | NEVER catch bare `Exception` in UI layer | ✅ Three-tier pattern addresses this |
+| **VI.A.2 Error Propagation** | Three-tier strategy: services raise domain exceptions, UI uses centralized handler | ✅ Core requirement |
+| **VI.A.2** | Include operation context: entity IDs, slugs, attempted operation | ✅ FR-007 addresses this |
+| **VI.A.3 Validation Strategy** | Return validation errors as structured exceptions with field-level details | ✅ ValidationError already supports this |
+| **V. Layered Architecture** | UI layer MUST NOT contain business logic | ✅ Error handler only transforms messages |
+| **V. Layered Architecture** | Services layer MUST NOT import UI components | ✅ Exceptions stay in services, handler in UI |
+| **IV. Test-Driven Development** | Unit tests for service layer methods | ✅ Tests required for error handler |
+
+**Post-Design Re-check**: All principles satisfied. No violations requiring justification.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/089-error-handling-foundation/
+├── spec.md              # Feature specification
+├── plan.md              # This file
+├── research.md          # Phase 0: Exception hierarchy analysis
+├── data-model.md        # Phase 1: Exception hierarchy design
+└── tasks/               # Work packages (generated by /spec-kitty.tasks)
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── models/
 ├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+│   └── exceptions.py        # MODIFY: Consolidate hierarchy, add correlation_id
+├── ui/
+│   └── utils/
+│       └── error_handler.py # CREATE: Centralized error handler
+│   └── [47 UI files]        # MODIFY: Update exception handling
 └── tests/
+    └── unit/
+        └── test_error_handler.py  # CREATE: Error handler tests
+        └── test_exceptions.py     # CREATE: Exception hierarchy tests
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+docs/
+└── design/
+    └── error_handling_guide.md   # CREATE: Developer documentation
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: No new directories except `src/ui/utils/` (if not exists). Error handler lives in UI layer per layered architecture. Exceptions stay in `src/services/exceptions.py` with service-local exceptions remaining in their modules but inheriting from `ServiceError`.
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+*No constitution violations requiring justification.*
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+## Implementation Approach
+
+### Phase 1: Foundation (Exception Hierarchy + Error Handler)
+
+1. **Consolidate Exception Hierarchy** (WP01)
+   - Update `ServiceError` with `correlation_id` support
+   - Migrate legacy `ServiceException` subclasses to `ServiceError`
+   - Fix duplicate class definitions
+   - Add HTTP status code mapping attribute
+
+2. **Fix Service-Local Exceptions** (WP02)
+   - Update 60+ service-local exceptions to inherit from `ServiceError`
+   - No relocation - keep in their service modules per planning decision
+
+3. **Create Centralized Error Handler** (WP03)
+   - Create `src/ui/utils/error_handler.py`
+   - Map exception types to user-friendly messages
+   - Handle logging of technical details
+   - Support future correlation ID
+
+### Phase 2: UI Migration (Batch Updates)
+
+4. **Update High-Impact UI Files** (WP04-WP07)
+   - Batch by functional area: Inventory, Recipes, Production, Forms
+   - Apply three-tier catch pattern
+   - Use centralized error handler
+
+5. **Update Remaining UI Files** (WP08-WP10)
+   - Batch remaining files: Dialogs, Tabs, Dashboards
+   - Ensure consistent pattern application
+
+### Phase 3: Documentation + Validation
+
+6. **Create Developer Documentation** (WP11)
+   - Exception usage guide
+   - Three-tier pattern examples
+   - HTTP status code mapping
+
+7. **Validation + Tests** (WP12)
+   - Exception hierarchy tests
+   - Error handler unit tests
+   - Pattern consistency verification
+
+## Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| Breaking existing error handling | Update files in batches, test after each batch |
+| Loss of error information | Log technical details before converting to user messages |
+| Inconsistent pattern application | Clear documentation, code review per batch |
+| Duplicate exception classes | Resolve duplicates in WP01/WP02 before UI updates |
+
+## Dependencies
+
+- **WP01 must complete before WP02**: Service-local exceptions need updated `ServiceError` base
+- **WP02 must complete before WP03**: Error handler needs complete exception hierarchy
+- **WP03 must complete before WP04-WP10**: UI updates need centralized handler
+- **WP04-WP10 can run in parallel**: Independent file batches
+
+## Test Strategy
+
+1. **Unit Tests**: Exception hierarchy, error handler message mapping
+2. **Integration Tests**: End-to-end error scenarios (trigger error, verify user message)
+3. **Manual Verification**: Visual inspection of error dialogs across screens
