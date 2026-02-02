@@ -22,7 +22,9 @@ from src.services.database import session_scope
 from src.services.exceptions import (
     DatabaseError,
     ValidationError,
+    ServiceError,
 )
+from typing import Optional
 
 
 # ============================================================================
@@ -30,32 +32,73 @@ from src.services.exceptions import (
 # ============================================================================
 
 
-class RecipientNotFound(Exception):
-    """Raised when a recipient is not found."""
+class RecipientNotFound(ServiceError):
+    """Raised when a recipient is not found.
 
-    def __init__(self, recipient_id: int):
+    Args:
+        recipient_id: The recipient ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, recipient_id: int, correlation_id: Optional[str] = None):
         self.recipient_id = recipient_id
-        super().__init__(f"Recipient with ID {recipient_id} not found")
+        super().__init__(
+            f"Recipient with ID {recipient_id} not found",
+            correlation_id=correlation_id,
+            recipient_id=recipient_id
+        )
 
 
-class RecipientInUse(Exception):
-    """Raised when trying to delete a recipient that's used in events."""
+class RecipientInUse(ServiceError):
+    """Raised when trying to delete a recipient that's used in events.
 
-    def __init__(self, recipient_id: int, event_count: int):
+    Args:
+        recipient_id: The recipient ID
+        event_count: Number of events using the recipient
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (in-use)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, recipient_id: int, event_count: int, correlation_id: Optional[str] = None):
         self.recipient_id = recipient_id
         self.event_count = event_count
-        super().__init__(f"Recipient {recipient_id} is used in {event_count} event(s)")
+        super().__init__(
+            f"Recipient {recipient_id} is used in {event_count} event(s)",
+            correlation_id=correlation_id,
+            recipient_id=recipient_id,
+            event_count=event_count
+        )
 
 
-class RecipientHasAssignmentsError(Exception):
-    """Raised when trying to delete a recipient that has event assignments."""
+class RecipientHasAssignmentsError(ServiceError):
+    """Raised when trying to delete a recipient that has event assignments.
 
-    def __init__(self, recipient_id: int, assignment_count: int):
+    Args:
+        recipient_id: The recipient ID
+        assignment_count: Number of event assignments
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (in-use)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, recipient_id: int, assignment_count: int, correlation_id: Optional[str] = None):
         self.recipient_id = recipient_id
         self.assignment_count = assignment_count
         super().__init__(
             f"Recipient {recipient_id} has {assignment_count} event assignment(s). "
-            "Use force=True to delete."
+            "Use force=True to delete.",
+            correlation_id=correlation_id,
+            recipient_id=recipient_id,
+            assignment_count=assignment_count
         )
 
 
