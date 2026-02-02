@@ -46,6 +46,7 @@ from src.services import inventory_item_service
 from src.services.recipe_service import get_aggregated_ingredients
 from src.services import recipe_snapshot_service  # Feature 037
 from src.services import finished_goods_inventory_service as fg_inv  # Feature 061
+from src.services.exceptions import ServiceError
 
 
 # =============================================================================
@@ -53,63 +54,153 @@ from src.services import finished_goods_inventory_service as fg_inv  # Feature 0
 # =============================================================================
 
 
-class RecipeNotFoundError(Exception):
-    """Raised when a recipe cannot be found."""
+class RecipeNotFoundError(ServiceError):
+    """Raised when a recipe cannot be found.
 
-    def __init__(self, recipe_id: int):
+    Args:
+        recipe_id: The recipe ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, recipe_id: int, correlation_id: Optional[str] = None):
         self.recipe_id = recipe_id
-        super().__init__(f"Recipe with ID {recipe_id} not found")
+        super().__init__(
+            f"Recipe with ID {recipe_id} not found",
+            correlation_id=correlation_id,
+            recipe_id=recipe_id
+        )
 
 
-class FinishedUnitNotFoundError(Exception):
-    """Raised when a finished unit cannot be found."""
+class FinishedUnitNotFoundError(ServiceError):
+    """Raised when a finished unit cannot be found.
 
-    def __init__(self, finished_unit_id: int):
+    Args:
+        finished_unit_id: The finished unit ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, finished_unit_id: int, correlation_id: Optional[str] = None):
         self.finished_unit_id = finished_unit_id
-        super().__init__(f"FinishedUnit with ID {finished_unit_id} not found")
+        super().__init__(
+            f"FinishedUnit with ID {finished_unit_id} not found",
+            correlation_id=correlation_id,
+            finished_unit_id=finished_unit_id
+        )
 
 
-class FinishedUnitRecipeMismatchError(Exception):
-    """Raised when a finished unit does not belong to the specified recipe."""
+class FinishedUnitRecipeMismatchError(ServiceError):
+    """Raised when a finished unit does not belong to the specified recipe.
 
-    def __init__(self, finished_unit_id: int, recipe_id: int):
+    Args:
+        finished_unit_id: The finished unit ID
+        recipe_id: The recipe ID it should belong to
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request
+    """
+
+    http_status_code = 400
+
+    def __init__(self, finished_unit_id: int, recipe_id: int, correlation_id: Optional[str] = None):
         self.finished_unit_id = finished_unit_id
         self.recipe_id = recipe_id
-        super().__init__(f"FinishedUnit {finished_unit_id} does not belong to Recipe {recipe_id}")
+        super().__init__(
+            f"FinishedUnit {finished_unit_id} does not belong to Recipe {recipe_id}",
+            correlation_id=correlation_id,
+            finished_unit_id=finished_unit_id,
+            recipe_id=recipe_id
+        )
 
 
-class InsufficientInventoryError(Exception):
-    """Raised when there is insufficient inventory for production."""
+class InsufficientInventoryError(ServiceError):
+    """Raised when there is insufficient inventory for production.
 
-    def __init__(self, ingredient_slug: str, needed: Decimal, available: Decimal, unit: str):
+    Args:
+        ingredient_slug: The ingredient slug
+        needed: Quantity needed
+        available: Quantity available
+        unit: Unit of measurement
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(
+        self,
+        ingredient_slug: str,
+        needed: Decimal,
+        available: Decimal,
+        unit: str,
+        correlation_id: Optional[str] = None
+    ):
         self.ingredient_slug = ingredient_slug
         self.needed = needed
         self.available = available
         self.unit = unit
         super().__init__(
-            f"Insufficient {ingredient_slug}: need {needed} {unit}, have {available} {unit}"
+            f"Insufficient {ingredient_slug}: need {needed} {unit}, have {available} {unit}",
+            correlation_id=correlation_id,
+            ingredient_slug=ingredient_slug,
+            needed=str(needed),
+            available=str(available),
+            unit=unit
         )
 
 
-class EventNotFoundError(Exception):
-    """Raised when an event cannot be found."""
+class EventNotFoundError(ServiceError):
+    """Raised when an event cannot be found.
 
-    def __init__(self, event_id: int):
+    Args:
+        event_id: The event ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, event_id: int, correlation_id: Optional[str] = None):
         self.event_id = event_id
-        super().__init__(f"Event with ID {event_id} not found")
+        super().__init__(
+            f"Event with ID {event_id} not found",
+            correlation_id=correlation_id,
+            event_id=event_id
+        )
 
 
-class ActualYieldExceedsExpectedError(Exception):
+class ActualYieldExceedsExpectedError(ServiceError):
     """Raised when actual yield exceeds expected yield.
 
     Feature 025: Production Loss Tracking
+
+    Args:
+        actual_yield: The actual yield produced
+        expected_yield: The expected yield
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
     """
 
-    def __init__(self, actual_yield: int, expected_yield: int):
+    http_status_code = 422
+
+    def __init__(self, actual_yield: int, expected_yield: int, correlation_id: Optional[str] = None):
         self.actual_yield = actual_yield
         self.expected_yield = expected_yield
         super().__init__(
-            f"Actual yield ({actual_yield}) cannot exceed expected yield ({expected_yield})"
+            f"Actual yield ({actual_yield}) cannot exceed expected yield ({expected_yield})",
+            correlation_id=correlation_id,
+            actual_yield=actual_yield,
+            expected_yield=expected_yield
         )
 
 
@@ -604,12 +695,25 @@ def record_batch_production(
 # =============================================================================
 
 
-class ProductionRunNotFoundError(Exception):
-    """Raised when a production run cannot be found."""
+class ProductionRunNotFoundError(ServiceError):
+    """Raised when a production run cannot be found.
 
-    def __init__(self, production_run_id: int):
+    Args:
+        production_run_id: The production run ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, production_run_id: int, correlation_id: Optional[str] = None):
         self.production_run_id = production_run_id
-        super().__init__(f"ProductionRun with ID {production_run_id} not found")
+        super().__init__(
+            f"ProductionRun with ID {production_run_id} not found",
+            correlation_id=correlation_id,
+            production_run_id=production_run_id
+        )
 
 
 # =============================================================================
