@@ -35,7 +35,7 @@ from ..models import (
     MaterialInventoryItem,
 )
 from .database import session_scope
-from .exceptions import ValidationError
+from .exceptions import ValidationError, ServiceError
 
 
 # =============================================================================
@@ -43,20 +43,46 @@ from .exceptions import ValidationError
 # =============================================================================
 
 
-class MaterialUnitNotFoundError(Exception):
-    """Raised when a material unit is not found."""
+class MaterialUnitNotFoundError(ServiceError):
+    """Raised when a material unit is not found.
 
-    def __init__(self, unit_id: int):
+    Args:
+        unit_id: The material unit ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, unit_id: int, correlation_id: Optional[str] = None):
         self.unit_id = unit_id
-        super().__init__(f"Material unit not found: {unit_id}")
+        super().__init__(
+            f"Material unit not found: {unit_id}",
+            correlation_id=correlation_id,
+            unit_id=unit_id
+        )
 
 
-class MaterialProductNotFoundError(Exception):
-    """Raised when a material product is not found."""
+class MaterialProductNotFoundError(ServiceError):
+    """Raised when a material product is not found.
 
-    def __init__(self, product_id: int):
+    Args:
+        product_id: The material product ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, product_id: int, correlation_id: Optional[str] = None):
         self.product_id = product_id
-        super().__init__(f"Material product not found: {product_id}")
+        super().__init__(
+            f"Material product not found: {product_id}",
+            correlation_id=correlation_id,
+            product_id=product_id
+        )
 
 
 # Feature 084: Deprecated - no longer used
@@ -65,26 +91,53 @@ class MaterialProductNotFoundError(Exception):
 #     pass
 
 
-class MaterialUnitInUseError(Exception):
-    """Raised when attempting to delete a unit that is in use."""
+class MaterialUnitInUseError(ServiceError):
+    """Raised when attempting to delete a unit that is in use.
 
-    def __init__(self, unit_id: int, usage_count: int, fg_names: List[str] = None):
+    Args:
+        unit_id: The material unit ID
+        usage_count: Number of compositions using the unit
+        fg_names: Optional list of finished good names using the unit
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (in-use)
+    """
+
+    http_status_code = 409
+
+    def __init__(
+        self,
+        unit_id: int,
+        usage_count: int,
+        fg_names: List[str] = None,
+        correlation_id: Optional[str] = None
+    ):
         self.unit_id = unit_id
         self.usage_count = usage_count
         self.fg_names = fg_names or []
         if fg_names:
-            super().__init__(
+            message = (
                 f"MaterialUnit {unit_id} is used in {usage_count} composition(s): "
                 f"{', '.join(set(fg_names))}"
             )
         else:
-            super().__init__(f"MaterialUnit {unit_id} is used in {usage_count} composition(s)")
+            message = f"MaterialUnit {unit_id} is used in {usage_count} composition(s)"
+        super().__init__(
+            message,
+            correlation_id=correlation_id,
+            unit_id=unit_id,
+            usage_count=usage_count,
+            fg_names=fg_names or []
+        )
 
 
-class SnapshotCreationError(Exception):
-    """Raised when snapshot creation fails."""
+class SnapshotCreationError(ServiceError):
+    """Raised when snapshot creation fails.
 
-    pass
+    HTTP Status: 500 Server Error
+    """
+
+    http_status_code = 500
 
 
 # =============================================================================

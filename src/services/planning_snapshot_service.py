@@ -18,12 +18,16 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.models import PlanningSnapshot
 from src.services.database import session_scope
+from src.services.exceptions import ServiceError
 
 
-class PlanningSnapshotError(Exception):
-    """Raised when PlanningSnapshot operations fail."""
+class PlanningSnapshotError(ServiceError):
+    """Raised when PlanningSnapshot operations fail.
 
-    pass
+    HTTP Status: 500 Server Error
+    """
+
+    http_status_code = 500
 
 
 def create_planning_snapshot(

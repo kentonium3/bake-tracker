@@ -30,6 +30,7 @@ from src.services.database import session_scope
 from src.services.exceptions import (
     DatabaseError,
     ValidationError,
+    ServiceError,
 )
 
 
@@ -38,46 +39,115 @@ from src.services.exceptions import (
 # ============================================================================
 
 
-class PackageNotFoundError(Exception):
-    """Raised when a package is not found."""
+class PackageNotFoundError(ServiceError):
+    """Raised when a package is not found.
 
-    def __init__(self, package_id: int):
+    Args:
+        package_id: The package ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, package_id: int, correlation_id: Optional[str] = None):
         self.package_id = package_id
-        super().__init__(f"Package with ID {package_id} not found")
+        super().__init__(
+            f"Package with ID {package_id} not found",
+            correlation_id=correlation_id,
+            package_id=package_id
+        )
 
 
-class PackageInUseError(Exception):
-    """Raised when trying to delete a package that's used in events."""
+class PackageInUseError(ServiceError):
+    """Raised when trying to delete a package that's used in events.
 
-    def __init__(self, package_id: int, event_count: int):
+    Args:
+        package_id: The package ID
+        event_count: Number of events using the package
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (in-use)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, package_id: int, event_count: int, correlation_id: Optional[str] = None):
         self.package_id = package_id
         self.event_count = event_count
-        super().__init__(f"Package {package_id} is assigned to {event_count} event(s)")
+        super().__init__(
+            f"Package {package_id} is assigned to {event_count} event(s)",
+            correlation_id=correlation_id,
+            package_id=package_id,
+            event_count=event_count
+        )
 
 
-class InvalidFinishedGoodError(Exception):
-    """Raised when a FinishedGood is not found."""
+class InvalidFinishedGoodError(ServiceError):
+    """Raised when a FinishedGood is not found.
 
-    def __init__(self, finished_good_id: int):
+    Args:
+        finished_good_id: The finished good ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, finished_good_id: int, correlation_id: Optional[str] = None):
         self.finished_good_id = finished_good_id
-        super().__init__(f"FinishedGood with ID {finished_good_id} not found")
+        super().__init__(
+            f"FinishedGood with ID {finished_good_id} not found",
+            correlation_id=correlation_id,
+            finished_good_id=finished_good_id
+        )
 
 
-class DuplicatePackageNameError(Exception):
-    """Raised when a package with the same name already exists."""
+class DuplicatePackageNameError(ServiceError):
+    """Raised when a package with the same name already exists.
 
-    def __init__(self, name: str):
+    Args:
+        name: The duplicate package name
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (duplicate)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, name: str, correlation_id: Optional[str] = None):
         self.name = name
-        super().__init__(f"Package with name '{name}' already exists")
+        super().__init__(
+            f"Package with name '{name}' already exists",
+            correlation_id=correlation_id,
+            name=name
+        )
 
 
-class PackageFinishedGoodNotFoundError(Exception):
-    """Raised when a PackageFinishedGood junction is not found."""
+class PackageFinishedGoodNotFoundError(ServiceError):
+    """Raised when a PackageFinishedGood junction is not found.
 
-    def __init__(self, package_id: int, finished_good_id: int):
+    Args:
+        package_id: The package ID
+        finished_good_id: The finished good ID
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, package_id: int, finished_good_id: int, correlation_id: Optional[str] = None):
         self.package_id = package_id
         self.finished_good_id = finished_good_id
-        super().__init__(f"FinishedGood {finished_good_id} not found in Package {package_id}")
+        super().__init__(
+            f"FinishedGood {finished_good_id} not found in Package {package_id}",
+            correlation_id=correlation_id,
+            package_id=package_id,
+            finished_good_id=finished_good_id
+        )
 
 
 # ============================================================================
