@@ -1,0 +1,16 @@
+The architecture to support the mental model of finished goods and the services needed to create and utilize them are mostly in place. The UX for creating Finished Goods in Catalog mode is nearly unusable so this discussion is to get it to the point where it makes sense to the user for user testing. 
+
+Some challenges:
+
+1. All finished goods need to be built from scratch, even those that could be automatically added such as a cake. Perhaps we need a checkbox on the FinishedUnit form that pops up the Finished Good form on save so any missing details can be filled in.
+2. The list(s) of items to select from when creating a Since Finished Goods can be very long making for an impractical selection process. UI methods of having progressively filtered lists will need to be used to avoid having to make selections from somewhat randomly ordered lists of hundreds of items to find the one that is desired. This will be exacerbated as Finished Goods are created because some finished goods will be reused in multiple ways. For example, even in the simple case of wanting to choose a cake, even if the list were only "bare" finished goods, meaning no cellophane film or tinfoil wrapping, the list of all possible finished goods could be quite long. Having category and other filter selection methods that work in different contexts to limit lists will be essential.
+3. One use case is as a baker is I'm creating the first layer of finished goods from bare finished goods. These can then be used as is for selection for an event and they become available to be included in other finished goods. This is a case where I don't want to see all the other finished goods that have already been built up.
+4. There are levels of nesting and in some use cases it would be useful to filter by them. In the cake example above, maybe I don't want to see all the "bare" finished goods and only want to see the first nested level -- wrapped or boxed cakes, bundles of cookies -- as I prepare finished goods with more components. Here again there are food types, bundle types, nested level types -- all potential dimensions to filter by so navigation is tenable. 
+5. Another example is I may need to define a finished good as a tray (full batch) of cookies for events where the delivery mode is an open trays of goods. If I'm preparing individual packages then I won't want to see these types of finished goods because, again, the lists could be quite long. If I'm preparing serving then I may only want to see serving type finished goods
+6. If we now add in materials (generic) or Material Products, then it all gets quite complicated from a UX perspective. 
+
+It's a perpetual software challenge to make complex concepts and operations easy to navigate.
+For these reasons, the Finished Goods assembly/definition UI needs to be designed to be as easy to navigate as possible even to just enable reasonable user testing. The screen-wide, single entity grid lists, and deeply stacked vertical sections pattern used in much of the rest of the program are not going to work here. The design will need to be much more elegant and compact than that. 
+
+I am not a UX designer and neither are you so this will be a challenging. Do you have any suggestions on how we can model the UI iteratively without spending a lot of bandwidth on writing implementation code only to learn it's terrible?
+
