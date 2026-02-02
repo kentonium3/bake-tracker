@@ -51,7 +51,7 @@ from src.models import (
     InventoryItem,
 )
 from src.services.database import session_scope
-from src.services.exceptions import DatabaseError, PlanStateError, ValidationError
+from src.services.exceptions import DatabaseError, PlanStateError, ValidationError, ServiceError
 
 
 # ============================================================================
@@ -94,70 +94,167 @@ class PackagingSource:
 # ============================================================================
 
 
-class EventNotFoundError(Exception):
-    """Raised when an event is not found."""
+class EventNotFoundError(ServiceError):
+    """Raised when an event is not found.
 
-    def __init__(self, event_id: int):
+    Args:
+        event_id: The event ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, event_id: int, correlation_id: Optional[str] = None):
         self.event_id = event_id
-        super().__init__(f"Event with ID {event_id} not found")
-
-
-class EventHasAssignmentsError(Exception):
-    """Raised when trying to delete an event that has assignments."""
-
-    def __init__(self, event_id: int, assignment_count: int):
-        self.event_id = event_id
-        self.assignment_count = assignment_count
         super().__init__(
-            f"Event {event_id} has {assignment_count} assignment(s). Use cascade_assignments=True to delete."
+            f"Event with ID {event_id} not found",
+            correlation_id=correlation_id,
+            event_id=event_id
         )
 
 
-class AssignmentNotFoundError(Exception):
-    """Raised when an assignment is not found."""
+class EventHasAssignmentsError(ServiceError):
+    """Raised when trying to delete an event that has assignments.
 
-    def __init__(self, assignment_id: int):
+    Args:
+        event_id: The event ID
+        assignment_count: Number of existing assignments
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (in-use)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, event_id: int, assignment_count: int, correlation_id: Optional[str] = None):
+        self.event_id = event_id
+        self.assignment_count = assignment_count
+        super().__init__(
+            f"Event {event_id} has {assignment_count} assignment(s). Use cascade_assignments=True to delete.",
+            correlation_id=correlation_id,
+            event_id=event_id,
+            assignment_count=assignment_count
+        )
+
+
+class AssignmentNotFoundError(ServiceError):
+    """Raised when an assignment is not found.
+
+    Args:
+        assignment_id: The assignment ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, assignment_id: int, correlation_id: Optional[str] = None):
         self.assignment_id = assignment_id
-        super().__init__(f"Assignment with ID {assignment_id} not found")
+        super().__init__(
+            f"Assignment with ID {assignment_id} not found",
+            correlation_id=correlation_id,
+            assignment_id=assignment_id
+        )
 
 
-class RecipientNotFoundError(Exception):
-    """Raised when a recipient is not found."""
+class RecipientNotFoundError(ServiceError):
+    """Raised when a recipient is not found.
 
-    def __init__(self, recipient_id: int):
+    Args:
+        recipient_id: The recipient ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, recipient_id: int, correlation_id: Optional[str] = None):
         self.recipient_id = recipient_id
-        super().__init__(f"Recipient with ID {recipient_id} not found")
+        super().__init__(
+            f"Recipient with ID {recipient_id} not found",
+            correlation_id=correlation_id,
+            recipient_id=recipient_id
+        )
 
 
-class DuplicateAssignmentError(Exception):
-    """Raised when assignment already exists."""
+class DuplicateAssignmentError(ServiceError):
+    """Raised when assignment already exists.
 
-    def __init__(self, event_id: int, recipient_id: int, package_id: int):
+    Args:
+        event_id: The event ID
+        recipient_id: The recipient ID
+        package_id: The package ID
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (duplicate)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, event_id: int, recipient_id: int, package_id: int, correlation_id: Optional[str] = None):
         self.event_id = event_id
         self.recipient_id = recipient_id
         self.package_id = package_id
         super().__init__(
-            f"Assignment already exists: Event {event_id}, Recipient {recipient_id}, Package {package_id}"
+            f"Assignment already exists: Event {event_id}, Recipient {recipient_id}, Package {package_id}",
+            correlation_id=correlation_id,
+            event_id=event_id,
+            recipient_id=recipient_id,
+            package_id=package_id
         )
 
 
 # F070: FG Availability exceptions
-class CircularReferenceError(Exception):
-    """Raised when a bundle contains a circular reference."""
+class CircularReferenceError(ServiceError):
+    """Raised when a bundle contains a circular reference.
 
-    def __init__(self, fg_id: int, path: List[int]):
+    Args:
+        fg_id: The finished good ID
+        path: The path showing the circular reference
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, fg_id: int, path: List[int], correlation_id: Optional[str] = None):
         self.fg_id = fg_id
         self.path = path
-        super().__init__(f"Circular reference detected: FG {fg_id} in path {path}")
+        super().__init__(
+            f"Circular reference detected: FG {fg_id} in path {path}",
+            correlation_id=correlation_id,
+            fg_id=fg_id,
+            path=path
+        )
 
 
-class MaxDepthExceededError(Exception):
-    """Raised when bundle nesting exceeds maximum depth."""
+class MaxDepthExceededError(ServiceError):
+    """Raised when bundle nesting exceeds maximum depth.
 
-    def __init__(self, depth: int, max_depth: int):
+    Args:
+        depth: Current depth
+        max_depth: Maximum allowed depth
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, depth: int, max_depth: int, correlation_id: Optional[str] = None):
         self.depth = depth
         self.max_depth = max_depth
-        super().__init__(f"Maximum nesting depth {max_depth} exceeded at depth {depth}")
+        super().__init__(
+            f"Maximum nesting depth {max_depth} exceeded at depth {depth}",
+            correlation_id=correlation_id,
+            depth=depth,
+            max_depth=max_depth
+        )
 
 
 MAX_FG_NESTING_DEPTH = 10
