@@ -4,5 +4,7 @@
   "friendly_name": "Error Handling Foundation",
   "mission": "software-dev",
   "source_description": "F089 Error Handling Foundation - Establish three-tier exception strategy with consolidated ServiceError hierarchy, centralized UI error handler, update 88 files catching generic Exception to catch specific exceptions, add exception context requirements, and create developer documentation. Based on docs/func-spec/F089_error_handling_foundation.md",
-  "created_at": "2026-02-02T00:00:00Z"
+  "created_at": "2026-02-02T00:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-02-02T23:46:56.992830+00:00"
 }
