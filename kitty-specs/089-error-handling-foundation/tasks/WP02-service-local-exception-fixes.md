@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Service-Local Exception Fixes
+lane: "doing"
+dependencies: [WP01]
+base_branch: 089-error-handling-foundation-WP01
+base_commit: be5e03b905e93818cd37cfd807cfa896db403337
+created_at: '2026-02-02T23:46:59.615488+00:00'
 subtasks:
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-title: "Service-Local Exception Fixes"
-phase: "Phase 1 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+- T013
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "57620"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Service-Local Exception Fixes
