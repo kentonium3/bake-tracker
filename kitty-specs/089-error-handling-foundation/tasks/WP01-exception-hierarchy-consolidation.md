@@ -9,10 +9,10 @@ subtasks:
   - "T006"
 title: "Exception Hierarchy Consolidation"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "56364"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -449,3 +449,4 @@ with warnings.catch_warnings(record=True) as w:
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-02T23:42:10Z – claude-opus – shell_pid=56364 – lane=doing – Started implementation via workflow command
