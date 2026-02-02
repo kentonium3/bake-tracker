@@ -1,10 +1,9 @@
 <!--
 Sync Impact Report:
-- Version change: 1.3.0 → 1.4.0
-- Modified principles: VII (Pragmatic Aspiration - timeline, AI integration, examples)
-- Added sections: AI-Assisted Data Entry: Proof of Concept, BT Mobile integrations
-- Removed sections: "2024-2025 Season" references, outdated timeline projections
-- Rationale: 2025 holiday season complete; shift to event-centric generalization and AI-assisted data entry proof-of-concept
+- Version change: 1.4.0 → 1.5.0
+- Added principles: VI (Code Quality & Consistency Disciplines - new)
+- Renumbered principles: Schema Change Strategy (VI → VII), Pragmatic Aspiration (VII → VIII)
+- Rationale: Formalize code quality disciplines covering error handling, configuration, dependency management, API consistency, observability, migration readiness, code organization, and testing support
 - Templates requiring updates:
   ✅ spec-template.md - No changes needed (references constitution dynamically)
   ✅ plan-template.md - No changes needed (Constitution Check gates are generic)
@@ -88,7 +87,156 @@ Sync Impact Report:
 
 **Rationale:** Layered architecture enables independent testing, easier refactoring, and potential future UI alternatives (web, mobile). Violations create tight coupling and make the codebase unmaintainable.
 
-### VI. Schema Change Strategy (Desktop Phase)
+### VI. Code Quality & Consistency Disciplines
+
+**Consistent code quality disciplines reduce cognitive load, prevent entire categories of bugs, and make the codebase approachable for future contributors (human or AI).**
+
+These standards are particularly important given the dual-purpose nature of this application—code that will evolve into a multi-user SaaS must be robust from the start.
+
+#### A. Error Handling Standards
+**Principle**: Errors should be predictable, debuggable, and user-friendly.
+
+1. **Exception Hierarchy**
+   - Use custom exception classes inheriting from base domain exceptions
+   - Distinguish between recoverable errors (ValidationError, NotFoundError) and system failures (DatabaseError, ConfigurationError)
+   - Never catch bare `Exception` unless explicitly logging and re-raising
+
+2. **Error Propagation**
+   - Services raise domain exceptions; UI layer catches and presents to user
+   - Include context in exceptions (entity IDs, operation attempted, relevant state)
+   - Log errors with sufficient context for debugging (correlation IDs, stack traces)
+
+3. **Validation Strategy**
+   - Validate at service boundaries before database operations
+   - Use consistent validation result patterns (raise exception vs return result object)
+   - Distinguish between syntax errors (format) and semantic errors (business rules)
+
+#### B. Configuration & Environment Management
+**Principle**: Code should work across environments without modification.
+
+1. **No Hard-Coded Values**
+   - Extract database paths, file locations, API endpoints to configuration
+   - Use environment variables or config files for environment-specific settings
+   - Provide sensible defaults with override capability
+
+2. **Settings Pattern**
+   - Centralized configuration class/module
+   - Typed configuration values (not string-based everything)
+   - Validation of required configuration on startup
+
+#### C. Dependency & State Management
+**Principle**: Components should be loosely coupled and their lifecycle explicit.
+
+1. **Dependency Injection**
+   - Pass dependencies explicitly rather than importing/instantiating within classes
+   - Database sessions injected, not globally accessed
+   - Enables testing with mocks; makes dependencies visible
+
+2. **Transaction Boundaries**
+   - Explicit transaction start/commit/rollback
+   - Service methods define transaction scope
+   - No silent auto-commits; failures roll back cleanly
+
+3. **Resource Cleanup**
+   - Use context managers (`with` statements) for files, connections, sessions
+   - Explicit lifecycle for long-lived resources
+   - No leaked file handles or database connections
+
+#### D. API Consistency & Contracts
+**Principle**: Service interfaces should be predictable and self-documenting.
+
+1. **Method Signatures**
+   - Consistent return types across similar operations (create/update/delete)
+   - Type hints for all public methods
+   - Explicit over implicit (no mysterious tuple unpacking)
+
+2. **Null/Optional Handling**
+   - Use `Optional[T]` type hints where None is valid
+   - Consistent None-checking patterns
+   - Avoid `None` meaning different things in different contexts
+
+3. **Collection Operations**
+   - Pagination for potentially large result sets
+   - Consistent filtering/search patterns across services
+   - Predictable ordering (explicit sort, not database-dependent)
+
+#### E. Observability & Debugging Support
+**Principle**: When things go wrong, diagnosis should be straightforward.
+
+1. **Logging Strategy**
+   - Structured logging with severity levels (DEBUG, INFO, WARNING, ERROR)
+   - Include operation context (user intent, entity IDs, timing)
+   - Correlation IDs for tracing multi-step operations
+
+2. **Audit Trail**
+   - Track who/what/when for data mutations
+   - Immutable history for critical entities
+   - Debugging mode with verbose operation logging
+
+3. **Development Tools**
+   - Debug endpoints/commands for inspecting state
+   - Data export for reproducing issues
+   - Clear error messages with actionable remediation
+
+#### F. Migration & Evolution Readiness
+**Principle**: Today's decisions should ease tomorrow's changes.
+
+1. **Database Abstraction**
+   - ORM-based queries over raw SQL where possible
+   - SQLite-specific features isolated and documented
+   - Connection/session management patterns compatible with pooling
+
+2. **Authentication/Authorization Hooks**
+   - Service methods accept optional user context (even if unused now)
+   - Data access patterns consider future row-level security
+   - No global "current user" state
+
+3. **Multi-Tenancy Awareness**
+   - Service methods scoped to single tenant (even if only one exists)
+   - Avoid global singleton data stores
+   - Schema design supports tenant isolation
+
+#### G. Code Organization Patterns
+**Principle**: Related code lives together; boundaries are clear.
+
+1. **Module Size**
+   - No single module >500 lines (split by responsibility)
+   - Related services grouped in sub-packages
+   - Flat is better than nested (avoid deep hierarchies)
+
+2. **Import Discipline**
+   - No circular imports (indicates poor separation)
+   - Import from public interfaces, not internal modules
+   - Standard library → third-party → local imports order
+
+3. **Dead Code**
+   - Remove commented-out code (Git preserves history)
+   - Delete unused imports, functions, classes
+   - Feature flags over conditional compilation
+
+#### H. Testing & Validation Support
+**Principle**: Code should be written to be testable.
+
+1. **Test Seams**
+   - Avoid testing private methods; test public contracts
+   - Services testable without database (via mocks/in-memory)
+   - Deterministic behavior (no random/time dependencies untestable)
+
+2. **Sample Data**
+   - Realistic test fixtures matching production scenarios
+   - Factory patterns for test data generation
+   - Separation between test data and seed data
+
+#### Compliance & Refactoring
+
+- New features MUST follow these disciplines
+- Existing code SHOULD be refactored opportunistically when touched
+- Major refactoring requires specification if >2 days effort
+- AI agents MUST highlight discipline violations in code review
+
+**Rationale:** Consistent code quality disciplines reduce cognitive load, prevent entire categories of bugs, and make the codebase approachable for future contributors (human or AI). These standards are particularly important given the dual-purpose nature of this application—code that will evolve into a multi-user SaaS must be robust from the start.
+
+### VII. Schema Change Strategy (Desktop Phase)
 
 **For single-user desktop apps, database migrations are unnecessary complexity.**
 
@@ -107,7 +255,7 @@ Sync Impact Report:
 
 **Rationale:** For a single-user desktop application with robust import/export capability, the export/reset/import cycle is simpler, more reliable, and eliminates an entire category of migration-related bugs. Migration tooling becomes necessary only when multiple users have independent databases that must be upgraded in place.
 
-### VII. Pragmatic Aspiration
+### VIII. Pragmatic Aspiration
 
 **Build for today's user while keeping tomorrow's platform in mind.**
 
@@ -329,4 +477,4 @@ When making architectural choices, ask:
 - Conflicts between constitution and existing code MUST be resolved in favor of constitution
 - Runtime guidance for AI agents found in `.kittify/AGENTS.md`
 
-**Version**: 1.4.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-01-07
+**Version**: 1.5.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-02-02
