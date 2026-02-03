@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: UI Migration - Core Tabs
-lane: "for_review"
+lane: "done"
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -14,8 +14,8 @@ phase: Phase 2 - UI Migration
 assignee: ''
 agent: ''
 shell_pid: "62222"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
@@ -254,3 +254,4 @@ grep -n "except Exception:" src/ui/materials_tab.py | grep -v "handle_error"
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-02-03T00:19:21Z – unknown – shell_pid=62222 – lane=for_review – Core tabs updated with centralized error handler pattern
+- 2026-02-03T00:34:13Z – unknown – shell_pid=62222 – lane=done – Approved: Core tabs (materials, inventory, planning) updated with handle_error pattern - 57 ServiceError catches
