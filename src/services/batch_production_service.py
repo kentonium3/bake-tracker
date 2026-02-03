@@ -223,6 +223,17 @@ def check_can_produce(
     (including nested recipe ingredients) and returns detailed
     availability information.
 
+    Transaction boundary: Multi-step read operation (atomic).
+    Atomicity guarantee: All availability checks happen within a single session.
+    Steps executed atomically:
+        1. Validate recipe exists
+        2. Get aggregated ingredients (including nested recipes)
+        3. Perform dry-run FIFO checks for each ingredient
+
+    CRITICAL: When called from record_batch_production or other transactional
+    contexts, pass the session parameter to maintain object tracking and
+    ensure consistent reads across the operation.
+
     Args:
         recipe_id: ID of the recipe to produce
         num_batches: Number of batches to produce
@@ -255,7 +266,10 @@ def _check_can_produce_impl(
     scale_factor: float,
     session,
 ) -> Dict[str, Any]:
-    """Implementation of check_can_produce that uses provided session."""
+    """Implementation of check_can_produce that uses provided session.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Validate recipe exists
     recipe = session.query(Recipe).filter_by(id=recipe_id).first()
     if not recipe:
@@ -343,16 +357,27 @@ def record_batch_production(
     """
     Record a batch production run with FIFO consumption.
 
-    This function atomically:
-    1. Validates recipe and finished unit
-    2. Validates event if provided (Feature 016)
-    3. Creates recipe snapshot FIRST (Feature 037)
-    4. Validates actual_yield <= expected_yield (Feature 025)
-    5. Consumes ingredients from snapshot data via FIFO
-    6. Increments FinishedUnit.inventory_count by actual_yield
-    7. Creates ProductionRun with snapshot reference
-    8. Creates ProductionLoss record if loss_quantity > 0 (Feature 025)
-    9. Calculates per-unit cost based on actual yield
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: All steps below succeed or fail together; partial
+    state is never committed.
+
+    Steps executed atomically:
+        1. Validates recipe and finished unit exist
+        2. Validates event if provided (Feature 016)
+        3. Creates recipe snapshot FIRST (Feature 037)
+        4. Validates actual_yield <= expected_yield (Feature 025)
+        5. Consumes ingredients from snapshot data via FIFO
+        6. Increments FinishedUnit.inventory_count by actual_yield
+        7. Creates ProductionRun with snapshot reference
+        8. Creates ProductionLoss record if loss_quantity > 0 (Feature 025)
+        9. Calculates per-unit cost based on actual yield
+
+    CRITICAL: Session parameter controls transactional scope. When passed,
+    all operations (validation, inventory consumption, record creation)
+    use the same session ensuring atomicity. The session is passed to:
+        - inventory_item_service.consume_fifo()
+        - recipe_snapshot_service.create_recipe_snapshot()
+        - finished_goods_inventory_service.adjust_inventory()
 
     Args:
         recipe_id: ID of the recipe being produced
@@ -736,6 +761,10 @@ def get_production_history(
     """
     Query production run history with optional filters.
 
+    Transaction boundary: Read-only operation.
+    Safe to call without session parameter - uses temporary session for query.
+    When composing with other operations, pass session for consistent reads.
+
     Args:
         recipe_id: Optional filter by recipe ID
         finished_unit_id: Optional filter by finished unit ID
@@ -805,6 +834,9 @@ def get_production_run(
     """
     Get a single production run with full details.
 
+    Transaction boundary: Read-only operation.
+    Requires session parameter for consistent reads within transactional context.
+
     Args:
         production_run_id: ID of the production run
         include_consumptions: If True, include consumption ledger details
@@ -841,7 +873,11 @@ def _production_run_to_dict(
     include_consumptions: bool = False,
     include_losses: bool = False,
 ) -> Dict[str, Any]:
-    """Convert a ProductionRun to a dictionary representation."""
+    """Convert a ProductionRun to a dictionary representation.
+
+    Transaction boundary: Pure transformation, no database access.
+    Assumes the ProductionRun and its relationships are already loaded.
+    """
     result = {
         "id": run.id,
         "uuid": str(run.uuid) if run.uuid else None,
@@ -921,6 +957,10 @@ def export_production_history(
 ) -> Dict[str, Any]:
     """
     Export production history to JSON-compatible dict.
+
+    Transaction boundary: Read-only operation.
+    Safe to call without session parameter - uses temporary session for query.
+    When composing with other operations, pass session for consistent reads.
 
     Uses slugs/names instead of IDs for portability.
     Decimal values are serialized as strings to preserve precision.
@@ -1014,6 +1054,22 @@ def import_production_history(
     """
     Import production history from JSON-compatible dict.
 
+    Transaction boundary: Multi-step operation (atomic per run).
+    Atomicity guarantee: Each production run is imported atomically within
+    the session_scope. If any step fails for a run, that run is rolled back
+    and added to the errors list. Other runs continue processing.
+
+    Steps executed per production run:
+        1. Check for duplicate UUID
+        2. Resolve recipe by name
+        3. Resolve finished unit by slug
+        4. Create ProductionRun record
+        5. Create ProductionConsumption records
+        6. Create ProductionLoss records (v1.1 schema)
+
+    Note: Currently creates its own session_scope internally and does not
+    honor the passed session parameter. This is a known limitation.
+
     Resolves references by name/slug. Validates all foreign keys exist.
     Uses UUIDs for duplicate detection.
 
@@ -1022,7 +1078,7 @@ def import_production_history(
     Args:
         data: Dict with production_runs to import
         skip_duplicates: If True, skip existing UUIDs; if False, report as error
-        session: Optional database session
+        session: Optional database session (currently unused - see note above)
 
     Returns:
         Dict with imported count, skipped count, and errors list

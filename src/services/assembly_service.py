@@ -193,6 +193,19 @@ def check_can_assemble(
     """
     Check if a FinishedGood can be assembled with current component inventory.
 
+    Transaction boundary: Multi-step read operation (atomic).
+    Atomicity guarantee: All availability checks happen within a single session.
+    Steps executed atomically:
+        1. Validate FinishedGood exists
+        2. Query Composition for component requirements
+        3. Check FinishedUnit component inventory
+        4. Check FinishedGood component inventory (nested assemblies)
+        5. Perform dry-run FIFO checks for packaging products
+
+    CRITICAL: When called from record_assembly or other transactional contexts,
+    pass the session parameter to maintain object tracking and ensure consistent
+    reads across the operation.
+
     Checks availability of:
     - FinishedUnit components (via inventory_count)
     - FinishedGood components (nested assemblies, via inventory_count)
@@ -229,7 +242,10 @@ def _check_can_assemble_impl(
     quantity: int,
     session,
 ) -> Dict[str, Any]:
-    """Implementation of check_can_assemble that uses provided session."""
+    """Implementation of check_can_assemble that uses provided session.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Validate FinishedGood exists
     finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
     if not finished_good:
@@ -345,15 +361,28 @@ def record_assembly(
     """
     Record an assembly run with component consumption.
 
-    This function atomically:
-    1. Validates FinishedGood exists
-    2. Validates event exists if provided (Feature 016)
-    3. Decrements FinishedUnit.inventory_count for FU components
-    4. Decrements FinishedGood.inventory_count for nested FG components
-    5. Consumes packaging via FIFO
-    6. Consumes materials (MaterialUnit or assigned products for generic Material)
-    7. Increments the target FinishedGood.inventory_count
-    8. Creates AssemblyRun and consumption ledger records
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: All steps below succeed or fail together; partial
+    state is never committed.
+
+    Steps executed atomically:
+        1. Validates FinishedGood exists
+        2. Validates event exists if provided (Feature 016)
+        3. Decrements FinishedUnit.inventory_count for FU components
+        4. Decrements FinishedGood.inventory_count for nested FG components
+        5. Consumes packaging via FIFO
+        6. Consumes materials (MaterialUnit or assigned products for generic Material)
+        7. Increments the target FinishedGood.inventory_count
+        8. Creates FinishedGood snapshot (F065)
+        9. Creates AssemblyRun and consumption ledger records
+
+    CRITICAL: Session parameter controls transactional scope. When passed,
+    all operations (validation, inventory consumption, record creation)
+    use the same session ensuring atomicity. The session is passed to:
+        - inventory_item_service.consume_fifo()
+        - finished_goods_inventory_service.adjust_inventory()
+        - finished_good_service.create_finished_good_snapshot()
+        - material_consumption_service.record_material_consumption()
 
     Args:
         finished_good_id: ID of the FinishedGood being assembled
@@ -428,7 +457,10 @@ def _record_assembly_impl(
     material_assignments: Optional[Dict[int, int]],
     session,
 ) -> Dict[str, Any]:
-    """Implementation of record_assembly that uses provided session."""
+    """Implementation of record_assembly that uses provided session.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Log entry point at DEBUG level
     logger.debug(
         "Recording assembly",
@@ -800,6 +832,9 @@ def get_assembly_history(
     """
     Query assembly run history with optional filters.
 
+    Transaction boundary: Read-only operation.
+    Requires session parameter for consistent reads within transactional context.
+
     Args:
         finished_good_id: Optional filter by finished good ID
         start_date: Optional filter by minimum assembled_at
@@ -855,6 +890,9 @@ def get_assembly_run(
     """
     Get a single assembly run with full details.
 
+    Transaction boundary: Read-only operation.
+    Requires session parameter for consistent reads within transactional context.
+
     Args:
         assembly_run_id: ID of the assembly run
         include_consumptions: If True, include consumption ledger details
@@ -891,7 +929,11 @@ def get_assembly_run(
 
 
 def _assembly_run_to_dict(run: AssemblyRun, include_consumptions: bool = False) -> Dict[str, Any]:
-    """Convert an AssemblyRun to a dictionary representation."""
+    """Convert an AssemblyRun to a dictionary representation.
+
+    Transaction boundary: Pure transformation, no database access.
+    Assumes the AssemblyRun and its relationships are already loaded.
+    """
     result = {
         "id": run.id,
         "uuid": str(run.uuid) if run.uuid else None,
@@ -975,6 +1017,10 @@ def export_assembly_history(
 ) -> Dict[str, Any]:
     """
     Export assembly history to JSON-compatible dict.
+
+    Transaction boundary: Read-only operation.
+    Safe to call without session parameter - uses temporary session for query.
+    When composing with other operations, pass session for consistent reads.
 
     Uses slugs instead of IDs for portability.
     Decimal values are serialized as strings to preserve precision.
@@ -1070,13 +1116,29 @@ def import_assembly_history(
     """
     Import assembly history from JSON-compatible dict.
 
+    Transaction boundary: Multi-step operation (atomic per run).
+    Atomicity guarantee: Each assembly run is imported atomically within
+    the session_scope. If any step fails for a run, that run is rolled back
+    and added to the errors list. Other runs continue processing.
+
+    Steps executed per assembly run:
+        1. Check for duplicate UUID
+        2. Resolve finished good by slug
+        3. Create AssemblyRun record
+        4. Create AssemblyFinishedUnitConsumption records
+        5. Create AssemblyPackagingConsumption records
+        6. Create AssemblyFinishedGoodConsumption records (Feature 060)
+
+    Note: Currently creates its own session_scope internally and does not
+    honor the passed session parameter. This is a known limitation.
+
     Resolves references by slug. Validates all foreign keys exist.
     Uses UUIDs for duplicate detection.
 
     Args:
         data: Dict with assembly_runs to import
         skip_duplicates: If True, skip existing UUIDs; if False, report as error
-        session: Optional database session
+        session: Optional database session (currently unused - see note above)
 
     Returns:
         Dict with imported count, skipped count, and errors list
@@ -1207,6 +1269,10 @@ def check_packaging_assigned(
     """
     Check if all generic packaging requirements have been assigned.
 
+    Transaction boundary: Read-only operation.
+    Safe to call without session parameter - uses temporary session for query.
+    When composing with other operations, pass session for consistent reads.
+
     This function queries compositions for the finished good where
     is_generic=True and checks if each has complete material assignments.
 
@@ -1237,7 +1303,10 @@ def _check_packaging_assigned_impl(
     finished_good_id: int,
     session,
 ) -> Dict[str, Any]:
-    """Implementation of check_packaging_assigned that uses provided session."""
+    """Implementation of check_packaging_assigned that uses provided session.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Validate FinishedGood exists
     finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
     if not finished_good:
