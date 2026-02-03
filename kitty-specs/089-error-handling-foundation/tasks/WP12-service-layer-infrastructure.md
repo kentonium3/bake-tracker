@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP12"
+work_package_id: WP12
+title: Service Layer & Infrastructure
+lane: "doing"
+dependencies: [WP03]
+base_branch: 089-error-handling-foundation-WP03
+base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
+created_at: '2026-02-03T01:04:43.018545+00:00'
 subtasks:
-  - "T063"
-  - "T064"
-  - "T065"
-  - "T066"
-  - "T067"
-  - "T068"
-  - "T069"
-title: "Service Layer & Infrastructure"
-phase: "Phase 2 - UI Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T063
+- T064
+- T065
+- T066
+- T067
+- T068
+- T069
+phase: Phase 2 - UI Migration
+assignee: ''
+agent: ''
+shell_pid: "77222"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP12 – Service Layer & Infrastructure
