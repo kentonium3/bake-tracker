@@ -9,12 +9,12 @@ subtasks:
   - "T006"
 title: "Exception Hierarchy Consolidation"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "56364"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-02-02T00:00:00Z"
@@ -451,3 +451,4 @@ with warnings.catch_warnings(record=True) as w:
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
 - 2026-02-02T23:42:10Z – claude-opus – shell_pid=56364 – lane=doing – Started implementation via workflow command
 - 2026-02-02T23:46:47Z – claude-opus – shell_pid=56364 – lane=for_review – Ready for review: ServiceError hierarchy consolidated, all exceptions have http_status_code, deprecation warning added
+- 2026-02-03T00:34:02Z – claude-opus – shell_pid=56364 – lane=done – Approved: ServiceError base class with correlation_id and http_status_code, deprecation warning on ServiceException, comprehensive docstrings
