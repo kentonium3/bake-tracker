@@ -48,7 +48,9 @@ from src.services.exceptions import (
     InventoryItemNotFound,
     ValidationError as ServiceValidationError,
     DatabaseError,
+    ServiceError,
 )
+from src.ui.utils.error_handler import handle_error
 from src.services.database import session_scope
 from src.models import Ingredient
 from src.ui.session_state import get_session_state
@@ -390,12 +392,10 @@ class InventoryTab(ctk.CTkFrame):
             # Apply filters
             self._apply_filters()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load inventory items")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load inventory items: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load inventory items")
 
     def _apply_filters(self):
         """Apply search, hierarchy, and brand filters and update display."""
@@ -473,6 +473,13 @@ class InventoryTab(ctk.CTkFrame):
                         "l1": full_path[1] if len(full_path) > 1 else "",
                         "l2": full_path[2] if len(full_path) > 2 else "",
                     }
+                except ServiceError:
+                    # Fallback: use display_name as l0 only
+                    self._hierarchy_path_cache[ing_id] = {
+                        "l0": ingredient.get("display_name", "--"),
+                        "l1": "",
+                        "l2": "",
+                    }
                 except Exception:
                     # Fallback: use display_name as l0 only
                     self._hierarchy_path_cache[ing_id] = {
@@ -480,6 +487,8 @@ class InventoryTab(ctk.CTkFrame):
                         "l1": "",
                         "l2": "",
                     }
+        except ServiceError:
+            pass
         except Exception:
             pass
 
@@ -632,6 +641,8 @@ class InventoryTab(ctk.CTkFrame):
                 else:
                     # Recurse to get leaves under this node
                     descendants.update(self._get_all_leaf_descendants(child.get("id")))
+        except ServiceError:
+            pass
         except Exception:
             pass
         return descendants
@@ -1125,9 +1136,11 @@ class InventoryTab(ctk.CTkFrame):
         except ServiceValidationError as e:
             messagebox.showerror("Validation Error", str(e), parent=self)
         except DatabaseError as e:
-            messagebox.showerror("Database Error", str(e), parent=self)
+            handle_error(e, parent=self, operation="Add inventory item")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Add inventory item")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to add inventory item: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Add inventory item")
 
     def _edit_inventory_item(self, inventory_item_id: int):
         """Open dialog to edit inventory item."""
@@ -1176,9 +1189,11 @@ class InventoryTab(ctk.CTkFrame):
         except ServiceValidationError as e:
             messagebox.showerror("Validation Error", str(e), parent=self)
         except DatabaseError as e:
-            messagebox.showerror("Database Error", str(e), parent=self)
+            handle_error(e, parent=self, operation="Update inventory item")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update inventory item")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to update inventory item: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Update inventory item")
 
     def _delete_inventory_item(self, inventory_item_id: int):
         """Delete inventory item after confirmation."""
@@ -1202,11 +1217,11 @@ class InventoryTab(ctk.CTkFrame):
                 messagebox.showerror("Error", "Inventory item not found", parent=self)
                 self.refresh()
             except DatabaseError as e:
-                messagebox.showerror("Database Error", str(e), parent=self)
+                handle_error(e, parent=self, operation="Delete inventory item")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Delete inventory item")
             except Exception as e:
-                messagebox.showerror(
-                    "Error", f"Failed to delete inventory item: {str(e)}", parent=self
-                )
+                handle_error(e, parent=self, operation="Delete inventory item")
 
     # Feature 041: Manual Inventory Adjustment Methods
 
@@ -1289,8 +1304,10 @@ class InventoryTab(ctk.CTkFrame):
             messagebox.showerror("Error", f"Inventory item not found: {e}", parent=self)
             self.refresh()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Adjust inventory")
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred: {e}", parent=self)
+            handle_error(e, parent=self, operation="Adjust inventory")
 
     def _serialize_inventory_item(self, item) -> dict:
         """Convert an InventoryItem ORM instance to a simple dict for dialog usage."""
@@ -1395,16 +1412,22 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         """Load ingredients from service."""
         try:
             self.ingredients = ingredient_service.get_all_ingredients()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load ingredients")
+            self.destroy()
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load ingredients: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load ingredients")
             self.destroy()
 
     def _load_suppliers(self):
         """Load active suppliers from service (F028)."""
         try:
             self.suppliers = supplier_service.get_active_suppliers()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load suppliers")
+            self.destroy()
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load suppliers: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load suppliers")
             self.destroy()
 
     def _create_form(self):
@@ -1688,8 +1711,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             # Feature 032: Clear hierarchy labels when category changes
             self._clear_hierarchy_labels()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load ingredients")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load ingredients: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load ingredients")
 
     # Feature 032: Hierarchy label methods
     def _update_hierarchy_labels(self, ingredient_id: int):
@@ -1724,6 +1749,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.hierarchy_l0_value.configure(text=l0_name)
             self.hierarchy_l1_value.configure(text=l1_name)
             self.hierarchy_l2_value.configure(text=l2_name)
+        except ServiceError:
+            self._clear_hierarchy_labels()
         except Exception:
             self._clear_hierarchy_labels()
 
@@ -1791,8 +1818,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 for p in product_objects
             ]
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load products")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load products: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load products")
 
     def _on_product_selected(self, selected_value: str):
         """Handle product selection (F029)."""
@@ -2077,12 +2106,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             # Trigger price hint update
             self._on_supplier_change(self.supplier_var.get())
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Create product")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to create product: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Create product")
             # Keep form expanded for correction
 
     def _cancel_inline_create(self):
@@ -2177,7 +2204,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                     # No history
                     self.price_var.set("")
                     self.price_hint_label.configure(text="(no purchase history)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load price hint", show_dialog=False)
+            self.price_hint_label.configure(text="(error loading price)")
         except Exception as e:
+            handle_error(e, parent=self, operation="Load price hint", show_dialog=False)
             self.price_hint_label.configure(text="(error loading price)")
 
     def _populate_form(self):  # noqa: C901
@@ -2256,8 +2287,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.product_combo.configure(state="disabled")
             self.purchase_date_entry.configure(state="disabled")
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Populate form")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to populate form: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Populate form")
 
     def _save(self):  # noqa: C901
         """Validate and save form data."""
@@ -2316,8 +2349,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                         "Validation Error", "Quantity must be greater than 0", parent=self
                     )
                     return
-            except Exception:
-                messagebox.showerror("Validation Error", "Invalid quantity format", parent=self)
+            except (ValueError, InvalidOperation) as e:
+                handle_error(e, parent=self, operation="Validate quantity")
                 return
 
         # Parse purchase date
@@ -2326,12 +2359,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         else:
             try:
                 purchase_date = date.fromisoformat(purchase_date_str)
-            except Exception:
-                messagebox.showerror(
-                    "Validation Error",
-                    "Invalid purchase date format (use YYYY-MM-DD)",
-                    parent=self,
-                )
+            except ValueError as e:
+                handle_error(e, parent=self, operation="Validate purchase date")
                 return
 
         # Determine product ID
@@ -2365,8 +2394,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
             try:
                 unit_price = Decimal(price_str)
-            except Exception:
-                messagebox.showerror("Validation Error", "Invalid price format", parent=self)
+            except (ValueError, InvalidOperation) as e:
+                handle_error(e, parent=self, operation="Validate price")
                 return
 
             # F028 FR-008: Reject negative prices
@@ -2452,9 +2481,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             except InventoryItemNotFound:
                 messagebox.showerror("Error", "Inventory item not found", parent=self)
             except DatabaseError as e:
-                messagebox.showerror("Database Error", f"Failed to delete: {e}", parent=self)
+                handle_error(e, parent=self, operation="Delete inventory item")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Delete inventory item")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to delete inventory item: {e}", parent=self)
+                handle_error(e, parent=self, operation="Delete inventory item")
 
     # WP09: Clear price hint when user types
 

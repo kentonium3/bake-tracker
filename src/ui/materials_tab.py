@@ -25,7 +25,8 @@ from src.services import (
     material_unit_service,
     supplier_service,
 )
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ServiceError, ValidationError
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import PADDING_MEDIUM
 
 
@@ -194,7 +195,8 @@ class MaterialFormDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except Exception as e:
+            handle_error(e, parent=self, operation="Initialize dialog", show_dialog=False)
             if not self.winfo_exists():
                 return
         self.lift()
@@ -341,8 +343,10 @@ class MaterialFormDialog(ctk.CTkToplevel):
                 cat_id = _get_value(cat, "id")
                 if name is not None and cat_id is not None:
                     options[name] = cat_id
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load categories", show_dialog=False)
         except Exception as e:
-            print(f"Error loading categories: {e}")
+            handle_error(e, parent=self, operation="Load categories", show_dialog=False)
         return options
 
     def _on_l0_change(self, value: str):
@@ -370,8 +374,12 @@ class MaterialFormDialog(ctk.CTkToplevel):
             else:
                 self.l1_dropdown.configure(values=["(No subcategories)"], state="disabled")
                 self.l1_var.set("(No subcategories)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load subcategories", show_dialog=False)
+            self.l1_dropdown.configure(values=["(Error loading)"], state="disabled")
+            self.l1_var.set("(Error loading)")
         except Exception as e:
-            print(f"Error loading subcategories: {e}")
+            handle_error(e, parent=self, operation="Load subcategories", show_dialog=False)
             self.l1_dropdown.configure(values=["(Error loading)"], state="disabled")
             self.l1_var.set("(Error loading)")
 
@@ -455,9 +463,11 @@ class MaterialFormDialog(ctk.CTkToplevel):
             self.deleted = True
             self.destroy()
         except ValidationError as e:
-            messagebox.showerror("Cannot Delete", str(e))
+            handle_error(e, parent=self, operation="Delete material")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete material")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to delete material: {e}")
+            handle_error(e, parent=self, operation="Delete material")
 
 
 class MaterialProductFormDialog(ctk.CTkToplevel):
@@ -528,7 +538,8 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except Exception as e:
+            handle_error(e, parent=self, operation="Initialize dialog", show_dialog=False)
             if not self.winfo_exists():
                 return
         self.lift()
@@ -556,8 +567,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
                             "id": mat_id,
                             "base_unit": base_unit,
                         }
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load materials", show_dialog=False)
         except Exception as e:
-            print(f"Error loading materials: {e}")
+            handle_error(e, parent=self, operation="Load materials", show_dialog=False)
 
         # Load suppliers
         self._suppliers: Dict[str, int] = {}
@@ -569,8 +582,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
                     self._suppliers[sup["name"]] = sup["id"]
                 else:
                     self._suppliers[sup.name] = sup.id
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load suppliers", show_dialog=False)
         except Exception as e:
-            print(f"Error loading suppliers: {e}")
+            handle_error(e, parent=self, operation="Load suppliers", show_dialog=False)
 
     def _create_form(self):
         """Create form fields."""
@@ -792,8 +807,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
                     unit.name,
                     qty_display,
                 ), iid=str(unit.id))
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load units", show_dialog=False)
         except Exception as e:
-            print(f"Error loading units: {e}")
+            handle_error(e, parent=self, operation="Load units", show_dialog=False)
 
     def _update_add_unit_button_visibility(self):
         """
@@ -861,9 +878,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
 
             if dialog.result:
                 self._refresh_units_list()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Open unit dialog")
         except Exception as e:
-            print(f"Error opening MaterialUnitDialog: {e}")
-            messagebox.showerror("Error", f"Failed to open unit dialog: {e}")
+            handle_error(e, parent=self, operation="Open unit dialog")
 
     def _on_edit_unit_click(self):
         """Open edit dialog for selected unit."""
@@ -888,8 +906,11 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
                 "quantity_per_unit": unit.quantity_per_unit,
                 "description": unit.description,
             }
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load unit")
+            return
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load unit: {e}")
+            handle_error(e, parent=self, operation="Load unit")
             return
 
         try:
@@ -905,9 +926,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
 
             if dialog.result:
                 self._refresh_units_list()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Open unit dialog")
         except Exception as e:
-            print(f"Error opening MaterialUnitDialog: {e}")
-            messagebox.showerror("Error", f"Failed to open unit dialog: {e}")
+            handle_error(e, parent=self, operation="Open unit dialog")
 
     def _on_delete_unit_click(self):
         """Delete selected unit with confirmation."""
@@ -925,6 +947,8 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         try:
             unit = material_unit_service.get_unit(unit_id=unit_id)
             unit_name = unit.name
+        except ServiceError:
+            unit_name = f"Unit #{unit_id}"
         except Exception:
             unit_name = f"Unit #{unit_id}"
 
@@ -944,8 +968,10 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
                 f"Unit is in use by compositions:\n{', '.join(e.fg_names[:5])}"
                 + (f"\n... and {len(e.fg_names) - 5} more" if len(e.fg_names) > 5 else "")
             )
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete unit")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to delete unit: {e}")
+            handle_error(e, parent=self, operation="Delete unit")
 
     def _on_material_change(self, value: str):
         """Handle material selection - set default package unit and update button visibility."""
@@ -1135,7 +1161,8 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except Exception as e:
+            handle_error(e, parent=self, operation="Initialize dialog", show_dialog=False)
             if not self.winfo_exists():
                 return
         self.lift()
@@ -1152,8 +1179,10 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
                     self._suppliers[sup["name"]] = sup["id"]
                 else:
                     self._suppliers[sup.name] = sup.id
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load suppliers", show_dialog=False)
         except Exception as e:
-            print(f"Error loading suppliers: {e}")
+            handle_error(e, parent=self, operation="Load suppliers", show_dialog=False)
 
     def _create_form(self):
         """Create form fields."""
@@ -1408,7 +1437,8 @@ class AdjustInventoryDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except Exception as e:
+            handle_error(e, parent=self, operation="Initialize dialog", show_dialog=False)
             if not self.winfo_exists():
                 return
         self.lift()
@@ -1621,7 +1651,8 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except Exception as e:
+            handle_error(e, parent=self, operation="Initialize dialog", show_dialog=False)
             if not self.winfo_exists():
                 return
         self.lift()
@@ -1648,8 +1679,10 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
                             "id": mat_id,
                             "base_unit": base_unit,
                         }
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load materials", show_dialog=False)
         except Exception as e:
-            print(f"Error loading materials: {e}")
+            handle_error(e, parent=self, operation="Load materials", show_dialog=False)
 
     def _create_form(self):
         """Create form fields."""
@@ -2035,8 +2068,12 @@ class MaterialsCatalogTab:
             self._update_display()
             count = len(self._materials_data)
             self.update_status(f"{count} material{'s' if count != 1 else ''} loaded")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load materials", show_dialog=False)
+            self.update_status("Error loading materials")
         except Exception as e:
-            self.update_status(f"Error loading materials: {e}")
+            handle_error(e, parent=self, operation="Load materials", show_dialog=False)
+            self.update_status("Error loading materials")
 
     def _load_filter_dropdowns(self):
         """Load data for filter dropdowns."""
@@ -2046,6 +2083,8 @@ class MaterialsCatalogTab:
                 [_get_value(c, "name") or "" for c in categories]
             )
             self.l0_filter_dropdown.configure(values=l0_names)
+        except ServiceError:
+            pass
         except Exception:
             pass
 
@@ -2308,9 +2347,11 @@ class MaterialsCatalogTab:
                 self.refresh()
                 self.update_status(f"Created material: {dialog.result['name']}")
             except ValidationError as e:
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Create material")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Create material")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to create material: {e}")
+                handle_error(e, parent=self, operation="Create material")
 
     def _edit_material(self):
         """Open dialog to edit selected material."""
@@ -2359,9 +2400,11 @@ class MaterialsCatalogTab:
                 self.refresh()
                 self.update_status(f"Updated material: {dialog.result['name']}")
             except ValidationError as e:
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Update material")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update material")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to update material: {e}")
+                handle_error(e, parent=self, operation="Update material")
 
     def update_status(self, message: str):
         """Update the status bar message."""
@@ -2586,8 +2629,12 @@ class MaterialProductsTab:
             self._update_display()
             count = len(self.products)
             self.update_status(f"{count} product{'s' if count != 1 else ''} loaded")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load products", show_dialog=False)
+            self.update_status("Error loading products")
         except Exception as e:
-            self.update_status(f"Error loading products: {e}")
+            handle_error(e, parent=self, operation="Load products", show_dialog=False)
+            self.update_status("Error loading products")
 
     def _load_all_products(self) -> List[Dict[str, Any]]:
         """Load all products with material and supplier info."""
@@ -2634,11 +2681,10 @@ class MaterialProductsTab:
                                     "notes": _get_value(prod, "notes") or "",
                                 }
                             )
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load products", show_dialog=False)
         except Exception as e:
-            print(f"Error loading products: {e}")
-            import traceback
-
-            traceback.print_exc()
+            handle_error(e, parent=self, operation="Load products", show_dialog=False)
         return products
 
     def _load_material_dropdown(self):
@@ -2784,9 +2830,11 @@ class MaterialProductsTab:
                 self.refresh()
                 self.update_status(f"Created product: {dialog.result['name']}")
             except ValidationError as e:
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Create product")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Create product")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to create product: {e}")
+                handle_error(e, parent=self, operation="Create product")
 
     def _edit_product(self):
         """Open dialog to edit selected product."""
@@ -2826,9 +2874,11 @@ class MaterialProductsTab:
                 self.refresh()
                 self.update_status(f"Updated product: {dialog.result['name']}")
             except ValidationError as e:
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Update product")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update product")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to update product: {e}")
+                handle_error(e, parent=self, operation="Update product")
 
     def _record_purchase(self):
         """Open dialog to record a purchase."""
@@ -2866,9 +2916,11 @@ class MaterialProductsTab:
                 self.refresh()
                 self.update_status(f"Recorded purchase for: {product_data['name']}")
             except ValidationError as e:
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Record purchase")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Record purchase")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to record purchase: {e}")
+                handle_error(e, parent=self, operation="Record purchase")
 
     def _adjust_inventory(self):
         """Legacy inventory adjustment - disabled for FIFO (F058).
@@ -3098,8 +3150,12 @@ class MaterialUnitsTab:
             self._update_display()
             count = len(self.units)
             self.update_status(f"{count} unit{'s' if count != 1 else ''} loaded")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load units", show_dialog=False)
+            self.update_status("Error loading units")
         except Exception as e:
-            self.update_status(f"Error loading units: {e}")
+            handle_error(e, parent=self, operation="Load units", show_dialog=False)
+            self.update_status("Error loading units")
 
     def _load_all_units(self) -> List[Dict[str, Any]]:
         """
@@ -3140,10 +3196,14 @@ class MaterialUnitsTab:
                 # Get computed values
                 try:
                     available = material_unit_service.get_available_inventory(unit_id)
+                except ServiceError:
+                    available = 0
                 except Exception:
                     available = 0
                 try:
                     cost = material_unit_service.get_current_cost(unit_id)
+                except ServiceError:
+                    cost = None
                 except Exception:
                     cost = None
 
@@ -3162,8 +3222,10 @@ class MaterialUnitsTab:
                         "cost": cost,
                     }
                 )
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load units", show_dialog=False)
         except Exception as e:
-            print(f"Error loading units: {e}")
+            handle_error(e, parent=self, operation="Load units", show_dialog=False)
             import traceback
             traceback.print_exc()
         return units
