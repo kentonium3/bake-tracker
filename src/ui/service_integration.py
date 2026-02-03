@@ -28,7 +28,6 @@ R = TypeVar("R")
 # Service layer exceptions
 from src.services.exceptions import (
     ServiceError,
-    ServiceException,
     ValidationError,
     DatabaseError,
     IngredientNotFoundBySlug,
@@ -347,8 +346,8 @@ class UIServiceIntegrator:
             dep_list = ", ".join(f"{count} {entity}" for entity, count in deps.items() if count > 0)
             return f"{ctx_prefix}Cannot delete this product: it's being used in {dep_list}."
 
-        # Handle legacy service exceptions
-        if isinstance(exception, ServiceException) or isinstance(exception, ServiceError):
+        # Handle service exceptions
+        if isinstance(exception, ServiceError):
             return f"{ctx_prefix}{str(exception)}"
 
         # Generic error fallback

@@ -27,8 +27,6 @@ Exception Hierarchy:
     ├── PlanStateError (409)
     └── DatabaseError (500)
 
-    ServiceException (DEPRECATED - use ServiceError instead)
-
 HTTP Status Code Mapping:
     404 - Not Found (entity lookup failures)
     400 - Validation Error (input validation failures)
@@ -37,7 +35,6 @@ HTTP Status Code Mapping:
     500 - Server Error (database, unexpected errors)
 """
 
-import warnings
 from typing import Any, Dict, List, Optional
 
 
@@ -80,24 +77,6 @@ class ServiceError(Exception):
             "http_status_code": self.http_status_code,
             "context": self.context,
         }
-
-
-class ServiceException(Exception):
-    """Base exception for all service layer errors (DEPRECATED).
-
-    .. deprecated::
-        Use ServiceError instead. ServiceException will be removed in a future version.
-
-    Note: New code should use ServiceError instead.
-    """
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "ServiceException is deprecated. Use ServiceError instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        super().__init__(*args, **kwargs)
 
 
 class IngredientNotFound(ServiceError):

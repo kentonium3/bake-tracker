@@ -244,7 +244,6 @@ from .assembly_service import (
 # Infrastructure exports for new service layer
 from .exceptions import (
     ServiceError,
-    ServiceException,
     IngredientNotFoundBySlug,
     ProductNotFound,
     InventoryItemNotFound,
@@ -408,7 +407,6 @@ __all__ = [
     "ProductionAssignmentNotFoundError",
     # Infrastructure - Exception hierarchy
     "ServiceError",
-    "ServiceException",
     "IngredientNotFoundBySlug",
     "ProductNotFound",
     "InventoryItemNotFound",

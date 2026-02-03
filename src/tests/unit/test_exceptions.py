@@ -60,14 +60,11 @@ class TestExceptionHierarchy:
         return get_all_exception_classes()
 
     def test_all_domain_exceptions_inherit_from_service_error(self, all_exceptions):
-        """All domain exceptions must inherit from ServiceError.
-
-        Excludes the deprecated ServiceException which is intentionally separate.
-        """
+        """All domain exceptions must inherit from ServiceError."""
         failures = []
         for name, exc_class in all_exceptions:
-            # Skip ServiceError itself and deprecated ServiceException
-            if exc_class is ServiceError or name == 'ServiceException':
+            # Skip ServiceError itself
+            if exc_class is ServiceError:
                 continue
             if not issubclass(exc_class, ServiceError):
                 failures.append(f"{name} does not inherit from ServiceError")
@@ -75,15 +72,9 @@ class TestExceptionHierarchy:
         assert not failures, "Exceptions not inheriting from ServiceError:\n" + "\n".join(failures)
 
     def test_all_exceptions_have_http_status_code(self, all_exceptions):
-        """All exceptions must have http_status_code attribute.
-
-        Excludes deprecated ServiceException.
-        """
+        """All exceptions must have http_status_code attribute."""
         failures = []
         for name, exc_class in all_exceptions:
-            # Skip deprecated ServiceException
-            if name == 'ServiceException':
-                continue
             if not hasattr(exc_class, 'http_status_code'):
                 failures.append(f"{name} missing http_status_code")
 
@@ -94,9 +85,6 @@ class TestExceptionHierarchy:
         valid_codes = [400, 404, 409, 422, 500]
         failures = []
         for name, exc_class in all_exceptions:
-            # Skip deprecated ServiceException
-            if name == 'ServiceException':
-                continue
             if hasattr(exc_class, 'http_status_code'):
                 code = exc_class.http_status_code
                 if code not in valid_codes:

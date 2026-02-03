@@ -47,8 +47,9 @@ This document provides a comprehensive analysis of architectural best practices 
 ### Current State
 
 **Good foundations:**
-- Custom exception hierarchy exists (`ServiceException`, `ServiceError` base classes)
-- Domain-specific exceptions (`IngredientNotFoundBySlug`, `ProductNotFound`, `ValidationError`)
+- Unified exception hierarchy (`ServiceError` base class) - F089 consolidated legacy `ServiceException`
+- Domain-specific exceptions with HTTP status codes (`IngredientNotFoundBySlug`, `ProductNotFound`, `ValidationError`)
+- Centralized UI error handler (`src/ui/utils/error_handler.py`) - added in F089
 - Structured logging utilities (`logging_utils.py`)
 
 **Key files:**
@@ -67,12 +68,8 @@ This document provides a comprehensive analysis of architectural best practices 
        print(f"ERROR: {e}")  # Generic catch-all
    ```
 
-2. **Mixed exception bases:**
-   ```python
-   # exceptions.py shows both:
-   class ServiceException(Exception):  # Legacy
-   class ServiceError(Exception):      # New
-   ```
+2. **~~Mixed exception bases~~ (RESOLVED in F089):**
+   Single `ServiceError` base class with all domain exceptions inheriting from it.
 
 3. **Mixed user/developer error messages:**
    ```python
