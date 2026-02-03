@@ -31,6 +31,8 @@ from src.models import (
 from src.services.database import session_scope
 from src.services.exceptions import (
     RecipeNotFound,
+    RecipeNotFoundBySlug,
+    RecipeNotFoundByName,
     IngredientNotFound,
     ValidationError,
     DatabaseError,
@@ -188,7 +190,7 @@ def _generate_unique_slug(
 
 def get_recipe_by_slug(
     slug: str, session: Optional[Session] = None
-) -> Optional[Recipe]:
+) -> Recipe:
     """
     Retrieve a recipe by its slug or previous_slug.
 
@@ -204,9 +206,10 @@ def get_recipe_by_slug(
         session: Optional session (creates new one if not provided)
 
     Returns:
-        Recipe instance if found, None otherwise
+        Recipe instance
 
     Raises:
+        RecipeNotFoundBySlug: If recipe doesn't exist
         DatabaseError: If database operation fails
     """
     def _query(sess: Session) -> Optional[Recipe]:
@@ -222,20 +225,22 @@ def get_recipe_by_slug(
     try:
         if session is not None:
             recipe = _query(session)
-            if recipe:
-                # Eagerly load relationships
-                _ = recipe.recipe_ingredients
-                for ri in recipe.recipe_ingredients:
-                    _ = ri.ingredient
+            if not recipe:
+                raise RecipeNotFoundBySlug(slug)
+            # Eagerly load relationships
+            _ = recipe.recipe_ingredients
+            for ri in recipe.recipe_ingredients:
+                _ = ri.ingredient
             return recipe
         else:
             with session_scope() as sess:
                 recipe = _query(sess)
-                if recipe:
-                    # Eagerly load relationships
-                    _ = recipe.recipe_ingredients
-                    for ri in recipe.recipe_ingredients:
-                        _ = ri.ingredient
+                if not recipe:
+                    raise RecipeNotFoundBySlug(slug)
+                # Eagerly load relationships
+                _ = recipe.recipe_ingredients
+                for ri in recipe.recipe_ingredients:
+                    _ = ri.ingredient
                 return recipe
 
     except SQLAlchemyError as e:
@@ -484,7 +489,7 @@ def get_all_recipes(
         raise DatabaseError("Failed to retrieve recipes", e)
 
 
-def get_recipe_by_name(name: str) -> Optional[Recipe]:
+def get_recipe_by_name(name: str) -> Recipe:
     """
     Retrieve a recipe by its exact name.
 
@@ -496,30 +501,33 @@ def get_recipe_by_name(name: str) -> Optional[Recipe]:
         name: Exact recipe name
 
     Returns:
-        Recipe instance if found, None otherwise
+        Recipe instance
 
     Raises:
+        RecipeNotFoundByName: If recipe doesn't exist
         DatabaseError: If database operation fails
     """
     try:
         with session_scope() as session:
             recipe = session.query(Recipe).filter_by(name=name).first()
 
-            if recipe:
-                # Eagerly load relationships
-                _ = recipe.recipe_ingredients
-                for ri in recipe.recipe_ingredients:
-                    _ = ri.ingredient
-                    # Load products for cost calculation (get_preferred_product())
-                    if ri.ingredient:
-                        _ = ri.ingredient.products
-                        # Also load purchases for cost calculation (get_current_cost_per_unit())
-                        for product in ri.ingredient.products:
-                            _ = product.purchases
+            if not recipe:
+                raise RecipeNotFoundByName(name)
 
-                _ = recipe.recipe_components
-                for comp in recipe.recipe_components:
-                    _ = comp.component_recipe
+            # Eagerly load relationships
+            _ = recipe.recipe_ingredients
+            for ri in recipe.recipe_ingredients:
+                _ = ri.ingredient
+                # Load products for cost calculation (get_preferred_product())
+                if ri.ingredient:
+                    _ = ri.ingredient.products
+                    # Also load purchases for cost calculation (get_current_cost_per_unit())
+                    for product in ri.ingredient.products:
+                        _ = product.purchases
+
+            _ = recipe.recipe_components
+            for comp in recipe.recipe_components:
+                _ = comp.component_recipe
 
             return recipe
 

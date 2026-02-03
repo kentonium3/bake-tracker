@@ -15,7 +15,7 @@ import tempfile
 import pytest
 
 from src.services import recipe_service, import_export_service, ingredient_service
-from src.services.exceptions import ValidationError
+from src.services.exceptions import RecipeNotFoundByName, ValidationError
 from src.models import Recipe, RecipeIngredient, RecipeComponent
 
 
@@ -267,9 +267,10 @@ class TestQuickstartChecklist:
         # Now delete B (should succeed)
         recipe_service.delete_recipe(recipe_b.id)
 
-        # Verify B is gone (get_recipe raises RecipeNotFound, get_recipe_by_name returns None)
-        deleted = recipe_service.get_recipe_by_name("Recipe B")
-        assert deleted is None
+        # Verify B is gone (get_recipe_by_name raises RecipeNotFoundByName)
+        with pytest.raises(RecipeNotFoundByName) as exc:
+            recipe_service.get_recipe_by_name("Recipe B")
+        assert exc.value.name == "Recipe B"
 
 
 # =============================================================================
@@ -521,8 +522,9 @@ class TestImportExportRoundTrip:
             recipe_service.delete_recipe(child.id)
             recipe_service.delete_recipe(grandchild.id)
 
-            # Verify deleted
-            assert recipe_service.get_recipe_by_name("Parent Export") is None
+            # Verify deleted (raises exception for non-existent recipe)
+            with pytest.raises(RecipeNotFoundByName):
+                recipe_service.get_recipe_by_name("Parent Export")
 
             # Re-import using the current importer with merge mode
             import_result = import_export_service.import_all_from_json_v4(export_file, mode="merge")
@@ -588,7 +590,8 @@ class TestBackwardCompatibility:
 
         # Delete should work
         recipe_service.delete_recipe(recipe.id)
-        assert recipe_service.get_recipe_by_name("Updated Simple") is None
+        with pytest.raises(RecipeNotFoundByName):
+            recipe_service.get_recipe_by_name("Updated Simple")
 
     def test_recipe_cost_without_components_unchanged(self, test_ingredient):
         """Cost calculation unchanged for recipes without components."""

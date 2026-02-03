@@ -13,7 +13,7 @@ from src.models import Recipe
 from src.services import recipe_service
 from src.services.recipe_service import _generate_slug, _generate_unique_slug
 from src.services.database import session_scope
-from src.services.exceptions import ValidationError
+from src.services.exceptions import RecipeNotFoundBySlug, ValidationError
 
 
 # Note: Tests use `test_db` fixture from conftest.py which yields a Session
@@ -346,9 +346,10 @@ class TestGetRecipeBySlug:
         assert found.name == "New Name"
 
     def test_get_by_nonexistent_slug(self, test_db):
-        """Returns None for non-existent slug."""
-        found = recipe_service.get_recipe_by_slug("nonexistent-slug")
-        assert found is None
+        """Raises RecipeNotFoundBySlug for non-existent slug."""
+        with pytest.raises(RecipeNotFoundBySlug) as exc:
+            recipe_service.get_recipe_by_slug("nonexistent-slug")
+        assert exc.value.slug == "nonexistent-slug"
 
     def test_current_slug_takes_priority(self, test_db):
         """If a current slug matches, returns that recipe (not previous_slug match)."""

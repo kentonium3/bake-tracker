@@ -23,6 +23,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from src.services.exceptions import RecipeNotFoundByName
 from src.services.import_export_service import (
     ExportResult,
     ImportResult,
@@ -1515,8 +1516,9 @@ class TestRecipeComponentImport:
         recipe_service.delete_recipe(parent.id)
         recipe_service.delete_recipe(child.id)
 
-        # Verify deleted
-        assert recipe_service.get_recipe_by_name("Import Test Parent") is None
+        # Verify deleted (raises exception for non-existent recipe)
+        with pytest.raises(RecipeNotFoundByName):
+            recipe_service.get_recipe_by_name("Import Test Parent")
 
         # Import
         result = import_all_from_json_v4(str(export_file), mode="merge")
