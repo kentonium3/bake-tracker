@@ -177,10 +177,10 @@
 **Prompt**: `/tasks/WP07-unit-converter-updates.md`
 
 ### Included Subtasks
-- [ ] T038 Update `unit_converter.py` functions (5 functions)
-- [ ] T039 Update `material_unit_converter.py` functions (4 functions)
-- [ ] T040 Update calling code for converters
-- [ ] T041 Update converter tests
+- [x] T038 Update `unit_converter.py` functions (5 functions)
+- [x] T039 Update `material_unit_converter.py` functions (4 functions)
+- [x] T040 Update calling code for converters
+- [x] T041 Update converter tests
 
 ### Implementation Notes
 - Converters return `Tuple[bool, float, str]` pattern
