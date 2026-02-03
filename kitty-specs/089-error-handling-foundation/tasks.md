@@ -374,13 +374,13 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T063 Update `src/services/import_export_service.py` (35 occurrences)
-- [ ] T064 Update `src/ui/import_export_dialog.py` (11 occurrences)
-- [ ] T065 [P] Update `src/utils/import_export_cli.py` (25 occurrences)
-- [ ] T066 [P] Update `src/utils/backup_validator.py` (6 occurrences)
-- [ ] T067 [P] Update `src/ui/catalog_import_dialog.py` (1 occurrence)
-- [ ] T068 [P] Update `src/main.py` (3 occurrences)
-- [ ] T069 [P] Update remaining services with generic catches
+- [x] T063 Update `src/services/import_export_service.py` (35 occurrences)
+- [x] T064 Update `src/ui/import_export_dialog.py` (11 occurrences)
+- [x] T065 [P] Update `src/utils/import_export_cli.py` (25 occurrences)
+- [x] T066 [P] Update `src/utils/backup_validator.py` (6 occurrences)
+- [x] T067 [P] Update `src/ui/catalog_import_dialog.py` (1 occurrence)
+- [x] T068 [P] Update `src/main.py` (3 occurrences)
+- [x] T069 [P] Update remaining services with generic catches
 
 ### Implementation Notes
 - import_export_service is the largest file (35 occurrences) - handle carefully
