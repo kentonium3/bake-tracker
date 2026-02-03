@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Production & Assembly Services
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -13,8 +13,8 @@ subtasks:
 - T018
 phase: Phase 2 - Documentation
 assignee: ''
-agent: ''
-shell_pid: "29745"
+agent: "codex-wp05"
+shell_pid: "44341"
 review_status: ''
 reviewed_by: ''
 history:
@@ -209,3 +209,4 @@ This is another GOLD STANDARD example. Verify it documents:
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T05:29:15Z – unknown – shell_pid=29745 – lane=for_review – Ready for review: Added transaction boundary docs to batch_production_service.py (8 entries) and assembly_service.py (11 entries). GOLD STANDARD Pattern C verified for record_batch_production and record_assembly. All 340 tests pass.
+- 2026-02-03T06:20:40Z – codex-wp05 – shell_pid=44341 – lane=doing – Started review via workflow command
