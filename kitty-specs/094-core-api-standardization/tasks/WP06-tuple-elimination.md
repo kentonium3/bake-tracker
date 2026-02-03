@@ -8,10 +8,10 @@ subtasks:
   - "T037"
 title: "Tuple Return Elimination"
 phase: "Phase 3 - Tuple Elimination"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: "codex"
-shell_pid: "51956"
+agent: "claude"
+shell_pid: "36763"
 review_status: "has_feedback"
 reviewed_by: "Kent Gale"
 dependencies: []
@@ -228,3 +228,4 @@ Run validator tests:
 - 2026-02-03T17:24:32Z – claude – shell_pid=9362 – lane=for_review – T033-T037 complete: Eliminated tuple returns from validators.py, ingredient_service.py, purchase_service.py. All 3493 tests pass.
 - 2026-02-03T22:35:36Z – codex – shell_pid=51956 – lane=doing – Started review via workflow command
 - 2026-02-03T22:36:59Z – codex – shell_pid=51956 – lane=planned – Moved to planned
+- 2026-02-03T22:47:52Z – claude – shell_pid=36763 – lane=doing – Started implementation via workflow command
