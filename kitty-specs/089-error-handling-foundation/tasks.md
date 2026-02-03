@@ -95,11 +95,11 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T014 Create `src/ui/utils/__init__.py` and `error_handler.py` module structure
-- [ ] T015 Implement `handle_error()` main function with exception type dispatch
-- [ ] T016 Implement `_get_user_message()` with complete exception type mapping
-- [ ] T017 Implement `_log_error()` with structured logging (correlation_id, context)
-- [ ] T018 Create unit tests in `src/tests/unit/test_error_handler.py`
+- [x] T014 Create `src/ui/utils/__init__.py` and `error_handler.py` module structure
+- [x] T015 Implement `handle_error()` main function with exception type dispatch
+- [x] T016 Implement `_get_user_message()` with complete exception type mapping
+- [x] T017 Implement `_log_error()` with structured logging (correlation_id, context)
+- [x] T018 Create unit tests in `src/tests/unit/test_error_handler.py`
 
 ### Implementation Notes
 - Handler must work with both `ServiceError` subclasses and bare `Exception`
