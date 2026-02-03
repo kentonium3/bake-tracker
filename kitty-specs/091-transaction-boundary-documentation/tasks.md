@@ -106,10 +106,10 @@
 **Agent**: Claude (complex multi-step operations)
 
 ### Included Subtasks
-- [ ] T011 [P] Document inventory_item_service.py (~19 functions, 9 MULTI)
-- [ ] T012 [P] Document purchase_service.py (~26 functions, 12 MULTI)
-- [ ] T013 Verify consume_fifo documentation is complete (already has partial docs)
-- [ ] T014 Verify record_purchase documentation is complete (already has partial docs)
+- [x] T011 [P] Document inventory_item_service.py (~19 functions, 9 MULTI)
+- [x] T012 [P] Document purchase_service.py (~26 functions, 12 MULTI)
+- [x] T013 Verify consume_fifo documentation is complete (already has partial docs)
+- [x] T014 Verify record_purchase documentation is complete (already has partial docs)
 
 ### Implementation Notes
 - These services have most MULTI functions
