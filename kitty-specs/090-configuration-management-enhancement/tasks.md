@@ -23,7 +23,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T001 Add database connection properties (db_timeout, db_pool_size, db_pool_recycle) to `src/utils/config.py`
+- [x] T001 Add database connection properties (db_timeout, db_pool_size, db_pool_recycle) to `src/utils/config.py`
 - [ ] T002 Add database_type property and update database_url for PostgreSQL support in `src/utils/config.py`
 - [ ] T003 Add db_connect_args computed property in `src/utils/config.py`
 - [ ] T004 Add feature_flags dictionary property in `src/utils/config.py`
