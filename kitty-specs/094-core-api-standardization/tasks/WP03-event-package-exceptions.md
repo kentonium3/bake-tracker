@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Event & Package Service Updates
+lane: "doing"
+dependencies: [WP01]
+base_branch: 094-core-api-standardization-WP01
+base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
+created_at: '2026-02-03T16:30:03.623113+00:00'
 subtasks:
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-title: "Event & Package Service Updates"
-phase: "Phase 2 - Core Services"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T014
+- T015
+- T016
+- T017
+- T018
+- T019
+phase: Phase 2 - Core Services
+assignee: ''
+agent: ''
+shell_pid: "3112"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T16:10:45Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T16:10:45Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Event & Package Service Updates
