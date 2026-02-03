@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe & Ingredient Service Updates
-lane: "for_review"
+lane: "done"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -14,10 +14,10 @@ subtasks:
 - T013
 phase: Phase 2 - Core Services
 assignee: ''
-agent: ''
-shell_pid: "1324"
-review_status: ''
-reviewed_by: ''
+agent: "codex"
+shell_pid: "51956"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
@@ -203,3 +203,6 @@ Verify no regressions:
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
 - 2026-02-03T16:29:44Z – unknown – shell_pid=1324 – lane=for_review – Recipe service exception handling complete. get_recipe_by_slug and get_recipe_by_name now raise domain-specific exceptions. UI and tests updated.
+- 2026-02-03T16:45:09Z – codex – shell_pid=51956 – lane=doing – Started review via workflow command
+- 2026-02-03T16:47:53Z – codex – shell_pid=51956 – lane=done – Review passed: recipe service lookups raise RecipeNotFoundBy*; UI/test call sites updated; recipe_slug tests pass
+- 2026-02-03T16:48:32Z – codex – shell_pid=51956 – lane=done – Review passed: recipe service lookups raise RecipeNotFoundBy*; UI/test call sites updated; recipe_slug tests pass
