@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Service Inventory & Templates"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "doing"
 assignee: ""
-agent: "claude"
-shell_pid: "21319"
+agent: "codex-wp01"
+shell_pid: "44126"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -287,3 +287,4 @@ Raises:
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T04:46:43Z – claude – shell_pid=21319 – lane=doing – Started implementation via workflow command
 - 2026-02-03T04:50:14Z – claude – shell_pid=21319 – lane=for_review – Ready for review: Service inventory (~150 functions classified), docstring templates (3 patterns with examples)
+- 2026-02-03T06:20:35Z – codex-wp01 – shell_pid=44126 – lane=doing – Started review via workflow command
