@@ -40,7 +40,8 @@ from src.services.batch_decision_service import (
     delete_batch_decisions,
     BatchDecisionInput,
 )
-from src.services.exceptions import ValidationError, PlanStateError
+from src.services.exceptions import ValidationError, PlanStateError, ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.services.plan_state_service import (
     get_plan_state,
     lock_plan,
@@ -450,8 +451,13 @@ class PlanningTab(ctk.CTkFrame):
 
                 self._update_status(f"Loaded {len(display_events)} event(s)")
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load events", show_dialog=False)
+            self._update_status("Error loading events", is_error=True)
+            self._clear_selection()
         except Exception as e:
-            self._update_status(f"Error loading events: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Load events", show_dialog=False)
+            self._update_status("Error loading events", is_error=True)
             self._clear_selection()
 
     def _clear_selection(self) -> None:
@@ -560,8 +566,12 @@ class PlanningTab(ctk.CTkFrame):
             # Show frame using pack
             self._recipe_selection_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load recipes", show_dialog=False)
+            self._update_status("Error loading recipes", is_error=True)
         except Exception as e:
-            self._update_status(f"Error loading recipes: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Load recipes", show_dialog=False)
+            self._update_status("Error loading recipes", is_error=True)
 
     def _hide_recipe_selection(self) -> None:
         """Hide the recipe selection frame."""
@@ -614,9 +624,12 @@ class PlanningTab(ctk.CTkFrame):
                 f"(plan is {e.current_state.value})",
                 is_error=True,
             )
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save", show_dialog=False)
+            self._update_status("Error saving", is_error=True)
         except Exception as e:
-            # Show error but keep UI state
-            self._update_status(f"Error saving: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Save", show_dialog=False)
+            self._update_status("Error saving", is_error=True)
 
     def _on_recipe_selection_cancel(self) -> None:
         """Handle recipe selection cancel - revert to last saved state."""
@@ -661,8 +674,12 @@ class PlanningTab(ctk.CTkFrame):
             # Show frame using pack
             self._fg_selection_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load finished goods", show_dialog=False)
+            self._update_status("Error loading finished goods", is_error=True)
         except Exception as e:
-            self._update_status(f"Error loading finished goods: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Load finished goods", show_dialog=False)
+            self._update_status("Error loading finished goods", is_error=True)
 
     def _hide_fg_selection(self) -> None:
         """Hide the FG selection frame."""
@@ -719,9 +736,12 @@ class PlanningTab(ctk.CTkFrame):
                 f"(plan is {e.current_state.value})",
                 is_error=True,
             )
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save", show_dialog=False)
+            self._update_status("Error saving", is_error=True)
         except Exception as e:
-            # Show error but keep UI state
-            self._update_status(f"Error saving: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Save", show_dialog=False)
+            self._update_status("Error saving", is_error=True)
 
     def _on_fg_selection_cancel(self) -> None:
         """Handle FG selection cancel - revert to last saved state."""
@@ -790,8 +810,12 @@ class PlanningTab(ctk.CTkFrame):
             self._has_unsaved_batch_changes = False
             self._update_save_button_state()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load batch options", show_dialog=False)
+            self._update_status("Failed to load batch options", is_error=True)
         except Exception as e:
-            self._update_status(f"Failed to load batch options: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Load batch options", show_dialog=False)
+            self._update_status("Failed to load batch options", is_error=True)
 
     def _load_existing_decisions(self) -> None:
         """Load existing batch decisions and pre-select options."""
@@ -807,9 +831,12 @@ class PlanningTab(ctk.CTkFrame):
                     decision.batches,
                 )
 
+        except ServiceError as e:
+            # Log but don't fail - just means no pre-selection
+            handle_error(e, parent=self, operation="Load existing decisions", show_dialog=False)
         except Exception as e:
             # Log but don't fail - just means no pre-selection
-            print(f"Warning: Could not load existing decisions: {e}")
+            handle_error(e, parent=self, operation="Load existing decisions", show_dialog=False)
 
     def _on_batch_selection_change(self, fu_id: int, batches: int) -> None:
         """
@@ -869,9 +896,11 @@ class PlanningTab(ctk.CTkFrame):
         try:
             gap_result = analyze_inventory_gaps(self._selected_event_id)
             self._shopping_summary_frame.update_summary(gap_result)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update shopping summary", show_dialog=False)
+            self._shopping_summary_frame.clear()
         except Exception as e:
-            # Log but don't fail - shopping summary is informational
-            print(f"Warning: Could not update shopping summary: {e}")
+            handle_error(e, parent=self, operation="Update shopping summary", show_dialog=False)
             self._shopping_summary_frame.clear()
 
     def _update_assembly_status(self) -> None:
@@ -883,9 +912,11 @@ class PlanningTab(ctk.CTkFrame):
         try:
             feasibility = calculate_assembly_feasibility(self._selected_event_id)
             self._assembly_status_frame.update_status(feasibility)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update assembly status", show_dialog=False)
+            self._assembly_status_frame.clear()
         except Exception as e:
-            # Log but don't fail - assembly status is informational
-            print(f"Warning: Could not update assembly status: {e}")
+            handle_error(e, parent=self, operation="Update assembly status", show_dialog=False)
             self._assembly_status_frame.clear()
 
     def _show_plan_state_controls(self) -> None:
@@ -897,8 +928,10 @@ class PlanningTab(ctk.CTkFrame):
             state = get_plan_state(self._selected_event_id)
             self._update_plan_state_buttons(state)
             self._plan_state_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Show plan state controls", show_dialog=False)
         except Exception as e:
-            print(f"Warning: Could not show plan state controls: {e}")
+            handle_error(e, parent=self, operation="Show plan state controls", show_dialog=False)
 
     def _hide_plan_state_controls(self) -> None:
         """Hide the plan state controls frame (F077)."""
@@ -957,8 +990,10 @@ class PlanningTab(ctk.CTkFrame):
         try:
             state = get_plan_state(self._selected_event_id)
             self._update_plan_state_buttons(state)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Refresh plan state", show_dialog=False)
         except Exception as e:
-            print(f"Warning: Could not refresh plan state: {e}")
+            handle_error(e, parent=self, operation="Refresh plan state", show_dialog=False)
 
     def _on_lock_plan(self) -> None:
         """Handle Lock Plan button click (F077)."""
@@ -974,11 +1009,14 @@ class PlanningTab(ctk.CTkFrame):
             self._update_assembly_status()
             self._update_production_progress()  # F079
         except PlanStateError as e:
+            handle_error(e, parent=self, operation="Lock plan")
             self._update_status(f"Cannot lock plan: {e}", is_error=True)
-            messagebox.showerror("Lock Failed", str(e))
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Lock plan")
+            self._update_status("Error", is_error=True)
         except Exception as e:
-            self._update_status(f"Error: {e}", is_error=True)
-            messagebox.showerror("Error", f"Failed to lock plan: {e}")
+            handle_error(e, parent=self, operation="Lock plan")
+            self._update_status("Error", is_error=True)
 
     def _on_start_production(self) -> None:
         """Handle Start Production button click (F077)."""
@@ -993,11 +1031,14 @@ class PlanningTab(ctk.CTkFrame):
             self._update_assembly_status()
             self._update_production_progress()  # F079
         except PlanStateError as e:
+            handle_error(e, parent=self, operation="Start production")
             self._update_status(f"Cannot start production: {e}", is_error=True)
-            messagebox.showerror("Start Production Failed", str(e))
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Start production")
+            self._update_status("Error", is_error=True)
         except Exception as e:
-            self._update_status(f"Error: {e}", is_error=True)
-            messagebox.showerror("Error", f"Failed to start production: {e}")
+            handle_error(e, parent=self, operation="Start production")
+            self._update_status("Error", is_error=True)
 
     def _on_complete_production(self) -> None:
         """Handle Complete Production button click (F077)."""
@@ -1020,11 +1061,14 @@ class PlanningTab(ctk.CTkFrame):
             self._update_assembly_status()
             self._update_production_progress()  # F079
         except PlanStateError as e:
+            handle_error(e, parent=self, operation="Complete production")
             self._update_status(f"Cannot complete production: {e}", is_error=True)
-            messagebox.showerror("Complete Production Failed", str(e))
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Complete production")
+            self._update_status("Error", is_error=True)
         except Exception as e:
-            self._update_status(f"Error: {e}", is_error=True)
-            messagebox.showerror("Error", f"Failed to complete production: {e}")
+            handle_error(e, parent=self, operation="Complete production")
+            self._update_status("Error", is_error=True)
 
     def _show_shopping_summary(self) -> None:
         """Show and update shopping summary frame."""
@@ -1071,9 +1115,11 @@ class PlanningTab(ctk.CTkFrame):
 
             progress_list = get_production_progress(self._selected_event_id)
             self._production_progress_frame.update_progress(progress_list)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update production progress", show_dialog=False)
+            self._production_progress_frame.clear()
         except Exception as e:
-            # Log but don't fail - production progress is informational
-            print(f"Warning: Could not update production progress: {e}")
+            handle_error(e, parent=self, operation="Update production progress", show_dialog=False)
             self._production_progress_frame.clear()
 
     def _has_production_for_recipe(self, recipe_id: int) -> bool:
@@ -1141,9 +1187,14 @@ class PlanningTab(ctk.CTkFrame):
                 is_error=True,
             )
         except ValidationError as e:
-            self._update_status(f"Validation error: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Save batch decisions", show_dialog=False)
+            self._update_status("Validation error", is_error=True)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save batch decisions", show_dialog=False)
+            self._update_status("Failed to save batch decisions", is_error=True)
         except Exception as e:
-            self._update_status(f"Failed to save batch decisions: {e}", is_error=True)
+            handle_error(e, parent=self, operation="Save batch decisions", show_dialog=False)
+            self._update_status("Failed to save batch decisions", is_error=True)
 
     def _update_button_states(self) -> None:
         """Update button enabled/disabled states based on selection."""
@@ -1255,8 +1306,12 @@ class PlanningTab(ctk.CTkFrame):
                     font=ctk.CTkFont(size=10),
                 ).pack(anchor="w", padx=15)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Refresh amendment history", show_dialog=False)
+            ctk.CTkLabel(
+                self._history_content,
         except Exception as e:
-            print(f"Warning: Could not refresh amendment history: {e}")
+            handle_error(e, parent=self, operation="Refresh amendment history", show_dialog=False)
             ctk.CTkLabel(
                 self._history_content,
                 text=f"Error loading history: {e}",
@@ -1335,8 +1390,12 @@ class PlanningTab(ctk.CTkFrame):
                     text_color="gray",
                 ).pack(pady=5)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Refresh comparison view", show_dialog=False)
+            ctk.CTkLabel(
+                self._comparison_frame,
         except Exception as e:
-            print(f"Warning: Could not refresh comparison view: {e}")
+            handle_error(e, parent=self, operation="Refresh comparison view", show_dialog=False)
             ctk.CTkLabel(
                 self._comparison_frame,
                 text=f"Error loading comparison: {e}",
@@ -1452,9 +1511,10 @@ class PlanningTab(ctk.CTkFrame):
                 self._update_assembly_status()
                 self._update_production_progress()  # F079: Refresh progress
                 self._update_status("Finished good dropped successfully")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Drop finished good")
             except Exception as e:
-                self._update_status(f"Error: {e}", is_error=True)
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Drop finished good")
 
     def _on_add_fg_click(self) -> None:
         """Handle Add FG button click (F078)."""
@@ -1503,9 +1563,10 @@ class PlanningTab(ctk.CTkFrame):
                 self._update_assembly_status()
                 self._update_production_progress()  # F079: Refresh progress
                 self._update_status("Finished good added successfully")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add finished good")
             except Exception as e:
-                self._update_status(f"Error: {e}", is_error=True)
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Add finished good")
 
     def _on_modify_batch_click(self) -> None:
         """Handle Modify Batch button click (F078).
@@ -1575,9 +1636,10 @@ class PlanningTab(ctk.CTkFrame):
                 self._update_assembly_status()
                 self._update_production_progress()  # F079: Refresh progress
                 self._update_status("Batch count modified successfully")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Modify batch decision")
             except Exception as e:
-                self._update_status(f"Error: {e}", is_error=True)
-                messagebox.showerror("Error", str(e))
+                handle_error(e, parent=self, operation="Modify batch decision")
 
 
 # =============================================================================
