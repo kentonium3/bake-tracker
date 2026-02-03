@@ -24,7 +24,8 @@ from src.services.purchase_service import (
     update_purchase,
     get_remaining_inventory,
 )
-from src.services.exceptions import PurchaseNotFound
+from src.services.exceptions import PurchaseNotFound, ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class EditPurchaseDialog(ctk.CTkToplevel):
@@ -139,10 +140,12 @@ class EditPurchaseDialog(ctk.CTkToplevel):
             )
             self.destroy()
             return False
+        except ServiceError as e:
+            handle_error(e, parent=self.master, operation="Load purchase")
+            self.destroy()
+            return False
         except Exception as e:
-            from tkinter import messagebox
-
-            messagebox.showerror("Error", f"Failed to load purchase: {str(e)}", parent=self.master)
+            handle_error(e, parent=self.master, operation="Load purchase")
             self.destroy()
             return False
 
@@ -154,7 +157,7 @@ class EditPurchaseDialog(ctk.CTkToplevel):
             for s in self.suppliers:
                 name = s.get("name", "Unknown")
                 self.supplier_map[name] = s
-        except Exception:
+        except (ServiceError, Exception):
             self.suppliers = []
             self.supplier_map = {}
 
@@ -167,7 +170,7 @@ class EditPurchaseDialog(ctk.CTkToplevel):
                 self.purchase["quantity_purchased"] * self.purchase["package_unit_quantity"]
             )
             self.consumed_qty = total_units - self.remaining_qty
-        except Exception:
+        except (ServiceError, Exception):
             self.consumed_qty = Decimal("0")
             self.remaining_qty = Decimal("0")
 
@@ -430,7 +433,7 @@ class EditPurchaseDialog(ctk.CTkToplevel):
             else:
                 self.preview_label.configure(text="No changes detected", text_color="gray")
 
-        except Exception:
+        except (ServiceError, Exception):
             self.preview_label.configure(
                 text="Enter valid values to see preview", text_color="orange"
             )
@@ -559,5 +562,7 @@ class EditPurchaseDialog(ctk.CTkToplevel):
 
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update purchase")
         except Exception as e:
-            self._show_error(f"Failed to save: {str(e)}")
+            handle_error(e, parent=self, operation="Update purchase")

@@ -19,7 +19,8 @@ from src.services.purchase_service import (
     get_remaining_inventory,
     get_purchase_usage_history,
 )
-from src.services.exceptions import PurchaseNotFound
+from src.services.exceptions import PurchaseNotFound, ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class PurchaseDetailsDialog(ctk.CTkToplevel):
@@ -106,10 +107,12 @@ class PurchaseDetailsDialog(ctk.CTkToplevel):
             )
             self.destroy()
             return False
+        except ServiceError as e:
+            handle_error(e, parent=self.master, operation="Load purchase details")
+            self.destroy()
+            return False
         except Exception as e:
-            messagebox.showerror(
-                "Error", f"Failed to load purchase details: {str(e)}", parent=self.master
-            )
+            handle_error(e, parent=self.master, operation="Load purchase details")
             self.destroy()
             return False
 
