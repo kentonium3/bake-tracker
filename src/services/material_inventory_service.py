@@ -53,11 +53,14 @@ def get_fifo_inventory(
     """
     Get inventory items for a material product ordered by purchase date (FIFO).
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Returns lots with quantity_remaining > 0.001, ordered oldest first.
 
     Args:
         material_product_id: ID of the MaterialProduct
-        session: Optional database session for transaction composability
+        session: Optional database session for transactional composition
 
     Returns:
         List[MaterialInventoryItem]: Inventory items ordered by purchase_date ASC
@@ -94,11 +97,14 @@ def calculate_available_inventory(
     """
     Calculate total available inventory for a material product.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Sums quantity_remaining across all lots (base units).
 
     Args:
         material_product_id: ID of the MaterialProduct
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         Decimal: Total quantity available in base units (cm or count)
@@ -131,6 +137,20 @@ def consume_material_fifo(
     """
     Consume material inventory using FIFO (First In, First Out) logic.
 
+    Transaction boundary: Multi-step operation (atomic) when dry_run=False.
+    Creates own session if none provided; uses caller's session if passed.
+    Atomicity guarantee: Either ALL lot updates succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Query MaterialProduct to get base_unit_type
+        2. Convert quantity_needed to base units
+        3. Query all lots ordered by purchase_date ASC (oldest first)
+        4. Iterate through lots, consuming from each until quantity satisfied
+        5. Update lot.quantity_remaining for each consumed lot
+        6. Flush changes to database
+
+    CRITICAL: All nested calls receive session to ensure atomicity.
+    When dry_run=True, this becomes a read-only operation (no database writes).
+
     **CRITICAL FUNCTION**: Implements core inventory consumption algorithm.
 
     Algorithm:
@@ -147,7 +167,7 @@ def consume_material_fifo(
         target_unit: Unit that quantity_needed is expressed in
         context_id: Optional reference (e.g., assembly_run_id)
         dry_run: If True, simulate without modifying database
-        session: Optional database session (caller owns transaction if provided)
+        session: Optional database session for transactional composition
 
     Returns:
         Dict with keys:
@@ -282,12 +302,16 @@ def validate_inventory_availability(
     """
     Validate if sufficient inventory exists for given requirements.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+    Uses consume_material_fifo with dry_run=True for each requirement.
+
     Args:
         requirements: List of dicts with keys:
             - "material_product_id" (int): Product to check
             - "quantity_needed" (Decimal): Amount needed
             - "unit" (str): Unit for quantity
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         Dict with keys:
@@ -349,9 +373,12 @@ def get_inventory_by_material(
     """
     Get all inventory items for a material (across all products).
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Args:
         material_id: ID of the Material
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         List[MaterialInventoryItem]: Inventory items ordered by purchase_date ASC
@@ -384,12 +411,15 @@ def get_total_inventory_value(
     """
     Calculate total value of material inventory.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     If material_product_id is provided, calculates for that product only.
     Otherwise calculates for all material inventory.
 
     Args:
         material_product_id: Optional product filter
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         Decimal: Total inventory value (sum of quantity_remaining * cost_per_unit)
@@ -421,7 +451,11 @@ def get_total_inventory_value(
 
 
 def _inventory_item_to_dict(item: MaterialInventoryItem) -> Dict[str, Any]:
-    """Convert a MaterialInventoryItem to a dictionary representation."""
+    """Convert a MaterialInventoryItem to a dictionary representation.
+
+    Transaction boundary: Pure computation (no database access).
+    Converts an already-loaded ORM object to a dict.
+    """
     # Get product info if available
     product = item.product
     product_name = product.name if product else "Unknown"
@@ -456,12 +490,15 @@ def list_inventory_items(
     """
     List all material inventory items with optional filtering.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Used by the UI to display inventory in a treeview with sorting/filtering.
 
     Args:
         product_id: Optional filter by MaterialProduct ID
         include_depleted: If True, include items with quantity_remaining < 0.001
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         List of dicts with inventory item data including product info
@@ -482,7 +519,11 @@ def _list_inventory_items_impl(
     include_depleted: bool,
     session: Session,
 ) -> List[Dict[str, Any]]:
-    """Internal implementation of list_inventory_items."""
+    """Internal implementation of list_inventory_items.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     query = session.query(MaterialInventoryItem).options(
         joinedload(MaterialInventoryItem.product).joinedload(MaterialProduct.material)
     )
@@ -512,6 +553,10 @@ def adjust_inventory(
 ) -> Dict[str, Any]:
     """Adjust inventory quantity for a MaterialInventoryItem.
 
+    Transaction boundary: Single-step write operation.
+    Creates own session if none provided; uses caller's session if passed.
+    Updates quantity_remaining on a single MaterialInventoryItem record.
+
     Args:
         inventory_item_id: The MaterialInventoryItem ID to adjust
         adjustment_type: One of "add", "subtract", "set", "percentage"
@@ -521,7 +566,7 @@ def adjust_inventory(
             - "percentage": Set to percentage of CURRENT quantity (0-100)
         value: The adjustment value (units for add/subtract/set, percent for percentage)
         notes: Optional adjustment reason for audit trail
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         Dict with updated inventory item data
@@ -543,6 +588,11 @@ def _adjust_inventory_impl(
     notes: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
+    """Implementation for adjust_inventory.
+
+    Transaction boundary: Inherits session from caller.
+    Single-step write operation with optional notes appended.
+    """
     # Fetch the inventory item
     item = session.query(MaterialInventoryItem).filter_by(id=inventory_item_id).first()
     if not item:

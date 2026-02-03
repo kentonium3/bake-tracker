@@ -47,6 +47,9 @@ def get_inventory_status(
     """
     Get inventory status for finished goods.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Returns inventory information including current counts, costs, and values
     for FinishedUnits and/or FinishedGoods.
 
@@ -55,7 +58,7 @@ def get_inventory_status(
                    If None, returns both types.
         item_id: Filter to specific item ID. Requires item_type to be set.
         exclude_zero: If True, exclude items with inventory_count == 0.
-        session: Optional SQLAlchemy session. If None, creates own session.
+        session: Optional SQLAlchemy session for transactional composition.
 
     Returns:
         List of dicts with keys:
@@ -82,7 +85,11 @@ def _get_inventory_status_impl(
     exclude_zero: bool,
     session,
 ) -> list[dict]:
-    """Implementation for get_inventory_status."""
+    """Implementation for get_inventory_status.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     # Validate item_type
     valid_types = ("finished_unit", "finished_good")
     if item_type is not None and item_type not in valid_types:
@@ -145,11 +152,14 @@ def get_low_stock_items(
     """
     Get items with inventory below a threshold.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Args:
         threshold: Inventory count threshold. Defaults to DEFAULT_LOW_STOCK_THRESHOLD.
         item_type: Filter by type - "finished_unit" or "finished_good".
                    If None, returns both types.
-        session: Optional SQLAlchemy session.
+        session: Optional SQLAlchemy session for transactional composition.
 
     Returns:
         List of dicts (same structure as get_inventory_status) ordered by
@@ -169,7 +179,11 @@ def _get_low_stock_items_impl(
     item_type: Optional[str],
     session,
 ) -> list[dict]:
-    """Implementation for get_low_stock_items."""
+    """Implementation for get_low_stock_items.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     # Default threshold
     if threshold is None:
         threshold = DEFAULT_LOW_STOCK_THRESHOLD
@@ -231,8 +245,11 @@ def get_total_inventory_value(session=None) -> dict:
     """
     Calculate the total value of all finished goods inventory.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Args:
-        session: Optional SQLAlchemy session.
+        session: Optional SQLAlchemy session for transactional composition.
 
     Returns:
         Dict with keys:
@@ -250,7 +267,11 @@ def get_total_inventory_value(session=None) -> dict:
 
 
 def _get_total_inventory_value_impl(session) -> dict:
-    """Implementation for get_total_inventory_value."""
+    """Implementation for get_total_inventory_value.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     # Initialize accumulators
     finished_units_value = Decimal("0.0000")
     finished_goods_value = Decimal("0.0000")
@@ -295,13 +316,16 @@ def check_availability(
     """
     Check if a quantity is available for consumption.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Does not modify any data - use for availability checks before operations.
 
     Args:
         item_type: "finished_unit" or "finished_good"
         item_id: ID of the item to check
         quantity: Quantity to check availability for (must be positive)
-        session: Optional SQLAlchemy session.
+        session: Optional SQLAlchemy session for transactional composition.
 
     Returns:
         Dict with keys:
@@ -327,7 +351,11 @@ def _check_availability_impl(
     quantity: int,
     session,
 ) -> dict:
-    """Implementation for check_availability."""
+    """Implementation for check_availability.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     # Validate item_type
     valid_types = ("finished_unit", "finished_good")
     if item_type not in valid_types:
@@ -377,13 +405,16 @@ def validate_consumption(
     """
     Validate a consumption request without modifying inventory.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Use for pre-flight validation in UI before actual consumption.
 
     Args:
         item_type: "finished_unit" or "finished_good"
         item_id: ID of the item
         quantity: Quantity to consume (must be positive)
-        session: Optional SQLAlchemy session.
+        session: Optional SQLAlchemy session for transactional composition.
 
     Returns:
         Dict with keys:
@@ -411,7 +442,11 @@ def _validate_consumption_impl(
     quantity: int,
     session,
 ) -> dict:
-    """Implementation for validate_consumption."""
+    """Implementation for validate_consumption.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     # Validate item_type
     valid_types = ("finished_unit", "finished_good")
     if item_type not in valid_types:
@@ -478,6 +513,17 @@ def adjust_inventory(
     """
     Adjust inventory and create an audit trail record.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates own session if none provided; uses caller's session if passed.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Validate item_type and reason
+        2. Fetch the item (FinishedUnit or FinishedGood)
+        3. Validate new_count would be non-negative
+        4. Update item.inventory_count
+        5. Create FinishedGoodsAdjustment audit record
+        6. Flush to database
+
     This is the core mutation function - all inventory changes should flow
     through this function to maintain the audit trail.
 
@@ -487,7 +533,7 @@ def adjust_inventory(
         quantity: Change amount (positive to add, negative to consume)
         reason: Reason for adjustment (must be in FINISHED_GOODS_ADJUSTMENT_REASONS)
         notes: Optional context for the adjustment. Required when reason is "adjustment".
-        session: Optional SQLAlchemy session.
+        session: Optional SQLAlchemy session for transactional composition.
 
     Returns:
         Dict with keys:
@@ -522,7 +568,16 @@ def _adjust_inventory_impl(
     notes: Optional[str],
     session,
 ) -> dict:
-    """Implementation for adjust_inventory."""
+    """Implementation for adjust_inventory.
+
+    Transaction boundary: Inherits session from caller.
+    Multi-step operation within caller's transaction:
+        1. Validate inputs
+        2. Fetch item
+        3. Update inventory_count
+        4. Create audit record
+        5. Flush
+    """
     # Validate item_type
     valid_types = ("finished_unit", "finished_good")
     if item_type not in valid_types:

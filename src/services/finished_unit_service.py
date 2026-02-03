@@ -45,6 +45,9 @@ VALID_YIELD_TYPES = {"EA", "SERVING"}
 def validate_yield_type(yield_type: str) -> List[str]:
     """Validate yield_type value.
 
+    Transaction boundary: Pure computation (no database access).
+    Validates yield_type against allowed values.
+
     Feature 083: Dual-Yield Support
 
     Args:
@@ -107,6 +110,9 @@ class FinishedUnitService:
         """
         Get total count of all FinishedUnits.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit count.
+
         Returns:
             Integer count of FinishedUnit records
 
@@ -127,6 +133,9 @@ class FinishedUnitService:
     def get_finished_unit_by_id(finished_unit_id: int) -> Optional[FinishedUnit]:
         """
         Retrieve a specific FinishedUnit by ID.
+
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit with recipe eager loaded.
 
         Args:
             finished_unit_id: Integer ID of the FinishedUnit
@@ -163,6 +172,9 @@ class FinishedUnitService:
     def get_finished_unit_by_slug(slug: str) -> Optional[FinishedUnit]:
         """
         Retrieve a specific FinishedUnit by slug identifier.
+
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit with indexed slug lookup.
 
         Args:
             slug: String slug identifier
@@ -201,6 +213,9 @@ class FinishedUnitService:
     ) -> List[FinishedUnit]:
         """
         Retrieve all FinishedUnits with optional filtering.
+
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit with optional filters.
 
         Args:
             name_search: Optional name filter (case-insensitive partial match)
@@ -243,6 +258,16 @@ class FinishedUnitService:
     def create_finished_unit(display_name: str, recipe_id: int, **kwargs) -> FinishedUnit:
         """
         Create a new FinishedUnit.
+
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Validate display_name and recipe_id
+            2. Validate yield_type
+            3. Generate unique slug
+            4. Validate recipe reference exists
+            5. Validate name unique within recipe
+            6. Create FinishedUnit record
 
         Args:
             display_name: Required string name
@@ -350,6 +375,15 @@ class FinishedUnitService:
         """
         Update an existing FinishedUnit.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Query existing FinishedUnit
+            2. Validate update values
+            3. Regenerate slug if display_name changed
+            4. Apply updates
+            5. Update timestamps
+
         Args:
             finished_unit_id: ID of FinishedUnit to update
             **updates: Dictionary of fields to update
@@ -446,6 +480,13 @@ class FinishedUnitService:
         """
         Delete a FinishedUnit.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Query FinishedUnit
+            2. Check for composition references
+            3. Delete FinishedUnit
+
         Args:
             finished_unit_id: ID of FinishedUnit to delete
 
@@ -500,6 +541,9 @@ class FinishedUnitService:
         """
         Adjust inventory count for a FinishedUnit.
 
+        Transaction boundary: Single-step write.
+        Updates FinishedUnit.inventory_count atomically.
+
         Args:
             finished_unit_id: ID of FinishedUnit
             quantity_change: Positive or negative integer change
@@ -553,6 +597,9 @@ class FinishedUnitService:
         """
         Check if sufficient inventory exists.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit.inventory_count.
+
         Args:
             finished_unit_id: ID of FinishedUnit to check
             required_quantity: Required quantity
@@ -598,6 +645,9 @@ class FinishedUnitService:
         """
         Search FinishedUnits by display name, category, and notes.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit with text search filters.
+
         Note: Description field removed from search for performance (no index on text field).
 
         Args:
@@ -642,6 +692,9 @@ class FinishedUnitService:
         """
         Get all FinishedUnits associated with a specific recipe.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedUnit filtered by recipe_id.
+
         Args:
             recipe_id: Recipe ID to filter by
 
@@ -672,7 +725,10 @@ class FinishedUnitService:
 
     @staticmethod
     def _generate_slug(display_name: str) -> str:
-        """Generate URL-safe slug from display name."""
+        """Generate URL-safe slug from display name.
+
+        Transaction boundary: Pure computation (no database access).
+        """
         if not display_name:
             return "unknown-item"
 
@@ -700,7 +756,11 @@ class FinishedUnitService:
     def _generate_unique_slug(
         display_name: str, session: Session, exclude_id: Optional[int] = None
     ) -> str:
-        """Generate unique slug, adding suffix if needed."""
+        """Generate unique slug, adding suffix if needed.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only queries within the caller's transaction scope.
+        """
         base_slug = FinishedUnitService._generate_slug(display_name)
 
         # Try base slug first with retry on conflict
@@ -733,6 +793,9 @@ class FinishedUnitService:
     ) -> None:
         """
         Validate that (display_name, yield_type) is unique within a recipe.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only validation within the caller's transaction scope.
 
         Uses case-insensitive comparison to prevent duplicates like
         "Large Cookie" vs "large cookie".

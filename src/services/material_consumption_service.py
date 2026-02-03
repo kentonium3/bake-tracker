@@ -118,7 +118,10 @@ def _get_pending_materials_impl(
     finished_good_id: int,
     session: Session,
 ) -> List[Dict[str, Any]]:
-    """Implementation for get_pending_materials."""
+    """Implementation for get_pending_materials.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Feature 084: generic material placeholders removed (material_id column removed).
     # Pending materials are no longer applicable.
     return []
@@ -131,6 +134,9 @@ def _validate_material_availability_impl(
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation for validate_material_availability.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation; queries compositions and validates availability.
 
     Args:
         finished_good_id: FinishedGood being assembled
@@ -202,6 +208,9 @@ def _decrement_inventory(
 ) -> Dict[str, Any]:
     """Decrease product inventory atomically using FIFO.
 
+    Transaction boundary: Inherits session from caller.
+    Delegates to consume_material_fifo which performs atomic FIFO decrements.
+
     Args:
         product: MaterialProduct to decrement
         base_units_consumed: Amount to decrement (in base units)
@@ -263,6 +272,16 @@ def _record_material_consumption_impl(
     session: Session,
 ) -> List[MaterialConsumption]:
     """Implementation for record_material_consumption.
+
+    Transaction boundary: Inherits session from caller.
+    Multi-step operation (atomic) executed within caller's transaction:
+        1. Validate material availability (read-only)
+        2. Query compositions for FinishedGood
+        3. For each composition, decrement inventory via FIFO
+        4. Create MaterialConsumption records with snapshot data
+        5. Flush to database
+
+    CRITICAL: All nested calls receive session to ensure atomicity.
 
     Args:
         assembly_run_id: ID of the AssemblyRun being recorded
@@ -366,12 +385,15 @@ def get_pending_materials(
 ) -> List[Dict[str, Any]]:
     """Find materials requiring resolution for a FinishedGood.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Feature 084 removed generic material placeholders, so this now returns
     an empty list to preserve API compatibility.
 
     Args:
         finished_good_id: FinishedGood to check
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         List of dicts (empty under Feature 084).
@@ -394,6 +416,9 @@ def validate_material_availability(
 ) -> Dict[str, Any]:
     """Check that all materials have sufficient inventory.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Validates MaterialUnit components only. Generic material placeholders
     were removed in Feature 084; material_assignments is ignored.
 
@@ -401,7 +426,7 @@ def validate_material_availability(
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
         material_assignments: Deprecated (generic material placeholders removed).
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         Dict with:
@@ -440,6 +465,22 @@ def record_material_consumption(
 ) -> List[MaterialConsumption]:
     """Record material consumption with full snapshots and inventory decrements.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates own session if none provided; uses caller's session if passed.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Validate material availability
+        2. Query compositions for FinishedGood
+        3. For each composition with MaterialUnit:
+           a. Calculate needed units
+           b. Decrement inventory using FIFO
+           c. Create MaterialConsumption record with snapshot data
+        4. Flush all records
+
+    CRITICAL: All nested service calls receive session parameter to ensure
+    atomicity. Never create new session_scope() within this function when
+    session is provided.
+
     Creates MaterialConsumption records for all materials used in assembly,
     capturing snapshot data (product name, material name, category, supplier)
     for historical accuracy. Atomically decrements inventory. Supports split
@@ -456,7 +497,7 @@ def record_material_consumption(
             - int (legacy): single product_id (system calculates quantity)
             - Dict[int, float] (new): {product_id: quantity_to_use, ...}
               for split allocation across multiple products
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         List of created MaterialConsumption records
@@ -500,11 +541,14 @@ def get_consumption_history(
 ) -> List[Dict[str, Any]]:
     """Get material consumption records for an assembly run.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Returns snapshot data from consumption records, NOT current catalog data.
 
     Args:
         assembly_run_id: AssemblyRun to query
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         List of consumption records as dicts with snapshot fields

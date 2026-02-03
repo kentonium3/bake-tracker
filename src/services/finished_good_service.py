@@ -87,6 +87,9 @@ class FinishedGoodService:
         """
         Retrieve a specific FinishedGood assembly by ID.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood table with components eager loaded.
+
         Args:
             finished_good_id: Integer ID of the FinishedGood
 
@@ -122,6 +125,9 @@ class FinishedGoodService:
     def get_finished_good_by_slug(slug: str) -> Optional[FinishedGood]:
         """
         Retrieve a specific FinishedGood by slug identifier.
+
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood table with indexed slug lookup.
 
         Args:
             slug: String slug identifier
@@ -159,6 +165,9 @@ class FinishedGoodService:
         """
         Retrieve all FinishedGood assemblies.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood table with components eager loaded.
+
         Returns:
             List of all FinishedGood instances
 
@@ -191,6 +200,16 @@ class FinishedGoodService:
     ) -> FinishedGood:
         """
         Create a new assembly package with optional components.
+
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Validate display_name and assembly_type
+            2. Generate unique slug
+            3. Validate all components exist
+            4. Create FinishedGood record
+            5. Create Composition records for each component
+            6. Validate assembly type business rules
 
         Args:
             display_name: Required string name
@@ -251,7 +270,11 @@ class FinishedGoodService:
         session,
         **kwargs
     ) -> FinishedGood:
-        """Internal implementation of create_finished_good with session."""
+        """Internal implementation of create_finished_good with session.
+
+        Transaction boundary: Inherits session from caller.
+        Multi-step operation within the caller's transaction scope.
+        """
         # Generate unique slug
         slug = FinishedGoodService._generate_slug(display_name.strip())
 
@@ -330,6 +353,15 @@ class FinishedGoodService:
         """
         Update an existing FinishedGood with optional component replacement.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Query existing FinishedGood
+            2. Validate and update scalar fields
+            3. If components provided: validate, delete old, create new compositions
+            4. Validate assembly type business rules
+            5. Update timestamps
+
         Args:
             finished_good_id: ID of FinishedGood to update
             display_name: Optional new display name
@@ -391,7 +423,11 @@ class FinishedGoodService:
         session,
         **updates
     ) -> FinishedGood:
-        """Internal implementation of update_finished_good with session."""
+        """Internal implementation of update_finished_good with session.
+
+        Transaction boundary: Inherits session from caller.
+        Multi-step operation within the caller's transaction scope.
+        """
         assembly = (
             session.query(FinishedGood)
             .options(selectinload(FinishedGood.components))
@@ -478,6 +514,14 @@ class FinishedGoodService:
         """
         Delete a FinishedGood assembly.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Query FinishedGood
+            2. Check for FinishedGood references (used as component)
+            3. Check for event references (used in planning)
+            4. Delete FinishedGood (cascade deletes compositions)
+
         Performs safety checks to prevent deleting FinishedGoods that are:
         - Referenced as components by other FinishedGoods
         - Used in event planning (EventFinishedGood)
@@ -509,7 +553,11 @@ class FinishedGoodService:
 
     @staticmethod
     def _delete_finished_good_impl(finished_good_id: int, session) -> bool:
-        """Internal implementation of delete_finished_good with session."""
+        """Internal implementation of delete_finished_good with session.
+
+        Transaction boundary: Inherits session from caller.
+        Multi-step operation within the caller's transaction scope.
+        """
         assembly = (
             session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
         )
@@ -550,6 +598,9 @@ class FinishedGoodService:
         """
         Check if this FinishedGood is referenced by other FinishedGoods.
 
+        Transaction boundary: Inherits session from caller.
+        Read-only query within the caller's transaction scope.
+
         Args:
             finished_good_id: ID to check for references
             session: Database session
@@ -569,6 +620,9 @@ class FinishedGoodService:
     def _check_event_references(finished_good_id: int, session) -> List[str]:
         """
         Check if this FinishedGood is referenced by events.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only query within the caller's transaction scope.
 
         Args:
             finished_good_id: ID to check for event references
@@ -596,6 +650,9 @@ class FinishedGoodService:
     ) -> None:
         """
         Validate that adding these components won't create circular references.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only validation within the caller's transaction scope.
 
         A circular reference occurs when:
         1. Component is the current FinishedGood itself (A -> A)
@@ -641,6 +698,9 @@ class FinishedGoodService:
         """
         Check if adding target_fg_id as a component of current_fg_id would create a cycle.
 
+        Transaction boundary: Inherits session from caller.
+        Read-only BFS traversal within the caller's transaction scope.
+
         Uses breadth-first search to check if target_fg_id (or any of its descendants)
         contains current_fg_id.
 
@@ -679,6 +739,16 @@ class FinishedGoodService:
     ) -> bool:
         """
         Add a component to an assembly.
+
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Validate assembly exists
+            2. Validate component exists
+            3. Check for circular references (if adding FinishedGood)
+            4. Check component not already in assembly
+            5. Create Composition record
+            6. Recalculate assembly cost
 
         Args:
             finished_good_id: ID of the assembly
@@ -787,6 +857,13 @@ class FinishedGoodService:
         """
         Remove a component from an assembly.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Validate assembly exists
+            2. Find and delete Composition record
+            3. Recalculate assembly cost
+
         Args:
             finished_good_id: ID of the assembly
             composition_id: ID of the composition record to remove
@@ -845,6 +922,13 @@ class FinishedGoodService:
         """
         Update quantity of a component in an assembly.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Validate quantity is positive
+            2. Update Composition.component_quantity
+            3. Recalculate assembly cost
+
         Args:
             composition_id: ID of the composition record
             new_quantity: New quantity value
@@ -891,6 +975,9 @@ class FinishedGoodService:
         """
         Get complete component hierarchy for an assembly.
 
+        Transaction boundary: Read-only operation.
+        Queries Composition table with BFS hierarchy traversal.
+
         Args:
             finished_good_id: ID of the assembly
             flatten: If True, returns flattened list; if False, maintains hierarchy
@@ -930,6 +1017,9 @@ class FinishedGoodService:
     def check_assembly_availability(finished_good_id: int, required_quantity: int = 1) -> dict:
         """
         Check if assembly can be created with available components.
+
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood and component inventory.
 
         Args:
             finished_good_id: ID of the assembly
@@ -971,6 +1061,13 @@ class FinishedGoodService:
     def create_assembly_from_inventory(finished_good_id: int, quantity: int) -> bool:
         """
         Create assemblies by consuming available component inventory.
+
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Check component availability
+            2. For each component: consume from inventory
+            3. Update assembly inventory count
 
         Args:
             finished_good_id: ID of assembly to create
@@ -1035,6 +1132,13 @@ class FinishedGoodService:
         """
         Break down assemblies back into component inventory.
 
+        Transaction boundary: Multi-step operation (atomic).
+        Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+        Steps executed atomically:
+            1. Validate sufficient assembly inventory
+            2. For each component: restore to inventory
+            3. Decrease assembly inventory count
+
         Args:
             finished_good_id: ID of assembly to disassemble
             quantity: Number of assemblies to break down
@@ -1096,6 +1200,9 @@ class FinishedGoodService:
         """
         Ensure adding a component won't create circular references.
 
+        Transaction boundary: Read-only operation.
+        Uses BFS traversal to detect cycles in component graph.
+
         Args:
             finished_good_id: ID of the assembly
             new_component_id: ID of component being added (if it's a FinishedGood)
@@ -1147,6 +1254,9 @@ class FinishedGoodService:
         """
         Search assemblies by name or description.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood with text search filters.
+
         Args:
             query: String search term
 
@@ -1189,6 +1299,9 @@ class FinishedGoodService:
         """
         Get all assemblies of a specific type.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood filtered by assembly_type.
+
         Args:
             assembly_type: AssemblyType enum value
 
@@ -1219,7 +1332,10 @@ class FinishedGoodService:
 
     @staticmethod
     def _generate_slug(display_name: str) -> str:
-        """Generate URL-safe slug from display name."""
+        """Generate URL-safe slug from display name.
+
+        Transaction boundary: Pure computation (no database access).
+        """
         if not display_name:
             return "unknown-assembly"
 
@@ -1247,7 +1363,11 @@ class FinishedGoodService:
     def _generate_unique_slug(
         display_name: str, session: Session, exclude_id: Optional[int] = None
     ) -> str:
-        """Generate unique slug, adding suffix if needed."""
+        """Generate unique slug, adding suffix if needed.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only queries within the caller's transaction scope.
+        """
         base_slug = FinishedGoodService._generate_slug(display_name)
 
         # Check if base slug is already unique
@@ -1279,6 +1399,9 @@ class FinishedGoodService:
     def _validate_components(components: List[dict], session: Session) -> None:
         """
         Validate component data structure and references.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only validation within the caller's transaction scope.
 
         Supports both legacy format (component_type/component_id) and new format (type/id).
 
@@ -1331,6 +1454,9 @@ class FinishedGoodService:
         """
         Validate that the referenced component exists in the database.
 
+        Transaction boundary: Inherits session from caller.
+        Read-only query within the caller's transaction scope.
+
         Args:
             comp_type: Component type ("finished_unit", "material_unit", "finished_good")
             comp_id: Component ID
@@ -1359,6 +1485,9 @@ class FinishedGoodService:
     ) -> Composition:
         """
         Create composition from component specification using factory methods.
+
+        Transaction boundary: Pure computation (no database access).
+        Creates Composition object but does not persist to database.
 
         Supports both legacy format (component_type/component_id) and new format (type/id).
 
@@ -1411,6 +1540,9 @@ class FinishedGoodService:
     def _get_flattened_components(finished_good_id: int, session: Session) -> List[dict]:
         """
         Get all components in a flattened list format.
+
+        Transaction boundary: Inherits session from caller.
+        Read-only BFS traversal within the caller's transaction scope.
 
         Uses breadth-first traversal to flatten the hierarchy and aggregate
         quantities for duplicate components.
@@ -1496,6 +1628,9 @@ class FinishedGoodService:
         """
         Get components maintaining hierarchical structure.
 
+        Transaction boundary: Inherits session from caller.
+        Read-only recursive queries within the caller's transaction scope.
+
         Returns nested structure showing assembly composition levels.
         """
 
@@ -1565,6 +1700,9 @@ class FinishedGoodService:
         """
         Validate complete business rules for an assembly based on its type.
 
+        Transaction boundary: Read-only operation.
+        Queries FinishedGood and validates against business rules.
+
         Args:
             assembly_id: ID of the assembly to validate
 
@@ -1617,6 +1755,9 @@ class FinishedGoodService:
         """
         Get recommendations and guidelines for a specific assembly type.
 
+        Transaction boundary: Pure computation (no database access).
+        Retrieves metadata from AssemblyType enum.
+
         Args:
             assembly_type: AssemblyType enum value
 
@@ -1648,6 +1789,9 @@ class FinishedGoodService:
     def get_assemblies_requiring_attention() -> List[dict]:
         """
         Get assemblies that require attention based on business rules.
+
+        Transaction boundary: Read-only operation.
+        Queries all FinishedGoods and validates business rules.
 
         Returns:
             List of assemblies with issues or recommendations
@@ -1849,6 +1993,16 @@ def create_finished_good_snapshot(
     """
     Create immutable snapshot of FinishedGood definition with all components.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Load FinishedGood with components
+        2. For each component: create FinishedUnit/MaterialUnit/FinishedGood snapshot
+        3. Create FinishedGoodSnapshot record with component references
+
+    CRITICAL: Session parameter is passed to all nested snapshot calls to ensure
+    atomicity across the entire component hierarchy.
+
     Recursively creates snapshots for all FinishedUnit, MaterialUnit,
     and nested FinishedGood components. All snapshots are created in the
     same transaction for atomicity.
@@ -1905,7 +2059,11 @@ def _create_finished_good_snapshot_impl(
     visited_ids: set,
     depth: int,
 ) -> dict:
-    """Internal implementation of snapshot creation."""
+    """Internal implementation of snapshot creation.
+
+    Transaction boundary: Inherits session from caller.
+    Multi-step recursive operation within the caller's transaction scope.
+    """
     # Check max depth FIRST
     if depth > MAX_NESTING_DEPTH:
         raise MaxDepthExceededError(depth, MAX_NESTING_DEPTH)
@@ -1985,6 +2143,9 @@ def _snapshot_component(
 ) -> Optional[dict]:
     """
     Create snapshot for a single component based on its type.
+
+    Transaction boundary: Inherits session from caller.
+    Delegates to type-specific snapshot functions within caller's transaction.
 
     Args:
         composition: Composition model instance
@@ -2069,7 +2230,11 @@ def _snapshot_component(
 def get_finished_good_snapshot(
     snapshot_id: int, session: Session = None
 ) -> Optional[dict]:
-    """Get a FinishedGoodSnapshot by its ID."""
+    """Get a FinishedGoodSnapshot by its ID.
+
+    Transaction boundary: Read-only operation.
+    Queries FinishedGoodSnapshot by ID.
+    """
     if session is not None:
         return _get_finished_good_snapshot_impl(snapshot_id, session)
 
@@ -2080,7 +2245,11 @@ def get_finished_good_snapshot(
 def _get_finished_good_snapshot_impl(
     snapshot_id: int, session: Session
 ) -> Optional[dict]:
-    """Internal implementation of get snapshot."""
+    """Internal implementation of get snapshot.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+    """
     snapshot = session.query(FinishedGoodSnapshot).filter_by(id=snapshot_id).first()
 
     if not snapshot:
@@ -2100,7 +2269,11 @@ def _get_finished_good_snapshot_impl(
 def get_finished_good_snapshots_by_planning_id(
     planning_snapshot_id: int, session: Session = None
 ) -> list:
-    """Get all FinishedGoodSnapshots for a planning snapshot."""
+    """Get all FinishedGoodSnapshots for a planning snapshot.
+
+    Transaction boundary: Read-only operation.
+    Queries FinishedGoodSnapshot by planning_snapshot_id.
+    """
     if session is not None:
         return _get_fg_snapshots_by_planning_impl(planning_snapshot_id, session)
 
@@ -2111,7 +2284,11 @@ def get_finished_good_snapshots_by_planning_id(
 def _get_fg_snapshots_by_planning_impl(
     planning_snapshot_id: int, session: Session
 ) -> list:
-    """Internal implementation of get snapshots by planning ID."""
+    """Internal implementation of get snapshots by planning ID.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+    """
     snapshots = (
         session.query(FinishedGoodSnapshot)
         .filter_by(planning_snapshot_id=planning_snapshot_id)

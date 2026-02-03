@@ -84,6 +84,8 @@ def convert_to_base_units(
 ) -> float:
     """Convert quantity from package unit to metric base units.
 
+    Transaction boundary: Pure computation (no database access).
+
     This is a wrapper around material_unit_converter.convert_to_base_units()
     that maintains backward compatibility with float quantities.
 
@@ -128,6 +130,8 @@ def calculate_weighted_average(
     added_unit_cost: Decimal,
 ) -> Decimal:
     """Calculate new weighted average cost after adding inventory.
+
+    Transaction boundary: Pure computation (no database access).
 
     Formula: (current_qty * current_avg + added_qty * added_cost) / (current_qty + added_qty)
 
@@ -182,6 +186,9 @@ def _create_inventory_item_on_purchase(
     session: Session,
 ) -> MaterialInventoryItem:
     """Create a MaterialInventoryItem for FIFO tracking on purchase.
+
+    Transaction boundary: Inherits session from caller.
+    Single-step write operation within caller's transaction.
 
     This creates a new inventory lot record for the purchase. Each purchase
     creates exactly one MaterialInventoryItem (1:1 relationship).
@@ -250,6 +257,16 @@ def _record_purchase_impl(
     session: Session,
 ) -> MaterialPurchase:
     """Implementation for record_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    Multi-step operation (atomic) executed within caller's transaction:
+        1. Validate product exists
+        2. Validate supplier exists
+        3. Validate input parameters
+        4. Convert units to base units
+        5. Calculate unit cost
+        6. Create MaterialPurchase record
+        7. Create MaterialInventoryItem for FIFO tracking
 
     Feature 058: Now creates MaterialInventoryItem for FIFO tracking instead
     of updating weighted average on MaterialProduct.
@@ -342,6 +359,8 @@ def _adjust_inventory_impl(
 ) -> MaterialProduct:
     """DEPRECATED: Implementation for adjust_inventory.
 
+    Transaction boundary: N/A (raises NotImplementedError).
+
     Feature 058: MaterialProduct no longer tracks current_inventory.
     This function now raises NotImplementedError.
 
@@ -359,7 +378,11 @@ def _get_purchase_impl(
     purchase_id: int,
     session: Session,
 ) -> MaterialPurchase:
-    """Implementation for get_purchase."""
+    """Implementation for get_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     purchase = session.query(MaterialPurchase).filter_by(id=purchase_id).first()
     if not purchase:
         raise ValidationError([f"MaterialPurchase not found: {purchase_id}"])
@@ -374,7 +397,11 @@ def _list_purchases_impl(
     limit: Optional[int],
     session: Session,
 ) -> list:
-    """Implementation for list_purchases."""
+    """Implementation for list_purchases.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation.
+    """
     query = session.query(MaterialPurchase)
 
     if product_id is not None:
@@ -403,6 +430,9 @@ def _get_product_inventory_impl(
     session: Session,
 ) -> dict:
     """Implementation for get_product_inventory.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only operation; aggregates data from MaterialInventoryItem records.
 
     Feature 058: Now aggregates inventory from MaterialInventoryItem records
     using FIFO pattern instead of reading from MaterialProduct fields.
@@ -460,6 +490,21 @@ def record_purchase(
 ) -> MaterialPurchase:
     """Record a material purchase and update inventory atomically.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates own session if none provided; uses caller's session if passed.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Validate product and supplier exist
+        2. Validate input parameters
+        3. Convert package units to base units
+        4. Calculate unit cost
+        5. Create MaterialPurchase record
+        6. Create MaterialInventoryItem for FIFO tracking
+
+    CRITICAL: All nested service calls receive session parameter to ensure
+    atomicity. Never create new session_scope() within this function when
+    session is provided.
+
     Creates a MaterialPurchase record and updates the product's current_inventory
     and weighted_avg_cost in a single transaction.
 
@@ -470,7 +515,7 @@ def record_purchase(
         packages_purchased: Number of packages bought (must be > 0)
         package_price: Price per package (must be >= 0)
         notes: Optional purchase notes
-        session: Optional database session for transaction sharing
+        session: Optional database session for transactional composition
 
     Returns:
         Created MaterialPurchase record
@@ -518,6 +563,10 @@ def adjust_inventory(
 ) -> MaterialProduct:
     """Adjust product inventory manually.
 
+    Transaction boundary: N/A (DEPRECATED - raises NotImplementedError).
+    Feature 058 moved inventory tracking to MaterialInventoryItem.
+    Use MaterialInventoryItem operations for FIFO-based inventory management.
+
     Use this for inventory corrections (shrinkage, counting errors, etc.).
     The weighted_avg_cost is NOT changed by adjustments.
 
@@ -553,9 +602,12 @@ def get_purchase(
 ) -> MaterialPurchase:
     """Retrieve a material purchase by ID.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Args:
         purchase_id: Purchase identifier
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         MaterialPurchase record
@@ -579,13 +631,16 @@ def list_purchases(
 ) -> list:
     """List material purchases with optional filters.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+
     Args:
         product_id: Filter by product
         supplier_id: Filter by supplier
         start_date: Filter by purchase date >= this
         end_date: Filter by purchase date <= this
         limit: Maximum number of results
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         List of MaterialPurchase records, ordered by purchase_date desc
@@ -602,9 +657,13 @@ def get_product_inventory(
 ) -> dict:
     """Get current inventory details for a product.
 
+    Transaction boundary: Read-only operation.
+    Creates own session if none provided; uses caller's session if passed.
+    Aggregates inventory from MaterialInventoryItem records (FIFO pattern).
+
     Args:
         product_id: Product identifier
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         Dict with:
