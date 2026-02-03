@@ -287,12 +287,12 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T041 Create docs/design/transaction_patterns_guide.md
-- [ ] T042 Document Pattern A (Read-Only) with code examples
-- [ ] T043 Document Pattern B (Single-Step Write) with code examples
-- [ ] T044 Document Pattern C (Multi-Step Atomic) with code examples
-- [ ] T045 Document common pitfalls (at least 3 anti-patterns with fixes)
-- [ ] T046 Document session parameter pattern and when to use it
+- [x] T041 Create docs/design/transaction_patterns_guide.md
+- [x] T042 Document Pattern A (Read-Only) with code examples
+- [x] T043 Document Pattern B (Single-Step Write) with code examples
+- [x] T044 Document Pattern C (Multi-Step Atomic) with code examples
+- [x] T045 Document common pitfalls (at least 3 anti-patterns with fixes)
+- [x] T046 Document session parameter pattern and when to use it
 
 ### Implementation Notes
 - Use real code examples from batch_production_service and assembly_service
