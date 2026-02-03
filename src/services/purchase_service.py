@@ -75,12 +75,24 @@ def record_purchase(
 ) -> Purchase:
     """Record a new purchase with automatic unit cost calculation and inventory creation.
 
-    This function creates a purchase record, auto-calculates the unit cost
-    by dividing total_cost by quantity, and creates the linked InventoryItem
-    records atomically. All monetary values use Decimal for precision.
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate product exists
+    2. Find or create Supplier record from store name
+    3. Create Purchase record with calculated unit_price
+    4. Create linked InventoryItem record for FIFO tracking
+
+    CRITICAL: If session is provided, all operations execute within caller's
+    transaction. If session is None, creates own session_scope() for atomicity.
+    Never creates nested session_scope() when session is passed.
 
     Per spec FR-014: System MUST create both Purchase and InventoryItem records
     atomically on save.
+
+    This function creates a purchase record, auto-calculates the unit cost
+    by dividing total_cost by quantity, and creates the linked InventoryItem
+    records atomically. All monetary values use Decimal for precision.
 
     Args:
         product_id: ID of product purchased
@@ -136,7 +148,13 @@ def _record_purchase_impl(
     notes: Optional[str],
     session: Session,
 ) -> Purchase:
-    """Implementation for record_purchase."""
+    """Implementation for record_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). All operations execute within the
+    caller's transaction boundary.
+    """
     # Validate product exists - need to query within session
     product = session.query(Product).filter_by(id=product_id).first()
     if not product:
@@ -231,6 +249,11 @@ def get_purchase(
 ) -> Purchase:
     """Retrieve purchase record by ID with eager-loaded relationships.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
+
     Args:
         purchase_id: Purchase identifier
         session: Optional database session for transaction sharing
@@ -256,7 +279,13 @@ def get_purchase(
 
 
 def _get_purchase_impl(purchase_id: int, session: Session) -> Purchase:
-    """Implementation for get_purchase with eager loading."""
+    """Implementation for get_purchase with eager loading.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). All queries execute within the
+    caller's transaction boundary for read consistency.
+    """
     purchase = (
         session.query(Purchase)
         .options(
@@ -292,6 +321,11 @@ def get_purchase_history(
     limit: Optional[int] = None,
 ) -> List[Purchase]:
     """Retrieve purchase history with flexible filtering.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+    Calls get_ingredient() which uses its own session for ingredient lookup.
 
     This function supports filtering by product, ingredient, date range, and store.
     Results are ordered by purchase_date DESC (most recent first).
@@ -351,6 +385,11 @@ def get_purchase_history(
 def get_most_recent_purchase(product_id: int) -> Optional[Purchase]:
     """Get the most recent purchase for a product.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Calls get_product() for validation (uses its own session), then
+    uses session_scope() internally for the purchase query.
+    Safe to call standalone - no modifications performed.
+
     Args:
         product_id: Product identifier
 
@@ -383,6 +422,11 @@ def get_most_recent_purchase(product_id: int) -> Optional[Purchase]:
 
 def calculate_average_price(product_id: int, days: int = 60) -> Optional[Decimal]:
     """Calculate average unit cost over specified time window.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Calls get_product() for validation (uses its own session), then
+    uses session_scope() internally for aggregation query.
+    Safe to call standalone - no modifications performed.
 
     This function computes the mean unit_cost for all purchases within the
     specified number of days from today. Returns None if no purchases in window.
@@ -432,6 +476,11 @@ def detect_price_change(
     product_id: int, new_unit_cost: Decimal, comparison_days: int = 60
 ) -> Dict[str, Any]:
     """Detect significant price changes compared to historical average.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Calls calculate_average_price() which performs read-only queries.
+    Safe to call standalone - no modifications performed. Each sub-call
+    uses its own session for query isolation.
 
     This function compares a new unit cost against the historical average and
     calculates the percentage change. It categorizes changes using configurable
@@ -522,6 +571,11 @@ def detect_price_change(
 
 def get_price_trend(product_id: int, days: int = 90) -> Dict[str, Any]:
     """Analyze price trend using linear regression.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Calls get_product() for validation, then uses session_scope() for
+    purchase history query. Linear regression is calculated in-memory
+    after query completes. Safe to call standalone - no modifications.
 
     This function performs linear regression on purchase history to identify
     pricing trends over time. It calculates slope (price change per day) and
@@ -628,6 +682,11 @@ def get_last_price_at_supplier(
 ) -> Optional[Dict[str, Any]]:
     """Get last purchase price for product at specific supplier.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
+
     Returns the most recent purchase record for a product at a specific supplier,
     enabling price suggestion hints in the UI when users select a product/supplier
     combination.
@@ -661,7 +720,13 @@ def _get_last_price_at_supplier_impl(
     supplier_id: int,
     session: Session,
 ) -> Optional[Dict[str, Any]]:
-    """Implementation for get_last_price_at_supplier."""
+    """Implementation for get_last_price_at_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .filter(Purchase.product_id == product_id)
@@ -685,6 +750,11 @@ def get_last_price_any_supplier(
     session: Optional[Session] = None,
 ) -> Optional[Dict[str, Any]]:
     """Get last purchase price for product at any supplier.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
 
     Returns the most recent purchase record for a product regardless of supplier,
     used as a fallback price suggestion when no history exists at the selected
@@ -719,7 +789,13 @@ def _get_last_price_any_supplier_impl(
     product_id: int,
     session: Session,
 ) -> Optional[Dict[str, Any]]:
-    """Implementation for get_last_price_any_supplier."""
+    """Implementation for get_last_price_any_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .filter(Purchase.product_id == product_id)
@@ -748,9 +824,18 @@ def delete_purchase(
 ) -> bool:
     """Delete purchase record and linked inventory items.
 
-    Deletes a purchase record along with all linked InventoryItem records.
-    Per spec FR-024: Delete MUST cascade to remove linked InventoryItem records.
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Load purchase with linked inventory items
+    2. Delete all linked InventoryItem records
+    3. Delete the Purchase record
 
+    CRITICAL: If session is provided, all operations execute within caller's
+    transaction. If session is None, creates own session_scope() for atomicity.
+    Never creates nested session_scope() when session is passed.
+
+    Per spec FR-024: Delete MUST cascade to remove linked InventoryItem records.
     This function should only be called after validating with can_delete_purchase()
     that no depletions exist. If depletions exist, the FK constraint on
     InventoryDepletion will prevent deletion.
@@ -783,7 +868,13 @@ def delete_purchase(
 
 
 def _delete_purchase_impl(purchase_id: int, session: Session) -> bool:
-    """Implementation for delete_purchase with cascade to InventoryItems."""
+    """Implementation for delete_purchase with cascade to InventoryItems.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). All delete operations execute within
+    the caller's transaction boundary.
+    """
     try:
         # Load purchase with inventory items
         purchase = (
@@ -825,6 +916,11 @@ def get_purchases_filtered(
     session: Optional[Session] = None,
 ) -> List[Dict]:
     """Get purchase history with filters.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
 
     This function returns purchases filtered by date range, supplier, and search
     query. Results include remaining inventory calculated via FIFO tracking.
@@ -868,7 +964,13 @@ def _get_purchases_filtered_impl(
     search_query: Optional[str],
     session: Session,
 ) -> List[Dict]:
-    """Implementation for get_purchases_filtered."""
+    """Implementation for get_purchases_filtered.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     # Calculate date cutoff based on date_range
     cutoff_date = None
     if date_range == "last_30_days":
@@ -938,6 +1040,11 @@ def get_remaining_inventory(
 ) -> Decimal:
     """Calculate remaining inventory from this purchase.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
+
     Sums current_quantity across all linked InventoryItems for the purchase.
 
     Args:
@@ -966,7 +1073,13 @@ def _get_remaining_inventory_impl(
     purchase_id: int,
     session: Session,
 ) -> Decimal:
-    """Implementation for get_remaining_inventory."""
+    """Implementation for get_remaining_inventory.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .options(joinedload(Purchase.inventory_items))
@@ -991,6 +1104,11 @@ def can_edit_purchase(
     session: Optional[Session] = None,
 ) -> Tuple[bool, str]:
     """Validate if purchase can be edited with new quantity.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
 
     Checks if the new quantity is greater than or equal to the total consumed
     quantity from this purchase. The product cannot be changed.
@@ -1030,7 +1148,13 @@ def _can_edit_purchase_impl(
     new_quantity: Decimal,
     session: Session,
 ) -> Tuple[bool, str]:
-    """Implementation for can_edit_purchase."""
+    """Implementation for can_edit_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .options(
@@ -1071,6 +1195,11 @@ def can_delete_purchase(
 ) -> Tuple[bool, str]:
     """Check if purchase can be deleted.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
+
     A purchase can only be deleted if no inventory from it has been consumed.
 
     Args:
@@ -1106,7 +1235,13 @@ def _can_delete_purchase_impl(
     purchase_id: int,
     session: Session,
 ) -> Tuple[bool, str]:
-    """Implementation for can_delete_purchase."""
+    """Implementation for can_delete_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .options(
@@ -1164,6 +1299,19 @@ def update_purchase(
 ) -> Purchase:
     """Update purchase fields and recalculate FIFO costs if needed.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Load purchase with linked inventory items and depletions
+    2. Validate product_id not changed and quantity >= consumed
+    3. Update purchase fields (date, quantity, price, supplier, notes)
+    4. Recalculate unit_cost on linked InventoryItems if price changed
+    5. Adjust inventory quantities proportionally if quantity changed
+
+    CRITICAL: If session is provided, all operations execute within caller's
+    transaction. If session is None, creates own session_scope() for atomicity.
+    Never creates nested session_scope() when session is passed.
+
     Updates allowed:
     - purchase_date
     - quantity_purchased (if >= consumed)
@@ -1203,7 +1351,13 @@ def _update_purchase_impl(
     updates: Dict[str, Any],
     session: Session,
 ) -> Purchase:
-    """Implementation for update_purchase."""
+    """Implementation for update_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). All update operations execute within
+    the caller's transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .options(
@@ -1309,6 +1463,11 @@ def get_purchase_usage_history(
 ) -> List[Dict]:
     """Get consumption history for a purchase.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
+
     Returns all depletions from inventory items linked to this purchase,
     including the recipe/reason for each consumption.
 
@@ -1346,7 +1505,13 @@ def _get_purchase_usage_history_impl(
     purchase_id: int,
     session: Session,
 ) -> List[Dict]:
-    """Implementation for get_purchase_usage_history."""
+    """Implementation for get_purchase_usage_history.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
     purchase = (
         session.query(Purchase)
         .options(

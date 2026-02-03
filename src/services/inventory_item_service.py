@@ -66,10 +66,17 @@ def add_to_inventory(
 ) -> InventoryItem:
     """Add a new inventory item (lot) to inventory with linked Purchase record.
 
-    This function creates an atomic transaction that:
-    1. Creates a Purchase record linking product, supplier, price, and date
-    2. Creates an InventoryItem with purchase_id set to the new Purchase
-    3. Sets InventoryItem.unit_cost from the purchase unit_price for FIFO costing
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate product and supplier exist
+    2. Create Purchase record linking product, supplier, price, and date
+    3. Create InventoryItem with purchase_id set to the new Purchase
+    4. Set InventoryItem.unit_cost from the purchase unit_price for FIFO costing
+
+    CRITICAL: If session is provided, all operations execute within caller's
+    transaction. If session is None, creates own session_scope() for atomicity.
+    Never creates nested session_scope() when session is passed.
 
     Feature 028: Purchase Tracking & Enhanced Costing
 
@@ -124,7 +131,13 @@ def add_to_inventory(
         raise ServiceValidationError(["Expiration date cannot be before purchase date"])
 
     def _add_to_inventory_impl(sess: Session) -> InventoryItem:
-        """Implementation with provided session."""
+        """Implementation with provided session.
+
+        Transaction boundary: Inherits session from caller.
+        This function MUST be called with an active session - it does not
+        create its own session_scope(). All operations execute within the
+        caller's transaction boundary.
+        """
         # Validate product exists
         product = sess.query(Product).filter(Product.id == product_id).first()
         if not product:
@@ -186,6 +199,10 @@ def get_inventory_items(
 ) -> List[InventoryItem]:
     """Retrieve inventory items with optional filtering.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     This function supports flexible filtering for inventory queries. Items
     are returned ordered by purchase_date (oldest first) for FIFO visibility.
 
@@ -236,6 +253,11 @@ def get_inventory_items(
 def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
     """Calculate total quantity for ingredient grouped by unit.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Performs multiple queries (get_ingredient, get_inventory_items) but
+    no modifications. Each query uses its own session - no atomicity
+    required for read-only aggregation.
+
     This function aggregates inventory across all lots, grouping by unit
     since we no longer convert to a single standard unit.
 
@@ -285,6 +307,19 @@ def consume_fifo(
 
     **CRITICAL FUNCTION**: This implements the core inventory consumption algorithm.
 
+    Transaction boundary: Multi-step atomic operation (when dry_run=False).
+    Atomicity guarantee: Either ALL lot updates succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate ingredient exists
+    2. Query all lots ordered by purchase_date ASC
+    3. Iterate through lots, consuming from oldest first
+    4. Update each lot's quantity within the same transaction
+    5. Return consumption breakdown with cost calculations
+
+    CRITICAL: All nested service calls (get_ingredient) receive session parameter
+    to ensure atomicity. Never creates nested session_scope() when session is passed.
+    When dry_run=True, no database modifications occur (read-only simulation).
+
     Algorithm:
         1. Query all lots for ingredient ordered by purchase_date ASC (oldest first)
         2. Iterate through lots, consuming from each until quantity_needed satisfied
@@ -328,7 +363,13 @@ def consume_fifo(
     from ..services.unit_converter import convert_any_units
 
     def _do_consume(sess):
-        """Inner function that performs the actual FIFO consumption logic."""
+        """Inner function that performs the actual FIFO consumption logic.
+
+        Transaction boundary: Inherits session from caller.
+        This function MUST be called with an active session - it does not
+        create its own session_scope(). All operations (queries and updates)
+        execute within the caller's transaction boundary.
+        """
         # Validate ingredient exists using the provided session
         ingredient = get_ingredient(ingredient_slug, session=sess)
 
@@ -453,6 +494,10 @@ def consume_fifo(
 def get_expiring_soon(days: int = 14) -> List[InventoryItem]:
     """Get inventory items expiring within specified days.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     This function identifies items needing to be used soon to prevent waste.
     Items without expiration dates are excluded.
 
@@ -487,6 +532,10 @@ def get_expiring_soon(days: int = 14) -> List[InventoryItem]:
 
 def update_inventory_item(inventory_item_id: int, item_data: Dict[str, Any]) -> InventoryItem:
     """Update inventory item attributes.
+
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one UPDATE operation within a single transaction.
 
     Allows updating quantity, expiration_date, location, and notes.
     Immutable fields (product_id, purchase_date) cannot be changed to maintain
@@ -554,6 +603,17 @@ def update_inventory_supplier(
     supplier_id: Optional[int],
 ) -> InventoryItem:
     """Update the supplier for an inventory item's linked purchase record.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Load inventory item with linked purchase
+    2. Validate supplier exists (if supplier_id provided)
+    3. Update existing purchase OR create new purchase record
+    4. Link purchase to inventory item if newly created
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error.
 
     If the inventory item doesn't have a linked purchase record, creates one.
     This supports editing supplier on existing inventory items.
@@ -625,6 +685,14 @@ def update_inventory_quantity(
     session: Optional[Session] = None,
 ) -> InventoryItem:
     """Update inventory quantity using flexible input methods.
+
+    Transaction boundary: Single operation, automatically atomic.
+    If session is provided, executes within caller's transaction.
+    If session is None, uses session_scope() which commits on success
+    or rolls back on error. Performs one UPDATE operation.
+
+    CRITICAL: If session is provided, caller owns the transaction and is
+    responsible for commit/rollback. Never creates nested session_scope().
 
     Supports three methods for updating quantity, with precedence rules:
     1. remaining_percentage - "This jar is 40% full"
@@ -795,6 +863,10 @@ def _convert_to_package_units(
 def delete_inventory_item(inventory_item_id: int) -> bool:
     """Delete inventory item (lot).
 
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one DELETE operation within a single transaction.
+
     Deletes a inventory item record. Typically used for cleaning up depleted lots
     or removing erroneous entries.
 
@@ -831,6 +903,10 @@ def delete_inventory_item(inventory_item_id: int) -> bool:
 
 def get_inventory_value() -> Decimal:
     """Calculate total value of all inventory inventory.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Currently returns placeholder value. When implemented, will perform
+    read-only aggregation queries without modifications.
 
     Calculates total monetary value of inventory by multiplying quantities by
     unit costs from purchase history.
@@ -871,8 +947,12 @@ def get_recent_products(
     limit: int = 20,
     session: Optional[Session] = None,
 ) -> List[int]:
-    """
-    Get product IDs that are "recent" for an ingredient.
+    """Get product IDs that are "recent" for an ingredient.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
 
     A product is considered "recent" if it meets EITHER criterion:
     - Temporal: Added within last 'days' days
@@ -916,7 +996,13 @@ def _get_recent_products_impl(
     limit: int,
     session: Session,
 ) -> List[int]:
-    """Implementation of get_recent_products with provided session."""
+    """Implementation of get_recent_products with provided session.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). All queries execute within the
+    caller's transaction boundary for read consistency.
+    """
     from sqlalchemy import func, and_
 
     today = date.today()
@@ -991,8 +1077,12 @@ def get_recent_ingredients(
     limit: int = 20,
     session: Optional[Session] = None,
 ) -> List[int]:
-    """
-    Get ingredient IDs that are "recent" for a category.
+    """Get ingredient IDs that are "recent" for a category.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
 
     A ingredient is considered "recent" if it meets EITHER criterion:
     - Temporal: Added within last 'days' days
@@ -1033,7 +1123,13 @@ def _get_recent_ingredients_impl(
     limit: int,
     session: Session,
 ) -> List[int]:
-    """Implementation of get_recent_ingredients with provided session."""
+    """Implementation of get_recent_ingredients with provided session.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). All queries execute within the
+    caller's transaction boundary for read consistency.
+    """
     from sqlalchemy import func, and_
     from ..models import Ingredient
 
@@ -1112,8 +1208,19 @@ def manual_adjustment(
     notes: Optional[str] = None,
     session: Optional[Session] = None,
 ) -> InventoryDepletion:
-    """
-    Manually adjust inventory by recording a depletion.
+    """Manually adjust inventory by recording a depletion.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate quantity and notes requirements
+    2. Load and validate inventory item
+    3. Create InventoryDepletion audit record
+    4. Update InventoryItem quantity
+
+    CRITICAL: If session is provided, all operations execute within caller's
+    transaction. If session is None, creates own session_scope() for atomicity.
+    Never creates nested session_scope() when session is passed.
 
     Creates an immutable InventoryDepletion audit record and updates
     the InventoryItem quantity atomically.
@@ -1193,8 +1300,12 @@ def get_depletion_history(
     inventory_item_id: int,
     session: Optional[Session] = None,
 ) -> List[InventoryDepletion]:
-    """
-    Get depletion history for an inventory item.
+    """Get depletion history for an inventory item.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - no modifications performed.
 
     Args:
         inventory_item_id: ID of the InventoryItem
