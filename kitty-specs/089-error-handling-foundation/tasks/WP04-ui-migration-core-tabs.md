@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: UI Migration - Core Tabs
+lane: "doing"
+dependencies: [WP03]
+base_branch: 089-error-handling-foundation-WP03
+base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
+created_at: '2026-02-03T00:11:33.209283+00:00'
 subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-title: "UI Migration - Core Tabs"
-phase: "Phase 2 - UI Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T019
+- T020
+- T021
+phase: Phase 2 - UI Migration
+assignee: ''
+agent: ''
+shell_pid: "62222"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – UI Migration - Core Tabs
