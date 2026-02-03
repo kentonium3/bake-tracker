@@ -136,10 +136,10 @@
 **Agent**: Gemini (parallel-safe)
 
 ### Included Subtasks
-- [ ] T015 [P] Document batch_production_service.py (~8 functions, 6 MULTI)
-- [ ] T016 [P] Document assembly_service.py (~11 functions, 8 MULTI)
-- [ ] T017 Verify record_batch_production docs (already documented)
-- [ ] T018 Verify record_assembly docs (already documented)
+- [x] T015 [P] Document batch_production_service.py (~8 functions, 6 MULTI)
+- [x] T016 [P] Document assembly_service.py (~11 functions, 8 MULTI)
+- [x] T017 Verify record_batch_production docs (already documented)
+- [x] T018 Verify record_assembly docs (already documented)
 
 ### Implementation Notes
 - These are critical multi-step atomic operations
