@@ -125,7 +125,7 @@
 ### Included Subtasks
 - [x] T026 Update composition_service.py get functions
 - [x] T027 Update supplier_service.py get functions
-- [ ] T028 Update recipient_service.py `get_recipient_by_name()`
+- [x] T028 Update recipient_service.py `get_recipient_by_name()`
 - [ ] T029 Update unit_service.py `get_unit_by_code()`
 - [ ] T030 Update material_catalog_service.py get functions
 - [ ] T031 Update calling code for all secondary services
