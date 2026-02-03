@@ -114,9 +114,13 @@ def create_database_engine(database_url: Optional[str] = None, echo: bool = Fals
 
     logger.info(f"Creating database engine: {database_url}")
 
+    # Get config for database connection settings
+    config = get_config()
+
     # Create engine with appropriate configuration
     if ":memory:" in database_url or "mode=memory" in database_url:
         # For in-memory databases (testing), use StaticPool
+        # Keep check_same_thread=False for test isolation
         engine = create_engine(
             database_url,
             echo=echo,
@@ -124,11 +128,11 @@ def create_database_engine(database_url: Optional[str] = None, echo: bool = Fals
             poolclass=StaticPool,
         )
     else:
-        # For file-based databases
+        # For file-based databases, use Config.db_connect_args
         engine = create_engine(
             database_url,
             echo=echo,
-            connect_args={"check_same_thread": False, "timeout": 30},
+            connect_args=config.db_connect_args,
         )
 
     return engine

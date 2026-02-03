@@ -48,16 +48,24 @@ class HealthCheckService:
         _app_version: Cached application version from pyproject.toml
     """
 
-    def __init__(self, check_interval: int = 30, health_file: Optional[Path] = None):
+    def __init__(
+        self, check_interval: Optional[int] = None, health_file: Optional[Path] = None
+    ):
         """
         Initialize the health check service.
 
         Args:
-            check_interval: Seconds between health checks (default: 30)
+            check_interval: Seconds between health checks. If None, uses
+                           Config.health_check_interval (default: 30).
             health_file: Custom path for health status file (default: data/health.json)
         """
+        from ..utils.config import get_config
+
         self._logger = logging.getLogger(__name__)
-        self._check_interval = check_interval
+        config = get_config()
+        self._check_interval = (
+            check_interval if check_interval is not None else config.health_check_interval
+        )
         self._health_file = health_file or Path("data/health.json")
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
