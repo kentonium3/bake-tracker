@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP10"
+work_package_id: WP10
+title: UI Migration - Dashboard & Remaining Tabs
+lane: "doing"
+dependencies: [WP03]
+base_branch: 089-error-handling-foundation-WP03
+base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
+created_at: '2026-02-03T00:49:44.004338+00:00'
 subtasks:
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-  - "T051"
-  - "T052"
-  - "T053"
-  - "T054"
-  - "T055"
-title: "UI Migration - Dashboard & Remaining Tabs"
-phase: "Phase 2 - UI Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T047
+- T048
+- T049
+- T050
+- T051
+- T052
+- T053
+- T054
+- T055
+phase: Phase 2 - UI Migration
+assignee: ''
+agent: ''
+shell_pid: "73572"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP10 – UI Migration - Dashboard & Remaining Tabs
