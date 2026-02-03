@@ -29,8 +29,10 @@ from src.models import (
 from src.services.database import session_scope
 from src.services.exceptions import (
     DatabaseError,
-    ValidationError,
+    PackageNotFoundById,
+    PackageNotFoundByName,
     ServiceError,
+    ValidationError,
 )
 
 
@@ -219,7 +221,7 @@ def create_package(
         raise DatabaseError(f"Failed to create package: {str(e)}")
 
 
-def get_package_by_id(package_id: int) -> Optional[Package]:
+def get_package_by_id(package_id: int) -> Package:
     """
     Get a package by ID.
 
@@ -227,7 +229,10 @@ def get_package_by_id(package_id: int) -> Optional[Package]:
         package_id: Package ID
 
     Returns:
-        Package instance or None if not found
+        Package instance
+
+    Raises:
+        PackageNotFoundById: If package doesn't exist
     """
     try:
         with session_scope() as session:
@@ -241,13 +246,17 @@ def get_package_by_id(package_id: int) -> Optional[Package]:
                 .filter(Package.id == package_id)
                 .first()
             )
+            if not package:
+                raise PackageNotFoundById(package_id)
             return package
 
+    except PackageNotFoundById:
+        raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get package: {str(e)}")
 
 
-def get_package_by_name(name: str) -> Optional[Package]:
+def get_package_by_name(name: str) -> Package:
     """
     Get a package by exact name match.
 
@@ -255,7 +264,10 @@ def get_package_by_name(name: str) -> Optional[Package]:
         name: Package name
 
     Returns:
-        Package instance or None if not found
+        Package instance
+
+    Raises:
+        PackageNotFoundByName: If package doesn't exist
     """
     try:
         with session_scope() as session:
@@ -269,8 +281,12 @@ def get_package_by_name(name: str) -> Optional[Package]:
                 .filter(Package.name == name)
                 .first()
             )
+            if not package:
+                raise PackageNotFoundByName(name)
             return package
 
+    except PackageNotFoundByName:
+        raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get package by name: {str(e)}")
 

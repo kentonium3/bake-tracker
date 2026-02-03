@@ -40,7 +40,7 @@ from src.services import (
     check_recipient_has_assignments,
 )
 from src.services.database import session_scope
-from src.services.exceptions import ValidationError
+from src.services.exceptions import EventNotFoundById, ValidationError
 from src.services.database import session_scope
 from src.models import (
     Package,
@@ -634,10 +634,11 @@ class TestEdgeCases:
         with session_scope() as session:
             delete_event(event_id, cascade_assignments=True, session=session)
 
-        # Event should be gone (returns None, doesn't raise)
-        with session_scope() as session:
-            deleted_event = get_event_by_id(event_id, session=session)
-        assert deleted_event is None
+        # Event should be gone (raises EventNotFoundById)
+        with pytest.raises(EventNotFoundById) as exc:
+            with session_scope() as session:
+                get_event_by_id(event_id, session=session)
+        assert exc.value.event_id == event_id
 
         # Recipient should still exist
         retrieved = get_recipient(recipient.id)
