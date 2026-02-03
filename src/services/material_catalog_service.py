@@ -30,7 +30,7 @@ from src.models import (
     Composition,
 )
 from src.services.database import session_scope
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ValidationError, ConversionError
 
 
 # ============================================================================
@@ -957,23 +957,21 @@ def _convert_to_base_units(
     # Feature 058: Use material_unit_converter for metric conversions
     from . import material_unit_converter
 
-    # Validate unit compatibility
-    is_valid, error = material_unit_converter.validate_unit_compatibility(
-        package_unit_lower, base_unit_type
-    )
-    if not is_valid:
-        raise ValidationError([error])
+    try:
+        # Validate unit compatibility (raises ConversionError on failure)
+        material_unit_converter.validate_unit_compatibility(
+            package_unit_lower, base_unit_type
+        )
 
-    # Convert to base units
-    success, result, error = material_unit_converter.convert_to_base_units(
-        Decimal(str(package_quantity)),
-        package_unit_lower,
-        base_unit_type,
-    )
-    if not success:
-        raise ValidationError([error])
-
-    return float(result)
+        # Convert to base units
+        result = material_unit_converter.convert_to_base_units(
+            Decimal(str(package_quantity)),
+            package_unit_lower,
+            base_unit_type,
+        )
+        return float(result)
+    except ConversionError as e:
+        raise ValidationError([str(e)])
 
 
 def create_product(

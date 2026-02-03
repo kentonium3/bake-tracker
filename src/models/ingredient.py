@@ -209,22 +209,26 @@ class Ingredient(BaseModel):
 
         # Local import to avoid circular dependency
         from src.services.unit_converter import convert_standard_units
+        from src.services.exceptions import ConversionError
 
-        # Convert volume to ml
-        success, ml, _ = convert_standard_units(
-            self.density_volume_value, self.density_volume_unit, "ml"
-        )
-        if not success or ml <= 0:
+        try:
+            # Convert volume to ml
+            ml = convert_standard_units(
+                self.density_volume_value, self.density_volume_unit, "ml"
+            )
+            if ml <= 0:
+                return None
+
+            # Convert weight to grams
+            grams = convert_standard_units(
+                self.density_weight_value, self.density_weight_unit, "g"
+            )
+            if grams <= 0:
+                return None
+
+            return grams / ml
+        except ConversionError:
             return None
-
-        # Convert weight to grams
-        success, grams, _ = convert_standard_units(
-            self.density_weight_value, self.density_weight_unit, "g"
-        )
-        if not success or grams <= 0:
-            return None
-
-        return grams / ml
 
     def format_density_display(self) -> str:
         """Format density for UI display."""

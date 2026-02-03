@@ -13,7 +13,9 @@ Conversion Strategy:
 """
 
 from decimal import Decimal
-from typing import Tuple, Optional
+from typing import Optional
+
+from src.services.exceptions import ConversionError
 
 
 # ============================================================================
@@ -71,7 +73,7 @@ AREA_UNIT_NAMES = {
 def validate_unit_compatibility(
     unit: str,
     base_unit_type: str,
-) -> Tuple[bool, Optional[str]]:
+) -> None:
     """
     Validate that a unit is compatible with a base unit type.
 
@@ -79,20 +81,24 @@ def validate_unit_compatibility(
         unit: Unit to validate (e.g., "feet", "square_inches")
         base_unit_type: Expected base type ("linear_cm", "square_cm", "each")
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ConversionError: If the unit is not compatible with the base type
     """
     if base_unit_type not in UNIT_TYPES:
-        return False, f"Unknown base unit type: {base_unit_type}"
+        raise ConversionError(
+            f"Unknown base unit type: {base_unit_type}",
+            from_unit=unit,
+            to_unit=base_unit_type,
+        )
 
     valid_units = UNIT_TYPES[base_unit_type]
     if unit not in valid_units:
-        return False, (
+        raise ConversionError(
             f"Unit '{unit}' is not compatible with base type '{base_unit_type}'. "
-            f"Valid units: {sorted(valid_units)}"
+            f"Valid units: {sorted(valid_units)}",
+            from_unit=unit,
+            to_unit=base_unit_type,
         )
-
-    return True, None
 
 
 def get_unit_type(unit: str) -> Optional[str]:
@@ -120,7 +126,7 @@ def convert_to_base_units(
     quantity: Decimal,
     from_unit: str,
     base_unit_type: str,
-) -> Tuple[bool, Optional[Decimal], Optional[str]]:
+) -> Decimal:
     """
     Convert quantity from source unit to base units.
 
@@ -130,29 +136,34 @@ def convert_to_base_units(
         base_unit_type: Target base type ("linear_cm", "square_cm", "each")
 
     Returns:
-        Tuple of (success, converted_value, error_message)
+        Converted value in base units
+
+    Raises:
+        ConversionError: If conversion fails
     """
     # Validate quantity
     if quantity < Decimal("0"):
-        return False, None, "Quantity cannot be negative"
+        raise ConversionError(
+            "Quantity cannot be negative",
+            from_unit=from_unit,
+            to_unit=base_unit_type,
+            value=float(quantity),
+        )
 
     # Handle "each" type - no conversion needed
     if base_unit_type == "each":
         if from_unit != "each":
-            return (
-                False,
-                None,
-                (
-                    f"Unit '{from_unit}' is not compatible with base type 'each'. "
-                    f"Only 'each' is valid for discrete counts."
-                ),
+            raise ConversionError(
+                f"Unit '{from_unit}' is not compatible with base type 'each'. "
+                f"Only 'each' is valid for discrete counts.",
+                from_unit=from_unit,
+                to_unit=base_unit_type,
+                value=float(quantity),
             )
-        return True, quantity, None
+        return quantity
 
-    # Validate unit compatibility
-    is_valid, error = validate_unit_compatibility(from_unit, base_unit_type)
-    if not is_valid:
-        return False, None, error
+    # Validate unit compatibility (raises ConversionError on failure)
+    validate_unit_compatibility(from_unit, base_unit_type)
 
     # Get conversion factor
     if base_unit_type == "linear_cm":
@@ -160,19 +171,22 @@ def convert_to_base_units(
     elif base_unit_type == "square_cm":
         factor = AREA_TO_SQUARE_CM[from_unit]
     else:
-        return False, None, f"Unknown base unit type: {base_unit_type}"
+        raise ConversionError(
+            f"Unknown base unit type: {base_unit_type}",
+            from_unit=from_unit,
+            to_unit=base_unit_type,
+            value=float(quantity),
+        )
 
     # Convert to base units
-    converted = quantity * factor
-
-    return True, converted, None
+    return quantity * factor
 
 
 def convert_from_base_units(
     quantity: Decimal,
     to_unit: str,
     base_unit_type: str,
-) -> Tuple[bool, Optional[Decimal], Optional[str]]:
+) -> Decimal:
     """
     Convert quantity from base units to target unit.
 
@@ -182,29 +196,34 @@ def convert_from_base_units(
         base_unit_type: Source base type ("linear_cm", "square_cm", "each")
 
     Returns:
-        Tuple of (success, converted_value, error_message)
+        Converted value in target unit
+
+    Raises:
+        ConversionError: If conversion fails
     """
     # Validate quantity
     if quantity < Decimal("0"):
-        return False, None, "Quantity cannot be negative"
+        raise ConversionError(
+            "Quantity cannot be negative",
+            from_unit=base_unit_type,
+            to_unit=to_unit,
+            value=float(quantity),
+        )
 
     # Handle "each" type - no conversion needed
     if base_unit_type == "each":
         if to_unit != "each":
-            return (
-                False,
-                None,
-                (
-                    f"Unit '{to_unit}' is not compatible with base type 'each'. "
-                    f"Only 'each' is valid for discrete counts."
-                ),
+            raise ConversionError(
+                f"Unit '{to_unit}' is not compatible with base type 'each'. "
+                f"Only 'each' is valid for discrete counts.",
+                from_unit=base_unit_type,
+                to_unit=to_unit,
+                value=float(quantity),
             )
-        return True, quantity, None
+        return quantity
 
-    # Validate unit compatibility
-    is_valid, error = validate_unit_compatibility(to_unit, base_unit_type)
-    if not is_valid:
-        return False, None, error
+    # Validate unit compatibility (raises ConversionError on failure)
+    validate_unit_compatibility(to_unit, base_unit_type)
 
     # Get conversion factor
     if base_unit_type == "linear_cm":
@@ -212,19 +231,22 @@ def convert_from_base_units(
     elif base_unit_type == "square_cm":
         factor = AREA_TO_SQUARE_CM[to_unit]
     else:
-        return False, None, f"Unknown base unit type: {base_unit_type}"
+        raise ConversionError(
+            f"Unknown base unit type: {base_unit_type}",
+            from_unit=base_unit_type,
+            to_unit=to_unit,
+            value=float(quantity),
+        )
 
     # Convert from base units (divide by factor)
-    converted = quantity / factor
-
-    return True, converted, None
+    return quantity / factor
 
 
 def convert_units(
     quantity: Decimal,
     from_unit: str,
     to_unit: str,
-) -> Tuple[bool, Optional[Decimal], Optional[str]]:
+) -> Decimal:
     """
     Convert quantity between compatible units.
 
@@ -234,46 +256,56 @@ def convert_units(
         to_unit: Target unit (e.g., "cm", "inches")
 
     Returns:
-        Tuple of (success, converted_value, error_message)
+        Converted value in target unit
+
+    Raises:
+        ConversionError: If conversion fails
     """
     # Validate quantity
     if quantity < Decimal("0"):
-        return False, None, "Quantity cannot be negative"
+        raise ConversionError(
+            "Quantity cannot be negative",
+            from_unit=from_unit,
+            to_unit=to_unit,
+            value=float(quantity),
+        )
 
     # Same unit - no conversion needed
     if from_unit == to_unit:
-        return True, quantity, None
+        return quantity
 
     # Determine unit types
     from_type = get_unit_type(from_unit)
     to_type = get_unit_type(to_unit)
 
     if from_type is None:
-        return False, None, f"Unknown unit: {from_unit}"
-
-    if to_type is None:
-        return False, None, f"Unknown unit: {to_unit}"
-
-    if from_type != to_type:
-        return (
-            False,
-            None,
-            (
-                f"Cannot convert between incompatible types: "
-                f"'{from_unit}' ({from_type}) and '{to_unit}' ({to_type})"
-            ),
+        raise ConversionError(
+            f"Unknown unit: {from_unit}",
+            from_unit=from_unit,
+            to_unit=to_unit,
+            value=float(quantity),
         )
 
-    # Convert through base units
-    success, base_value, error = convert_to_base_units(quantity, from_unit, from_type)
-    if not success:
-        return False, None, error
+    if to_type is None:
+        raise ConversionError(
+            f"Unknown unit: {to_unit}",
+            from_unit=from_unit,
+            to_unit=to_unit,
+            value=float(quantity),
+        )
 
-    success, result, error = convert_from_base_units(base_value, to_unit, to_type)
-    if not success:
-        return False, None, error
+    if from_type != to_type:
+        raise ConversionError(
+            f"Cannot convert between incompatible types: "
+            f"'{from_unit}' ({from_type}) and '{to_unit}' ({to_type})",
+            from_unit=from_unit,
+            to_unit=to_unit,
+            value=float(quantity),
+        )
 
-    return True, result, None
+    # Convert through base units (both functions now raise on error)
+    base_value = convert_to_base_units(quantity, from_unit, from_type)
+    return convert_from_base_units(base_value, to_unit, to_type)
 
 
 # ============================================================================

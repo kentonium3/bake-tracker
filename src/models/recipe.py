@@ -352,20 +352,21 @@ class RecipeIngredient(BaseModel):
 
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
+        from src.services.exceptions import ConversionError
 
         package_unit = preferred_product.package_unit
         if not package_unit:
             return 0.0
 
         # Convert recipe unit to package_unit
-        success, quantity_in_package_units, error = convert_any_units(
-            self.quantity,
-            self.unit,
-            package_unit,
-            ingredient=self.ingredient,
-        )
-
-        if not success:
+        try:
+            quantity_in_package_units = convert_any_units(
+                self.quantity,
+                self.unit,
+                package_unit,
+                ingredient=self.ingredient,
+            )
+        except ConversionError:
             return 0.0
 
         # Calculate how many packages needed
@@ -399,20 +400,21 @@ class RecipeIngredient(BaseModel):
 
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
+        from src.services.exceptions import ConversionError
 
         package_unit = preferred_product.package_unit
         if not package_unit:
             return 0.0
 
         # Convert recipe unit to package_unit
-        success, quantity_in_package_units, error = convert_any_units(
-            self.quantity,
-            self.unit,
-            package_unit,
-            ingredient=self.ingredient,
-        )
-
-        if not success:
+        try:
+            quantity_in_package_units = convert_any_units(
+                self.quantity,
+                self.unit,
+                package_unit,
+                ingredient=self.ingredient,
+            )
+        except ConversionError:
             return 0.0
 
         return quantity_in_package_units

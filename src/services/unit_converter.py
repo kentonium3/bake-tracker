@@ -13,7 +13,9 @@ Conversion Strategy:
 - Volume↔weight conversions use ingredient density (4-field model)
 """
 
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+
+from .exceptions import ConversionError, ValidationError
 
 if TYPE_CHECKING:
     from src.models.ingredient import Ingredient
@@ -127,7 +129,7 @@ def units_compatible(unit1: str, unit2: str) -> bool:
 # ============================================================================
 
 
-def convert_standard_units(value: float, from_unit: str, to_unit: str) -> Tuple[bool, float, str]:
+def convert_standard_units(value: float, from_unit: str, to_unit: str) -> float:
     """
     Convert between standard units of the same type.
 
@@ -137,40 +139,45 @@ def convert_standard_units(value: float, from_unit: str, to_unit: str) -> Tuple[
         to_unit: Target unit (e.g., "oz")
 
     Returns:
-        Tuple of (success, converted_value, error_message)
-        - success: True if conversion successful
-        - converted_value: Result (0.0 if failed)
-        - error_message: Error description (empty string if successful)
+        Converted value
+
+    Raises:
+        ConversionError: If conversion is not possible
     """
     # Validate inputs
     if value < 0:
-        return False, 0.0, "Value cannot be negative"
+        raise ConversionError(
+            "Value cannot be negative", from_unit=from_unit, to_unit=to_unit, value=value
+        )
 
     from_unit_lower = from_unit.lower()
     to_unit_lower = to_unit.lower()
 
     # Check if units are the same
     if from_unit_lower == to_unit_lower:
-        return True, value, ""
+        return value
 
     # Get conversion table
     conversion_table = get_conversion_table(from_unit_lower)
     if not conversion_table:
-        return False, 0.0, f"Unknown unit: {from_unit}"
+        raise ConversionError(
+            f"Unknown unit: {from_unit}", from_unit=from_unit, to_unit=to_unit, value=value
+        )
 
     # Check if target unit is in same table
     if to_unit_lower not in conversion_table:
-        return (
-            False,
-            0.0,
+        raise ConversionError(
             f"Cannot convert {from_unit} to {to_unit}: incompatible unit types",
+            from_unit=from_unit,
+            to_unit=to_unit,
+            value=value,
         )
 
     # Convert: value -> base unit -> target unit
     base_value = value * conversion_table[from_unit_lower]
     converted_value = base_value / conversion_table[to_unit_lower]
 
-    return True, converted_value, ""
+    return converted_value
 
 
 def format_conversion(value: float, from_unit: str, to_unit: str, precision: int = 2) -> str:
@@ -187,12 +194,11 @@ def format_conversion(value: float, from_unit: str, to_unit: str, precision: int
         Formatted string (e.g., "1 lb = 16.00 oz")
         Returns error message if conversion fails
     """
-    success, converted, error = convert_standard_units(value, from_unit, to_unit)
-
-    if not success:
-        return f"Error: {error}"
-
-    return f"{value:g} {from_unit} = {converted:.{precision}f} {to_unit}"
+    try:
+        converted = convert_standard_units(value, from_unit, to_unit)
+        return f"{value:g} {from_unit} = {converted:.{precision}f} {to_unit}"
+    except ConversionError as e:
+        return f"Error: {e}"
 
 
 # ============================================================================
@@ -206,7 +212,7 @@ def convert_volume_to_weight(
     weight_unit: str,
     ingredient: "Ingredient" = None,
     density_g_per_ml: float = None,
-) -> Tuple[bool, float, str]:
+) -> float:
     """
     Convert a volume measurement to weight using ingredient density.
 
@@ -218,7 +224,10 @@ def convert_volume_to_weight(
         density_g_per_ml: Direct density value (g/ml) to use instead of lookup
 
     Returns:
-        Tuple of (success, weight_value, error_message)
+        Weight value in the target unit
+
+    Raises:
+        ConversionError: If conversion fails (missing density, invalid units)
     """
     # Get density from ingredient or override
     density = density_g_per_ml
@@ -227,26 +236,23 @@ def convert_volume_to_weight(
 
     if density is None or density <= 0:
         ingredient_name = ingredient.display_name if ingredient else "unknown"
-        return (
-            False,
-            0.0,
+        raise ConversionError(
             f"Density required for conversion. Edit ingredient '{ingredient_name}' to set density.",
+            from_unit=volume_unit,
+            to_unit=weight_unit,
+            value=volume_value,
         )
 
-    # Convert volume to ml
-    success, ml, error = convert_standard_units(volume_value, volume_unit, "ml")
-    if not success:
-        return False, 0.0, error
+    # Convert volume to ml (raises ConversionError on failure)
+    ml = convert_standard_units(volume_value, volume_unit, "ml")
 
     # Calculate weight in grams using density (g/ml)
     grams = ml * density
 
-    # Convert to target weight unit
-    success, weight, error = convert_standard_units(grams, "g", weight_unit)
-    if not success:
-        return False, 0.0, error
+    # Convert to target weight unit (raises ConversionError on failure)
+    weight = convert_standard_units(grams, "g", weight_unit)
 
-    return True, weight, ""
+    return weight
 
 
 def convert_weight_to_volume(
@@ -255,7 +261,7 @@ def convert_weight_to_volume(
     volume_unit: str,
     ingredient: "Ingredient" = None,
     density_g_per_ml: float = None,
-) -> Tuple[bool, float, str]:
+) -> float:
     """
     Convert a weight measurement to volume using ingredient density.
 
@@ -267,7 +273,10 @@ def convert_weight_to_volume(
         density_g_per_ml: Direct density value (g/ml) to use instead of lookup
 
     Returns:
-        Tuple of (success, volume_value, error_message)
+        Volume value in the target unit
+
+    Raises:
+        ConversionError: If conversion fails (missing density, invalid units)
     """
     # Get density from ingredient or override
     density = density_g_per_ml
@@ -276,26 +285,23 @@ def convert_weight_to_volume(
 
     if density is None or density <= 0:
         ingredient_name = ingredient.display_name if ingredient else "unknown"
-        return (
-            False,
-            0.0,
+        raise ConversionError(
             f"Density required for conversion. Edit ingredient '{ingredient_name}' to set density.",
+            from_unit=weight_unit,
+            to_unit=volume_unit,
+            value=weight_value,
         )
 
-    # Convert weight to grams
-    success, grams, error = convert_standard_units(weight_value, weight_unit, "g")
-    if not success:
-        return False, 0.0, error
+    # Convert weight to grams (raises ConversionError on failure)
+    grams = convert_standard_units(weight_value, weight_unit, "g")
 
     # Calculate volume in ml using density (g/ml)
     ml = grams / density
 
-    # Convert to target volume unit
-    success, volume, error = convert_standard_units(ml, "ml", volume_unit)
-    if not success:
-        return False, 0.0, error
+    # Convert to target volume unit (raises ConversionError on failure)
+    volume = convert_standard_units(ml, "ml", volume_unit)
 
-    return True, volume, ""
+    return volume
 
 
 def convert_any_units(
@@ -304,7 +310,7 @@ def convert_any_units(
     to_unit: str,
     ingredient: "Ingredient" = None,
     density_g_per_ml: Optional[float] = None,
-) -> Tuple[bool, float, str]:
+) -> float:
     """
     Convert between any units, including cross-type conversions (volume↔weight).
 
@@ -320,7 +326,10 @@ def convert_any_units(
         density_g_per_ml: Direct density value (g/ml) to use instead of lookup
 
     Returns:
-        Tuple of (success, converted_value, error_message)
+        Converted value
+
+    Raises:
+        ConversionError: If conversion fails
     """
     from_type = get_unit_type(from_unit)
     to_type = get_unit_type(to_unit)
@@ -332,20 +341,31 @@ def convert_any_units(
     # Volume to weight conversion
     if from_type == "volume" and to_type == "weight":
         if ingredient is None and density_g_per_ml is None:
-            return False, 0.0, "Ingredient or density required for volume-to-weight conversion"
+            raise ConversionError(
+                "Ingredient or density required for volume-to-weight conversion",
+                from_unit=from_unit,
+                to_unit=to_unit,
+                value=value,
+            )
         return convert_volume_to_weight(value, from_unit, to_unit, ingredient, density_g_per_ml)
 
     # Weight to volume conversion
     if from_type == "weight" and to_type == "volume":
         if ingredient is None and density_g_per_ml is None:
-            return False, 0.0, "Ingredient or density required for weight-to-volume conversion"
+            raise ConversionError(
+                "Ingredient or density required for weight-to-volume conversion",
+                from_unit=from_unit,
+                to_unit=to_unit,
+                value=value,
+            )
         return convert_weight_to_volume(value, from_unit, to_unit, ingredient, density_g_per_ml)
 
     # Incompatible conversion
-    return (
-        False,
-        0.0,
+    raise ConversionError(
         f"Cannot convert between {from_type} and {to_type} (incompatible unit types)",
+        from_unit=from_unit,
+        to_unit=to_unit,
+        value=value,
     )
 
 
@@ -356,7 +376,7 @@ def convert_any_units(
 
 def calculate_cost_per_yield_unit(
     total_recipe_cost: float, yield_quantity: float
-) -> Tuple[bool, float, str]:
+) -> float:
     """
     Calculate the cost per yield unit for a recipe.
 
@@ -366,17 +386,20 @@ def calculate_cost_per_yield_unit(
                        (F056: Get from FinishedUnit.items_per_batch, not Recipe)
 
     Returns:
-        Tuple of (success, cost_per_unit, error_message)
+        Cost per yield unit
+
+    Raises:
+        ValidationError: If inputs are invalid
     """
     if total_recipe_cost < 0:
-        return False, 0.0, "Total cost cannot be negative"
+        raise ValidationError(["Total cost cannot be negative"])
 
     if yield_quantity <= 0:
-        return False, 0.0, "Yield quantity must be positive"
+        raise ValidationError(["Yield quantity must be positive"])
 
     cost_per_unit = total_recipe_cost / yield_quantity
 
-    return True, cost_per_unit, ""
+    return cost_per_unit
 
 
 def format_cost(amount: float, currency_symbol: str = "$", precision: int = 2) -> str:
@@ -399,7 +422,7 @@ def format_cost(amount: float, currency_symbol: str = "$", precision: int = 2) -
 # ============================================================================
 
 
-def validate_quantity(quantity: float, allow_zero: bool = True) -> Tuple[bool, str]:
+def validate_quantity(quantity: float, allow_zero: bool = True) -> None:
     """
     Validate a quantity value.
 
@@ -407,16 +430,14 @@ def validate_quantity(quantity: float, allow_zero: bool = True) -> Tuple[bool, s
         quantity: Value to validate
         allow_zero: Whether to allow zero values
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If quantity is invalid
     """
     if quantity < 0:
-        return False, "Quantity cannot be negative"
+        raise ValidationError(["Quantity cannot be negative"])
 
     if not allow_zero and quantity == 0:
-        return False, "Quantity cannot be zero"
+        raise ValidationError(["Quantity cannot be zero"])
 
     if quantity > 1e9:
-        return False, "Quantity is unreasonably large"
-
-    return True, ""
+        raise ValidationError(["Quantity is unreasonably large"])

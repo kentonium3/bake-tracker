@@ -361,6 +361,7 @@ def consume_fifo(
         - When session is provided, caller is responsible for commit/rollback
     """
     from ..services.unit_converter import convert_any_units
+    from ..services.exceptions import ConversionError
 
     def _do_consume(sess):
         """Inner function that performs the actual FIFO consumption logic.
@@ -404,29 +405,31 @@ def consume_fifo(
 
             # Convert lot quantity to target_unit
             item_qty_decimal = Decimal(str(item.quantity))
-            success, available_float, error = convert_any_units(
-                float(item_qty_decimal),
-                item.product.package_unit,
-                target_unit,
-                ingredient=ingredient,
-            )
-            if not success:
-                raise ValueError(f"Unit conversion failed: {error}")
-            available = Decimal(str(available_float))
+            try:
+                available_float = convert_any_units(
+                    float(item_qty_decimal),
+                    item.product.package_unit,
+                    target_unit,
+                    ingredient=ingredient,
+                )
+                available = Decimal(str(available_float))
+            except ConversionError as e:
+                raise ValueError(f"Unit conversion failed: {e}")
 
             # Consume up to available amount
             to_consume_in_target_unit = min(available, remaining_needed)
 
             # Convert back to lot's unit for deduction
-            success, to_consume_float, error = convert_any_units(
-                float(to_consume_in_target_unit),
-                target_unit,
-                item.product.package_unit,
-                ingredient=ingredient,
-            )
-            if not success:
-                raise ValueError(f"Unit conversion failed: {error}")
-            to_consume_in_lot_unit = Decimal(str(to_consume_float))
+            try:
+                to_consume_float = convert_any_units(
+                    float(to_consume_in_target_unit),
+                    target_unit,
+                    item.product.package_unit,
+                    ingredient=ingredient,
+                )
+                to_consume_in_lot_unit = Decimal(str(to_consume_float))
+            except ConversionError as e:
+                raise ValueError(f"Unit conversion failed: {e}")
 
             # Get unit cost from the inventory item (if available)
             item_unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0.0")

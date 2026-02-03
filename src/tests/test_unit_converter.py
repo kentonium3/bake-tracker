@@ -23,6 +23,7 @@ from src.services.unit_converter import (
     # Validation
     validate_quantity,
 )
+from src.services.exceptions import ConversionError, ValidationError
 
 # ============================================================================
 # Unit Type Detection Tests
@@ -122,47 +123,38 @@ class TestWeightConversions:
 
     def test_convert_oz_to_lb(self):
         """Test ounces to pounds conversion."""
-        success, result, error = convert_standard_units(16, "oz", "lb")
-        assert success is True
-        assert error == ""
+        result = convert_standard_units(16, "oz", "lb")
         assert result == pytest.approx(1.0, rel=1e-6)
 
     def test_convert_lb_to_oz(self):
         """Test pounds to ounces conversion."""
-        success, result, error = convert_standard_units(1, "lb", "oz")
-        assert success is True
+        result = convert_standard_units(1, "lb", "oz")
         assert result == pytest.approx(16.0, rel=1e-6)
 
     def test_convert_lb_to_kg(self):
         """Test pounds to kilograms conversion."""
-        success, result, error = convert_standard_units(1, "lb", "kg")
-        assert success is True
+        result = convert_standard_units(1, "lb", "kg")
         assert result == pytest.approx(0.453592, rel=1e-4)
 
     def test_convert_kg_to_lb(self):
         """Test kilograms to pounds conversion."""
-        success, result, error = convert_standard_units(1, "kg", "lb")
-        assert success is True
+        result = convert_standard_units(1, "kg", "lb")
         assert result == pytest.approx(2.20462, rel=1e-4)
 
     def test_convert_oz_to_g(self):
         """Test ounces to grams conversion."""
-        success, result, error = convert_standard_units(1, "oz", "g")
-        assert success is True
+        result = convert_standard_units(1, "oz", "g")
         assert result == pytest.approx(28.3495, rel=1e-4)
 
     def test_convert_g_to_oz(self):
         """Test grams to ounces conversion."""
-        success, result, error = convert_standard_units(100, "g", "oz")
-        assert success is True
+        result = convert_standard_units(100, "g", "oz")
         assert result == pytest.approx(3.5274, rel=1e-4)
 
     def test_convert_case_insensitive(self):
         """Test case-insensitive weight conversions."""
-        success1, result1, _ = convert_standard_units(1, "LB", "oz")
-        success2, result2, _ = convert_standard_units(1, "lb", "OZ")
-        assert success1 is True
-        assert success2 is True
+        result1 = convert_standard_units(1, "LB", "oz")
+        result2 = convert_standard_units(1, "lb", "OZ")
         assert result1 == pytest.approx(result2, rel=1e-6)
 
 
@@ -176,45 +168,37 @@ class TestVolumeConversions:
 
     def test_convert_tsp_to_tbsp(self):
         """Test teaspoons to tablespoons conversion."""
-        success, result, error = convert_standard_units(3, "tsp", "tbsp")
-        assert success is True
-        assert error == ""
+        result = convert_standard_units(3, "tsp", "tbsp")
         assert result == pytest.approx(1.0, rel=1e-4)
 
     def test_convert_tbsp_to_cup(self):
         """Test tablespoons to cups conversion."""
-        success, result, error = convert_standard_units(16, "tbsp", "cup")
-        assert success is True
+        result = convert_standard_units(16, "tbsp", "cup")
         assert result == pytest.approx(1.0, rel=1e-4)
 
     def test_convert_cup_to_ml(self):
         """Test cups to milliliters conversion."""
-        success, result, error = convert_standard_units(1, "cup", "ml")
-        assert success is True
+        result = convert_standard_units(1, "cup", "ml")
         assert result == pytest.approx(236.588, rel=1e-4)
 
     def test_convert_ml_to_cup(self):
         """Test milliliters to cups conversion."""
-        success, result, error = convert_standard_units(250, "ml", "cup")
-        assert success is True
+        result = convert_standard_units(250, "ml", "cup")
         assert result == pytest.approx(1.0567, rel=1e-4)
 
     def test_convert_cup_to_fl_oz(self):
         """Test cups to fluid ounces conversion."""
-        success, result, error = convert_standard_units(1, "cup", "fl oz")
-        assert success is True
+        result = convert_standard_units(1, "cup", "fl oz")
         assert result == pytest.approx(8.0, rel=1e-4)
 
     def test_convert_qt_to_gal(self):
         """Test quarts to gallons conversion."""
-        success, result, error = convert_standard_units(4, "qt", "gal")
-        assert success is True
+        result = convert_standard_units(4, "qt", "gal")
         assert result == pytest.approx(1.0, rel=1e-4)
 
     def test_convert_l_to_ml(self):
         """Test liters to milliliters conversion."""
-        success, result, error = convert_standard_units(1, "l", "ml")
-        assert success is True
+        result = convert_standard_units(1, "l", "ml")
         assert result == pytest.approx(1000.0, rel=1e-6)
 
 
@@ -228,21 +212,17 @@ class TestCountConversions:
 
     def test_convert_each_to_dozen(self):
         """Test each to dozen conversion."""
-        success, result, error = convert_standard_units(12, "each", "dozen")
-        assert success is True
-        assert error == ""
+        result = convert_standard_units(12, "each", "dozen")
         assert result == pytest.approx(1.0, rel=1e-6)
 
     def test_convert_dozen_to_each(self):
         """Test dozen to each conversion."""
-        success, result, error = convert_standard_units(2, "dozen", "each")
-        assert success is True
+        result = convert_standard_units(2, "dozen", "each")
         assert result == pytest.approx(24.0, rel=1e-6)
 
     def test_convert_piece_to_count(self):
         """Test piece to count conversion (both = 1)."""
-        success, result, error = convert_standard_units(10, "piece", "count")
-        assert success is True
+        result = convert_standard_units(10, "piece", "count")
         assert result == pytest.approx(10.0, rel=1e-6)
 
 
@@ -256,31 +236,31 @@ class TestConversionErrors:
 
     def test_negative_value(self):
         """Test negative value error."""
-        success, result, error = convert_standard_units(-5, "oz", "lb")
-        assert success is False
-        assert result == 0.0
-        assert "negative" in error.lower()
+        with pytest.raises(ConversionError) as exc:
+            convert_standard_units(-5, "oz", "lb")
+        assert "negative" in str(exc.value).lower()
+        assert exc.value.from_unit == "oz"
+        assert exc.value.to_unit == "lb"
+        assert exc.value.value == -5
 
     def test_unknown_from_unit(self):
         """Test unknown source unit error."""
-        success, result, error = convert_standard_units(10, "invalid", "oz")
-        assert success is False
-        assert result == 0.0
-        assert "unknown" in error.lower()
+        with pytest.raises(ConversionError) as exc:
+            convert_standard_units(10, "invalid", "oz")
+        assert "unknown" in str(exc.value).lower()
 
     def test_incompatible_units(self):
         """Test incompatible unit types error."""
-        success, result, error = convert_standard_units(10, "oz", "cup")
-        assert success is False
-        assert result == 0.0
-        assert "incompatible" in error.lower()
+        with pytest.raises(ConversionError) as exc:
+            convert_standard_units(10, "oz", "cup")
+        assert "incompatible" in str(exc.value).lower()
+        assert exc.value.from_unit == "oz"
+        assert exc.value.to_unit == "cup"
 
     def test_same_unit_conversion(self):
         """Test converting to same unit returns original value."""
-        success, result, error = convert_standard_units(5, "oz", "oz")
-        assert success is True
+        result = convert_standard_units(5, "oz", "oz")
         assert result == 5.0
-        assert error == ""
 
 
 # ============================================================================
@@ -438,23 +418,20 @@ class TestVolumeWeightConversions:
             density_weight_value=120.0,
             density_weight_unit="g",
         )
-        success, weight, error = convert_volume_to_weight(1.0, "cup", "g", ingredient=ingredient)
-        assert success
+        weight = convert_volume_to_weight(1.0, "cup", "g", ingredient=ingredient)
         assert abs(weight - 120.0) < 0.5  # Allow small rounding difference
-        assert error == ""
 
     def test_convert_volume_to_weight_no_density(self):
         """Test conversion fails gracefully when no density."""
         ingredient = Ingredient(display_name="Mystery Ingredient", slug="mystery", category="Other")
-        success, weight, error = convert_volume_to_weight(1.0, "cup", "g", ingredient=ingredient)
-        assert not success
-        assert "Density required" in error
+        with pytest.raises(ConversionError) as exc:
+            convert_volume_to_weight(1.0, "cup", "g", ingredient=ingredient)
+        assert "Density required" in str(exc.value)
 
     def test_convert_volume_to_weight_with_override(self):
         """Test density override still works."""
         # 1 cup water = 236.588 ml, 1.0 g/ml -> 236.588 g
-        success, weight, error = convert_volume_to_weight(1.0, "cup", "g", density_g_per_ml=1.0)
-        assert success
+        weight = convert_volume_to_weight(1.0, "cup", "g", density_g_per_ml=1.0)
         assert abs(weight - 236.588) < 0.1
 
     def test_convert_weight_to_volume_with_ingredient(self):
@@ -468,31 +445,26 @@ class TestVolumeWeightConversions:
             density_weight_value=120.0,
             density_weight_unit="g",
         )
-        success, volume, error = convert_weight_to_volume(120.0, "g", "cup", ingredient=ingredient)
-        assert success
+        volume = convert_weight_to_volume(120.0, "g", "cup", ingredient=ingredient)
         assert abs(volume - 1.0) < 0.05  # Allow small rounding difference
-        assert error == ""
 
     def test_convert_weight_to_volume_no_density(self):
         """Test conversion fails gracefully when no density."""
         ingredient = Ingredient(display_name="Mystery Ingredient", slug="mystery", category="Other")
-        success, volume, error = convert_weight_to_volume(100.0, "g", "cup", ingredient=ingredient)
-        assert not success
-        assert "Density required" in error
+        with pytest.raises(ConversionError) as exc:
+            convert_weight_to_volume(100.0, "g", "cup", ingredient=ingredient)
+        assert "Density required" in str(exc.value)
 
     def test_convert_weight_to_volume_with_override(self):
         """Test density override still works for weight to volume."""
         # 100g at 1.0 g/ml = 100 ml
-        success, volume, error = convert_weight_to_volume(100.0, "g", "ml", density_g_per_ml=1.0)
-        assert success
+        volume = convert_weight_to_volume(100.0, "g", "ml", density_g_per_ml=1.0)
         assert abs(volume - 100.0) < 0.1
 
     def test_convert_any_units_same_type(self):
         """Test convert_any_units for same-type conversion."""
-        success, result, error = convert_any_units(1.0, "lb", "oz")
-        assert success
+        result = convert_any_units(1.0, "lb", "oz")
         assert abs(result - 16.0) < 0.01
-        assert error == ""
 
     def test_convert_any_units_volume_to_weight(self):
         """Test convert_any_units for volume to weight with ingredient."""
@@ -505,8 +477,7 @@ class TestVolumeWeightConversions:
             density_weight_value=200.0,
             density_weight_unit="g",
         )
-        success, result, error = convert_any_units(1.0, "cup", "g", ingredient=ingredient)
-        assert success
+        result = convert_any_units(1.0, "cup", "g", ingredient=ingredient)
         assert abs(result - 200.0) < 1.0
 
     def test_convert_any_units_weight_to_volume(self):
@@ -520,21 +491,20 @@ class TestVolumeWeightConversions:
             density_weight_value=200.0,
             density_weight_unit="g",
         )
-        success, result, error = convert_any_units(200.0, "g", "cup", ingredient=ingredient)
-        assert success
+        result = convert_any_units(200.0, "g", "cup", ingredient=ingredient)
         assert abs(result - 1.0) < 0.05
 
     def test_convert_any_units_no_ingredient_or_density(self):
         """Test convert_any_units fails for cross-type without density."""
-        success, result, error = convert_any_units(1.0, "cup", "g")
-        assert not success
-        assert "required" in error.lower()
+        with pytest.raises(ConversionError) as exc:
+            convert_any_units(1.0, "cup", "g")
+        assert "required" in str(exc.value).lower()
 
     def test_error_message_includes_ingredient_name(self):
         """Test that error message includes ingredient name for user guidance."""
         ingredient = Ingredient(
             display_name="Special Flour", slug="special-flour", category="Flour"
         )
-        success, weight, error = convert_volume_to_weight(1.0, "cup", "g", ingredient=ingredient)
-        assert not success
-        assert "Special Flour" in error
+        with pytest.raises(ConversionError) as exc:
+            convert_volume_to_weight(1.0, "cup", "g", ingredient=ingredient)
+        assert "Special Flour" in str(exc.value)
