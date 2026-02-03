@@ -196,11 +196,11 @@
 **Agent**: Gemini (parallel-safe)
 
 ### Included Subtasks
-- [ ] T024 [P] Document finished_good_service.py
-- [ ] T025 [P] Document material_consumption_service.py
-- [ ] T026 [P] Document material_purchase_service.py
-- [ ] T027 [P] Document material_inventory_service.py
-- [ ] T028 [P] Document finished_goods_inventory_service.py
+- [x] T024 [P] Document finished_good_service.py
+- [x] T025 [P] Document material_consumption_service.py
+- [x] T026 [P] Document material_purchase_service.py
+- [x] T027 [P] Document material_inventory_service.py
+- [x] T028 [P] Document finished_goods_inventory_service.py
 
 ### Implementation Notes
 - finished_good_service.py uses class-based pattern
