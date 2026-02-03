@@ -216,11 +216,11 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T030 [P] Update `src/ui/events_tab.py` (5 occurrences)
-- [ ] T031 [P] Update `src/ui/event_detail_window.py` (19 occurrences)
-- [ ] T032 [P] Update `src/ui/recipients_tab.py` (6 occurrences)
-- [ ] T033 [P] Update `src/ui/forms/event_planning_form.py` (2 occurrences)
-- [ ] T034 [P] Update `src/ui/tabs/event_status_tab.py` (2 occurrences)
+- [x] T030 [P] Update `src/ui/events_tab.py` (5 occurrences)
+- [x] T031 [P] Update `src/ui/event_detail_window.py` (19 occurrences)
+- [x] T032 [P] Update `src/ui/recipients_tab.py` (6 occurrences)
+- [x] T033 [P] Update `src/ui/forms/event_planning_form.py` (2 occurrences)
+- [x] T034 [P] Update `src/ui/tabs/event_status_tab.py` (2 occurrences)
 
 ### Implementation Notes
 - Event files likely have PlanStateError catches
