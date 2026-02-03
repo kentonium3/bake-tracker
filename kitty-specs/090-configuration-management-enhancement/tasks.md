@@ -28,7 +28,7 @@
 - [x] T003 Add db_connect_args computed property in `src/utils/config.py`
 - [x] T004 Add feature_flags dictionary property in `src/utils/config.py`
 - [x] T005 Add UI configuration properties (ui_theme, ui_appearance) with validation in `src/utils/config.py`
-- [ ] T006 Add health_check_interval property in `src/utils/config.py`
+- [x] T006 Add health_check_interval property in `src/utils/config.py`
 - [ ] T007 Add comprehensive docstrings for all new Config properties
 
 ### Implementation Notes
