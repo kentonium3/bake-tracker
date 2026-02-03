@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Unit Converter Updates
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -234,3 +234,4 @@ Run converter tests:
 ## Activity Log
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-02-03T17:47:49Z – unknown – shell_pid=13602 – lane=for_review – Unit converters updated to exception-based pattern. All 3493 tests pass.
