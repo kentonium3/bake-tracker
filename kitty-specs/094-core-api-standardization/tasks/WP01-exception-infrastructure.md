@@ -11,10 +11,10 @@ subtasks:
   - "T008"
 title: "Exception Infrastructure"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "98965"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -212,3 +212,4 @@ def test_recipe_exceptions():
 ## Activity Log
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-02-03T16:14:48Z – claude – shell_pid=98965 – lane=doing – Started implementation via workflow command
