@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP11"
+work_package_id: WP11
+title: Code Review Checklist Update
+lane: "doing"
+dependencies: [WP10]
+base_branch: 091-transaction-boundary-documentation-WP10
+base_commit: 2b91a9b0ea0c9480ac9544d0ce2933e6ff17413a
+created_at: '2026-02-03T12:01:13.233402+00:00'
 subtasks:
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-title: "Code Review Checklist Update"
-phase: "Phase 4 - Finalization"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP10"]
+- T047
+- T048
+- T049
+- T050
+phase: Phase 4 - Finalization
+assignee: ''
+agent: ''
+shell_pid: "77204"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T04:37:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T04:37:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP11 – Code Review Checklist Update
