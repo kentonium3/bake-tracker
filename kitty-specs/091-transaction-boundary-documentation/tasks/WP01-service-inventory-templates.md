@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Service Inventory & Templates"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "21319"
@@ -286,3 +286,4 @@ Raises:
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T04:46:43Z – claude – shell_pid=21319 – lane=doing – Started implementation via workflow command
+- 2026-02-03T04:50:14Z – claude – shell_pid=21319 – lane=for_review – Ready for review: Service inventory (~150 functions classified), docstring templates (3 patterns with examples)
