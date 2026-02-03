@@ -151,11 +151,11 @@
 **Prompt**: `/tasks/WP06-tuple-elimination.md`
 
 ### Included Subtasks
-- [ ] T033 Update `utils/validators.py` validation functions (9 functions)
-- [ ] T034 Update calling code for validators
+- [x] T033 Update `utils/validators.py` validation functions (9 functions)
+- [x] T034 Update calling code for validators
 - [x] T035 Update `ingredient_service.py` tuple-returning functions
 - [x] T036 Update `purchase_service.py` tuple-returning functions
-- [ ] T037 Update tests for all converted functions
+- [x] T037 Update tests for all converted functions
 
 ### Implementation Notes
 - ValidationError already exists and accepts list of errors
