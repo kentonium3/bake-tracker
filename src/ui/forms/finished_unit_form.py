@@ -10,6 +10,7 @@ from typing import Optional, Dict, Any
 
 from src.models.finished_unit import FinishedUnit, YieldMode
 from src.services import recipe_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
@@ -49,7 +50,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         # Load available recipes
         try:
             self.available_recipes = recipe_service.get_all_recipes()
-        except Exception as e:
+        except (ServiceError, Exception):
             self.available_recipes = []
 
         # Configure window

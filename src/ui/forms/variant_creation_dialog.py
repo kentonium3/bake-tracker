@@ -9,8 +9,9 @@ import customtkinter as ctk
 from typing import Optional, List, Dict, Callable
 
 from src.services import recipe_service
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ServiceError, ValidationError
 from src.services.database import session_scope
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -367,12 +368,8 @@ class VariantCreationDialog(ctk.CTkToplevel):
                 self.on_save_callback(result)
             self.destroy()
 
-        except ValidationError as e:
-            # Extract error messages
-            if hasattr(e, 'errors') and e.errors:
-                self._show_errors(e.errors)
-            else:
-                self._show_errors([str(e)])
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Create variant")
 
         except Exception as e:
-            self._show_errors([f"Error creating variant: {str(e)}"])
+            handle_error(e, parent=self, operation="Create variant")

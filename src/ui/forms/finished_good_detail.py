@@ -12,6 +12,7 @@ from src.models.finished_good import FinishedGood
 from src.ui.widgets.assembly_history_table import AssemblyHistoryTable
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 from src.services import assembly_service, finished_good_service, packaging_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -252,7 +253,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
                     command=lambda c=composition: self._open_assignment_dialog(c),
                 )
                 assign_btn.pack(side="left", padx=(5, 0))
-        except Exception:
+        except (ServiceError, Exception):
             # If error checking status, show unknown
             pass
 
