@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP09"
+work_package_id: WP09
+title: UI Migration - Dialogs
+lane: "doing"
+dependencies: [WP03]
+base_branch: 089-error-handling-foundation-WP03
+base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
+created_at: '2026-02-03T00:35:54.142499+00:00'
 subtasks:
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-  - "T046"
-title: "UI Migration - Dialogs"
-phase: "Phase 2 - UI Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T040
+- T041
+- T042
+- T043
+- T044
+- T045
+- T046
+phase: Phase 2 - UI Migration
+assignee: ''
+agent: ''
+shell_pid: "70349"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 – UI Migration - Dialogs
