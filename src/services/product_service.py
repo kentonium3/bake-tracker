@@ -183,6 +183,18 @@ def _validate_leaf_ingredient_for_product(ingredient, session) -> None:
 def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Product:
     """Create a new product for an ingredient.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate ingredient exists via get_ingredient()
+    2. Validate product data
+    3. Validate leaf-only constraint (hierarchy_level == 2)
+    4. If preferred=True, clear preferred flag on all other products for ingredient
+    5. Create Product record
+
+    CRITICAL: All nested service calls and database operations occur within
+    a single session_scope(). The preferred toggle is atomic - all products
+    are set to preferred=False before the new product is set to preferred=True.
+
     If preferred=True, this function will automatically set all other products
     for this ingredient to preferred=False (atomic operation).
 
@@ -291,6 +303,17 @@ def create_provisional_product(
 ) -> Product:
     """Create a provisional product for immediate use during purchase entry.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate quantity is positive
+    2. Validate ingredient exists
+    3. Validate leaf-only constraint (hierarchy_level == 2)
+    4. Generate unique slug via _generate_product_slug() and _generate_unique_product_slug()
+    5. Create Product record with is_provisional=True
+
+    CRITICAL: If session parameter is provided, caller maintains transactional
+    control. All steps share the same session for atomicity.
+
     Provisional products are created with is_provisional=True, indicating they
     need review to complete missing information. They are fully functional for
     purchases and inventory tracking.
@@ -383,6 +406,8 @@ def create_provisional_product(
 def get_product(product_id: int) -> Product:
     """Retrieve product by ID.
 
+    Transaction boundary: Read-only operation.
+
     Args:
         product_id: Product identifier
 
@@ -419,6 +444,11 @@ def get_product(product_id: int) -> Product:
 
 def get_products_for_ingredient(ingredient_slug: str) -> List[Product]:
     """Retrieve all products for an ingredient, sorted with preferred first.
+
+    Transaction boundary: Multi-step read operation.
+    Steps:
+    1. Validate ingredient exists via get_ingredient()
+    2. Query products for the ingredient
 
     Args:
         ingredient_slug: Ingredient identifier
@@ -459,9 +489,16 @@ def get_products_for_ingredient(ingredient_slug: str) -> List[Product]:
 def set_preferred_product(product_id: int) -> Product:
     """Mark product as preferred, clearing preferred flag on all other products for same ingredient.
 
-    This function ensures atomicity: all products for the ingredient are set to
-    preferred=False, then the specified product is set to preferred=True, all
-    within a single transaction.
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Get product to find ingredient_id via get_product()
+    2. UPDATE all products for ingredient to preferred=False
+    3. SET this product to preferred=True
+
+    CRITICAL: This function ensures atomicity: all products for the ingredient
+    are set to preferred=False, then the specified product is set to preferred=True,
+    all within a single session_scope(). This guarantees only one product per
+    ingredient is marked preferred.
 
     Args:
         product_id: ID of product to mark as preferred
@@ -515,6 +552,8 @@ def set_preferred_product(product_id: int) -> Product:
 
 def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
     """Update product attributes.
+
+    Transaction boundary: Single-step write. Automatically atomic.
 
     Args:
         product_id: Product identifier
@@ -591,6 +630,15 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
 def delete_product(product_id: int) -> bool:
     """Delete product if not referenced by inventory items or purchases.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Check dependencies via check_product_dependencies()
+    2. If no dependencies, delete the product
+
+    CRITICAL: Dependency check and delete occur in separate session_scope()
+    calls, but delete is still atomic. The dependency check validates safety
+    before the delete operation proceeds.
+
     Args:
         product_id: Product identifier
 
@@ -636,6 +684,8 @@ def delete_product(product_id: int) -> bool:
 
 def check_product_dependencies(product_id: int) -> Dict[str, int]:
     """Check if product is referenced by other entities.
+
+    Transaction boundary: Read-only operation.
 
     Args:
         product_id: Product identifier
@@ -684,6 +734,8 @@ def check_product_dependencies(product_id: int) -> Dict[str, int]:
 def search_products_by_upc(upc: str) -> List[Product]:
     """Search products by UPC code (exact match).
 
+    Transaction boundary: Read-only operation.
+
     Args:
         upc: Universal Product Code (12-14 digits)
 
@@ -712,6 +764,11 @@ def search_products_by_upc(upc: str) -> List[Product]:
 
 def get_preferred_product(ingredient_slug: str) -> Optional[Product]:
     """Get the preferred product for an ingredient.
+
+    Transaction boundary: Multi-step read operation.
+    Steps:
+    1. Validate ingredient exists via get_ingredient()
+    2. Query for product with preferred=True
 
     Args:
         ingredient_slug: Ingredient identifier
@@ -875,6 +932,15 @@ def get_product_recommendation(
     recipe_unit: str,
 ) -> Dict[str, Any]:
     """Get product recommendation(s) for an ingredient shortfall.
+
+    Transaction boundary: Multi-step read operation.
+    Steps:
+    1. Validate shortfall is positive
+    2. Get ingredient via get_ingredient()
+    3. Get all products via get_products_for_ingredient()
+    4. Calculate cost metrics for each product via _calculate_product_cost()
+    5. Check for preferred product via get_preferred_product()
+    6. Return recommendations sorted by cost
 
     This function determines which product(s) to recommend for purchasing
     to cover an ingredient shortfall. It handles three scenarios:

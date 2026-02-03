@@ -49,6 +49,9 @@ def generate_supplier_slug(
 ) -> str:
     """Generate slug for supplier based on type.
 
+    Transaction boundary: Read-only operation (with optional uniqueness check).
+    If session is provided, performs uniqueness check within existing transaction.
+
     Physical suppliers: {name}_{city}_{state} normalized
     Online suppliers: {name} only
 
@@ -88,6 +91,8 @@ def generate_supplier_slug(
 
 def validate_supplier_data(supplier_data: Dict[str, Any]) -> List[str]:
     """Validate supplier data before creation or import.
+
+    Transaction boundary: Pure validation function. No database access required.
 
     This function validates supplier data, checking required fields and
     format constraints. Used during import operations to validate data
@@ -156,6 +161,15 @@ def create_supplier(
 ) -> Dict[str, Any]:
     """Create a new supplier.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate input fields (name, supplier_type, state format, URL format)
+    2. Generate unique slug via generate_supplier_slug()
+    3. Create Supplier record
+
+    CRITICAL: All steps share the same session. If session parameter is
+    provided, caller maintains transactional control.
+
     Supports two supplier types:
     - 'physical': Requires city, state, zip_code
     - 'online': Only requires name (website_url recommended)
@@ -218,7 +232,10 @@ def _create_supplier_impl(
     website_url: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of create_supplier."""
+    """Implementation of create_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Validate name (service-layer validation so callers don't rely on DB errors)
     if name is None or not str(name).strip():
         raise ValueError("Name is required")
@@ -279,6 +296,8 @@ def _create_supplier_impl(
 def get_supplier(supplier_id: int, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
     """Get supplier by ID.
 
+    Transaction boundary: Read-only operation.
+
     Args:
         supplier_id: Supplier ID
         session: Optional database session
@@ -298,13 +317,18 @@ def get_supplier(supplier_id: int, session: Optional[Session] = None) -> Optiona
 
 
 def _get_supplier_impl(supplier_id: int, session: Session) -> Optional[Dict[str, Any]]:
-    """Implementation of get_supplier."""
+    """Implementation of get_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    """
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
     return supplier.to_dict() if supplier else None
 
 
 def get_supplier_by_uuid(uuid: str, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
     """Get supplier by UUID.
+
+    Transaction boundary: Read-only operation.
 
     Args:
         uuid: Supplier UUID (36-character string)
@@ -325,7 +349,10 @@ def get_supplier_by_uuid(uuid: str, session: Optional[Session] = None) -> Option
 
 
 def _get_supplier_by_uuid_impl(uuid: str, session: Session) -> Optional[Dict[str, Any]]:
-    """Implementation of get_supplier_by_uuid."""
+    """Implementation of get_supplier_by_uuid.
+
+    Transaction boundary: Inherits session from caller.
+    """
     supplier = session.query(Supplier).filter(Supplier.uuid == uuid).first()
     return supplier.to_dict() if supplier else None
 
@@ -335,6 +362,8 @@ def get_all_suppliers(
     session: Optional[Session] = None,
 ) -> List[Dict[str, Any]]:
     """Get all suppliers, optionally including inactive.
+
+    Transaction boundary: Read-only operation.
 
     Args:
         include_inactive: If True, include deactivated suppliers (default: False)
@@ -358,7 +387,10 @@ def get_all_suppliers(
 
 
 def _get_all_suppliers_impl(include_inactive: bool, session: Session) -> List[Dict[str, Any]]:
-    """Implementation of get_all_suppliers."""
+    """Implementation of get_all_suppliers.
+
+    Transaction boundary: Inherits session from caller.
+    """
     query = session.query(Supplier)
     if not include_inactive:
         query = query.filter(Supplier.is_active == True)
@@ -367,6 +399,8 @@ def _get_all_suppliers_impl(include_inactive: bool, session: Session) -> List[Di
 
 def get_active_suppliers(session: Optional[Session] = None) -> List[Dict[str, Any]]:
     """Get active suppliers for dropdown population (FR-010).
+
+    Transaction boundary: Read-only operation. Delegates to get_all_suppliers().
 
     This is a convenience method that returns only active suppliers,
     intended for populating dropdown menus in the UI.
@@ -391,6 +425,8 @@ def update_supplier(
     **kwargs,
 ) -> Dict[str, Any]:
     """Update supplier attributes. Slug is immutable and cannot be changed.
+
+    Transaction boundary: Single-step write. Automatically atomic.
 
     Args:
         supplier_id: Supplier ID
@@ -421,7 +457,10 @@ def update_supplier(
 
 
 def _update_supplier_impl(supplier_id: int, session: Session, **kwargs) -> Dict[str, Any]:
-    """Implementation of update_supplier."""
+    """Implementation of update_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    """
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         raise SupplierNotFoundError(supplier_id)
@@ -498,6 +537,15 @@ def deactivate_supplier(
 ) -> Dict[str, Any]:
     """Deactivate supplier and clear preferred_supplier_id on affected products (FR-009).
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate supplier exists
+    2. Set supplier's is_active flag to False
+    3. Clear preferred_supplier_id on all affected products
+
+    CRITICAL: All steps share the same session. If session parameter is
+    provided, caller maintains transactional control.
+
     This implements soft delete for suppliers. When a supplier is deactivated:
     1. The supplier's is_active flag is set to False
     2. All products with this supplier as preferred_supplier have that reference cleared
@@ -524,7 +572,10 @@ def deactivate_supplier(
 
 
 def _deactivate_supplier_impl(supplier_id: int, session: Session) -> Dict[str, Any]:
-    """Implementation of deactivate_supplier."""
+    """Implementation of deactivate_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    """
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         raise SupplierNotFoundError(supplier_id)
@@ -548,6 +599,8 @@ def reactivate_supplier(
 ) -> Dict[str, Any]:
     """Reactivate a previously deactivated supplier.
 
+    Transaction boundary: Single-step write. Automatically atomic.
+
     Args:
         supplier_id: Supplier ID
         session: Optional database session
@@ -570,7 +623,10 @@ def reactivate_supplier(
 
 
 def _reactivate_supplier_impl(supplier_id: int, session: Session) -> Dict[str, Any]:
-    """Implementation of reactivate_supplier."""
+    """Implementation of reactivate_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    """
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         raise SupplierNotFoundError(supplier_id)
@@ -585,6 +641,15 @@ def delete_supplier(
     session: Optional[Session] = None,
 ) -> bool:
     """Delete supplier if no purchases exist.
+
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate supplier exists
+    2. Check for purchase dependencies
+    3. Delete supplier if no dependencies
+
+    CRITICAL: All steps share the same session. If session parameter is
+    provided, caller maintains transactional control.
 
     Hard deletes a supplier only if they have no purchase history.
     If purchases exist, use deactivate_supplier() instead.
@@ -614,7 +679,10 @@ def delete_supplier(
 
 
 def _delete_supplier_impl(supplier_id: int, session: Session) -> bool:
-    """Implementation of delete_supplier."""
+    """Implementation of delete_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    """
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         raise SupplierNotFoundError(supplier_id)
@@ -637,6 +705,8 @@ def get_supplier_or_raise(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Get supplier by ID, raising SupplierNotFoundError if not found.
+
+    Transaction boundary: Read-only operation. Delegates to get_supplier().
 
     Unlike get_supplier() which returns None for not found, this function
     raises an exception. Useful when supplier must exist.
@@ -669,6 +739,16 @@ def migrate_supplier_slugs(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Generate slugs for all existing suppliers.
+
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Query all suppliers ordered by ID
+    2. For each supplier: generate base slug, check for conflicts, assign unique slug
+    3. Flush all changes
+
+    CRITICAL: All steps share the same session. This ensures slug uniqueness
+    is maintained across the entire migration. If session parameter is
+    provided, caller maintains transactional control.
 
     Per clarification (session 2026-01-12): ALL slugs are regenerated to
     enforce consistency, even if a supplier already has a slug. This ensures
@@ -705,7 +785,10 @@ def migrate_supplier_slugs(
 
 
 def _migrate_supplier_slugs_impl(session: Session) -> Dict[str, Any]:
-    """Implementation of migrate_supplier_slugs."""
+    """Implementation of migrate_supplier_slugs.
+
+    Transaction boundary: Inherits session from caller.
+    """
     suppliers = session.query(Supplier).order_by(Supplier.id).all()
     migrated = 0
     conflicts = 0

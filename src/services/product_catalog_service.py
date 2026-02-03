@@ -48,6 +48,8 @@ def get_products(
 ) -> List[Dict[str, Any]]:
     """Get products with optional filters and last purchase price.
 
+    Transaction boundary: Read-only operation.
+
     Args:
         include_hidden: If True, include hidden products (default: False) (FR-018)
         ingredient_id: Filter by ingredient ID (FR-014)
@@ -84,7 +86,10 @@ def _get_products_impl(
     search: Optional[str],
     session: Session,
 ) -> List[Dict[str, Any]]:
-    """Implementation of get_products."""
+    """Implementation of get_products.
+
+    Transaction boundary: Inherits session from caller.
+    """
     query = session.query(Product)
 
     # Filter hidden (FR-018)
@@ -148,6 +153,8 @@ def get_product_with_last_price(
 ) -> Optional[Dict[str, Any]]:
     """Get product by ID with last purchase price.
 
+    Transaction boundary: Read-only operation.
+
     Args:
         product_id: Product ID
         session: Optional database session
@@ -171,7 +178,10 @@ def get_product_with_last_price(
 def _get_product_with_last_price_impl(
     product_id: int, session: Session
 ) -> Optional[Dict[str, Any]]:
-    """Implementation of get_product_with_last_price."""
+    """Implementation of get_product_with_last_price.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         return None
@@ -225,6 +235,16 @@ def create_product(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Create a new product (FR-001, FR-002).
+
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate leaf-only constraint (hierarchy_level == 2)
+    2. Validate GTIN uniqueness (if provided)
+    3. Validate UPC uniqueness (if provided)
+    4. Create Product record
+
+    CRITICAL: If session parameter is provided, caller maintains transactional
+    control. All validation and creation steps share the same session.
 
     Args:
         product_name: Product name/description
@@ -292,7 +312,10 @@ def _create_product_impl(
     upc_code: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of create_product."""
+    """Implementation of create_product.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Feature 031: Validate leaf-only constraint
     ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
     if ingredient and ingredient.hierarchy_level != 2:
@@ -361,6 +384,17 @@ def update_product(
 ) -> Dict[str, Any]:
     """Update product attributes.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate product exists
+    2. Validate GTIN uniqueness (if changing, excluding self)
+    3. Validate UPC uniqueness (if changing, excluding self)
+    4. Validate leaf-only constraint if ingredient_id is changing
+    5. Update allowed fields
+
+    CRITICAL: If session parameter is provided, caller maintains transactional
+    control. All validation and update steps share the same session.
+
     Args:
         product_id: Product ID
         session: Optional database session
@@ -385,7 +419,10 @@ def update_product(
 
 
 def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[str, Any]:
-    """Implementation of update_product."""
+    """Implementation of update_product.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
@@ -472,6 +509,8 @@ def hide_product(
 ) -> Dict[str, Any]:
     """Hide product (soft delete) (FR-003).
 
+    Transaction boundary: Single-step write. Automatically atomic.
+
     Args:
         product_id: Product ID
         session: Optional database session
@@ -494,7 +533,10 @@ def hide_product(
 
 
 def _hide_product_impl(product_id: int, session: Session) -> Dict[str, Any]:
-    """Implementation of hide_product."""
+    """Implementation of hide_product.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
@@ -509,6 +551,8 @@ def unhide_product(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Unhide product (restore) (FR-003).
+
+    Transaction boundary: Single-step write. Automatically atomic.
 
     Args:
         product_id: Product ID
@@ -532,7 +576,10 @@ def unhide_product(
 
 
 def _unhide_product_impl(product_id: int, session: Session) -> Dict[str, Any]:
-    """Implementation of unhide_product."""
+    """Implementation of unhide_product.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
@@ -547,6 +594,16 @@ def delete_product(
     session: Optional[Session] = None,
 ) -> bool:
     """Delete product if no purchases or inventory exist (FR-004, FR-005).
+
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Validate product exists
+    2. Check for purchase dependencies
+    3. Check for inventory item dependencies
+    4. Delete product if no dependencies
+
+    CRITICAL: If session parameter is provided, caller maintains transactional
+    control. All validation and deletion steps share the same session.
 
     Args:
         product_id: Product ID
@@ -573,7 +630,10 @@ def delete_product(
 
 
 def _delete_product_impl(product_id: int, session: Session) -> bool:
-    """Implementation of delete_product."""
+    """Implementation of delete_product.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
@@ -603,6 +663,8 @@ def get_purchase_history(
 ) -> List[Dict[str, Any]]:
     """Get purchase history for product, sorted by date DESC (FR-012).
 
+    Transaction boundary: Read-only operation.
+
     Args:
         product_id: Product ID
         session: Optional database session
@@ -624,7 +686,10 @@ def get_purchase_history(
 
 
 def _get_purchase_history_impl(product_id: int, session: Session) -> List[Dict[str, Any]]:
-    """Implementation of get_purchase_history."""
+    """Implementation of get_purchase_history.
+
+    Transaction boundary: Inherits session from caller.
+    """
     purchases = (
         session.query(Purchase)
         .filter(Purchase.product_id == product_id)
@@ -653,6 +718,8 @@ def create_purchase(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Create a purchase record (FR-011).
+
+    Transaction boundary: Single-step write. Automatically atomic.
 
     Args:
         product_id: Product ID
@@ -699,7 +766,10 @@ def _create_purchase_impl(
     notes: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of create_purchase."""
+    """Implementation of create_purchase.
+
+    Transaction boundary: Inherits session from caller.
+    """
     if unit_price < 0:
         raise ValueError("Unit price cannot be negative")
     if quantity_purchased <= 0:
@@ -725,6 +795,8 @@ def get_products_by_category(
 ) -> List[Dict[str, Any]]:
     """Get products by ingredient category (convenience method).
 
+    Transaction boundary: Read-only operation. Delegates to get_products().
+
     Args:
         category: Ingredient category to filter by
         include_hidden: If True, include hidden products (default: False)
@@ -746,6 +818,8 @@ def get_product_or_raise(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Get product by ID, raising ProductNotFound if not found.
+
+    Transaction boundary: Read-only operation. Delegates to get_product_with_last_price().
 
     Args:
         product_id: Product ID
@@ -840,6 +914,8 @@ def analyze_product_dependencies(
 ) -> ProductDependencies:
     """Analyze what will be deleted if product is force-deleted.
 
+    Transaction boundary: Read-only operation.
+
     This function examines all dependencies of a product to help the user
     understand what data will be lost if they proceed with force deletion.
 
@@ -873,7 +949,10 @@ def _analyze_product_dependencies_impl(
     product_id: int,
     session: Session,
 ) -> ProductDependencies:
-    """Implementation of analyze_product_dependencies."""
+    """Implementation of analyze_product_dependencies.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
@@ -946,6 +1025,19 @@ def force_delete_product(
 ) -> ProductDependencies:
     """Force delete a product and all dependent data.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Steps executed atomically:
+    1. Analyze dependencies via _analyze_product_dependencies_impl()
+    2. Check if ingredient is used in recipes (BLOCKING check)
+    3. Validate confirmed=True
+    4. Delete inventory items
+    5. Delete purchases
+    6. Delete product
+
+    CRITICAL: All deletion steps share the same session. Deletions happen
+    in FK-constraint order (inventory items -> purchases -> product).
+    If session parameter is provided, caller maintains transactional control.
+
     CRITICAL: Cannot delete products whose ingredient is used in recipes.
     Recipes are brand-agnostic, so this checks ingredient usage.
 
@@ -985,7 +1077,10 @@ def _force_delete_product_impl(
     confirmed: bool,
     session: Session,
 ) -> ProductDependencies:
-    """Implementation of force_delete_product."""
+    """Implementation of force_delete_product.
+
+    Transaction boundary: Inherits session from caller.
+    """
     # Analyze dependencies first
     deps = _analyze_product_dependencies_impl(product_id, session)
 
@@ -1043,6 +1138,8 @@ def get_provisional_products(
 ) -> List[Dict[str, Any]]:
     """Get all products where is_provisional=True.
 
+    Transaction boundary: Read-only operation.
+
     Returns products that were created during purchase entry and need
     review to complete their information.
 
@@ -1067,7 +1164,10 @@ def get_provisional_products(
 
 
 def _get_provisional_products_impl(session: Session) -> List[Dict[str, Any]]:
-    """Implementation of get_provisional_products."""
+    """Implementation of get_provisional_products.
+
+    Transaction boundary: Inherits session from caller.
+    """
     query = (
         session.query(Product)
         .filter(
@@ -1114,6 +1214,8 @@ def get_provisional_count(
 ) -> int:
     """Get count of provisional products for badge display.
 
+    Transaction boundary: Read-only operation.
+
     Efficient count-only query for UI badge that shows number of
     products needing review.
 
@@ -1135,7 +1237,10 @@ def get_provisional_count(
 
 
 def _get_provisional_count_impl(session: Session) -> int:
-    """Implementation of get_provisional_count."""
+    """Implementation of get_provisional_count.
+
+    Transaction boundary: Inherits session from caller.
+    """
     return (
         session.query(func.count(Product.id))
         .filter(
@@ -1152,6 +1257,8 @@ def mark_product_reviewed(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Clear is_provisional flag after user completes product details.
+
+    Transaction boundary: Single-step write. Automatically atomic.
 
     Marks a provisional product as reviewed, removing it from the
     review queue. Does not validate that all fields are complete -
@@ -1179,7 +1286,10 @@ def mark_product_reviewed(
 
 
 def _mark_product_reviewed_impl(product_id: int, session: Session) -> Dict[str, Any]:
-    """Implementation of mark_product_reviewed."""
+    """Implementation of mark_product_reviewed.
+
+    Transaction boundary: Inherits session from caller.
+    """
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
