@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Finished Goods Service Updates
-lane: "planned"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -15,8 +15,8 @@ subtasks:
 - T025
 phase: Phase 2 - Core Services
 assignee: ''
-agent: "codex"
-shell_pid: "51956"
+agent: "claude"
+shell_pid: "31234"
 review_status: "has_feedback"
 reviewed_by: "Kent Gale"
 history:
@@ -186,3 +186,4 @@ Run affected tests:
 - 2026-02-03T16:39:01Z – unknown – shell_pid=4550 – lane=for_review – Finished goods and unit service exception handling complete. All 4 get functions now raise domain-specific exceptions for both class methods and wrappers.
 - 2026-02-03T22:24:24Z – codex – shell_pid=51956 – lane=doing – Started review via workflow command
 - 2026-02-03T22:25:09Z – codex – shell_pid=51956 – lane=planned – Moved to planned
+- 2026-02-03T22:28:44Z – claude – shell_pid=31234 – lane=doing – Started implementation via workflow command
