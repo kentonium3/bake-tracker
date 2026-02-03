@@ -97,12 +97,12 @@
 **Prompt**: `/tasks/WP04-finished-goods-exceptions.md`
 
 ### Included Subtasks
-- [ ] T020 Update `get_finished_good_by_id()` to raise FinishedGoodNotFoundById
-- [ ] T021 Update `get_finished_good_by_slug()` to raise FinishedGoodNotFoundBySlug
-- [ ] T022 Update `get_finished_unit_by_id()` to raise FinishedUnitNotFoundById
-- [ ] T023 Update `get_finished_unit_by_slug()` to raise FinishedUnitNotFoundBySlug
-- [ ] T024 Update calling code for finished goods functions
-- [ ] T025 Update finished goods tests
+- [x] T020 Update `get_finished_good_by_id()` to raise FinishedGoodNotFoundById
+- [x] T021 Update `get_finished_good_by_slug()` to raise FinishedGoodNotFoundBySlug
+- [x] T022 Update `get_finished_unit_by_id()` to raise FinishedUnitNotFoundById
+- [x] T023 Update `get_finished_unit_by_slug()` to raise FinishedUnitNotFoundBySlug
+- [x] T024 Update calling code for finished goods functions
+- [x] T025 Update finished goods tests
 
 ### Implementation Notes
 - Both services have class-based and module-level wrapper functions
