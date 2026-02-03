@@ -56,6 +56,7 @@ from .exceptions import (
     DatabaseError,
 )
 from .product_service import get_product
+from . import supplier_service
 
 
 # Price change alert thresholds (percentage)
@@ -151,14 +152,18 @@ def _record_purchase_impl(
     """Implementation for record_purchase.
 
     Transaction boundary: Inherits session from caller.
-    This function MUST be called with an active session - it does not
-    create its own session_scope(). All operations execute within the
-    caller's transaction boundary.
+    All operations execute within the caller's transaction boundary:
+    1. Validate product exists (delegates to product_service.get_product)
+    2. Get or create supplier (delegates to supplier_service.get_or_create_supplier)
+    3. Create Purchase record
+    4. Create linked InventoryItem record
+
+    CRITICAL: All nested service calls receive session parameter to ensure
+    atomicity. This function MUST be called with an active session.
     """
-    # Validate product exists - need to query within session
-    product = session.query(Product).filter_by(id=product_id).first()
-    if not product:
-        raise ProductNotFound(product_id)
+    # FR-1: Delegate product lookup to product_service
+    product = get_product(product_id, session=session)
+    # No need to check None - service raises ProductNotFound
 
     # Validate quantity > 0
     if quantity <= 0:
@@ -172,19 +177,12 @@ def _record_purchase_impl(
     unit_price = total_cost / quantity if quantity > 0 else Decimal("0.0")
 
     try:
-        # Find or create supplier from store name
+        # FR-3: Delegate supplier get-or-create to supplier_service
         store_name = store if store else "Unknown"
-        supplier = session.query(Supplier).filter(Supplier.name == store_name).first()
-        if not supplier:
-            # Create a minimal supplier record with required fields
-            supplier = Supplier(
-                name=store_name,
-                city="Unknown",
-                state="XX",
-                zip_code="00000",
-            )
-            session.add(supplier)
-            session.flush()
+        supplier = supplier_service.get_or_create_supplier(
+            name=store_name,
+            session=session
+        )
         supplier_id = supplier.id
 
         # Combine receipt_number into notes if provided

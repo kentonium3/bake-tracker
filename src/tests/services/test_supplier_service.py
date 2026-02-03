@@ -1088,6 +1088,136 @@ class TestValidateSupplierData:
         assert "State must be a 2-letter code" in errors
 
 
+class TestGetOrCreateSupplier:
+    """Tests for get_or_create_supplier function (F092 Service Boundary Compliance)."""
+
+    def test_get_or_create_supplier_creates_new(self, session):
+        """Creates new supplier when not found."""
+        # Verify no suppliers exist with this name
+        existing = session.query(Supplier).filter(Supplier.name == "New Store").first()
+        assert existing is None
+
+        # Call get_or_create_supplier
+        result = supplier_service.get_or_create_supplier(
+            name="New Store",
+            session=session,
+        )
+
+        # Verify supplier was created with defaults
+        assert result is not None
+        assert isinstance(result, Supplier)  # Returns model, not dict
+        assert result.name == "New Store"
+        assert result.city == "Unknown"  # Default
+        assert result.state == "XX"  # Default
+        assert result.zip_code == "00000"  # Default
+        assert result.id is not None
+
+    def test_get_or_create_supplier_returns_existing(self, session):
+        """Returns existing supplier when found by name."""
+        # Create supplier first
+        existing = Supplier(
+            name="Existing Store",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+        )
+        session.add(existing)
+        session.flush()
+        existing_id = existing.id
+
+        # Call get_or_create_supplier with same name
+        result = supplier_service.get_or_create_supplier(
+            name="Existing Store",
+            city="New York",  # Different city - should be ignored
+            state="NY",  # Different state - should be ignored
+            session=session,
+        )
+
+        # Verify existing supplier returned (not new one)
+        assert result.id == existing_id
+        assert result.city == "Boston"  # Original city preserved
+        assert result.state == "MA"  # Original state preserved
+
+    def test_get_or_create_supplier_with_custom_defaults(self, session):
+        """Uses custom city/state/zip when provided for new supplier."""
+        result = supplier_service.get_or_create_supplier(
+            name="Custom Store",
+            city="Seattle",
+            state="WA",
+            zip_code="98101",
+            session=session,
+        )
+
+        assert result.city == "Seattle"
+        assert result.state == "WA"
+        assert result.zip_code == "98101"
+
+    def test_get_or_create_supplier_without_session(self, engine):
+        """Works correctly when session is NOT passed (creates own)."""
+        # Patch session_scope to use our test engine
+        from src.services.supplier_service import get_or_create_supplier
+        from sqlalchemy.orm import sessionmaker
+        from unittest.mock import patch
+
+        Session = sessionmaker(bind=engine)
+
+        # Create a context manager that uses our test session
+        from contextlib import contextmanager
+
+        @contextmanager
+        def test_session_scope():
+            sess = Session()
+            try:
+                yield sess
+                sess.commit()
+            except Exception:
+                sess.rollback()
+                raise
+            finally:
+                sess.close()
+
+        with patch("src.services.supplier_service.session_scope", test_session_scope):
+            # Call without session parameter
+            result = get_or_create_supplier(name="No Session Store")
+
+            # Verify it returned a Supplier (will be detached after session closes)
+            assert result is not None
+            assert isinstance(result, Supplier)
+
+        # Verify supplier was persisted by querying with a new session
+        verify_session = Session()
+        try:
+            persisted = verify_session.query(Supplier).filter(
+                Supplier.name == "No Session Store"
+            ).first()
+            assert persisted is not None
+            assert persisted.name == "No Session Store"
+        finally:
+            verify_session.close()
+
+    def test_get_or_create_supplier_name_matching_case_sensitive(self, session):
+        """Supplier name matching is case-sensitive (matches existing behavior)."""
+        # Create supplier with specific case
+        existing = Supplier(
+            name="My Store",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+        )
+        session.add(existing)
+        session.flush()
+
+        # Different case - should create new supplier
+        result = supplier_service.get_or_create_supplier(
+            name="my store",  # Different case
+            session=session,
+        )
+
+        # Should be a NEW supplier (different ID)
+        assert result.id != existing.id
+        assert result.name == "my store"
+
+
 class TestSlugImmutability:
     """Test slug immutability enforcement (Feature 050 - T031)."""
 
