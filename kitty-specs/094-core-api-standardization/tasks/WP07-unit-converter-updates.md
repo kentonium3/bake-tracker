@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Unit Converter Updates
+lane: "doing"
+dependencies: [WP01]
+base_branch: 094-core-api-standardization-WP01
+base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
+created_at: '2026-02-03T17:24:59.897739+00:00'
 subtasks:
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-title: "Unit Converter Updates"
-phase: "Phase 3 - Tuple Elimination"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T038
+- T039
+- T040
+- T041
+phase: Phase 3 - Tuple Elimination
+assignee: ''
+agent: ''
+shell_pid: "13602"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T16:10:45Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T16:10:45Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Unit Converter Updates
