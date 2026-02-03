@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Inventory & Purchasing Services
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -13,8 +13,8 @@ subtasks:
 - T014
 phase: Phase 2 - Documentation
 assignee: ''
-agent: ''
-shell_pid: "22568"
+agent: "codex-wp04"
+shell_pid: "44282"
 review_status: ''
 reviewed_by: ''
 history:
@@ -239,3 +239,4 @@ Same as T013.
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T05:00:27Z – unknown – shell_pid=22568 – lane=for_review – Ready for review: Added transaction boundary docs to inventory_item_service.py (14 functions) and purchase_service.py (16 functions)
+- 2026-02-03T06:20:39Z – codex-wp04 – shell_pid=44282 – lane=doing – Started review via workflow command
