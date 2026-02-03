@@ -256,12 +256,12 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T035 Audit inventory_item_service.py multi-step functions (9 MULTI)
-- [ ] T036 Audit purchase_service.py multi-step functions (12 MULTI)
-- [ ] T037 Audit product_service.py multi-step functions (7 MULTI)
-- [ ] T038 Audit assembly_service.py and batch_production_service.py
-- [ ] T039 Fix any broken atomicity patterns (add session parameter)
-- [ ] T040 Document audit results in research/atomicity_audit.md
+- [x] T035 Audit inventory_item_service.py multi-step functions (9 MULTI)
+- [x] T036 Audit purchase_service.py multi-step functions (12 MULTI)
+- [x] T037 Audit product_service.py multi-step functions (7 MULTI)
+- [x] T038 Audit assembly_service.py and batch_production_service.py
+- [x] T039 Fix any broken atomicity patterns (add session parameter)
+- [x] T040 Document audit results in research/atomicity_audit.md
 
 ### Implementation Notes
 - Verify every nested service call receives `session=session`
