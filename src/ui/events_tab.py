@@ -26,6 +26,8 @@ from src.ui.widgets.dialogs import (
 from src.ui.forms.event_form import EventFormDialog
 from src.ui.event_detail_window import EventDetailWindow
 from src.ui.utils import ui_session
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class EventsTab(ctk.CTkFrame):
@@ -233,8 +235,10 @@ class EventsTab(ctk.CTkFrame):
                     event_service.create_event(**result, session=session)
                 show_success("Success", f"Event '{result['name']}' added successfully", parent=self)
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add event")
             except Exception as e:
-                show_error("Error", f"Failed to add event: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Add event")
 
     def _edit_event(self):
         """Open dialog to edit the selected event."""
@@ -251,11 +255,13 @@ class EventsTab(ctk.CTkFrame):
                     event_service.update_event(self.selected_event.id, session=session, **result)
                 show_success("Success", "Event updated successfully", parent=self)
                 self.refresh()
-            except EventNotFoundError:
-                show_error("Error", "Event not found", parent=self)
+            except EventNotFoundError as e:
+                handle_error(e, parent=self, operation="Update event")
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update event")
             except Exception as e:
-                show_error("Error", f"Failed to update event: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Update event")
 
     def _clone_event(self):
         """Clone the selected event to a new year."""
@@ -284,8 +290,10 @@ class EventsTab(ctk.CTkFrame):
                     "Success", f"Event '{result['name']}' cloned successfully", parent=self
                 )
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Clone event")
             except Exception as e:
-                show_error("Error", f"Failed to clone event: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Clone event")
 
     def _delete_event(self):
         """Delete the selected event after confirmation."""
@@ -308,11 +316,13 @@ class EventsTab(ctk.CTkFrame):
             show_success("Success", "Event deleted successfully", parent=self)
             self.selected_event = None
             self.refresh()
-        except EventNotFoundError:
-            show_error("Error", "Event not found", parent=self)
+        except EventNotFoundError as e:
+            handle_error(e, parent=self, operation="Delete event")
             self.refresh()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete event")
         except Exception as e:
-            show_error("Error", f"Failed to delete event: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Delete event")
 
     def _view_details(self):
         """View details of the selected event."""
@@ -340,8 +350,11 @@ class EventsTab(ctk.CTkFrame):
                     events = event_service.get_all_events(session=session)
             self.data_table.set_data(events)
             self._update_status(f"Loaded {len(events)} event(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load events")
+            self._update_status("Failed to load events", error=True)
         except Exception as e:
-            show_error("Error", f"Failed to load events: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load events")
             self._update_status("Failed to load events", error=True)
 
     def _update_status(self, message: str, error: bool = False):
