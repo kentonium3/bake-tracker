@@ -8,6 +8,7 @@ This module handles:
 - User preferences
 """
 
+import logging
 import os
 from pathlib import Path
 from typing import Optional
@@ -19,13 +20,36 @@ from .constants import (
     DATABASE_VERSION,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class Config:
-    """
-    Application configuration manager.
+    """Application configuration manager.
 
-    Handles all configuration settings including database paths,
-    environment settings, and user preferences.
+    Handles all configuration settings including:
+    - Database paths and connection settings
+    - PostgreSQL/SQLite database URL abstraction
+    - Environment settings (development/production)
+    - Feature flags for gradual rollout
+    - UI appearance and theme settings
+    - Health check configuration
+
+    All properties support environment variable overrides with sensible defaults.
+    Invalid values fall back to defaults with warning logged.
+
+    Environment Variables:
+        BAKING_TRACKER_ENV: Environment mode (production/development)
+        BAKE_TRACKER_DB_TYPE: Database type (sqlite/postgresql)
+        BAKE_TRACKER_DB_TIMEOUT: Connection timeout (default: 30)
+        BAKE_TRACKER_DB_POOL_SIZE: Connection pool size (default: 5)
+        BAKE_TRACKER_DB_POOL_RECYCLE: Connection recycle time (default: 3600)
+        DATABASE_URL: PostgreSQL connection URL (required if DB_TYPE=postgresql)
+        ENABLE_AUDIT: Enable audit trail (default: false)
+        ENABLE_HEALTH: Enable health checks (default: true)
+        ENABLE_PERF_MON: Enable performance monitoring (default: false)
+        BAKE_TRACKER_THEME: UI color theme (default: blue)
+        BAKE_TRACKER_APPEARANCE: UI appearance mode (default: system)
+        BAKE_TRACKER_HEALTH_INTERVAL: Health check interval (default: 30)
     """
 
     def __init__(self, environment: str = "production"):
@@ -110,14 +134,41 @@ class Config:
         return self._database_path
 
     @property
-    def database_url(self) -> str:
+    def database_type(self) -> str:
+        """Database type: 'sqlite' (default) or 'postgresql'.
+
+        Environment variable: BAKE_TRACKER_DB_TYPE
+        Default: sqlite
         """
-        SQLAlchemy database URL.
+        db_type = os.environ.get("BAKE_TRACKER_DB_TYPE", "sqlite").lower()
+        if db_type not in ("sqlite", "postgresql"):
+            logger.warning(f"Invalid BAKE_TRACKER_DB_TYPE '{db_type}', using sqlite")
+            return "sqlite"
+        return db_type
+
+    @property
+    def database_url(self) -> str:
+        """SQLAlchemy database URL.
+
+        For PostgreSQL: Uses DATABASE_URL environment variable.
+        For SQLite: Generates path-based URL (current behavior).
 
         Returns:
             Database URL string for SQLAlchemy
+
+        Raises:
+            ValueError: If postgresql selected but DATABASE_URL not set.
         """
-        # Use forward slashes for SQLite URL
+        if self.database_type == "postgresql":
+            url = os.environ.get("DATABASE_URL")
+            if not url:
+                raise ValueError(
+                    "DATABASE_URL environment variable required when "
+                    "BAKE_TRACKER_DB_TYPE=postgresql"
+                )
+            return url
+
+        # SQLite (default) - existing logic
         db_path_str = str(self._database_path).replace("\\", "/")
         return f"sqlite:///{db_path_str}"
 
@@ -157,6 +208,156 @@ class Config:
             True if database file exists, False otherwise
         """
         return self._database_path.exists()
+
+    # =========================================================================
+    # Database Connection Properties (T001)
+    # =========================================================================
+
+    @property
+    def db_timeout(self) -> int:
+        """Database connection timeout in seconds.
+
+        Environment variable: BAKE_TRACKER_DB_TIMEOUT
+        Default: 30
+        """
+        try:
+            return int(os.environ.get("BAKE_TRACKER_DB_TIMEOUT", "30"))
+        except ValueError:
+            logger.warning("Invalid BAKE_TRACKER_DB_TIMEOUT, using default 30")
+            return 30
+
+    @property
+    def db_pool_size(self) -> int:
+        """Database connection pool size.
+
+        Environment variable: BAKE_TRACKER_DB_POOL_SIZE
+        Default: 5
+        """
+        try:
+            return int(os.environ.get("BAKE_TRACKER_DB_POOL_SIZE", "5"))
+        except ValueError:
+            logger.warning("Invalid BAKE_TRACKER_DB_POOL_SIZE, using default 5")
+            return 5
+
+    @property
+    def db_pool_recycle(self) -> int:
+        """Database connection recycle time in seconds.
+
+        Environment variable: BAKE_TRACKER_DB_POOL_RECYCLE
+        Default: 3600 (1 hour)
+        """
+        try:
+            return int(os.environ.get("BAKE_TRACKER_DB_POOL_RECYCLE", "3600"))
+        except ValueError:
+            logger.warning("Invalid BAKE_TRACKER_DB_POOL_RECYCLE, using default 3600")
+            return 3600
+
+    # =========================================================================
+    # Database Connection Arguments (T003)
+    # =========================================================================
+
+    @property
+    def db_connect_args(self) -> dict:
+        """Database connection arguments for SQLAlchemy.
+
+        Returns appropriate connect_args based on database_type:
+        - SQLite: check_same_thread, timeout
+        - PostgreSQL: (empty dict, connection params in URL)
+        """
+        if self.database_type == "postgresql":
+            return {}
+
+        # SQLite
+        return {
+            "check_same_thread": False,
+            "timeout": self.db_timeout,
+        }
+
+    # =========================================================================
+    # Feature Flags (T004)
+    # =========================================================================
+
+    def _parse_bool_env(self, var_name: str, default: bool) -> bool:
+        """Parse boolean from environment variable.
+
+        Args:
+            var_name: Environment variable name
+            default: Default value if not set
+
+        Returns:
+            Boolean value from environment or default
+        """
+        value = os.environ.get(var_name, str(default).lower())
+        return value.lower() in ("true", "1", "yes")
+
+    @property
+    def feature_flags(self) -> dict:
+        """Feature flags for gradual rollout of optional features.
+
+        Flags:
+            enable_audit_trail: Future observability (default: False)
+                Env: ENABLE_AUDIT
+            enable_health_checks: Current health service (default: True)
+                Env: ENABLE_HEALTH
+            enable_performance_monitoring: Future metrics (default: False)
+                Env: ENABLE_PERF_MON
+        """
+        return {
+            "enable_audit_trail": self._parse_bool_env("ENABLE_AUDIT", False),
+            "enable_health_checks": self._parse_bool_env("ENABLE_HEALTH", True),
+            "enable_performance_monitoring": self._parse_bool_env("ENABLE_PERF_MON", False),
+        }
+
+    # =========================================================================
+    # UI Configuration Properties (T005)
+    # =========================================================================
+
+    @property
+    def ui_theme(self) -> str:
+        """CustomTkinter color theme.
+
+        Environment variable: BAKE_TRACKER_THEME
+        Default: blue
+        Valid values: blue, dark-blue, green
+        """
+        valid_themes = ("blue", "dark-blue", "green")
+        theme = os.environ.get("BAKE_TRACKER_THEME", "blue")
+        if theme not in valid_themes:
+            logger.warning(f"Invalid BAKE_TRACKER_THEME '{theme}', using blue")
+            return "blue"
+        return theme
+
+    @property
+    def ui_appearance(self) -> str:
+        """CustomTkinter appearance mode.
+
+        Environment variable: BAKE_TRACKER_APPEARANCE
+        Default: system
+        Valid values: system, light, dark
+        """
+        valid_modes = ("system", "light", "dark")
+        mode = os.environ.get("BAKE_TRACKER_APPEARANCE", "system")
+        if mode not in valid_modes:
+            logger.warning(f"Invalid BAKE_TRACKER_APPEARANCE '{mode}', using system")
+            return "system"
+        return mode
+
+    # =========================================================================
+    # Health Check Configuration (T006)
+    # =========================================================================
+
+    @property
+    def health_check_interval(self) -> int:
+        """Health check interval in seconds.
+
+        Environment variable: BAKE_TRACKER_HEALTH_INTERVAL
+        Default: 30
+        """
+        try:
+            return int(os.environ.get("BAKE_TRACKER_HEALTH_INTERVAL", "30"))
+        except ValueError:
+            logger.warning("Invalid BAKE_TRACKER_HEALTH_INTERVAL, using default 30")
+            return 30
 
     def __repr__(self) -> str:
         """String representation of config."""
