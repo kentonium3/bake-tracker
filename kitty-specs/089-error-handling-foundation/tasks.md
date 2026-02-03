@@ -408,11 +408,11 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T070 Create `docs/design/error_handling_guide.md` with overview and principles
-- [ ] T071 Document all exception types with when to raise each
-- [ ] T072 Document three-tier pattern with before/after code examples
-- [ ] T073 Document HTTP status code mapping for web migration
-- [ ] T074 Add quick reference checklist for new service functions
+- [x] T070 Create `docs/design/error_handling_guide.md` with overview and principles
+- [x] T071 Document all exception types with when to raise each
+- [x] T072 Document three-tier pattern with before/after code examples
+- [x] T073 Document HTTP status code mapping for web migration
+- [x] T074 Add quick reference checklist for new service functions
 
 ### Implementation Notes
 - Follow existing documentation style in `docs/design/`
