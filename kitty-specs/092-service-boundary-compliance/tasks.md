@@ -33,7 +33,7 @@
 
 **Subtasks**:
 - [x] T001: Add session param to product_service.get_product()
-- [ ] T002: Create supplier_service.get_or_create_supplier()
+- [x] T002: Create supplier_service.get_or_create_supplier()
 - [ ] T003: Update purchase_service to delegate to services
 - [ ] T004: Add tests for get_or_create_supplier()
 - [ ] T005: Verify existing purchase_service tests pass
