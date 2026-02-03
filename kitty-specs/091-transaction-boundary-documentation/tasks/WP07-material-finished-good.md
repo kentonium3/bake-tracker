@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Material & Finished Good Services
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -16,8 +16,8 @@ phase: Phase 2 - Documentation
 assignee: ''
 agent: "codex-wp07"
 shell_pid: "44435"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned
@@ -250,3 +250,4 @@ def record_material_consumption(
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T05:56:04Z – unknown – shell_pid=34904 – lane=for_review – Ready for review: Transaction boundary documentation added to finished_good_service.py, finished_unit_service.py, material_consumption_service.py, material_purchase_service.py, material_inventory_service.py, and finished_goods_inventory_service.py. All 780 related tests pass.
 - 2026-02-03T06:20:42Z – codex-wp07 – shell_pid=44435 – lane=doing – Started review via workflow command
+- 2026-02-03T06:26:43Z – codex-wp07 – shell_pid=44435 – lane=done – Review passed: All public functions in 6 service files have transaction boundary documentation. Patterns (read-only, multi-step atomic, inherits session, pure computation) used correctly and consistently. All 780 related tests pass. No functional changes - documentation only.
