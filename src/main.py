@@ -140,12 +140,12 @@ def main():
     # Parse command-line arguments
     args = parse_args()
 
-    # Set CustomTkinter appearance
-    ctk.set_appearance_mode("system")  # Modes: system, light, dark
-    ctk.set_default_color_theme("blue")  # Themes: blue, dark-blue, green
-
     # Get configuration
     config = get_config()
+
+    # Set CustomTkinter appearance from config
+    ctk.set_appearance_mode(config.ui_appearance)  # Modes: system, light, dark
+    ctk.set_default_color_theme(config.ui_theme)  # Themes: blue, dark-blue, green
     print(f"Starting Seasonal Baking Tracker v{config.app_version}")
     print(f"Environment: {config.environment}")
 
