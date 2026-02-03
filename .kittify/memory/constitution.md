@@ -1,9 +1,11 @@
 <!--
 Sync Impact Report:
-- Version change: 1.5.0 → 1.6.0
-- Modified principles: VI (Code Quality & Consistency Disciplines - major enhancement)
-- Changes: Added Section I (Data Validation Framework), extensive code examples, enforcement levels (MUST/SHOULD/MAY), migration strategy, quick reference checklists
-- Based on: Architecture Best Practices Gap Analysis (2026-02-02)
+- Version change: 1.6.0 → 1.6.1
+- Modified principles: VI (Code Quality & Consistency Disciplines - checklist clarification)
+- Changes:
+  - Added "Transaction boundary matches implementation (verify Pattern A, B, or C)" to Code Review Checklist
+  - Added "Transaction boundary section in docstring" with reference to transaction_patterns_guide.md in New Service Function Checklist
+- Based on: F091 Transaction Boundary Documentation (2026-02-03)
 - Templates requiring updates:
   ✅ spec-template.md - No changes needed (references constitution dynamically)
   ✅ plan-template.md - No changes needed (Constitution Check gates are generic)
@@ -639,6 +641,7 @@ def create_ingredient_endpoint(ingredient: IngredientCreate):
 ##### New Service Function Checklist
 
 - [ ] Docstring with args, returns, raises, transaction boundaries
+- [ ] **Transaction boundary section in docstring** (Pattern A, B, or C per `docs/design/transaction_patterns_guide.md`)
 - [ ] Type hints for all parameters and return type
 - [ ] Pydantic model for input validation (if accepting complex data)
 - [ ] `session: Optional[Session] = None` parameter
@@ -671,6 +674,7 @@ def create_ingredient_endpoint(ingredient: IngredientCreate):
 - [ ] No hard-coded values (use Config)
 - [ ] No missing session parameters on service functions
 - [ ] No multi-step operations without transaction documentation
+- [ ] Transaction boundary matches implementation (verify Pattern A, B, or C)
 - [ ] No list operations without pagination
 - [ ] No functions returning None for "not found" (raise exception)
 - [ ] No commented-out code
@@ -921,4 +925,4 @@ When making architectural choices, ask:
 - Conflicts between constitution and existing code MUST be resolved in favor of constitution
 - Runtime guidance for AI agents found in `.kittify/AGENTS.md`
 
-**Version**: 1.6.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-02-02
+**Version**: 1.6.1 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-02-03

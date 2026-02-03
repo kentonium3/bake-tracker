@@ -330,6 +330,13 @@ These functions have been updated to accept an optional `session` parameter and 
 - `assembly_service.check_can_assemble()` - fixed 2025-12-11
 - `assembly_service.record_assembly()` - fixed 2025-12-11
 
+### Transaction Patterns Guide
+
+For comprehensive documentation of transaction patterns, including code examples
+and common pitfalls, see:
+
+**`docs/design/transaction_patterns_guide.md`**
+
 ### Reference
 
 See `docs/design/session_management_remediation_spec.md` for full technical details.
