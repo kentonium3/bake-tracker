@@ -320,6 +320,8 @@ def _validate_unit(unit: str, valid_units: List[str], entity: str, field: str) -
     """
     Validate a unit value against a list of valid units.
 
+    Transaction boundary: Pure computation (no database access).
+
     Args:
         unit: The unit value to validate
         valid_units: List of valid unit values
@@ -343,19 +345,31 @@ def _validate_unit(unit: str, valid_units: List[str], entity: str, field: str) -
 
 
 def _validate_package_unit(unit: str, entity_name: str) -> Optional[str]:
-    """Validate package_unit field (measurement units only: weight, volume, count)."""
+    """
+    Validate package_unit field (measurement units only: weight, volume, count).
+
+    Transaction boundary: Pure computation (no database access).
+    """
     return _validate_unit(unit, MEASUREMENT_UNITS, entity_name, "package_unit")
 
 
 def _validate_density_volume_unit(unit: str, entity_name: str) -> Optional[str]:
-    """Validate density_volume_unit field (must be volume unit if provided)."""
+    """
+    Validate density_volume_unit field (must be volume unit if provided).
+
+    Transaction boundary: Pure computation (no database access).
+    """
     if unit is None:
         return None
     return _validate_unit(unit, VOLUME_UNITS, entity_name, "density_volume_unit")
 
 
 def _validate_density_weight_unit(unit: str, entity_name: str) -> Optional[str]:
-    """Validate density_weight_unit field (must be weight unit if provided)."""
+    """
+    Validate density_weight_unit field (must be weight unit if provided).
+
+    Transaction boundary: Pure computation (no database access).
+    """
     if unit is None:
         return None
     return _validate_unit(unit, WEIGHT_UNITS, entity_name, "density_weight_unit")
@@ -364,7 +378,11 @@ def _validate_density_weight_unit(unit: str, entity_name: str) -> Optional[str]:
 def _validate_recipe_ingredient_unit(
     unit: str, recipe_name: str, ingredient_slug: str
 ) -> Optional[str]:
-    """Validate recipe ingredient unit field (weight, volume, or count)."""
+    """
+    Validate recipe ingredient unit field (weight, volume, or count).
+
+    Transaction boundary: Pure computation (no database access).
+    """
     valid_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
     if unit is None:
         return f"Missing unit for recipe '{recipe_name}' ingredient '{ingredient_slug}'"
@@ -383,6 +401,11 @@ def export_ingredients_to_json(
 ) -> ExportResult:
     """
     Export ingredients to JSON file.
+
+    Transaction boundary: Read-only operation within service call.
+    Delegates to ingredient_crud_service.get_all_ingredients() which manages
+    its own session. No session parameter accepted as this is a standalone
+    export operation.
 
     Args:
         file_path: Path to output JSON file
@@ -445,6 +468,10 @@ def export_recipes_to_json(
 ) -> ExportResult:
     """
     Export recipes to JSON file.
+
+    Transaction boundary: Read-only operation within service call.
+    Delegates to recipe_service.get_all_recipes() which manages its own session.
+    No session parameter accepted as this is a standalone export operation.
 
     Args:
         file_path: Path to output JSON file
@@ -535,6 +562,11 @@ def export_finished_goods_to_json(
     """
     Export finished goods to JSON file.
 
+    Transaction boundary: Read-only operation within service call.
+    Delegates to finished_good_service.get_all_finished_goods() which manages
+    its own session. No session parameter accepted as this is a standalone
+    export operation.
+
     Args:
         file_path: Path to output JSON file
         include_all: If True, export all finished goods (default)
@@ -596,6 +628,11 @@ def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportRe
     """
     Export bundles to JSON file.
 
+    Transaction boundary: Read-only operation within service call.
+    Delegates to finished_good_service.get_all_bundles() which manages
+    its own session. No session parameter accepted as this is a standalone
+    export operation.
+
     Args:
         file_path: Path to output JSON file
         include_all: If True, export all bundles (default)
@@ -644,6 +681,10 @@ def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportRe
 def export_packages_to_json(file_path: str, include_all: bool = True) -> ExportResult:
     """
     Export packages to JSON file.
+
+    Transaction boundary: Read-only operation within service call.
+    Delegates to package_service.get_all_packages() which manages its own session.
+    No session parameter accepted as this is a standalone export operation.
 
     Args:
         file_path: Path to output JSON file
@@ -701,6 +742,11 @@ def export_recipients_to_json(file_path: str, include_all: bool = True) -> Expor
     """
     Export recipients to JSON file.
 
+    Transaction boundary: Read-only operation within service call.
+    Delegates to recipient_service.get_all_recipients() which manages its own
+    session. No session parameter accepted as this is a standalone export
+    operation.
+
     Args:
         file_path: Path to output JSON file
         include_all: If True, export all recipients (default)
@@ -755,6 +801,10 @@ def export_events_to_json(file_path: str, include_all: bool = True) -> ExportRes
     Export events to JSON file.
 
     Includes event details and all recipient-package assignments.
+
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session to ensure relationships are loaded. Exports events
+    with their recipient-package assignments in a consistent snapshot.
 
     Args:
         file_path: Path to output JSON file
@@ -825,6 +875,10 @@ def export_finished_units_to_json() -> List[Dict]:
     """
     Export FinishedUnit records for v3.0 format.
 
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
+
     Returns:
         List of dictionaries containing finished unit data
     """
@@ -871,6 +925,10 @@ def export_compositions_to_json() -> List[Dict]:
 
     Compositions link finished units/goods to finished good assemblies.
     Feature 011: Also supports package_id and packaging_product_id for packaging compositions.
+
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
 
     Returns:
         List of dictionaries containing composition data
@@ -970,6 +1028,10 @@ def export_package_finished_goods_to_json() -> List[Dict]:
 
     Links packages to finished goods with quantities.
 
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
+
     Returns:
         List of dictionaries containing package-finished good links
     """
@@ -998,6 +1060,10 @@ def export_production_records_to_json() -> List[Dict]:
     Export ProductionRecord records for v3.0 format.
 
     Production records track batch production with FIFO cost capture.
+
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
 
     Returns:
         List of dictionaries containing production record data
@@ -1035,6 +1101,10 @@ def export_production_runs_to_json() -> List[Dict]:
 
     Production runs track batch production with event attribution.
 
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
+
     Returns:
         List of dictionaries containing production run data
     """
@@ -1071,6 +1141,10 @@ def export_assembly_runs_to_json() -> List[Dict]:
 
     Assembly runs track finished good assembly with event attribution.
 
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
+
     Returns:
         List of dictionaries containing assembly run data
     """
@@ -1106,6 +1180,10 @@ def export_event_production_targets_to_json() -> List[Dict]:
 
     Production targets track batch production goals per event.
 
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
+
     Returns:
         List of dictionaries containing production target data
     """
@@ -1139,6 +1217,10 @@ def export_event_assembly_targets_to_json() -> List[Dict]:
     Export EventAssemblyTarget records for Feature 016.
 
     Assembly targets track finished good assembly goals per event.
+
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates its own session and loads relationships via joinedload for
+    consistent export snapshot.
 
     Returns:
         List of dictionaries containing assembly target data
@@ -1180,6 +1262,12 @@ def export_all_to_json(
     recipes, finished_units, finished_goods, compositions, packages,
     package_finished_goods, recipients, events, event_recipient_packages,
     production_records.
+
+    Transaction boundary: Multi-entity export with mixed session management.
+    Creates session_scope for ingredient loading (with product relationships),
+    then delegates to various service calls and export_*_to_json() functions
+    which each manage their own sessions. Not fully atomic - each entity type
+    is exported within its own session context.
 
     Args:
         file_path: Path to output JSON file
@@ -1949,7 +2037,11 @@ def export_all_to_json(
 
 # Placeholder to maintain structure - legacy functions removed
 def _legacy_import_removed():
-    """Legacy individual import functions removed - use import_all_from_json_v3() instead."""
+    """
+    Legacy individual import functions removed - use import_all_from_json_v3() instead.
+
+    Transaction boundary: N/A (placeholder function that always raises).
+    """
     raise NotImplementedError("Legacy import functions removed. Use import_all_from_json_v3()")
 
 
@@ -1973,6 +2065,10 @@ class ImportVersionError(ServiceError):
 def _clear_all_tables(session) -> None:
     """
     Clear all tables in reverse dependency order for Replace mode.
+
+    Transaction boundary: Inherits session from caller (must be within active transaction).
+    All deletes occur within the same transaction, allowing complete rollback if any
+    subsequent import step fails.
 
     Must be called within an active session transaction.
 
@@ -2020,6 +2116,10 @@ def import_finished_units_from_json(
 ) -> ImportResult:
     """
     Import FinishedUnit records from v3.0 format data.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
 
     Args:
         data: List of finished unit dictionaries
@@ -2106,6 +2206,10 @@ def import_compositions_from_json(
     Feature 011: Supports package_id and packaging_product_id for packaging compositions.
     Feature 084: Supports material_unit_slug for material compositions.
                  Deprecated material_slug is rejected with error and migration guidance.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
 
     Args:
         data: List of composition dictionaries
@@ -2361,6 +2465,10 @@ def import_package_finished_goods_from_json(
     """
     Import PackageFinishedGood records from v3.0 format data.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
+
     Args:
         data: List of package-finished-good link dictionaries
         session: SQLAlchemy session
@@ -2442,6 +2550,10 @@ def import_production_records_from_json(
 ) -> ImportResult:
     """
     Import ProductionRecord records from v3.0 format data.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
 
     Args:
         data: List of production record dictionaries
@@ -2541,6 +2653,10 @@ def import_event_recipient_packages_from_json(
 ) -> ImportResult:
     """
     Import EventRecipientPackage records from v3.0 format data.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
 
     Args:
         data: List of event-recipient-package dictionaries
@@ -2659,6 +2775,10 @@ def import_event_production_targets_from_json(
     """
     Import EventProductionTarget records from v3.2 format data.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
+
     Args:
         data: List of event-production-target dictionaries
         session: SQLAlchemy session
@@ -2737,6 +2857,10 @@ def import_event_assembly_targets_from_json(
 ) -> ImportResult:
     """
     Import EventAssemblyTarget records from v3.2 format data.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
 
     Args:
         data: List of event-assembly-target dictionaries
@@ -2821,6 +2945,10 @@ def import_production_runs_from_json(
     """
     Import ProductionRun records from v3.2 format data.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
+
     Args:
         data: List of production-run dictionaries
         session: SQLAlchemy session
@@ -2893,6 +3021,10 @@ def import_assembly_runs_from_json(
 ) -> ImportResult:
     """
     Import AssemblyRun records from v3.2 format data.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All inserts occur within caller's transaction for atomic import with other
+    entity types. Caller controls commit/rollback.
 
     Args:
         data: List of assembly-run dictionaries
@@ -2968,6 +3100,10 @@ def _import_dry_run_preview(data: dict, mode: str, skip_duplicates: bool) -> Imp
     Generate a preview of what an import would do without making changes.
 
     Feature 050: Dry-run preview for import operations.
+
+    Transaction boundary: Read-only operation within internal session_scope().
+    Creates a session to check for existing records but makes no modifications.
+    Session is committed without changes (read-only queries only).
 
     Args:
         data: Parsed JSON data to preview
@@ -3079,6 +3215,18 @@ def import_all_from_json_v4(
     Supports two import modes:
     - "merge": Add new records, skip duplicates (default, safe for incremental backups)
     - "replace": Clear all existing data first, then import (full restore)
+
+    Transaction boundary: ALL operations in single session (atomic).
+    Atomicity guarantee: Either ALL entities import successfully OR entire import
+    rolls back - no partial imports.
+    Steps executed atomically:
+    1. Clear all tables (replace mode only)
+    2. Import each entity type in dependency order
+    3. Resolve all FK references within same session
+    4. Commit only if all entities succeed
+
+    If dry_run=True, delegates to _import_dry_run_preview() which performs
+    read-only queries without modifications.
 
     Imports in dependency order:
     1. ingredients (no dependencies)
@@ -4632,6 +4780,16 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
     This function imports purchase data scanned from BT Mobile app, matching
     UPCs against existing products and creating Purchase + InventoryItem records.
 
+    Transaction boundary: ALL operations in single session (atomic).
+    Atomicity guarantee: Either ALL purchases import successfully OR entire import
+    rolls back - no partial data changes.
+    Steps executed atomically:
+    1. Validate file format and schema version
+    2. Match UPCs against existing products
+    3. Create Purchase records for matched products
+    4. Create InventoryItem records for each purchase
+    5. Commit only if all records succeed
+
     The import is ATOMIC per SC-008: if any record fails validation or creation,
     the entire import is rolled back with no partial data changes.
 
@@ -4783,6 +4941,16 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
 
     Adjusts InventoryItem quantities based on percentage remaining.
     Uses FIFO selection (oldest purchase_date first).
+
+    Transaction boundary: ALL operations in single session (atomic).
+    Atomicity guarantee: Either ALL inventory updates apply successfully OR entire
+    import rolls back - no partial data changes.
+    Steps executed atomically:
+    1. Validate file format and schema version
+    2. Match UPCs against existing products
+    3. Find oldest inventory item (FIFO) with remaining quantity
+    4. Calculate and apply quantity adjustment
+    5. Commit only if all updates succeed
 
     The import is ATOMIC per SC-008: if any record fails validation,
     the entire import is rolled back with no partial data changes.

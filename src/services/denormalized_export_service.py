@@ -48,7 +48,10 @@ from src.services.database import session_scope
 
 
 def _format_money(value) -> Optional[str]:
-    """Format a currency-like value as a 2-decimal string (e.g., '12.99')."""
+    """Format a currency-like value as a 2-decimal string (e.g., '12.99').
+
+    Transaction boundary: Pure computation (no database access).
+    """
     if value is None:
         return None
     try:
@@ -316,21 +319,30 @@ FINISHED_GOODS_CONTEXT_RICH_READONLY = [
 
 
 def _get_most_recent_purchase(product: Product) -> Optional[Purchase]:
-    """Get the most recent purchase for a product."""
+    """Get the most recent purchase for a product.
+
+    Transaction boundary: Operates on loaded relationships (no new queries).
+    """
     if not product.purchases:
         return None
     return max(product.purchases, key=lambda p: p.purchase_date)
 
 
 def _get_inventory_quantity(product: Product) -> float:
-    """Get total inventory quantity for a product."""
+    """Get total inventory quantity for a product.
+
+    Transaction boundary: Operates on loaded relationships (no new queries).
+    """
     if not product.inventory_items:
         return 0.0
     return sum(item.quantity for item in product.inventory_items)
 
 
 def _build_product_slug(product: Product) -> Optional[str]:
-    """Build a composite slug for product identification."""
+    """Build a composite slug for product identification.
+
+    Transaction boundary: Operates on loaded relationships (no new queries).
+    """
     if not product.ingredient:
         return None
     return f"{product.ingredient.slug}:{product.brand}:{product.package_unit_quantity}:{product.package_unit}"
@@ -339,6 +351,8 @@ def _build_product_slug(product: Product) -> Optional[str]:
 def _build_ingredient_hierarchy_path(ingredient: Ingredient) -> str:
     """
     Build full category hierarchy path for an ingredient.
+
+    Transaction boundary: Operates on loaded relationships (may trigger lazy loads).
 
     For ingredients using the self-referential hierarchy (Feature 031),
     walks up the parent chain to build a path like:
@@ -375,6 +389,8 @@ def _build_material_hierarchy_path(material: Material) -> str:
     """
     Build full category hierarchy path for a material.
 
+    Transaction boundary: Operates on loaded relationships (may trigger lazy loads).
+
     Materials use a 3-level hierarchy: Category > Subcategory > Material
     Example: "Ribbons > Satin > Red Satin Ribbon"
 
@@ -403,6 +419,8 @@ def _build_material_hierarchy_path(material: Material) -> str:
 def _calculate_ingredient_inventory_total(ingredient: Ingredient, session: Session) -> float:
     """
     Sum current_quantity across all inventory items for ingredient's products.
+
+    Transaction boundary: Inherits session from caller (read-only query).
 
     Args:
         ingredient: The ingredient to calculate inventory for
@@ -433,6 +451,8 @@ def _calculate_ingredient_inventory_total(ingredient: Ingredient, session: Sessi
 def _calculate_ingredient_average_cost(ingredient: Ingredient, session: Session) -> Optional[float]:
     """
     Calculate weighted average cost per unit for an ingredient.
+
+    Transaction boundary: Inherits session from caller (read-only query).
 
     Uses the most recent purchase prices from all products linked to this ingredient.
 
@@ -478,6 +498,8 @@ def _calculate_material_inventory_total(material: Material) -> float:
     """
     Calculate total inventory for a material from MaterialUnit records.
 
+    Transaction boundary: Pure computation (no database queries currently).
+
     Note: As of Feature 058, inventory is tracked at MaterialUnit level via FIFO.
     MaterialProduct no longer has current_inventory field.
 
@@ -496,6 +518,8 @@ def _calculate_material_inventory_total(material: Material) -> float:
 def _calculate_material_inventory_value(material: Material) -> float:
     """
     Calculate total inventory value for a material from MaterialUnit records.
+
+    Transaction boundary: Pure computation (no database queries currently).
 
     Note: As of Feature 058, inventory value is calculated from MaterialUnit FIFO costs.
     MaterialProduct no longer has inventory_value field.
@@ -516,6 +540,8 @@ def _calculate_recipe_cost(recipe: Recipe, session: Session) -> float:
     """
     Calculate total recipe cost from ingredient costs.
 
+    Transaction boundary: Operates on loaded relationships (may trigger lazy loads).
+
     Uses each RecipeIngredient's calculate_cost() method which handles
     unit conversions and density-based calculations.
 
@@ -533,7 +559,10 @@ def _calculate_recipe_cost(recipe: Recipe, session: Session) -> float:
 
 
 def _get_last_purchase_price(product: Product) -> Optional[str]:
-    """Get the last purchase price for a product as formatted string."""
+    """Get the last purchase price for a product as formatted string.
+
+    Transaction boundary: Operates on loaded relationships (no new queries).
+    """
     recent = _get_most_recent_purchase(product)
     if recent and recent.unit_price is not None:
         return _format_money(recent.unit_price)
@@ -551,6 +580,9 @@ def export_products_context_rich(
 ) -> ExportResult:
     """
     Export products with ingredient and supplier context for AI augmentation.
+
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
 
     Creates a context-rich file with all product fields plus context fields:
     - ingredient_slug, ingredient_name, ingredient_category
@@ -572,7 +604,10 @@ def export_products_context_rich(
 
 
 def _export_products_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of products context-rich export."""
+    """Internal implementation of products context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query products with eager loading
     products = (
         session.query(Product)
@@ -674,6 +709,9 @@ def export_inventory_context_rich(
     """
     Export inventory items with product and purchase context.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all inventory fields plus context fields:
     - product_slug, product_name, brand, package_unit
     - ingredient_slug, ingredient_name
@@ -693,7 +731,10 @@ def export_inventory_context_rich(
 
 
 def _export_inventory_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of inventory context-rich export."""
+    """Internal implementation of inventory context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query inventory items with eager loading
     items = (
         session.query(InventoryItem)
@@ -783,6 +824,9 @@ def export_purchases_context_rich(
     """
     Export purchases with product and supplier details.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all purchase fields plus context fields:
     - product_slug, product_name, brand
     - ingredient_slug, ingredient_name
@@ -802,7 +846,10 @@ def export_purchases_context_rich(
 
 
 def _export_purchases_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of purchases context-rich export."""
+    """Internal implementation of purchases context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query purchases with eager loading
     purchases = (
         session.query(Purchase)
@@ -886,6 +933,9 @@ def export_ingredients_context_rich(
     """
     Export ingredients with context for AI augmentation.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all ingredient fields plus context fields:
     - category_hierarchy: Full path (e.g., "Chocolate > Dark Chocolate > Semi-Sweet Chips")
     - products: Nested array of related products with purchase info
@@ -906,7 +956,10 @@ def export_ingredients_context_rich(
 
 
 def _export_ingredients_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of ingredients context-rich export."""
+    """Internal implementation of ingredients context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query ingredients with eager loading
     ingredients = (
         session.query(Ingredient)
@@ -1003,6 +1056,9 @@ def export_materials_context_rich(
     """
     Export materials with context for AI augmentation.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all material fields plus context fields:
     - category_hierarchy: Full path (e.g., "Ribbons > Satin > Red Satin Ribbon")
     - products: Nested array of related products
@@ -1024,7 +1080,10 @@ def export_materials_context_rich(
 
 
 def _export_materials_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of materials context-rich export."""
+    """Internal implementation of materials context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query materials with eager loading
     materials = (
         session.query(Material)
@@ -1115,6 +1174,9 @@ def export_recipes_context_rich(
     """
     Export recipes with full ingredient details and computed costs.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all recipe fields plus context fields:
     - ingredients: Nested array with ingredient details and costs
     - recipe_components: Nested array of sub-recipes (if any)
@@ -1135,7 +1197,10 @@ def export_recipes_context_rich(
 
 
 def _export_recipes_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of recipes context-rich export."""
+    """Internal implementation of recipes context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query recipes with eager loading
     recipes = (
         session.query(Recipe)
@@ -1256,6 +1321,9 @@ def export_material_products_context_rich(
     """
     Export material products with context for AI augmentation.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all material product fields plus context fields:
     - material_slug, material_name, material_category, material_subcategory
     - supplier_name
@@ -1274,7 +1342,10 @@ def export_material_products_context_rich(
 
 
 def _export_material_products_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of material products context-rich export."""
+    """Internal implementation of material products context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query material products with eager loading
     products = (
         session.query(MaterialProduct)
@@ -1363,6 +1434,9 @@ def export_finished_units_context_rich(
     """
     Export finished units with recipe context for AI augmentation.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all finished unit fields plus context fields:
     - recipe_slug, recipe_name, recipe_category
 
@@ -1380,7 +1454,10 @@ def export_finished_units_context_rich(
 
 
 def _export_finished_units_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of finished units context-rich export."""
+    """Internal implementation of finished units context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query finished units with eager loading
     units = (
         session.query(FinishedUnit)
@@ -1464,6 +1541,9 @@ def export_finished_goods_context_rich(
     """
     Export finished goods with component context for AI augmentation.
 
+    Transaction boundary: Read-only snapshot within single session.
+    Creates or uses caller's session for consistent read of all data.
+
     Creates a context-rich file with all finished good fields plus context fields:
     - components: Nested array with component details
 
@@ -1481,7 +1561,10 @@ def export_finished_goods_context_rich(
 
 
 def _export_finished_goods_context_rich_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of finished goods context-rich export."""
+    """Internal implementation of finished goods context-rich export.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
+    """
     # Query finished goods with eager loading
     goods = (
         session.query(FinishedGood)
@@ -1575,6 +1658,11 @@ def export_all_context_rich(
 ) -> Dict[str, ExportResult]:
     """
     Export all context-rich files to a directory.
+
+    Transaction boundary: Multi-entity export within single session for consistency.
+    All entity exports share the same session to ensure consistent snapshot across
+    all output files. If caller provides session, uses that for transactional
+    composition; otherwise creates new session_scope for entire export operation.
 
     Args:
         output_dir: Directory for output files

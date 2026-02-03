@@ -261,6 +261,8 @@ class FormatDetectionResult:
 def detect_format(file_path: str) -> FormatDetectionResult:
     """Detect the format of an import file.
 
+    Transaction boundary: Read-only (file I/O, no database access).
+
     Args:
         file_path: Path to JSON file to analyze
 
@@ -279,6 +281,8 @@ def detect_format(file_path: str) -> FormatDetectionResult:
 
 def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
     """Detect format from parsed JSON data.
+
+    Transaction boundary: Pure computation (no database access).
 
     Detection rules (in order of priority):
     1. Context-Rich: Has _meta.editable_fields
@@ -376,6 +380,8 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
 def extract_editable_fields(record: Dict[str, Any], meta: Dict[str, Any]) -> Dict[str, Any]:
     """Extract only editable fields from a context-rich record.
 
+    Transaction boundary: Pure computation (no database access).
+
     This filters out computed and readonly fields, returning only the
     fields that should be imported/merged with existing records.
 
@@ -392,6 +398,9 @@ def extract_editable_fields(record: Dict[str, Any], meta: Dict[str, Any]) -> Dic
 
 def merge_fields(entity: Any, editable_data: Dict[str, Any]) -> bool:
     """Update entity with editable field values.
+
+    Transaction boundary: Operates on entity within caller's session.
+    Modifies entity in-place; changes committed by caller's session management.
 
     Only updates fields that are present in editable_data.
     Does not clear fields not present in the update.
@@ -415,6 +424,8 @@ def merge_fields(entity: Any, editable_data: Dict[str, Any]) -> bool:
 
 def _find_entity_by_slug(export_type: str, slug: str, session: Session) -> Optional[Any]:
     """Find an entity by its slug for context-rich import.
+
+    Transaction boundary: Inherits session from caller (read-only query).
 
     Args:
         export_type: The export type (e.g., "ingredients", "materials", "recipes")
@@ -518,6 +529,14 @@ def import_context_rich(
 ) -> ContextRichImportResult:
     """Import a context-rich file, merging editable fields with existing records.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates or uses caller's session for atomic merge of all records.
+    Steps executed atomically:
+    1. Detect and validate file format
+    2. For each record: find by slug, extract editable fields, merge
+    Atomicity guarantee: Either ALL merges apply OR entire import rolls back.
+    dry_run=True triggers rollback after validation regardless of success.
+
     Context-rich imports are merge-only operations - they update existing
     records with AI-augmented editable fields. Records not found in the
     database are skipped (not created).
@@ -525,7 +544,7 @@ def import_context_rich(
     Args:
         file_path: Path to the context-rich JSON file
         dry_run: If True, preview changes without modifying database
-        session: Optional database session
+        session: Optional database session for transactional composition
 
     Returns:
         ContextRichImportResult with import statistics
@@ -546,6 +565,9 @@ def _import_context_rich_impl(
     session: Session,
 ) -> ContextRichImportResult:
     """Implementation of context-rich import.
+
+    Transaction boundary: Inherits session from caller.
+    Processes all record merges within caller's transaction.
 
     Args:
         file_path: Path to the JSON file
@@ -614,6 +636,8 @@ def _import_context_rich_impl(
 def _resolve_fk_by_slug(entity_type: str, slug_value: str, session: Session) -> Optional[int]:
     """Resolve a foreign key reference by slug/name.
 
+    Transaction boundary: Inherits session from caller (read-only query).
+
     Args:
         entity_type: Type of entity ("ingredient", "supplier", "product")
         slug_value: The slug or name to look up
@@ -679,6 +703,8 @@ def _find_existing_by_slug(
     record: Dict[str, Any], entity_type: str, session: Session
 ) -> Optional[Any]:
     """Find an existing entity by its unique identifier (slug/name/uuid).
+
+    Transaction boundary: Inherits session from caller (read-only query).
 
     Args:
         record: The record containing identifier fields
@@ -756,6 +782,9 @@ def _import_record_merge(
 ) -> Tuple[str, Optional[str]]:
     """Import a record in merge mode (update existing, add new).
 
+    Transaction boundary: Inherits session from caller.
+    May update existing entity or create new; writes within caller's transaction.
+
     Args:
         record: The record to import
         entity_type: Type of entity
@@ -816,6 +845,9 @@ def _import_record_skip_existing(
 ) -> Tuple[str, Optional[str]]:
     """Import a record in skip_existing mode (add new only).
 
+    Transaction boundary: Inherits session from caller.
+    May create new entity; writes within caller's transaction.
+
     Args:
         record: The record to import
         entity_type: Type of entity
@@ -841,6 +873,9 @@ def _create_new_record(
     session: Session,
 ) -> Tuple[str, Optional[str]]:
     """Create a new entity from the record.
+
+    Transaction boundary: Inherits session from caller.
+    Creates new entity within caller's transaction.
 
     Args:
         record: The record data
@@ -1077,6 +1112,8 @@ def _write_skipped_records_log(
 ) -> str:
     """Write skipped records to a log file.
 
+    Transaction boundary: File I/O only (no database access).
+
     Args:
         import_file: Path to the original import file
         skipped_records: List of skipped record entries
@@ -1125,6 +1162,16 @@ def import_context_rich_export(
 ) -> EnhancedImportResult:
     """Import a context-rich export file with FK resolution.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates or uses caller's session for atomic import with FK resolution.
+    Steps executed atomically:
+    1. Load and validate JSON file
+    2. Determine entity type from export_type
+    3. Collect and resolve missing FKs (may create entities)
+    4. For each record: merge or add based on mode
+    Atomicity guarantee: Either ALL records import OR entire import rolls back.
+    dry_run=True triggers rollback after validation regardless of success.
+
     Args:
         file_path: Path to the export JSON file
         mode: Import mode - "merge" (default) or "skip_existing"
@@ -1159,6 +1206,9 @@ def _import_context_rich_export_impl(
     session: Session,
 ) -> EnhancedImportResult:
     """Implementation of context-rich export import with FK resolution.
+
+    Transaction boundary: Inherits session from caller.
+    Processes all record imports and FK resolutions within caller's transaction.
 
     Args:
         file_path: Path to the export JSON file
@@ -1344,7 +1394,10 @@ def _import_context_rich_export_impl(
 
 
 def _export_type_to_entity_type(export_type: str) -> Optional[str]:
-    """Convert export type to entity type."""
+    """Convert export type to entity type.
+
+    Transaction boundary: Pure computation (no database access).
+    """
     mapping = {
         "products": "product",
         "product": "product",
@@ -1371,7 +1424,10 @@ def _export_type_to_entity_type(export_type: str) -> Optional[str]:
 
 
 def _get_record_identifier(record: Dict[str, Any], entity_type: str) -> str:
-    """Get a human-readable identifier for a record."""
+    """Get a human-readable identifier for a record.
+
+    Transaction boundary: Pure computation (no database access).
+    """
     if entity_type == "ingredient":
         return (
             record.get("ingredient_slug") or record.get("slug") or str(record.get("id", "unknown"))
@@ -1403,6 +1459,8 @@ def _collect_missing_fks(
     session: Session,
 ) -> List[MissingFK]:
     """Collect missing FK references from export records.
+
+    Transaction boundary: Inherits session from caller (read-only queries).
 
     Args:
         records: List of records from the export
@@ -1519,6 +1577,8 @@ def _check_record_fk(
 ) -> Optional[Tuple[str, str]]:
     """Check if a record has unresolved FK references.
 
+    Transaction boundary: Inherits session from caller (read-only queries).
+
     Args:
         record: The record to check
         entity_type: Type of entity
@@ -1572,6 +1632,8 @@ def _record_has_skipped_fk(
     skipped_fk_values: set,
 ) -> bool:
     """Check if a record references a skipped FK value.
+
+    Transaction boundary: Pure computation (no database access).
 
     Args:
         record: The record to check

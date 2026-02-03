@@ -144,7 +144,11 @@ DEPENDENCY_ORDER = {
 
 
 def _calculate_checksum(file_path: Path) -> str:
-    """Calculate SHA256 checksum of a file."""
+    """
+    Calculate SHA256 checksum of a file.
+
+    Transaction boundary: Pure computation (file I/O only, no database access).
+    """
     with open(file_path, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
 
@@ -155,7 +159,11 @@ def _resolve_recipe(
     session: Session,
     context: str = "",
 ) -> Optional[int]:
-    """Resolve recipe to ID using slug -> previous_slug -> name fallback.
+    """
+    Resolve recipe to ID using slug -> previous_slug -> name fallback.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Performs lookup within caller's session context for consistent reads.
 
     Feature 080: Centralized recipe resolution with fallback chain for imports.
 
@@ -214,6 +222,9 @@ def _write_entity_file(
     """
     Write entity records to JSON file and return FileEntry.
 
+    Transaction boundary: Pure computation (file I/O only, no database access).
+    Writes data already extracted from the database to JSON file.
+
     Args:
         output_dir: Directory to write file to
         entity_type: Type of entity (e.g., "suppliers")
@@ -252,7 +263,12 @@ def _write_entity_file(
 
 
 def _export_suppliers(output_dir: Path, session: Session) -> FileEntry:
-    """Export all suppliers to JSON file."""
+    """
+    Export all suppliers to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all suppliers within caller's session for consistent snapshot.
+    """
     suppliers = session.query(Supplier).all()
 
     records = []
@@ -277,7 +293,12 @@ def _export_suppliers(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
-    """Export all ingredients to JSON file."""
+    """
+    Export all ingredients to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all ingredients within caller's session for consistent snapshot.
+    """
     ingredients = session.query(Ingredient).all()
 
     records = []
@@ -315,7 +336,13 @@ def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_products(output_dir: Path, session: Session) -> FileEntry:
-    """Export all products to JSON file with FK resolution fields."""
+    """
+    Export all products to JSON file with FK resolution fields.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all products with relationships within caller's session for
+    consistent snapshot.
+    """
     products = (
         session.query(Product)
         .options(
@@ -370,7 +397,13 @@ def _export_products(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
-    """Export all recipes with ingredients and components to JSON file."""
+    """
+    Export all recipes with ingredients and components to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all recipes with relationships within caller's session for
+    consistent snapshot.
+    """
     recipes = (
         session.query(Recipe)
         .options(
@@ -440,7 +473,13 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_purchases(output_dir: Path, session: Session) -> FileEntry:
-    """Export all purchases to JSON file with FK resolution fields."""
+    """
+    Export all purchases to JSON file with FK resolution fields.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all purchases with relationships within caller's session for
+    consistent snapshot.
+    """
     purchases = (
         session.query(Purchase)
         .options(
@@ -477,7 +516,13 @@ def _export_purchases(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_inventory_items(output_dir: Path, session: Session) -> FileEntry:
-    """Export all inventory items to JSON file with FK resolution fields."""
+    """
+    Export all inventory items to JSON file with FK resolution fields.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all inventory items with relationships within caller's session for
+    consistent snapshot.
+    """
     items = (
         session.query(InventoryItem)
         .options(
@@ -524,7 +569,12 @@ def _export_inventory_items(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_material_categories(output_dir: Path, session: Session) -> FileEntry:
-    """Export all material categories to JSON file."""
+    """
+    Export all material categories to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all material categories within caller's session for consistent snapshot.
+    """
     categories = session.query(MaterialCategory).all()
 
     records = []
@@ -543,7 +593,13 @@ def _export_material_categories(output_dir: Path, session: Session) -> FileEntry
 
 
 def _export_material_subcategories(output_dir: Path, session: Session) -> FileEntry:
-    """Export all material subcategories to JSON file with FK resolution."""
+    """
+    Export all material subcategories to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all subcategories with relationships within caller's session for
+    consistent snapshot.
+    """
     subcategories = (
         session.query(MaterialSubcategory).options(joinedload(MaterialSubcategory.category)).all()
     )
@@ -565,7 +621,13 @@ def _export_material_subcategories(output_dir: Path, session: Session) -> FileEn
 
 
 def _export_materials(output_dir: Path, session: Session) -> FileEntry:
-    """Export all materials to JSON file with FK resolution."""
+    """
+    Export all materials to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all materials with relationships within caller's session for
+    consistent snapshot.
+    """
     materials = session.query(Material).options(joinedload(Material.subcategory)).all()
 
     records = []
@@ -585,7 +647,13 @@ def _export_materials(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
-    """Export all material products to JSON file with FK resolution."""
+    """
+    Export all material products to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all material products with relationships within caller's session for
+    consistent snapshot.
+    """
     products = (
         session.query(MaterialProduct)
         .options(
@@ -620,7 +688,13 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
-    """Export all material units to JSON file with FK resolution."""
+    """
+    Export all material units to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all material units with relationships within caller's session for
+    consistent snapshot.
+    """
     units = (
         session.query(MaterialUnit).options(joinedload(MaterialUnit.material_product)).all()
     )
@@ -644,7 +718,13 @@ def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
-    """Export all material purchases to JSON file with FK resolution."""
+    """
+    Export all material purchases to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all material purchases with relationships within caller's session for
+    consistent snapshot.
+    """
     purchases = (
         session.query(MaterialPurchase)
         .options(
@@ -675,7 +755,12 @@ def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_material_inventory_items(output_dir: Path, session: Session) -> FileEntry:
-    """Export all material inventory items (FIFO lots) to JSON file with FK resolution.
+    """
+    Export all material inventory items (FIFO lots) to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all material inventory items with relationships within caller's session
+    for consistent snapshot.
 
     Feature 058: MaterialInventoryItem tracks individual inventory lots for FIFO.
     """
@@ -716,7 +801,12 @@ def _export_material_inventory_items(output_dir: Path, session: Session) -> File
 
 
 def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
-    """Export all finished goods to JSON file."""
+    """
+    Export all finished goods to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all finished goods within caller's session for consistent snapshot.
+    """
     goods = session.query(FinishedGood).all()
 
     records = []
@@ -741,6 +831,10 @@ def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
 
 def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
     """Export all finished units to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all finished units with recipe relationships within caller's session
+    for consistent snapshot.
 
     Feature 056: FinishedUnits are the single source of truth for yield tracking.
     Feature 080: Recipe reference uses recipe_slug for portable identification,
@@ -775,7 +869,12 @@ def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_events(output_dir: Path, session: Session) -> FileEntry:
-    """Export all events with production/assembly targets to JSON file."""
+    """Export all events with production/assembly targets to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all events with nested targets and relationships within caller's session
+    for consistent snapshot.
+    """
     events = (
         session.query(Event)
         .options(
@@ -833,6 +932,10 @@ def _export_events(output_dir: Path, session: Session) -> FileEntry:
 def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
     """Export all production runs to JSON file with FK resolution.
 
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all production runs with recipe/event/unit relationships within
+    caller's session for consistent snapshot.
+
     Feature 080: Recipe reference uses recipe_slug for portable identification,
     with recipe_name kept for backward compatibility.
     """
@@ -876,7 +979,12 @@ def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
 
 
 def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntry:
-    """Export all inventory depletions to JSON file with FK resolution."""
+    """Export all inventory depletions to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all depletions with inventory item/product relationships within
+    caller's session for consistent snapshot.
+    """
     depletions = (
         session.query(InventoryDepletion)
         .options(
@@ -922,6 +1030,10 @@ def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntr
 def _export_recipe_snapshots(output_dir: Path, session: Session) -> FileEntry:
     """Export all recipe snapshots to JSON file with FK resolution.
 
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all recipe snapshots with recipe relationships within caller's session
+    for consistent snapshot.
+
     Feature 081: RecipeSnapshot export for cost history preservation.
     Exports in chronological order (oldest first) per FR-015.
     """
@@ -955,6 +1067,10 @@ def _export_recipe_snapshots(output_dir: Path, session: Session) -> FileEntry:
 def _export_finished_good_snapshots(output_dir: Path, session: Session) -> FileEntry:
     """Export all finished good snapshots to JSON file with FK resolution.
 
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all finished good snapshots with relationships within caller's session
+    for consistent snapshot.
+
     Feature 081: FinishedGoodSnapshot export for assembly cost history.
     Exports in chronological order (oldest first) per FR-015.
     """
@@ -986,6 +1102,10 @@ def _export_finished_good_snapshots(output_dir: Path, session: Session) -> FileE
 def _export_material_unit_snapshots(output_dir: Path, session: Session) -> FileEntry:
     """Export all material unit snapshots to JSON file with FK resolution.
 
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all material unit snapshots with relationships within caller's session
+    for consistent snapshot.
+
     Feature 081: MaterialUnitSnapshot export for material pricing history.
     Exports in chronological order (oldest first) per FR-015.
     """
@@ -1016,6 +1136,10 @@ def _export_material_unit_snapshots(output_dir: Path, session: Session) -> FileE
 
 def _export_finished_unit_snapshots(output_dir: Path, session: Session) -> FileEntry:
     """Export all finished unit snapshots to JSON file with FK resolution.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all finished unit snapshots with relationships within caller's session
+    for consistent snapshot.
 
     Feature 081: FinishedUnitSnapshot export for unit cost history.
     Exports in chronological order (oldest first) per FR-015.
@@ -1058,6 +1182,11 @@ def export_complete(
     """
     Export complete database to individual entity files with manifest.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for transactional composition. All entity exports
+    execute within the same session for point-in-time consistency across all
+    exported files.
+
     Creates a directory containing:
     - manifest.json - Export metadata with checksums and import order
     - suppliers.json - All suppliers
@@ -1086,7 +1215,13 @@ def _export_complete_impl(
     create_zip: bool,
     session: Session,
 ) -> ExportManifest:
-    """Internal implementation of complete export."""
+    """Internal implementation of complete export.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All entity exports use the provided session for consistent point-in-time
+    snapshot. Write operations (directory creation, JSON file writes) occur
+    after all reads complete.
+    """
     output_dir = Path(output_path)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1150,6 +1285,10 @@ def _export_complete_impl(
 def validate_export(export_path: str) -> Dict:
     """
     Validate an export directory by checking manifest checksums.
+
+    Transaction boundary: Pure file I/O operation (no database access).
+    Reads manifest.json and validates checksums of exported JSON files.
+    No SQLAlchemy session required.
 
     Args:
         export_path: Path to export directory or ZIP file
@@ -1225,6 +1364,12 @@ def import_complete(
     """
     Import a complete backup from a coordinated export directory.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for transactional composition. All entity imports
+    execute within a single session for atomic rollback on failure. If
+    clear_existing=True, deletes all existing data in reverse dependency order
+    before importing.
+
     Reads the manifest.json to determine import order, then imports each
     entity file in sequence. Uses replace mode - all existing data is cleared
     before import.
@@ -1251,7 +1396,12 @@ def _import_complete_impl(
     *,
     clear_existing: bool = True,
 ) -> Dict:
-    """Internal implementation of complete import."""
+    """Internal implementation of complete import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All entity deletes (if clear_existing) and inserts use the provided session.
+    Session commits/rollbacks are managed by the caller's session_scope.
+    """
     from src.services import import_export_service
 
     import_dir = Path(import_path)
@@ -1375,6 +1525,8 @@ def _import_complete_impl(
 def _parse_date(date_str: Optional[str]):
     """Parse ISO date string to Python date object.
 
+    Transaction boundary: Pure computation (no database access).
+
     Args:
         date_str: Date string in ISO format (YYYY-MM-DD) or None
 
@@ -1400,6 +1552,11 @@ def _import_entity_records(
     session: Session,
 ) -> int:
     """Import records for a specific entity type.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries (FK resolution) and inserts use the provided session. Errors
+    during individual record imports are logged but don't abort the batch -
+    partial imports are possible. Rollback semantics are managed by caller.
 
     Args:
         entity_type: Type of entity (e.g., "suppliers", "ingredients")

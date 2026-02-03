@@ -57,6 +57,8 @@ def _parse_datetime(datetime_str: str) -> Optional[date]:
     """
     Parse datetime string to date object.
 
+    Transaction boundary: Pure computation (no database access).
+
     Supports ISO 8601 format with or without time component.
 
     Args:
@@ -85,6 +87,9 @@ def _parse_datetime(datetime_str: str) -> Optional[date]:
 def _resolve_supplier(name: str, session: Session) -> Optional[Supplier]:
     """
     Find or create supplier by name.
+
+    Transaction boundary: Inherits session from caller.
+    May create Supplier if not found (single-step write within caller's transaction).
 
     Creates a minimal supplier record if not found. Uses supplier_type='online'
     for new suppliers since mobile imports typically don't include full address.
@@ -124,6 +129,8 @@ def _is_duplicate_purchase(
     """
     Check if purchase appears to be a duplicate.
 
+    Transaction boundary: Inherits session from caller (read-only query).
+
     Uses three-field combination for detection:
     - Same product
     - Same date
@@ -154,6 +161,9 @@ def _is_duplicate_purchase(
 def _update_product_average_cost(product: Product, session: Session) -> None:
     """
     Recalculate weighted average cost from inventory items.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Note: Product model doesn't currently have average_cost field; this is a placeholder.
 
     Computes weighted average based on current inventory quantities
     and their unit costs.
@@ -195,6 +205,8 @@ def _resolve_product_by_slug(
 ) -> Tuple[Optional[Product], Optional[str]]:
     """
     Resolve a product from a composite slug, product ID, or UPC/GTIN.
+
+    Transaction boundary: Inherits session from caller (read-only query).
 
     Supports multiple formats:
     1. Composite slug: ingredient_slug:brand:package_unit_quantity:package_unit
@@ -287,6 +299,9 @@ def _try_create_provisional_from_slug(
     """
     F057: Try to create a provisional product from composite slug.
 
+    Transaction boundary: Inherits session from caller.
+    May create Product via product_service.create_provisional_product (single-step write).
+
     If the product_slug is in composite format (ingredient_slug:brand:qty:unit)
     and the ingredient exists, creates a provisional product.
 
@@ -369,12 +384,28 @@ def import_purchases(
     """
     Import purchase transactions from JSON file.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates or uses caller's session for atomic import of all purchases.
+    Steps executed atomically:
+    1. Parse and validate JSON file
+    2. For each purchase record:
+       a. Resolve product (or create provisional)
+       b. Check for duplicate
+       c. Resolve/create supplier
+       d. Create Purchase record
+       e. Create InventoryItem record
+       f. Update product average cost
+    Atomicity guarantee: Either ALL purchases import OR entire import rolls back.
+    dry_run=True triggers rollback after validation regardless of success.
+
     Creates Purchase and InventoryItem records, updates costs.
     Detects and skips duplicate purchases.
 
     Args:
         file_path: Path to JSON file with purchases
         dry_run: If True, validate without committing
+        strict_mode: If True, stop on first error
+        session: Optional session for transactional composition
 
     Returns:
         ImportResult with counts and any errors
@@ -417,11 +448,13 @@ def _import_purchases_impl(
     """
     Internal implementation of purchase import.
 
+    Transaction boundary: Inherits session from caller.
     Processes all purchases atomically - any failure rolls back all changes.
 
     Args:
         file_path: Path to JSON file
         dry_run: If True, rollback after validation
+        strict_mode: If True, stop on first error
         session: Database session
 
     Returns:
@@ -505,6 +538,9 @@ def _process_single_purchase(
 ) -> None:
     """
     Process a single purchase record.
+
+    Transaction boundary: Inherits session from caller.
+    Creates Purchase and InventoryItem records within caller's transaction.
 
     Creates Purchase and InventoryItem records if valid.
 
@@ -631,6 +667,18 @@ def import_adjustments(
     """
     Import inventory adjustments from JSON file.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Creates or uses caller's session for atomic import of all adjustments.
+    Steps executed atomically:
+    1. Parse and validate JSON file
+    2. For each adjustment record:
+       a. Resolve product by slug
+       b. Validate reason code
+       c. Apply FIFO inventory depletion
+       d. Create InventoryDepletion records
+    Atomicity guarantee: Either ALL adjustments apply OR entire import rolls back.
+    dry_run=True triggers rollback after validation regardless of success.
+
     Decreases inventory quantities for spoilage, waste, and corrections.
     Only negative quantities are allowed (increases must be done via purchases).
     Uses FIFO to select which inventory items to adjust.
@@ -638,6 +686,8 @@ def import_adjustments(
     Args:
         file_path: Path to JSON file with adjustments
         dry_run: If True, validate without committing
+        strict_mode: If True, stop on first error
+        session: Optional session for transactional composition
 
     Returns:
         ImportResult with counts and any errors
@@ -682,9 +732,13 @@ def _import_adjustments_impl(
     """
     Internal implementation of adjustment import.
 
+    Transaction boundary: Inherits session from caller.
+    Processes all adjustments atomically within caller's transaction.
+
     Args:
         file_path: Path to JSON file
         dry_run: If True, rollback after validation
+        strict_mode: If True, stop on first error
         session: Database session
 
     Returns:
@@ -765,6 +819,10 @@ def _process_single_adjustment(
 ) -> None:
     """
     Process a single adjustment record.
+
+    Transaction boundary: Inherits session from caller.
+    Creates InventoryDepletion records and updates InventoryItem quantities
+    within caller's transaction using FIFO selection.
 
     Validates fields, resolves product, selects inventory via FIFO,
     creates depletion record, and updates inventory quantity.

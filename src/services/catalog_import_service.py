@@ -408,6 +408,10 @@ def import_suppliers(
     Independently callable for catalog imports. Uses the session=None pattern
     for transactional composition.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
     Args:
         data: List of supplier dictionaries from catalog file
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
@@ -429,7 +433,13 @@ def _import_suppliers_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of supplier import."""
+    """
+    Internal implementation of supplier import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+    """
     from src.services.supplier_service import generate_supplier_slug
 
     result = CatalogImportResult()
@@ -559,6 +569,10 @@ def import_ingredients(
     Independently callable for future integrations (USDA FDC, FoodOn).
     Uses the session=None pattern for transactional composition.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
     Args:
         data: List of ingredient dictionaries from catalog file
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
@@ -580,7 +594,13 @@ def _import_ingredients_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of ingredient import."""
+    """
+    Internal implementation of ingredient import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -696,6 +716,8 @@ def _validate_ingredient_data(item: Dict) -> Optional[Dict]:
     """
     Validate ingredient data before creation.
 
+    Transaction boundary: Pure computation (no database access).
+
     Args:
         item: Ingredient dictionary from catalog file
 
@@ -751,6 +773,10 @@ def import_products(
     Independently callable for future integrations (UPC databases).
     Uses the session=None pattern for transactional composition.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
     Args:
         data: List of product dictionaries from catalog file
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
@@ -774,7 +800,12 @@ def _import_products_impl(
     session: Session,
     supplier_id_to_slug: Optional[Dict[int, str]] = None,
 ) -> CatalogImportResult:
-    """Internal implementation of product import.
+    """
+    Internal implementation of product import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
 
     Product matching uses (ingredient_id, brand, package_unit_quantity, package_unit)
     to identify existing products. If multiple products match (ambiguous), the import
@@ -971,6 +1002,8 @@ def _validate_product_data(item: Dict) -> Optional[Dict]:
     """
     Validate product data before creation.
 
+    Transaction boundary: Pure computation (no database access).
+
     Args:
         item: Product dictionary from catalog file
 
@@ -1017,6 +1050,10 @@ def import_recipes(
     Detects circular recipe references.
     AUGMENT mode is not supported for recipes - raises error if requested.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
     Args:
         data: List of recipe dictionaries from catalog file
         mode: Must be "add" (AUGMENT not supported for recipes)
@@ -1038,7 +1075,13 @@ def _import_recipes_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of recipe import."""
+    """
+    Internal implementation of recipe import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -1282,6 +1325,8 @@ def _detect_cycles(recipes_data: List[Dict]) -> Optional[List[str]]:
     """
     Detect circular recipe references.
 
+    Transaction boundary: Pure computation (no database access).
+
     Args:
         recipes_data: List of recipe dictionaries to analyze
 
@@ -1333,6 +1378,8 @@ def _detect_cycles(recipes_data: List[Dict]) -> Optional[List[str]]:
 def _validate_recipe_data(item: Dict) -> Optional[Dict]:
     """
     Validate recipe data before creation.
+
+    Transaction boundary: Pure computation (no database access).
 
     Args:
         item: Recipe dictionary from catalog file
@@ -1417,6 +1464,10 @@ def import_finished_units(
     Validates recipe_name FK references before creating FinishedUnits.
     Uses the session=None pattern for transactional composition.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
     Args:
         data: List of FinishedUnit dictionaries from catalog file
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
@@ -1438,7 +1489,13 @@ def _import_finished_units_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of FinishedUnit import."""
+    """
+    Internal implementation of FinishedUnit import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -1567,6 +1624,9 @@ def _ensure_recipe_has_finished_unit(
     """
     Check if a recipe has at least one FinishedUnit.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Performs a read-only query using the provided session.
+
     Note: This function previously created FinishedUnits from legacy
     yield_quantity/yield_unit fields on Recipe. Those fields were removed
     in F056. This function now only checks if FinishedUnits exist.
@@ -1598,6 +1658,10 @@ def import_material_categories(
     """
     Import material categories from parsed data.
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
     Args:
         data: List of category dictionaries
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
@@ -1619,7 +1683,13 @@ def _import_material_categories_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of material category import."""
+    """
+    Internal implementation of material category import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -1684,7 +1754,13 @@ def import_material_subcategories(
     dry_run: bool = False,
     session: Optional[Session] = None,
 ) -> CatalogImportResult:
-    """Import material subcategories from parsed data."""
+    """
+    Import material subcategories from parsed data.
+
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+    """
     if session is not None:
         return _import_material_subcategories_impl(data, mode, dry_run, session)
     with session_scope() as sess:
@@ -1697,7 +1773,13 @@ def _import_material_subcategories_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of material subcategory import."""
+    """
+    Internal implementation of material subcategory import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -1786,7 +1868,13 @@ def import_materials(
     dry_run: bool = False,
     session: Optional[Session] = None,
 ) -> CatalogImportResult:
-    """Import materials from parsed data."""
+    """
+    Import materials from parsed data.
+
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+    """
     if session is not None:
         return _import_materials_impl(data, mode, dry_run, session)
     with session_scope() as sess:
@@ -1794,7 +1882,11 @@ def import_materials(
 
 
 def _generate_slug(name: str) -> str:
-    """Generate a URL-friendly slug from a name."""
+    """
+    Generate a URL-friendly slug from a name.
+
+    Transaction boundary: Pure computation (no database access).
+    """
     slug = name.lower().replace(" ", "_").replace("-", "_")
     return "".join(c for c in slug if c.isalnum() or c == "_")
 
@@ -1805,7 +1897,14 @@ def _import_materials_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of material import."""
+    """
+    Internal implementation of material import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. May auto-create
+    MaterialCategory and MaterialSubcategory records within the same transaction.
+    If dry_run=True, session is rolled back.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -1995,7 +2094,13 @@ def import_material_products(
     dry_run: bool = False,
     session: Optional[Session] = None,
 ) -> CatalogImportResult:
-    """Import material products from parsed data."""
+    """
+    Import material products from parsed data.
+
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+    """
     if session is not None:
         return _import_material_products_impl(data, mode, dry_run, session)
     with session_scope() as sess:
@@ -2008,7 +2113,13 @@ def _import_material_products_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of material product import."""
+    """
+    Internal implementation of material product import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, session
+    is rolled back.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -2170,7 +2281,13 @@ def import_material_units(
     dry_run: bool = False,
     session: Optional[Session] = None,
 ) -> CatalogImportResult:
-    """Import material units from parsed data."""
+    """
+    Import material units from parsed data.
+
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+    """
     if session is not None:
         return _import_material_units_impl(data, mode, dry_run, session)
     with session_scope() as sess:
@@ -2183,7 +2300,12 @@ def _import_material_units_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of material unit import.
+    """
+    Internal implementation of material unit import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, session
+    is rolled back.
 
     Feature 084: MaterialUnit now references MaterialProduct (not Material).
     Import uses material_product_slug to resolve the FK.
@@ -2310,6 +2432,8 @@ def validate_catalog_file(file_path: str) -> Dict:
 
     Detects file format and ensures it's valid JSON for catalog import.
 
+    Transaction boundary: Read-only file I/O (no database access).
+
     Args:
         file_path: Path to the JSON catalog file
 
@@ -2354,6 +2478,11 @@ def import_catalog(
     Main entry point for catalog import. Validates file format, then
     imports entities in dependency order (ingredients -> products -> recipes).
 
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other operations.
+    ALL entity imports share the same session for transactional atomicity.
+    If dry_run=True, session is rolled back after all entity imports.
+
     Args:
         file_path: Path to the JSON catalog file
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
@@ -2395,6 +2524,17 @@ def _import_catalog_impl(
 ) -> CatalogImportResult:
     """
     Internal implementation of catalog import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    ALL entity imports use the same session for transactional atomicity.
+    Entities are imported in dependency order with flush() between to ensure
+    FK references are resolvable:
+    1. suppliers (no dependencies)
+    2. ingredients (no dependencies)
+    3. products (depends on ingredients, suppliers)
+    4. recipes (depends on ingredients)
+    5. finished_units (depends on recipes)
+    6. material_categories -> subcategories -> materials -> products -> units
 
     Processes entities in dependency order to ensure FK references exist.
     """
