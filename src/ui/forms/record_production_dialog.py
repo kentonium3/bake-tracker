@@ -22,6 +22,8 @@ from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 from src.services import batch_production_service, event_service, recipe_service
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.ui.utils import ui_session
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
@@ -578,7 +580,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 requirements.append(f"{name}: {scaled_qty:.2f} {unit}")
 
             self.requirements_label.configure(text="\n".join(requirements))
-        except Exception:
+        except (ServiceError, Exception):
             # If we can't get ingredients, just show empty
             self.requirements_label.configure(text="Unable to load ingredients")
 
@@ -624,7 +626,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
                         return y.get("items_per_batch") or 1
                 # Fallback to first yield if no slug match
                 return yields[0].get("items_per_batch") or 1
-        except Exception:
+        except (ServiceError, Exception):
             pass
 
         return 1
@@ -637,7 +639,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
             # Sort by event_date ascending; events without date go to end
             events.sort(key=lambda e: e.event_date or datetime.max.date())
             return events
-        except Exception:
+        except (ServiceError, Exception):
             # If event loading fails, return empty list
             return []
 
