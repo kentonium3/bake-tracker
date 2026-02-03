@@ -36,8 +36,9 @@ class MaterialProductPopup(ctk.CTkToplevel):
         self.withdraw()
 
         # Load product data
-        self.product = material_catalog_service.get_product(product_id)
-        if not self.product:
+        try:
+            self.product = material_catalog_service.get_product(product_id)
+        except Exception:
             self.destroy()
             return
 

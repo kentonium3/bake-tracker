@@ -32,6 +32,7 @@ from sqlalchemy.orm import Session
 
 from ..models.unit import Unit
 from .database import session_scope
+from .exceptions import UnitNotFoundByCode
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -114,7 +115,7 @@ def get_units_for_dropdown(categories: List[str], session: Optional[Session] = N
         return _impl(sess)
 
 
-def get_unit_by_code(code: str, session: Optional[Session] = None) -> Optional[Unit]:
+def get_unit_by_code(code: str, session: Optional[Session] = None) -> Unit:
     """Get a unit by its code.
 
     Args:
@@ -122,11 +123,17 @@ def get_unit_by_code(code: str, session: Optional[Session] = None) -> Optional[U
         session: Optional database session. If None, creates a new session.
 
     Returns:
-        Unit object if found, None otherwise.
+        Unit object if found.
+
+    Raises:
+        UnitNotFoundByCode: If unit doesn't exist.
     """
 
-    def _impl(sess: Session) -> Optional[Unit]:
-        return sess.query(Unit).filter(Unit.code == code).first()
+    def _impl(sess: Session) -> Unit:
+        unit = sess.query(Unit).filter(Unit.code == code).first()
+        if not unit:
+            raise UnitNotFoundByCode(code)
+        return unit
 
     if session is not None:
         return _impl(session)
@@ -144,4 +151,8 @@ def is_valid_unit(code: str, session: Optional[Session] = None) -> bool:
     Returns:
         True if the unit exists, False otherwise.
     """
-    return get_unit_by_code(code, session=session) is not None
+    try:
+        get_unit_by_code(code, session=session)
+        return True
+    except UnitNotFoundByCode:
+        return False

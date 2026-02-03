@@ -35,7 +35,13 @@ from src.services.material_catalog_service import (
     # Utilities
     slugify,
 )
-from src.services.exceptions import ValidationError
+from src.services.exceptions import (
+    MaterialCategoryNotFound,
+    MaterialNotFound,
+    MaterialProductNotFound,
+    MaterialSubcategoryNotFound,
+    ValidationError,
+)
 
 
 # ============================================================================
@@ -165,22 +171,18 @@ class TestCategoryOperations:
     def test_get_category_by_id(self, db_session, sample_category):
         """Can retrieve category by ID."""
         cat = get_category(category_id=sample_category.id, session=db_session)
-
-        assert cat is not None
         assert cat.name == sample_category.name
 
     def test_get_category_by_slug(self, db_session, sample_category):
         """Can retrieve category by slug."""
         cat = get_category(slug=sample_category.slug, session=db_session)
-
-        assert cat is not None
         assert cat.id == sample_category.id
 
     def test_get_category_not_found(self, db_session):
-        """Returns None for non-existent category."""
-        cat = get_category(category_id=99999, session=db_session)
-
-        assert cat is None
+        """Raises MaterialCategoryNotFound for non-existent category."""
+        with pytest.raises(MaterialCategoryNotFound) as exc:
+            get_category(category_id=99999, session=db_session)
+        assert exc.value.identifier == 99999
 
     def test_list_categories(self, db_session):
         """List returns all categories ordered by sort_order."""
@@ -219,10 +221,12 @@ class TestCategoryOperations:
     def test_delete_category(self, db_session):
         """Can delete category with no children."""
         cat = create_category("To Delete", session=db_session)
-        result = delete_category(cat.id, session=db_session)
+        cat_id = cat.id
+        result = delete_category(cat_id, session=db_session)
 
         assert result is True
-        assert get_category(category_id=cat.id, session=db_session) is None
+        with pytest.raises(MaterialCategoryNotFound):
+            get_category(category_id=cat_id, session=db_session)
 
     def test_delete_category_with_children_fails(
         self, db_session, sample_category, sample_subcategory
@@ -266,8 +270,6 @@ class TestSubcategoryOperations:
     def test_get_subcategory_by_id(self, db_session, sample_subcategory):
         """Can retrieve subcategory by ID."""
         subcat = get_subcategory(subcategory_id=sample_subcategory.id, session=db_session)
-
-        assert subcat is not None
         assert subcat.name == sample_subcategory.name
 
     def test_list_subcategories_all(self, db_session, sample_category):
@@ -357,15 +359,11 @@ class TestMaterialOperations:
     def test_get_material_by_id(self, db_session, sample_material):
         """Can retrieve material by ID."""
         mat = get_material(material_id=sample_material.id, session=db_session)
-
-        assert mat is not None
         assert mat.name == sample_material.name
 
     def test_get_material_by_slug(self, db_session, sample_material):
         """Can retrieve material by slug."""
         mat = get_material(slug=sample_material.slug, session=db_session)
-
-        assert mat is not None
         assert mat.id == sample_material.id
 
     def test_list_materials_by_subcategory(self, db_session, sample_subcategory):
@@ -479,8 +477,6 @@ class TestProductOperations:
     def test_get_product_by_id(self, db_session, sample_product):
         """Can retrieve product by ID."""
         prod = get_product(sample_product.id, session=db_session)
-
-        assert prod is not None
         assert prod.name == sample_product.name
 
     def test_list_products_by_material(self, db_session, sample_material):

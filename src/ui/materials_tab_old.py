@@ -401,8 +401,6 @@ class MaterialsTab(ctk.CTkFrame):
         """Load details for a selected material."""
         try:
             material = material_catalog_service.get_material(material_id=material_id)
-            if not material:
-                return
 
             self.selected_material_id = material_id
             self.detail_header.configure(text=f"{material.name} ({material.base_unit})")
@@ -484,8 +482,6 @@ class MaterialsTab(ctk.CTkFrame):
         """Edit a category."""
         try:
             category = material_catalog_service.get_category(category_id=category_id)
-            if not category:
-                return
 
             dialog = CategoryDialog(
                 self, title="Edit Category", initial_data={"name": category.name}
@@ -535,8 +531,6 @@ class MaterialsTab(ctk.CTkFrame):
         """Edit a subcategory."""
         try:
             subcat = material_catalog_service.get_subcategory(subcategory_id=subcategory_id)
-            if not subcat:
-                return
 
             dialog = SubcategoryDialog(
                 self, title="Edit Subcategory", initial_data={"name": subcat.name}
@@ -591,8 +585,6 @@ class MaterialsTab(ctk.CTkFrame):
         """Edit a material."""
         try:
             material = material_catalog_service.get_material(material_id=material_id)
-            if not material:
-                return
 
             dialog = MaterialDialog(
                 self,

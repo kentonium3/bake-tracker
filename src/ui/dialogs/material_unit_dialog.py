@@ -317,8 +317,6 @@ class MaterialUnitDialog(ctk.CTkToplevel):
         try:
             # Get product first to get its material_id
             product = material_catalog_service.get_product(self.product_id)
-            if not product:
-                return "each"
 
             # material_id is a column value, not a relationship - safe to access
             material_id = product.material_id
@@ -327,8 +325,7 @@ class MaterialUnitDialog(ctk.CTkToplevel):
 
             # Now get the material separately to avoid lazy loading issue
             material = material_catalog_service.get_material(material_id=material_id)
-            if material:
-                return material.base_unit_type or "each"
+            return material.base_unit_type or "each"
         except (ServiceError, Exception) as e:
             print(f"MaterialUnitDialog: Error getting material base unit type: {e}")
             # Fall through to default

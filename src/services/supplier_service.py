@@ -293,7 +293,7 @@ def _create_supplier_impl(
     return supplier.to_dict()
 
 
-def get_supplier(supplier_id: int, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+def get_supplier(supplier_id: int, session: Optional[Session] = None) -> Dict[str, Any]:
     """Get supplier by ID.
 
     Transaction boundary: Read-only operation.
@@ -303,11 +303,14 @@ def get_supplier(supplier_id: int, session: Optional[Session] = None) -> Optiona
         session: Optional database session
 
     Returns:
-        Dict[str, Any]: Supplier data as dictionary, or None if not found
+        Dict[str, Any]: Supplier data as dictionary
+
+    Raises:
+        SupplierNotFoundError: If supplier doesn't exist
 
     Example:
         >>> supplier = get_supplier(1)
-        >>> supplier["name"] if supplier else "Not found"
+        >>> supplier["name"]
         'Costco'
     """
     if session is not None:
@@ -316,16 +319,18 @@ def get_supplier(supplier_id: int, session: Optional[Session] = None) -> Optiona
         return _get_supplier_impl(supplier_id, session)
 
 
-def _get_supplier_impl(supplier_id: int, session: Session) -> Optional[Dict[str, Any]]:
+def _get_supplier_impl(supplier_id: int, session: Session) -> Dict[str, Any]:
     """Implementation of get_supplier.
 
     Transaction boundary: Inherits session from caller.
     """
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
-    return supplier.to_dict() if supplier else None
+    if not supplier:
+        raise SupplierNotFoundError(supplier_id)
+    return supplier.to_dict()
 
 
-def get_supplier_by_uuid(uuid: str, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+def get_supplier_by_uuid(uuid: str, session: Optional[Session] = None) -> Dict[str, Any]:
     """Get supplier by UUID.
 
     Transaction boundary: Read-only operation.
@@ -335,11 +340,14 @@ def get_supplier_by_uuid(uuid: str, session: Optional[Session] = None) -> Option
         session: Optional database session
 
     Returns:
-        Dict[str, Any]: Supplier data as dictionary, or None if not found
+        Dict[str, Any]: Supplier data as dictionary
+
+    Raises:
+        SupplierNotFoundError: If supplier doesn't exist
 
     Example:
         >>> supplier = get_supplier_by_uuid("550e8400-e29b-41d4-a716-446655440000")
-        >>> supplier["name"] if supplier else "Not found"
+        >>> supplier["name"]
         'Costco'
     """
     if session is not None:
@@ -348,13 +356,15 @@ def get_supplier_by_uuid(uuid: str, session: Optional[Session] = None) -> Option
         return _get_supplier_by_uuid_impl(uuid, session)
 
 
-def _get_supplier_by_uuid_impl(uuid: str, session: Session) -> Optional[Dict[str, Any]]:
+def _get_supplier_by_uuid_impl(uuid: str, session: Session) -> Dict[str, Any]:
     """Implementation of get_supplier_by_uuid.
 
     Transaction boundary: Inherits session from caller.
     """
     supplier = session.query(Supplier).filter(Supplier.uuid == uuid).first()
-    return supplier.to_dict() if supplier else None
+    if not supplier:
+        raise SupplierNotFoundError(f"uuid:{uuid}")
+    return supplier.to_dict()
 
 
 def get_all_suppliers(
@@ -706,10 +716,12 @@ def get_supplier_or_raise(
 ) -> Dict[str, Any]:
     """Get supplier by ID, raising SupplierNotFoundError if not found.
 
-    Transaction boundary: Read-only operation. Delegates to get_supplier().
+    DEPRECATED: Use get_supplier() instead - it now raises exceptions directly.
 
-    Unlike get_supplier() which returns None for not found, this function
-    raises an exception. Useful when supplier must exist.
+    This function is kept for backward compatibility but is now a simple alias
+    for get_supplier().
+
+    Transaction boundary: Read-only operation. Delegates to get_supplier().
 
     Args:
         supplier_id: Supplier ID
@@ -729,10 +741,7 @@ def get_supplier_or_raise(
         >>> supplier = get_supplier_or_raise(999)
         SupplierNotFoundError: Supplier with ID 999 not found
     """
-    result = get_supplier(supplier_id, session=session)
-    if result is None:
-        raise SupplierNotFoundError(supplier_id)
-    return result
+    return get_supplier(supplier_id, session=session)
 
 
 def get_or_create_supplier(
