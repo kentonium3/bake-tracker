@@ -161,7 +161,7 @@
 - [x] T022 [P] Update `src/ui/recipes_tab.py` (11 occurrences)
 - [x] T023 [P] Update `src/ui/forms/recipe_form.py` (10 occurrences)
 - [x] T024 [P] Update `src/ui/production_dashboard_tab.py` (1 occurrence)
-- [ ] T025 [P] Update `src/ui/forms/record_production_dialog.py` (3 occurrences)
+- [x] T025 [P] Update `src/ui/forms/record_production_dialog.py` (3 occurrences)
 
 ### Implementation Notes
 - Recipe forms likely have ValidationError catches - preserve field highlighting
