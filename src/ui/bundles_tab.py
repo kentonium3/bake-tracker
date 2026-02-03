@@ -25,6 +25,8 @@ from src.ui.widgets.dialogs import (
     show_info,
 )
 from src.ui.forms.bundle_form import BundleFormDialog
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class BundlesTab(ctk.CTkFrame):
@@ -180,8 +182,11 @@ class BundlesTab(ctk.CTkFrame):
             )
             self.data_table.set_data(bundles)
             self._update_status(f"Found {len(bundles)} bundle(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Search bundles")
+            self._update_status("Search failed", error=True)
         except Exception as e:
-            show_error("Search Error", f"Failed to search bundles: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Search bundles")
             self._update_status("Search failed", error=True)
 
     def _on_row_select(self, bundle: Optional[Bundle]):
@@ -231,12 +236,11 @@ class BundlesTab(ctk.CTkFrame):
                 )
                 self.refresh()
                 self._update_status(f"Added: {new_bundle.name}", success=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add bundle")
+                self._update_status("Failed to add bundle", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to add bundle: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Add bundle")
                 self._update_status("Failed to add bundle", error=True)
 
     def _edit_bundle(self):
@@ -254,12 +258,11 @@ class BundlesTab(ctk.CTkFrame):
                 title=f"Edit Bundle: {bundle.name}",
             )
             result = dialog.get_result()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load bundle for editing")
+            return
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load bundle for editing: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load bundle for editing")
             return
 
         if result:
@@ -277,12 +280,11 @@ class BundlesTab(ctk.CTkFrame):
                 )
                 self.refresh()
                 self._update_status(f"Updated: {updated_bundle.name}", success=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update bundle")
+                self._update_status("Failed to update bundle", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to update bundle: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Update bundle")
                 self._update_status("Failed to update bundle", error=True)
 
     def _delete_bundle(self):
@@ -309,12 +311,11 @@ class BundlesTab(ctk.CTkFrame):
                 self.selected_bundle = None
                 self.refresh()
                 self._update_status("Bundle deleted", success=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Delete bundle")
+                self._update_status("Failed to delete bundle", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to delete bundle: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Delete bundle")
                 self._update_status("Failed to delete bundle", error=True)
 
     def _view_details(self):
@@ -375,12 +376,10 @@ class BundlesTab(ctk.CTkFrame):
                 parent=self,
             )
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load bundle details")
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load bundle details: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load bundle details")
 
     def refresh(self):
         """Refresh the bundle list."""
@@ -388,12 +387,11 @@ class BundlesTab(ctk.CTkFrame):
             bundles = finished_good_service.get_all_bundles()
             self.data_table.set_data(bundles)
             self._update_status(f"Loaded {len(bundles)} bundle(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load bundles")
+            self._update_status("Failed to load bundles", error=True)
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load bundles: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load bundles")
             self._update_status("Failed to load bundles", error=True)
 
     def _update_status(self, message: str, success: bool = False, error: bool = False):
