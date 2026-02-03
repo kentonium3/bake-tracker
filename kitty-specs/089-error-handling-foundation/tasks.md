@@ -308,15 +308,15 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T047 [P] Update `src/ui/dashboard_tab.py` (5 occurrences)
-- [ ] T048 [P] Update `src/ui/ingredients_tab.py` (10 occurrences)
-- [ ] T049 [P] Update `src/ui/packages_tab.py` (7 occurrences)
-- [ ] T050 [P] Update `src/ui/dashboards/catalog_dashboard.py` (1 occurrence)
-- [ ] T051 [P] Update `src/ui/dashboards/observe_dashboard.py` (2 occurrences)
-- [ ] T052 [P] Update `src/ui/dashboards/plan_dashboard.py` (2 occurrences)
-- [ ] T053 [P] Update `src/ui/dashboards/purchase_dashboard.py` (3 occurrences)
-- [ ] T054 [P] Update `src/ui/dashboards/make_dashboard.py` (4 occurrences)
-- [ ] T055 [P] Update `src/ui/dashboards/base_dashboard.py` (1 occurrence)
+- [x] T047 [P] Update `src/ui/dashboard_tab.py` (5 occurrences)
+- [x] T048 [P] Update `src/ui/ingredients_tab.py` (10 occurrences)
+- [x] T049 [P] Update `src/ui/packages_tab.py` (7 occurrences)
+- [x] T050 [P] Update `src/ui/dashboards/catalog_dashboard.py` (1 occurrence)
+- [x] T051 [P] Update `src/ui/dashboards/observe_dashboard.py` (2 occurrences)
+- [x] T052 [P] Update `src/ui/dashboards/plan_dashboard.py` (2 occurrences)
+- [x] T053 [P] Update `src/ui/dashboards/purchase_dashboard.py` (3 occurrences)
+- [x] T054 [P] Update `src/ui/dashboards/make_dashboard.py` (4 occurrences)
+- [x] T055 [P] Update `src/ui/dashboards/base_dashboard.py` (1 occurrence)
 
 ### Implementation Notes
 - Dashboards aggregate data - errors should not crash the entire view
