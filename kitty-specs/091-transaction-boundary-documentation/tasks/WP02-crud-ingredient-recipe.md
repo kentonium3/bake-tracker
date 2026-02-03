@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Core CRUD Services - Ingredient & Recipe
+lane: "doing"
+dependencies: [WP01]
+base_branch: 091-transaction-boundary-documentation-WP01
+base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
+created_at: '2026-02-03T05:00:45.045078+00:00'
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-title: "Core CRUD Services - Ingredient & Recipe"
-phase: "Phase 2 - Documentation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+phase: Phase 2 - Documentation
+assignee: ''
+agent: ''
+shell_pid: "24853"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T04:37:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T04:37:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Core CRUD Services - Ingredient & Recipe
