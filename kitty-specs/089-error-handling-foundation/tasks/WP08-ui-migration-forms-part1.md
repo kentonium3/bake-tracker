@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: UI Migration - Forms Part 1
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -107,3 +107,4 @@ from src.services.exceptions import ServiceError, ValidationError, SlugAlreadyEx
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-03T00:35:31Z – unknown – shell_pid=68303 – lane=for_review – Ready for review: Updated 28 exception handlers across 5 form files
