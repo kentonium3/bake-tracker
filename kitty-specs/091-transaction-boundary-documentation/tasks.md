@@ -345,10 +345,10 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T051 Grep all services for "Transaction boundary:" to verify coverage
-- [ ] T052 Check documentation consistency (same phrasing across services)
-- [ ] T053 Verify all success criteria from spec.md are met
-- [ ] T054 Update service inventory with final counts
+- [x] T051 Grep all services for "Transaction boundary:" to verify coverage
+- [x] T052 Check documentation consistency (same phrasing across services)
+- [x] T053 Verify all success criteria from spec.md are met
+- [x] T054 Update service inventory with final counts
 
 ### Implementation Notes
 - Create verification script or grep commands
