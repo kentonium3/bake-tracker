@@ -16,14 +16,14 @@
 **Prompt**: `/tasks/WP01-exception-infrastructure.md`
 
 ### Included Subtasks
-- [ ] T001 Add recipe-related exceptions (RecipeNotFoundBySlug, RecipeNotFoundByName)
-- [ ] T002 Add event-related exceptions (EventNotFoundById, EventNotFoundByName)
-- [ ] T003 Add finished goods exceptions (FinishedGoodNotFoundById/BySlug, FinishedUnitNotFoundById/BySlug)
-- [ ] T004 Add package exceptions (PackageNotFoundById, PackageNotFoundByName)
-- [ ] T005 Add composition/unit exceptions (CompositionNotFoundById, UnitNotFoundByCode)
-- [ ] T006 Add material catalog exceptions (MaterialCategoryNotFound, etc.)
-- [ ] T007 Add ConversionError exception for unit converters
-- [ ] T008 Update exceptions.py docstring with new hierarchy
+- [x] T001 Add recipe-related exceptions (RecipeNotFoundBySlug, RecipeNotFoundByName)
+- [x] T002 Add event-related exceptions (EventNotFoundById, EventNotFoundByName)
+- [x] T003 Add finished goods exceptions (FinishedGoodNotFoundById/BySlug, FinishedUnitNotFoundById/BySlug)
+- [x] T004 Add package exceptions (PackageNotFoundById, PackageNotFoundByName)
+- [x] T005 Add composition/unit exceptions (CompositionNotFoundById, UnitNotFoundByCode)
+- [x] T006 Add material catalog exceptions (MaterialCategoryNotFound, etc.)
+- [x] T007 Add ConversionError exception for unit converters
+- [x] T008 Update exceptions.py docstring with new hierarchy
 
 ### Implementation Notes
 - Follow existing exception patterns in `src/services/exceptions.py`
