@@ -169,7 +169,7 @@
 - [x] T019 [P] Document planning/planning_service.py
 - [x] T020 [P] Document plan_state_service.py
 - [x] T021 [P] Document plan_snapshot_service.py
-- [ ] T022 [P] Document event_service.py
+- [x] T022 [P] Document event_service.py
 - [ ] T023 [P] Document planning/feasibility.py, progress.py, shopping_list.py
 
 ### Implementation Notes
