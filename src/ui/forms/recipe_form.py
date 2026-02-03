@@ -28,6 +28,8 @@ from src.utils.constants import (
     PADDING_LARGE,
 )
 from src.services.database import session_scope
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.ui.widgets.dialogs import show_error, show_confirmation
 
 
@@ -347,7 +349,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
         if not ingredient:
             try:
                 ingredient = ingredient_crud_service.get_ingredient_by_id(ingredient_id)
-            except Exception:
+            except (ServiceError, Exception):
                 pass
 
         if ingredient:
@@ -557,7 +559,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                     base_recipe = session.get(Recipe, self.recipe.base_recipe_id)
                     if base_recipe:
                         self.base_recipe_name = base_recipe.name
-            except Exception:
+            except (ServiceError, Exception):
                 self.base_recipe_name = f"Recipe #{self.recipe.base_recipe_id}"
 
         # Sub-recipe tracking
@@ -582,7 +584,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                     .filter(Ingredient.id.in_(leaf_ids))
                     .all()
                 )
-        except Exception:
+        except (ServiceError, Exception):
             self.available_ingredients = []
 
         # Load recipe categories from database
@@ -647,7 +649,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 )
                 cat_list = [cat[0] for cat in categories if cat[0]]
                 return cat_list if cat_list else ["Uncategorized"]
-        except Exception:
+        except (ServiceError, Exception):
             return ["Uncategorized"]
 
     def _create_form_fields(self, parent):
@@ -992,7 +994,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         """Get recipes that can be added as components (T035)."""
         try:
             all_recipes = recipe_service.get_all_recipes()
-        except Exception:
+        except (ServiceError, Exception):
             return []
 
         # Filter out current recipe and existing components
@@ -1036,7 +1038,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Find recipe by name
         try:
             component_recipe = recipe_service.get_recipe_by_name(recipe_name)
-        except Exception:
+        except (ServiceError, Exception):
             component_recipe = None
 
         if not component_recipe:
@@ -1053,32 +1055,12 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 )
                 # Reload components
                 self.current_components = recipe_service.get_recipe_components(self.recipe.id)
+            except ServiceError as e:
+                # Use centralized handler for ServiceError
+                handle_error(e, parent=self, operation="Add sub-recipe")
+                return
             except Exception as e:
-                error_msg = str(e)
-                # User-friendly messages (T042)
-                if "circular reference" in error_msg.lower():
-                    show_error(
-                        "Cannot Add Recipe",
-                        f"Cannot add '{recipe_name}'.\n\n"
-                        "This would create a circular reference "
-                        "(recipes cannot contain each other).",
-                        parent=self,
-                    )
-                elif "depth" in error_msg.lower():
-                    show_error(
-                        "Cannot Add Recipe",
-                        f"Cannot add '{recipe_name}'.\n\n"
-                        "This would exceed the maximum nesting depth of 3 levels.",
-                        parent=self,
-                    )
-                elif "already" in error_msg.lower():
-                    show_error(
-                        "Already Added",
-                        f"'{recipe_name}' is already a component of this recipe.",
-                        parent=self,
-                    )
-                else:
-                    show_error("Error", error_msg, parent=self)
+                handle_error(e, parent=self, operation="Add sub-recipe")
                 return
         else:
             # For new recipe, add to pending list
@@ -1162,8 +1144,11 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 recipe_service.remove_recipe_component(self.recipe.id, component_recipe_id)
                 # Reload components
                 self.current_components = recipe_service.get_recipe_components(self.recipe.id)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Remove sub-recipe")
+                return
             except Exception as e:
-                show_error("Error", str(e), parent=self)
+                handle_error(e, parent=self, operation="Remove sub-recipe")
                 return
         else:
             # Remove from pending
@@ -1362,7 +1347,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         try:
             self.current_components = recipe_service.get_recipe_components(self.recipe.id)
             self._refresh_subrecipes_display()
-        except Exception:
+        except (ServiceError, Exception):
             pass
 
         # Load yield types (F044 - WP03 T009)
@@ -1378,7 +1363,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                     items_per_batch=yt.items_per_batch or 1,
                     yield_type=yt.yield_type or "SERVING",  # Feature 083
                 )
-        except Exception:
+        except (ServiceError, Exception):
             pass
 
     def _validate_form(self) -> Optional[Dict[str, Any]]:

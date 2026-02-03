@@ -25,7 +25,8 @@ from src.ui.widgets.dialogs import (
     show_success,
     show_info,
 )
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ServiceError, ValidationError
+from src.ui.utils.error_handler import handle_error
 from src.ui.forms.recipe_form import RecipeFormDialog
 from src.ui.forms.variant_creation_dialog import VariantCreationDialog
 
@@ -97,6 +98,8 @@ class RecipesTab(ctk.CTkFrame):
                     .all()
                 )
                 return [cat[0] for cat in categories if cat[0]]
+        except ServiceError:
+            return []
         except Exception:
             return []
 
@@ -400,8 +403,11 @@ class RecipesTab(ctk.CTkFrame):
             self._current_recipes = recipes
             self._refresh_tree_display()
             self._update_status(f"Found {len(recipes)} recipe(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Search recipes", show_dialog=False)
+            self._update_status("Search failed", error=True)
         except Exception as e:
-            show_error("Search Error", f"Failed to search recipes: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Search recipes", show_dialog=False)
             self._update_status("Search failed", error=True)
 
     def _on_row_select(self, recipe: Optional[Recipe]):
@@ -465,7 +471,7 @@ class RecipesTab(ctk.CTkFrame):
                             comp["recipe_id"],
                             quantity=comp["quantity"],
                         )
-                    except Exception:
+                    except (ServiceError, Exception):
                         # Silently skip component errors (already handled in form validation)
                         pass
 
@@ -492,12 +498,11 @@ class RecipesTab(ctk.CTkFrame):
                     )
 
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add recipe")
+                self._update_status("Failed to add recipe", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to add recipe: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Add recipe")
                 self._update_status("Failed to add recipe", error=True)
 
     def _edit_recipe(self):
@@ -515,12 +520,11 @@ class RecipesTab(ctk.CTkFrame):
                 title=f"Edit Recipe: {recipe.name}",
             )
             result = dialog.get_result()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load recipe for editing")
+            return
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load recipe for editing: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load recipe for editing")
             return
 
         if result:
@@ -565,12 +569,11 @@ class RecipesTab(ctk.CTkFrame):
                     )
 
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update recipe")
+                self._update_status("Failed to update recipe", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to update recipe: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Update recipe")
                 self._update_status("Failed to update recipe", error=True)
 
     def _delete_recipe(self):
@@ -598,18 +601,13 @@ class RecipesTab(ctk.CTkFrame):
                 self.refresh()
                 self._update_status("Recipe processed successfully", success=True)
             except ValidationError as e:
-                show_error(
-                    "Cannot Delete Recipe",
-                    str(e),
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Delete recipe")
+                self._update_status("Failed to delete recipe", error=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Delete recipe")
                 self._update_status("Failed to delete recipe", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"An unexpected error occurred: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Delete recipe")
                 self._update_status("Failed to delete recipe", error=True)
 
     def _create_variant(self):
@@ -644,12 +642,10 @@ class RecipesTab(ctk.CTkFrame):
                 on_save_callback=self._on_variant_created,
             )
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Open variant dialog")
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to open variant dialog: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Open variant dialog")
 
     def _on_variant_created(self, result: dict):
         """
@@ -712,6 +708,10 @@ class RecipesTab(ctk.CTkFrame):
 
             return True
 
+        except ServiceError as e:
+            # Log the error (F044 fix: don't silently swallow, return False for caller to handle)
+            logging.exception(f"Error saving yield types for recipe {recipe_id}: {e}")
+            return False
         except Exception as e:
             # Log the error (F044 fix: don't silently swallow, return False for caller to handle)
             logging.exception(f"Error saving yield types for recipe {recipe_id}: {e}")
@@ -812,12 +812,10 @@ class RecipesTab(ctk.CTkFrame):
                 parent=self,
             )
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="View recipe details")
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load recipe details: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="View recipe details")
 
     def refresh(self):
         """Refresh the recipe list and category filter."""
@@ -840,12 +838,11 @@ class RecipesTab(ctk.CTkFrame):
             self._current_recipes = recipes
             self._refresh_tree_display()
             self._update_status(f"Loaded {len(recipes)} recipe(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load recipes", show_dialog=False)
+            self._update_status("Failed to load recipes", error=True)
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load recipes: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load recipes", show_dialog=False)
             self._update_status("Failed to load recipes", error=True)
 
     def _update_status(self, message: str, success: bool = False, error: bool = False):

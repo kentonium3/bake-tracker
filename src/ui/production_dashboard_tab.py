@@ -20,6 +20,8 @@ from src.ui.widgets.event_card import EventCard
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 from src.ui.utils import ui_session
 from src.services import batch_production_service, event_service
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 logger = logging.getLogger(__name__)
@@ -264,8 +266,14 @@ class ProductionDashboardTab(ctk.CTkFrame):
                     date_to=date_to,
                     session=session,
                 )
+        except ServiceError as e:
+            logger.error(f"Error loading events: {e}", exc_info=True)
+            handle_error(e, parent=self, operation="Load events", show_dialog=False)
+            self._show_error_message(str(e))
+            return
         except Exception as e:
             logger.error(f"Error loading events: {e}", exc_info=True)
+            handle_error(e, parent=self, operation="Load events", show_dialog=False)
             self._show_error_message(str(e))
             return
 
