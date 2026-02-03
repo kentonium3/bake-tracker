@@ -49,9 +49,9 @@
 **Agent**: Gemini (parallel-safe)
 
 ### Included Subtasks
-- [ ] T005 [P] Document ingredient_service.py (~14 functions)
-- [ ] T006 [P] Document ingredient_crud_service.py (~13 functions)
-- [ ] T007 [P] Document recipe_service.py (~20+ functions)
+- [x] T005 [P] Document ingredient_service.py (~14 functions)
+- [x] T006 [P] Document ingredient_crud_service.py (~13 functions)
+- [x] T007 [P] Document recipe_service.py (~20+ functions)
 
 ### Implementation Notes
 - Use Pattern A for get_*, list_*, search_* functions
