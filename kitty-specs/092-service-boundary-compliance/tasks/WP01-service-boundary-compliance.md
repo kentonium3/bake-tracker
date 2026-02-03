@@ -9,7 +9,7 @@ subtasks:
   - "T006"
 title: "Service Boundary Compliance Implementation"
 phase: "Phase 1 - Implementation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "82902"
@@ -526,3 +526,4 @@ spec-kitty agent tasks move-task WP01 --to doing --note "Starting implementation
 
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 - 2026-02-03T12:19:46Z – claude – shell_pid=82902 – lane=doing – Started implementation via workflow command
+- 2026-02-03T12:25:19Z – claude – shell_pid=82902 – lane=for_review – Ready for review: Implemented T001-T006. Service boundary delegation from purchase_service to product_service and supplier_service. 4 files changed, 115 tests pass.
