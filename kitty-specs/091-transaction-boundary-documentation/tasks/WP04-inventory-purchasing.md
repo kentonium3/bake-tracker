@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Inventory & Purchasing Services
+lane: "doing"
+dependencies: [WP01]
+base_branch: 091-transaction-boundary-documentation-WP01
+base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
+created_at: '2026-02-03T04:50:34.263271+00:00'
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Inventory & Purchasing Services"
-phase: "Phase 2 - Documentation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+- T014
+phase: Phase 2 - Documentation
+assignee: ''
+agent: ''
+shell_pid: "22568"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T04:37:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T04:37:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Inventory & Purchasing Services
