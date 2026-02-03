@@ -1,9 +1,12 @@
 ---
 work_package_id: WP09
 title: Documentation Update
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
+base_branch: 094-core-api-standardization-WP02
+base_commit: 4c4d4216b4fe996a812efe70fdee54773e407f15
+created_at: '2026-02-03T22:56:25.477591+00:00'
 subtasks:
 - T047
 - T048
@@ -12,7 +15,7 @@ subtasks:
 phase: Phase 5 - Documentation
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "38903"
 review_status: ''
 reviewed_by: ''
 history:
