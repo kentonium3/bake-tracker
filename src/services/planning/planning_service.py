@@ -276,6 +276,21 @@ def create_plan(
 ) -> Dict[str, Any]:
     """Create production plan with immutable snapshots.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Validate event exists and has output_mode configured
+        2. Create RecipeSnapshot for each production target (skips if exists unless force_recreate)
+        3. Link recipe snapshots to production targets
+        4. Create FinishedGoodSnapshot for each assembly target (skips if exists unless force_recreate)
+        5. Link FG snapshots to assembly targets
+        6. Create ProductionPlanSnapshot container record
+
+    CRITICAL: All nested service calls receive session parameter to ensure
+    atomicity. The session is passed to:
+        - recipe_snapshot_service.create_recipe_snapshot()
+        - finished_good_service.create_finished_good_snapshot()
+
     Creates RecipeSnapshot for each production target and FinishedGoodSnapshot
     for each assembly target. Links snapshots to targets for use during
     production/assembly.
@@ -307,6 +322,9 @@ def _create_plan_impl(
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of create_plan.
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the passed session for transactional atomicity.
 
     Session Management:
         This function receives a session from create_plan() and passes it
@@ -388,6 +406,18 @@ def calculate_plan(
 ) -> Dict[str, Any]:
     """Calculate production plan for an event.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Validate event configuration (output_mode set)
+        2. Check for existing non-stale plan (unless force_recalculate)
+        3. Get requirements based on output_mode (BUNDLED or BULK_COUNT)
+        4. Explode bundles to unit quantities (if BUNDLED mode)
+        5. Aggregate by recipe for batch calculations
+        6. Generate shopping list
+        7. Check feasibility
+        8. Persist to ProductionPlanSnapshot
+
     .. deprecated::
         Use create_plan() for new code. This function is maintained for
         backward compatibility but will be removed in a future release.
@@ -437,6 +467,9 @@ def _calculate_plan_impl(
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of calculate_plan (deprecated).
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the passed session for transactional atomicity.
 
     Note: This function is maintained for backward compatibility.
     Use create_plan() for new code.
@@ -532,7 +565,11 @@ def _calculate_bundled_requirements(
     event: Event,
     session: Session,
 ) -> List[RecipeBatchResult]:
-    """Calculate requirements for BUNDLED output mode."""
+    """Calculate requirements for BUNDLED output mode.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only queries within the caller's transaction scope.
+    """
     # Get bundle requirements from EventAssemblyTarget
     bundle_requirements: Dict[int, int] = {}
     for target in event.assembly_targets:
@@ -548,7 +585,11 @@ def _calculate_bulk_requirements(
     event: Event,
     session: Session,
 ) -> List[RecipeBatchResult]:
-    """Calculate requirements for BULK_COUNT output mode."""
+    """Calculate requirements for BULK_COUNT output mode.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only queries within the caller's transaction scope.
+    """
     # In BULK_COUNT mode, use EventProductionTarget directly
     results = []
     for target in event.production_targets:
@@ -575,7 +616,11 @@ def _get_latest_plan(
     event_id: int,
     session: Session,
 ) -> Optional[ProductionPlanSnapshot]:
-    """Get the latest plan snapshot for an event."""
+    """Get the latest plan snapshot for an event.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+    """
     return (
         session.query(ProductionPlanSnapshot)
         .filter(ProductionPlanSnapshot.event_id == event_id)
@@ -590,6 +635,9 @@ def _plan_to_dict(
     session: Session,
 ) -> Dict[str, Any]:
     """Convert a plan snapshot to the standard return format.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     Note: WP01 removed calculation_results from ProductionPlanSnapshot.
     Results are now computed on-demand.
@@ -652,6 +700,9 @@ def get_plan_calculation(
 ) -> Dict[str, Any]:
     """Get production plan calculation from snapshots (on-demand).
 
+    Transaction boundary: Read-only operation.
+    Queries event with targets and snapshots, computes calculations.
+
     Unlike cached calculation_results, this calculates fresh each time
     using the immutable snapshots linked to production/assembly targets.
     Falls back to live definitions if snapshots are not available.
@@ -678,7 +729,11 @@ def _get_plan_calculation_impl(
     event_id: int,
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of get_plan_calculation."""
+    """Implementation of get_plan_calculation.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Eager load event with targets and snapshots
     # Note: relationships have lazy="joined" so this query loads everything
     event = session.query(Event).options(
@@ -710,6 +765,9 @@ def _calculate_recipe_batches_from_snapshots(
     session: Session,
 ) -> List[Dict[str, Any]]:
     """Calculate recipe batch requirements from target snapshots.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     Returns list of dicts with recipe info and batch requirements.
     Uses snapshot data if available, falls back to live recipe otherwise.
@@ -777,6 +835,9 @@ def _calculate_shopping_list_from_snapshots(
     session: Session,
 ) -> List[Dict[str, Any]]:
     """Calculate shopping list from target snapshot ingredient data.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     Aggregates all ingredients needed across all recipe snapshots,
     accounting for batch quantities.
@@ -848,6 +909,9 @@ def _aggregate_ingredients_from_snapshots(
 ) -> Dict[str, Dict[str, Any]]:
     """Aggregate ingredients across all snapshots.
 
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+
     Returns dict keyed by ingredient name, with totals.
     This provides a dict format for different consumers.
     """
@@ -876,6 +940,9 @@ def _aggregate_plan_ingredients(
     session: Session,
 ) -> List[Dict[str, Any]]:
     """Aggregate ingredients across all recipe batches in the plan.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     For each recipe in the plan, gets aggregated ingredients (including
     nested sub-recipes) and combines them by ingredient slug.
@@ -982,6 +1049,9 @@ def check_staleness(
 ) -> Tuple[bool, Optional[str]]:
     """Check if plan is stale.
 
+    Transaction boundary: No database access (deprecated function).
+    Always returns (False, None) without querying.
+
     .. deprecated:: F065
         With snapshot-based planning, staleness is no longer a concept.
         Plans use immutable snapshots, so they never become stale.
@@ -1017,6 +1087,9 @@ def get_plan_summary(
 ) -> PlanSummary:
     """Get summary of current plan status.
 
+    Transaction boundary: Read-only operation.
+    Queries event, plan, and progress data to build summary.
+
     Args:
         event_id: Event to get summary for
         session: Optional database session
@@ -1035,6 +1108,9 @@ def _get_plan_summary_impl(
     session: Session,
 ) -> PlanSummary:
     """Implementation of get_plan_summary.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     F065: With snapshot-based planning, staleness is no longer a concept.
     Snapshots are immutable - the plan always uses snapshot data which
@@ -1080,7 +1156,11 @@ def _calculate_phase_statuses(
     progress: Dict[str, Any],
     session: Session,
 ) -> Dict[PlanPhase, PhaseStatus]:
-    """Calculate status for each plan phase."""
+    """Calculate status for each plan phase.
+
+    Transaction boundary: Pure computation from already-loaded data.
+    No additional database queries performed.
+    """
     statuses = {}
 
     # Requirements phase
@@ -1122,7 +1202,10 @@ def _calculate_phase_statuses(
 def _calculate_overall_status(
     phase_statuses: Dict[PlanPhase, PhaseStatus],
 ) -> PhaseStatus:
-    """Calculate overall status from phase statuses."""
+    """Calculate overall status from phase statuses.
+
+    Transaction boundary: Pure computation (no database access).
+    """
     all_complete = all(status == PhaseStatus.COMPLETE for status in phase_statuses.values())
     any_in_progress = any(status == PhaseStatus.IN_PROGRESS for status in phase_statuses.values())
     any_complete = any(status == PhaseStatus.COMPLETE for status in phase_statuses.values())
@@ -1147,6 +1230,9 @@ def get_recipe_batches(
 ) -> List[RecipeBatchResult]:
     """Get recipe batch calculations for an event.
 
+    Transaction boundary: Read-only operation.
+    Queries event and computes batch requirements.
+
     Delegates to batch_calculation module.
 
     Args:
@@ -1166,7 +1252,11 @@ def _get_recipe_batches_impl(
     event_id: int,
     session: Session,
 ) -> List[RecipeBatchResult]:
-    """Implementation of get_recipe_batches."""
+    """Implementation of get_recipe_batches.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     event = session.get(Event, event_id)
     if event is None:
         raise EventNotFoundError(event_id)
@@ -1182,6 +1272,8 @@ def calculate_batches_for_quantity(
     yield_per_batch: int,
 ) -> Dict[str, Any]:
     """Utility for ad-hoc batch calculation.
+
+    Transaction boundary: Pure computation (no database access).
 
     Args:
         units_needed: Total units required
@@ -1215,6 +1307,9 @@ def get_shopping_list(
 ) -> List[ShoppingListItem]:
     """Get shopping list for an event.
 
+    Transaction boundary: Read-only operation (delegates to shopping_list module).
+    Queries production targets, inventory, and computes needs.
+
     Delegates to shopping_list module.
 
     Args:
@@ -1234,6 +1329,9 @@ def mark_shopping_complete(
     session: Optional[Session] = None,
 ) -> bool:
     """Mark shopping as complete for an event.
+
+    Transaction boundary: Single-step write (delegates to shopping_list module).
+    Updates ProductionPlanSnapshot shopping_complete flag.
 
     Delegates to shopping_list module.
 
@@ -1259,6 +1357,9 @@ def check_production_feasibility(
 ) -> List[Dict[str, Any]]:
     """Check production feasibility for an event.
 
+    Transaction boundary: Read-only operation (delegates to feasibility module).
+    Checks inventory availability for production targets.
+
     Delegates to feasibility module.
 
     Args:
@@ -1277,6 +1378,9 @@ def check_assembly_feasibility(
     session: Optional[Session] = None,
 ) -> List[FeasibilityResult]:
     """Check assembly feasibility for an event.
+
+    Transaction boundary: Read-only operation (delegates to feasibility module).
+    Checks component availability for assembly targets.
 
     Delegates to feasibility module.
 
@@ -1302,6 +1406,9 @@ def get_production_progress(
 ) -> List[ProductionProgress]:
     """Get production progress for an event.
 
+    Transaction boundary: Read-only operation (delegates to progress module).
+    Queries production targets and completed runs.
+
     Delegates to progress module.
 
     Args:
@@ -1321,6 +1428,9 @@ def get_assembly_progress(
 ) -> List[AssemblyProgress]:
     """Get assembly progress for an event.
 
+    Transaction boundary: Read-only operation (delegates to progress module).
+    Queries assembly targets and completed runs.
+
     Delegates to progress module.
 
     Args:
@@ -1339,6 +1449,9 @@ def get_overall_progress(
     session: Optional[Session] = None,
 ) -> Any:
     """Get overall progress for an event.
+
+    Transaction boundary: Read-only operation (delegates to progress module).
+    Aggregates production and assembly progress data.
 
     Delegates to progress module.
 
@@ -1364,6 +1477,9 @@ def get_assembly_checklist(
 ) -> List[Dict[str, Any]]:
     """Get assembly checklist for an event.
 
+    Transaction boundary: Read-only operation.
+    Queries assembly targets and checks feasibility for each.
+
     Returns list of bundles with:
     - target quantity
     - assembled count
@@ -1386,7 +1502,11 @@ def _get_assembly_checklist_impl(
     event_id: int,
     session: Session,
 ) -> List[Dict[str, Any]]:
-    """Implementation of get_assembly_checklist."""
+    """Implementation of get_assembly_checklist.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     targets = (
         session.query(EventAssemblyTarget).filter(EventAssemblyTarget.event_id == event_id).all()
     )
@@ -1426,6 +1546,10 @@ def record_assembly_confirmation(
 ) -> Dict[str, Any]:
     """Record assembly confirmation (Phase 2 - status tracking only).
 
+    Transaction boundary: Read-only operation (Phase 2 - no inventory writes).
+    Validates finished good exists and returns confirmation details.
+    NOTE: For actual inventory transactions, use assembly_service.record_assembly().
+
     This is a status tracking operation only - no inventory transactions
     are performed in Phase 2.
 
@@ -1450,7 +1574,11 @@ def _record_assembly_confirmation_impl(
     event_id: int,
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of record_assembly_confirmation."""
+    """Implementation of record_assembly_confirmation.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only query (Phase 2 - status tracking only).
+    """
     fg = session.get(FinishedGood, finished_good_id)
     if not fg:
         raise PlanningError(f"FinishedGood {finished_good_id} not found")

@@ -20,6 +20,9 @@ from src.services.plan_snapshot_service import create_plan_snapshot
 def _get_event_or_raise(event_id: int, session: Session) -> Event:
     """Get event by ID or raise ValidationError if not found.
 
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+
     Args:
         event_id: Event ID to fetch
         session: Database session
@@ -38,6 +41,9 @@ def _get_event_or_raise(event_id: int, session: Session) -> Event:
 
 def get_plan_state(event_id: int, session: Session = None) -> PlanState:
     """Get the current plan state for an event.
+
+    Transaction boundary: Read-only operation.
+    Queries event and returns plan_state field.
 
     Args:
         event_id: Event ID to query
@@ -64,7 +70,11 @@ def get_plan_state(event_id: int, session: Session = None) -> PlanState:
 
 
 def _lock_plan_impl(event_id: int, session: Session) -> Event:
-    """Internal implementation of lock_plan."""
+    """Internal implementation of lock_plan.
+
+    Transaction boundary: Inherits session from caller.
+    Updates event plan_state within the caller's transaction scope.
+    """
     event = _get_event_or_raise(event_id, session)
 
     if event.plan_state != PlanState.DRAFT:
@@ -81,6 +91,9 @@ def _lock_plan_impl(event_id: int, session: Session) -> Event:
 
 def lock_plan(event_id: int, session: Session = None) -> Event:
     """Transition event plan from DRAFT to LOCKED.
+
+    Transaction boundary: Single-step write.
+    Updates event.plan_state from DRAFT to LOCKED.
 
     Locking a plan prevents recipe and finished goods modifications.
     Batch decisions can still be modified while locked.
@@ -104,7 +117,13 @@ def lock_plan(event_id: int, session: Session = None) -> Event:
 
 
 def _start_production_impl(event_id: int, session: Session) -> Event:
-    """Internal implementation of start_production."""
+    """Internal implementation of start_production.
+
+    Transaction boundary: Inherits session from caller.
+    Multi-step operation within the caller's transaction scope:
+        1. Create plan snapshot (via create_plan_snapshot)
+        2. Update event.plan_state to IN_PRODUCTION
+    """
     event = _get_event_or_raise(event_id, session)
 
     if event.plan_state != PlanState.LOCKED:
@@ -124,6 +143,16 @@ def _start_production_impl(event_id: int, session: Session) -> Event:
 
 def start_production(event_id: int, session: Session = None) -> Event:
     """Transition event plan from LOCKED to IN_PRODUCTION.
+
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Validate event exists and is in LOCKED state
+        2. Create plan snapshot (F078 - captures complete plan state)
+        3. Update event.plan_state from LOCKED to IN_PRODUCTION
+
+    CRITICAL: Session parameter is passed to create_plan_snapshot() to ensure
+    atomicity. If snapshot creation fails, state transition is rolled back.
 
     Starting production prevents most modifications. Only amendments
     (via F078) will be allowed after this point.
@@ -147,7 +176,11 @@ def start_production(event_id: int, session: Session = None) -> Event:
 
 
 def _complete_production_impl(event_id: int, session: Session) -> Event:
-    """Internal implementation of complete_production."""
+    """Internal implementation of complete_production.
+
+    Transaction boundary: Inherits session from caller.
+    Updates event plan_state within the caller's transaction scope.
+    """
     event = _get_event_or_raise(event_id, session)
 
     if event.plan_state != PlanState.IN_PRODUCTION:
@@ -164,6 +197,9 @@ def _complete_production_impl(event_id: int, session: Session) -> Event:
 
 def complete_production(event_id: int, session: Session = None) -> Event:
     """Transition event plan from IN_PRODUCTION to COMPLETED.
+
+    Transaction boundary: Single-step write.
+    Updates event.plan_state from IN_PRODUCTION to COMPLETED.
 
     Completing production makes the plan read-only. No further
     modifications are allowed.

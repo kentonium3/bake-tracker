@@ -47,6 +47,9 @@ class RecipeBatchResult:
 def calculate_batches(units_needed: int, yield_per_batch: int) -> int:
     """Calculate batches needed. Always rounds UP to prevent shortfall.
 
+    Transaction boundary: Pure computation (no database access).
+    Calculates required batch count from units and yield.
+
     This is the core calculation function that ensures we NEVER produce
     fewer units than required. Uses math.ceil() exclusively.
 
@@ -79,6 +82,9 @@ def calculate_batches(units_needed: int, yield_per_batch: int) -> int:
 
 def calculate_waste(units_needed: int, batches: int, yield_per_batch: int) -> tuple[int, float]:
     """Calculate waste units and percentage.
+
+    Transaction boundary: Pure computation (no database access).
+    Calculates excess production from batch rounding.
 
     Waste is the number of units produced beyond what is needed.
     Waste percentage is relative to total yield, not units needed.
@@ -118,6 +124,9 @@ def create_batch_result(
 ) -> RecipeBatchResult:
     """Create a RecipeBatchResult with all calculations performed.
 
+    Transaction boundary: Pure computation (no database access).
+    Combines calculate_batches() and calculate_waste() results.
+
     This is a convenience function that combines calculate_batches()
     and calculate_waste() to produce a complete result.
 
@@ -154,6 +163,10 @@ def explode_bundle_requirements(
     _visited: Optional[Set[int]] = None,
 ) -> Dict[int, int]:
     """Explode bundle to component FinishedUnit quantities.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only recursive query within the caller's transaction scope.
+    Queries FinishedGood and Composition tables recursively.
 
     Takes a FinishedGood (bundle) and quantity, and recursively expands
     all component FinishedUnits with their total quantities.
@@ -242,6 +255,10 @@ def aggregate_by_recipe(
 ) -> List[RecipeBatchResult]:
     """Aggregate FinishedUnit quantities by recipe.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only queries within the caller's transaction scope.
+    Queries FinishedUnit, Recipe tables to group quantities.
+
     Takes a mapping of FinishedUnit IDs to quantities and groups them
     by their associated recipes, producing batch calculations for each.
 
@@ -327,6 +344,9 @@ def calculate_event_batch_requirements(
 ) -> List[RecipeBatchResult]:
     """Calculate batch requirements for an event's bundle requirements.
 
+    Transaction boundary: Read-only operation.
+    Explodes bundles and aggregates batch requirements by recipe.
+
     This is the main entry point for batch calculation. Takes a mapping
     of FinishedGood IDs to quantities (from event requirements) and
     produces recipe batch calculations.
@@ -355,7 +375,11 @@ def _calculate_event_batch_requirements_impl(
     event_bundle_requirements: Dict[int, int],
     session: Session,
 ) -> List[RecipeBatchResult]:
-    """Implementation of calculate_event_batch_requirements."""
+    """Implementation of calculate_event_batch_requirements.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Aggregate all FinishedUnit quantities across all bundles
     all_unit_quantities: Dict[int, int] = {}
 

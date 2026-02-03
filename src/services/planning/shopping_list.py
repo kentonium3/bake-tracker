@@ -55,6 +55,9 @@ class ShoppingListItem:
 def calculate_purchase_gap(needed: Decimal, in_stock: Decimal) -> Decimal:
     """Calculate how much to buy.
 
+    Transaction boundary: Pure computation (no database access).
+    Calculates gap between needed and available quantities.
+
     This is the core gap calculation that determines purchase quantity.
     Never returns negative values.
 
@@ -85,6 +88,9 @@ def get_shopping_list(
 ) -> List[ShoppingListItem]:
     """Get shopping list with inventory comparison.
 
+    Transaction boundary: Read-only operation.
+    Queries production targets, recipes, and inventory to build shopping list.
+
     Wraps event_service.get_shopping_list() and transforms results
     to ShoppingListItem DTOs.
 
@@ -109,6 +115,9 @@ def _calculate_ingredient_needs_for_remaining(
     session: Session,
 ) -> Dict[str, Dict[str, Any]]:
     """Calculate ingredient needs for remaining production only.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     Args:
         event_id: Event to calculate for
@@ -180,6 +189,9 @@ def _get_inventory_for_ingredient(
 ) -> Decimal:
     """Get inventory quantity for an ingredient in the specified unit.
 
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+
     Args:
         ingredient_id: Ingredient ID
         unit: Unit to get quantity in
@@ -211,7 +223,11 @@ def _get_shopping_list_impl(
     production_aware: bool,
     session: Session,
 ) -> List[ShoppingListItem]:
-    """Implementation of get_shopping_list."""
+    """Implementation of get_shopping_list.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     if production_aware:
         # Calculate needs from remaining production only
         ingredient_needs = _calculate_ingredient_needs_for_remaining(event_id, session)
@@ -293,6 +309,9 @@ def get_items_to_buy(
 ) -> List[ShoppingListItem]:
     """Get only items that need to be purchased.
 
+    Transaction boundary: Read-only operation.
+    Delegates to get_shopping_list() with filtering.
+
     Convenience function that returns only items where to_buy > 0.
 
     Args:
@@ -319,6 +338,9 @@ def get_shopping_summary(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Get summary statistics for the shopping list.
+
+    Transaction boundary: Read-only operation.
+    Delegates to get_shopping_list() and aggregates results.
 
     Args:
         event_id: Event to get summary for
@@ -358,6 +380,9 @@ def mark_shopping_complete(
 ) -> bool:
     """Mark shopping as complete for the event.
 
+    Transaction boundary: Single-step write.
+    Updates ProductionPlanSnapshot.shopping_complete flag.
+
     Updates the latest ProductionPlanSnapshot for the event:
     - Sets shopping_complete = True
     - Sets shopping_completed_at = current UTC time
@@ -376,7 +401,11 @@ def mark_shopping_complete(
 
 
 def _mark_shopping_complete_impl(event_id: int, session: Session) -> bool:
-    """Implementation of mark_shopping_complete."""
+    """Implementation of mark_shopping_complete.
+
+    Transaction boundary: Inherits session from caller.
+    Updates ProductionPlanSnapshot within the caller's transaction scope.
+    """
     # Get the latest ProductionPlanSnapshot for this event
     snapshot = (
         session.query(ProductionPlanSnapshot)
@@ -403,6 +432,9 @@ def unmark_shopping_complete(
 ) -> bool:
     """Unmark shopping completion for the event.
 
+    Transaction boundary: Single-step write.
+    Clears ProductionPlanSnapshot.shopping_complete flag.
+
     Resets shopping status on the latest ProductionPlanSnapshot:
     - Sets shopping_complete = False
     - Sets shopping_completed_at = None
@@ -421,7 +453,11 @@ def unmark_shopping_complete(
 
 
 def _unmark_shopping_complete_impl(event_id: int, session: Session) -> bool:
-    """Implementation of unmark_shopping_complete."""
+    """Implementation of unmark_shopping_complete.
+
+    Transaction boundary: Inherits session from caller.
+    Updates ProductionPlanSnapshot within the caller's transaction scope.
+    """
     snapshot = (
         session.query(ProductionPlanSnapshot)
         .filter(ProductionPlanSnapshot.event_id == event_id)
@@ -447,6 +483,9 @@ def is_shopping_complete(
 ) -> bool:
     """Check if shopping is marked complete for the event.
 
+    Transaction boundary: Read-only operation.
+    Queries ProductionPlanSnapshot.shopping_complete flag.
+
     Args:
         event_id: Event to check
         session: Optional database session
@@ -461,7 +500,11 @@ def is_shopping_complete(
 
 
 def _is_shopping_complete_impl(event_id: int, session: Session) -> bool:
-    """Implementation of is_shopping_complete."""
+    """Implementation of is_shopping_complete.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+    """
     snapshot = (
         session.query(ProductionPlanSnapshot)
         .filter(ProductionPlanSnapshot.event_id == event_id)

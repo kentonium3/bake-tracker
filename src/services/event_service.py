@@ -275,6 +275,9 @@ def get_required_recipes(
     """
     Recursively decompose a FinishedGood to determine all required recipe IDs.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only recursive traversal within the caller's transaction scope.
+
     Args:
         fg_id: The FinishedGood ID to decompose
         session: Database session (required, caller manages transaction)
@@ -378,6 +381,9 @@ def check_fg_availability(
     """
     Check if a FinishedGood is available given selected recipes.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only check within the caller's transaction scope.
+
     Args:
         fg_id: The FinishedGood ID to check
         selected_recipe_ids: Set of recipe IDs currently selected for the event
@@ -426,6 +432,9 @@ def get_available_finished_goods(
     """
     Get all FinishedGoods that are available for an event.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only check for each FG within the caller's transaction scope.
+
     A FG is available if all its required recipes are selected for the event.
 
     Args:
@@ -469,6 +478,12 @@ def remove_invalid_fg_selections(
 ) -> List[RemovedFGInfo]:
     """
     Remove FG selections that are no longer valid for an event.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Multi-step operation within the caller's transaction scope:
+        1. Get current selected recipe IDs for event
+        2. Check each FG selection for availability
+        3. Delete invalid selections
 
     Called after recipe selection changes to maintain data integrity.
 
@@ -546,6 +561,9 @@ def create_event(
     """
     Create a new event.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Single-step write within the caller's transaction scope.
+
     Args:
         name: Event name (required)
         event_date: Event date (required)
@@ -599,6 +617,9 @@ def get_event_by_id(event_id: int, *, session: Session) -> Optional[Event]:
     """
     Get an event by ID.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
     Args:
         event_id: Event ID
         session: Database session (required)
@@ -630,6 +651,9 @@ def get_event_by_name(name: str, *, session: Session) -> Optional[Event]:
     """
     Get an event by exact name match.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
     Args:
         name: Event name
         session: Database session (required)
@@ -654,6 +678,9 @@ def get_all_events(*, session: Session) -> List[Event]:
     """
     Get all events ordered by event_date descending.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
     Args:
         session: Database session (required)
 
@@ -676,6 +703,9 @@ def get_all_events(*, session: Session) -> List[Event]:
 def get_events_by_year(year: int, *, session: Session) -> List[Event]:
     """
     Get events filtered by year (FR-020).
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
 
     Args:
         year: Year to filter by
@@ -702,6 +732,9 @@ def get_available_years(*, session: Session) -> List[int]:
     """
     Get list of distinct years with events (for year filter dropdown).
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
     Args:
         session: Database session (required)
 
@@ -719,6 +752,9 @@ def get_available_years(*, session: Session) -> List[int]:
 def update_event(event_id: int, *, session: Session, **updates) -> Event:
     """
     Update an existing event.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Single-step write (updates event fields) within the caller's transaction scope.
 
     Args:
         event_id: Event ID to update
@@ -777,6 +813,12 @@ def delete_event(
     """
     Delete an event.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Multi-step operation within the caller's transaction scope:
+        1. Query event with assignments loaded
+        2. Check for existing assignments (error if cascade_assignments=False)
+        3. Delete event (cascade deletes assignments if configured)
+
     Args:
         event_id: Event ID to delete
         cascade_assignments: If True, delete assignments too (FR-022)
@@ -830,6 +872,13 @@ def assign_package_to_recipient(
 ) -> EventRecipientPackage:
     """
     Assign a package to a recipient for an event.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Multi-step operation within the caller's transaction scope:
+        1. Validate event exists
+        2. Validate recipient exists
+        3. Validate package exists
+        4. Create and persist assignment record
 
     Args:
         event_id: Event ID
@@ -905,6 +954,12 @@ def update_assignment(
     """
     Update an existing assignment.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Multi-step operation within the caller's transaction scope:
+        1. Query and validate assignment exists
+        2. Validate new package exists (if provided)
+        3. Update fields
+
     Args:
         assignment_id: Assignment ID
         package_id: New package ID (optional)
@@ -968,6 +1023,9 @@ def remove_assignment(assignment_id: int, *, session: Session) -> bool:
     """
     Remove an assignment.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Single-step delete within the caller's transaction scope.
+
     Args:
         assignment_id: Assignment ID
         session: Database session (required)
@@ -1001,6 +1059,9 @@ def get_event_assignments(event_id: int, *, session: Session) -> List[EventRecip
     """
     Get all assignments for an event.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
     Args:
         event_id: Event ID
         session: Database session (required)
@@ -1032,6 +1093,9 @@ def get_recipient_assignments_for_event(
 ) -> List[EventRecipientPackage]:
     """
     Get all assignments for a specific recipient in an event.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
 
     Args:
         event_id: Event ID
@@ -1068,6 +1132,9 @@ def get_event_total_cost(event_id: int, *, session: Session) -> Decimal:
     """
     Calculate total cost of all packages in an event.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only computation within the caller's transaction scope.
+
     Cost chains through: Event -> ERP -> Package -> FinishedGood for FIFO accuracy.
 
     Args:
@@ -1103,6 +1170,9 @@ def get_event_recipient_count(event_id: int, *, session: Session) -> int:
     """
     Get number of unique recipients in an event.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only computation within the caller's transaction scope.
+
     Args:
         event_id: Event ID
         session: Database session (required)
@@ -1130,6 +1200,9 @@ def get_event_recipient_count(event_id: int, *, session: Session) -> int:
 def get_event_package_count(event_id: int, *, session: Session) -> int:
     """
     Get total number of packages in an event (sum of quantities).
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only computation within the caller's transaction scope.
 
     Args:
         event_id: Event ID
@@ -1163,6 +1236,9 @@ def get_event_package_count(event_id: int, *, session: Session) -> int:
 def get_event_summary(event_id: int, *, session: Session) -> Dict[str, Any]:
     """
     Get complete event summary for Summary tab.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only computation within the caller's transaction scope.
 
     Args:
         event_id: Event ID
@@ -1228,6 +1304,9 @@ def get_event_summary(event_id: int, *, session: Session) -> Dict[str, Any]:
 def get_recipe_needs(event_id: int, *, session: Session) -> List[Dict[str, Any]]:
     """
     Calculate batch counts needed for all recipes in an event.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only traversal within the caller's transaction scope.
 
     Traverses: Event -> ERP -> Package -> FinishedGood -> Composition -> FinishedUnit -> Recipe
 
@@ -1356,6 +1435,9 @@ def get_shopping_list(
 ) -> Dict[str, Any]:
     """
     Calculate ingredients needed with inventory comparison and product recommendations.
+
+    Transaction boundary: Inherits session from caller (required parameter) or creates own.
+    Read-only computation with internal service calls within transaction scope.
 
     Feature 007 Extension: Each item with a shortfall includes product
     recommendation data (product_status, product_recommendation, all_products).
@@ -1568,6 +1650,9 @@ def export_shopping_list_csv(event_id: int, file_path: str, session: Session) ->
     """
     Export shopping list to CSV file.
 
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only data fetch followed by file I/O (file write is outside transaction).
+
     Args:
         event_id: Event ID
         file_path: Destination file path
@@ -1665,6 +1750,12 @@ def clone_event(
 ) -> Event:
     """
     Clone an event and all its assignments to a new year.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Multi-step operation within the caller's transaction scope:
+        1. Query source event with assignments
+        2. Create new event with same notes
+        3. Clone all assignments to new event
 
     Args:
         source_event_id: Event ID to clone

@@ -211,6 +211,9 @@ def check_production_feasibility(
 ) -> List[Dict[str, Any]]:
     """Check production feasibility for all production targets of an event.
 
+    Transaction boundary: Read-only operation.
+    Queries production targets and checks inventory availability for each.
+
     Wraps batch_production_service.check_can_produce() for each EventProductionTarget
     to determine if recipes can be produced with current inventory.
 
@@ -241,7 +244,11 @@ def _check_production_feasibility_impl(
     production_aware: bool,
     session: Session,
 ) -> List[Dict[str, Any]]:
-    """Implementation of check_production_feasibility."""
+    """Implementation of check_production_feasibility.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Query all production targets for this event
     targets = (
         session.query(EventProductionTarget)
@@ -314,6 +321,9 @@ def check_assembly_feasibility(
 ) -> List[FeasibilityResult]:
     """Check assembly feasibility for all assembly targets of an event.
 
+    Transaction boundary: Read-only operation.
+    Queries assembly targets and checks component availability for each.
+
     Wraps assembly_service.check_can_assemble() for each EventAssemblyTarget
     to determine if bundles can be assembled with current inventory.
 
@@ -337,7 +347,11 @@ def _check_assembly_feasibility_impl(
     event_id: int,
     session: Session,
 ) -> List[FeasibilityResult]:
-    """Implementation of check_assembly_feasibility."""
+    """Implementation of check_assembly_feasibility.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Query all assembly targets for this event
     targets = (
         session.query(EventAssemblyTarget).filter(EventAssemblyTarget.event_id == event_id).all()
@@ -401,6 +415,9 @@ def _calculate_max_assemblable(
     session: Session,
 ) -> int:
     """Calculate maximum number of units that can be assembled.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
 
     Uses binary search approach: check decreasing quantities until we find
     the maximum that can be assembled. Also checks component availability
@@ -475,6 +492,9 @@ def _determine_feasibility_status(
 ) -> FeasibilityStatus:
     """Determine the appropriate FeasibilityStatus.
 
+    Transaction boundary: Inherits session from caller.
+    Read-only check within the caller's transaction scope.
+
     Status logic:
     - CAN_ASSEMBLE: can_assemble >= target
     - PARTIAL: 0 < can_assemble < target
@@ -514,6 +534,9 @@ def _check_production_incomplete(
 ) -> bool:
     """Check if production is incomplete for a finished good's components.
 
+    Transaction boundary: Inherits session from caller.
+    Read-only check within the caller's transaction scope.
+
     This checks if any FinishedUnit components have zero inventory,
     suggesting that production hasn't happened yet.
 
@@ -550,6 +573,9 @@ def check_single_assembly_feasibility(
 ) -> FeasibilityResult:
     """Check assembly feasibility for a single finished good.
 
+    Transaction boundary: Read-only operation.
+    Checks component availability for the specified finished good.
+
     Convenience function for checking a single assembly without
     requiring an EventAssemblyTarget.
 
@@ -572,7 +598,11 @@ def _check_single_assembly_impl(
     quantity: int,
     session: Session,
 ) -> FeasibilityResult:
-    """Implementation of check_single_assembly_feasibility."""
+    """Implementation of check_single_assembly_feasibility.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Get finished good name
     finished_good = session.get(FinishedGood, finished_good_id)
     fg_name = finished_good.display_name if finished_good else f"FinishedGood {finished_good_id}"

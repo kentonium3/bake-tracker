@@ -77,6 +77,9 @@ from src.utils.datetime_utils import utc_now
 def _build_snapshot_data(event: Event, session: Session) -> dict:
     """Build snapshot JSON data from current plan state.
 
+    Transaction boundary: Inherits session from caller.
+    Read-only queries within the caller's transaction scope.
+
     Args:
         event: Event to snapshot
         session: Database session
@@ -134,7 +137,15 @@ def _build_snapshot_data(event: Event, session: Session) -> dict:
 
 
 def _create_plan_snapshot_impl(event_id: int, session: Session) -> PlanSnapshot:
-    """Internal implementation of create_plan_snapshot."""
+    """Internal implementation of create_plan_snapshot.
+
+    Transaction boundary: Inherits session from caller.
+    Multi-step operation within the caller's transaction scope:
+        1. Check for existing snapshot (idempotent - returns existing if found)
+        2. Query event and validate existence
+        3. Build snapshot data from current plan state
+        4. Create and persist PlanSnapshot record
+    """
     # Check if snapshot already exists (idempotent)
     existing = session.query(PlanSnapshot).filter(
         PlanSnapshot.event_id == event_id
@@ -164,6 +175,14 @@ def _create_plan_snapshot_impl(event_id: int, session: Session) -> PlanSnapshot:
 def create_plan_snapshot(event_id: int, session: Session = None) -> PlanSnapshot:
     """Create a snapshot of the plan state for an event.
 
+    Transaction boundary: Multi-step operation (atomic).
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+        1. Check for existing snapshot (idempotent - returns existing if found)
+        2. Query event and validate existence
+        3. Build snapshot data (recipes, finished goods, batch decisions)
+        4. Create and persist PlanSnapshot record
+
     Captures all recipes, finished goods, quantities, and batch decisions
     as JSON. Idempotent - returns existing snapshot if one exists.
 
@@ -185,7 +204,11 @@ def create_plan_snapshot(event_id: int, session: Session = None) -> PlanSnapshot
 
 
 def _get_plan_snapshot_impl(event_id: int, session: Session) -> Optional[PlanSnapshot]:
-    """Internal implementation of get_plan_snapshot."""
+    """Internal implementation of get_plan_snapshot.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only query within the caller's transaction scope.
+    """
     return session.query(PlanSnapshot).filter(
         PlanSnapshot.event_id == event_id
     ).first()
@@ -193,6 +216,9 @@ def _get_plan_snapshot_impl(event_id: int, session: Session) -> Optional[PlanSna
 
 def get_plan_snapshot(event_id: int, session: Session = None) -> Optional[PlanSnapshot]:
     """Get the plan snapshot for an event.
+
+    Transaction boundary: Read-only operation.
+    Queries PlanSnapshot table by event_id.
 
     Args:
         event_id: Event ID to query
@@ -218,7 +244,11 @@ def get_plan_snapshot(event_id: int, session: Session = None) -> Optional[PlanSn
 
 
 def _get_plan_comparison_impl(event_id: int, session: Session) -> PlanComparison:
-    """Internal implementation of get_plan_comparison."""
+    """Internal implementation of get_plan_comparison.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Get snapshot
     snapshot = session.query(PlanSnapshot).filter(
         PlanSnapshot.event_id == event_id
@@ -355,6 +385,9 @@ def _get_plan_comparison_impl(event_id: int, session: Session) -> PlanComparison
 
 def get_plan_comparison(event_id: int, session: Session = None) -> PlanComparison:
     """Compare original plan (snapshot) with current plan state.
+
+    Transaction boundary: Read-only operation.
+    Queries snapshot data and current state, computes differences.
 
     Returns structured comparison showing what changed since
     production started.

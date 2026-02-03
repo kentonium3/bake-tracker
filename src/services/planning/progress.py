@@ -76,6 +76,9 @@ def get_production_progress(
 ) -> List[ProductionProgress]:
     """Get production progress for all recipe targets.
 
+    Transaction boundary: Read-only operation.
+    Queries production targets and completed runs.
+
     Wraps event_service.get_production_progress() and transforms
     the results into ProductionProgress DTOs.
 
@@ -96,7 +99,11 @@ def _get_production_progress_impl(
     event_id: int,
     session: Session,
 ) -> List[ProductionProgress]:
-    """Implementation of get_production_progress."""
+    """Implementation of get_production_progress.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Get raw progress data from event_service
     # Pass session to allow transactional atomicity with caller
     raw_progress = event_service.get_production_progress(event_id, session=session)
@@ -139,6 +146,9 @@ def get_remaining_production_needs(
 ) -> Dict[int, int]:
     """Get remaining batches needed per recipe.
 
+    Transaction boundary: Read-only operation.
+    Delegates to get_production_progress() and extracts remaining batches.
+
     Convenience function that returns a mapping from recipe_id to
     remaining_batches for use by feasibility and shopping list services.
 
@@ -160,6 +170,9 @@ def get_assembly_progress(
 ) -> List[AssemblyProgress]:
     """Get assembly progress for all finished good targets.
 
+    Transaction boundary: Read-only operation.
+    Queries assembly targets and completed runs.
+
     Wraps event_service.get_assembly_progress() and transforms
     the results into AssemblyProgress DTOs.
 
@@ -180,7 +193,11 @@ def _get_assembly_progress_impl(
     event_id: int,
     session: Session,
 ) -> List[AssemblyProgress]:
-    """Implementation of get_assembly_progress."""
+    """Implementation of get_assembly_progress.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only computation within the caller's transaction scope.
+    """
     # Get raw progress data from event_service
     # Pass session to allow transactional atomicity with caller
     raw_progress = event_service.get_assembly_progress(event_id, session=session)
@@ -231,6 +248,9 @@ def get_overall_progress(
 ) -> Dict[str, Any]:
     """Get overall event progress summary.
 
+    Transaction boundary: Read-only operation.
+    Aggregates production and assembly progress data.
+
     Calculates aggregate progress across all production and assembly targets.
 
     Args:
@@ -258,7 +278,11 @@ def _get_overall_progress_impl(
     event_id: int,
     session: Session,
 ) -> Dict[str, Any]:
-    """Implementation of get_overall_progress."""
+    """Implementation of get_overall_progress.
+
+    Transaction boundary: Inherits session from caller.
+    Read-only aggregation within the caller's transaction scope.
+    """
     # Get individual progress lists
     production_progress = get_production_progress(event_id, session=session)
     assembly_progress = get_assembly_progress(event_id, session=session)
