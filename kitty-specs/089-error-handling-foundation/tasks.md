@@ -158,7 +158,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T022 [P] Update `src/ui/recipes_tab.py` (11 occurrences)
+- [x] T022 [P] Update `src/ui/recipes_tab.py` (11 occurrences)
 - [ ] T023 [P] Update `src/ui/forms/recipe_form.py` (10 occurrences)
 - [ ] T024 [P] Update `src/ui/production_dashboard_tab.py` (1 occurrence)
 - [ ] T025 [P] Update `src/ui/forms/record_production_dialog.py` (3 occurrences)
