@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Finished Goods Service Updates
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -187,3 +187,4 @@ Run affected tests:
 - 2026-02-03T22:24:24Z – codex – shell_pid=51956 – lane=doing – Started review via workflow command
 - 2026-02-03T22:25:09Z – codex – shell_pid=51956 – lane=planned – Moved to planned
 - 2026-02-03T22:28:44Z – claude – shell_pid=31234 – lane=doing – Started implementation via workflow command
+- 2026-02-03T22:38:16Z – claude – shell_pid=31234 – lane=for_review – Ready for review: All 4 get functions raise domain-specific exceptions, all 3493 tests pass
