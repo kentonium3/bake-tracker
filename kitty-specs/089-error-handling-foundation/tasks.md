@@ -129,7 +129,7 @@
 
 ### Included Subtasks
 - [x] T019 Update `src/ui/materials_tab.py` (31 `except Exception` occurrences)
-- [ ] T020 Update `src/ui/inventory_tab.py` (20 occurrences)
+- [x] T020 Update `src/ui/inventory_tab.py` (20 occurrences)
 - [ ] T021 Update `src/ui/planning_tab.py` (21 occurrences)
 
 ### Implementation Notes
