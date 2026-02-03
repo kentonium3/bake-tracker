@@ -246,11 +246,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T035 [P] Update `src/ui/forms/add_product_dialog.py` (9 occurrences)
-- [ ] T036 [P] Update `src/ui/forms/product_detail_dialog.py` (6 occurrences)
-- [ ] T037 [P] Update `src/ui/forms/package_form.py` (6 occurrences)
-- [ ] T038 [P] Update `src/ui/forms/manage_suppliers_dialog.py` (6 occurrences)
-- [ ] T039 [P] Update `src/ui/forms/bundle_form.py` (1 occurrence)
+- [x] T035 [P] Update `src/ui/forms/add_product_dialog.py` (9 occurrences)
+- [x] T036 [P] Update `src/ui/forms/product_detail_dialog.py` (6 occurrences)
+- [x] T037 [P] Update `src/ui/forms/package_form.py` (6 occurrences)
+- [x] T038 [P] Update `src/ui/forms/manage_suppliers_dialog.py` (6 occurrences)
+- [x] T039 [P] Update `src/ui/forms/bundle_form.py` (1 occurrence)
 
 ### Implementation Notes
 - Forms commonly have ValidationError handlers
