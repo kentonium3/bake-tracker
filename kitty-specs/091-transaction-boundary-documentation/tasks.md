@@ -317,10 +317,10 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T047 Add "Transaction boundary matches implementation?" to Code Review Checklist in constitution
-- [ ] T048 Update New Service Function Checklist to include transaction docs
-- [ ] T049 Add transaction verification to PR template if one exists
-- [ ] T050 Update CLAUDE.md session management section to reference guide
+- [x] T047 Add "Transaction boundary matches implementation?" to Code Review Checklist in constitution
+- [x] T048 Update New Service Function Checklist to include transaction docs
+- [x] T049 Add transaction verification to PR template if one exists
+- [x] T050 Update CLAUDE.md session management section to reference guide
 
 ### Implementation Notes
 - Constitution already has Code Review Checklist (Appendix)
