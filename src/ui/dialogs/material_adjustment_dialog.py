@@ -13,6 +13,9 @@ import customtkinter as ctk
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Optional, Dict, Any, Callable, Tuple
 
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
+
 
 class MaterialAdjustmentDialog(ctk.CTkToplevel):
     """Dialog for adjusting material inventory quantities.
@@ -436,9 +439,10 @@ class MaterialAdjustmentDialog(ctk.CTkToplevel):
 
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Adjust inventory")
         except Exception as e:
-            # Show error in dialog
-            self._warning_label.configure(text=f"Error: {str(e)}")
+            handle_error(e, parent=self, operation="Adjust inventory")
 
     def _on_cancel(self) -> None:
         """Handle cancel button click."""

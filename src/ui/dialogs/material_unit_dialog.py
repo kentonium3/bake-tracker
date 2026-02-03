@@ -17,7 +17,8 @@ from src.services.material_unit_converter import (
     get_linear_unit_options,
     convert_to_cm,
 )
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ValidationError, ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class MaterialUnitDialog(ctk.CTkToplevel):
@@ -296,8 +297,10 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", error_msg)
         except material_unit_service.MaterialProductNotFoundError:
             messagebox.showerror("Error", "Product not found. Please save the product first.")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save unit")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save unit: {e}")
+            handle_error(e, parent=self, operation="Save unit")
 
     def _get_material_base_unit_type(self) -> str:
         """
@@ -326,7 +329,7 @@ class MaterialUnitDialog(ctk.CTkToplevel):
             material = material_catalog_service.get_material(material_id=material_id)
             if material:
                 return material.base_unit_type or "each"
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             print(f"MaterialUnitDialog: Error getting material base unit type: {e}")
             # Fall through to default
 

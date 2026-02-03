@@ -24,6 +24,8 @@ from src.services.purchase_service import (
     get_last_price_at_supplier,
     get_last_price_any_supplier,
 )
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class AddPurchaseDialog(ctk.CTkToplevel):
@@ -113,7 +115,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             for p in self.products:
                 display_name = p.get("display_name", p.get("product_name", "Unknown"))
                 self.product_map[display_name] = p
-        except Exception:
+        except (ServiceError, Exception):
             self.products = []
             self.product_map = {}
 
@@ -125,7 +127,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             for s in self.suppliers:
                 name = s.get("name", "Unknown")
                 self.supplier_map[name] = s
-        except Exception:
+        except (ServiceError, Exception):
             self.suppliers = []
             self.supplier_map = {}
 
@@ -464,8 +466,10 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save purchase")
         except Exception as e:
-            self._show_error(f"Failed to save: {str(e)}")
+            handle_error(e, parent=self, operation="Save purchase")
 
     # =========================================================================
     # F057: Provisional Product Creation
@@ -700,7 +704,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             self._prov_l0_dropdown.configure(values=values)
             self._prov_l1_map = {}
             self._prov_l2_map = {}
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             print(f"Warning: Failed to load ingredient hierarchy: {e}")
 
     def _on_prov_l0_change(self, value: str) -> None:
@@ -729,7 +733,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             self._prov_l2_map = {}
             self._prov_l2_dropdown.configure(values=["Select Ingredient"], state="disabled")
             self._prov_l2_var.set("Select Ingredient")
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             print(f"Warning: Failed to load subcategories: {e}")
 
     def _on_prov_l1_change(self, value: str) -> None:
@@ -751,7 +755,7 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             values = ["Select Ingredient"] + sorted(self._prov_l2_map.keys())
             self._prov_l2_dropdown.configure(values=values, state="normal")
             self._prov_l2_var.set("Select Ingredient")
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             print(f"Warning: Failed to load ingredients: {e}")
 
     def _prepopulate_from_search(self) -> None:
@@ -850,8 +854,10 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             # Success - use the new product
             self._on_provisional_product_created(product)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Create provisional product")
         except Exception as e:
-            self._prov_error_label.configure(text=f"Failed: {str(e)}")
+            handle_error(e, parent=self, operation="Create provisional product")
 
     def _on_provisional_product_created(self, product) -> None:
         """Handle successful provisional product creation.

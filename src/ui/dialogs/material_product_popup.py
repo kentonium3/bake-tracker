@@ -9,6 +9,7 @@ import customtkinter as ctk
 from typing import Optional
 
 from src.services import material_catalog_service, material_unit_service
+from src.services.exceptions import ServiceError
 
 
 class MaterialProductPopup(ctk.CTkToplevel):
@@ -51,7 +52,7 @@ class MaterialProductPopup(ctk.CTkToplevel):
                 from src.models.material import Material
                 with session_scope() as session:
                     self.material = session.query(Material).get(self.product.material_id)
-            except Exception:
+            except (ServiceError, Exception):
                 pass
 
         # Window setup
@@ -74,7 +75,7 @@ class MaterialProductPopup(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except (ServiceError, Exception):
             if not self.winfo_exists():
                 return
         self.lift()
@@ -152,7 +153,7 @@ class MaterialProductPopup(ctk.CTkToplevel):
                     text="No units defined",
                     text_color="gray"
                 ).pack(anchor="w", padx=5)
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             ctk.CTkLabel(
                 units_frame,
                 text=f"Error loading units: {e}",
