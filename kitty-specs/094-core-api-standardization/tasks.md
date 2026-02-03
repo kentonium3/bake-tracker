@@ -127,7 +127,7 @@
 - [x] T027 Update supplier_service.py get functions
 - [x] T028 Update recipient_service.py `get_recipient_by_name()`
 - [x] T029 Update unit_service.py `get_unit_by_code()`
-- [ ] T030 Update material_catalog_service.py get functions
+- [x] T030 Update material_catalog_service.py get functions
 - [ ] T031 Update calling code for all secondary services
 - [ ] T032 Update tests for secondary services
 
