@@ -340,3 +340,98 @@ and common pitfalls, see:
 ### Reference
 
 See `docs/design/session_management_remediation_spec.md` for full technical details.
+
+## Pagination Pattern (Web Migration Ready)
+
+### DTOs Available
+
+- `PaginationParams`: Page number and items per page (`src/services/dto.py`)
+- `PaginatedResult[T]`: Generic result container with metadata
+
+### Usage Pattern (Future Service Adoption)
+
+When adding pagination to a service function:
+
+**Pattern: Optional Pagination (Backward-Compatible)**
+
+```python
+from src.services.dto import PaginationParams, PaginatedResult
+
+def list_items(
+    filter: Optional[ItemFilter] = None,
+    pagination: Optional[PaginationParams] = None,  # Optional!
+    session: Optional[Session] = None
+) -> PaginatedResult[Item]:
+    """
+    List items with optional pagination.
+
+    Desktop usage: pagination=None returns all items (current behavior)
+    Web usage: pagination=PaginationParams(...) returns one page
+    """
+    def _impl(sess: Session) -> PaginatedResult[Item]:
+        query = sess.query(Item)
+
+        # Apply filters...
+        if filter:
+            # ... filtering logic
+            pass
+
+        # Count total
+        total = query.count()
+
+        # Apply pagination (if provided)
+        if pagination:
+            # Web: return one page
+            items = query.offset(pagination.offset()).limit(pagination.per_page).all()
+            page = pagination.page
+            per_page = pagination.per_page
+        else:
+            # Desktop: return all items (current behavior)
+            items = query.all()
+            page = 1
+            per_page = total or 1
+
+        return PaginatedResult(
+            items=items,
+            total=total,
+            page=page,
+            per_page=per_page
+        )
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+```
+
+### Desktop vs Web Usage
+
+**Desktop (current pattern unchanged):**
+```python
+# No pagination parameter - get all items
+result = list_ingredients(filter=IngredientFilter(category="baking"))
+all_items = result.items  # All ingredients
+```
+
+**Web (future FastAPI):**
+```python
+@app.get("/api/ingredients")
+def get_ingredients(page: int = 1, per_page: int = 50):
+    result = list_ingredients(
+        pagination=PaginationParams(page=page, per_page=per_page)
+    )
+    return {
+        "items": [serialize(i) for i in result.items],
+        "total": result.total,
+        "page": result.page,
+        "pages": result.pages,
+        "has_next": result.has_next
+    }
+```
+
+### When to Adopt
+
+- **New services**: Use pagination from the start
+- **Existing services**: Adopt incrementally during refactoring
+- **Desktop UI**: No changes needed (pagination=None)
+- **Web migration**: See web-prep/F003 for comprehensive adoption plan
