@@ -54,7 +54,7 @@ from .exceptions import (
 )
 from .ingredient_service import get_ingredient
 from ..utils.validators import validate_product_data
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Session
 import re
 
 
@@ -403,13 +403,19 @@ def create_provisional_product(
         raise DatabaseError("Failed to create provisional product", original_error=e)
 
 
-def get_product(product_id: int) -> Product:
+def get_product(
+    product_id: int,
+    session: Optional[Session] = None,
+) -> Product:
     """Retrieve product by ID.
 
-    Transaction boundary: Read-only operation.
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, creates own session_scope().
 
     Args:
         product_id: Product identifier
+        session: Optional database session for transaction sharing
 
     Returns:
         Product: Product object with ingredient relationship eager-loaded
@@ -424,22 +430,35 @@ def get_product(product_id: int) -> Product:
         >>> product.ingredient.display_name
         'All-Purpose Flour'
     """
-    with session_scope() as session:
-        product = (
-            session.query(Product)
-            .options(
-                joinedload(Product.ingredient),
-                joinedload(Product.purchases),
-                joinedload(Product.inventory_items),
-            )
-            .filter_by(id=product_id)
-            .first()
+    if session is not None:
+        return _get_product_impl(product_id, session)
+    with session_scope() as sess:
+        return _get_product_impl(product_id, sess)
+
+
+def _get_product_impl(product_id: int, session: Session) -> Product:
+    """Implementation of get_product.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope(). Query executes within the caller's
+    transaction boundary.
+    """
+    product = (
+        session.query(Product)
+        .options(
+            joinedload(Product.ingredient),
+            joinedload(Product.purchases),
+            joinedload(Product.inventory_items),
         )
+        .filter_by(id=product_id)
+        .first()
+    )
 
-        if not product:
-            raise ProductNotFound(product_id)
+    if not product:
+        raise ProductNotFound(product_id)
 
-        return product
+    return product
 
 
 def get_products_for_ingredient(ingredient_slug: str) -> List[Product]:

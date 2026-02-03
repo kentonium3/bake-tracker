@@ -735,6 +735,90 @@ def get_supplier_or_raise(
     return result
 
 
+def get_or_create_supplier(
+    name: str,
+    city: str = "Unknown",
+    state: str = "XX",
+    zip_code: str = "00000",
+    session: Optional[Session] = None,
+) -> Supplier:
+    """Get existing supplier by name or create with provided defaults.
+
+    Transaction boundary: Single query + possible insert (atomic).
+    If session provided, operates within caller's transaction for
+    transactional composition. If session is None, creates own session_scope().
+
+    This function is designed for use by purchase_service to centralize
+    supplier lookup/creation logic that was previously inline.
+
+    Args:
+        name: Supplier name (required)
+        city: City (default: "Unknown")
+        state: State code (default: "XX")
+        zip_code: ZIP code (default: "00000")
+        session: Optional session for transactional composition
+
+    Returns:
+        Supplier: Existing or newly created supplier MODEL object
+
+    Notes:
+        - Defaults match legacy purchase service behavior for backward compatibility
+        - Future: Will generate slug when TD-009 implemented
+        - Lookup by name only (city/state not used for matching)
+        - Returns Supplier MODEL (not dict) for direct .id access
+
+    Example:
+        >>> supplier = get_or_create_supplier("Costco", session=session)
+        >>> supplier.id
+        42
+
+        >>> # With custom location
+        >>> supplier = get_or_create_supplier(
+        ...     name="Wegmans",
+        ...     city="Burlington",
+        ...     state="MA",
+        ...     zip_code="01803",
+        ...     session=session
+        ... )
+    """
+    if session is not None:
+        return _get_or_create_supplier_impl(name, city, state, zip_code, session)
+    with session_scope() as sess:
+        return _get_or_create_supplier_impl(name, city, state, zip_code, sess)
+
+
+def _get_or_create_supplier_impl(
+    name: str,
+    city: str,
+    state: str,
+    zip_code: str,
+    session: Session,
+) -> Supplier:
+    """Implementation of get_or_create_supplier.
+
+    Transaction boundary: Inherits session from caller.
+    This function MUST be called with an active session - it does not
+    create its own session_scope().
+    """
+    # Try to find existing supplier by name
+    supplier = session.query(Supplier).filter(Supplier.name == name).first()
+
+    if supplier:
+        return supplier
+
+    # Create new supplier with defaults
+    # Note: Not generating slug here - deferred to TD-009
+    supplier = Supplier(
+        name=name,
+        city=city,
+        state=state,
+        zip_code=zip_code,
+    )
+    session.add(supplier)
+    session.flush()  # Get ID for return
+    return supplier
+
+
 def migrate_supplier_slugs(
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
