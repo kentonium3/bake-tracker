@@ -14,6 +14,7 @@ Implements FR-011: Mode dashboard displays relevant statistics.
 from typing import Any, Optional
 import customtkinter as ctk
 
+from src.services.exceptions import ServiceError
 from src.ui.dashboards.base_dashboard import BaseDashboard
 
 
@@ -143,7 +144,7 @@ class ObserveDashboard(BaseDashboard):
                         total_production += progress.get("production_pct", 0)
                         total_assembly += progress.get("assembly_pct", 0)
                         total_packaging += progress.get("packaging_pct", 0)
-                    except Exception:
+                    except (ServiceError, Exception):
                         # Skip events that fail to load progress
                         event_count = max(1, event_count - 1)
 
@@ -154,7 +155,7 @@ class ObserveDashboard(BaseDashboard):
                 self.update_stat("Assembly", f"{total_assembly // event_count}%")
                 self.update_stat("Packaging", f"{total_packaging // event_count}%")
 
-        except Exception:
+        except (ServiceError, Exception):
             # Silently handle errors - dashboard stats are non-critical
             pass
 

@@ -42,12 +42,14 @@ from src.services.exceptions import (
     IngredientInUse,
     IngredientNotFound,
     IngredientNotFoundBySlug,
+    ServiceError,
     SlugAlreadyExists,
     ValidationError,
     DatabaseError,
     ProductInUse,
     ProductNotFound,
 )
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -395,8 +397,8 @@ class IngredientsTab(ctk.CTkFrame):
             count = len(self._leaf_ingredients_data)
             self.update_status(f"{count} ingredient{'s' if count != 1 else ''} loaded")
 
-        except DatabaseError as e:
-            messagebox.showerror("Database Error", f"Failed to load ingredients: {e}")
+        except (ServiceError, Exception) as e:
+            handle_error(e, parent=self, operation="Load ingredients", show_dialog=False)
             self.update_status("Error loading ingredients")
 
     def _load_filter_data(self):
@@ -418,9 +420,9 @@ class IngredientsTab(ctk.CTkFrame):
             self.l1_filter_dropdown.configure(values=["All"], state="disabled")
             self.l1_filter_var.set("All")
 
-        except Exception as e:
-            # Log error but continue - filters will have limited options
-            print(f"Warning: Failed to load filter data: {e}")
+        except (ServiceError, Exception):
+            # Silent handler - filters will have limited options
+            pass
 
     def _show_initial_state(self):
         """Show initial loading state."""
@@ -653,7 +655,7 @@ class IngredientsTab(ctk.CTkFrame):
                 descendants.add(child_id)
                 # Recurse to get deeper descendants
                 descendants.update(self._get_descendants(child_id))
-        except Exception:
+        except (ServiceError, Exception):
             pass
         return descendants
 
@@ -792,7 +794,7 @@ class IngredientsTab(ctk.CTkFrame):
         dialog = IngredientFormDialog(self, title="Add Ingredient")
         try:
             self.wait_window(dialog)
-        except Exception:
+        except (ServiceError, Exception):
             # Dialog was destroyed before wait could complete
             return
 
@@ -809,12 +811,10 @@ class IngredientsTab(ctk.CTkFrame):
                 self.update_status(f"Ingredient '{ingredient_name}' added successfully")
                 messagebox.showinfo("Success", f"Ingredient '{ingredient_name}' created!")
 
-            except ValidationError as e:
-                messagebox.showerror("Validation Error", str(e))
-            except SlugAlreadyExists as e:
-                messagebox.showerror("Duplicate Ingredient", str(e))
-            except DatabaseError as e:
-                messagebox.showerror("Database Error", f"Failed to create ingredient: {e}")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Create ingredient")
+            except Exception as e:
+                handle_error(e, parent=self, operation="Create ingredient")
 
     def _edit_ingredient(self):
         """Open dialog to edit the selected ingredient."""
@@ -846,7 +846,7 @@ class IngredientsTab(ctk.CTkFrame):
             )
             try:
                 self.wait_window(dialog)
-            except Exception:
+            except (ServiceError, Exception):
                 # Dialog was destroyed before wait could complete
                 return
 
@@ -876,13 +876,11 @@ class IngredientsTab(ctk.CTkFrame):
                 # Selection is restored by refresh() -> _update_ingredient_display()
                 messagebox.showinfo("Success", "Ingredient updated!")
 
-        except IngredientNotFoundBySlug:
-            messagebox.showerror("Error", "Ingredient not found")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update ingredient")
             self.refresh()
-        except ValidationError as e:
-            messagebox.showerror("Validation Error", str(e))
-        except DatabaseError as e:
-            messagebox.showerror("Database Error", f"Failed to update ingredient: {e}")
+        except Exception as e:
+            handle_error(e, parent=self, operation="Update ingredient")
 
     def _delete_ingredient(self):
         """Delete the selected ingredient after confirmation.
@@ -916,23 +914,14 @@ class IngredientsTab(ctk.CTkFrame):
                 self.update_status(f"Ingredient '{name}' deleted successfully")
                 messagebox.showinfo("Success", "Ingredient deleted!")
 
-        except IngredientNotFoundBySlug:
-            messagebox.showerror("Error", "Ingredient not found")
-            self.refresh()
-        except IngredientNotFound:
-            messagebox.showerror("Error", "Ingredient not found")
-            self.refresh()
         except IngredientInUse as e:
             # F035: Show detailed message with counts
             self._show_deletion_blocked_message(e.details if hasattr(e, "details") else {})
-        except DatabaseError as e:
-            messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete ingredient")
+            self.refresh()
         except Exception as e:
-            # Catch-all for unexpected errors
-            messagebox.showerror("Error", f"Unexpected error deleting ingredient: {e}")
-            import traceback
-
-            traceback.print_exc()
+            handle_error(e, parent=self, operation="Delete ingredient")
 
     def _show_deletion_blocked_message(self, details: dict):
         """Display user-friendly message when ingredient deletion is blocked.
@@ -1038,7 +1027,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except (ServiceError, Exception):
             if not self.winfo_exists():
                 return
         self.lift()
@@ -1274,7 +1263,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
             for root in roots:
                 display = root.get("display_name", "Unknown")
                 options[display] = root.get("id")
-        except Exception:
+        except (ServiceError, Exception):
             pass
         return options
 
@@ -1334,7 +1323,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 self.warning_label.grid()
             else:
                 self.warning_label.grid_remove()
-        except Exception:
+        except (ServiceError, Exception):
             self.warning_label.grid_remove()
 
     def _get_selected_parent_id(self) -> Optional[int]:
@@ -1392,7 +1381,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
             else:
                 self.l1_dropdown.configure(values=["(None - create L1)"], state="normal")
                 self.l1_var.set("(None - create L1)")
-        except Exception:
+        except (ServiceError, Exception):
             self.l1_dropdown.configure(values=["(Error loading)"], state="disabled")
             self.l1_var.set("(Error loading)")
 
@@ -1444,7 +1433,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
                         self.l0_var.set(l0_name)
                         self._on_l0_change(l0_name)  # Populate L1 but set to None
                         self.l1_var.set("(None - create L1)")
-            except Exception:
+            except (ServiceError, Exception):
                 pass  # Leave dropdowns at default if ancestors lookup fails
 
         # Feature 033: Update level display based on parent selection
@@ -1605,17 +1594,15 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 messagebox.showinfo("Success", f"Ingredient '{name}' deleted!")
                 self.destroy()
 
-            except IngredientNotFound:
-                messagebox.showerror("Error", "Ingredient not found")
-            except IngredientNotFoundBySlug:
-                messagebox.showerror("Error", "Ingredient not found")
             except IngredientInUse as e:
                 # F035: Show detailed message with counts
                 self._show_dialog_deletion_blocked_message(
                     e.details if hasattr(e, "details") else {}
                 )
-            except DatabaseError as e:
-                messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Delete ingredient")
+            except Exception as e:
+                handle_error(e, parent=self, operation="Delete ingredient")
 
     def _show_dialog_deletion_blocked_message(self, details: dict):
         """Display user-friendly message when ingredient deletion is blocked (dialog version).

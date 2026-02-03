@@ -9,6 +9,8 @@ from typing import Any, Callable, Dict, List, Optional
 from abc import ABC, abstractmethod
 import customtkinter as ctk
 
+from src.services.exceptions import ServiceError
+
 
 class BaseDashboard(ctk.CTkFrame, ABC):
     """Abstract base class for mode-specific dashboards.
@@ -134,7 +136,7 @@ class BaseDashboard(ctk.CTkFrame, ABC):
         # Default implementation calls legacy refresh() for backwards compat
         try:
             self.refresh()
-        except Exception:
+        except (ServiceError, Exception):
             pass
 
     def set_title(self, title: str) -> None:

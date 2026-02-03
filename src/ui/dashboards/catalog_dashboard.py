@@ -14,6 +14,7 @@ Implements FR-007: Mode dashboard displays relevant statistics.
 from typing import Any
 import customtkinter as ctk
 
+from src.services.exceptions import ServiceError
 from src.ui.dashboards.base_dashboard import BaseDashboard
 
 
@@ -95,6 +96,6 @@ class CatalogDashboard(BaseDashboard):
             packages = get_all_packages()
             self.update_stat("Packages", str(len(packages)))
 
-        except Exception:
+        except (ServiceError, Exception):
             # Silently handle errors - dashboard stats are non-critical
             pass

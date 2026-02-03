@@ -7,6 +7,7 @@ Displays welcome message, quick stats, and phase information.
 import customtkinter as ctk
 
 from src.services import ingredient_crud_service, recipe_service, finished_good_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import APP_NAME
 
 
@@ -265,7 +266,7 @@ class DashboardTab(ctk.CTkFrame):
         """
         try:
             return ingredient_crud_service.get_ingredient_count()
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     def _get_recipe_count(self) -> int:
@@ -277,7 +278,7 @@ class DashboardTab(ctk.CTkFrame):
         """
         try:
             return recipe_service.get_recipe_count()
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     def _get_inventory_value(self) -> float:
@@ -289,7 +290,7 @@ class DashboardTab(ctk.CTkFrame):
         """
         try:
             return ingredient_crud_service.get_total_inventory_value()
-        except Exception:
+        except (ServiceError, Exception):
             return 0.0
 
     def _get_finished_good_count(self) -> int:
@@ -301,7 +302,7 @@ class DashboardTab(ctk.CTkFrame):
         """
         try:
             return finished_good_service.get_finished_good_count()
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     def _get_bundle_count(self) -> int:
@@ -313,7 +314,7 @@ class DashboardTab(ctk.CTkFrame):
         """
         try:
             return finished_good_service.get_bundle_count()
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     def refresh(self):
