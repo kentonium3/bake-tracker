@@ -78,9 +78,9 @@
 **Agent**: Codex (parallel-safe)
 
 ### Included Subtasks
-- [ ] T008 [P] Document product_service.py (~16 functions)
-- [ ] T009 [P] Document product_catalog_service.py
-- [ ] T010 [P] Document supplier_service.py
+- [x] T008 [P] Document product_service.py (~16 functions)
+- [x] T009 [P] Document product_catalog_service.py
+- [x] T010 [P] Document supplier_service.py
 
 ### Implementation Notes
 - product_service has 7 MULTI functions - use Pattern C
