@@ -52,7 +52,7 @@
 **Summary**: Document pagination pattern in CLAUDE.md for future service adoption.
 
 **Subtasks**:
-- [ ] T006: Add "Pagination Pattern (Web Migration Ready)" section to CLAUDE.md with optional pagination pattern, desktop vs web examples, and adoption guidance
+- [x] T006: Add "Pagination Pattern (Web Migration Ready)" section to CLAUDE.md with optional pagination pattern, desktop vs web examples, and adoption guidance
 
 **Definition of Done**:
 - CLAUDE.md contains Pagination Pattern section
