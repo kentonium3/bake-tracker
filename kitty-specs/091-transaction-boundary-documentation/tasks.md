@@ -19,10 +19,10 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Create service function inventory spreadsheet in kitty-specs/091/research/
-- [ ] T002 Classify all functions as READ/SINGLE/MULTI
-- [ ] T003 Document existing "Transaction boundary:" sections (7 functions already done)
-- [ ] T004 Create docstring template examples file with Pattern A/B/C
+- [x] T001 Create service function inventory spreadsheet in kitty-specs/091/research/
+- [x] T002 Classify all functions as READ/SINGLE/MULTI
+- [x] T003 Document existing "Transaction boundary:" sections (7 functions already done)
+- [x] T004 Create docstring template examples file with Pattern A/B/C
 
 ### Implementation Notes
 - Grep for `def ` in all service files
