@@ -166,7 +166,7 @@
 **Agent**: Codex (parallel-safe)
 
 ### Included Subtasks
-- [ ] T019 [P] Document planning/planning_service.py
+- [x] T019 [P] Document planning/planning_service.py
 - [ ] T020 [P] Document plan_state_service.py
 - [ ] T021 [P] Document plan_snapshot_service.py
 - [ ] T022 [P] Document event_service.py
