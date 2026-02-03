@@ -1,7 +1,7 @@
 ---
 work_package_id: WP11
 title: Code Review Checklist Update
-lane: "doing"
+lane: "for_review"
 dependencies: [WP10]
 base_branch: 091-transaction-boundary-documentation-WP10
 base_commit: 2b91a9b0ea0c9480ac9544d0ce2933e6ff17413a
@@ -162,3 +162,4 @@ and common pitfalls, see:
 ## Activity Log
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
+- 2026-02-03T12:03:06Z – unknown – shell_pid=77204 – lane=for_review – Complete: Updated constitution checklists (v1.6.0 → 1.6.1) with transaction boundary verification items, added reference to transaction_patterns_guide.md in CLAUDE.md, PR template N/A
