@@ -35,7 +35,7 @@
 - [x] T001: Add session param to product_service.get_product()
 - [x] T002: Create supplier_service.get_or_create_supplier()
 - [x] T003: Update purchase_service to delegate to services
-- [ ] T004: Add tests for get_or_create_supplier()
+- [x] T004: Add tests for get_or_create_supplier()
 - [ ] T005: Verify existing purchase_service tests pass
 - [ ] T006: Update docstrings with F091 transaction boundaries
 
