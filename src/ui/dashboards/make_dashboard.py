@@ -11,6 +11,7 @@ Implements FR-010: Mode dashboard displays relevant statistics.
 from typing import Any
 import customtkinter as ctk
 
+from src.services.exceptions import ServiceError
 from src.ui.dashboards.base_dashboard import BaseDashboard
 
 
@@ -68,7 +69,7 @@ class MakeDashboard(BaseDashboard):
             ready_to_package = self._get_ready_to_package_count()
             self.update_stat("Ready to Package", str(ready_to_package))
 
-        except Exception:
+        except (ServiceError, Exception):
             # Silently handle errors - dashboard stats are non-critical
             pass
 
@@ -84,7 +85,7 @@ class MakeDashboard(BaseDashboard):
             # Get recent production runs and count those that might be pending
             history = batch_production_service.get_production_history(limit=100)
             return len(history) if history else 0
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     def _get_ready_to_assemble_count(self) -> int:
@@ -100,7 +101,7 @@ class MakeDashboard(BaseDashboard):
             # This is a placeholder - actual implementation depends on service API
             units = finished_unit_service.get_all_finished_units()
             return len(units) if units else 0
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     def _get_ready_to_package_count(self) -> int:
@@ -116,5 +117,5 @@ class MakeDashboard(BaseDashboard):
             # This is a placeholder - actual implementation depends on service API
             goods = finished_goods_service.get_all_finished_goods()
             return len(goods) if goods else 0
-        except Exception:
+        except (ServiceError, Exception):
             return 0

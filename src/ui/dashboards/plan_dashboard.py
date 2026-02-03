@@ -11,6 +11,7 @@ Implements FR-008: Mode dashboard displays relevant statistics.
 from typing import Any
 import customtkinter as ctk
 
+from src.services.exceptions import ServiceError
 from src.ui.dashboards.base_dashboard import BaseDashboard
 
 
@@ -66,7 +67,7 @@ class PlanDashboard(BaseDashboard):
             try:
                 packages = get_all_packages()
                 self._package_count = len(packages) if packages else 0
-            except Exception:
+            except (ServiceError, Exception):
                 self._package_count = 0
 
             if not events:
@@ -103,6 +104,6 @@ class PlanDashboard(BaseDashboard):
             )
             self.update_stat("Need Attention", str(attention_count))
 
-        except Exception:
+        except (ServiceError, Exception):
             # Silently handle errors - dashboard stats are non-critical
             pass

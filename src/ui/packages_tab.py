@@ -14,7 +14,9 @@ from decimal import Decimal
 
 from src.models.package import Package
 from src.services import package_service, composition_service
+from src.services.exceptions import ServiceError
 from src.services.package_service import PackageNotFoundError, PackageInUseError
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -187,8 +189,11 @@ class PackagesTab(ctk.CTkFrame):
             )
             self.data_table.set_data(packages)
             self._update_status(f"Found {len(packages)} package(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Search packages")
+            self._update_status("Search failed", error=True)
         except Exception as e:
-            show_error("Search Error", f"Failed to search packages: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Search packages")
             self._update_status("Search failed", error=True)
 
     def _on_row_select(self, package: Optional[Package]):
@@ -242,8 +247,10 @@ class PackagesTab(ctk.CTkFrame):
                     "Success", f"Package '{package_data['name']}' added successfully", parent=self
                 )
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add package")
             except Exception as e:
-                show_error("Error", f"Failed to add package: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Add package")
 
     def _edit_package(self):
         """Open dialog to edit the selected package."""
@@ -271,7 +278,7 @@ class PackagesTab(ctk.CTkFrame):
                     )
                     for comp in existing_packaging:
                         composition_service.remove_composition(comp.id)
-                except Exception:
+                except (ServiceError, Exception):
                     pass  # No existing packaging to remove
 
                 # Then add new packaging compositions
@@ -286,11 +293,11 @@ class PackagesTab(ctk.CTkFrame):
 
                 show_success("Success", "Package updated successfully", parent=self)
                 self.refresh()
-            except PackageNotFoundError:
-                show_error("Error", "Package not found", parent=self)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update package")
                 self.refresh()
             except Exception as e:
-                show_error("Error", f"Failed to update package: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Update package")
 
     def _delete_package(self):
         """Delete the selected package after confirmation."""
@@ -317,11 +324,11 @@ class PackagesTab(ctk.CTkFrame):
                 f"This package is used in {e.assignment_count} event assignment(s) and cannot be deleted.",
                 parent=self,
             )
-        except PackageNotFoundError:
-            show_error("Error", "Package not found", parent=self)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete package")
             self.refresh()
         except Exception as e:
-            show_error("Error", f"Failed to delete package: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Delete package")
 
     def _view_details(self):
         """View details of the selected package."""
@@ -410,7 +417,7 @@ class PackagesTab(ctk.CTkFrame):
                     font=ctk.CTkFont(size=12),
                     text_color="gray",
                 ).pack(anchor="w", pady=2)
-        except Exception:
+        except (ServiceError, Exception):
             ctk.CTkLabel(
                 scroll_frame,
                 text="  No packaging materials",
@@ -446,8 +453,11 @@ class PackagesTab(ctk.CTkFrame):
             packages = package_service.get_all_packages()
             self.data_table.set_data(packages)
             self._update_status(f"Loaded {len(packages)} package(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load packages")
+            self._update_status("Failed to load packages", error=True)
         except Exception as e:
-            show_error("Error", f"Failed to load packages: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load packages")
             self._update_status("Failed to load packages", error=True)
 
     def _update_status(self, message: str, error: bool = False):

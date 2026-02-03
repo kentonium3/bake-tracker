@@ -11,6 +11,7 @@ Implements FR-009: Mode dashboard displays relevant statistics.
 from typing import Any
 import customtkinter as ctk
 
+from src.services.exceptions import ServiceError
 from src.ui.dashboards.base_dashboard import BaseDashboard
 
 
@@ -71,7 +72,7 @@ class PurchaseDashboard(BaseDashboard):
 
                 inventory_items = inventory_item_service.get_all_inventory_items()
                 self._inventory_count = len(inventory_items) if inventory_items else 0
-            except Exception:
+            except (ServiceError, Exception):
                 self._inventory_count = 0
 
             # Low Stock Alerts - try to get from inventory service
@@ -80,10 +81,10 @@ class PurchaseDashboard(BaseDashboard):
                 # reorder thresholds defined per ingredient
                 low_stock_count = 0
                 self.update_stat("Low Stock Alerts", str(low_stock_count))
-            except Exception:
+            except (ServiceError, Exception):
                 # Service not available or error - show 0
                 self.update_stat("Low Stock Alerts", "0")
 
-        except Exception:
+        except (ServiceError, Exception):
             # Silently handle errors - dashboard stats are non-critical
             pass
