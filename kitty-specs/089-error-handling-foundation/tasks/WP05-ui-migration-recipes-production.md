@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: UI Migration - Recipes & Production
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -112,3 +112,4 @@ except ValidationError as e:
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-03T00:23:01Z – unknown – shell_pid=64488 – lane=for_review – Recipes and production UI updated with centralized error handler
