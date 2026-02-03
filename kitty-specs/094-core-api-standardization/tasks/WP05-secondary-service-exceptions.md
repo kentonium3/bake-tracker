@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Secondary Service Updates
-lane: "for_review"
+lane: "planned"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -16,8 +16,8 @@ subtasks:
 - T032
 phase: Phase 2 - Core Services
 assignee: ''
-agent: "claude"
-shell_pid: "34540"
+agent: "codex"
+shell_pid: "51956"
 review_status: "has_feedback"
 reviewed_by: "Kent Gale"
 history:
@@ -188,3 +188,5 @@ Run affected tests:
 - 2026-02-03T22:33:39Z – codex – shell_pid=51956 – lane=planned – Moved to planned
 - 2026-02-03T22:39:29Z – claude – shell_pid=34540 – lane=doing – Started implementation via workflow command
 - 2026-02-03T22:47:45Z – claude – shell_pid=34540 – lane=for_review – Ready for review: Exception pattern applied to secondary services, all 3493 tests pass
+- 2026-02-03T22:48:47Z – codex – shell_pid=51956 – lane=doing – Started review via workflow command
+- 2026-02-03T22:49:31Z – codex – shell_pid=51956 – lane=planned – Moved to planned
