@@ -34,8 +34,11 @@ from src.utils.validators import validate_ingredient_data
 
 
 def create_ingredient(data: Dict) -> Ingredient:
-    """
-    Create a new ingredient.
+    """Create a new ingredient.
+
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one INSERT operation within a single transaction.
 
     Args:
         data: Dictionary with ingredient fields
@@ -87,8 +90,11 @@ def create_ingredient(data: Dict) -> Ingredient:
 
 
 def get_ingredient(ingredient_id: int) -> Ingredient:
-    """
-    Retrieve an ingredient by ID.
+    """Retrieve an ingredient by ID.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Args:
         ingredient_id: Ingredient ID
@@ -120,8 +126,11 @@ def get_all_ingredients(
     name_search: Optional[str] = None,
     low_stock_threshold: Optional[float] = None,
 ) -> List[Ingredient]:
-    """
-    Retrieve all ingredients with optional filtering.
+    """Retrieve all ingredients with optional filtering.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Args:
         category: Filter by category (exact match)
@@ -166,8 +175,11 @@ def get_all_ingredients(
 
 
 def update_ingredient(ingredient_id: int, data: Dict) -> Ingredient:
-    """
-    Update an ingredient.
+    """Update an ingredient.
+
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one UPDATE operation within a single transaction.
 
     Args:
         ingredient_id: Ingredient ID
@@ -213,8 +225,18 @@ def update_ingredient(ingredient_id: int, data: Dict) -> Ingredient:
 
 
 def delete_ingredient(ingredient_id: int, force: bool = False) -> bool:
-    """
-    Delete an ingredient.
+    """Delete an ingredient.
+
+    Transaction boundary: Multi-step atomic operation (if force=True).
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Check if ingredient exists
+    2. Count recipe dependencies
+    3. If force=True and has dependencies, delete RecipeIngredient records
+    4. Delete the Ingredient record
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
 
     Args:
         ingredient_id: Ingredient ID
@@ -264,8 +286,11 @@ def delete_ingredient(ingredient_id: int, force: bool = False) -> bool:
 
 
 def update_quantity(ingredient_id: int, new_quantity: float) -> Ingredient:
-    """
-    Update ingredient quantity.
+    """Update ingredient quantity.
+
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one UPDATE operation within a single transaction.
 
     Args:
         ingredient_id: Ingredient ID
@@ -303,8 +328,11 @@ def update_quantity(ingredient_id: int, new_quantity: float) -> Ingredient:
 
 
 def adjust_quantity(ingredient_id: int, adjustment: float) -> Ingredient:
-    """
-    Adjust ingredient quantity by a delta amount.
+    """Adjust ingredient quantity by a delta amount.
+
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one UPDATE operation within a single transaction.
 
     Args:
         ingredient_id: Ingredient ID
@@ -354,8 +382,11 @@ def adjust_quantity(ingredient_id: int, adjustment: float) -> Ingredient:
 
 
 def search_ingredients_by_name(search_term: str) -> List[Ingredient]:
-    """
-    Search ingredients by name or brand (case-insensitive partial match).
+    """Search ingredients by name or brand (case-insensitive partial match).
+
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to get_all_ingredients() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
 
     Args:
         search_term: Search string
@@ -370,8 +401,11 @@ def search_ingredients_by_name(search_term: str) -> List[Ingredient]:
 
 
 def get_ingredients_by_category(category: str) -> List[Ingredient]:
-    """
-    Get all ingredients in a specific category.
+    """Get all ingredients in a specific category.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to get_all_ingredients() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
 
     Args:
         category: Category name
@@ -386,8 +420,11 @@ def get_ingredients_by_category(category: str) -> List[Ingredient]:
 
 
 def get_low_stock_ingredients(threshold: float = 0.0) -> List[Ingredient]:
-    """
-    Get ingredients with quantity at or below threshold.
+    """Get ingredients with quantity at or below threshold.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to get_all_ingredients() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
 
     Args:
         threshold: Stock threshold (default: 0.0)
@@ -407,8 +444,11 @@ def get_low_stock_ingredients(threshold: float = 0.0) -> List[Ingredient]:
 
 
 def get_ingredient_count() -> int:
-    """
-    Get total count of ingredients.
+    """Get total count of ingredients.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Returns:
         Number of ingredients in database
@@ -425,8 +465,11 @@ def get_ingredient_count() -> int:
 
 
 def get_category_list() -> List[str]:
-    """
-    Get list of all ingredient categories in use.
+    """Get list of all ingredient categories in use.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Returns:
         Sorted list of unique category names
@@ -447,8 +490,11 @@ def get_category_list() -> List[str]:
 
 
 def get_total_inventory_value() -> float:
-    """
-    Calculate total value of all inventory.
+    """Calculate total value of all inventory.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - performs read-only aggregation of ingredient values.
 
     Returns:
         Sum of (quantity × unit_cost) for all ingredients

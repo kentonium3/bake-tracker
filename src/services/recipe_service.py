@@ -192,6 +192,10 @@ def get_recipe_by_slug(
     """
     Retrieve a recipe by its slug or previous_slug.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Safe to call standalone - uses temporary session for query execution.
+    If session provided, uses caller's session for transactional composition.
+
     Feature 080: Supports slug-based lookup for import resolution.
     Checks current slug first, then falls back to previous_slug.
 
@@ -246,6 +250,18 @@ def get_recipe_by_slug(
 def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Recipe:
     """
     Create a new recipe with optional ingredients.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate recipe data
+    2. Generate unique slug if not provided
+    3. Create Recipe record
+    4. Create RecipeIngredient records for each ingredient (if provided)
+    5. Validate leaf-only constraint for each ingredient
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
 
     Feature 080: Automatically generates a unique slug from the recipe name
     if not provided in recipe_data.
@@ -346,6 +362,10 @@ def get_recipe(recipe_id: int, include_costs: bool = False) -> Recipe:
     """
     Retrieve a recipe by ID.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Args:
         recipe_id: Recipe ID
         include_costs: If True, calculate and attach cost information
@@ -391,6 +411,10 @@ def get_all_recipes(
 ) -> List[Recipe]:
     """
     Retrieve all recipes with optional filtering.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Args:
         category: Filter by category (exact match)
@@ -464,6 +488,10 @@ def get_recipe_by_name(name: str) -> Optional[Recipe]:
     """
     Retrieve a recipe by its exact name.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Args:
         name: Exact recipe name
 
@@ -504,6 +532,19 @@ def update_recipe(  # noqa: C901
 ) -> Recipe:
     """
     Update a recipe and optionally its ingredients.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate recipe data
+    2. Retrieve recipe by ID
+    3. Handle name change with slug regeneration if name changed
+    4. Update recipe fields
+    5. If ingredients_data provided: delete existing ingredients, add new ones
+    6. Validate leaf-only constraint for each new ingredient
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
 
     Feature 080: When the recipe name changes, automatically regenerates the slug
     and preserves the previous slug in `previous_slug` for one-rename grace period.
@@ -614,6 +655,17 @@ def delete_recipe(recipe_id: int) -> bool:
     """
     Deletes or archives a recipe.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Retrieve recipe by ID
+    2. Check if recipe is used as component in other recipes (blocking)
+    3. Check for historical dependencies (production runs, finished units)
+    4. Either archive (soft delete) or hard delete based on dependencies
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
+
     - If the recipe is used as a component in other recipes, deletion is blocked.
     - If the recipe has historical usage (production runs, finished units), it is archived (soft-deleted).
     - If there are no dependencies, it is hard-deleted.
@@ -672,6 +724,10 @@ def check_recipe_dependencies(recipe_id: int, session) -> Dict[str, int]:
     """
     Check for recipe dependencies in other parts of the system.
 
+    Transaction boundary: Read-only helper that requires caller's session.
+    Uses provided session for query execution. Must be called within
+    an existing session_scope() context.
+
     Args:
         recipe_id: The ID of the recipe to check.
         session: The SQLAlchemy session to use for querying.
@@ -698,6 +754,18 @@ def add_ingredient_to_recipe(
 ) -> RecipeIngredient:
     """
     Add an ingredient to a recipe.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate quantity and unit
+    2. Verify recipe exists
+    3. Verify ingredient exists
+    4. Validate leaf-only constraint for ingredient
+    5. Create RecipeIngredient record
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
 
     Args:
         recipe_id: Recipe ID
@@ -760,6 +828,15 @@ def remove_ingredient_from_recipe(recipe_id: int, ingredient_id: int) -> bool:
     """
     Remove an ingredient from a recipe.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Verify recipe exists
+    2. Delete RecipeIngredient record
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
+
     Args:
         recipe_id: Recipe ID
         ingredient_id: Ingredient ID
@@ -802,6 +879,10 @@ def calculate_recipe_cost(recipe_id: int) -> float:
     """
     Calculate total cost of a recipe.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Args:
         recipe_id: Recipe ID
 
@@ -830,6 +911,11 @@ def calculate_recipe_cost(recipe_id: int) -> float:
 def get_recipe_with_costs(recipe_id: int) -> Dict:
     """
     Get recipe with detailed cost breakdown.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+    May call internal recursive cost calculation helpers within same session.
 
     Args:
         recipe_id: Recipe ID
@@ -940,6 +1026,11 @@ def get_recipe_with_costs(recipe_id: int) -> Dict:
 def calculate_actual_cost(recipe_id: int) -> Decimal:
     """
     Calculate the actual cost of a recipe using FIFO inventory consumption.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+    Calls inventory_item_service.consume_fifo() with dry_run=True (read-only).
 
     Determines what the recipe would cost to make using ingredients
     currently in inventory, consuming oldest items first (FIFO).
@@ -1085,6 +1176,10 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
     """
     Calculate the estimated cost of a recipe using preferred product pricing.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Determines what the recipe would cost based on current market prices,
     ignoring inventory. Useful for planning and shopping decisions.
 
@@ -1216,6 +1311,10 @@ def search_recipes_by_name(search_term: str) -> List[Recipe]:
     """
     Search recipes by name (case-insensitive partial match).
 
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to get_all_recipes() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
+
     Args:
         search_term: Search string
 
@@ -1232,6 +1331,10 @@ def get_recipes_by_category(category: str) -> List[Recipe]:
     """
     Get all recipes in a specific category.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to get_all_recipes() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
+
     Args:
         category: Category name
 
@@ -1247,6 +1350,10 @@ def get_recipes_by_category(category: str) -> List[Recipe]:
 def get_recipes_using_ingredient(ingredient_id: int) -> List[Recipe]:
     """
     Get all recipes that use a specific ingredient.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to get_all_recipes() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
 
     Args:
         ingredient_id: Ingredient ID
@@ -1269,6 +1376,10 @@ def get_recipe_count() -> int:
     """
     Get total count of recipes.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Returns:
         Number of recipes in database
 
@@ -1286,6 +1397,10 @@ def get_recipe_count() -> int:
 def get_recipe_category_list() -> List[str]:
     """
     Get list of all recipe categories in use.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Returns:
         Sorted list of unique category names
@@ -1311,6 +1426,11 @@ def get_recipe_category_list() -> List[str]:
 def validate_recipe_has_finished_unit(recipe_id: int, session=None) -> List[str]:
     """
     Validate that a recipe has at least one complete FinishedUnit.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, uses caller's session for transactional composition.
+    Otherwise uses session_scope() internally for isolated query.
+    Safe to call standalone - creates temporary session for query execution.
 
     A complete FinishedUnit has:
     - display_name (non-empty)
@@ -1539,6 +1659,21 @@ def add_recipe_component(
     """
     Add a recipe as a component of another recipe.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate quantity > 0
+    2. Verify parent recipe exists
+    3. Verify component recipe exists
+    4. Check if already a component (reject duplicates)
+    5. Check for circular reference
+    6. Check depth limit (MAX_RECIPE_NESTING_DEPTH)
+    7. Determine sort_order if not provided
+    8. Create RecipeComponent record
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
+
     Args:
         recipe_id: Parent recipe ID
         component_recipe_id: Child recipe ID to add as component
@@ -1629,6 +1764,15 @@ def remove_recipe_component(recipe_id: int, component_recipe_id: int) -> bool:
     """
     Remove a component recipe from a parent recipe.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Verify parent recipe exists
+    2. Delete RecipeComponent record
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. All operations execute within single transaction.
+
     Args:
         recipe_id: Parent recipe ID
         component_recipe_id: Component recipe ID to remove
@@ -1670,6 +1814,10 @@ def update_recipe_component(
 ) -> RecipeComponent:
     """
     Update quantity or notes for an existing recipe component.
+
+    Transaction boundary: Single operation, automatically atomic.
+    Uses session_scope() which commits on success or rolls back on error.
+    Performs one UPDATE operation within a single transaction.
 
     Args:
         recipe_id: Parent recipe ID
@@ -1731,6 +1879,10 @@ def get_recipe_components(recipe_id: int) -> List[RecipeComponent]:
     """
     Get all component recipes for a recipe.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Args:
         recipe_id: Recipe ID
 
@@ -1771,6 +1923,10 @@ def get_recipe_components(recipe_id: int) -> List[RecipeComponent]:
 def get_recipes_using_component(component_recipe_id: int) -> List[Recipe]:
     """
     Get all recipes that use a given recipe as a component.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Args:
         component_recipe_id: Recipe ID to check
@@ -1824,6 +1980,11 @@ def get_aggregated_ingredients(
     """
     Get all ingredients from a recipe and all sub-recipes with aggregated quantities.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, uses caller's session for transactional composition.
+    Otherwise uses session_scope() internally for isolated query.
+    Safe to call standalone - creates temporary session for query execution.
+
     Args:
         recipe_id: Recipe ID
         multiplier: Scale factor for all quantities (default: 1.0)
@@ -1868,6 +2029,10 @@ def _get_aggregated_ingredients_impl(
 ) -> List[Dict]:
     """
     Internal implementation of get_aggregated_ingredients.
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the provided session. Never creates its own
+    session_scope(). Must be called within an existing session context.
 
     Args:
         recipe_id: Recipe ID
@@ -1942,6 +2107,10 @@ def _calculate_recipe_cost_recursive(recipe_id: int, session, visited: set = Non
     """
     Internal helper for recursive cost calculation.
 
+    Transaction boundary: Inherits session from caller.
+    All operations use the provided session. Never creates its own
+    session_scope(). Must be called within an existing session context.
+
     Args:
         recipe_id: Recipe ID
         session: Database session
@@ -1983,6 +2152,11 @@ def _calculate_recipe_cost_recursive(recipe_id: int, session, visited: set = Non
 def calculate_total_cost_with_components(recipe_id: int) -> Dict:
     """
     Calculate total recipe cost including all sub-recipe costs.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+    Calls internal recursive cost calculation helpers within same session.
 
     Args:
         recipe_id: Recipe ID
@@ -2087,6 +2261,11 @@ def get_recipe_variants(base_recipe_id: int, session=None) -> list:
     """
     Get all variants of a base recipe.
 
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, uses caller's session for transactional composition.
+    Otherwise uses session_scope() internally for isolated query.
+    Safe to call standalone - creates temporary session for query execution.
+
     Args:
         base_recipe_id: The base recipe ID
         session: Optional session for transaction sharing
@@ -2106,7 +2285,12 @@ def get_recipe_variants(base_recipe_id: int, session=None) -> list:
 
 
 def _get_recipe_variants_impl(base_recipe_id: int, session) -> list:
-    """Internal implementation for get_recipe_variants."""
+    """Internal implementation for get_recipe_variants.
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the provided session. Never creates its own
+    session_scope(). Must be called within an existing session context.
+    """
     variants = (
         session.query(Recipe)
         .filter_by(base_recipe_id=base_recipe_id, is_archived=False)
@@ -2137,6 +2321,11 @@ def get_base_yield_structure(
 ) -> List[Dict]:
     """
     Get yield structure from base recipe (resolves variants to their base).
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, uses caller's session for transactional composition.
+    Otherwise uses session_scope() internally for isolated query.
+    Safe to call standalone - creates temporary session for query execution.
 
     Use this primitive when you need the ORIGINAL yield specifications from a
     base recipe, even when given a variant recipe ID. This is useful for:
@@ -2196,7 +2385,12 @@ def get_base_yield_structure(
 
 
 def _get_base_yield_structure_impl(recipe_id: int, session) -> List[Dict]:
-    """Internal implementation for get_base_yield_structure."""
+    """Internal implementation for get_base_yield_structure.
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the provided session. Never creates its own
+    session_scope(). Must be called within an existing session context.
+    """
     # Load recipe
     recipe = session.query(Recipe).filter_by(id=recipe_id).first()
     if not recipe:
@@ -2230,6 +2424,11 @@ def get_finished_units(
 ) -> List[Dict]:
     """
     Get a recipe's own FinishedUnits.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, uses caller's session for transactional composition.
+    Otherwise uses session_scope() internally for isolated query.
+    Safe to call standalone - creates temporary session for query execution.
 
     Use this primitive to access a recipe's FinishedUnit data including display_name
     and yield values. For both base and variant recipes, this returns the recipe's
@@ -2274,7 +2473,12 @@ def get_finished_units(
 
 
 def _get_finished_units_impl(recipe_id: int, session) -> List[Dict]:
-    """Internal implementation for get_finished_units."""
+    """Internal implementation for get_finished_units.
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the provided session. Never creates its own
+    session_scope(). Must be called within an existing session context.
+    """
     # Verify recipe exists
     recipe = session.query(Recipe).filter_by(id=recipe_id).first()
     if not recipe:
@@ -2312,6 +2516,19 @@ def create_recipe_variant(
 ) -> dict:
     """
     Create a variant of an existing recipe.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Verify base recipe exists
+    2. Generate name if not provided
+    3. Create variant Recipe record
+    4. Copy ingredients from base if requested
+    5. Create variant FinishedUnits if provided
+
+    If session provided, uses caller's session for transactional composition.
+    Otherwise uses session_scope() which commits all changes on success or
+    rolls back all changes on error.
 
     Args:
         base_recipe_id: The recipe to create a variant of
@@ -2360,7 +2577,12 @@ def _create_recipe_variant_impl(
     finished_unit_names: Optional[List[Dict]],
     session,
 ) -> dict:
-    """Internal implementation for create_recipe_variant."""
+    """Internal implementation for create_recipe_variant.
+
+    Transaction boundary: Inherits session from caller.
+    All operations use the provided session. Never creates its own
+    session_scope(). Must be called within an existing session context.
+    """
     # Get base recipe
     base = session.query(Recipe).filter_by(id=base_recipe_id).first()
     if not base:
@@ -2497,6 +2719,10 @@ def get_all_recipes_grouped(
 ) -> List[Dict]:
     """
     Retrieve all recipes as dictionaries with optional variant grouping.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     This function returns recipes as dictionaries (not ORM objects) and
     supports grouping variants under their base recipes.

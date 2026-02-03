@@ -65,8 +65,11 @@ def validate_density_fields(
     weight_value: Optional[float],
     weight_unit: Optional[str],
 ) -> Tuple[bool, str]:
-    """
-    Validate density field group (all or nothing).
+    """Validate density field group (all or nothing).
+
+    Transaction boundary: Pure validation, no database access.
+    This function performs in-memory validation only and does not
+    interact with the database. No session management required.
 
     Args:
         volume_value: Volume amount (e.g., 1.0)
@@ -116,6 +119,17 @@ def validate_density_fields(
 
 def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
     """Create a new ingredient with auto-generated slug.
+
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate ingredient data and density fields
+    2. Generate unique slug from display_name
+    3. Validate parent ingredient (if hierarchy specified)
+    4. Create Ingredient record with all fields
+
+    Uses session_scope() which commits all changes on success or rolls back
+    all changes on error. No session parameter - standalone operation.
 
     This function validates the ingredient data, generates a unique slug from
     the name, and creates the ingredient record in the database.
@@ -276,6 +290,11 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 def get_ingredient(slug: str, session=None) -> Ingredient:
     """Retrieve ingredient by slug.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Safe to call without session - uses temporary session for query.
+    If session provided, query executes within caller's transaction for
+    consistent reads across multiple queries.
+
     Args:
         slug: Unique ingredient identifier (e.g., "all_purpose_flour")
         session: Optional database session. If provided, uses this session instead
@@ -315,6 +334,10 @@ def search_ingredients(
 ) -> List[Ingredient]:
     """Search ingredients by partial name match and/or category filter.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Args:
         query: Optional partial name to search (case-insensitive)
         category: Optional category to filter by (exact match)
@@ -347,6 +370,18 @@ def search_ingredients(
 
 def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
     """Update ingredient attributes (slug cannot be changed).
+
+    Transaction boundary: Multi-step atomic operation if hierarchy changes involved.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Validate density fields (if being updated)
+    2. Retrieve ingredient by slug
+    3. If parent_ingredient_id changed, call ingredient_hierarchy_service.move_ingredient
+    4. Apply remaining field updates
+
+    CRITICAL: When hierarchy changes are involved, the nested call to
+    ingredient_hierarchy_service.move_ingredient() receives the session parameter
+    to ensure atomicity. Never creates nested session_scope().
 
     Args:
         slug: Ingredient identifier
@@ -449,6 +484,15 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
 def delete_ingredient(slug: str) -> bool:
     """Delete ingredient if not referenced by other entities.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Check dependencies via check_ingredient_dependencies() (separate session)
+    2. If no dependencies, delete ingredient within session_scope()
+
+    Note: Dependency check runs in its own session before deletion session.
+    The deletion itself is a single atomic operation.
+
     This function checks for dependencies (recipes, products, inventory items)
     before deletion to prevent orphaned references.
 
@@ -502,6 +546,11 @@ def delete_ingredient(slug: str) -> bool:
 
 def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, Dict[str, int]]:
     """Check if ingredient can be deleted.
+
+    Transaction boundary: Read-only, no transaction needed.
+    If session provided, query executes within caller's transaction for
+    consistent reads. If session is None, uses session_scope() internally.
+    Safe to call standalone - performs read-only queries to count references.
 
     This function checks all blocking conditions before deletion:
     - Products referencing the ingredient (blocks deletion)
@@ -646,6 +695,18 @@ def _denormalize_snapshot_ingredients(ingredient_id: int, session) -> int:
 def delete_ingredient_safe(ingredient_id: int, session=None) -> bool:
     """Safely delete an ingredient with full protection.
 
+    Transaction boundary: Multi-step atomic operation.
+    Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+    Steps executed atomically:
+    1. Verify ingredient exists
+    2. Check if deletion is allowed (via can_delete_ingredient)
+    3. Denormalize snapshot records to preserve historical data
+    4. Delete ingredient (cascades to Alias/Crosswalk via DB FK)
+
+    CRITICAL: If session is provided, all operations execute within caller's
+    transaction. If session is None, creates own session_scope() for atomicity.
+    Never creates nested session_scope() when session is passed.
+
     This function:
     1. Checks if deletion is allowed (no Product/Recipe/child references)
     2. Denormalizes snapshot records to preserve historical data
@@ -707,6 +768,10 @@ def delete_ingredient_safe(ingredient_id: int, session=None) -> bool:
 
 def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
     """Check if ingredient is referenced by other entities.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - performs read-only queries to count references.
 
     Args:
         slug: Ingredient identifier
@@ -772,6 +837,10 @@ def list_ingredients(
 ) -> List[Ingredient]:
     """List all ingredients with optional filtering and pagination.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     Args:
         category: Optional category filter (exact match)
         sort_by: Field to sort by ("name", "category", "created_at")
@@ -827,6 +896,10 @@ def get_all_ingredients(
 ) -> List[Dict[str, Any]]:
     """Alias for list_ingredients() returning dictionaries for backward compatibility.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Delegates to list_ingredients() which uses session_scope() internally.
+    Safe to call standalone - creates temporary session for query execution.
+
     This function exists to maintain compatibility with UI code that calls
     get_all_ingredients() and expects dictionary results. New code should use
     list_ingredients() directly which returns Ingredient model objects.
@@ -866,6 +939,10 @@ def get_all_ingredients(
 def get_distinct_ingredient_categories() -> List[str]:
     """Get distinct ingredient categories from the database.
 
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
+
     This is the canonical source for ingredient categories. UI components
     should use this instead of hardcoded constants.
 
@@ -881,6 +958,10 @@ def get_distinct_ingredient_categories() -> List[str]:
 
 def get_all_distinct_categories() -> List[str]:
     """Get all distinct ingredient categories (food + packaging) from database.
+
+    Transaction boundary: Read-only, no transaction needed.
+    Uses session_scope() internally for isolated query. Safe to call
+    standalone - creates temporary session for query execution.
 
     Returns:
         List of all distinct category names, sorted alphabetically.
