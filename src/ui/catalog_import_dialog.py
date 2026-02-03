@@ -14,7 +14,9 @@ from src.services.catalog_import_service import (
     CatalogImportError,
     CatalogImportResult,
 )
+from src.services.exceptions import ServiceError
 from src.ui.import_export_dialog import ImportResultsDialog, _write_import_log
+from src.ui.utils.error_handler import handle_error
 
 
 class CatalogImportDialog(ctk.CTkToplevel):
@@ -282,15 +284,11 @@ class CatalogImportDialog(ctk.CTkToplevel):
                 "The selected file could not be found.\n"
                 "Please check the file path and try again.",
             )
-        except Exception as e:
-            import traceback
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Import catalog")
 
-            error_details = (
-                f"An unexpected error occurred:\n\n"
-                f"{type(e).__name__}: {str(e)}\n\n"
-                f"Traceback:\n{traceback.format_exc()}"
-            )
-            self._show_error("Import Failed", error_details)
+        except Exception as e:
+            handle_error(e, parent=self, operation="Import catalog")
         finally:
             # Only update widgets if dialog still exists (may have been destroyed)
             if self.winfo_exists():

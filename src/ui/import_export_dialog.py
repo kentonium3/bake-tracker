@@ -19,6 +19,8 @@ from src.services import coordinated_export_service
 from src.services import denormalized_export_service
 from src.services import preferences_service
 from src.services import schema_validation_service
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import APP_NAME, APP_VERSION
 
 
@@ -778,7 +780,7 @@ def _write_import_log(
             with open(fallback_file, "w", encoding="utf-8") as f:
                 f.write("\n".join(lines))
             log_file = fallback_file
-        except Exception:
+        except (ServiceError, Exception):
             return "(log file could not be written)"
 
     # Return path for display
@@ -1319,7 +1321,7 @@ class ImportDialog(ctk.CTkToplevel):
                         text_color="orange",
                     )
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             self.detection_label.configure(
                 text=f"Could not detect format: {str(e)[:50]}",
                 text_color="red",
@@ -1379,12 +1381,12 @@ class ImportDialog(ctk.CTkToplevel):
                 # Load single file
                 with open(self.file_path, "r", encoding="utf-8") as f:
                     import_data = json.load(f)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Read import file")
+            return
+
         except Exception as e:
-            messagebox.showerror(
-                "File Error",
-                f"Could not read import file:\n{str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Read import file")
             return
 
         # Check for import risks (CASCADE deletes and RESTRICT violations)
@@ -1517,8 +1519,12 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Restore backup")
+
         except Exception as e:
-            messagebox.showerror("Restore Failed", self._format_error(e), parent=self)
+            handle_error(e, parent=self, operation="Restore backup")
+
         finally:
             self._hide_progress()
 
@@ -1606,8 +1612,12 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Import catalog data")
+
         except Exception as e:
-            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+            handle_error(e, parent=self, operation="Import catalog data")
+
         finally:
             self._hide_progress()
 
@@ -1782,8 +1792,12 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Import data")
+
         except Exception as e:
-            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+            handle_error(e, parent=self, operation="Import data")
+
         finally:
             self._hide_progress()
 
@@ -1935,8 +1949,12 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Import data")
+
         except Exception as e:
-            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+            handle_error(e, parent=self, operation="Import data")
+
         finally:
             self._hide_progress()
 
@@ -1974,8 +1992,12 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Import adjustments")
+
         except Exception as e:
-            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+            handle_error(e, parent=self, operation="Import adjustments")
+
         finally:
             self._hide_progress()
 
@@ -2356,8 +2378,12 @@ class ExportDialog(ctk.CTkToplevel):
             self.result = manifest
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Export data")
+
         except Exception as e:
-            self._show_error("Export Failed", e)
+            handle_error(e, parent=self, operation="Export data")
+
         finally:
             self._hide_progress()
 
@@ -2416,8 +2442,12 @@ class ExportDialog(ctk.CTkToplevel):
             self.result = result
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Export catalog")
+
         except Exception as e:
-            self._show_error("Export Failed", e)
+            handle_error(e, parent=self, operation="Export catalog")
+
         finally:
             self._hide_progress()
 
@@ -2519,8 +2549,12 @@ class ExportDialog(ctk.CTkToplevel):
             self.result = results
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Export data")
+
         except Exception as e:
-            self._show_error("Export Failed", e)
+            handle_error(e, parent=self, operation="Export data")
+
         finally:
             self._hide_progress()
 

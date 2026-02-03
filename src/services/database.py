@@ -21,6 +21,7 @@ from sqlalchemy.pool import StaticPool
 from ..utils.config import get_config
 from ..models.base import Base
 from ..utils.constants import WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS, PACKAGE_UNITS
+from .exceptions import ServiceError
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -394,7 +395,7 @@ def verify_database() -> bool:
         has_tables = any(table in tables for table in expected_tables)
 
         return has_tables
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         logger.error(f"Database verification failed: {e}")
         return False
 
