@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Planning & Event Services
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -238,3 +238,4 @@ def delete_event(event_id: int, session: Optional[Session] = None):
 ## Activity Log
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
+- 2026-02-03T05:42:22Z – unknown – shell_pid=31588 – lane=for_review – Transaction boundary docs added to 8 service files (~114 functions). All 482 tests pass.
