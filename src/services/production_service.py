@@ -31,70 +31,157 @@ from src.models import (
     FinishedUnit,
     PackageStatus,
 )
-from src.services.exceptions import DatabaseError
+from src.services.exceptions import DatabaseError, ServiceError
 from src.services.event_service import EventNotFoundError
+from typing import Optional
 
 
 # Custom exceptions for production service
 
 
-class InsufficientInventoryError(Exception):
-    """Raised when inventory doesn't have enough ingredients for production."""
+class InsufficientInventoryError(ServiceError):
+    """Raised when inventory doesn't have enough ingredients for production.
 
-    def __init__(self, ingredient_slug: str, needed: Decimal, available: Decimal):
+    Args:
+        ingredient_slug: The ingredient slug
+        needed: Quantity needed
+        available: Quantity available
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, ingredient_slug: str, needed: Decimal, available: Decimal, correlation_id: Optional[str] = None):
         self.ingredient_slug = ingredient_slug
         self.needed = needed
         self.available = available
         super().__init__(
-            f"Insufficient inventory for {ingredient_slug}: need {needed}, have {available}"
+            f"Insufficient inventory for {ingredient_slug}: need {needed}, have {available}",
+            correlation_id=correlation_id,
+            ingredient_slug=ingredient_slug,
+            needed=str(needed),
+            available=str(available)
         )
 
 
-class RecipeNotFoundError(Exception):
-    """Raised when recipe cannot be found."""
+class RecipeNotFoundError(ServiceError):
+    """Raised when recipe cannot be found.
 
-    def __init__(self, recipe_id: int):
+    Args:
+        recipe_id: The recipe ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, recipe_id: int, correlation_id: Optional[str] = None):
         self.recipe_id = recipe_id
-        super().__init__(f"Recipe with ID {recipe_id} not found")
+        super().__init__(
+            f"Recipe with ID {recipe_id} not found",
+            correlation_id=correlation_id,
+            recipe_id=recipe_id
+        )
 
 
-class ProductionExceedsPlannedError(Exception):
-    """Warning when production would exceed planned batches."""
+class ProductionExceedsPlannedError(ServiceError):
+    """Warning when production would exceed planned batches.
 
-    def __init__(self, recipe_id: int, planned: int, would_produce: int):
+    Args:
+        recipe_id: The recipe ID
+        planned: Planned batch count
+        would_produce: Actual batch count that would be produced
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, recipe_id: int, planned: int, would_produce: int, correlation_id: Optional[str] = None):
         self.recipe_id = recipe_id
         self.planned = planned
         self.would_produce = would_produce
-        super().__init__(f"Production would exceed planned: {would_produce} vs {planned} planned")
+        super().__init__(
+            f"Production would exceed planned: {would_produce} vs {planned} planned",
+            correlation_id=correlation_id,
+            recipe_id=recipe_id,
+            planned=planned,
+            would_produce=would_produce
+        )
 
 
-class InvalidStatusTransitionError(Exception):
-    """Raised when package status transition is not allowed."""
+class InvalidStatusTransitionError(ServiceError):
+    """Raised when package status transition is not allowed.
 
-    def __init__(self, current: PackageStatus, target: PackageStatus):
+    Args:
+        current: Current status
+        target: Target status
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 409 Conflict (state conflict)
+    """
+
+    http_status_code = 409
+
+    def __init__(self, current: PackageStatus, target: PackageStatus, correlation_id: Optional[str] = None):
         self.current = current
         self.target = target
-        super().__init__(f"Cannot transition from {current.value} to {target.value}")
+        super().__init__(
+            f"Cannot transition from {current.value} to {target.value}",
+            correlation_id=correlation_id,
+            current_status=current.value,
+            target_status=target.value
+        )
 
 
-class IncompleteProductionError(Exception):
-    """Raised when trying to assemble package with incomplete production."""
+class IncompleteProductionError(ServiceError):
+    """Raised when trying to assemble package with incomplete production.
 
-    def __init__(self, assignment_id: int, missing_recipes: List[Dict]):
+    Args:
+        assignment_id: The assignment ID
+        missing_recipes: List of missing recipes
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, assignment_id: int, missing_recipes: List[Dict], correlation_id: Optional[str] = None):
         self.assignment_id = assignment_id
         self.missing_recipes = missing_recipes
         recipe_names = ", ".join(r["recipe_name"] for r in missing_recipes)
         super().__init__(
-            f"Cannot assemble package {assignment_id}: missing production for {recipe_names}"
+            f"Cannot assemble package {assignment_id}: missing production for {recipe_names}",
+            correlation_id=correlation_id,
+            assignment_id=assignment_id,
+            missing_recipe_count=len(missing_recipes)
         )
 
 
-class AssignmentNotFoundError(Exception):
-    """Raised when EventRecipientPackage not found."""
+class AssignmentNotFoundError(ServiceError):
+    """Raised when EventRecipientPackage not found.
 
-    def __init__(self, assignment_id: int):
+    Args:
+        assignment_id: The assignment ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, assignment_id: int, correlation_id: Optional[str] = None):
         self.assignment_id = assignment_id
-        super().__init__(f"Assignment with ID {assignment_id} not found")
+        super().__init__(
+            f"Assignment with ID {assignment_id} not found",
+            correlation_id=correlation_id,
+            assignment_id=assignment_id
+        )
 
 
 # Valid status transitions map

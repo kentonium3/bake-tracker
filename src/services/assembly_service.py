@@ -47,6 +47,8 @@ from src.services import inventory_item_service
 from src.services import material_consumption_service
 from src.services import finished_goods_inventory_service as fg_inv
 from src.services import finished_good_service  # F065: For snapshot creation
+from src.services.exceptions import ServiceError
+from typing import Optional
 
 
 # =============================================================================
@@ -54,56 +56,127 @@ from src.services import finished_good_service  # F065: For snapshot creation
 # =============================================================================
 
 
-class FinishedGoodNotFoundError(Exception):
-    """Raised when a finished good cannot be found."""
+class FinishedGoodNotFoundError(ServiceError):
+    """Raised when a finished good cannot be found.
 
-    def __init__(self, finished_good_id: int):
+    Args:
+        finished_good_id: The finished good ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, finished_good_id: int, correlation_id: Optional[str] = None):
         self.finished_good_id = finished_good_id
-        super().__init__(f"FinishedGood with ID {finished_good_id} not found")
+        super().__init__(
+            f"FinishedGood with ID {finished_good_id} not found",
+            correlation_id=correlation_id,
+            finished_good_id=finished_good_id
+        )
 
 
-class InsufficientFinishedUnitError(Exception):
-    """Raised when there is insufficient FinishedUnit inventory."""
+class InsufficientFinishedUnitError(ServiceError):
+    """Raised when there is insufficient FinishedUnit inventory.
 
-    def __init__(self, finished_unit_id: int, needed: int, available: int):
+    Args:
+        finished_unit_id: The finished unit ID
+        needed: Quantity needed
+        available: Quantity available
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, finished_unit_id: int, needed: int, available: int, correlation_id: Optional[str] = None):
         self.finished_unit_id = finished_unit_id
         self.needed = needed
         self.available = available
         super().__init__(
-            f"Insufficient FinishedUnit {finished_unit_id}: need {needed}, have {available}"
+            f"Insufficient FinishedUnit {finished_unit_id}: need {needed}, have {available}",
+            correlation_id=correlation_id,
+            finished_unit_id=finished_unit_id,
+            needed=needed,
+            available=available
         )
 
 
-class InsufficientFinishedGoodError(Exception):
-    """Raised when there is insufficient FinishedGood inventory (nested assembly)."""
+class InsufficientFinishedGoodError(ServiceError):
+    """Raised when there is insufficient FinishedGood inventory (nested assembly).
 
-    def __init__(self, finished_good_id: int, needed: int, available: int):
+    Args:
+        finished_good_id: The finished good ID
+        needed: Quantity needed
+        available: Quantity available
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, finished_good_id: int, needed: int, available: int, correlation_id: Optional[str] = None):
         self.finished_good_id = finished_good_id
         self.needed = needed
         self.available = available
         super().__init__(
-            f"Insufficient FinishedGood {finished_good_id}: need {needed}, have {available}"
+            f"Insufficient FinishedGood {finished_good_id}: need {needed}, have {available}",
+            correlation_id=correlation_id,
+            finished_good_id=finished_good_id,
+            needed=needed,
+            available=available
         )
 
 
-class InsufficientPackagingError(Exception):
-    """Raised when there is insufficient packaging inventory."""
+class InsufficientPackagingError(ServiceError):
+    """Raised when there is insufficient packaging inventory.
 
-    def __init__(self, product_id: int, needed: Decimal, available: Decimal):
+    Args:
+        product_id: The product ID
+        needed: Quantity needed
+        available: Quantity available
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 422 Unprocessable Entity (business rule violation)
+    """
+
+    http_status_code = 422
+
+    def __init__(self, product_id: int, needed: Decimal, available: Decimal, correlation_id: Optional[str] = None):
         self.product_id = product_id
         self.needed = needed
         self.available = available
         super().__init__(
-            f"Insufficient packaging product {product_id}: need {needed}, have {available}"
+            f"Insufficient packaging product {product_id}: need {needed}, have {available}",
+            correlation_id=correlation_id,
+            product_id=product_id,
+            needed=str(needed),
+            available=str(available)
         )
 
 
-class EventNotFoundError(Exception):
-    """Raised when an event cannot be found."""
+class EventNotFoundError(ServiceError):
+    """Raised when an event cannot be found.
 
-    def __init__(self, event_id: int):
+    Args:
+        event_id: The event ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, event_id: int, correlation_id: Optional[str] = None):
         self.event_id = event_id
-        super().__init__(f"Event with ID {event_id} not found")
+        super().__init__(
+            f"Event with ID {event_id} not found",
+            correlation_id=correlation_id,
+            event_id=event_id
+        )
 
 
 # =============================================================================
@@ -688,12 +761,25 @@ def _record_assembly_impl(
 # =============================================================================
 
 
-class AssemblyRunNotFoundError(Exception):
-    """Raised when an assembly run cannot be found."""
+class AssemblyRunNotFoundError(ServiceError):
+    """Raised when an assembly run cannot be found.
 
-    def __init__(self, assembly_run_id: int):
+    Args:
+        assembly_run_id: The assembly run ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, assembly_run_id: int, correlation_id: Optional[str] = None):
         self.assembly_run_id = assembly_run_id
-        super().__init__(f"AssemblyRun with ID {assembly_run_id} not found")
+        super().__init__(
+            f"AssemblyRun with ID {assembly_run_id} not found",
+            correlation_id=correlation_id,
+            assembly_run_id=assembly_run_id
+        )
 
 
 # =============================================================================
@@ -1088,15 +1174,28 @@ def import_assembly_history(
 # =============================================================================
 
 
-class UnassignedPackagingError(Exception):
-    """Raised when assembly has unassigned generic packaging requirements."""
+class UnassignedPackagingError(ServiceError):
+    """Raised when assembly has unassigned generic packaging requirements.
 
-    def __init__(self, finished_good_id: int, unassigned_items: list):
+    Args:
+        finished_good_id: The finished good ID
+        unassigned_items: List of unassigned packaging requirements
+        correlation_id: Optional correlation ID for tracing
+
+    HTTP Status: 400 Bad Request (validation error)
+    """
+
+    http_status_code = 400
+
+    def __init__(self, finished_good_id: int, unassigned_items: list, correlation_id: Optional[str] = None):
         self.finished_good_id = finished_good_id
         self.unassigned_items = unassigned_items
         super().__init__(
             f"FinishedGood {finished_good_id} has {len(unassigned_items)} unassigned "
-            f"generic packaging requirements"
+            f"generic packaging requirements",
+            correlation_id=correlation_id,
+            finished_good_id=finished_good_id,
+            unassigned_count=len(unassigned_items)
         )
 
 
