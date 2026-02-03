@@ -44,6 +44,8 @@ from src.ui.widgets.search_bar import SearchBar
 from src.ui.widgets.dialogs import (
     show_error,
 )
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 
@@ -424,7 +426,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
             self._refresh_tree_display()
             self._update_status(StatusMessages.found_units(len(finished_units)))
 
-        except Exception as e:
+        except (ServiceError, Exception):
             # Error already handled by service integrator
             logging.exception("Search operation failed after service integrator handling")
             self._update_status(StatusMessages.SEARCH_FAILED, error=True)
@@ -509,16 +511,22 @@ class FinishedUnitsTab(ctk.CTkFrame):
                         f"Recipe '{updated_recipe.name}' updated successfully",
                         parent=self,
                     )
+                except ServiceError as e:
+                    logging.exception(f"Failed to save recipe changes: {e}")
+                    handle_error(e, parent=self, operation="Save recipe changes")
                 except Exception as e:
                     logging.exception(f"Failed to save recipe changes: {e}")
-                    show_error("Error", f"Failed to save recipe changes: {str(e)}", parent=self)
+                    handle_error(e, parent=self, operation="Save recipe changes")
 
                 # Refresh the finished units list since recipe may have changed
                 self.refresh()
 
+        except ServiceError as e:
+            logging.exception("Failed to open recipe edit dialog")
+            handle_error(e, parent=self, operation="Open recipe")
         except Exception as e:
             logging.exception("Failed to open recipe edit dialog")
-            show_error("Error", f"Failed to open recipe: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Open recipe")
 
     def _save_yield_types_from_catalog(self, recipe_id: int, yield_types: list):
         """
@@ -591,7 +599,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
             self._refresh_tree_display()
             self._update_status(StatusMessages.loaded_units(len(finished_units)))
 
-        except Exception as e:
+        except (ServiceError, Exception):
             # Error already handled by service integrator
             logging.exception(
                 "Load finished units operation failed after service integrator handling"

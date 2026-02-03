@@ -21,6 +21,8 @@ from src.services import (
     ingredient_service,
     ingredient_hierarchy_service,
 )
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class ProductsTab(ctk.CTkFrame):
@@ -322,12 +324,10 @@ class ProductsTab(ctk.CTkFrame):
             # F057: Update provisional badge
             self._update_review_badge()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load products")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load products: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load products")
 
     def _load_filter_data(self):
         """Load data for filter dropdowns."""
@@ -365,7 +365,7 @@ class ProductsTab(ctk.CTkFrame):
             supplier_names = ["All"] + [sup["name"] for sup in self.suppliers]
             self.supplier_dropdown.configure(values=supplier_names)
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             # Log error but continue - filters will have limited options
             print(f"Warning: Failed to load filter data: {e}")
 
@@ -380,12 +380,11 @@ class ProductsTab(ctk.CTkFrame):
             # Use dedicated service method for provisional products
             try:
                 self.products = product_catalog_service.get_provisional_products()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Fetch provisional products")
+                self.products = []
             except Exception as e:
-                messagebox.showerror(
-                    "Error",
-                    f"Failed to fetch provisional products: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Fetch provisional products")
                 self.products = []
         else:
             # Normal product fetch with filters
@@ -408,12 +407,11 @@ class ProductsTab(ctk.CTkFrame):
             # Fetch products from service
             try:
                 self.products = product_catalog_service.get_products(**params)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Fetch products")
+                self.products = []
             except Exception as e:
-                messagebox.showerror(
-                    "Error",
-                    f"Failed to fetch products: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Fetch products")
                 self.products = []
 
             # Apply brand filter (not supported by service, filter in UI)
@@ -528,7 +526,7 @@ class ProductsTab(ctk.CTkFrame):
                 self.review_badge.pack(side="left", padx=(5, 0))
             else:
                 self.review_badge.pack_forget()
-        except Exception:
+        except (ServiceError, Exception):
             self.review_badge.pack_forget()
 
     # Feature 032: Hierarchy filter and path helper methods
@@ -547,7 +545,7 @@ class ProductsTab(ctk.CTkFrame):
                     path_parts.append(ancestor.get("display_name", "?"))
                 path_parts.append(ingredient.get("display_name", ingredient.get("name", "?")))
                 self._hierarchy_path_cache[ing_id] = " -> ".join(path_parts)
-            except Exception:
+            except (ServiceError, Exception):
                 self._hierarchy_path_cache[ing_id] = ingredient.get("display_name", "--")
 
     def _on_l0_filter_change(self, value: str):
@@ -693,7 +691,7 @@ class ProductsTab(ctk.CTkFrame):
                 else:
                     # Recurse to get leaves under this node
                     descendants.update(self._get_all_leaf_descendants(child.get("id")))
-        except Exception:
+        except (ServiceError, Exception):
             pass
         return descendants
 
@@ -816,12 +814,10 @@ class ProductsTab(ctk.CTkFrame):
 
             self._load_products()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update product visibility")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to update product visibility: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Update product visibility")
 
     def _on_mark_reviewed(self) -> None:
         """Mark selected provisional product as reviewed (F057)."""
@@ -847,12 +843,10 @@ class ProductsTab(ctk.CTkFrame):
             # Refresh to update display
             self._load_products()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Mark product as reviewed")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to mark product as reviewed: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Mark product as reviewed")
 
     def _on_delete_product(self):
         """Delete selected product with force delete option for dependencies."""
@@ -881,12 +875,11 @@ class ProductsTab(ctk.CTkFrame):
         except ValueError:
             # Has dependencies - analyze them
             pass
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete product")
+            return
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to delete product: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Delete product")
             return
 
         # Analyze dependencies
@@ -901,12 +894,10 @@ class ProductsTab(ctk.CTkFrame):
             # Not in recipes - show force delete confirmation
             self._show_force_delete_confirmation(deps)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Analyze dependencies")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to analyze dependencies: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Analyze dependencies")
 
     def _show_recipe_block_dialog(self, deps):
         """Show dialog explaining product cannot be deleted (ingredient used in recipes)."""
@@ -1121,9 +1112,7 @@ class ProductsTab(ctk.CTkFrame):
         except ValueError as e:
             # Should not happen (already checked recipes) but handle anyway
             messagebox.showerror("Cannot Delete", str(e), parent=self)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Force delete")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Force delete failed: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Force delete")

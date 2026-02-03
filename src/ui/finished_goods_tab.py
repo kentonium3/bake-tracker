@@ -14,6 +14,8 @@ from typing import Optional, List
 from src.models.finished_good import FinishedGood
 from src.models.assembly_type import AssemblyType
 from src.services import finished_good_service
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -400,12 +402,11 @@ class FinishedGoodsTab(ctk.CTkFrame):
             self._current_finished_goods = finished_goods
             self._refresh_tree_display()
             self._update_status(f"Found {len(finished_goods)} finished good(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Search finished goods", show_dialog=False)
+            self._update_status("Search failed", error=True)
         except Exception as e:
-            show_error(
-                "Search Error",
-                f"Failed to search finished goods: {str(e)}",
-                parent=self
-            )
+            handle_error(e, parent=self, operation="Search finished goods", show_dialog=False)
             self._update_status("Search failed", error=True)
 
     def _on_row_select(self, finished_good: Optional[FinishedGood]):
@@ -459,12 +460,11 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 )
                 self.refresh()
                 self._update_status(f"Added: {new_fg.display_name}", success=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add finished good")
+                self._update_status("Failed to add finished good", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to add finished good: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Add finished good")
                 self._update_status("Failed to add finished good", error=True)
 
     def _get_assembly_type_from_value(self, value: str) -> AssemblyType:
@@ -494,12 +494,11 @@ class FinishedGoodsTab(ctk.CTkFrame):
             )
             self.wait_window(dialog)
             result = dialog.result
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load finished good for editing")
+            return
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load finished good for editing: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load finished good for editing")
             return
 
         if result:
@@ -528,12 +527,11 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 )
                 self.refresh()
                 self._update_status(f"Updated: {updated_fg.display_name}", success=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update finished good")
+                self._update_status("Failed to update finished good", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to update finished good: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Update finished good")
                 self._update_status("Failed to update finished good", error=True)
 
     def _delete_finished_good(self):
@@ -561,12 +559,11 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 self.selected_finished_good = None
                 self.refresh()
                 self._update_status("Finished good deleted", success=True)
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Delete finished good")
+                self._update_status("Failed to delete finished good", error=True)
             except Exception as e:
-                show_error(
-                    "Error",
-                    f"Failed to delete finished good: {str(e)}",
-                    parent=self,
-                )
+                handle_error(e, parent=self, operation="Delete finished good")
                 self._update_status("Failed to delete finished good", error=True)
 
     def _view_details(self):
@@ -618,12 +615,10 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 parent=self,
             )
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load finished good details")
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load finished good details: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load finished good details")
 
     def refresh(self):
         """Refresh the finished good list."""
@@ -647,12 +642,11 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 self._update_status(f"Loaded {len(finished_goods)} finished good(s)")
             else:
                 self._update_status("No finished goods found. Click '+ Add Finished Good' to create one.")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load finished goods")
+            self._update_status("Failed to load finished goods", error=True)
         except Exception as e:
-            show_error(
-                "Error",
-                f"Failed to load finished goods: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load finished goods")
             self._update_status("Failed to load finished goods", error=True)
 
     def _update_status(self, message: str, success: bool = False, error: bool = False):
