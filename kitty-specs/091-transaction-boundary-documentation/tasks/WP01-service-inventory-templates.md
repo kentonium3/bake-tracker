@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Service Inventory & Templates"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "21319"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -285,3 +285,4 @@ Raises:
 ## Activity Log
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
+- 2026-02-03T04:46:43Z – claude – shell_pid=21319 – lane=doing – Started implementation via workflow command
