@@ -187,10 +187,10 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T026 [P] Update `src/ui/products_tab.py` (12 occurrences)
-- [ ] T027 [P] Update `src/ui/finished_goods_tab.py` (7 occurrences)
-- [ ] T028 [P] Update `src/ui/finished_units_tab.py` (6 occurrences)
-- [ ] T029 [P] Update `src/ui/bundles_tab.py` (7 occurrences)
+- [x] T026 [P] Update `src/ui/products_tab.py` (12 occurrences)
+- [x] T027 [P] Update `src/ui/finished_goods_tab.py` (7 occurrences)
+- [x] T028 [P] Update `src/ui/finished_units_tab.py` (6 occurrences)
+- [x] T029 [P] Update `src/ui/bundles_tab.py` (7 occurrences)
 
 ### Implementation Notes
 - Products tab likely has ProductInUse, ProductNotFound exceptions
