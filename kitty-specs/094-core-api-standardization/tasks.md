@@ -71,12 +71,12 @@
 **Prompt**: `/tasks/WP03-event-package-exceptions.md`
 
 ### Included Subtasks
-- [ ] T014 Update `get_event_by_id()` to raise EventNotFoundById
-- [ ] T015 Update `get_event_by_name()` to raise EventNotFoundByName
-- [ ] T016 Update `get_package_by_id()` to raise PackageNotFoundById
-- [ ] T017 Update `get_package_by_name()` to raise PackageNotFoundByName
-- [ ] T018 Update calling code for event/package functions
-- [ ] T019 Update event and package tests
+- [x] T014 Update `get_event_by_id()` to raise EventNotFoundById
+- [x] T015 Update `get_event_by_name()` to raise EventNotFoundByName
+- [x] T016 Update `get_package_by_id()` to raise PackageNotFoundById
+- [x] T017 Update `get_package_by_name()` to raise PackageNotFoundByName
+- [x] T018 Update calling code for event/package functions
+- [x] T019 Update event and package tests
 
 ### Implementation Notes
 - Event service has many functions - focus on core get functions
