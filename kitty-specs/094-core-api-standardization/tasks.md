@@ -153,8 +153,8 @@
 ### Included Subtasks
 - [ ] T033 Update `utils/validators.py` validation functions (9 functions)
 - [ ] T034 Update calling code for validators
-- [ ] T035 Update `ingredient_service.py` tuple-returning functions
-- [ ] T036 Update `purchase_service.py` tuple-returning functions
+- [x] T035 Update `ingredient_service.py` tuple-returning functions
+- [x] T036 Update `purchase_service.py` tuple-returning functions
 - [ ] T037 Update tests for all converted functions
 
 ### Implementation Notes
