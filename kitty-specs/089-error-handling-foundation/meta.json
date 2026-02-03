@@ -1,10 +1,27 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-02-03T01:50:41Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "f287711472d9c488e9173bf1b0d009f568b88407",
+      "branch": "main",
+      "mode": "local",
+      "validation_commands": [
+        "./run-tests.sh"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-02-03T01:50:41Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "f287711472d9c488e9173bf1b0d009f568b88407",
+  "created_at": "2026-02-02T00:00:00Z",
   "feature_number": "089",
-  "slug": "089-error-handling-foundation",
   "friendly_name": "Error Handling Foundation",
   "mission": "software-dev",
+  "slug": "089-error-handling-foundation",
   "source_description": "F089 Error Handling Foundation - Establish three-tier exception strategy with consolidated ServiceError hierarchy, centralized UI error handler, update 88 files catching generic Exception to catch specific exceptions, add exception context requirements, and create developer documentation. Based on docs/func-spec/F089_error_handling_foundation.md",
-  "created_at": "2026-02-02T00:00:00Z",
   "vcs": "git",
   "vcs_locked_at": "2026-02-02T23:46:56.992830+00:00"
 }
