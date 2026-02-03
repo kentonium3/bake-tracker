@@ -11,7 +11,7 @@ subtasks:
   - "T008"
 title: "Exception Infrastructure"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "98965"
@@ -213,3 +213,4 @@ def test_recipe_exceptions():
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
 - 2026-02-03T16:14:48Z – claude – shell_pid=98965 – lane=doing – Started implementation via workflow command
+- 2026-02-03T16:24:12Z – claude – shell_pid=98965 – lane=for_review – Added 18 new exception types for F094. All imports verified, tests pass.
