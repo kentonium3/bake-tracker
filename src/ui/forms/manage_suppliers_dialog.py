@@ -14,6 +14,8 @@ from tkinter import ttk, messagebox
 from typing import Optional, Dict, Any, List
 
 from src.services import supplier_service
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class ManageSuppliersDialog(ctk.CTkToplevel):
@@ -224,12 +226,10 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
             # Style inactive rows
             self.tree.tag_configure("inactive", foreground="gray")
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load suppliers")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load suppliers: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load suppliers")
 
     def _on_select(self, event):
         """Handle row selection."""
@@ -260,7 +260,7 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
                     self.toggle_btn.configure(text="Deactivate")
                 else:
                     self.toggle_btn.configure(text="Activate")
-            except Exception:
+            except (ServiceError, Exception):
                 pass
         else:
             self.edit_btn.configure(state="disabled")
@@ -327,12 +327,10 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
                 self._load_suppliers()
                 self.result = True
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update supplier status")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to update supplier status: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Update supplier status")
 
     def _on_delete(self):
         """Delete selected supplier."""
@@ -372,12 +370,10 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
             ):
                 self._on_toggle_active()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete supplier")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to delete supplier: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Delete supplier")
 
     def _on_close(self):
         """Close the dialog."""
@@ -644,12 +640,11 @@ class SupplierFormDialog(ctk.CTkToplevel):
             self.zip_var.set(supplier.get("zip_code", "") or "")
             self.notes_var.set(supplier.get("notes", "") or "")
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load supplier")
+            self.destroy()
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load supplier: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load supplier")
             self.destroy()
 
     def _validate(self) -> bool:
@@ -749,12 +744,10 @@ class SupplierFormDialog(ctk.CTkToplevel):
             self.result = True
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save supplier")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to save supplier: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Save supplier")
 
     def _on_cancel(self):
         """Handle cancel button click."""

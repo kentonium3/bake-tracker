@@ -24,6 +24,7 @@ from decimal import Decimal
 from src.models.package import Package
 from src.services import finished_good_service, ingredient_service, product_service
 from src.services import composition_service, packaging_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
@@ -311,7 +312,7 @@ class PackagingRow(ctk.CTkFrame):
         """Load available generic product types."""
         try:
             return packaging_service.get_generic_products()
-        except Exception:
+        except (ServiceError, Exception):
             return []
 
     def _on_mode_change(self):
@@ -365,7 +366,7 @@ class PackagingRow(ctk.CTkFrame):
                     self.cost_label.configure(text="")
             except ValueError:
                 self.cost_label.configure(text="")
-        except Exception:
+        except (ServiceError, Exception):
             self.inventory_label.configure(text="")
             self.cost_label.configure(text="")
 
@@ -438,7 +439,7 @@ class PackagingRow(ctk.CTkFrame):
                 prod = product_service.get_product(prod_id)
                 if prod and prod.product_name == product_name:
                     return prod_id
-            except Exception:
+            except (ServiceError, Exception):
                 continue
         # If no match found, return the first product as template
         if self.packaging_products:
@@ -477,7 +478,7 @@ class PackageFormDialog(ctk.CTkToplevel):
         # Load available FinishedGoods
         try:
             self.available_finished_goods = finished_good_service.get_all_finished_goods()
-        except Exception:
+        except (ServiceError, Exception):
             self.available_finished_goods = []
 
         # Feature 011: Load available packaging products
@@ -721,7 +722,7 @@ class PackageFormDialog(ctk.CTkToplevel):
                         }
                     )
             return products
-        except Exception:
+        except (ServiceError, Exception):
             return []
 
     def _add_packaging_row(
@@ -835,7 +836,7 @@ class PackageFormDialog(ctk.CTkToplevel):
                             is_generic=comp.is_generic,
                             generic_product_name=generic_product_name,
                         )
-            except Exception:
+            except (ServiceError, Exception):
                 pass  # No existing packaging or error loading
 
     def _save(self):
