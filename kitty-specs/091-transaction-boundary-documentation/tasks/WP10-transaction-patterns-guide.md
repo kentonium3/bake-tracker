@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP10"
+work_package_id: WP10
+title: Transaction Patterns Guide
+lane: "doing"
+dependencies: [WP09]
+base_branch: 091-transaction-boundary-documentation-WP09
+base_commit: 67d28002b977b447089b6f9dd881bf2ddb4b9264
+created_at: '2026-02-03T07:06:09.532366+00:00'
 subtasks:
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-  - "T046"
-title: "Transaction Patterns Guide"
-phase: "Phase 3 - Guide"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP09"]
+- T041
+- T042
+- T043
+- T044
+- T045
+- T046
+phase: Phase 3 - Guide
+assignee: ''
+agent: ''
+shell_pid: "65219"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T04:37:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T04:37:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP10 – Transaction Patterns Guide
