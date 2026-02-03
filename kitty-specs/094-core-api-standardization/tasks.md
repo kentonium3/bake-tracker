@@ -45,11 +45,11 @@
 **Prompt**: `/tasks/WP02-recipe-ingredient-exceptions.md`
 
 ### Included Subtasks
-- [ ] T009 Update `get_recipe_by_slug()` to raise RecipeNotFoundBySlug
-- [ ] T010 Update `get_recipe_by_name()` to raise RecipeNotFoundByName
-- [ ] T011 Update calling code for recipe functions
-- [ ] T012 Update recipe tests to expect exceptions
-- [ ] T013 [P] Review ingredient_service.py (already uses exceptions - verify consistency)
+- [x] T009 Update `get_recipe_by_slug()` to raise RecipeNotFoundBySlug
+- [x] T010 Update `get_recipe_by_name()` to raise RecipeNotFoundByName
+- [x] T011 Update calling code for recipe functions
+- [x] T012 Update recipe tests to expect exceptions
+- [x] T013 [P] Review ingredient_service.py (already uses exceptions - verify consistency)
 
 ### Implementation Notes
 - recipe_service.py functions return Optional[Recipe] currently
