@@ -439,11 +439,11 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T075 Create `src/tests/unit/test_exceptions.py` with hierarchy tests
-- [ ] T076 Test all exceptions inherit from ServiceError
-- [ ] T077 Test http_status_code attribute on all exceptions
-- [ ] T078 Validate no unlogged generic Exception catches remain
-- [ ] T079 Run full test suite and fix any regressions
+- [x] T075 Create `src/tests/unit/test_exceptions.py` with hierarchy tests
+- [x] T076 Test all exceptions inherit from ServiceError
+- [x] T077 Test http_status_code attribute on all exceptions
+- [x] T078 Validate no unlogged generic Exception catches remain
+- [x] T079 Run full test suite and fix any regressions
 
 ### Implementation Notes
 - Use `inspect` module to enumerate all exception classes
