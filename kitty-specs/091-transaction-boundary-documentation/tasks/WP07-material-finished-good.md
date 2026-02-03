@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Material & Finished Good Services
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -248,3 +248,4 @@ def record_material_consumption(
 ## Activity Log
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
+- 2026-02-03T05:56:04Z – unknown – shell_pid=34904 – lane=for_review – Ready for review: Transaction boundary documentation added to finished_good_service.py, finished_unit_service.py, material_consumption_service.py, material_purchase_service.py, material_inventory_service.py, and finished_goods_inventory_service.py. All 780 related tests pass.
