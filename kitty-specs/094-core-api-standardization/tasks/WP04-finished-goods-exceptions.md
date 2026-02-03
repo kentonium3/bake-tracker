@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Finished Goods Service Updates
+lane: "doing"
+dependencies: [WP01]
+base_branch: 094-core-api-standardization-WP01
+base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
+created_at: '2026-02-03T16:36:27.098574+00:00'
 subtasks:
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-title: "Finished Goods Service Updates"
-phase: "Phase 2 - Core Services"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T020
+- T021
+- T022
+- T023
+- T024
+- T025
+phase: Phase 2 - Core Services
+assignee: ''
+agent: ''
+shell_pid: "4550"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T16:10:45Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T16:10:45Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Finished Goods Service Updates
