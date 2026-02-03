@@ -1,9 +1,12 @@
 ---
 work_package_id: WP09
 title: Multi-Step Operation Audit
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
+base_branch: 091-transaction-boundary-documentation-WP02
+base_commit: 045e749bde170f2c0207d5c1b90fae3ab0919311
+created_at: '2026-02-03T06:27:46.394329+00:00'
 subtasks:
 - T035
 - T036
@@ -14,7 +17,7 @@ subtasks:
 phase: Phase 3 - Audit
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "50996"
 review_status: ''
 reviewed_by: ''
 history:
