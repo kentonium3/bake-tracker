@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Core CRUD Services - Ingredient & Recipe
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -12,8 +12,8 @@ subtasks:
 - T007
 phase: Phase 2 - Documentation
 assignee: ''
-agent: ''
-shell_pid: "24853"
+agent: "codex-wp02"
+shell_pid: "44176"
 review_status: ''
 reviewed_by: ''
 history:
@@ -259,3 +259,4 @@ def create_recipe(recipe_data: dict, session: Optional[Session] = None) -> Recip
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T05:13:37Z – unknown – shell_pid=24853 – lane=for_review – Ready for review: Added transaction boundary documentation to ingredient_service.py (13 functions), ingredient_crud_service.py (13 functions), and recipe_service.py (38+ functions). All tests passing (758 tests).
+- 2026-02-03T06:20:36Z – codex-wp02 – shell_pid=44176 – lane=doing – Started review via workflow command
