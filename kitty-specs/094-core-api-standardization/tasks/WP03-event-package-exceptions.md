@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Event & Package Service Updates
-lane: "for_review"
+lane: "done"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -15,10 +15,10 @@ subtasks:
 - T019
 phase: Phase 2 - Core Services
 assignee: ''
-agent: ''
-shell_pid: "3112"
-review_status: ''
-reviewed_by: ''
+agent: "codex"
+shell_pid: "51956"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
@@ -194,3 +194,5 @@ Full regression:
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
 - 2026-02-03T16:36:17Z – unknown – shell_pid=3112 – lane=for_review – Event and package service exception handling complete. All 4 get functions now raise domain-specific exceptions. Tests updated.
+- 2026-02-03T22:21:42Z – codex – shell_pid=51956 – lane=doing – Started review via workflow command
+- 2026-02-03T22:23:22Z – codex – shell_pid=51956 – lane=done – Review passed: event/package lookups raise EventNotFoundBy*/PackageNotFoundBy*; tests updated; targeted test passes
