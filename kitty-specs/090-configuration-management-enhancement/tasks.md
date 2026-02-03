@@ -61,7 +61,7 @@
 
 ### Included Subtasks
 - [x] T008 [P] Update `src/services/database.py` to use Config.db_connect_args
-- [ ] T009 [P] Update `src/main.py` to use Config.ui_theme and ui_appearance
+- [x] T009 [P] Update `src/main.py` to use Config.ui_theme and ui_appearance
 - [ ] T010 [P] Update `src/services/health_service.py` to use Config.health_check_interval
 - [ ] T011 Add unit tests for new Config properties in `src/tests/unit/test_config.py`
 
