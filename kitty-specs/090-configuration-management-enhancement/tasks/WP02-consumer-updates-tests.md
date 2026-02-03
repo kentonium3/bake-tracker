@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Consumer Updates & Tests
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 090-configuration-management-enhancement-WP01
 base_commit: 7b4a07e6ca24f8218f5697b1dca069c1a606d349
@@ -13,8 +13,8 @@ subtasks:
 - T011
 phase: Phase 2 - Integration
 assignee: ''
-agent: ''
-shell_pid: "8297"
+agent: "claude"
+shell_pid: "10138"
 review_status: ''
 reviewed_by: ''
 history:
@@ -484,3 +484,4 @@ class TestHealthCheckConfigProperties:
 
 - 2026-02-03T02:58:47Z – system – lane=planned – Prompt created.
 - 2026-02-03T03:17:14Z – unknown – shell_pid=8297 – lane=for_review – WP02 Consumer Updates & Tests complete. All 4 subtasks implemented: database.py uses Config.db_connect_args (T008), main.py uses ui_theme/ui_appearance (T009), health_service uses health_check_interval (T010), 36 new unit tests (T011). All tests pass.
+- 2026-02-03T03:18:17Z – claude – shell_pid=10138 – lane=doing – Started review via workflow command
