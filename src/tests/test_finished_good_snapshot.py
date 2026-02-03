@@ -24,6 +24,7 @@ from src.models import (
     Composition,
     Recipe,
     Material,
+    MaterialProduct,
     MaterialCategory,
     MaterialSubcategory,
     MaterialUnit,
@@ -150,13 +151,29 @@ def material(db_session, material_subcategory):
 
 
 @pytest.fixture
-def material_unit(db_session, material):
+def material_product(db_session, material):
+    """Create a material product for testing."""
+    product = MaterialProduct(
+        material_id=material.id,
+        name="Red Ribbon Roll",
+        slug="red-ribbon-roll",
+        package_quantity=100,
+        package_unit="cm",
+        quantity_in_base_units=100,
+    )
+    db_session.add(product)
+    db_session.flush()
+    return product
+
+
+@pytest.fixture
+def material_unit(db_session, material_product):
     """Create a MaterialUnit for testing."""
     mu = MaterialUnit(
         slug="red-ribbon-6in",
         name="6-inch Red Ribbon",
         description="6 inches of red ribbon",
-        material_id=material.id,
+        material_product_id=material_product.id,
         quantity_per_unit=6.0,
     )
     db_session.add(mu)
@@ -538,10 +555,10 @@ class TestCreateFinishedGoodSnapshot:
 
         assert exc_info.value.depth > MAX_NESTING_DEPTH
 
-    def test_handles_generic_material_placeholder(
-        self, db_session, material, planning_snapshot
+    def test_handles_material_unit_component(
+        self, db_session, material_unit, planning_snapshot
     ):
-        """Generic material stored with is_generic=True, no snapshot."""
+        """Material unit components create snapshots."""
         fg = FinishedGood(
             slug="fg-with-generic",
             display_name="FG With Generic Material",
@@ -550,12 +567,11 @@ class TestCreateFinishedGoodSnapshot:
         db_session.add(fg)
         db_session.flush()
 
-        # Add generic material component
+        # Add material unit component
         comp = Composition(
             assembly_id=fg.id,
-            material_id=material.id,
+            material_unit_id=material_unit.id,
             component_quantity=1,
-            is_generic=True,
             sort_order=1,
         )
         db_session.add(comp)
@@ -569,10 +585,10 @@ class TestCreateFinishedGoodSnapshot:
 
         components = result["definition_data"]["components"]
         assert len(components) == 1
-        assert components[0]["component_type"] == "material"
-        assert components[0]["snapshot_id"] is None  # No snapshot for generic
-        assert components[0]["is_generic"] is True
-        assert components[0]["component_name"] == "Red Ribbon"
+        assert components[0]["component_type"] == "material_unit"
+        assert components[0]["snapshot_id"] is not None
+        assert components[0]["is_generic"] is False
+        assert components[0]["component_name"] == "6-inch Red Ribbon"
 
     def test_raises_error_for_nonexistent_finished_good(
         self, db_session, planning_snapshot

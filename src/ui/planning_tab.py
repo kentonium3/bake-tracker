@@ -25,6 +25,7 @@ from src.utils.constants import (
     PADDING_LARGE,
 )
 from src.ui.widgets.dialogs import show_confirmation
+from src.ui.widgets import DataTable
 from src.ui.widgets.batch_options_frame import BatchOptionsFrame
 from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 from src.ui.components.fg_selection_frame import FGSelectionFrame
@@ -460,6 +461,14 @@ class PlanningTab(ctk.CTkFrame):
             self._update_status("Error loading events", is_error=True)
             self._clear_selection()
 
+    @staticmethod
+    def _safe_pack_forget(widget) -> None:
+        """Hide a widget regardless of pack/grid layout (test-friendly)."""
+        if hasattr(widget, "pack_forget"):
+            widget.pack_forget()
+        elif hasattr(widget, "grid_forget"):
+            widget.grid_forget()
+
     def _clear_selection(self) -> None:
         """Clear event selection and hide all planning panels."""
         self.selected_event = None
@@ -575,7 +584,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_recipe_selection(self) -> None:
         """Hide the recipe selection frame."""
-        self._recipe_selection_frame.pack_forget()
+        self._safe_pack_forget(self._recipe_selection_frame)
         self._original_recipe_selection = []
 
     def _on_recipe_selection_save(self, selected_ids: List[int]) -> None:
@@ -683,7 +692,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_fg_selection(self) -> None:
         """Hide the FG selection frame."""
-        self._fg_selection_frame.pack_forget()
+        self._safe_pack_forget(self._fg_selection_frame)
         self._original_fg_selection = []
 
     def _refresh_fg_selection(self) -> None:
@@ -780,12 +789,20 @@ class PlanningTab(ctk.CTkFrame):
         """
         self._load_batch_options()
 
-        # Show container using pack
-        self._batch_options_container.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+        # Show container using pack (fallback for mock frames)
+        if hasattr(self._batch_options_container, "pack"):
+            self._batch_options_container.pack(
+                fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+            )
+        else:
+            self._batch_options_container.grid()
 
     def _hide_batch_options(self) -> None:
         """Hide the batch options frame."""
-        self._batch_options_container.pack_forget()
+        if hasattr(self._batch_options_container, "pack_forget"):
+            self._batch_options_container.pack_forget()
+        else:
+            self._batch_options_container.grid_forget()
         self._batch_options_frame.clear()
         self._confirmed_shortfalls.clear()
         self._has_unsaved_batch_changes = False
@@ -935,7 +952,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_plan_state_controls(self) -> None:
         """Hide the plan state controls frame (F077)."""
-        self._plan_state_frame.pack_forget()
+        self._safe_pack_forget(self._plan_state_frame)
         self._state_label.configure(text="Plan State: --")
 
     def _update_plan_state_buttons(self, state: PlanState) -> None:
@@ -1077,7 +1094,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_shopping_summary(self) -> None:
         """Hide the shopping summary frame."""
-        self._shopping_summary_frame.pack_forget()
+        self._safe_pack_forget(self._shopping_summary_frame)
         self._shopping_summary_frame.clear()
 
     def _show_assembly_status(self) -> None:
@@ -1087,7 +1104,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_assembly_status(self) -> None:
         """Hide the assembly status frame."""
-        self._assembly_status_frame.pack_forget()
+        self._safe_pack_forget(self._assembly_status_frame)
         self._assembly_status_frame.clear()
 
     # =========================================================================
@@ -1101,7 +1118,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_production_progress(self) -> None:
         """Hide the production progress frame (F079)."""
-        self._production_progress_frame.pack_forget()
+        self._safe_pack_forget(self._production_progress_frame)
         self._production_progress_frame.clear()
 
     def _update_production_progress(self) -> None:
@@ -1249,7 +1266,7 @@ class PlanningTab(ctk.CTkFrame):
 
     def _hide_amendment_controls(self) -> None:
         """Hide the amendment controls frame (F078)."""
-        self._amendment_controls_frame.pack_forget()
+        self._safe_pack_forget(self._amendment_controls_frame)
         # Clear history content
         for widget in self._history_content.winfo_children():
             widget.destroy()
@@ -1310,6 +1327,9 @@ class PlanningTab(ctk.CTkFrame):
             handle_error(e, parent=self, operation="Refresh amendment history", show_dialog=False)
             ctk.CTkLabel(
                 self._history_content,
+                text="Error loading history.",
+                text_color="red",
+            ).pack(anchor="w", padx=10, pady=5)
         except Exception as e:
             handle_error(e, parent=self, operation="Refresh amendment history", show_dialog=False)
             ctk.CTkLabel(
@@ -1336,7 +1356,7 @@ class PlanningTab(ctk.CTkFrame):
     def _toggle_comparison_view(self) -> None:
         """Toggle comparison view visibility (F078)."""
         if self._comparison_visible:
-            self._comparison_frame.pack_forget()
+            self._safe_pack_forget(self._comparison_frame)
             self._show_comparison_btn.configure(text="Show Comparison")
             self._comparison_visible = False
         else:
@@ -1394,6 +1414,9 @@ class PlanningTab(ctk.CTkFrame):
             handle_error(e, parent=self, operation="Refresh comparison view", show_dialog=False)
             ctk.CTkLabel(
                 self._comparison_frame,
+                text="Error loading comparison.",
+                text_color="red",
+            ).pack(anchor="w", padx=10, pady=5)
         except Exception as e:
             handle_error(e, parent=self, operation="Refresh comparison view", show_dialog=False)
             ctk.CTkLabel(

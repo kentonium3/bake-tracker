@@ -119,7 +119,7 @@ def material_with_inventory(db_session, sample_supplier):
 def material_unit_with_composition(db_session, sample_finished_good, material_with_inventory):
     """Create MaterialUnit and add to FinishedGood composition."""
     unit = create_unit(
-        material_id=material_with_inventory["material"].id,
+        material_product_id=material_with_inventory["product"].id,
         name="6-inch ribbon",
         quantity_per_unit=6,
         session=db_session,

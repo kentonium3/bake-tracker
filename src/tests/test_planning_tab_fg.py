@@ -8,10 +8,12 @@ F071 WP03: Updated to test quantity specification workflow.
 """
 
 import pytest
+from datetime import date
 from unittest.mock import Mock, MagicMock, patch, PropertyMock
 import sys
 
 from src.services.event_service import RemovedFGInfo
+from src.models import PlanState
 
 
 # Mock customtkinter before importing the module under test
@@ -151,12 +153,12 @@ class TestPlanningTabFGIntegration:
         tab = PlanningTab(parent)
 
         fg_frame_instance = mock_dependencies["fg_frame"].return_value
-        fg_frame_instance.grid_forget.reset_mock()
+        fg_frame_instance.pack_forget.reset_mock()
 
         # Refresh should hide FG frame
         tab.refresh()
 
-        fg_frame_instance.grid_forget.assert_called()
+        fg_frame_instance.pack_forget.assert_called()
 
     def test_fg_frame_shown_on_event_select(self, mock_dependencies):
         """FG selection frame is shown when event is selected."""
@@ -166,8 +168,10 @@ class TestPlanningTabFGIntegration:
         mock_event = MagicMock()
         mock_event.id = 1
         mock_event.name = "Test Event"
+        mock_event.event_date = date(2025, 1, 1)
+        mock_event.expected_attendees = 20
+        mock_event.plan_state = PlanState.DRAFT
 
-        mock_dependencies["event_service"].get_event_by_id.return_value = mock_event
         mock_dependencies["event_service"].get_available_finished_goods.return_value = (
             []
         )
@@ -177,14 +181,18 @@ class TestPlanningTabFGIntegration:
 
         parent = MagicMock()
         tab = PlanningTab(parent)
+        tab._event_map = {"Test Event": mock_event}
+
+        session = mock_dependencies["session"]
+        session.query.return_value.filter.return_value.first.return_value = mock_event
 
         fg_frame_instance = mock_dependencies["fg_frame"].return_value
 
-        # Simulate row selection
-        tab._on_row_select(mock_event)
+        # Simulate dropdown selection
+        tab._on_event_dropdown_change("Test Event")
 
-        # FG frame should be shown via grid()
-        fg_frame_instance.grid.assert_called()
+        # FG frame should be shown via pack()
+        fg_frame_instance.pack.assert_called()
 
     def test_recipe_save_refreshes_fg_frame(self, mock_dependencies):
         """Saving recipe selection refreshes the FG selection frame."""

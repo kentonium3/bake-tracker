@@ -13,6 +13,7 @@ from src.services.material_catalog_service import (
     create_category,
     create_subcategory,
     create_material,
+    create_product,
 )
 
 
@@ -31,10 +32,22 @@ def sample_material(db_session):
 
 
 @pytest.fixture
-def sample_material_unit(db_session, sample_material):
+def sample_product(db_session, sample_material):
+    """Create a sample material product for testing."""
+    return create_product(
+        material_id=sample_material.id,
+        name="Red Satin Roll",
+        package_quantity=100,
+        package_unit="cm",
+        session=db_session,
+    )
+
+
+@pytest.fixture
+def sample_material_unit(db_session, sample_product):
     """Create a sample MaterialUnit."""
     return create_unit(
-        material_id=sample_material.id,
+        material_product_id=sample_product.id,
         name="6-inch Red Ribbon",
         quantity_per_unit=6.0,
         description="Cut ribbon segment",
@@ -61,7 +74,7 @@ class TestCreateMaterialUnitSnapshot:
         assert definition_data["slug"] == sample_material_unit.slug
         assert definition_data["name"] == sample_material_unit.name
         assert definition_data["description"] == sample_material_unit.description
-        assert definition_data["material_id"] == sample_material_unit.material_id
+        assert definition_data["material_product_id"] == sample_material_unit.material_product_id
         assert definition_data["material_name"] == "Red Satin Ribbon"
         assert definition_data["material_category"] == "Ribbons"
         assert definition_data["quantity_per_unit"] == sample_material_unit.quantity_per_unit

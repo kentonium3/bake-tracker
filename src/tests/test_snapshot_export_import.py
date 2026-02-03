@@ -27,6 +27,7 @@ from src.models.finished_good_snapshot import FinishedGoodSnapshot
 from src.models.material import Material
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
+from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
 from src.models.material_unit_snapshot import MaterialUnitSnapshot
 from src.models.finished_unit import FinishedUnit, YieldMode
@@ -155,14 +156,31 @@ def test_material_hierarchy(test_db):
 
 
 @pytest.fixture
-def test_material_unit(test_db, test_material_hierarchy):
-    """Create a test MaterialUnit for snapshot tests."""
+def test_material_product(test_db, test_material_hierarchy):
+    """Create a test MaterialProduct for snapshot tests."""
     session = test_db()
     material = test_material_hierarchy["material"]
+    product = MaterialProduct(
+        material_id=material.id,
+        name="Gift Box - Small",
+        slug="gift-box-small",
+        package_quantity=1,
+        package_unit="each",
+        quantity_in_base_units=1,
+    )
+    session.add(product)
+    session.commit()
+    return product
+
+
+@pytest.fixture
+def test_material_unit(test_db, test_material_product):
+    """Create a test MaterialUnit for snapshot tests."""
+    session = test_db()
     unit = MaterialUnit(
         slug="small-gift-box",
         name="Small Gift Box",
-        material_id=material.id,
+        material_product_id=test_material_product.id,
         quantity_per_unit=1.0,
     )
     session.add(unit)
