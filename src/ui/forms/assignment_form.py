@@ -9,6 +9,7 @@ from typing import Optional, Dict, Any
 
 from src.models.event import EventRecipientPackage
 from src.services import recipient_service, package_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import (
     MAX_NOTES_LENGTH,
     PADDING_MEDIUM,
@@ -49,7 +50,7 @@ class AssignmentFormDialog(ctk.CTkToplevel):
         try:
             self.available_recipients = recipient_service.get_all_recipients()
             self.available_packages = package_service.get_all_packages()
-        except Exception:
+        except (ServiceError, Exception):
             self.available_recipients = []
             self.available_packages = []
 
@@ -238,7 +239,7 @@ class AssignmentFormDialog(ctk.CTkToplevel):
             else:
                 self.last_year_label.configure(text="No previous packages")
 
-        except Exception:
+        except (ServiceError, Exception):
             pass
 
     def _populate_form(self):

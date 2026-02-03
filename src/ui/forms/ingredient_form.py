@@ -25,6 +25,7 @@ from typing import Optional, Dict, Any, List
 from src.models.ingredient import Ingredient
 from src.services.unit_service import get_units_by_category
 from src.services import ingredient_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import (
     ALL_UNITS,
     PACKAGE_UNITS,
@@ -48,7 +49,7 @@ def _get_categories_from_database() -> List[str]:
             set(ing.get("category", "") for ing in ingredients if ing.get("category"))
         )
         return categories if categories else ["Uncategorized"]
-    except Exception:
+    except (ServiceError, Exception):
         return ["Uncategorized"]
 
 

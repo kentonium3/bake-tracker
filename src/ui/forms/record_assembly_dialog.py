@@ -22,6 +22,7 @@ from src.services import (
     packaging_service,
     material_consumption_service,
 )
+from src.services.exceptions import ServiceError
 from src.ui.utils import ui_session
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
@@ -342,7 +343,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
                 finished_good_id=self.finished_good.id
             )
             return pending
-        except Exception:
+        except (ServiceError, Exception):
             # Don't block assembly if check fails
             return []
 
@@ -358,7 +359,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
         try:
             pending = packaging_service.get_pending_requirements(assembly_id=self.finished_good.id)
             return pending
-        except Exception:
+        except (ServiceError, Exception):
             # Don't block assembly if check fails
             return []
 
@@ -433,7 +434,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
             # Sort by event_date ascending; events without date go to end
             events.sort(key=lambda e: e.event_date or datetime.max.date())
             return events
-        except Exception:
+        except (ServiceError, Exception):
             # If event loading fails, return empty list
             return []
 

@@ -12,6 +12,7 @@ from src.models.finished_unit import FinishedUnit
 from src.ui.widgets.production_history_table import ProductionHistoryTable
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 from src.services import batch_production_service, finished_unit_service, recipe_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -301,7 +302,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
                         return y.get("items_per_batch")
                 # Fallback to first yield if no slug match
                 return yields[0].get("items_per_batch")
-        except Exception:
+        except (ServiceError, Exception):
             pass
 
         return None
