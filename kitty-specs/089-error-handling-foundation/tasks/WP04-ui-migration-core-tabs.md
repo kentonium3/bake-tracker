@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: UI Migration - Core Tabs
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -253,3 +253,4 @@ grep -n "except Exception:" src/ui/materials_tab.py | grep -v "handle_error"
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-03T00:19:21Z – unknown – shell_pid=62222 – lane=for_review – Core tabs updated with centralized error handler pattern
