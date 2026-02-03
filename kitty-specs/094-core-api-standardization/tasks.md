@@ -129,7 +129,7 @@
 - [x] T029 Update unit_service.py `get_unit_by_code()`
 - [x] T030 Update material_catalog_service.py get functions
 - [x] T031 Update calling code for all secondary services
-- [ ] T032 Update tests for secondary services
+- [x] T032 Update tests for secondary services
 
 ### Implementation Notes
 - These services have fewer call sites
