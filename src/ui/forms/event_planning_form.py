@@ -39,8 +39,9 @@ from datetime import datetime
 
 from src.services import event_service
 from src.services.database import session_scope
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ValidationError, ServiceError
 from src.models import Event
+from src.ui.utils.error_handler import handle_error
 
 
 __all__ = ["EventPlanningForm", "DeleteEventDialog"]
@@ -320,6 +321,8 @@ class EventPlanningForm(ctk.CTkToplevel):
 
         except ValidationError as e:
             self.validation_label.configure(text=str(e))
+        except ServiceError as e:
+            self.validation_label.configure(text=str(e))
         except Exception as e:
             self.validation_label.configure(text=f"Error saving: {e}")
 
@@ -485,6 +488,8 @@ class DeleteEventDialog(ctk.CTkToplevel):
                 self._on_confirm()
             self.destroy()
 
+        except ServiceError as e:
+            self.error_label.configure(text=str(e))
         except Exception as e:
             self.error_label.configure(text=f"Error deleting: {e}")
 

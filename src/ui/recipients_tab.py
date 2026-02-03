@@ -26,6 +26,8 @@ from src.ui.widgets.dialogs import (
 )
 from src.ui.forms.recipient_form import RecipientFormDialog
 from src.ui.utils import ui_session
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class RecipientsTab(ctk.CTkFrame):
@@ -177,8 +179,11 @@ class RecipientsTab(ctk.CTkFrame):
             )
             self.data_table.set_data(recipients)
             self._update_status(f"Found {len(recipients)} recipient(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Search recipients")
+            self._update_status("Search failed", error=True)
         except Exception as e:
-            show_error("Search Error", f"Failed to search recipients: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Search recipients")
             self._update_status("Search failed", error=True)
 
     def _on_row_select(self, recipient: Optional[Recipient]):
@@ -218,8 +223,10 @@ class RecipientsTab(ctk.CTkFrame):
                     "Success", f"Recipient '{result['name']}' added successfully", parent=self
                 )
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add recipient")
             except Exception as e:
-                show_error("Error", f"Failed to add recipient: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Add recipient")
 
     def _edit_recipient(self):
         """Open dialog to edit the selected recipient."""
@@ -237,11 +244,13 @@ class RecipientsTab(ctk.CTkFrame):
                 recipient_service.update_recipient(self.selected_recipient.id, result)
                 show_success("Success", "Recipient updated successfully", parent=self)
                 self.refresh()
-            except RecipientNotFound:
-                show_error("Error", "Recipient not found", parent=self)
+            except RecipientNotFound as e:
+                handle_error(e, parent=self, operation="Update recipient")
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update recipient")
             except Exception as e:
-                show_error("Error", f"Failed to update recipient: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Update recipient")
 
     def _delete_recipient(self):
         """Delete the selected recipient after confirmation."""
@@ -263,16 +272,14 @@ class RecipientsTab(ctk.CTkFrame):
             self.selected_recipient = None
             self.refresh()
         except RecipientInUse as e:
-            show_error(
-                "Cannot Delete",
-                f"This recipient is used in {e.event_count} event(s) and cannot be deleted.",
-                parent=self,
-            )
-        except RecipientNotFound:
-            show_error("Error", "Recipient not found", parent=self)
+            handle_error(e, parent=self, operation="Delete recipient")
+        except RecipientNotFound as e:
+            handle_error(e, parent=self, operation="Delete recipient")
             self.refresh()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete recipient")
         except Exception as e:
-            show_error("Error", f"Failed to delete recipient: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Delete recipient")
 
     def refresh(self):
         """Refresh the recipients list."""
@@ -280,8 +287,11 @@ class RecipientsTab(ctk.CTkFrame):
             recipients = recipient_service.get_all_recipients()
             self.data_table.set_data(recipients)
             self._update_status(f"Loaded {len(recipients)} recipient(s)")
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load recipients")
+            self._update_status("Failed to load recipients", error=True)
         except Exception as e:
-            show_error("Error", f"Failed to load recipients: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Load recipients")
             self._update_status("Failed to load recipients", error=True)
 
     def _update_status(self, message: str, error: bool = False):

@@ -30,6 +30,8 @@ from src.ui.widgets.dialogs import (
     show_success,
 )
 from src.ui.forms.assignment_form import AssignmentFormDialog
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class EventDetailWindow(ctk.CTkToplevel):
@@ -325,8 +327,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                 show_success("Success", "Production target added", parent=self)
                 self._refresh_targets()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add production target")
             except Exception as e:
-                show_error("Error", f"Failed to add target: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Add production target")
 
     def _on_add_assembly_target(self):
         """Handle Add Assembly Target button click."""
@@ -346,8 +350,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                 show_success("Success", "Assembly target added", parent=self)
                 self._refresh_targets()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Add assembly target")
             except Exception as e:
-                show_error("Error", f"Failed to add target: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Add assembly target")
 
     def _on_edit_production_target(self, recipe_id: int, current_target: int):
         """Handle edit production target."""
@@ -371,8 +377,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                 show_success("Success", "Production target updated", parent=self)
                 self._refresh_targets()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update production target")
             except Exception as e:
-                show_error("Error", f"Failed to update target: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Update production target")
 
     def _on_edit_assembly_target(self, finished_good_id: int, current_target: int):
         """Handle edit assembly target."""
@@ -396,8 +404,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                 show_success("Success", "Assembly target updated", parent=self)
                 self._refresh_targets()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update assembly target")
             except Exception as e:
-                show_error("Error", f"Failed to update target: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Update assembly target")
 
     def _on_delete_production_target(self, recipe_id: int):
         """Handle delete production target."""
@@ -415,8 +425,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                 )
             show_success("Success", "Production target deleted", parent=self)
             self._refresh_targets()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete production target")
         except Exception as e:
-            show_error("Error", f"Failed to delete target: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Delete production target")
 
     def _on_delete_assembly_target(self, finished_good_id: int):
         """Handle delete assembly target."""
@@ -434,8 +446,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                 )
             show_success("Success", "Assembly target deleted", parent=self)
             self._refresh_targets()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete assembly target")
         except Exception as e:
-            show_error("Error", f"Failed to delete target: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Delete assembly target")
 
     def _refresh_targets(self):
         """Refresh the targets tab with current progress data."""
@@ -492,7 +506,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                         is_production=False,
                     )
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_label = ctk.CTkLabel(
                 self.production_targets_container,
                 text=f"Error loading targets: {str(e)}",
@@ -605,6 +619,12 @@ class EventDetailWindow(ctk.CTkToplevel):
                 f"Could not write file:\n{str(e)}",
                 parent=self,
             )
+        except ServiceError as e:
+            messagebox.showerror(
+                "Export Failed",
+                f"An error occurred:\n{str(e)}",
+                parent=self,
+            )
         except Exception as e:
             messagebox.showerror(
                 "Export Failed",
@@ -662,8 +682,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                 show_success("Success", "Package assigned successfully", parent=self)
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Assign package")
             except Exception as e:
-                show_error("Error", f"Failed to assign package: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Assign package")
 
     def _edit_assignment(self):
         """Edit selected assignment."""
@@ -691,8 +713,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                 show_success("Success", "Assignment updated successfully", parent=self)
                 self.refresh()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update assignment")
             except Exception as e:
-                show_error("Error", f"Failed to update assignment: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Update assignment")
 
     def _delete_assignment(self):
         """Delete selected assignment."""
@@ -716,11 +740,13 @@ class EventDetailWindow(ctk.CTkToplevel):
             show_success("Success", "Assignment removed successfully", parent=self)
             self.selected_assignment = None
             self.refresh()
-        except AssignmentNotFoundError:
-            show_error("Error", "Assignment not found", parent=self)
+        except AssignmentNotFoundError as e:
+            handle_error(e, parent=self, operation="Remove assignment")
             self.refresh()
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Remove assignment")
         except Exception as e:
-            show_error("Error", f"Failed to remove assignment: {str(e)}", parent=self)
+            handle_error(e, parent=self, operation="Remove assignment")
 
     def refresh(self):
         """Refresh all tab contents."""
@@ -815,7 +841,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                 # Feature 016: Add fulfillment status control
                 self._create_fulfillment_status_control(row_frame, assignment, 4)
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             label = ctk.CTkLabel(
                 self.assignments_frame,
                 text=f"Error loading assignments: {str(e)}",
@@ -967,7 +993,7 @@ class EventDetailWindow(ctk.CTkToplevel):
 
                 row += 1
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             label = ctk.CTkLabel(
                 self.recipe_needs_frame,
                 text=f"Error calculating recipe needs: {str(e)}",
@@ -1294,7 +1320,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             )
             note_label.grid(row=1, column=0, columnspan=8, padx=15, pady=(0, 10))
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             label = ctk.CTkLabel(
                 self.shopping_list_frame,
                 text=f"Error generating shopping list: {str(e)}",
@@ -1431,7 +1457,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                     justify="left",
                 ).pack(anchor="w", pady=(5, 0))
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             label = ctk.CTkLabel(
                 self.summary_frame,
                 text=f"Error loading summary: {str(e)}",
@@ -1506,7 +1532,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                 font=ctk.CTkFont(size=12),
             ).pack(side="left", padx=15)
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             ctk.CTkLabel(
                 section_frame,
                 text=f"Could not load fulfillment data: {e}",
@@ -1588,7 +1614,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             # Add padding at bottom
             ctk.CTkFrame(section_frame, height=5, fg_color="transparent").pack()
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             ctk.CTkLabel(
                 section_frame,
                 text=f"Could not load production data: {e}",
@@ -1670,7 +1696,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             # Add padding at bottom
             ctk.CTkFrame(section_frame, height=5, fg_color="transparent").pack()
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             ctk.CTkLabel(
                 section_frame,
                 text=f"Could not load assembly data: {e}",
@@ -1762,7 +1788,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                     font=ctk.CTkFont(slant="italic"),
                 ).pack(padx=15, pady=(0, 10))
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             ctk.CTkLabel(
                 section_frame,
                 text=f"Could not load cost data: {e}",

@@ -14,6 +14,7 @@ from typing import Any
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from src.services.exceptions import ServiceError
 
 
 class EventStatusTab(ctk.CTkFrame):
@@ -146,7 +147,7 @@ class EventStatusTab(ctk.CTkFrame):
                             tags=(tag,),
                         )
 
-                    except Exception:
+                    except (ServiceError, Exception):
                         # Insert with error indication
                         self.tree.insert(
                             "",
@@ -163,6 +164,6 @@ class EventStatusTab(ctk.CTkFrame):
                             tags=("not_started",),
                         )
 
-        except Exception:
+        except (ServiceError, Exception):
             # Show error in empty state
             pass
