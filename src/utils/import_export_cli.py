@@ -118,6 +118,7 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.services.database import initialize_app_database, session_scope
+from src.services.exceptions import ServiceError
 from src.services.import_export_service import (
     export_ingredients_to_json,
     export_recipes_to_json,
@@ -358,6 +359,13 @@ def import_purchases_cmd(args) -> int:
 
         return 0 if result.failed == 0 else 1
 
+    except ServiceError as e:
+        if json_output:
+            print(json.dumps({"success": False, "error": str(e)}))
+        else:
+            print(f"Error: {e}")
+        return 1
+
     except Exception as e:
         if json_output:
             print(json.dumps({"success": False, "error": str(e)}))
@@ -410,6 +418,13 @@ def import_adjustments_cmd(args) -> int:
                 print("\n[DRY RUN] No changes committed to database.")
 
         return 0 if result.failed == 0 else 1
+
+    except ServiceError as e:
+        if json_output:
+            print(json.dumps({"success": False, "error": str(e)}))
+        else:
+            print(f"Error: {e}")
+        return 1
 
     except Exception as e:
         if json_output:
@@ -638,6 +653,10 @@ def export_materials(output_file: str) -> int:
         print(f"Exported {len(records)} materials to {output_file}")
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -691,6 +710,10 @@ def export_material_products(output_file: str) -> int:
         print(f"Exported {len(records)} material products to {output_file}")
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -730,6 +753,10 @@ def export_material_categories(output_file: str) -> int:
 
         print(f"Exported {len(records)} material categories to {output_file}")
         return 0
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -777,6 +804,10 @@ def export_material_subcategories(output_file: str) -> int:
         print(f"Exported {len(records)} material subcategories to {output_file}")
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -823,6 +854,10 @@ def export_suppliers(output_file: str) -> int:
 
         print(f"Exported {len(records)} suppliers to {output_file}")
         return 0
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -882,6 +917,10 @@ def export_purchases(output_file: str) -> int:
 
         print(f"Exported {len(records)} purchases to {output_file}")
         return 0
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -952,6 +991,10 @@ def import_all(input_file: str, mode: str = "merge", force: bool = False):
             return 1
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1008,6 +1051,10 @@ def export_complete_cmd(output_dir: str = None, create_zip: bool = False):
 
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1062,6 +1109,10 @@ def export_view_cmd(view_type: str, output_path: str = None):
 
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1101,6 +1152,10 @@ def validate_export_cmd(export_dir: str):
             for error in result["errors"]:
                 print(f"  - {error}")
             return 1
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -1152,6 +1207,10 @@ def backup_cmd(output_dir: str = None, create_zip: bool = False) -> int:
             print(f"\nZIP archive: {zip_path}")
 
         return 0
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -1266,6 +1325,10 @@ def restore_cmd(backup_dir: str, force: bool = False) -> int:
 
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1369,6 +1432,10 @@ def backup_validate_cmd(backup_dir: str) -> int:
                 print(f"  - {error}")
             return 1
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1464,6 +1531,10 @@ def aug_export_cmd(entity_type: str, output_path: str = None) -> int:
             print(f"Records exported: {result.record_count}")
             return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1516,6 +1587,10 @@ def aug_import_cmd(
 
         print("\n" + result.get_summary())
         return 0 if result.base_result.failed == 0 else 1
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -1707,6 +1782,10 @@ def catalog_export_cmd(output_dir: str, entities_str: str = None) -> int:
         print("  (Use this file with catalog-import)")
         return 0
 
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
+
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -1755,6 +1834,10 @@ def catalog_import_cmd(
         # Check for failures
         total_failed = sum(counts.failed for counts in result.entity_counts.values())
         return 0 if total_failed == 0 else 1
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")
@@ -2072,6 +2155,10 @@ def import_view_cmd(
 
         # Return exit code based on failures
         return 0 if result.failed == 0 else 1
+
+    except ServiceError as e:
+        print(f"ERROR: {e}")
+        return 1
 
     except Exception as e:
         print(f"ERROR: {e}")

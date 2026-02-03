@@ -14,6 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+from src.services.exceptions import ServiceError
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +63,7 @@ def create_database_backup(db_path: str, backup_dir: str = "backups") -> Tuple[b
             logger.error("Backup file was not created or is empty")
             return False, ""
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         logger.error(f"Failed to create database backup: {e}")
         return False, ""
 
@@ -133,7 +135,7 @@ def validate_backup_integrity(backup_path: str) -> Dict[str, any]:
         except sqlite3.Error as e:
             result["error_message"] = f"SQLite validation error: {e}"
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result["error_message"] = f"Validation error: {e}"
         logger.error(f"Backup validation failed: {e}")
 
@@ -190,7 +192,7 @@ def restore_database_from_backup(
         else:
             return False, "Restored database file does not exist"
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         error_msg = f"Database restoration failed: {e}"
         logger.error(error_msg)
         return False, error_msg
@@ -231,7 +233,7 @@ def list_available_backups(backup_dir: str = "backups") -> list:
         # Sort by creation time, newest first
         backups.sort(key=lambda x: x["created"], reverse=True)
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         logger.error(f"Failed to list backups: {e}")
 
     return backups
@@ -261,10 +263,10 @@ def cleanup_old_backups(backup_dir: str = "backups", keep_count: int = 10) -> in
                     os.remove(backup["path"])
                     deleted_count += 1
                     logger.info(f"Deleted old backup: {backup['filename']}")
-                except Exception as e:
+                except (ServiceError, Exception) as e:
                     logger.error(f"Failed to delete backup {backup['filename']}: {e}")
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         logger.error(f"Backup cleanup failed: {e}")
 
     return deleted_count

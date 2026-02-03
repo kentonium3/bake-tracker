@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Any
 import os
 
 from ..services.migration_service import MigrationService
+from ..services.exceptions import ServiceError
 from ..utils.backup_validator import (
     create_database_backup,
     validate_backup_integrity,
@@ -198,7 +199,7 @@ class MigrationOrchestrator:
 
             logger.info("Full migration workflow completed successfully")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Migration workflow failed: {e}"
             logger.error(error_msg)
             result["errors"].append(error_msg)
@@ -257,7 +258,7 @@ class MigrationOrchestrator:
                 self.migration_state["errors"].append(error_msg)
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Validation phase failed: {e}"
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
@@ -303,7 +304,7 @@ class MigrationOrchestrator:
                 self.migration_state["errors"].append(error_msg)
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Backup phase failed: {e}"
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
@@ -337,7 +338,7 @@ class MigrationOrchestrator:
                 self.migration_state["errors"].append(error_msg)
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Schema phase failed: {e}"
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
@@ -374,7 +375,7 @@ class MigrationOrchestrator:
                 self.migration_state["errors"].append(error_msg)
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Data phase failed: {e}"
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
@@ -415,7 +416,7 @@ class MigrationOrchestrator:
                 self.migration_state["errors"].append(error_msg)
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Indexes phase failed: {e}"
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
@@ -480,14 +481,14 @@ class MigrationOrchestrator:
                             session.execute(text(index_def["sql"]))
                             result["indexes_created"].append(index_def["name"])
                             logger.info(f"Created index {index_def['name']}")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         error_msg = f"Failed to create index {index_def['name']}: {e}"
                         result["errors"].append(error_msg)
                         logger.error(error_msg)
 
                 session.commit()
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result["errors"].append(f"Index creation error: {e}")
             logger.error(f"Index creation failed: {e}")
 
@@ -590,7 +591,7 @@ class MigrationOrchestrator:
                                 f"exceeds target {test['target_ms']}ms"
                             )
 
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result["errors"].append(f"Performance test '{test['name']}' failed: {e}")
                         result["all_indexes_valid"] = False
 
@@ -598,7 +599,7 @@ class MigrationOrchestrator:
                     f"Index validation completed: {len(result['indexes_checked'])} indexes checked"
                 )
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result["errors"].append(f"Index validation error: {e}")
             result["all_indexes_valid"] = False
             logger.error(f"Index validation failed: {e}")
@@ -634,7 +635,7 @@ class MigrationOrchestrator:
                 self.migration_state["errors"].append(error_msg)
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             error_msg = f"Post-validation phase failed: {e}"
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
@@ -661,7 +662,7 @@ class MigrationOrchestrator:
                 logger.error(f"Rollback failed: {message}")
                 return False
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             logger.error(f"Rollback attempt failed: {e}")
             self.migration_state["current_phase"] = MigrationPhase.FAILED
             return False
@@ -719,7 +720,7 @@ class MigrationOrchestrator:
             else:
                 result["message"] = "Rollback failed - check logs for details"
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result["message"] = f"Rollback error: {e}"
             logger.error(f"Manual rollback failed: {e}")
 

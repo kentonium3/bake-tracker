@@ -21,7 +21,7 @@ from src.services import ingredient_crud_service
 from src.services import recipe_service, finished_good_service
 from src.services import package_service, recipient_service, event_service
 from src.services import catalog_import_service
-from src.services.exceptions import ValidationError
+from src.services.exceptions import ServiceError, ValidationError
 from src.services.supplier_service import generate_supplier_slug
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
@@ -433,7 +433,7 @@ def export_ingredients_to_json(
 
         return ExportResult(file_path, len(ingredients))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -522,7 +522,7 @@ def export_recipes_to_json(
 
         return ExportResult(file_path, len(recipes))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -585,7 +585,7 @@ def export_finished_goods_to_json(
 
         return ExportResult(file_path, len(finished_goods))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -634,7 +634,7 @@ def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportRe
 
         return ExportResult(file_path, len(bundles))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -690,7 +690,7 @@ def export_packages_to_json(file_path: str, include_all: bool = True) -> ExportR
 
         return ExportResult(file_path, len(packages))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -743,7 +743,7 @@ def export_recipients_to_json(file_path: str, include_all: bool = True) -> Expor
 
         return ExportResult(file_path, len(recipients))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -809,7 +809,7 @@ def export_events_to_json(file_path: str, include_all: bool = True) -> ExportRes
 
             return ExportResult(file_path, len(events))
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -1932,7 +1932,7 @@ def export_all_to_json(
 
         return result
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result = ExportResult(file_path, 0)
         result.success = False
         result.error = str(e)
@@ -2091,7 +2091,7 @@ def import_finished_units_from_json(
             session.add(fu)
             result.add_success("finished_unit")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("finished_unit", record.get("slug", "unknown"), str(e))
 
     return result
@@ -2346,7 +2346,7 @@ def import_compositions_from_json(
                     )
                     session.add(assignment)
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             parent_name = (
                 record.get("finished_good_slug") or record.get("package_name") or "unknown"
             )
@@ -2431,7 +2431,7 @@ def import_package_finished_goods_from_json(
             session.add(pfg)
             result.add_success("package_finished_good")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("package_finished_good", record.get("package_name", "unknown"), str(e))
 
     return result
@@ -2530,7 +2530,7 @@ def import_production_records_from_json(
             session.add(pr)
             result.add_success("production_record")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("production_record", record.get("event_name", "unknown"), str(e))
 
     return result
@@ -2647,7 +2647,7 @@ def import_event_recipient_packages_from_json(
             session.add(erp)
             result.add_success("event_recipient_package")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("event_recipient_package", record.get("event_name", "unknown"), str(e))
 
     return result
@@ -2726,7 +2726,7 @@ def import_event_production_targets_from_json(
             session.add(target)
             result.add_success("event_production_target")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("event_production_target", record.get("event_name", "unknown"), str(e))
 
     return result
@@ -2809,7 +2809,7 @@ def import_event_assembly_targets_from_json(
             session.add(target)
             result.add_success("event_assembly_target")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("event_assembly_target", record.get("event_name", "unknown"), str(e))
 
     return result
@@ -2882,7 +2882,7 @@ def import_production_runs_from_json(
             session.add(run)
             result.add_success("production_run")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("production_run", record.get("recipe_name", "unknown"), str(e))
 
     return result
@@ -2957,7 +2957,7 @@ def import_assembly_runs_from_json(
             session.add(run)
             result.add_success("assembly_run")
 
-        except Exception as e:
+        except (ServiceError, Exception) as e:
             result.add_error("assembly_run", record.get("finished_good_slug", "unknown"), str(e))
 
     return result
@@ -3180,7 +3180,7 @@ def import_all_from_json_v4(
                         )
                         session.add(ingredient)
                         result.add_success("ingredient")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("ingredient", ing.get("slug", "unknown"), str(e))
 
             # Flush to get IDs for foreign keys
@@ -3201,7 +3201,7 @@ def import_all_from_json_v4(
                                 result.add_error(
                                     "ingredient", slug, f"Parent slug '{parent_slug}' not found"
                                 )
-                        except Exception as e:
+                        except (ServiceError, Exception) as e:
                             result.add_error(
                                 "ingredient",
                                 ing.get("slug", "unknown"),
@@ -3387,7 +3387,7 @@ def import_all_from_json_v4(
                             supplier_id_map[old_id] = supplier.id
                         # Feature 050: Track slug mapping
                         supplier_slug_map[slug] = supplier.id
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("supplier", supplier_data.get("name", "unknown"), str(e))
 
             session.flush()
@@ -3538,7 +3538,7 @@ def import_all_from_json_v4(
                         )
                         session.add(product)
                         result.add_success("product")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("product", prod_data.get("brand", "unknown"), str(e))
 
             session.flush()
@@ -3647,7 +3647,7 @@ def import_all_from_json_v4(
 
                         session.add(purchase)
                         result.add_success("purchase")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "purchase", purch_data.get("ingredient_slug", "unknown"), str(e)
                         )
@@ -3744,7 +3744,7 @@ def import_all_from_json_v4(
                         )
                         session.add(inventory_item)
                         result.add_success("inventory_item")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "inventory_item", item_data.get("ingredient_slug", "unknown"), str(e)
                         )
@@ -3946,7 +3946,7 @@ def import_all_from_json_v4(
                             result.add_success("finished_unit")
 
                         result.add_success("recipe")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("recipe", recipe_data.get("name", "unknown"), str(e))
 
             session.flush()
@@ -4045,7 +4045,7 @@ def import_all_from_json_v4(
                         session.add(comp)
                         result.add_success("recipe_component")
 
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "recipe_component",
                             f"{recipe_name}->{comp_data.get('recipe_name', 'unknown')}",
@@ -4092,7 +4092,7 @@ def import_all_from_json_v4(
                         )
                         session.add(fg)
                         result.add_success("finished_good")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("finished_good", fg_data.get("slug", "unknown"), str(e))
 
             session.flush()
@@ -4125,7 +4125,7 @@ def import_all_from_json_v4(
                         )
                         session.add(package)
                         result.add_success("package")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("package", pkg.get("name", "unknown"), str(e))
 
             session.flush()
@@ -4160,7 +4160,7 @@ def import_all_from_json_v4(
                         )
                         session.add(recipient)
                         result.add_success("recipient")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("recipient", rec.get("name", "unknown"), str(e))
 
             session.flush()
@@ -4227,7 +4227,7 @@ def import_all_from_json_v4(
                         )
                         session.add(event)
                         result.add_success("event")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error("event", evt.get("name", "unknown"), str(e))
 
             session.flush()
@@ -4451,7 +4451,7 @@ def import_all_from_json_v4(
                         er = EventRecipe(event_id=event_id, recipe_id=recipe_id)
                         session.add(er)
                         result.add_success("event_recipe")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "event_recipe",
                             f"{er_data.get('event_name')}/{er_data.get('recipe_name')}",
@@ -4501,7 +4501,7 @@ def import_all_from_json_v4(
                         )
                         session.add(efg)
                         result.add_success("event_finished_good")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "event_finished_good",
                             f"{efg_data.get('event_name')}/{efg_data.get('finished_good_name')}",
@@ -4564,7 +4564,7 @@ def import_all_from_json_v4(
                         )
                         session.add(bd)
                         result.add_success("batch_decision")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "batch_decision",
                             f"{bd_data.get('event_name')}/{bd_data.get('recipe_name')}",
@@ -4608,7 +4608,7 @@ def import_all_from_json_v4(
                         )
                         session.add(pa)
                         result.add_success("plan_amendment")
-                    except Exception as e:
+                    except (ServiceError, Exception) as e:
                         result.add_error(
                             "plan_amendment",
                             pa_data.get("event_name", "unknown"),
@@ -4619,7 +4619,7 @@ def import_all_from_json_v4(
             # Commit transaction
             session.commit()
 
-    except Exception as e:
+    except (ServiceError, Exception) as e:
         result.add_error("file", file_path, str(e))
 
     return result
@@ -4757,7 +4757,7 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
 
                 result.add_success("purchase")
 
-            except Exception as e:
+            except (ServiceError, Exception) as e:
                 result.add_error("purchase", upc, f"Failed to create purchase: {str(e)}")
                 continue
 

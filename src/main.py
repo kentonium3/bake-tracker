@@ -12,6 +12,7 @@ import traceback
 import customtkinter as ctk
 
 from src.services.database import initialize_app_database, reset_database
+from src.services.exceptions import ServiceError
 from src.services.health_service import HealthCheckService
 from src.ui.main_window import MainWindow
 from src.utils.config import get_config, Config
@@ -62,7 +63,7 @@ def check_database_environment():
                     pass  # Table doesn't exist
             conn.close()
             return total
-        except Exception:
+        except (ServiceError, Exception):
             return 0
 
     current_count = get_row_count(current_db)
@@ -106,6 +107,10 @@ def initialize_application():
         print("Health check service started")
 
         return True
+
+    except ServiceError as e:
+        print(f"ERROR: Failed to initialize application: {e}")
+        return False
 
     except Exception as e:
         print(f"ERROR: Failed to initialize application: {e}")
@@ -171,6 +176,10 @@ def main():
     try:
         app = MainWindow()
         app.mainloop()
+
+    except ServiceError as e:
+        print(f"ERROR: Application crashed: {e}")
+        sys.exit(1)
 
     except Exception as e:
         print(f"ERROR: Application crashed: {e}")
