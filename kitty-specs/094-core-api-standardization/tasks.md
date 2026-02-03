@@ -123,7 +123,7 @@
 **Prompt**: `/tasks/WP05-secondary-service-exceptions.md`
 
 ### Included Subtasks
-- [ ] T026 Update composition_service.py get functions
+- [x] T026 Update composition_service.py get functions
 - [ ] T027 Update supplier_service.py get functions
 - [ ] T028 Update recipient_service.py `get_recipient_by_name()`
 - [ ] T029 Update unit_service.py `get_unit_by_code()`
