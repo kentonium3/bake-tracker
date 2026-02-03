@@ -227,7 +227,7 @@
 
 ### Included Subtasks
 - [x] T029 [P] Document import_export_service.py
-- [ ] T030 [P] Document enhanced_import_service.py
+- [x] T030 [P] Document enhanced_import_service.py
 - [ ] T031 [P] Document transaction_import_service.py
 - [ ] T032 [P] Document catalog_import_service.py
 - [ ] T033 [P] Document coordinated_export_service.py
