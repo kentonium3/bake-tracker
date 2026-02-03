@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe & Ingredient Service Updates
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -202,3 +202,4 @@ Verify no regressions:
 ## Activity Log
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-02-03T16:29:44Z – unknown – shell_pid=1324 – lane=for_review – Recipe service exception handling complete. get_recipe_by_slug and get_recipe_by_name now raise domain-specific exceptions. UI and tests updated.
