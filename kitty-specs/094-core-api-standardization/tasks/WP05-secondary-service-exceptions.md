@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Secondary Service Updates
+lane: "doing"
+dependencies: [WP01]
+base_branch: 094-core-api-standardization-WP01
+base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
+created_at: '2026-02-03T16:39:31.107148+00:00'
 subtasks:
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-title: "Secondary Service Updates"
-phase: "Phase 2 - Core Services"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T026
+- T027
+- T028
+- T029
+- T030
+- T031
+- T032
+phase: Phase 2 - Core Services
+assignee: ''
+agent: ''
+shell_pid: "5484"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T16:10:45Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T16:10:45Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Secondary Service Updates
