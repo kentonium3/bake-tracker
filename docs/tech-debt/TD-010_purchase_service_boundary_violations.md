@@ -1,11 +1,26 @@
 # TD-010: Purchase Service Bypasses Service Boundaries
 
 **Created**: 2026-01-17
-**Status**: Open
-**Priority**: Low
+**Status**: CONVERTED TO F092
+**Priority**: High (upgraded 2026-02-02)
+**Converted To**: F092: Service Boundary Compliance
 **Related Features**: F057 (Provisional Products), F027 (Product Catalog, Suppliers)
 **Impact**: Service architecture, maintainability, data consistency
 **Discovered During**: F057 code review (Cursor)
+
+---
+
+## ⚠️ THIS TECHNICAL DEBT HAS BEEN CONVERTED TO A FEATURE SPEC
+
+**See:** `docs/func-spec/F092_service_boundary_compliance.md`
+
+**Reason for conversion:** This technical debt directly demonstrates the architecture patterns that F091 (Transaction Boundary Documentation) and F094 (Core API Standardization) are documenting and standardizing. It was upgraded from Low to High priority and converted to a formal feature specification.
+
+**Implementation timeline:** Week 1, immediately after F091 completion (Day 3-4)
+
+---
+
+## Original Technical Debt Description (For Reference)
 
 ---
 
