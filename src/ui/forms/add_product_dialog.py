@@ -20,6 +20,8 @@ from src.services import (
     ingredient_service,
     ingredient_hierarchy_service,
 )
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 from src.utils.constants import PACKAGE_TYPES, MEASUREMENT_UNITS
 
 
@@ -91,8 +93,12 @@ class AddProductDialog(ctk.CTkToplevel):
         # Setup UI
         try:
             self._setup_ui()
+        except ServiceError as e:
+            handle_error(e, parent=parent, operation="Set up dialog")
+            self.destroy()
+            return
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to setup UI: {str(e)}", parent=parent)
+            handle_error(e, parent=parent, operation="Set up dialog")
             self.destroy()
             return
 
@@ -100,8 +106,11 @@ class AddProductDialog(ctk.CTkToplevel):
         if product_id:
             try:
                 self._load_product()
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Load product")
+                # Don't destroy - let user close manually or try again
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to load product: {str(e)}", parent=self)
+                handle_error(e, parent=self, operation="Load product")
                 # Don't destroy - let user close manually or try again
 
         # Center on parent (after UI is built so size is known)
@@ -116,7 +125,7 @@ class AddProductDialog(ctk.CTkToplevel):
         try:
             self.wait_visibility()
             self.grab_set()
-        except Exception:
+        except (ServiceError, Exception):
             # Window may have been closed before becoming visible
             if not self.winfo_exists():
                 return
@@ -142,12 +151,12 @@ class AddProductDialog(ctk.CTkToplevel):
 
             return True
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load reference data")
+            self.destroy()
+            return False
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load reference data: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load reference data")
             self.destroy()
             return False
 
@@ -365,7 +374,7 @@ class AddProductDialog(ctk.CTkToplevel):
                         self.category_var.set(" -> ".join(path_parts))
                     else:
                         self.category_var.set("(No parent)")
-                except Exception:
+                except (ServiceError, Exception):
                     self.category_var.set("(Unknown)")
             else:
                 self.category_var.set("(Unknown)")
@@ -415,7 +424,7 @@ class AddProductDialog(ctk.CTkToplevel):
                         self.category_var.set(" -> ".join(path_parts))
                     else:
                         self.category_var.set("(No parent)")
-                except Exception:
+                except (ServiceError, Exception):
                     self.category_var.set("(Unknown)")
 
     def _validate(self) -> bool:
@@ -532,12 +541,10 @@ class AddProductDialog(ctk.CTkToplevel):
             self.result = True
             self.destroy()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Save product")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to save product: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Save product")
 
     def _on_cancel(self):
         """Handle cancel button click."""
@@ -590,7 +597,7 @@ class AddProductDialog(ctk.CTkToplevel):
                                 self.category_var.set(" -> ".join(path_parts))
                             else:
                                 self.category_var.set("(No parent)")
-                        except Exception:
+                        except (ServiceError, Exception):
                             self.category_var.set("(Unknown)")
                         break
 
@@ -602,12 +609,11 @@ class AddProductDialog(ctk.CTkToplevel):
                         self.supplier_var.set(name)
                         break
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load product")
+            self.destroy()
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load product: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load product")
             self.destroy()
         finally:
             self._is_updating_ui = False

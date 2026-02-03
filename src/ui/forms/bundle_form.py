@@ -10,6 +10,7 @@ from typing import Optional, Dict, Any
 
 from src.models.finished_good import Bundle
 from src.services import finished_good_service
+from src.services.exceptions import ServiceError
 from src.utils.constants import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
@@ -49,7 +50,7 @@ class BundleFormDialog(ctk.CTkToplevel):
         # Load available finished goods
         try:
             self.available_finished_goods = finished_good_service.get_all_finished_goods()
-        except Exception:
+        except (ServiceError, Exception):
             self.available_finished_goods = []
 
         # Configure window

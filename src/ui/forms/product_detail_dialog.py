@@ -14,6 +14,8 @@ from tkinter import ttk, messagebox
 from typing import Optional, Dict, Any, List
 
 from src.services import product_catalog_service
+from src.services.exceptions import ServiceError
+from src.ui.utils.error_handler import handle_error
 
 
 class ProductDetailDialog(ctk.CTkToplevel):
@@ -293,12 +295,11 @@ class ProductDetailDialog(ctk.CTkToplevel):
             self._update_hide_button()
             self._load_history()
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load product")
+            self.destroy()
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to load product: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load product")
             self.destroy()
 
     def _update_info_display(self):
@@ -413,12 +414,10 @@ class ProductDetailDialog(ctk.CTkToplevel):
                     )
                     self.history_tree.insert("", "end", values=values)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Load purchase history", level="warning")
         except Exception as e:
-            messagebox.showwarning(
-                "Warning",
-                f"Failed to load purchase history: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Load purchase history", level="warning")
 
     def _on_edit(self):
         """Open AddProductDialog in edit mode."""
@@ -465,12 +464,10 @@ class ProductDetailDialog(ctk.CTkToplevel):
             self._load_product()  # Refresh
             self.result = True  # Signal parent to refresh
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Update product visibility")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to update product visibility: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Update product visibility")
 
     def _on_delete(self):
         """Delete product with force delete option for dependencies."""
@@ -496,12 +493,11 @@ class ProductDetailDialog(ctk.CTkToplevel):
         except ValueError:
             # Has dependencies - analyze them
             pass
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Delete product")
+            return
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to delete product: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Delete product")
             return
 
         # Analyze dependencies
@@ -516,12 +512,10 @@ class ProductDetailDialog(ctk.CTkToplevel):
             # Not in recipes - show force delete confirmation
             self._show_force_delete_confirmation(deps)
 
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Analyze dependencies")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to analyze dependencies: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Analyze dependencies")
 
     def _show_recipe_block_dialog(self, deps):
         """Show dialog explaining product cannot be deleted (ingredient used in recipes)."""
@@ -737,12 +731,10 @@ class ProductDetailDialog(ctk.CTkToplevel):
         except ValueError as e:
             # Should not happen (already checked recipes) but handle anyway
             messagebox.showerror("Cannot Delete", str(e), parent=self)
+        except ServiceError as e:
+            handle_error(e, parent=self, operation="Force delete product")
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Force delete failed: {str(e)}",
-                parent=self,
-            )
+            handle_error(e, parent=self, operation="Force delete product")
 
     def _on_close(self):
         """Close the dialog."""
