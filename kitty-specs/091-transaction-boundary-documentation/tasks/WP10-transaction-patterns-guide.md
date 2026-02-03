@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Transaction Patterns Guide
-lane: "doing"
+lane: "for_review"
 dependencies: [WP09]
 base_branch: 091-transaction-boundary-documentation-WP09
 base_commit: 67d28002b977b447089b6f9dd881bf2ddb4b9264
@@ -181,3 +181,4 @@ Each pitfall needs WRONG and CORRECT examples.
 ## Activity Log
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
+- 2026-02-03T11:52:28Z – unknown – shell_pid=65219 – lane=for_review – Complete: Created transaction patterns guide with all 3 patterns documented, 4 pitfalls with WRONG/CORRECT examples, session parameter pattern explained, code review checklist included
