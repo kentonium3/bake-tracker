@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Import/Export & Support Services
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -15,8 +15,8 @@ subtasks:
 - T034
 phase: Phase 2 - Documentation
 assignee: ''
-agent: ''
-shell_pid: "38175"
+agent: "codex-wp08"
+shell_pid: "44524"
 review_status: ''
 reviewed_by: ''
 history:
@@ -242,3 +242,4 @@ def export_coordinated_data(tables: List[str], session: Optional[Session] = None
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T06:18:42Z – unknown – shell_pid=38175 – lane=for_review – Ready for review: Added transaction boundary documentation to all 6 import/export service files (T029-T034). All 709 import/export tests pass.
+- 2026-02-03T06:20:44Z – codex-wp08 – shell_pid=44524 – lane=doing – Started review via workflow command
