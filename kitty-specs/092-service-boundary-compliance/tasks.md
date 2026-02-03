@@ -36,7 +36,7 @@
 - [x] T002: Create supplier_service.get_or_create_supplier()
 - [x] T003: Update purchase_service to delegate to services
 - [x] T004: Add tests for get_or_create_supplier()
-- [ ] T005: Verify existing purchase_service tests pass
+- [x] T005: Verify existing purchase_service tests pass
 - [ ] T006: Update docstrings with F091 transaction boundaries
 
 **Dependencies**: None (foundational WP)
