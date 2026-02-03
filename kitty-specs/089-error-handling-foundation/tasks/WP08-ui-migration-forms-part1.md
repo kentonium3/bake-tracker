@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: UI Migration - Forms Part 1
+lane: "doing"
+dependencies: [WP03]
+base_branch: 089-error-handling-foundation-WP03
+base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
+created_at: '2026-02-03T00:32:01.104079+00:00'
 subtasks:
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-title: "UI Migration - Forms Part 1"
-phase: "Phase 2 - UI Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T035
+- T036
+- T037
+- T038
+- T039
+phase: Phase 2 - UI Migration
+assignee: ''
+agent: ''
+shell_pid: "68303"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 – UI Migration - Forms Part 1
