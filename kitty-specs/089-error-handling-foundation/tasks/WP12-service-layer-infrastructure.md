@@ -1,7 +1,7 @@
 ---
 work_package_id: WP12
 title: Service Layer & Infrastructure
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -152,3 +152,4 @@ Use `handle_error()` with GUI dialogs.
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-03T01:20:58Z – unknown – shell_pid=77222 – lane=for_review – Ready for review: Updated 8 files (35+ service handlers, 25 CLI handlers, 13 migration handlers, 11 dialog handlers) with three-tier exception handling pattern.
