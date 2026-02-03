@@ -1,7 +1,7 @@
 ---
 work_package_id: WP13
 title: Developer Documentation
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 089-error-handling-foundation-WP03
@@ -201,3 +201,4 @@ For future web/API migration, exceptions map to HTTP status codes:
 ## Activity Log
 
 - 2026-02-02T00:00:00Z – system – lane=planned – Prompt created.
+- 2026-02-03T01:23:17Z – unknown – shell_pid=81243 – lane=for_review – Ready for review: Created comprehensive error_handling_guide.md (320 lines) with exception hierarchy, three-tier pattern, HTTP mapping, and quick reference checklists.
