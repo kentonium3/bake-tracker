@@ -36,7 +36,13 @@ from ..models.assembly_type import (
     get_suggested_retail_price,
 )
 from . import finished_unit_service
-from .exceptions import ServiceError, ValidationError, DatabaseError
+from .exceptions import (
+    DatabaseError,
+    FinishedGoodNotFoundById,
+    FinishedGoodNotFoundBySlug,
+    ServiceError,
+    ValidationError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +89,7 @@ class FinishedGoodService:
     # Core Operations
 
     @staticmethod
-    def get_finished_good_by_id(finished_good_id: int) -> Optional[FinishedGood]:
+    def get_finished_good_by_id(finished_good_id: int) -> FinishedGood:
         """
         Retrieve a specific FinishedGood assembly by ID.
 
@@ -94,7 +100,10 @@ class FinishedGoodService:
             finished_good_id: Integer ID of the FinishedGood
 
         Returns:
-            FinishedGood instance or None if not found
+            FinishedGood instance
+
+        Raises:
+            FinishedGoodNotFoundById: If finished good doesn't exist
 
         Performance:
             Must complete in <50ms per contract
@@ -112,17 +121,19 @@ class FinishedGoodService:
                     logger.debug(
                         f"Retrieved FinishedGood by ID {finished_good_id}: {finished_good.display_name}"
                     )
+                    return finished_good
                 else:
                     logger.debug(f"FinishedGood not found for ID {finished_good_id}")
+                    raise FinishedGoodNotFoundById(finished_good_id)
 
-                return finished_good
-
+        except FinishedGoodNotFoundById:
+            raise
         except SQLAlchemyError as e:
             logger.error(f"Database error retrieving FinishedGood ID {finished_good_id}: {e}")
             raise DatabaseError(f"Failed to retrieve FinishedGood by ID: {e}")
 
     @staticmethod
-    def get_finished_good_by_slug(slug: str) -> Optional[FinishedGood]:
+    def get_finished_good_by_slug(slug: str) -> FinishedGood:
         """
         Retrieve a specific FinishedGood by slug identifier.
 
@@ -133,7 +144,10 @@ class FinishedGoodService:
             slug: String slug identifier
 
         Returns:
-            FinishedGood instance or None if not found
+            FinishedGood instance
+
+        Raises:
+            FinishedGoodNotFoundBySlug: If finished good doesn't exist
 
         Performance:
             Must complete in <50ms per contract (indexed lookup)
@@ -151,11 +165,13 @@ class FinishedGoodService:
                     logger.debug(
                         f"Retrieved FinishedGood by slug '{slug}': {finished_good.display_name}"
                     )
+                    return finished_good
                 else:
                     logger.debug(f"FinishedGood not found for slug '{slug}'")
+                    raise FinishedGoodNotFoundBySlug(slug)
 
-                return finished_good
-
+        except FinishedGoodNotFoundBySlug:
+            raise
         except SQLAlchemyError as e:
             logger.error(f"Database error retrieving FinishedGood slug '{slug}': {e}")
             raise DatabaseError(f"Failed to retrieve FinishedGood by slug: {e}")
@@ -1853,13 +1869,21 @@ class FinishedGoodService:
 # Module-level convenience functions for backward compatibility
 
 
-def get_finished_good_by_id(finished_good_id: int) -> Optional[FinishedGood]:
-    """Retrieve a specific FinishedGood by ID."""
+def get_finished_good_by_id(finished_good_id: int) -> FinishedGood:
+    """Retrieve a specific FinishedGood by ID.
+
+    Raises:
+        FinishedGoodNotFoundById: If finished good doesn't exist
+    """
     return FinishedGoodService.get_finished_good_by_id(finished_good_id)
 
 
-def get_finished_good_by_slug(slug: str) -> Optional[FinishedGood]:
-    """Retrieve a specific FinishedGood by slug."""
+def get_finished_good_by_slug(slug: str) -> FinishedGood:
+    """Retrieve a specific FinishedGood by slug.
+
+    Raises:
+        FinishedGoodNotFoundBySlug: If finished good doesn't exist
+    """
     return FinishedGoodService.get_finished_good_by_slug(slug)
 
 
