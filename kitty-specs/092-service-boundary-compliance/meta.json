@@ -1,0 +1,8 @@
+{
+  "feature_number": "092",
+  "slug": "092-service-boundary-compliance",
+  "friendly_name": "Service Boundary Compliance - Purchase Service",
+  "mission": "software-dev",
+  "source_description": "F092 Service Boundary Compliance - Refactor purchase_service to delegate Product and Supplier operations to their respective owning services, following F091 transaction boundary patterns.",
+  "created_at": "2026-02-03T00:00:00Z"
+}
