@@ -37,7 +37,7 @@ Example Usage:
 """
 
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 
 from ..models import Ingredient
 from .database import session_scope
@@ -64,7 +64,7 @@ def validate_density_fields(
     volume_unit: Optional[str],
     weight_value: Optional[float],
     weight_unit: Optional[str],
-) -> Tuple[bool, str]:
+) -> None:
     """Validate density field group (all or nothing).
 
     Transaction boundary: Pure validation, no database access.
@@ -77,8 +77,8 @@ def validate_density_fields(
         weight_value: Weight amount (e.g., 4.25)
         weight_unit: Weight unit (e.g., "oz")
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If density fields are partially filled or have invalid values
     """
     # Normalize empty strings to None
     fields = [
@@ -92,29 +92,27 @@ def validate_density_fields(
 
     # All empty is valid (no density)
     if filled_count == 0:
-        return True, ""
+        return
 
     # Partially filled is invalid
     if filled_count < 4:
-        return False, "All density fields must be provided together"
+        raise ServiceValidationError(["All density fields must be provided together"])
 
     # Validate positive values
     if volume_value <= 0:
-        return False, "Volume value must be greater than zero"
+        raise ServiceValidationError(["Volume value must be greater than zero"])
 
     if weight_value <= 0:
-        return False, "Weight value must be greater than zero"
+        raise ServiceValidationError(["Weight value must be greater than zero"])
 
     # Validate unit types
     volume_unit_lower = volume_unit.lower()
     if volume_unit_lower not in [u.lower() for u in VOLUME_UNITS]:
-        return False, f"Invalid volume unit: {volume_unit}"
+        raise ServiceValidationError([f"Invalid volume unit: {volume_unit}"])
 
     weight_unit_lower = weight_unit.lower()
     if weight_unit_lower not in [u.lower() for u in WEIGHT_UNITS]:
-        return False, f"Invalid weight unit: {weight_unit}"
-
-    return True, ""
+        raise ServiceValidationError([f"Invalid weight unit: {weight_unit}"])
 
 
 def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
@@ -176,20 +174,16 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
     if "name" in ingredient_data and "display_name" not in ingredient_data:
         ingredient_data["display_name"] = ingredient_data.pop("name")
 
-    # Validate ingredient data
-    is_valid, errors = validate_ingredient_data(ingredient_data)
-    if not is_valid:
-        raise ServiceValidationError(errors)
+    # Validate ingredient data (raises ValidationError on failure)
+    validate_ingredient_data(ingredient_data)
 
-    # Validate density fields
-    density_valid, density_error = validate_density_fields(
+    # Validate density fields (raises ValidationError on failure)
+    validate_density_fields(
         ingredient_data.get("density_volume_value"),
         ingredient_data.get("density_volume_unit"),
         ingredient_data.get("density_weight_value"),
         ingredient_data.get("density_weight_unit"),
     )
-    if not density_valid:
-        raise ServiceValidationError(density_error)
 
     try:
         with session_scope() as session:
@@ -423,15 +417,13 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
     if "slug" in ingredient_data:
         raise ServiceValidationError("Slug cannot be changed after creation")
 
-    # Validate density fields if any are being updated
-    density_valid, density_error = validate_density_fields(
+    # Validate density fields if any are being updated (raises ValidationError on failure)
+    validate_density_fields(
         ingredient_data.get("density_volume_value"),
         ingredient_data.get("density_volume_unit"),
         ingredient_data.get("density_weight_value"),
         ingredient_data.get("density_weight_unit"),
     )
-    if not density_valid:
-        raise ServiceValidationError(density_error)
 
     try:
         with session_scope() as session:
@@ -544,7 +536,7 @@ def delete_ingredient(slug: str) -> bool:
 # =============================================================================
 
 
-def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, Dict[str, int]]:
+def can_delete_ingredient(ingredient_id: int, session=None) -> Dict[str, int]:
     """Check if ingredient can be deleted.
 
     Transaction boundary: Read-only, no transaction needed.
@@ -563,16 +555,18 @@ def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, 
         session: Optional SQLAlchemy session
 
     Returns:
-        Tuple of (can_delete, reason, details)
-        - can_delete: True if deletion is allowed
-        - reason: Error message if blocked, empty string if allowed
-        - details: Dict with counts {products: N, recipes: N, children: N, snapshots: N}
+        Dict with counts {products: N, recipes: N, children: N, snapshots: N}
+
+    Raises:
+        IngredientInUse: If ingredient has blocking dependencies (products, recipes, children)
 
     Example:
-        >>> can_delete, reason, details = can_delete_ingredient(123)
-        >>> if not can_delete:
-        ...     print(f"Blocked: {reason}")
-        ...     print(f"Products: {details['products']}, Recipes: {details['recipes']}")
+        >>> try:
+        ...     details = can_delete_ingredient(123)
+        ...     print(f"Can delete. Snapshots to denormalize: {details['snapshots']}")
+        ... except IngredientInUse as e:
+        ...     print(f"Cannot delete: {e}")
+        ...     print(f"Products: {e.deps['products']}, Recipes: {e.deps['recipes']}")
     """
     from ..models import Product, RecipeIngredient
     from ..models.inventory_snapshot import SnapshotIngredient
@@ -585,17 +579,12 @@ def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, 
             "children": 0,
             "snapshots": 0,
         }
-        reasons = []
 
         # Check Product references (blocks deletion)
         product_count = (
             session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
         )
         details["products"] = product_count
-        if product_count > 0:
-            reasons.append(
-                f"{product_count} product{'s' if product_count != 1 else ''} reference this ingredient"
-            )
 
         # Check RecipeIngredient references (blocks deletion)
         recipe_count = (
@@ -604,16 +593,10 @@ def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, 
             .count()
         )
         details["recipes"] = recipe_count
-        if recipe_count > 0:
-            reasons.append(
-                f"{recipe_count} recipe{'s' if recipe_count != 1 else ''} use this ingredient"
-            )
 
         # Check child ingredients (blocks deletion)
         child_count = get_child_count(ingredient_id, session=session)
         details["children"] = child_count
-        if child_count > 0:
-            reasons.append(f"{child_count} child ingredient{'s' if child_count != 1 else ''} exist")
 
         # Check SnapshotIngredient references (does NOT block, just count for info)
         snapshot_count = (
@@ -623,13 +606,11 @@ def can_delete_ingredient(ingredient_id: int, session=None) -> Tuple[bool, str, 
         )
         details["snapshots"] = snapshot_count
 
-        if reasons:
-            reason = (
-                "Cannot delete: " + "; ".join(reasons) + ". Reassign or remove references first."
-            )
-            return False, reason, details
+        # Raise if any blocking dependencies exist
+        if details["products"] > 0 or details["recipes"] > 0 or details["children"] > 0:
+            raise IngredientInUse(ingredient_id, details)
 
-        return True, "", details
+        return details
 
     if session is not None:
         return _check(session)
@@ -738,10 +719,8 @@ def delete_ingredient_safe(ingredient_id: int, session=None) -> bool:
         if not ingredient:
             raise IngredientNotFound(ingredient_id)
 
-        # Check if deletion is allowed
-        can_delete, reason, details = can_delete_ingredient(ingredient_id, session=session)
-        if not can_delete:
-            raise IngredientInUse(ingredient_id, details)
+        # Check if deletion is allowed (raises IngredientInUse if blocked)
+        can_delete_ingredient(ingredient_id, session=session)
 
         # Denormalize snapshot records
         denorm_count = _denormalize_snapshot_ingredients(ingredient_id, session)

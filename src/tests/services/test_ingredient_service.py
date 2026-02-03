@@ -294,18 +294,17 @@ class TestDeletionProtectionAndSlug:
         session.add(product)
         session.commit()
 
-        # Act: Check if deletion is allowed
-        can_delete, reason, details = can_delete_ingredient(ingredient.id, session=session)
+        # Act: Check if deletion is allowed - should raise IngredientInUse
+        with pytest.raises(IngredientInUse) as exc_info:
+            can_delete_ingredient(ingredient.id, session=session)
 
-        # Assert: Deletion should be blocked
-        assert can_delete is False
-        assert "1 product" in reason
-        assert details["products"] == 1
+        # Assert: Exception contains correct details
+        assert exc_info.value.deps["products"] == 1
 
         # Also verify delete_ingredient_safe raises IngredientInUse
-        with pytest.raises(IngredientInUse) as exc_info:
+        with pytest.raises(IngredientInUse) as exc_info2:
             delete_ingredient_safe(ingredient.id, session=session)
-        assert exc_info.value.details["products"] == 1
+        assert exc_info2.value.deps["products"] == 1
 
     # -------------------------------------------------------------------------
     # T025 - Delete Blocked by Recipes
@@ -339,13 +338,12 @@ class TestDeletionProtectionAndSlug:
         session.add(recipe_ingredient)
         session.commit()
 
-        # Act: Check if deletion is allowed
-        can_delete, reason, details = can_delete_ingredient(ingredient.id, session=session)
+        # Act: Check if deletion is allowed - should raise IngredientInUse
+        with pytest.raises(IngredientInUse) as exc_info:
+            can_delete_ingredient(ingredient.id, session=session)
 
-        # Assert: Deletion should be blocked
-        assert can_delete is False
-        assert "1 recipe" in reason
-        assert details["recipes"] == 1
+        # Assert: Exception contains correct details
+        assert exc_info.value.deps["recipes"] == 1
 
     # -------------------------------------------------------------------------
     # T026 - Delete Blocked by Children
@@ -375,13 +373,12 @@ class TestDeletionProtectionAndSlug:
         session.add(child)
         session.commit()
 
-        # Act: Check if deletion is allowed
-        can_delete, reason, details = can_delete_ingredient(parent.id, session=session)
+        # Act: Check if deletion is allowed - should raise IngredientInUse
+        with pytest.raises(IngredientInUse) as exc_info:
+            can_delete_ingredient(parent.id, session=session)
 
-        # Assert: Deletion should be blocked
-        assert can_delete is False
-        assert "1 child" in reason
-        assert details["children"] == 1
+        # Assert: Exception contains correct details
+        assert exc_info.value.deps["children"] == 1
 
     # -------------------------------------------------------------------------
     # T027 - Delete with Snapshots Denormalizes

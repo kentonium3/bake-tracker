@@ -37,7 +37,7 @@ Example Usage:
     Decimal('0.012')
 """
 
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import date, timedelta
 from statistics import linear_regression
@@ -1100,7 +1100,7 @@ def can_edit_purchase(
     purchase_id: int,
     new_quantity: Decimal,
     session: Optional[Session] = None,
-) -> Tuple[bool, str]:
+) -> None:
     """Validate if purchase can be edited with new quantity.
 
     Transaction boundary: Read-only, no transaction needed.
@@ -1116,42 +1116,38 @@ def can_edit_purchase(
         new_quantity: Proposed new quantity (in packages)
         session: Optional database session for transaction sharing
 
-    Returns:
-        Tuple of (allowed: bool, reason: str)
-        - (True, "") if edit is allowed
-        - (False, "reason") if edit is blocked
-
     Raises:
         PurchaseNotFound: If purchase_id doesn't exist
+        ValidationError: If quantity cannot be reduced below consumed amount
 
     Example:
-        >>> allowed, reason = can_edit_purchase(123, Decimal("5.0"))
-        >>> allowed
-        True
-
-        >>> allowed, reason = can_edit_purchase(123, Decimal("0.5"))
-        >>> allowed
-        False
-        >>> reason
-        'Cannot reduce below 2.0 units (already consumed)'
+        >>> can_edit_purchase(123, Decimal("5.0"))  # No exception = allowed
+        >>>
+        >>> can_edit_purchase(123, Decimal("0.5"))  # Raises ValidationError
+        ValidationError: Cannot reduce below 2.0 units (already consumed)
     """
     if session is not None:
-        return _can_edit_purchase_impl(purchase_id, new_quantity, session)
-    with session_scope() as sess:
-        return _can_edit_purchase_impl(purchase_id, new_quantity, sess)
+        _can_edit_purchase_impl(purchase_id, new_quantity, session)
+    else:
+        with session_scope() as sess:
+            _can_edit_purchase_impl(purchase_id, new_quantity, sess)
 
 
 def _can_edit_purchase_impl(
     purchase_id: int,
     new_quantity: Decimal,
     session: Session,
-) -> Tuple[bool, str]:
+) -> None:
     """Implementation for can_edit_purchase.
 
     Transaction boundary: Inherits session from caller.
     This function MUST be called with an active session - it does not
     create its own session_scope(). Query executes within the caller's
     transaction boundary.
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+        ValidationError: If quantity cannot be reduced below consumed amount
     """
     purchase = (
         session.query(Purchase)
@@ -1182,15 +1178,15 @@ def _can_edit_purchase_impl(
     new_total_units = new_quantity * package_unit_qty
 
     if new_total_units < total_consumed:
-        return (False, f"Cannot reduce below {total_consumed} units (already consumed)")
-
-    return (True, "")
+        raise ServiceValidationError(
+            [f"Cannot reduce below {total_consumed} units (already consumed)"]
+        )
 
 
 def can_delete_purchase(
     purchase_id: int,
     session: Optional[Session] = None,
-) -> Tuple[bool, str]:
+) -> None:
     """Check if purchase can be deleted.
 
     Transaction boundary: Read-only, no transaction needed.
@@ -1204,41 +1200,37 @@ def can_delete_purchase(
         purchase_id: Purchase ID to check
         session: Optional database session for transaction sharing
 
-    Returns:
-        Tuple of (allowed: bool, reason: str)
-        - (True, "") if no depletions exist
-        - (False, "Cannot delete - X units already used in: Recipe1, Recipe2")
-
     Raises:
         PurchaseNotFound: If purchase_id doesn't exist
+        ValidationError: If purchase has been partially consumed and cannot be deleted
 
     Example:
-        >>> allowed, reason = can_delete_purchase(123)
-        >>> allowed
-        True
-
-        >>> allowed, reason = can_delete_purchase(456)
-        >>> allowed
-        False
-        >>> reason
-        'Cannot delete - 5.0 units already used in: Chocolate Chip Cookies, Banana Bread'
+        >>> can_delete_purchase(123)  # No exception = can delete
+        >>>
+        >>> can_delete_purchase(456)  # Raises ValidationError
+        ValidationError: Cannot delete - 5.0 units already used in: Chocolate Chip Cookies
     """
     if session is not None:
-        return _can_delete_purchase_impl(purchase_id, session)
-    with session_scope() as sess:
-        return _can_delete_purchase_impl(purchase_id, sess)
+        _can_delete_purchase_impl(purchase_id, session)
+    else:
+        with session_scope() as sess:
+            _can_delete_purchase_impl(purchase_id, sess)
 
 
 def _can_delete_purchase_impl(
     purchase_id: int,
     session: Session,
-) -> Tuple[bool, str]:
+) -> None:
     """Implementation for can_delete_purchase.
 
     Transaction boundary: Inherits session from caller.
     This function MUST be called with an active session - it does not
     create its own session_scope(). Query executes within the caller's
     transaction boundary.
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+        ValidationError: If purchase has been partially consumed
     """
     purchase = (
         session.query(Purchase)
@@ -1263,7 +1255,7 @@ def _can_delete_purchase_impl(
             depletion_ids.append(depletion.id)
 
     if total_consumed == Decimal("0"):
-        return (True, "")
+        return  # Can delete - no consumption
 
     # Get recipe names from production runs
     # Note: depletions link to production_runs which link to recipes
@@ -1287,7 +1279,9 @@ def _can_delete_purchase_impl(
 
     recipes_str = ", ".join(sorted(recipe_names)) if recipe_names else "production runs"
 
-    return (False, f"Cannot delete - {total_consumed} {unit} already used in: {recipes_str}")
+    raise ServiceValidationError(
+        [f"Cannot delete - {total_consumed} {unit} already used in: {recipes_str}"]
+    )
 
 
 def update_purchase(
@@ -1373,12 +1367,10 @@ def _update_purchase_impl(
     if "product_id" in updates and updates["product_id"] != purchase.product_id:
         raise ValueError("Cannot change product_id on an existing purchase")
 
-    # Validate quantity change if present
+    # Validate quantity change if present (raises ValidationError if blocked)
     if "quantity_purchased" in updates:
         new_qty = Decimal(str(updates["quantity_purchased"]))
-        allowed, reason = _can_edit_purchase_impl(purchase_id, new_qty, session)
-        if not allowed:
-            raise ValueError(reason)
+        _can_edit_purchase_impl(purchase_id, new_qty, session)
 
     # Track old values for recalculations
     old_unit_price = purchase.unit_price

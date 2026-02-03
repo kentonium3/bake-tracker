@@ -242,10 +242,8 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
     # Validate ingredient exists
     ingredient = get_ingredient(ingredient_slug)
 
-    # Validate product data
-    is_valid, errors = validate_product_data(product_data, ingredient_slug)
-    if not is_valid:
-        raise ServiceValidationError(errors)
+    # Validate product data (raises ValidationError on failure)
+    validate_product_data(product_data, ingredient_slug)
 
     try:
         with session_scope() as session:
