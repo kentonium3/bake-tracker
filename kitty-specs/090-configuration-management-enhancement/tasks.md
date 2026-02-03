@@ -63,7 +63,7 @@
 - [x] T008 [P] Update `src/services/database.py` to use Config.db_connect_args
 - [x] T009 [P] Update `src/main.py` to use Config.ui_theme and ui_appearance
 - [x] T010 [P] Update `src/services/health_service.py` to use Config.health_check_interval
-- [ ] T011 Add unit tests for new Config properties in `src/tests/unit/test_config.py`
+- [x] T011 Add unit tests for new Config properties in `src/tests/unit/test_config.py`
 
 ### Implementation Notes
 - T008: Replace hard-coded `{"check_same_thread": False, "timeout": 30}` with `config.db_connect_args`
