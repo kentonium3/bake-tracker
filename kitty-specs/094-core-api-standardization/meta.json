@@ -4,5 +4,7 @@
   "friendly_name": "Core API Standardization",
   "mission": "software-dev",
   "source_description": "F094 Core API Standardization - Standardize exception handling, eliminate tuple returns, and complete type hints across service layer",
-  "created_at": "2026-02-03T00:00:00Z"
+  "created_at": "2026-02-03T00:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-02-03T16:24:32.685745+00:00"
 }
