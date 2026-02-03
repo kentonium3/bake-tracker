@@ -1,9 +1,12 @@
 ---
 work_package_id: WP14
 title: Tests & Final Validation
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
+base_branch: 089-error-handling-foundation-WP03
+base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
+created_at: '2026-02-03T01:23:36.222238+00:00'
 subtasks:
 - T075
 - T076
@@ -13,7 +16,7 @@ subtasks:
 phase: Phase 3 - Validation
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "82043"
 review_status: ''
 reviewed_by: ''
 history:
