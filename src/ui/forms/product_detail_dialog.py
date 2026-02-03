@@ -415,9 +415,9 @@ class ProductDetailDialog(ctk.CTkToplevel):
                     self.history_tree.insert("", "end", values=values)
 
         except ServiceError as e:
-            handle_error(e, parent=self, operation="Load purchase history", level="warning")
+            handle_error(e, parent=self, operation="Load purchase history")
         except Exception as e:
-            handle_error(e, parent=self, operation="Load purchase history", level="warning")
+            handle_error(e, parent=self, operation="Load purchase history")
 
     def _on_edit(self):
         """Open AddProductDialog in edit mode."""
