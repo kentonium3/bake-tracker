@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Material & Finished Good Services
+lane: "doing"
+dependencies: [WP01]
+base_branch: 091-transaction-boundary-documentation-WP01
+base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
+created_at: '2026-02-03T05:42:44.849404+00:00'
 subtasks:
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-title: "Material & Finished Good Services"
-phase: "Phase 2 - Documentation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T024
+- T025
+- T026
+- T027
+- T028
+phase: Phase 2 - Documentation
+assignee: ''
+agent: ''
+shell_pid: "34904"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-03T04:37:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T04:37:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – Material & Finished Good Services
