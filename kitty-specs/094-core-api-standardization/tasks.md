@@ -202,11 +202,11 @@
 **Prompt**: `/tasks/WP08-type-hints.md`
 
 ### Included Subtasks
-- [ ] T042 Add type hints to functions missing them
-- [ ] T043 Fix `session=None` parameters to use `Optional[Session]`
-- [ ] T044 Update return types to remove Optional where exceptions raised
-- [ ] T045 Run mypy and fix errors
-- [ ] T046 Verify IDE autocomplete works
+- [x] T042 Add type hints to functions missing them
+- [x] T043 Fix `session=None` parameters to use `Optional[Session]`
+- [x] T044 Update return types to remove Optional where exceptions raised
+- [x] T045 Run mypy and fix errors
+- [x] T046 Verify IDE autocomplete works
 
 ### Implementation Notes
 - Many functions already have type hints
