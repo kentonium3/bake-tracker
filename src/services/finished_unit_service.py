@@ -904,7 +904,7 @@ def create_finished_unit_snapshot(
     finished_unit_id: int,
     planning_snapshot_id: int = None,
     assembly_run_id: int = None,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> dict:
     """
     Create immutable snapshot of FinishedUnit definition.
@@ -993,7 +993,7 @@ def _create_finished_unit_snapshot_impl(
 
 def get_finished_unit_snapshot(
     snapshot_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> dict | None:
     """
     Get a FinishedUnitSnapshot by its ID.
@@ -1035,7 +1035,7 @@ def _get_finished_unit_snapshot_impl(
 
 def get_finished_unit_snapshots_by_planning_id(
     planning_snapshot_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> list[dict]:
     """
     Get all FinishedUnitSnapshots for a planning snapshot.

@@ -263,7 +263,7 @@ class DatabaseError(ServiceError):
     def __init__(
         self,
         message: str,
-        original_error: Exception = None,
+        original_error: Optional[Exception] = None,
         correlation_id: Optional[str] = None
     ):
         self.original_error = original_error
@@ -605,7 +605,7 @@ class NonLeafIngredientError(HierarchyValidationError):
     Args:
         ingredient_id: The non-leaf ingredient ID
         ingredient_name: Display name of the ingredient
-        context: Where the error occurred (e.g., "recipe", "product")
+        usage_context: Where the error occurred (e.g., "recipe", "product")
         suggestions: Optional list of leaf ingredient names to suggest
         correlation_id: Optional correlation ID for tracing
 
@@ -622,16 +622,16 @@ class NonLeafIngredientError(HierarchyValidationError):
         self,
         ingredient_id: int,
         ingredient_name: str,
-        context: str = "recipe",
-        suggestions: List[str] = None,
+        usage_context: str = "recipe",
+        suggestions: Optional[List[str]] = None,
         correlation_id: Optional[str] = None,
     ):
         self.ingredient_id = ingredient_id
         self.ingredient_name = ingredient_name
-        self.context = context
+        self.usage_context = usage_context
         self.suggestions = suggestions or []
 
-        msg = f"Cannot add '{ingredient_name}' to {context}: only leaf ingredients allowed"
+        msg = f"Cannot add '{ingredient_name}' to {usage_context}: only leaf ingredients allowed"
         if self.suggestions:
             msg += f". Try: {', '.join(self.suggestions[:3])}"
 
@@ -641,7 +641,7 @@ class NonLeafIngredientError(HierarchyValidationError):
             correlation_id=correlation_id,
             ingredient_id=ingredient_id,
             ingredient_name=ingredient_name,
-            context=context,
+            usage_context=usage_context,
             suggestions=self.suggestions
         )
         self.errors = [msg]

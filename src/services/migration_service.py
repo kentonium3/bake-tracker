@@ -8,7 +8,7 @@ assemblies, ensuring zero data loss and maintaining referential integrity.
 
 import logging
 from decimal import Decimal
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import re
 import unicodedata
 
@@ -44,7 +44,7 @@ class MigrationService:
     """
 
     @staticmethod
-    def validate_pre_migration() -> Dict[str, any]:
+    def validate_pre_migration() -> Dict[str, Any]:
         """
         Validate existing data integrity before migration.
 
@@ -225,7 +225,7 @@ class MigrationService:
             return False
 
     @staticmethod
-    def migrate_finished_good_to_unit() -> Dict[str, any]:
+    def migrate_finished_good_to_unit() -> Dict[str, Any]:
         """
         Migrate data from old FinishedGood records to new FinishedUnit structure.
 
@@ -400,7 +400,7 @@ class MigrationService:
         return f"{base_slug}-{counter}"
 
     @staticmethod
-    def validate_post_migration() -> Dict[str, any]:
+    def validate_post_migration() -> Dict[str, Any]:
         """
         Validate migration success and data integrity.
 
@@ -618,7 +618,7 @@ class MigrationService:
             return False, ""
 
     @staticmethod
-    def cleanup_legacy_data() -> Dict[str, any]:
+    def cleanup_legacy_data() -> Dict[str, Any]:
         """
         Clean up legacy data after successful migration verification.
 

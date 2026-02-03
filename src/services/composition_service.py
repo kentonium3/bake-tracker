@@ -649,7 +649,7 @@ class CompositionService:
 
     @staticmethod
     def validate_no_circular_reference(
-        assembly_id: int, new_component_id: int, session: Session = None
+        assembly_id: int, new_component_id: int, session: Optional[Session] = None
     ) -> bool:
         """
         Check if adding a component would create circular dependency.
@@ -705,7 +705,7 @@ class CompositionService:
 
     @staticmethod
     def validate_component_exists(
-        component_type: str, component_id: int, session: Session = None
+        component_type: str, component_id: int, session: Optional[Session] = None
     ) -> bool:
         """
         Verify that a component exists and is valid.
@@ -1701,7 +1701,7 @@ class CompositionService:
     # ==========================================================================
 
     @staticmethod
-    def get_cost_breakdown(assembly_id: int, session: Session = None) -> dict:
+    def get_cost_breakdown(assembly_id: int, session: Optional[Session] = None) -> dict:
         """
         Get cost breakdown separating food, material, and packaging costs.
 

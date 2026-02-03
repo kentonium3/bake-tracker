@@ -54,7 +54,7 @@ class FURequirement:
 
 def decompose_event_to_fu_requirements(
     event_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> List[FURequirement]:
     """
     Decompose event FG selections into FinishedUnit-level requirements.
@@ -324,7 +324,7 @@ def calculate_batch_options_for_fu(
 
 def calculate_batch_options(
     event_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> List[BatchOptionsResult]:
     """
     Calculate batch options for all FUs in an event.

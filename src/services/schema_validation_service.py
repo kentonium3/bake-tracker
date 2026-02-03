@@ -1741,7 +1741,7 @@ def validate_material_unit_schema(
 # ============================================================================
 
 
-def validate_import_file(data: Dict[str, Any]) -> ValidationResult:
+def validate_import_file(data: Any) -> ValidationResult:
     """
     Validate import file structure, routing to appropriate entity validators.
 

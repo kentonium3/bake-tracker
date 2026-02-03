@@ -172,7 +172,7 @@ def _create_plan_snapshot_impl(event_id: int, session: Session) -> PlanSnapshot:
     return snapshot
 
 
-def create_plan_snapshot(event_id: int, session: Session = None) -> PlanSnapshot:
+def create_plan_snapshot(event_id: int, session: Optional[Session] = None) -> PlanSnapshot:
     """Create a snapshot of the plan state for an event.
 
     Transaction boundary: Multi-step operation (atomic).
@@ -214,7 +214,7 @@ def _get_plan_snapshot_impl(event_id: int, session: Session) -> Optional[PlanSna
     ).first()
 
 
-def get_plan_snapshot(event_id: int, session: Session = None) -> Optional[PlanSnapshot]:
+def get_plan_snapshot(event_id: int, session: Optional[Session] = None) -> Optional[PlanSnapshot]:
     """Get the plan snapshot for an event.
 
     Transaction boundary: Read-only operation.
@@ -383,7 +383,7 @@ def _get_plan_comparison_impl(event_id: int, session: Session) -> PlanComparison
     )
 
 
-def get_plan_comparison(event_id: int, session: Session = None) -> PlanComparison:
+def get_plan_comparison(event_id: int, session: Optional[Session] = None) -> PlanComparison:
     """Compare original plan (snapshot) with current plan state.
 
     Transaction boundary: Read-only operation.

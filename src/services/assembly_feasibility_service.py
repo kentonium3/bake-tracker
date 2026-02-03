@@ -12,7 +12,7 @@ Session Management Pattern (from CLAUDE.md):
 """
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -270,7 +270,7 @@ def _calculate_assembly_feasibility_impl(
 
 def calculate_assembly_feasibility(
     event_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> AssemblyFeasibilityResult:
     """
     Calculate assembly feasibility for all FGs in an event.

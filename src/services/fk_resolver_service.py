@@ -334,7 +334,7 @@ def _create_product(
 def find_similar_entities(
     entity_type: str,
     search_value: str,
-    session: Session = None,
+    session: Optional[Session] = None,
     limit: int = 5,
 ) -> List[Dict[str, Any]]:
     """
@@ -447,7 +447,7 @@ ENTITY_DEPENDENCY_ORDER = ["supplier", "ingredient", "product"]
 def resolve_missing_fks(
     missing_fks: List[MissingFK],
     resolver: FKResolverCallback,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> Tuple[Dict[str, Dict[str, int]], List[Resolution]]:
     """
     Resolve missing FKs in dependency order.
@@ -563,7 +563,7 @@ def collect_missing_fks(
     records: List[Dict[str, Any]],
     entity_type: str,
     fk_fields: Dict[str, str],
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> List[MissingFK]:
     """
     Scan records to collect missing FK references.

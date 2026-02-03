@@ -39,7 +39,7 @@ def create_recipe_snapshot(
     recipe_id: int,
     scale_factor: float = 1.0,
     production_run_id: int = None,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> dict:
     """
     Create an immutable snapshot of recipe state.
@@ -156,7 +156,7 @@ def _create_recipe_snapshot_impl(
     }
 
 
-def get_recipe_snapshots(recipe_id: int, session: Session = None) -> list:
+def get_recipe_snapshots(recipe_id: int, session: Optional[Session] = None) -> list:
     """
     Get all snapshots for a recipe, ordered by date (newest first).
 
@@ -199,7 +199,7 @@ def _get_recipe_snapshots_impl(recipe_id: int, session: Session) -> list:
 
 
 def get_snapshot_by_production_run(
-    production_run_id: int, session: Session = None
+    production_run_id: int, session: Optional[Session] = None
 ) -> Optional[dict]:
     """
     Get the snapshot associated with a production run.
@@ -239,7 +239,7 @@ def _get_snapshot_by_production_run_impl(
     }
 
 
-def get_snapshot_by_id(snapshot_id: int, session: Session = None) -> Optional[dict]:
+def get_snapshot_by_id(snapshot_id: int, session: Optional[Session] = None) -> Optional[dict]:
     """
     Get a snapshot by its ID.
 
@@ -276,7 +276,7 @@ def _get_snapshot_by_id_impl(snapshot_id: int, session: Session) -> Optional[dic
     }
 
 
-def create_recipe_from_snapshot(snapshot_id: int, session: Session = None) -> dict:
+def create_recipe_from_snapshot(snapshot_id: int, session: Optional[Session] = None) -> dict:
     """
     Create a new recipe from historical snapshot data.
 

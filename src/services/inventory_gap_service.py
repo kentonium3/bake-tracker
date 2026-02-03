@@ -12,7 +12,7 @@ Session Management Pattern (from CLAUDE.md):
 
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -161,7 +161,7 @@ def _analyze_inventory_gaps_impl(
 
 def analyze_inventory_gaps(
     event_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> GapAnalysisResult:
     """
     Analyze inventory gaps for an event's ingredient needs.

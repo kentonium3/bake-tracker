@@ -9,6 +9,8 @@ Session Management Pattern (from CLAUDE.md):
 - If session is None, create a new session via session_scope()
 """
 
+from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from src.models.event import Event, PlanState
@@ -39,7 +41,7 @@ def _get_event_or_raise(event_id: int, session: Session) -> Event:
     return event
 
 
-def get_plan_state(event_id: int, session: Session = None) -> PlanState:
+def get_plan_state(event_id: int, session: Optional[Session] = None) -> PlanState:
     """Get the current plan state for an event.
 
     Transaction boundary: Read-only operation.
@@ -89,7 +91,7 @@ def _lock_plan_impl(event_id: int, session: Session) -> Event:
     return event
 
 
-def lock_plan(event_id: int, session: Session = None) -> Event:
+def lock_plan(event_id: int, session: Optional[Session] = None) -> Event:
     """Transition event plan from DRAFT to LOCKED.
 
     Transaction boundary: Single-step write.
@@ -141,7 +143,7 @@ def _start_production_impl(event_id: int, session: Session) -> Event:
     return event
 
 
-def start_production(event_id: int, session: Session = None) -> Event:
+def start_production(event_id: int, session: Optional[Session] = None) -> Event:
     """Transition event plan from LOCKED to IN_PRODUCTION.
 
     Transaction boundary: Multi-step operation (atomic).
@@ -195,7 +197,7 @@ def _complete_production_impl(event_id: int, session: Session) -> Event:
     return event
 
 
-def complete_production(event_id: int, session: Session = None) -> Event:
+def complete_production(event_id: int, session: Optional[Session] = None) -> Event:
     """Transition event plan from IN_PRODUCTION to COMPLETED.
 
     Transaction boundary: Single-step write.

@@ -292,7 +292,7 @@ def _delete_batch_decisions_impl(event_id: int, session: Session) -> int:
 def save_batch_decision(
     event_id: int,
     decision: BatchDecisionInput,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> BatchDecision:
     """Save (create or update) a batch decision for a FinishedUnit in an event.
 
@@ -329,7 +329,7 @@ def save_batch_decision(
         return _save_batch_decision_impl(event_id, decision, session)
 
 
-def get_batch_decisions(event_id: int, session: Session = None) -> List[BatchDecision]:
+def get_batch_decisions(event_id: int, session: Optional[Session] = None) -> List[BatchDecision]:
     """Get all batch decisions for an event.
 
     Args:
@@ -355,7 +355,7 @@ def get_batch_decisions(event_id: int, session: Session = None) -> List[BatchDec
 def get_batch_decision(
     event_id: int,
     finished_unit_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> Optional[BatchDecision]:
     """Get a single batch decision by event_id and finished_unit_id.
 
@@ -380,7 +380,7 @@ def get_batch_decision(
         return _get_batch_decision_impl(event_id, finished_unit_id, session)
 
 
-def delete_batch_decisions(event_id: int, session: Session = None) -> int:
+def delete_batch_decisions(event_id: int, session: Optional[Session] = None) -> int:
     """Delete all batch decisions for an event.
 
     This is useful when resetting an event's planning state or when

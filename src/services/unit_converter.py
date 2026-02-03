@@ -204,8 +204,8 @@ def convert_volume_to_weight(
     volume_value: float,
     volume_unit: str,
     weight_unit: str,
-    ingredient: "Ingredient" = None,
-    density_g_per_ml: float = None,
+    ingredient: Optional["Ingredient"] = None,
+    density_g_per_ml: Optional[float] = None,
 ) -> Tuple[bool, float, str]:
     """
     Convert a volume measurement to weight using ingredient density.
@@ -253,8 +253,8 @@ def convert_weight_to_volume(
     weight_value: float,
     weight_unit: str,
     volume_unit: str,
-    ingredient: "Ingredient" = None,
-    density_g_per_ml: float = None,
+    ingredient: Optional["Ingredient"] = None,
+    density_g_per_ml: Optional[float] = None,
 ) -> Tuple[bool, float, str]:
     """
     Convert a weight measurement to volume using ingredient density.
@@ -302,7 +302,7 @@ def convert_any_units(
     value: float,
     from_unit: str,
     to_unit: str,
-    ingredient: "Ingredient" = None,
+    ingredient: Optional["Ingredient"] = None,
     density_g_per_ml: Optional[float] = None,
 ) -> Tuple[bool, float, str]:
     """
