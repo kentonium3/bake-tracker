@@ -342,13 +342,13 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T056 [P] Update `src/ui/forms/finished_unit_form.py` (1 occurrence)
-- [ ] T057 [P] Update `src/ui/forms/finished_good_detail.py` (1 occurrence)
-- [ ] T058 [P] Update `src/ui/forms/finished_unit_detail.py` (1 occurrence)
-- [ ] T059 [P] Update `src/ui/forms/record_assembly_dialog.py` (3 occurrences)
-- [ ] T060 [P] Update `src/ui/forms/assignment_form.py` (2 occurrences)
-- [ ] T061 [P] Update `src/ui/forms/ingredient_form.py` (1 occurrence)
-- [ ] T062 [P] Update `src/ui/forms/variant_creation_dialog.py` (1 occurrence)
+- [x] T056 [P] Update `src/ui/forms/finished_unit_form.py` (1 occurrence)
+- [x] T057 [P] Update `src/ui/forms/finished_good_detail.py` (1 occurrence)
+- [x] T058 [P] Update `src/ui/forms/finished_unit_detail.py` (1 occurrence)
+- [x] T059 [P] Update `src/ui/forms/record_assembly_dialog.py` (3 occurrences)
+- [x] T060 [P] Update `src/ui/forms/assignment_form.py` (2 occurrences)
+- [x] T061 [P] Update `src/ui/forms/ingredient_form.py` (1 occurrence)
+- [x] T062 [P] Update `src/ui/forms/variant_creation_dialog.py` (1 occurrence)
 
 ### Implementation Notes
 - These are low-occurrence files - straightforward updates
