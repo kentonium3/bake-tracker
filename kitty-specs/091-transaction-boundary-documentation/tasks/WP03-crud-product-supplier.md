@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Core CRUD Services - Product & Supplier
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -12,8 +12,8 @@ subtasks:
 - T010
 phase: Phase 2 - Documentation
 assignee: ''
-agent: ''
-shell_pid: "27597"
+agent: "codex-wp03"
+shell_pid: "44227"
 review_status: ''
 reviewed_by: ''
 history:
@@ -176,3 +176,4 @@ def create_product(product_data: dict, session: Optional[Session] = None) -> Pro
 
 - 2026-02-03T04:37:19Z – system – lane=planned – Prompt created.
 - 2026-02-03T05:22:17Z – unknown – shell_pid=27597 – lane=for_review – Ready for review: Added transaction boundary docs to product_service.py (11), product_catalog_service.py (30), supplier_service.py (22). Tests pass.
+- 2026-02-03T06:20:37Z – codex-wp03 – shell_pid=44227 – lane=doing – Started review via workflow command
