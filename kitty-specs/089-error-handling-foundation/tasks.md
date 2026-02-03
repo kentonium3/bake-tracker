@@ -276,13 +276,13 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T040 [P] Update `src/ui/dialogs/add_purchase_dialog.py` (7 occurrences)
-- [ ] T041 [P] Update `src/ui/dialogs/edit_purchase_dialog.py` (5 occurrences)
-- [ ] T042 [P] Update `src/ui/dialogs/purchase_details_dialog.py` (1 occurrence)
-- [ ] T043 [P] Update `src/ui/dialogs/upc_resolution_dialog.py` (4 occurrences)
-- [ ] T044 [P] Update `src/ui/dialogs/material_product_popup.py` (3 occurrences)
-- [ ] T045 [P] Update `src/ui/dialogs/material_unit_dialog.py` (2 occurrences)
-- [ ] T046 [P] Update `src/ui/dialogs/material_adjustment_dialog.py` (1 occurrence)
+- [x] T040 [P] Update `src/ui/dialogs/add_purchase_dialog.py` (7 occurrences)
+- [x] T041 [P] Update `src/ui/dialogs/edit_purchase_dialog.py` (5 occurrences)
+- [x] T042 [P] Update `src/ui/dialogs/purchase_details_dialog.py` (1 occurrence)
+- [x] T043 [P] Update `src/ui/dialogs/upc_resolution_dialog.py` (4 occurrences)
+- [x] T044 [P] Update `src/ui/dialogs/material_product_popup.py` (3 occurrences)
+- [x] T045 [P] Update `src/ui/dialogs/material_unit_dialog.py` (2 occurrences)
+- [x] T046 [P] Update `src/ui/dialogs/material_adjustment_dialog.py` (1 occurrence)
 
 ### Implementation Notes
 - Purchase dialogs may have PurchaseNotFound, SupplierNotFoundError handlers
