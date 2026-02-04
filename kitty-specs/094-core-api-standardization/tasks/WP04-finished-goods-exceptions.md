@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Finished Goods Service Updates
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -192,3 +192,4 @@ Run affected tests:
 - 2026-02-03T22:40:30Z – codex – shell_pid=51956 – lane=planned – Moved to planned
 - 2026-02-04T02:51:25Z – codex – shell_pid=51956 – lane=for_review – Ready for review: Finished goods exception handling complete, all tests pass
 - 2026-02-04T02:52:52Z – claude – shell_pid=47845 – lane=doing – Started review via workflow command
+- 2026-02-04T02:57:36Z – claude – shell_pid=47845 – lane=done – Review passed: All 4 get functions raise domain-specific exceptions (FinishedGoodNotFoundById/BySlug, FinishedUnitNotFoundById/BySlug). Return types updated.
