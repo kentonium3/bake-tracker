@@ -159,7 +159,7 @@ def create_amendment(
     amendment_type: AmendmentType,
     amendment_data: dict,
     reason: str,
-    session: Session = None
+    session: Optional[Session] = None
 ) -> PlanAmendment:
     """Create a plan amendment record.
 
@@ -259,7 +259,7 @@ def drop_finished_good(
     event_id: int,
     fg_id: int,
     reason: str,
-    session: Session = None
+    session: Optional[Session] = None
 ) -> PlanAmendment:
     """Drop a finished good from the event plan.
 
@@ -354,7 +354,7 @@ def add_finished_good(
     fg_id: int,
     quantity: int,
     reason: str,
-    session: Session = None
+    session: Optional[Session] = None
 ) -> PlanAmendment:
     """Add a finished good to the event plan.
 
@@ -453,7 +453,7 @@ def modify_batch_decision(
     recipe_id: int,
     new_batches: int,
     reason: str,
-    session: Session = None
+    session: Optional[Session] = None
 ) -> PlanAmendment:
     """Modify batch count for a recipe in the event plan.
 
@@ -493,7 +493,7 @@ def _get_amendments_impl(event_id: int, session: Session) -> List[PlanAmendment]
     ).order_by(PlanAmendment.created_at.asc()).all()
 
 
-def get_amendments(event_id: int, session: Session = None) -> List[PlanAmendment]:
+def get_amendments(event_id: int, session: Optional[Session] = None) -> List[PlanAmendment]:
     """Get all amendments for an event in chronological order.
 
     Args:

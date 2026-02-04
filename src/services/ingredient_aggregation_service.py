@@ -12,7 +12,7 @@ Session Management Pattern (from CLAUDE.md):
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -68,7 +68,7 @@ def _scale_recipe_ingredients(
 
 def aggregate_ingredients_for_event(
     event_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> Dict[IngredientKey, IngredientTotal]:
     """
     Aggregate ingredients across all batch decisions for an event.

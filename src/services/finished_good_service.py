@@ -1211,7 +1211,7 @@ class FinishedGoodService:
 
     @staticmethod
     def validate_no_circular_references(
-        finished_good_id: int, new_component_id: int, session: Session = None
+        finished_good_id: int, new_component_id: int, session: Optional[Session] = None
     ) -> bool:
         """
         Ensure adding a component won't create circular references.
@@ -2010,7 +2010,7 @@ def create_finished_good_snapshot(
     finished_good_id: int,
     planning_snapshot_id: int = None,
     assembly_run_id: int = None,
-    session: Session = None,
+    session: Optional[Session] = None,
     _visited_ids: set = None,
     _depth: int = 0,
 ) -> dict:
@@ -2252,7 +2252,7 @@ def _snapshot_component(
 
 
 def get_finished_good_snapshot(
-    snapshot_id: int, session: Session = None
+    snapshot_id: int, session: Optional[Session] = None
 ) -> Optional[dict]:
     """Get a FinishedGoodSnapshot by its ID.
 
@@ -2291,7 +2291,7 @@ def _get_finished_good_snapshot_impl(
 
 
 def get_finished_good_snapshots_by_planning_id(
-    planning_snapshot_id: int, session: Session = None
+    planning_snapshot_id: int, session: Optional[Session] = None
 ) -> list:
     """Get all FinishedGoodSnapshots for a planning snapshot.
 

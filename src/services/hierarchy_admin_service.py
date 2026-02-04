@@ -35,8 +35,8 @@ def validate_unique_sibling_name(
             continue
 
         # Get the sibling's name (ingredients use display_name, materials use name)
-        sibling_name = getattr(sibling, "display_name", None) or getattr(sibling, "name", "")
-        if sibling_name.strip().lower() == new_name_lower:
+        sibling_name = getattr(sibling, "display_name", None) or getattr(sibling, "name", None)
+        if sibling_name and sibling_name.strip().lower() == new_name_lower:
             return False
 
     return True

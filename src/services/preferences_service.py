@@ -32,7 +32,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ def _get_default_backup_dir() -> Path:
 # ============================================================================
 
 
-def _load_preferences() -> dict:
+def _load_preferences() -> Dict[str, Any]:
     """
     Load preferences from the config file.
 
@@ -113,7 +113,8 @@ def _load_preferences() -> dict:
 
     try:
         with open(config_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+            result = json.load(f)
+            return result if isinstance(result, dict) else {}
     except (json.JSONDecodeError, IOError) as e:
         logger.warning(f"Failed to load preferences from {config_file}: {e}")
         return {}

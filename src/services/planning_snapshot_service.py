@@ -31,9 +31,9 @@ class PlanningSnapshotError(ServiceError):
 
 
 def create_planning_snapshot(
-    event_id: int = None,
-    notes: str = None,
-    session: Session = None,
+    event_id: Optional[int] = None,
+    notes: Optional[str] = None,
+    session: Optional[Session] = None,
 ) -> dict:
     """
     Create empty PlanningSnapshot container.
@@ -80,7 +80,7 @@ def _create_planning_snapshot_impl(
 def get_planning_snapshot(
     planning_snapshot_id: int,
     include_snapshots: bool = True,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> Optional[dict]:
     """
     Get planning snapshot with optionally all linked snapshots.
@@ -165,7 +165,7 @@ def _get_planning_snapshot_impl(
 
 def get_planning_snapshots_by_event(
     event_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> list:
     """
     Get all planning snapshots for an event.
@@ -206,7 +206,7 @@ def _get_ps_by_event_impl(event_id: int, session: Session) -> list:
 
 def delete_planning_snapshot(
     planning_snapshot_id: int,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> bool:
     """
     Delete planning snapshot and all associated snapshots.

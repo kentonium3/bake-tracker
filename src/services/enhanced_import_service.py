@@ -1158,7 +1158,7 @@ def import_context_rich_export(
     dry_run: bool = False,
     skip_on_error: bool = False,
     resolver: Optional[FKResolverCallback] = None,
-    session: Session = None,
+    session: Optional[Session] = None,
 ) -> EnhancedImportResult:
     """Import a context-rich export file with FK resolution.
 
