@@ -29,7 +29,12 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .database import get_db_session, session_scope
 from ..models import Composition, FinishedGood, FinishedUnit, Product, Package, Ingredient
-from .exceptions import ServiceError, ValidationError, DatabaseError
+from .exceptions import (
+    CompositionNotFoundById,
+    DatabaseError,
+    ServiceError,
+    ValidationError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -239,7 +244,7 @@ class CompositionService:
             raise DatabaseError(f"Failed to create composition: {e}")
 
     @staticmethod
-    def get_composition_by_id(composition_id: int) -> Optional[Composition]:
+    def get_composition_by_id(composition_id: int) -> Composition:
         """
         Retrieve a specific composition relationship.
 
@@ -247,7 +252,10 @@ class CompositionService:
             composition_id: ID of the composition
 
         Returns:
-            Composition instance or None if not found
+            Composition instance
+
+        Raises:
+            CompositionNotFoundById: If composition doesn't exist
 
         Performance:
             Must complete in <50ms per contract
@@ -267,11 +275,13 @@ class CompositionService:
 
                 if composition:
                     logger.debug(f"Retrieved composition ID {composition_id}")
+                    return composition
                 else:
                     logger.debug(f"Composition ID {composition_id} not found")
+                    raise CompositionNotFoundById(composition_id)
 
-                return composition
-
+        except CompositionNotFoundById:
+            raise
         except SQLAlchemyError as e:
             logger.error(f"Database error retrieving composition ID {composition_id}: {e}")
             raise DatabaseError(f"Failed to retrieve composition: {e}")
@@ -1846,13 +1856,21 @@ def create_composition(
     )
 
 
-def get_composition_by_id(composition_id: int) -> Optional[Composition]:
-    """Retrieve a specific composition by ID."""
+def get_composition_by_id(composition_id: int) -> Composition:
+    """Retrieve a specific composition by ID.
+
+    Raises:
+        CompositionNotFoundById: If composition doesn't exist
+    """
     return CompositionService.get_composition_by_id(composition_id)
 
 
-def get_composition(composition_id: int) -> Optional[Composition]:
-    """Alias for get_composition_by_id (Feature 011 compatibility)."""
+def get_composition(composition_id: int) -> Composition:
+    """Alias for get_composition_by_id (Feature 011 compatibility).
+
+    Raises:
+        CompositionNotFoundById: If composition doesn't exist
+    """
     return CompositionService.get_composition_by_id(composition_id)
 
 

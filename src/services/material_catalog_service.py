@@ -30,7 +30,13 @@ from src.models import (
     Composition,
 )
 from src.services.database import session_scope
-from src.services.exceptions import ValidationError
+from src.services.exceptions import (
+    MaterialCategoryNotFound,
+    MaterialNotFound,
+    MaterialProductNotFound,
+    MaterialSubcategoryNotFound,
+    ValidationError,
+)
 
 
 # ============================================================================
@@ -270,7 +276,7 @@ def get_category(
     category_id: Optional[int] = None,
     slug: Optional[str] = None,
     session: Optional[Session] = None,
-) -> Optional[MaterialCategory]:
+) -> MaterialCategory:
     """
     Get category by ID or slug.
 
@@ -280,16 +286,26 @@ def get_category(
         session: Optional database session
 
     Returns:
-        MaterialCategory or None if not found
+        MaterialCategory instance
+
+    Raises:
+        ValidationError: If neither category_id nor slug is provided
+        MaterialCategoryNotFound: If category doesn't exist
     """
     if category_id is None and slug is None:
-        return None
+        raise ValidationError(["Either category_id or slug must be provided"])
 
-    def _impl(sess: Session) -> Optional[MaterialCategory]:
+    def _impl(sess: Session) -> MaterialCategory:
         query = sess.query(MaterialCategory)
         if category_id is not None:
-            return query.filter(MaterialCategory.id == category_id).first()
-        return query.filter(MaterialCategory.slug == slug).first()
+            category = query.filter(MaterialCategory.id == category_id).first()
+            if category is None:
+                raise MaterialCategoryNotFound(category_id)
+        else:
+            category = query.filter(MaterialCategory.slug == slug).first()
+            if category is None:
+                raise MaterialCategoryNotFound(slug)
+        return category
 
     if session is not None:
         return _impl(session)
@@ -478,7 +494,7 @@ def get_subcategory(
     subcategory_id: Optional[int] = None,
     slug: Optional[str] = None,
     session: Optional[Session] = None,
-) -> Optional[MaterialSubcategory]:
+) -> MaterialSubcategory:
     """
     Get subcategory by ID or slug.
 
@@ -488,16 +504,26 @@ def get_subcategory(
         session: Optional database session
 
     Returns:
-        MaterialSubcategory or None if not found
+        MaterialSubcategory instance
+
+    Raises:
+        ValidationError: If neither subcategory_id nor slug is provided
+        MaterialSubcategoryNotFound: If subcategory doesn't exist
     """
     if subcategory_id is None and slug is None:
-        return None
+        raise ValidationError(["Either subcategory_id or slug must be provided"])
 
-    def _impl(sess: Session) -> Optional[MaterialSubcategory]:
+    def _impl(sess: Session) -> MaterialSubcategory:
         query = sess.query(MaterialSubcategory)
         if subcategory_id is not None:
-            return query.filter(MaterialSubcategory.id == subcategory_id).first()
-        return query.filter(MaterialSubcategory.slug == slug).first()
+            subcategory = query.filter(MaterialSubcategory.id == subcategory_id).first()
+            if subcategory is None:
+                raise MaterialSubcategoryNotFound(subcategory_id)
+        else:
+            subcategory = query.filter(MaterialSubcategory.slug == slug).first()
+            if subcategory is None:
+                raise MaterialSubcategoryNotFound(slug)
+        return subcategory
 
     if session is not None:
         return _impl(session)
@@ -721,7 +747,7 @@ def get_material(
     material_id: Optional[int] = None,
     slug: Optional[str] = None,
     session: Optional[Session] = None,
-) -> Optional[Material]:
+) -> Material:
     """
     Get material by ID or slug.
 
@@ -731,16 +757,26 @@ def get_material(
         session: Optional database session
 
     Returns:
-        Material or None if not found
+        Material instance
+
+    Raises:
+        ValidationError: If neither material_id nor slug is provided
+        MaterialNotFound: If material doesn't exist
     """
     if material_id is None and slug is None:
-        return None
+        raise ValidationError(["Either material_id or slug must be provided"])
 
-    def _impl(sess: Session) -> Optional[Material]:
+    def _impl(sess: Session) -> Material:
         query = sess.query(Material)
         if material_id is not None:
-            return query.filter(Material.id == material_id).first()
-        return query.filter(Material.slug == slug).first()
+            material = query.filter(Material.id == material_id).first()
+            if material is None:
+                raise MaterialNotFound(material_id)
+        else:
+            material = query.filter(Material.slug == slug).first()
+            if material is None:
+                raise MaterialNotFound(slug)
+        return material
 
     if session is not None:
         return _impl(session)
@@ -1087,7 +1123,7 @@ def create_product(
 def get_product(
     product_id: int,
     session: Optional[Session] = None,
-) -> Optional[MaterialProduct]:
+) -> MaterialProduct:
     """
     Get product by ID.
 
@@ -1096,11 +1132,17 @@ def get_product(
         session: Optional database session
 
     Returns:
-        MaterialProduct or None if not found
+        MaterialProduct instance
+
+    Raises:
+        MaterialProductNotFound: If product doesn't exist
     """
 
-    def _impl(sess: Session) -> Optional[MaterialProduct]:
-        return sess.query(MaterialProduct).filter(MaterialProduct.id == product_id).first()
+    def _impl(sess: Session) -> MaterialProduct:
+        product = sess.query(MaterialProduct).filter(MaterialProduct.id == product_id).first()
+        if product is None:
+            raise MaterialProductNotFound(product_id)
+        return product
 
     if session is not None:
         return _impl(session)

@@ -21,8 +21,9 @@ from src.models import Recipient, Event, EventRecipientPackage
 from src.services.database import session_scope
 from src.services.exceptions import (
     DatabaseError,
-    ValidationError,
+    RecipientNotFoundByName,
     ServiceError,
+    ValidationError,
 )
 from typing import Optional
 
@@ -181,7 +182,7 @@ def get_recipient(recipient_id: int) -> Recipient:
         raise DatabaseError(f"Failed to get recipient: {str(e)}")
 
 
-def get_recipient_by_name(name: str) -> Optional[Recipient]:
+def get_recipient_by_name(name: str) -> Recipient:
     """
     Get a recipient by exact name match.
 
@@ -189,17 +190,22 @@ def get_recipient_by_name(name: str) -> Optional[Recipient]:
         name: Recipient name (case-insensitive)
 
     Returns:
-        Recipient instance or None if not found
+        Recipient instance
 
     Raises:
+        RecipientNotFoundByName: If recipient doesn't exist
         DatabaseError: If database operation fails
     """
     try:
         with session_scope() as session:
             recipient = session.query(Recipient).filter(Recipient.name.ilike(name)).first()
 
+            if not recipient:
+                raise RecipientNotFoundByName(name)
             return recipient
 
+    except RecipientNotFoundByName:
+        raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipient by name: {str(e)}")
 
