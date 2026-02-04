@@ -334,7 +334,7 @@ def _create_product_impl(
         raise NonLeafIngredientError(
             ingredient_id=ingredient_id,
             ingredient_name=ingredient.display_name if ingredient else f"ID {ingredient_id}",
-            context="product",
+            usage_context="product",
             suggestions=suggestions,
         )
 
@@ -480,7 +480,7 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
             raise NonLeafIngredientError(
                 ingredient_id=new_ingredient_id,
                 ingredient_name=ingredient.display_name,
-                context="product",
+                usage_context="product",
                 suggestions=suggestions,
             )
 

@@ -673,8 +673,12 @@ class TestPackagingEdgeCases:
         # Delete package
         package_service.delete_package(package.id)
 
-        # Verify composition deleted
-        assert get_composition(comp_id) is None
+        # Verify composition deleted (now raises CompositionNotFoundById)
+        import pytest
+        from src.services.exceptions import CompositionNotFoundById
+
+        with pytest.raises(CompositionNotFoundById):
+            get_composition(comp_id)
 
     def test_finished_good_delete_cascades_packaging_compositions(self, test_db):
         """T062: Compositions deleted when FinishedGood deleted."""
@@ -720,8 +724,12 @@ class TestPackagingEdgeCases:
         # Delete FinishedGood using class method
         FinishedGoodService.delete_finished_good(fg.id)
 
-        # Verify composition deleted
-        assert get_composition(comp_id) is None
+        # Verify composition deleted (now raises CompositionNotFoundById)
+        import pytest
+        from src.services.exceptions import CompositionNotFoundById
+
+        with pytest.raises(CompositionNotFoundById):
+            get_composition(comp_id)
 
     def test_delete_packaging_product_in_use_blocked(self, test_db):
         """T056: Delete blocked with clear message when product in use."""

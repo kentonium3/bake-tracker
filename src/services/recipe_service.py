@@ -79,7 +79,7 @@ def _validate_leaf_ingredient(ingredient: Ingredient, context: str, session) -> 
         raise NonLeafIngredientError(
             ingredient_id=ingredient.id,
             ingredient_name=ingredient.display_name,
-            context=context,
+            usage_context=context,
             suggestions=suggestions,
         )
 

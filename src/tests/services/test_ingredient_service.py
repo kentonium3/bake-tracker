@@ -32,92 +32,119 @@ class TestValidateDensityFields:
     """Tests for density field validation."""
 
     def test_validate_density_fields_all_empty(self):
-        """Empty density fields are valid."""
-        is_valid, error = validate_density_fields(None, None, None, None)
-        assert is_valid
-        assert error == ""
+        """Empty density fields are valid (no exception raised)."""
+        validate_density_fields(None, None, None, None)  # Should not raise
 
     def test_validate_density_fields_all_filled(self):
-        """All density fields filled with valid data."""
-        is_valid, error = validate_density_fields(1.0, "cup", 4.25, "oz")
-        assert is_valid
-        assert error == ""
+        """All density fields filled with valid data (no exception raised)."""
+        validate_density_fields(1.0, "cup", 4.25, "oz")  # Should not raise
 
     def test_validate_density_fields_partial_volume_only(self):
         """Partial density fields (volume only) fail validation."""
-        is_valid, error = validate_density_fields(1.0, "cup", None, None)
-        assert not is_valid
-        assert "All density fields must be provided together" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "cup", None, None)
+        assert "All density fields must be provided together" in str(exc_info.value)
 
     def test_validate_density_fields_partial_weight_only(self):
         """Partial density fields (weight only) fail validation."""
-        is_valid, error = validate_density_fields(None, None, 4.25, "oz")
-        assert not is_valid
-        assert "All density fields must be provided together" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(None, None, 4.25, "oz")
+        assert "All density fields must be provided together" in str(exc_info.value)
 
     def test_validate_density_fields_partial_missing_unit(self):
         """Partial density fields (missing unit) fail validation."""
-        is_valid, error = validate_density_fields(1.0, None, 4.25, "oz")
-        assert not is_valid
-        assert "All density fields must be provided together" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, None, 4.25, "oz")
+        assert "All density fields must be provided together" in str(exc_info.value)
 
     def test_validate_density_fields_zero_volume(self):
         """Zero volume value fails validation."""
-        is_valid, error = validate_density_fields(0, "cup", 4.25, "oz")
-        assert not is_valid
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(0, "cup", 4.25, "oz")
         # Zero is treated as "not filled" so it's a partial fill error
-        assert "All density fields must be provided together" in error
+        assert "All density fields must be provided together" in str(exc_info.value)
 
     def test_validate_density_fields_negative_volume(self):
         """Negative volume value fails validation."""
-        is_valid, error = validate_density_fields(-1.0, "cup", 4.25, "oz")
-        assert not is_valid
-        assert "greater than zero" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(-1.0, "cup", 4.25, "oz")
+        assert "greater than zero" in str(exc_info.value)
 
     def test_validate_density_fields_negative_weight(self):
         """Negative weight value fails validation."""
-        is_valid, error = validate_density_fields(1.0, "cup", -1.0, "oz")
-        assert not is_valid
-        assert "greater than zero" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "cup", -1.0, "oz")
+        assert "greater than zero" in str(exc_info.value)
 
     def test_validate_density_fields_invalid_volume_unit(self):
         """Invalid volume unit fails validation."""
-        is_valid, error = validate_density_fields(1.0, "invalid", 4.25, "oz")
-        assert not is_valid
-        assert "Invalid volume unit" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "invalid", 4.25, "oz")
+        assert "Invalid volume unit" in str(exc_info.value)
 
     def test_validate_density_fields_invalid_weight_unit(self):
         """Invalid weight unit fails validation."""
-        is_valid, error = validate_density_fields(1.0, "cup", 4.25, "invalid")
-        assert not is_valid
-        assert "Invalid weight unit" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "cup", 4.25, "invalid")
+        assert "Invalid weight unit" in str(exc_info.value)
 
     def test_validate_density_fields_weight_unit_as_volume(self):
         """Using weight unit in volume field fails validation."""
-        is_valid, error = validate_density_fields(1.0, "oz", 4.25, "oz")
-        assert not is_valid
-        assert "Invalid volume unit" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "oz", 4.25, "oz")
+        assert "Invalid volume unit" in str(exc_info.value)
 
     def test_validate_density_fields_volume_unit_as_weight(self):
         """Using volume unit in weight field fails validation."""
-        is_valid, error = validate_density_fields(1.0, "cup", 4.25, "cup")
-        assert not is_valid
-        assert "Invalid weight unit" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "cup", 4.25, "cup")
+        assert "Invalid weight unit" in str(exc_info.value)
 
     def test_validate_density_fields_empty_string_treated_as_none(self):
-        """Empty strings are treated as None."""
-        is_valid, error = validate_density_fields("", "", "", "")
-        assert is_valid  # All empty is valid
-        assert error == ""
+        """Empty strings are treated as None (no exception raised)."""
+        validate_density_fields("", "", "", "")  # All empty is valid
 
     def test_validate_density_fields_mixed_empty_string(self):
         """Mixed empty strings are treated as partial."""
-        is_valid, error = validate_density_fields(1.0, "", 4.25, "oz")
-        assert not is_valid
-        assert "All density fields must be provided together" in error
+        import pytest
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_density_fields(1.0, "", 4.25, "oz")
+        assert "All density fields must be provided together" in str(exc_info.value)
 
     def test_validate_density_fields_all_valid_units(self):
-        """Test various valid unit combinations."""
+        """Test various valid unit combinations (no exceptions raised)."""
         valid_combos = [
             (1.0, "cup", 4.25, "oz"),
             (1.0, "tbsp", 14.0, "g"),
@@ -126,16 +153,11 @@ class TestValidateDensityFields:
             (1.0, "l", 1000.0, "kg"),
         ]
         for vol_val, vol_unit, wt_val, wt_unit in valid_combos:
-            is_valid, error = validate_density_fields(vol_val, vol_unit, wt_val, wt_unit)
-            assert (
-                is_valid
-            ), f"Expected valid: {vol_val} {vol_unit} = {wt_val} {wt_unit}, got error: {error}"
+            validate_density_fields(vol_val, vol_unit, wt_val, wt_unit)  # Should not raise
 
     def test_validate_density_fields_case_insensitive(self):
-        """Unit validation is case insensitive."""
-        is_valid, error = validate_density_fields(1.0, "CUP", 4.25, "OZ")
-        assert is_valid
-        assert error == ""
+        """Unit validation is case insensitive (no exception raised)."""
+        validate_density_fields(1.0, "CUP", 4.25, "OZ")  # Should not raise
 
 
 # =============================================================================

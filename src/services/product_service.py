@@ -171,7 +171,7 @@ def _validate_leaf_ingredient_for_product(ingredient, session) -> None:
         raise NonLeafIngredientError(
             ingredient_id=ingredient.id,
             ingredient_name=ingredient.display_name,
-            context="product",
+            usage_context="product",
             suggestions=suggestions,
         )
 

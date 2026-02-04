@@ -839,9 +839,11 @@ class TestUpdatePurchase:
         assert "Cannot change product_id" in str(exc_info.value)
 
     def test_rejects_quantity_below_consumed(self, session, purchase_partially_consumed):
-        """Raises ValueError when new quantity < consumed."""
+        """Raises ValidationError when new quantity < consumed."""
+        from src.services.exceptions import ValidationError
+
         # Partially consumed has 5 units consumed (1 package worth)
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(ValidationError) as exc_info:
             update_purchase(
                 purchase_id=purchase_partially_consumed.id,
                 updates={"quantity_purchased": 0},  # Would be 0 units < 5 consumed
