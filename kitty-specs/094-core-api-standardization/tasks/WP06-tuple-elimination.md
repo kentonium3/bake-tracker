@@ -8,10 +8,10 @@ subtasks:
   - "T037"
 title: "Tuple Return Elimination"
 phase: "Phase 3 - Tuple Elimination"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude"
-shell_pid: "36763"
+shell_pid: "51023"
 review_status: "has_feedback"
 reviewed_by: "Kent Gale"
 dependencies: []
@@ -230,3 +230,4 @@ Run validator tests:
 - 2026-02-03T22:36:59Z – codex – shell_pid=51956 – lane=planned – Moved to planned
 - 2026-02-03T22:47:52Z – claude – shell_pid=36763 – lane=doing – Started implementation via workflow command
 - 2026-02-03T22:56:05Z – claude – shell_pid=36763 – lane=for_review – Ready for review: Tuple return types eliminated from validation functions, all 3493 tests pass
+- 2026-02-04T02:58:05Z – claude – shell_pid=51023 – lane=doing – Started review via workflow command
