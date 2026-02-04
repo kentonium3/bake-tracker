@@ -29,7 +29,13 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from .database import get_db_session, session_scope
 from ..models import FinishedUnit, FinishedUnitSnapshot, Recipe, Composition, InventoryItem
 from ..models.finished_unit import YieldMode
-from .exceptions import ServiceError, ValidationError, DatabaseError
+from .exceptions import (
+    DatabaseError,
+    FinishedUnitNotFoundById,
+    FinishedUnitNotFoundBySlug,
+    ServiceError,
+    ValidationError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +136,7 @@ class FinishedUnitService:
             raise DatabaseError(f"Failed to get FinishedUnit count: {e}")
 
     @staticmethod
-    def get_finished_unit_by_id(finished_unit_id: int) -> Optional[FinishedUnit]:
+    def get_finished_unit_by_id(finished_unit_id: int) -> FinishedUnit:
         """
         Retrieve a specific FinishedUnit by ID.
 
@@ -141,7 +147,10 @@ class FinishedUnitService:
             finished_unit_id: Integer ID of the FinishedUnit
 
         Returns:
-            FinishedUnit instance or None if not found
+            FinishedUnit instance
+
+        Raises:
+            FinishedUnitNotFoundById: If finished unit doesn't exist
 
         Performance:
             Must complete in <50ms per contract
@@ -159,17 +168,19 @@ class FinishedUnitService:
                     logger.debug(
                         f"Retrieved FinishedUnit by ID {finished_unit_id}: {unit.display_name}"
                     )
+                    return unit
                 else:
                     logger.debug(f"FinishedUnit not found for ID {finished_unit_id}")
+                    raise FinishedUnitNotFoundById(finished_unit_id)
 
-                return unit
-
+        except FinishedUnitNotFoundById:
+            raise
         except SQLAlchemyError as e:
             logger.error(f"Database error retrieving FinishedUnit ID {finished_unit_id}: {e}")
             raise DatabaseError(f"Failed to retrieve FinishedUnit by ID: {e}")
 
     @staticmethod
-    def get_finished_unit_by_slug(slug: str) -> Optional[FinishedUnit]:
+    def get_finished_unit_by_slug(slug: str) -> FinishedUnit:
         """
         Retrieve a specific FinishedUnit by slug identifier.
 
@@ -180,7 +191,10 @@ class FinishedUnitService:
             slug: String slug identifier
 
         Returns:
-            FinishedUnit instance or None if not found
+            FinishedUnit instance
+
+        Raises:
+            FinishedUnitNotFoundBySlug: If finished unit doesn't exist
 
         Performance:
             Must complete in <50ms per contract (indexed lookup)
@@ -196,11 +210,13 @@ class FinishedUnitService:
 
                 if unit:
                     logger.debug(f"Retrieved FinishedUnit by slug '{slug}': {unit.display_name}")
+                    return unit
                 else:
                     logger.debug(f"FinishedUnit not found for slug '{slug}'")
+                    raise FinishedUnitNotFoundBySlug(slug)
 
-                return unit
-
+        except FinishedUnitNotFoundBySlug:
+            raise
         except SQLAlchemyError as e:
             logger.error(f"Database error retrieving FinishedUnit slug '{slug}': {e}")
             raise DatabaseError(f"Failed to retrieve FinishedUnit by slug: {e}")
@@ -837,13 +853,21 @@ def get_finished_unit_count() -> int:
     return FinishedUnitService.get_finished_unit_count()
 
 
-def get_finished_unit_by_id(finished_unit_id: int) -> Optional[FinishedUnit]:
-    """Retrieve a specific FinishedUnit by ID."""
+def get_finished_unit_by_id(finished_unit_id: int) -> FinishedUnit:
+    """Retrieve a specific FinishedUnit by ID.
+
+    Raises:
+        FinishedUnitNotFoundById: If finished unit doesn't exist
+    """
     return FinishedUnitService.get_finished_unit_by_id(finished_unit_id)
 
 
-def get_finished_unit_by_slug(slug: str) -> Optional[FinishedUnit]:
-    """Retrieve a specific FinishedUnit by slug."""
+def get_finished_unit_by_slug(slug: str) -> FinishedUnit:
+    """Retrieve a specific FinishedUnit by slug.
+
+    Raises:
+        FinishedUnitNotFoundBySlug: If finished unit doesn't exist
+    """
     return FinishedUnitService.get_finished_unit_by_slug(slug)
 
 
