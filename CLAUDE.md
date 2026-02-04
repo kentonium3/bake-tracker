@@ -277,6 +277,7 @@ Before any task lane operation, ask yourself:
 - **UUID support**: BaseModel includes UUID for future distributed/multi-user scenarios
 - **Nested Recipes**: Recipes can include other recipes as components via RecipeComponent junction table. Maximum 3 levels of nesting. Circular references are prevented at validation time. Shopping lists aggregate ingredients from all levels.
 - **Event-Centric Production Model**: ProductionRun and AssemblyRun link to Events via optional `event_id` FK. This enables: (1) tracking which production is for which event, (2) explicit production targets per event via EventProductionTarget/EventAssemblyTarget, (3) progress tracking (produced vs target), (4) package fulfillment status workflow (pending/ready/delivered). See `docs/design/schema_v0.6_design.md`.
+- **Exception-Based Returns**: All `get_*` functions raise domain-specific exceptions instead of returning None. Validation functions raise `ValidationError` instead of returning tuples. See "Exception-Based Error Handling" and "Validation Pattern" sections.
 
 ## Session Management (CRITICAL - Read Before Modifying Services)
 
@@ -340,6 +341,111 @@ and common pitfalls, see:
 ### Reference
 
 See `docs/design/session_management_remediation_spec.md` for full technical details.
+
+## Exception-Based Error Handling (F094)
+
+**Problem:** Functions returning `None` for not-found cases lead to "forgot to check None" bugs.
+
+### The Pattern
+
+All `get_*` service functions that look up entities by ID, slug, or name raise domain-specific exceptions instead of returning None.
+
+**Correct Pattern:**
+```python
+def get_recipe_by_slug(slug: str, session: Optional[Session] = None) -> Recipe:
+    """
+    Get recipe by slug.
+
+    Raises:
+        RecipeNotFoundBySlug: If recipe doesn't exist
+    """
+    with session_scope(session) as sess:
+        recipe = sess.query(Recipe).filter_by(slug=slug).first()
+        if not recipe:
+            raise RecipeNotFoundBySlug(slug)
+        return recipe
+
+# Calling code:
+try:
+    recipe = get_recipe_by_slug("chocolate-cake")
+    # Use recipe - guaranteed not None
+except RecipeNotFoundBySlug as e:
+    show_error(f"Recipe '{e.slug}' not found")
+```
+
+### Exception Naming Convention
+
+Pattern: `{Entity}NotFoundBy{LookupField}`
+
+Examples:
+- `RecipeNotFoundBySlug` - Recipe lookup by slug
+- `RecipeNotFoundByName` - Recipe lookup by name
+- `EventNotFoundById` - Event lookup by ID
+- `IngredientNotFoundBySlug` - Ingredient lookup by slug
+
+### Available Exception Types
+
+See `src/services/exceptions.py` for the full hierarchy.
+
+### Services Updated (F094)
+
+The following services have been fully updated to use exception-based patterns:
+
+**Core Services:**
+- `ingredient_service.py` - Already used exceptions (model for others)
+- `recipe_service.py` - Updated: get_recipe_by_slug, get_recipe_by_name
+- `event_service.py` - Updated: get_event_by_id, get_event_by_name
+- `package_service.py` - Updated: get_package_by_id, get_package_by_name
+- `finished_good_service.py` - Updated: get_finished_good_by_id/slug
+- `finished_unit_service.py` - Updated: get_finished_unit_by_id/slug
+
+**Secondary Services:**
+- `composition_service.py` - Updated: get_composition_by_id
+- `supplier_service.py` - Updated: get_supplier, get_supplier_by_uuid
+- `recipient_service.py` - Updated: get_recipient_by_name
+- `unit_service.py` - Updated: get_unit_by_code
+- `material_catalog_service.py` - Updated: get_category, get_subcategory, get_material, get_product
+
+**Validators:**
+- `utils/validators.py` - All validation functions use exceptions
+- `unit_converter.py` - Conversion functions raise ConversionError
+- `material_unit_converter.py` - Conversion functions raise ConversionError
+
+## Validation Pattern (F094)
+
+**Problem:** Functions returning `Tuple[bool, str/list]` create awkward calling code with tuple unpacking.
+
+### The Pattern
+
+Validation functions raise `ValidationError` instead of returning tuples.
+
+**Correct Pattern:**
+```python
+def validate_required_string(value: Optional[str], field_name: str = "Field") -> None:
+    """
+    Validate that a string is not empty.
+
+    Raises:
+        ValidationError: If value is empty or whitespace
+    """
+    if not value or not value.strip():
+        raise ValidationError([f"{field_name} is required"])
+
+# Calling code:
+try:
+    validate_required_string(name, "Name")
+    validate_required_string(category, "Category")
+    # All validations passed
+except ValidationError as e:
+    show_errors(e.errors)  # List of error messages
+```
+
+### Key Points
+
+- Return `None` on success (no exception)
+- Raise `ValidationError(errors: List[str])` on failure
+- `ValidationError.errors` contains list of error messages
+- No tuple unpacking needed at call sites
 
 ## Pagination Pattern (Web Migration Ready)
 
