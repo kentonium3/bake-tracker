@@ -230,10 +230,14 @@ class TestGetUnitByCode:
         assert unit.code == "oz"
         assert unit.display_name == "ounce"
 
-    def test_returns_none_for_nonexistent_code(self, test_db):
-        """Test that nonexistent code returns None."""
-        unit = get_unit_by_code("nonexistent")
-        assert unit is None
+    def test_raises_for_nonexistent_code(self, test_db):
+        """Test that nonexistent code raises UnitNotFoundByCode."""
+        import pytest
+        from src.services.exceptions import UnitNotFoundByCode
+
+        with pytest.raises(UnitNotFoundByCode) as exc_info:
+            get_unit_by_code("nonexistent")
+        assert exc_info.value.code == "nonexistent"
 
     def test_accepts_session_parameter(self, test_db):
         """Test that get_unit_by_code accepts and uses session parameter."""

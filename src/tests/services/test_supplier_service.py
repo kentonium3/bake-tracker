@@ -167,9 +167,12 @@ class TestGetSupplier:
         assert result["name"] == "Costco"
 
     def test_get_supplier_not_found(self, session):
-        """Test that get_supplier returns None for missing ID."""
-        result = supplier_service.get_supplier(999, session=session)
-        assert result is None
+        """Test that get_supplier raises SupplierNotFoundError for missing ID."""
+        import pytest
+        from src.services.exceptions import SupplierNotFoundError
+
+        with pytest.raises(SupplierNotFoundError):
+            supplier_service.get_supplier(999, session=session)
 
     def test_get_supplier_by_uuid(self, session):
         """Test retrieving supplier by UUID."""
@@ -188,12 +191,15 @@ class TestGetSupplier:
         assert result["id"] == created["id"]
 
     def test_get_supplier_by_uuid_not_found(self, session):
-        """Test that get_supplier_by_uuid returns None for missing UUID."""
-        result = supplier_service.get_supplier_by_uuid(
-            "00000000-0000-0000-0000-000000000000",
-            session=session,
-        )
-        assert result is None
+        """Test that get_supplier_by_uuid raises SupplierNotFoundError for missing UUID."""
+        import pytest
+        from src.services.exceptions import SupplierNotFoundError
+
+        with pytest.raises(SupplierNotFoundError):
+            supplier_service.get_supplier_by_uuid(
+                "00000000-0000-0000-0000-000000000000",
+                session=session,
+            )
 
     def test_get_supplier_or_raise_success(self, session):
         """Test get_supplier_or_raise returns supplier."""
@@ -517,6 +523,9 @@ class TestDeleteSupplier:
 
     def test_delete_supplier_success(self, session):
         """Test deleting a supplier with no purchases."""
+        import pytest
+        from src.services.exceptions import SupplierNotFoundError
+
         created = supplier_service.create_supplier(
             name="Costco",
             city="Issaquah",
@@ -529,9 +538,9 @@ class TestDeleteSupplier:
 
         assert result is True
 
-        # Verify supplier is gone
-        deleted = supplier_service.get_supplier(created["id"], session=session)
-        assert deleted is None
+        # Verify supplier is gone - should raise SupplierNotFoundError
+        with pytest.raises(SupplierNotFoundError):
+            supplier_service.get_supplier(created["id"], session=session)
 
     def test_delete_supplier_with_purchases_fails(self, session, test_product):
         """Test that deleting supplier with purchases raises error."""

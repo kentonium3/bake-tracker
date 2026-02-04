@@ -303,12 +303,10 @@ def _record_purchase_impl(
     package_qty_in_source_units = packages_purchased * product.package_quantity
 
     # Convert from package_unit to base units (cm for linear, sq cm for area, count for each)
-    # Validate unit compatibility first
-    is_valid, error = material_unit_converter.validate_unit_compatibility(
+    # Validate unit compatibility first (raises ConversionError if invalid)
+    material_unit_converter.validate_unit_compatibility(
         product.package_unit, base_unit_type
     )
-    if not is_valid:
-        raise ValidationError([error])
 
     # Convert to base units
     units_added = convert_to_base_units(

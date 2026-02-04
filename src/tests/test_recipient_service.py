@@ -184,10 +184,13 @@ class TestGetRecipientByName:
         assert retrieved.name == "John Doe"
 
     def test_get_recipient_by_name_not_found(self, test_db):
-        """Should return None when name not found."""
-        retrieved = get_recipient_by_name("Nonexistent Person")
+        """Should raise RecipientNotFoundByName when name not found."""
+        import pytest
+        from src.services.exceptions import RecipientNotFoundByName
 
-        assert retrieved is None
+        with pytest.raises(RecipientNotFoundByName) as exc_info:
+            get_recipient_by_name("Nonexistent Person")
+        assert exc_info.value.name == "Nonexistent Person"
 
 
 # ============================================================================

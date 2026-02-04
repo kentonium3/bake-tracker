@@ -301,22 +301,22 @@ class TestCostCalculations:
         """Test cost per yield unit calculation."""
         # Total recipe cost $5.00, yields 24 cookies
         # Cost per cookie = $5.00 / 24 = $0.2083...
-        success, cost, error = calculate_cost_per_yield_unit(5.0, 24.0)
-        assert success is True
-        assert error == ""
+        cost = calculate_cost_per_yield_unit(5.0, 24.0)
         assert cost == pytest.approx(0.2083333, rel=1e-6)
 
     def test_calculate_cost_per_yield_unit_errors(self):
         """Test cost per yield unit error handling."""
+        from src.services.exceptions import ValidationError
+
         # Negative total cost
-        success, _, error = calculate_cost_per_yield_unit(-5.0, 24.0)
-        assert success is False
-        assert "negative" in error.lower()
+        with pytest.raises(ValidationError) as exc_info:
+            calculate_cost_per_yield_unit(-5.0, 24.0)
+        assert "negative" in str(exc_info.value).lower()
 
         # Zero yield quantity
-        success, _, error = calculate_cost_per_yield_unit(5.0, 0.0)
-        assert success is False
-        assert "positive" in error.lower()
+        with pytest.raises(ValidationError) as exc_info:
+            calculate_cost_per_yield_unit(5.0, 0.0)
+        assert "positive" in str(exc_info.value).lower()
 
 
 # ============================================================================
@@ -362,34 +362,36 @@ class TestValidation:
     """Test validation helper functions."""
 
     def test_validate_quantity_valid(self):
-        """Test valid quantity."""
-        is_valid, error = validate_quantity(10.5)
-        assert is_valid is True
-        assert error == ""
+        """Test valid quantity - no exception raised."""
+        validate_quantity(10.5)  # Should not raise
 
     def test_validate_quantity_zero_allowed(self):
-        """Test zero quantity when allowed."""
-        is_valid, error = validate_quantity(0.0, allow_zero=True)
-        assert is_valid is True
-        assert error == ""
+        """Test zero quantity when allowed - no exception raised."""
+        validate_quantity(0.0, allow_zero=True)  # Should not raise
 
     def test_validate_quantity_zero_not_allowed(self):
         """Test zero quantity when not allowed."""
-        is_valid, error = validate_quantity(0.0, allow_zero=False)
-        assert is_valid is False
-        assert "zero" in error.lower()
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_quantity(0.0, allow_zero=False)
+        assert "zero" in str(exc_info.value).lower()
 
     def test_validate_quantity_negative(self):
         """Test negative quantity."""
-        is_valid, error = validate_quantity(-5.0)
-        assert is_valid is False
-        assert "negative" in error.lower()
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_quantity(-5.0)
+        assert "negative" in str(exc_info.value).lower()
 
     def test_validate_quantity_too_large(self):
         """Test unreasonably large quantity."""
-        is_valid, error = validate_quantity(1e10)
-        assert is_valid is False
-        assert "large" in error.lower()
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            validate_quantity(1e10)
+        assert "large" in str(exc_info.value).lower()
 
 
 # ============================================================================
