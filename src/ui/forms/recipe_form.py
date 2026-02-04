@@ -1038,11 +1038,11 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Find recipe by name
         try:
             component_recipe = recipe_service.get_recipe_by_name(recipe_name)
-        except (ServiceError, Exception):
-            component_recipe = None
-
-        if not component_recipe:
+        except ServiceError:
             show_error("Recipe Not Found", f"Recipe '{recipe_name}' not found.", parent=self)
+            return
+        except Exception:
+            show_error("Error", f"Failed to look up recipe '{recipe_name}'.", parent=self)
             return
 
         # If editing existing recipe, add via service
