@@ -12,6 +12,23 @@ Exception Hierarchy:
     │   ├── InventoryItemNotFound
     │   ├── PurchaseNotFound
     │   ├── RecipeNotFound
+    │   ├── RecipeNotFoundBySlug
+    │   ├── RecipeNotFoundByName
+    │   ├── EventNotFoundById
+    │   ├── EventNotFoundByName
+    │   ├── FinishedGoodNotFoundById
+    │   ├── FinishedGoodNotFoundBySlug
+    │   ├── FinishedUnitNotFoundById
+    │   ├── FinishedUnitNotFoundBySlug
+    │   ├── PackageNotFoundById
+    │   ├── PackageNotFoundByName
+    │   ├── CompositionNotFoundById
+    │   ├── UnitNotFoundByCode
+    │   ├── MaterialCategoryNotFound
+    │   ├── MaterialSubcategoryNotFound
+    │   ├── MaterialNotFound
+    │   ├── MaterialProductNotFound
+    │   ├── RecipientNotFoundByName
     │   └── SupplierNotFoundError
     ├── ValidationError (400)
     │   └── HierarchyValidationError
@@ -24,6 +41,7 @@ Exception Hierarchy:
     │   └── ProductInUse
     ├── BusinessRuleError (422)
     │   └── InsufficientStock
+    ├── ConversionError (400)
     ├── PlanStateError (409)
     └── DatabaseError (500)
 
@@ -489,6 +507,473 @@ class SupplierNotFoundError(ServiceError):
             f"Supplier with ID {supplier_id} not found",
             correlation_id=correlation_id,
             supplier_id=supplier_id
+        )
+
+
+# F094 Core API Standardization - Additional NotFound Exceptions
+
+
+class RecipeNotFoundBySlug(ServiceError):
+    """Raised when a recipe cannot be found by slug.
+
+    Args:
+        slug: The recipe slug that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise RecipeNotFoundBySlug("chocolate-cake")
+        RecipeNotFoundBySlug: Recipe with slug 'chocolate-cake' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, slug: str, correlation_id: Optional[str] = None):
+        self.slug = slug
+        super().__init__(
+            f"Recipe with slug '{slug}' not found",
+            correlation_id=correlation_id,
+            slug=slug
+        )
+
+
+class RecipeNotFoundByName(ServiceError):
+    """Raised when a recipe cannot be found by name.
+
+    Args:
+        name: The recipe name that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise RecipeNotFoundByName("Chocolate Cake")
+        RecipeNotFoundByName: Recipe with name 'Chocolate Cake' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, name: str, correlation_id: Optional[str] = None):
+        self.name = name
+        super().__init__(
+            f"Recipe with name '{name}' not found",
+            correlation_id=correlation_id,
+            name=name
+        )
+
+
+class EventNotFoundById(ServiceError):
+    """Raised when an event cannot be found by ID.
+
+    Args:
+        event_id: The event ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise EventNotFoundById(123)
+        EventNotFoundById: Event with ID 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, event_id: int, correlation_id: Optional[str] = None):
+        self.event_id = event_id
+        super().__init__(
+            f"Event with ID {event_id} not found",
+            correlation_id=correlation_id,
+            event_id=event_id
+        )
+
+
+class EventNotFoundByName(ServiceError):
+    """Raised when an event cannot be found by name.
+
+    Args:
+        name: The event name that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise EventNotFoundByName("Christmas 2024")
+        EventNotFoundByName: Event with name 'Christmas 2024' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, name: str, correlation_id: Optional[str] = None):
+        self.name = name
+        super().__init__(
+            f"Event with name '{name}' not found",
+            correlation_id=correlation_id,
+            name=name
+        )
+
+
+class FinishedGoodNotFoundById(ServiceError):
+    """Raised when a finished good cannot be found by ID.
+
+    Args:
+        finished_good_id: The finished good ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise FinishedGoodNotFoundById(123)
+        FinishedGoodNotFoundById: Finished good with ID 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, finished_good_id: int, correlation_id: Optional[str] = None):
+        self.finished_good_id = finished_good_id
+        super().__init__(
+            f"Finished good with ID {finished_good_id} not found",
+            correlation_id=correlation_id,
+            finished_good_id=finished_good_id
+        )
+
+
+class FinishedGoodNotFoundBySlug(ServiceError):
+    """Raised when a finished good cannot be found by slug.
+
+    Args:
+        slug: The finished good slug that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise FinishedGoodNotFoundBySlug("chocolate-truffles")
+        FinishedGoodNotFoundBySlug: Finished good with slug 'chocolate-truffles' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, slug: str, correlation_id: Optional[str] = None):
+        self.slug = slug
+        super().__init__(
+            f"Finished good with slug '{slug}' not found",
+            correlation_id=correlation_id,
+            slug=slug
+        )
+
+
+class FinishedUnitNotFoundById(ServiceError):
+    """Raised when a finished unit cannot be found by ID.
+
+    Args:
+        finished_unit_id: The finished unit ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise FinishedUnitNotFoundById(123)
+        FinishedUnitNotFoundById: Finished unit with ID 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, finished_unit_id: int, correlation_id: Optional[str] = None):
+        self.finished_unit_id = finished_unit_id
+        super().__init__(
+            f"Finished unit with ID {finished_unit_id} not found",
+            correlation_id=correlation_id,
+            finished_unit_id=finished_unit_id
+        )
+
+
+class FinishedUnitNotFoundBySlug(ServiceError):
+    """Raised when a finished unit cannot be found by slug.
+
+    Args:
+        slug: The finished unit slug that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise FinishedUnitNotFoundBySlug("cookie-dozen")
+        FinishedUnitNotFoundBySlug: Finished unit with slug 'cookie-dozen' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, slug: str, correlation_id: Optional[str] = None):
+        self.slug = slug
+        super().__init__(
+            f"Finished unit with slug '{slug}' not found",
+            correlation_id=correlation_id,
+            slug=slug
+        )
+
+
+class PackageNotFoundById(ServiceError):
+    """Raised when a package cannot be found by ID.
+
+    Args:
+        package_id: The package ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise PackageNotFoundById(123)
+        PackageNotFoundById: Package with ID 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, package_id: int, correlation_id: Optional[str] = None):
+        self.package_id = package_id
+        super().__init__(
+            f"Package with ID {package_id} not found",
+            correlation_id=correlation_id,
+            package_id=package_id
+        )
+
+
+class PackageNotFoundByName(ServiceError):
+    """Raised when a package cannot be found by name.
+
+    Args:
+        name: The package name that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise PackageNotFoundByName("Holiday Gift Box")
+        PackageNotFoundByName: Package with name 'Holiday Gift Box' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, name: str, correlation_id: Optional[str] = None):
+        self.name = name
+        super().__init__(
+            f"Package with name '{name}' not found",
+            correlation_id=correlation_id,
+            name=name
+        )
+
+
+class CompositionNotFoundById(ServiceError):
+    """Raised when a composition cannot be found by ID.
+
+    Args:
+        composition_id: The composition ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise CompositionNotFoundById(123)
+        CompositionNotFoundById: Composition with ID 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, composition_id: int, correlation_id: Optional[str] = None):
+        self.composition_id = composition_id
+        super().__init__(
+            f"Composition with ID {composition_id} not found",
+            correlation_id=correlation_id,
+            composition_id=composition_id
+        )
+
+
+class UnitNotFoundByCode(ServiceError):
+    """Raised when a unit cannot be found by code.
+
+    Args:
+        code: The unit code that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise UnitNotFoundByCode("kg")
+        UnitNotFoundByCode: Unit with code 'kg' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, code: str, correlation_id: Optional[str] = None):
+        self.code = code
+        super().__init__(
+            f"Unit with code '{code}' not found",
+            correlation_id=correlation_id,
+            code=code
+        )
+
+
+class MaterialCategoryNotFound(ServiceError):
+    """Raised when a material category cannot be found.
+
+    Args:
+        identifier: The category identifier (ID or name)
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise MaterialCategoryNotFound(123)
+        MaterialCategoryNotFound: Material category 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, identifier, correlation_id: Optional[str] = None):
+        self.identifier = identifier
+        super().__init__(
+            f"Material category {identifier} not found",
+            correlation_id=correlation_id,
+            identifier=identifier
+        )
+
+
+class MaterialSubcategoryNotFound(ServiceError):
+    """Raised when a material subcategory cannot be found.
+
+    Args:
+        identifier: The subcategory identifier (ID or name)
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise MaterialSubcategoryNotFound(123)
+        MaterialSubcategoryNotFound: Material subcategory 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, identifier, correlation_id: Optional[str] = None):
+        self.identifier = identifier
+        super().__init__(
+            f"Material subcategory {identifier} not found",
+            correlation_id=correlation_id,
+            identifier=identifier
+        )
+
+
+class MaterialNotFound(ServiceError):
+    """Raised when a material cannot be found.
+
+    Args:
+        identifier: The material identifier (ID or slug)
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise MaterialNotFound(123)
+        MaterialNotFound: Material 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, identifier, correlation_id: Optional[str] = None):
+        self.identifier = identifier
+        super().__init__(
+            f"Material {identifier} not found",
+            correlation_id=correlation_id,
+            identifier=identifier
+        )
+
+
+class MaterialProductNotFound(ServiceError):
+    """Raised when a material product cannot be found.
+
+    Args:
+        identifier: The material product identifier (ID or slug)
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise MaterialProductNotFound(123)
+        MaterialProductNotFound: Material product 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, identifier, correlation_id: Optional[str] = None):
+        self.identifier = identifier
+        super().__init__(
+            f"Material product {identifier} not found",
+            correlation_id=correlation_id,
+            identifier=identifier
+        )
+
+
+class RecipientNotFoundByName(ServiceError):
+    """Raised when a recipient cannot be found by name.
+
+    Args:
+        name: The recipient name that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise RecipientNotFoundByName("John Smith")
+        RecipientNotFoundByName: Recipient with name 'John Smith' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, name: str, correlation_id: Optional[str] = None):
+        self.name = name
+        super().__init__(
+            f"Recipient with name '{name}' not found",
+            correlation_id=correlation_id,
+            name=name
+        )
+
+
+class ConversionError(ServiceError):
+    """Raised when a unit conversion fails.
+
+    Args:
+        message: Description of the conversion error
+        from_unit: The source unit (optional)
+        to_unit: The target unit (optional)
+        value: The value being converted (optional)
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise ConversionError("Cannot convert weight to volume", from_unit="kg", to_unit="ml")
+        ConversionError: Cannot convert weight to volume
+
+    HTTP Status: 400 Bad Request
+    """
+
+    http_status_code = 400
+
+    def __init__(
+        self,
+        message: str,
+        from_unit: Optional[str] = None,
+        to_unit: Optional[str] = None,
+        value: Optional[float] = None,
+        correlation_id: Optional[str] = None
+    ):
+        self.from_unit = from_unit
+        self.to_unit = to_unit
+        self.value = value
+        super().__init__(
+            message,
+            correlation_id=correlation_id,
+            from_unit=from_unit,
+            to_unit=to_unit,
+            value=value
         )
 
 
