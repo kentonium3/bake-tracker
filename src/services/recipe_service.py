@@ -287,10 +287,8 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
         IngredientNotFound: If an ingredient_id doesn't exist
         DatabaseError: If database operation fails
     """
-    # Validate recipe data
-    is_valid, errors = validate_recipe_data(recipe_data)
-    if not is_valid:
-        raise ValidationError(errors)
+    # Validate recipe data (raises ValidationError on failure)
+    validate_recipe_data(recipe_data)
 
     try:
         with session_scope() as session:
@@ -573,10 +571,8 @@ def update_recipe(  # noqa: C901
         IngredientNotFound: If an ingredient_id doesn't exist
         DatabaseError: If database operation fails
     """
-    # Validate recipe data
-    is_valid, errors = validate_recipe_data(recipe_data)
-    if not is_valid:
-        raise ValidationError(errors)
+    # Validate recipe data (raises ValidationError on failure)
+    validate_recipe_data(recipe_data)
 
     try:
         with session_scope() as session:

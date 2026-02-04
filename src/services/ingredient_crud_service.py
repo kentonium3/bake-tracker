@@ -50,10 +50,8 @@ def create_ingredient(data: Dict) -> Ingredient:
         ValidationError: If data validation fails
         DatabaseError: If database operation fails
     """
-    # Validate data
-    is_valid, errors = validate_ingredient_data(data)
-    if not is_valid:
-        raise ValidationError(errors)
+    # Validate data (raises ValidationError on failure)
+    validate_ingredient_data(data)
 
     try:
         with session_scope() as session:
@@ -193,10 +191,8 @@ def update_ingredient(ingredient_id: int, data: Dict) -> Ingredient:
         ValidationError: If data validation fails
         DatabaseError: If database operation fails
     """
-    # Validate data
-    is_valid, errors = validate_ingredient_data(data)
-    if not is_valid:
-        raise ValidationError(errors)
+    # Validate data (raises ValidationError on failure)
+    validate_ingredient_data(data)
 
     try:
         with session_scope() as session:

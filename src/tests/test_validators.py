@@ -7,11 +7,14 @@ Tests cover all validation functions in the validators module including:
 - Unit validation
 - Category validation
 - Complete data validation (ingredient, recipe)
+
+All validation functions raise ValidationError on failure (F094).
 """
 
 import pytest
 
 from src.utils import validators
+from src.services.exceptions import ValidationError
 from src.utils.constants import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
@@ -24,187 +27,168 @@ class TestStringValidation:
     """Test string validation functions."""
 
     def test_validate_required_string_valid(self):
-        """Test required string with valid input."""
-        is_valid, error = validators.validate_required_string("Test Value", "Test Field")
-        assert is_valid is True
-        assert error == ""
+        """Test required string with valid input - no exception raised."""
+        validators.validate_required_string("Test Value", "Test Field")
+        # No exception means success
 
     def test_validate_required_string_none(self):
-        """Test required string with None."""
-        is_valid, error = validators.validate_required_string(None, "Test Field")
-        assert is_valid is False
-        assert "required" in error.lower()
+        """Test required string with None raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_required_string(None, "Test Field")
+        assert "required" in str(exc.value).lower()
 
     def test_validate_required_string_empty(self):
-        """Test required string with empty string."""
-        is_valid, error = validators.validate_required_string("", "Test Field")
-        assert is_valid is False
-        assert "required" in error.lower()
+        """Test required string with empty string raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_required_string("", "Test Field")
+        assert "required" in str(exc.value).lower()
 
     def test_validate_required_string_whitespace(self):
-        """Test required string with only whitespace."""
-        is_valid, error = validators.validate_required_string("   ", "Test Field")
-        assert is_valid is False
-        assert "required" in error.lower()
+        """Test required string with only whitespace raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_required_string("   ", "Test Field")
+        assert "required" in str(exc.value).lower()
 
     def test_validate_string_length_valid(self):
-        """Test string length validation with valid string."""
-        is_valid, error = validators.validate_string_length("Test", 100, "Test Field")
-        assert is_valid is True
-        assert error == ""
+        """Test string length validation with valid string - no exception."""
+        validators.validate_string_length("Test", 100, "Test Field")
 
     def test_validate_string_length_exact_max(self):
-        """Test string length at exact maximum."""
-        is_valid, error = validators.validate_string_length("A" * 100, 100, "Test Field")
-        assert is_valid is True
+        """Test string length at exact maximum - no exception."""
+        validators.validate_string_length("A" * 100, 100, "Test Field")
 
     def test_validate_string_length_too_long(self):
-        """Test string length exceeding maximum."""
-        is_valid, error = validators.validate_string_length("A" * 101, 100, "Test Field")
-        assert is_valid is False
-        assert "100" in error
+        """Test string length exceeding maximum raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_string_length("A" * 101, 100, "Test Field")
+        assert "100" in str(exc.value)
 
 
 class TestNumericValidation:
     """Test numeric validation functions."""
 
     def test_validate_positive_number_valid_int(self):
-        """Test positive number with valid integer."""
-        is_valid, error = validators.validate_positive_number(5, "Test Field")
-        assert is_valid is True
-        assert error == ""
+        """Test positive number with valid integer - no exception."""
+        validators.validate_positive_number(5, "Test Field")
 
     def test_validate_positive_number_valid_float(self):
-        """Test positive number with valid float."""
-        is_valid, error = validators.validate_positive_number(5.5, "Test Field")
-        assert is_valid is True
+        """Test positive number with valid float - no exception."""
+        validators.validate_positive_number(5.5, "Test Field")
 
     def test_validate_positive_number_zero(self):
-        """Test positive number with zero (should fail)."""
-        is_valid, error = validators.validate_positive_number(0, "Test Field")
-        assert is_valid is False
-        assert "greater than zero" in error.lower()
+        """Test positive number with zero raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_positive_number(0, "Test Field")
+        assert "greater than zero" in str(exc.value).lower()
 
     def test_validate_positive_number_negative(self):
-        """Test positive number with negative value."""
-        is_valid, error = validators.validate_positive_number(-5, "Test Field")
-        assert is_valid is False
+        """Test positive number with negative value raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_positive_number(-5, "Test Field")
 
     def test_validate_positive_number_invalid_string(self):
-        """Test positive number with non-numeric string."""
-        is_valid, error = validators.validate_positive_number("abc", "Test Field")
-        assert is_valid is False
-        assert "valid number" in error.lower()
+        """Test positive number with non-numeric string raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_positive_number("abc", "Test Field")
+        assert "valid number" in str(exc.value).lower()
 
     def test_validate_non_negative_number_valid(self):
-        """Test non-negative number with valid value."""
-        is_valid, error = validators.validate_non_negative_number(0, "Test Field")
-        assert is_valid is True
+        """Test non-negative number with valid value - no exception."""
+        validators.validate_non_negative_number(0, "Test Field")
 
     def test_validate_non_negative_number_positive(self):
-        """Test non-negative number with positive value."""
-        is_valid, error = validators.validate_non_negative_number(5.5, "Test Field")
-        assert is_valid is True
+        """Test non-negative number with positive value - no exception."""
+        validators.validate_non_negative_number(5.5, "Test Field")
 
     def test_validate_non_negative_number_negative(self):
-        """Test non-negative number with negative value."""
-        is_valid, error = validators.validate_non_negative_number(-1, "Test Field")
-        assert is_valid is False
+        """Test non-negative number with negative value raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_non_negative_number(-1, "Test Field")
 
     def test_validate_number_range_valid(self):
-        """Test number range with value in range."""
-        is_valid, error = validators.validate_number_range(5, 0, 10, "Test Field")
-        assert is_valid is True
+        """Test number range with value in range - no exception."""
+        validators.validate_number_range(5, 0, 10, "Test Field")
 
     def test_validate_number_range_at_min(self):
-        """Test number range at minimum boundary."""
-        is_valid, error = validators.validate_number_range(0, 0, 10, "Test Field")
-        assert is_valid is True
+        """Test number range at minimum boundary - no exception."""
+        validators.validate_number_range(0, 0, 10, "Test Field")
 
     def test_validate_number_range_at_max(self):
-        """Test number range at maximum boundary."""
-        is_valid, error = validators.validate_number_range(10, 0, 10, "Test Field")
-        assert is_valid is True
+        """Test number range at maximum boundary - no exception."""
+        validators.validate_number_range(10, 0, 10, "Test Field")
 
     def test_validate_number_range_below_min(self):
-        """Test number range below minimum."""
-        is_valid, error = validators.validate_number_range(-1, 0, 10, "Test Field")
-        assert is_valid is False
-        assert "between" in error.lower()
+        """Test number range below minimum raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_number_range(-1, 0, 10, "Test Field")
+        assert "between" in str(exc.value).lower()
 
     def test_validate_number_range_above_max(self):
-        """Test number range above maximum."""
-        is_valid, error = validators.validate_number_range(11, 0, 10, "Test Field")
-        assert is_valid is False
+        """Test number range above maximum raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_number_range(11, 0, 10, "Test Field")
 
 
 class TestUnitValidation:
     """Test unit validation functions."""
 
     def test_validate_unit_valid_weight(self):
-        """Test unit validation with valid weight unit."""
-        is_valid, error = validators.validate_unit("lb", "Test Unit")
-        assert is_valid is True
+        """Test unit validation with valid weight unit - no exception."""
+        validators.validate_unit("lb", "Test Unit")
 
     def test_validate_unit_valid_volume(self):
-        """Test unit validation with valid volume unit."""
-        is_valid, error = validators.validate_unit("cup", "Test Unit")
-        assert is_valid is True
+        """Test unit validation with valid volume unit - no exception."""
+        validators.validate_unit("cup", "Test Unit")
 
     def test_validate_unit_valid_count(self):
-        """Test unit validation with valid count unit."""
-        is_valid, error = validators.validate_unit("each", "Test Unit")
-        assert is_valid is True
+        """Test unit validation with valid count unit - no exception."""
+        validators.validate_unit("each", "Test Unit")
 
     def test_validate_unit_valid_package(self):
-        """Test unit validation with valid package unit."""
-        is_valid, error = validators.validate_unit("bag", "Test Unit")
-        assert is_valid is True
+        """Test unit validation with valid package unit - no exception."""
+        validators.validate_unit("bag", "Test Unit")
 
     def test_validate_unit_case_insensitive(self):
-        """Test unit validation is case-insensitive."""
-        is_valid, error = validators.validate_unit("CUP", "Test Unit")
-        assert is_valid is True
+        """Test unit validation is case-insensitive - no exception."""
+        validators.validate_unit("CUP", "Test Unit")
 
     def test_validate_unit_invalid(self):
-        """Test unit validation with invalid unit."""
-        is_valid, error = validators.validate_unit("invalid_unit", "Test Unit")
-        assert is_valid is False
-        assert "invalid unit" in error.lower()
+        """Test unit validation with invalid unit raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_unit("invalid_unit", "Test Unit")
+        assert "invalid unit" in str(exc.value).lower()
 
     def test_validate_unit_empty(self):
-        """Test unit validation with empty string."""
-        is_valid, error = validators.validate_unit("", "Test Unit")
-        assert is_valid is False
+        """Test unit validation with empty string raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_unit("", "Test Unit")
 
 
 class TestCategoryValidation:
     """Test category validation functions."""
 
     def test_validate_ingredient_category_valid(self):
-        """Test ingredient category with valid category."""
-        is_valid, error = validators.validate_ingredient_category("Flour", "Category")
-        assert is_valid is True
+        """Test ingredient category with valid category - no exception."""
+        validators.validate_ingredient_category("Flour", "Category")
 
     def test_validate_ingredient_category_invalid(self):
-        """Test ingredient category with whitespace-only string."""
-        is_valid, error = validators.validate_ingredient_category("   ", "Category")
-        assert is_valid is False
+        """Test ingredient category with whitespace-only raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_ingredient_category("   ", "Category")
 
     def test_validate_ingredient_category_empty(self):
-        """Test ingredient category with empty string."""
-        is_valid, error = validators.validate_ingredient_category("", "Category")
-        assert is_valid is False
+        """Test ingredient category with empty string raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_ingredient_category("", "Category")
 
     def test_validate_recipe_category_valid(self):
-        """Test recipe category with valid category."""
-        is_valid, error = validators.validate_recipe_category("Cookies", "Category")
-        assert is_valid is True
+        """Test recipe category with valid category - no exception."""
+        validators.validate_recipe_category("Cookies", "Category")
 
     def test_validate_recipe_category_invalid(self):
-        """Test recipe category with whitespace-only string."""
-        is_valid, error = validators.validate_recipe_category("   ", "Category")
-        assert is_valid is False
+        """Test recipe category with whitespace-only raises ValidationError."""
+        with pytest.raises(ValidationError):
+            validators.validate_recipe_category("   ", "Category")
 
 
 class TestIngredientValidation:
@@ -225,27 +209,26 @@ class TestIngredientValidation:
         }
 
     def test_validate_ingredient_data_valid(self):
-        """Test ingredient validation with all valid data."""
+        """Test ingredient validation with all valid data - no exception."""
         data = self.get_valid_ingredient_data()
-        is_valid, errors = validators.validate_ingredient_data(data)
-        assert is_valid is True
-        assert len(errors) == 0
+        validators.validate_ingredient_data(data)
 
     def test_validate_ingredient_data_missing_name(self):
-        """Test ingredient validation with missing name."""
+        """Test ingredient validation with missing name raises ValidationError."""
         data = self.get_valid_ingredient_data()
         del data["display_name"]
-        is_valid, errors = validators.validate_ingredient_data(data)
-        assert is_valid is False
-        assert any("name" in e.lower() for e in errors)
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_ingredient_data(data)
+        assert any("name" in e.lower() for e in exc.value.errors)
 
     def test_validate_ingredient_data_invalid_category(self):
-        """Test ingredient validation with missing/blank category."""
+        """Test ingredient validation with missing/blank category raises ValidationError."""
         data = self.get_valid_ingredient_data()
         data["category"] = "   "
-        is_valid, errors = validators.validate_ingredient_data(data)
-        assert is_valid is False
-        assert any("category" in e.lower() for e in errors)
+        with pytest.raises(ValidationError) as exc:
+            validators.validate_ingredient_data(data)
+        assert any("category" in e.lower() for e in exc.value.errors)
+
 
 class TestRecipeValidation:
     """Test complete recipe data validation."""
@@ -264,25 +247,23 @@ class TestRecipeValidation:
         }
 
     def test_validate_recipe_data_valid(self):
-        """Test recipe validation with all valid data."""
+        """Test recipe validation with all valid data - no exception."""
         data = self.get_valid_recipe_data()
-        is_valid, errors = validators.validate_recipe_data(data)
-        assert is_valid is True
-        assert len(errors) == 0
+        validators.validate_recipe_data(data)
 
     def test_validate_recipe_data_missing_name(self):
-        """Test recipe validation with missing name."""
+        """Test recipe validation with missing name raises ValidationError."""
         data = self.get_valid_recipe_data()
         del data["name"]
-        is_valid, errors = validators.validate_recipe_data(data)
-        assert is_valid is False
+        with pytest.raises(ValidationError):
+            validators.validate_recipe_data(data)
 
     def test_validate_recipe_data_invalid_category(self):
-        """Test recipe validation with missing/blank category."""
+        """Test recipe validation with missing/blank category raises ValidationError."""
         data = self.get_valid_recipe_data()
         data["category"] = "   "
-        is_valid, errors = validators.validate_recipe_data(data)
-        assert is_valid is False
+        with pytest.raises(ValidationError):
+            validators.validate_recipe_data(data)
 
     def test_validate_recipe_data_zero_yield(self):
         """Test recipe validation with zero yield.
@@ -292,16 +273,15 @@ class TestRecipeValidation:
         """
         data = self.get_valid_recipe_data()
         data["yield_quantity"] = 0
-        is_valid, errors = validators.validate_recipe_data(data)
         # yield_quantity is deprecated and ignored - validation should pass
-        assert is_valid is True
+        validators.validate_recipe_data(data)
 
     def test_validate_recipe_data_negative_time(self):
-        """Test recipe validation with negative time."""
+        """Test recipe validation with negative time raises ValidationError."""
         data = self.get_valid_recipe_data()
         data["estimated_time_minutes"] = -10
-        is_valid, errors = validators.validate_recipe_data(data)
-        assert is_valid is False
+        with pytest.raises(ValidationError):
+            validators.validate_recipe_data(data)
 
 
 class TestUtilityFunctions:

@@ -24,7 +24,7 @@ from src.services.purchase_service import (
     update_purchase,
     get_remaining_inventory,
 )
-from src.services.exceptions import PurchaseNotFound, ServiceError
+from src.services.exceptions import PurchaseNotFound, ServiceError, ValidationError
 from src.ui.utils.error_handler import handle_error
 
 
@@ -473,11 +473,11 @@ class EditPurchaseDialog(ctk.CTkToplevel):
                     f"({self.consumed_qty:.1f} units already consumed)"
                 )
 
-            # Also use server-side validation
-            can_edit, reason = can_edit_purchase(self.purchase_id, qty)
-            if not can_edit:
-                return False, reason
+            # Also use server-side validation (raises ValidationError if blocked)
+            can_edit_purchase(self.purchase_id, qty)
 
+        except ValidationError as e:
+            return False, e.errors[0] if e.errors else str(e)
         except (InvalidOperation, ValueError):
             return False, "Invalid quantity - enter a number"
 

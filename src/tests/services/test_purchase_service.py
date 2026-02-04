@@ -30,7 +30,7 @@ from src.services.purchase_service import (
     update_purchase,
     get_purchase_usage_history,
 )
-from src.services.exceptions import PurchaseNotFound
+from src.services.exceptions import PurchaseNotFound, ValidationError
 
 
 @pytest.fixture
@@ -689,42 +689,39 @@ class TestCanEditPurchase:
     """Tests for can_edit_purchase function."""
 
     def test_allows_edit_no_consumption(self, session, purchase_with_inventory):
-        """Allows quantity edit when no consumption."""
-        allowed, reason = can_edit_purchase(
+        """Allows quantity edit when no consumption - no exception raised."""
+        # No exception means edit is allowed
+        can_edit_purchase(
             purchase_id=purchase_with_inventory.id,
             new_quantity=Decimal("1.0"),
             session=session,
         )
 
-        assert allowed is True
-        assert reason == ""
-
     def test_allows_edit_above_consumed(self, session, purchase_partially_consumed):
-        """Allows quantity edit when new qty >= consumed."""
+        """Allows quantity edit when new qty >= consumed - no exception raised."""
         # Partially consumed has 5 units consumed (1 package consumed)
-        allowed, reason = can_edit_purchase(
+        # No exception means edit is allowed
+        can_edit_purchase(
             purchase_id=purchase_partially_consumed.id,
             new_quantity=Decimal("2.0"),  # 2 packages = 10 units > 5 consumed
             session=session,
         )
 
-        assert allowed is True
-        assert reason == ""
-
     def test_blocks_edit_below_consumed(self, session, purchase_partially_consumed):
-        """Blocks quantity edit when new qty < consumed."""
+        """Blocks quantity edit when new qty < consumed - raises ValidationError."""
         # Partially consumed has 5 units consumed
         # package_unit_quantity is 5, so 1 package = 5 units
         # 0.5 packages = 2.5 units < 5 consumed
-        allowed, reason = can_edit_purchase(
-            purchase_id=purchase_partially_consumed.id,
-            new_quantity=Decimal("0.5"),
-            session=session,
-        )
+        with pytest.raises(ValidationError) as exc:
+            can_edit_purchase(
+                purchase_id=purchase_partially_consumed.id,
+                new_quantity=Decimal("0.5"),
+                session=session,
+            )
 
-        assert allowed is False
-        assert "Cannot reduce below" in reason
-        assert "already consumed" in reason
+        error_msg = exc.value.errors[0]
+        assert "Cannot reduce below" in error_msg
+        assert "already consumed" in error_msg
 
     def test_raises_for_nonexistent_purchase(self, session):
         """Raises PurchaseNotFound for invalid purchase_id."""
@@ -740,36 +737,36 @@ class TestCanDeletePurchase:
     """Tests for can_delete_purchase function."""
 
     def test_allows_delete_no_depletions(self, session, purchase_with_inventory):
-        """Allows deletion when no inventory has been consumed."""
-        allowed, reason = can_delete_purchase(
+        """Allows deletion when no inventory has been consumed - no exception raised."""
+        # No exception means deletion is allowed
+        can_delete_purchase(
             purchase_id=purchase_with_inventory.id,
             session=session,
         )
 
-        assert allowed is True
-        assert reason == ""
-
     def test_blocks_delete_has_depletions(self, session, purchase_partially_consumed):
-        """Blocks deletion when inventory has been consumed."""
-        allowed, reason = can_delete_purchase(
-            purchase_id=purchase_partially_consumed.id,
-            session=session,
-        )
+        """Blocks deletion when inventory has been consumed - raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            can_delete_purchase(
+                purchase_id=purchase_partially_consumed.id,
+                session=session,
+            )
 
-        assert allowed is False
-        assert "Cannot delete" in reason
-        assert "already used" in reason
-        assert "Chocolate Chip Cookies" in reason
+        error_msg = exc.value.errors[0]
+        assert "Cannot delete" in error_msg
+        assert "already used" in error_msg
+        assert "Chocolate Chip Cookies" in error_msg
 
     def test_blocks_delete_fully_consumed(self, session, purchase_fully_consumed):
-        """Blocks deletion for fully consumed purchase."""
-        allowed, reason = can_delete_purchase(
-            purchase_id=purchase_fully_consumed.id,
-            session=session,
-        )
+        """Blocks deletion for fully consumed purchase - raises ValidationError."""
+        with pytest.raises(ValidationError) as exc:
+            can_delete_purchase(
+                purchase_id=purchase_fully_consumed.id,
+                session=session,
+            )
 
-        assert allowed is False
-        assert "Cannot delete" in reason
+        error_msg = exc.value.errors[0]
+        assert "Cannot delete" in error_msg
 
     def test_raises_for_nonexistent_purchase(self, session):
         """Raises PurchaseNotFound for invalid purchase_id."""

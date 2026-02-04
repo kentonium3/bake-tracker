@@ -31,7 +31,7 @@ from src.services.purchase_service import (
     get_purchase_usage_history,
 )
 from src.services.supplier_service import get_all_suppliers
-from src.services.exceptions import PurchaseNotFound
+from src.services.exceptions import PurchaseNotFound, ValidationError
 from src.services.material_inventory_service import list_inventory_items
 from src.services.material_catalog_service import list_products as list_material_products
 
@@ -510,14 +510,13 @@ class PurchasesTab(ctk.CTkFrame):
             return
 
         try:
-            # Check if can delete
-            can_delete, reason = can_delete_purchase(purchase_id)
+            # Check if can delete (raises ValidationError if blocked)
+            can_delete_purchase(purchase_id)
+            self._show_delete_confirmation_dialog(purchase_id)
 
-            if not can_delete:
-                self._show_delete_blocked_dialog(purchase_id, reason)
-            else:
-                self._show_delete_confirmation_dialog(purchase_id)
-
+        except ValidationError as e:
+            reason = e.errors[0] if e.errors else str(e)
+            self._show_delete_blocked_dialog(purchase_id, reason)
         except PurchaseNotFound:
             messagebox.showerror(
                 "Error", "Purchase not found. It may have been deleted.", parent=self
@@ -588,10 +587,11 @@ class PurchasesTab(ctk.CTkFrame):
 
             if result:
                 # Re-validate before executing (race condition protection)
-                can_delete, reason = can_delete_purchase(purchase_id)
-                if can_delete:
+                try:
+                    can_delete_purchase(purchase_id)
                     self._execute_delete(purchase_id)
-                else:
+                except ValidationError as e:
+                    reason = e.errors[0] if e.errors else str(e)
                     messagebox.showerror(
                         "Cannot Delete",
                         f"Purchase can no longer be deleted.\n\nReason: {reason}",

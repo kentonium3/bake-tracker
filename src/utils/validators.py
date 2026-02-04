@@ -6,11 +6,15 @@ This module provides validation functions for all user inputs including:
 - String validation (length, format, required fields)
 - Unit validation
 - Category validation
+
+All validation functions raise ValidationError on failure instead of returning
+tuples. This is the standardized API pattern (F094).
 """
 
-from typing import Optional, Tuple, Set
+from typing import Optional, Set
 
 from src.services.database import session_scope
+from src.services.exceptions import ValidationError
 from src.models.ingredient import Ingredient
 from src.models.recipe import Recipe
 
@@ -36,13 +40,7 @@ from .constants import (
 )
 
 
-class ValidationError(Exception):
-    """Exception raised for validation errors."""
-
-    pass
-
-
-def validate_required_string(value: Optional[str], field_name: str = "Field") -> Tuple[bool, str]:
+def validate_required_string(value: Optional[str], field_name: str = "Field") -> None:
     """
     Validate that a string field is not empty.
 
@@ -50,17 +48,16 @@ def validate_required_string(value: Optional[str], field_name: str = "Field") ->
         value: The string value to validate
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If value is None or empty string
     """
     if value is None or (isinstance(value, str) and value.strip() == ""):
-        return False, f"{field_name}: {ERROR_REQUIRED_FIELD}"
-    return True, ""
+        raise ValidationError([f"{field_name}: {ERROR_REQUIRED_FIELD}"])
 
 
 def validate_string_length(
     value: str, max_length: int, field_name: str = "Field"
-) -> Tuple[bool, str]:
+) -> None:
     """
     Validate that a string doesn't exceed maximum length.
 
@@ -69,15 +66,14 @@ def validate_string_length(
         max_length: Maximum allowed length
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If value exceeds max_length
     """
     if value and len(value) > max_length:
-        return False, f"{field_name}: Must be {max_length} characters or less"
-    return True, ""
+        raise ValidationError([f"{field_name}: Must be {max_length} characters or less"])
 
 
-def validate_positive_number(value: any, field_name: str = "Field") -> Tuple[bool, str]:
+def validate_positive_number(value: any, field_name: str = "Field") -> None:
     """
     Validate that a value is a positive number (> 0).
 
@@ -85,19 +81,18 @@ def validate_positive_number(value: any, field_name: str = "Field") -> Tuple[boo
         value: The value to validate
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If value is not a positive number
     """
     try:
         num_value = float(value)
         if num_value <= 0:
-            return False, f"{field_name}: {ERROR_INVALID_POSITIVE}"
-        return True, ""
+            raise ValidationError([f"{field_name}: {ERROR_INVALID_POSITIVE}"])
     except (ValueError, TypeError):
-        return False, f"{field_name}: {ERROR_INVALID_NUMBER}"
+        raise ValidationError([f"{field_name}: {ERROR_INVALID_NUMBER}"])
 
 
-def validate_non_negative_number(value: any, field_name: str = "Field") -> Tuple[bool, str]:
+def validate_non_negative_number(value: any, field_name: str = "Field") -> None:
     """
     Validate that a value is a non-negative number (>= 0).
 
@@ -105,21 +100,20 @@ def validate_non_negative_number(value: any, field_name: str = "Field") -> Tuple
         value: The value to validate
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If value is not a non-negative number
     """
     try:
         num_value = float(value)
         if num_value < 0:
-            return False, f"{field_name}: {ERROR_INVALID_NON_NEGATIVE}"
-        return True, ""
+            raise ValidationError([f"{field_name}: {ERROR_INVALID_NON_NEGATIVE}"])
     except (ValueError, TypeError):
-        return False, f"{field_name}: {ERROR_INVALID_NUMBER}"
+        raise ValidationError([f"{field_name}: {ERROR_INVALID_NUMBER}"])
 
 
 def validate_number_range(
     value: any, min_value: float, max_value: float, field_name: str = "Field"
-) -> Tuple[bool, str]:
+) -> None:
     """
     Validate that a number is within a specified range.
 
@@ -129,19 +123,18 @@ def validate_number_range(
         max_value: Maximum allowed value
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If value is not within range
     """
     try:
         num_value = float(value)
         if num_value < min_value or num_value > max_value:
-            return False, f"{field_name}: Must be between {min_value} and {max_value}"
-        return True, ""
+            raise ValidationError([f"{field_name}: Must be between {min_value} and {max_value}"])
     except (ValueError, TypeError):
-        return False, f"{field_name}: {ERROR_INVALID_NUMBER}"
+        raise ValidationError([f"{field_name}: {ERROR_INVALID_NUMBER}"])
 
 
-def validate_unit(unit: str, field_name: str = "Unit") -> Tuple[bool, str]:
+def validate_unit(unit: str, field_name: str = "Unit") -> None:
     """
     Validate that a unit is in the list of valid units.
 
@@ -149,16 +142,14 @@ def validate_unit(unit: str, field_name: str = "Unit") -> Tuple[bool, str]:
         unit: The unit string to validate
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If unit is not valid
     """
     if not unit:
-        return False, f"{field_name}: {ERROR_REQUIRED_FIELD}"
+        raise ValidationError([f"{field_name}: {ERROR_REQUIRED_FIELD}"])
 
     if unit.lower() not in [u.lower() for u in ALL_UNITS]:
-        return False, f"{field_name}: {ERROR_INVALID_UNIT}"
-
-    return True, ""
+        raise ValidationError([f"{field_name}: {ERROR_INVALID_UNIT}"])
 
 
 def _get_valid_ingredient_categories() -> Set[str]:
@@ -189,7 +180,7 @@ def _get_valid_recipe_categories() -> Set[str]:
         return set()
 
 
-def validate_ingredient_category(category: str, field_name: str = "Category") -> Tuple[bool, str]:
+def validate_ingredient_category(category: str, field_name: str = "Category") -> None:
     """
     Validate ingredient category.
 
@@ -202,22 +193,15 @@ def validate_ingredient_category(category: str, field_name: str = "Category") ->
         category: The category string to validate
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If category fails validation
     """
     category = sanitize_string(category)
-    is_valid, error = validate_required_string(category, field_name)
-    if not is_valid:
-        return False, error
-
-    is_valid, error = validate_string_length(category, MAX_CATEGORY_LENGTH, field_name)
-    if not is_valid:
-        return False, error
-
-    return True, ""
+    validate_required_string(category, field_name)
+    validate_string_length(category, MAX_CATEGORY_LENGTH, field_name)
 
 
-def validate_recipe_category(category: str, field_name: str = "Category") -> Tuple[bool, str]:
+def validate_recipe_category(category: str, field_name: str = "Category") -> None:
     """
     Validate recipe category.
 
@@ -230,118 +214,116 @@ def validate_recipe_category(category: str, field_name: str = "Category") -> Tup
         category: The category string to validate
         field_name: Name of the field for error messages
 
-    Returns:
-        Tuple of (is_valid, error_message)
+    Raises:
+        ValidationError: If category fails validation
     """
     category = sanitize_string(category)
-    is_valid, error = validate_required_string(category, field_name)
-    if not is_valid:
-        return False, error
-
-    is_valid, error = validate_string_length(category, MAX_CATEGORY_LENGTH, field_name)
-    if not is_valid:
-        return False, error
-
-    return True, ""
+    validate_required_string(category, field_name)
+    validate_string_length(category, MAX_CATEGORY_LENGTH, field_name)
 
 
-def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
+def validate_ingredient_data(data: dict) -> None:  # noqa: C901
     """
     Validate all fields for an ingredient (NEW SCHEMA: generic ingredient definition).
 
     Args:
         data: Dictionary containing ingredient fields
 
-    Returns:
-        Tuple of (is_valid, list_of_errors)
+    Raises:
+        ValidationError: If any validation fails, with all errors collected
     """
     errors = []
 
     # Required: Display name
     display_name = data.get("display_name")
-    is_valid, error = validate_required_string(display_name, "Name")
-    if not is_valid:
-        errors.append(error)
-    else:
-        is_valid, error = validate_string_length(display_name, MAX_NAME_LENGTH, "Name")
-        if not is_valid:
-            errors.append(error)
+    try:
+        validate_required_string(display_name, "Name")
+        validate_string_length(display_name, MAX_NAME_LENGTH, "Name")
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # Required: Category
-    is_valid, error = validate_ingredient_category(data.get("category", ""), "Category")
-    if not is_valid:
-        errors.append(error)
+    try:
+        validate_ingredient_category(data.get("category", ""), "Category")
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # Optional: Slug (will be auto-generated if not provided)
     if data.get("slug"):
-        is_valid, error = validate_string_length(data.get("slug"), MAX_NAME_LENGTH, "Slug")
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(data.get("slug"), MAX_NAME_LENGTH, "Slug")
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: Description
     if data.get("description"):
-        is_valid, error = validate_string_length(
-            data.get("description"), MAX_NOTES_LENGTH * 2, "Description"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(
+                data.get("description"), MAX_NOTES_LENGTH * 2, "Description"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: 4-field density (all-or-nothing validation)
     # Note: Full density validation is done in ingredient_service.validate_density_fields()
     # Here we just do basic positive number checks if values are provided
     if data.get("density_volume_value") is not None:
-        is_valid, error = validate_positive_number(
-            data.get("density_volume_value"), "Density volume value"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_positive_number(
+                data.get("density_volume_value"), "Density volume value"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
     if data.get("density_weight_value") is not None:
-        is_valid, error = validate_positive_number(
-            data.get("density_weight_value"), "Density weight value"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_positive_number(
+                data.get("density_weight_value"), "Density weight value"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: Moisture percentage (must be 0-100 if provided)
     if data.get("moisture_pct") is not None:
-        is_valid, error = validate_number_range(data.get("moisture_pct"), 0, 100, "Moisture %")
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_number_range(data.get("moisture_pct"), 0, 100, "Moisture %")
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: Notes
     if data.get("notes"):
-        is_valid, error = validate_string_length(data.get("notes"), MAX_NOTES_LENGTH, "Notes")
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(data.get("notes"), MAX_NOTES_LENGTH, "Notes")
+        except ValidationError as e:
+            errors.extend(e.errors)
 
-    return len(errors) == 0, errors
+    if errors:
+        raise ValidationError(errors)
 
 
-def validate_recipe_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
+def validate_recipe_data(data: dict) -> None:  # noqa: C901
     """
     Validate all fields for a recipe.
 
     Args:
         data: Dictionary containing recipe fields
 
-    Returns:
-        Tuple of (is_valid, list_of_errors)
+    Raises:
+        ValidationError: If any validation fails, with all errors collected
     """
     errors = []
 
     # Required string fields
-    is_valid, error = validate_required_string(data.get("name"), "Recipe Name")
-    if not is_valid:
-        errors.append(error)
-    else:
-        is_valid, error = validate_string_length(data.get("name"), MAX_NAME_LENGTH, "Recipe Name")
-        if not is_valid:
-            errors.append(error)
+    try:
+        validate_required_string(data.get("name"), "Recipe Name")
+        validate_string_length(data.get("name"), MAX_NAME_LENGTH, "Recipe Name")
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # Category
-    is_valid, error = validate_recipe_category(data.get("category", ""), "Category")
-    if not is_valid:
-        errors.append(error)
+    try:
+        validate_recipe_category(data.get("category", ""), "Category")
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # F056: yield_quantity, yield_unit, yield_description are DEPRECATED
     # Yield data is now stored in FinishedUnit records (yield_types)
@@ -349,26 +331,30 @@ def validate_recipe_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
 
     # Optional fields with length limits
     if data.get("source"):
-        is_valid, error = validate_string_length(
-            data.get("source"), MAX_DESCRIPTION_LENGTH, "Source"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(
+                data.get("source"), MAX_DESCRIPTION_LENGTH, "Source"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     if data.get("notes"):
-        is_valid, error = validate_string_length(data.get("notes"), MAX_NOTES_LENGTH, "Notes")
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(data.get("notes"), MAX_NOTES_LENGTH, "Notes")
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Estimated time (optional, must be non-negative if provided)
     if data.get("estimated_time_minutes") is not None:
-        is_valid, error = validate_non_negative_number(
-            data.get("estimated_time_minutes"), "Estimated Time"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_non_negative_number(
+                data.get("estimated_time_minutes"), "Estimated Time"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
 
-    return len(errors) == 0, errors
+    if errors:
+        raise ValidationError(errors)
 
 
 def sanitize_string(value: Optional[str]) -> Optional[str]:
@@ -427,7 +413,7 @@ def parse_int(value: any, default: int = 0) -> int:
         return default
 
 
-def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]:
+def validate_product_data(data: dict, ingredient_slug: str) -> None:
     """
     Validate all fields for a product (brand-specific version of ingredient).
 
@@ -435,8 +421,8 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
         data: Dictionary containing product fields
         ingredient_slug: Slug of parent ingredient (for context)
 
-    Returns:
-        Tuple of (is_valid, list_of_errors)
+    Raises:
+        ValidationError: If any validation fails, with all errors collected
 
     Required fields:
         - brand (str): Brand name
@@ -455,33 +441,34 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
     errors = []
 
     # Required: Brand
-    is_valid, error = validate_required_string(data.get("brand"), "Brand")
-    if not is_valid:
-        errors.append(error)
-    else:
-        is_valid, error = validate_string_length(data.get("brand"), MAX_BRAND_LENGTH, "Brand")
-        if not is_valid:
-            errors.append(error)
+    try:
+        validate_required_string(data.get("brand"), "Brand")
+        validate_string_length(data.get("brand"), MAX_BRAND_LENGTH, "Brand")
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # Required: Package unit
-    is_valid, error = validate_unit(data.get("package_unit", ""), "Package Unit")
-    if not is_valid:
-        errors.append(error)
+    try:
+        validate_unit(data.get("package_unit", ""), "Package Unit")
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # Required: Package quantity (must be positive)
-    is_valid, error = validate_positive_number(
-        data.get("package_unit_quantity"), "Package Quantity"
-    )
-    if not is_valid:
-        errors.append(error)
+    try:
+        validate_positive_number(
+            data.get("package_unit_quantity"), "Package Quantity"
+        )
+    except ValidationError as e:
+        errors.extend(e.errors)
 
     # Optional: Package size
     if data.get("package_size"):
-        is_valid, error = validate_string_length(
-            data.get("package_size"), MAX_DESCRIPTION_LENGTH, "Package Size"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(
+                data.get("package_size"), MAX_DESCRIPTION_LENGTH, "Package Size"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: UPC (12-14 digit string if provided)
     if data.get("upc"):
@@ -493,22 +480,26 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
 
     # Optional: Supplier
     if data.get("supplier"):
-        is_valid, error = validate_string_length(data.get("supplier"), MAX_NAME_LENGTH, "Supplier")
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_string_length(data.get("supplier"), MAX_NAME_LENGTH, "Supplier")
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: Net content value (must be positive if provided)
     if data.get("net_content_value") is not None:
-        is_valid, error = validate_positive_number(
-            data.get("net_content_value"), "Net Content Value"
-        )
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_positive_number(
+                data.get("net_content_value"), "Net Content Value"
+            )
+        except ValidationError as e:
+            errors.extend(e.errors)
 
     # Optional: Net content unit (must be valid unit if provided)
     if data.get("net_content_uom"):
-        is_valid, error = validate_unit(data.get("net_content_uom", ""), "Net Content UOM")
-        if not is_valid:
-            errors.append(error)
+        try:
+            validate_unit(data.get("net_content_uom", ""), "Net Content UOM")
+        except ValidationError as e:
+            errors.extend(e.errors)
 
-    return len(errors) == 0, errors
+    if errors:
+        raise ValidationError(errors)
