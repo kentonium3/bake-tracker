@@ -228,10 +228,10 @@
 **Prompt**: `/tasks/WP09-documentation.md`
 
 ### Included Subtasks
-- [ ] T047 Add "Exception Pattern" section to CLAUDE.md
-- [ ] T048 Add "Validation Pattern" section to CLAUDE.md
-- [ ] T049 Update existing "Key Design Decisions" with new patterns
-- [ ] T050 Document which services have been updated
+- [x] T047 Add "Exception Pattern" section to CLAUDE.md
+- [x] T048 Add "Validation Pattern" section to CLAUDE.md
+- [x] T049 Update existing "Key Design Decisions" with new patterns
+- [x] T050 Document which services have been updated
 
 ### Implementation Notes
 - Follow existing CLAUDE.md structure
