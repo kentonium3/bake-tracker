@@ -60,7 +60,8 @@
 
 ### Step 2: Create Accordion Section Templates
 
-Cut out 4 accordion sections from separate pieces of paper. Each should be ~8" wide × 2.5" tall.
+Cut out 4 accordion sections from separate pieces of paper. 
+Each should be ~8" wide × 2.5" tall.
 
 **Cut-out Template for Collapsed State (make 4 of these)**
 
