@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Documentation Update
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 base_branch: 094-core-api-standardization-WP02
@@ -246,3 +246,4 @@ Manual review:
 ## Activity Log
 
 - 2026-02-03T16:10:45Z - system - lane=planned - Prompt generated via /spec-kitty.tasks
+- 2026-02-04T02:50:50Z – unknown – shell_pid=38903 – lane=for_review – Ready for review: Added exception and validation pattern documentation to CLAUDE.md
