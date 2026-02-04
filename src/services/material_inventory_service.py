@@ -38,6 +38,7 @@ from .exceptions import (
     ValidationError as ServiceValidationError,
     DatabaseError,
     MaterialInventoryItemNotFoundError,
+    ConversionError,
 )
 from .material_unit_converter import (
     convert_to_base_units,
@@ -200,11 +201,12 @@ def consume_material_fifo(
         base_unit_type = product.material.base_unit_type
 
         # Convert quantity_needed to base units
-        success, qty_in_base, error = convert_to_base_units(
-            quantity_needed, target_unit, base_unit_type
-        )
-        if not success:
-            raise ServiceValidationError([error])
+        try:
+            qty_in_base = convert_to_base_units(
+                quantity_needed, target_unit, base_unit_type
+            )
+        except ConversionError as e:
+            raise ServiceValidationError([str(e)])
 
         # Get all lots ordered by purchase_date ASC (oldest first)
         lots = get_fifo_inventory(material_product_id, session=sess)
@@ -258,18 +260,20 @@ def consume_material_fifo(
                 sess.flush()
 
         # Convert consumed back to target_unit for return
-        success, consumed_target, _ = convert_from_base_units(
-            consumed_base, target_unit, base_unit_type
-        )
-        if not success:
+        try:
+            consumed_target = convert_from_base_units(
+                consumed_base, target_unit, base_unit_type
+            )
+        except ConversionError:
             consumed_target = consumed_base  # Fallback
 
         # Calculate shortfall in target units
         shortfall_base = max(Decimal("0.0"), remaining_needed)
-        success, shortfall_target, _ = convert_from_base_units(
-            shortfall_base, target_unit, base_unit_type
-        )
-        if not success:
+        try:
+            shortfall_target = convert_from_base_units(
+                shortfall_base, target_unit, base_unit_type
+            )
+        except ConversionError:
             shortfall_target = shortfall_base
 
         return {

@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 
 from ..models import MaterialProduct, MaterialPurchase, MaterialInventoryItem, Supplier
 from .database import session_scope
-from .exceptions import ValidationError, ServiceError
+from .exceptions import ValidationError, ServiceError, ConversionError
 from . import material_unit_converter
 
 
@@ -108,14 +108,15 @@ def convert_to_base_units(
         >>> convert_to_base_units(10, 'each', 'each')
         10.0
     """
-    success, result, error = material_unit_converter.convert_to_base_units(
-        Decimal(str(quantity)),
-        from_unit,
-        base_unit_type,
-    )
-    if not success:
-        raise ValidationError([error])
-    return float(result)
+    try:
+        result = material_unit_converter.convert_to_base_units(
+            Decimal(str(quantity)),
+            from_unit,
+            base_unit_type,
+        )
+        return float(result)
+    except ConversionError as e:
+        raise ValidationError([str(e)])
 
 
 # =============================================================================

@@ -25,7 +25,7 @@ from typing import Optional, Dict, Any, List
 from src.models.ingredient import Ingredient
 from src.services.unit_service import get_units_by_category
 from src.services import ingredient_service
-from src.services.exceptions import ServiceError
+from src.services.exceptions import ServiceError, ConversionError
 from src.utils.constants import (
     ALL_UNITS,
     PACKAGE_UNITS,
@@ -543,22 +543,20 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 from src.services.unit_converter import convert_standard_units
 
                 # Convert volume to cups
-                success, vol_in_cups, error = convert_standard_units(
-                    equiv_vol_qty, equiv_vol_unit, "cup"
-                )
-                if not success:
+                try:
+                    vol_in_cups = convert_standard_units(equiv_vol_qty, equiv_vol_unit, "cup")
+                except ConversionError as e:
                     show_error(
-                        "Validation Error", f"Invalid volume unit conversion: {error}", parent=self
+                        "Validation Error", f"Invalid volume unit conversion: {e.message}", parent=self
                     )
                     return None
 
                 # Convert weight to grams
-                success, wt_in_grams, error = convert_standard_units(
-                    equiv_wt_qty, equiv_wt_unit, "g"
-                )
-                if not success:
+                try:
+                    wt_in_grams = convert_standard_units(equiv_wt_qty, equiv_wt_unit, "g")
+                except ConversionError as e:
                     show_error(
-                        "Validation Error", f"Invalid weight unit conversion: {error}", parent=self
+                        "Validation Error", f"Invalid weight unit conversion: {e.message}", parent=self
                     )
                     return None
 

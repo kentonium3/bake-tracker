@@ -41,6 +41,7 @@ from src.services.exceptions import (
 from src.services import inventory_item_service, product_service, purchase_service
 
 from src.services.unit_converter import convert_any_units
+from src.services.exceptions import ConversionError
 from src.utils.validators import validate_recipe_data
 
 
@@ -1142,19 +1143,20 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                     # Convert shortfall to package units if needed
                     package_unit = preferred_product.package_unit
                     if recipe_unit != package_unit:
-                        success, shortfall_float, error = convert_any_units(
-                            float(shortfall),
-                            recipe_unit,
-                            package_unit,
-                            ingredient=ingredient,
-                        )
-                        if not success:
+                        try:
+                            shortfall_float = convert_any_units(
+                                float(shortfall),
+                                recipe_unit,
+                                package_unit,
+                                ingredient=ingredient,
+                            )
+                            shortfall_in_package_unit = Decimal(str(shortfall_float))
+                        except ConversionError as e:
                             raise ValidationError(
                                 [
-                                    f"Cannot convert shortfall units for '{ingredient.display_name}': {error}"
+                                    f"Cannot convert shortfall units for '{ingredient.display_name}': {e}"
                                 ]
                             )
-                        shortfall_in_package_unit = Decimal(str(shortfall_float))
                     else:
                         shortfall_in_package_unit = shortfall
 
@@ -1274,20 +1276,21 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                 # Convert recipe quantity to package units
                 package_unit = preferred_product.package_unit
                 if recipe_unit != package_unit:
-                    success, converted_float, error = convert_any_units(
-                        float(recipe_qty),
-                        recipe_unit,
-                        package_unit,
-                        ingredient=ingredient,
-                    )
-                    if not success:
+                    try:
+                        converted_float = convert_any_units(
+                            float(recipe_qty),
+                            recipe_unit,
+                            package_unit,
+                            ingredient=ingredient,
+                        )
+                        converted_qty = Decimal(str(converted_float))
+                    except ConversionError as e:
                         raise ValidationError(
                             [
-                                f"Cannot convert units for '{ingredient.display_name}': {error}. "
+                                f"Cannot convert units for '{ingredient.display_name}': {e}. "
                                 f"Density data may be required for {recipe_unit} to {package_unit} conversion."
                             ]
                         )
-                    converted_qty = Decimal(str(converted_float))
                 else:
                     converted_qty = recipe_qty
 

@@ -51,6 +51,7 @@ from .exceptions import (
     ValidationError as ServiceValidationError,
     DatabaseError,
     NonLeafIngredientError,
+    ConversionError,
 )
 from .ingredient_service import get_ingredient
 from ..utils.validators import validate_product_data
@@ -891,17 +892,17 @@ def _calculate_product_cost(
         result["cost_per_package_unit"] = Decimal(str(cost_per_package_unit))
 
     # Convert shortfall from recipe_unit to package_unit
-    success, shortfall_in_package_units, msg = convert_any_units(
-        float(shortfall),
-        recipe_unit,
-        product.package_unit,
-        ingredient=ingredient,
-    )
-
-    if not success:
+    try:
+        shortfall_in_package_units = convert_any_units(
+            float(shortfall),
+            recipe_unit,
+            product.package_unit,
+            ingredient=ingredient,
+        )
+    except ConversionError as e:
         # Unit conversion failed
         result["conversion_error"] = True
-        result["error_message"] = msg or "Unit conversion unavailable"
+        result["error_message"] = str(e) or "Unit conversion unavailable"
         # Still return product info but can't calculate packages/cost
         return result
 
@@ -925,18 +926,21 @@ def _calculate_product_cost(
 
         # Calculate cost per recipe unit
         # Need conversion factor: how many recipe_units per package_unit
-        success, conversion_factor, _ = convert_any_units(
-            1.0,
-            product.package_unit,
-            recipe_unit,
-            ingredient=ingredient,
-        )
-
-        if success and conversion_factor > 0:
-            result["cost_per_recipe_unit"] = result["cost_per_package_unit"] / Decimal(
-                str(conversion_factor)
+        try:
+            conversion_factor = convert_any_units(
+                1.0,
+                product.package_unit,
+                recipe_unit,
+                ingredient=ingredient,
             )
-        else:
+            if conversion_factor > 0:
+                result["cost_per_recipe_unit"] = result["cost_per_package_unit"] / Decimal(
+                    str(conversion_factor)
+                )
+            else:
+                # Can't calculate cost per recipe unit but still have total cost
+                result["cost_per_recipe_unit"] = None
+        except ConversionError:
             # Can't calculate cost per recipe unit but still have total cost
             result["cost_per_recipe_unit"] = None
 
