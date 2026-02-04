@@ -51,7 +51,14 @@ from src.models import (
     InventoryItem,
 )
 from src.services.database import session_scope
-from src.services.exceptions import DatabaseError, PlanStateError, ValidationError, ServiceError
+from src.services.exceptions import (
+    DatabaseError,
+    EventNotFoundById,
+    EventNotFoundByName,
+    PlanStateError,
+    ServiceError,
+    ValidationError,
+)
 
 
 # ============================================================================
@@ -613,7 +620,7 @@ def create_event(
         raise DatabaseError(f"Failed to create event: {str(e)}")
 
 
-def get_event_by_id(event_id: int, *, session: Session) -> Optional[Event]:
+def get_event_by_id(event_id: int, *, session: Session) -> Event:
     """
     Get an event by ID.
 
@@ -625,7 +632,10 @@ def get_event_by_id(event_id: int, *, session: Session) -> Optional[Event]:
         session: Database session (required)
 
     Returns:
-        Event instance or None if not found
+        Event instance
+
+    Raises:
+        EventNotFoundById: If event doesn't exist
     """
     try:
         event = (
@@ -641,13 +651,17 @@ def get_event_by_id(event_id: int, *, session: Session) -> Optional[Event]:
             .filter(Event.id == event_id)
             .first()
         )
+        if not event:
+            raise EventNotFoundById(event_id)
         return event
 
+    except EventNotFoundById:
+        raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event: {str(e)}")
 
 
-def get_event_by_name(name: str, *, session: Session) -> Optional[Event]:
+def get_event_by_name(name: str, *, session: Session) -> Event:
     """
     Get an event by exact name match.
 
@@ -659,7 +673,10 @@ def get_event_by_name(name: str, *, session: Session) -> Optional[Event]:
         session: Database session (required)
 
     Returns:
-        Event instance or None if not found
+        Event instance
+
+    Raises:
+        EventNotFoundByName: If event doesn't exist
     """
     try:
         event = (
@@ -668,8 +685,12 @@ def get_event_by_name(name: str, *, session: Session) -> Optional[Event]:
             .filter(Event.name == name)
             .first()
         )
+        if not event:
+            raise EventNotFoundByName(name)
         return event
 
+    except EventNotFoundByName:
+        raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event by name: {str(e)}")
 
