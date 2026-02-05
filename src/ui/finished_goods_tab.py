@@ -87,6 +87,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
     def _get_assembly_type_options(self) -> List[str]:
         """Get display names for assembly type filter dropdown."""
         return [
+            "Bare",
             "Custom Order",
             "Gift Box",
             "Variety Pack",
@@ -363,19 +364,21 @@ class FinishedGoodsTab(ctk.CTkFrame):
         if not assembly_type:
             return "Custom Order"
         type_map = {
+            AssemblyType.BARE: "Bare",
             AssemblyType.CUSTOM_ORDER: "Custom Order",
             AssemblyType.GIFT_BOX: "Gift Box",
             AssemblyType.VARIETY_PACK: "Variety Pack",
             AssemblyType.HOLIDAY_SET: "Holiday Set",
             AssemblyType.BULK_PACK: "Bulk Pack",
         }
-        return type_map.get(assembly_type, "Custom Order")
+        return type_map.get(assembly_type, "Unknown")
 
     def _get_assembly_type_from_display(self, display: str) -> Optional[AssemblyType]:
         """Convert display string to AssemblyType enum."""
         if display == "All Types":
             return None
         display_map = {
+            "Bare": AssemblyType.BARE,
             "Custom Order": AssemblyType.CUSTOM_ORDER,
             "Gift Box": AssemblyType.GIFT_BOX,
             "Variety Pack": AssemblyType.VARIETY_PACK,
@@ -470,13 +473,14 @@ class FinishedGoodsTab(ctk.CTkFrame):
     def _get_assembly_type_from_value(self, value: str) -> AssemblyType:
         """Convert assembly type value string to AssemblyType enum."""
         value_map = {
+            "bare": AssemblyType.BARE,
             "custom_order": AssemblyType.CUSTOM_ORDER,
             "gift_box": AssemblyType.GIFT_BOX,
             "variety_pack": AssemblyType.VARIETY_PACK,
             "holiday_set": AssemblyType.HOLIDAY_SET,
             "bulk_pack": AssemblyType.BULK_PACK,
         }
-        return value_map.get(value.lower(), AssemblyType.CUSTOM_ORDER)
+        return value_map.get(value.lower(), AssemblyType.BARE)
 
     def _edit_finished_good(self):
         """Show dialog to edit the selected finished good."""
@@ -485,7 +489,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
 
         try:
             # Reload finished good to avoid lazy loading issues
-            fg = finished_good_service.get_finished_good(self.selected_finished_good.id)
+            fg = finished_good_service.get_finished_good_by_id(self.selected_finished_good.id)
 
             dialog = FinishedGoodFormDialog(
                 self,
@@ -573,7 +577,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
 
         try:
             # Get finished good with relationships
-            fg = finished_good_service.get_finished_good(self.selected_finished_good.id)
+            fg = finished_good_service.get_finished_good_by_id(self.selected_finished_good.id)
 
             if not fg:
                 show_error(

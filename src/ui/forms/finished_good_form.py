@@ -201,6 +201,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
 
     # Mapping from display names to enum values
     _type_to_enum: Dict[str, AssemblyType] = {
+        "Bare": AssemblyType.BARE,
         "Custom Order": AssemblyType.CUSTOM_ORDER,
         "Gift Box": AssemblyType.GIFT_BOX,
         "Variety Pack": AssemblyType.VARIETY_PACK,
@@ -210,6 +211,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
 
     # Reverse mapping from enum values to display names
     _enum_to_type: Dict[AssemblyType, str] = {
+        AssemblyType.BARE: "Bare",
         AssemblyType.CUSTOM_ORDER: "Custom Order",
         AssemblyType.GIFT_BOX: "Gift Box",
         AssemblyType.VARIETY_PACK: "Variety Pack",
@@ -962,7 +964,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
     def _get_assembly_type(self) -> str:
         """Get the selected assembly type as enum value string."""
         selected = self.type_dropdown.get()
-        enum_value = self._type_to_enum.get(selected, AssemblyType.CUSTOM_ORDER)
+        enum_value = self._type_to_enum.get(selected, AssemblyType.BARE)
         return enum_value.value
 
     def _on_cancel(self):
