@@ -14,7 +14,13 @@ import customtkinter as ctk
 from src.ui.base.base_mode import BaseMode
 from src.ui.dashboards.plan_dashboard import PlanDashboard
 from src.ui.planning_tab import PlanningTab
-from src.ui.forms.event_planning_form import EventPlanningForm, DeleteEventDialog
+from src.ui.forms.event_form import EventFormDialog
+from src.ui.forms.event_planning_form import DeleteEventDialog
+from src.services import event_service
+from src.services.exceptions import ServiceError
+from src.ui.utils import ui_session
+from src.ui.utils.error_handler import handle_error
+from src.ui.widgets.dialogs import show_success
 
 if TYPE_CHECKING:
     from src.ui.events_tab import EventsTab
@@ -58,7 +64,10 @@ class PlanMode(BaseMode):
         events_frame = self.tabview.add("Events")
         events_frame.grid_columnconfigure(0, weight=1)
         events_frame.grid_rowconfigure(0, weight=1)
-        self.events_tab = EventsTab(events_frame)
+        self.events_tab = EventsTab(
+            events_frame,
+            on_data_changed=self._on_events_tab_data_changed,
+        )
         self._tab_widgets["Events"] = self.events_tab
 
         # Planning tab (F068+ - Event Management with integrated workspace)
@@ -96,23 +105,60 @@ class PlanMode(BaseMode):
             self.planning_tab.refresh()
 
     # =========================================================================
+    # Events Tab Callbacks
+    # =========================================================================
+
+    def _on_events_tab_data_changed(self) -> None:
+        """Called when Events tab data changes - refresh Planning tab."""
+        if self.planning_tab:
+            self.planning_tab.refresh()
+
+    # =========================================================================
     # Planning Tab Callbacks (F068)
     # =========================================================================
 
     def _on_create_planning_event(self) -> None:
-        """Open Create Event dialog."""
-        EventPlanningForm.create_event(
-            master=self,
-            on_save=self._on_planning_event_saved,
-        )
+        """Open Create Event dialog (unified form used by both tabs)."""
+        dialog = EventFormDialog(self, title="Create Event")
+        self.wait_window(dialog)
+
+        result = dialog.get_result()
+        if result:
+            try:
+                with ui_session() as session:
+                    event_service.create_planning_event(
+                        session,
+                        name=result["name"],
+                        event_date=result["event_date"],
+                        expected_attendees=result.get("expected_attendees"),
+                        notes=result.get("notes"),
+                    )
+                    session.commit()
+                show_success("Success", f"Event '{result['name']}' created", parent=self)
+                self.refresh_all_tabs()
+                self.planning_tab._update_status(f"Event '{result['name']}' created.")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Create event")
+            except Exception as e:
+                handle_error(e, parent=self, operation="Create event")
 
     def _on_edit_planning_event(self, event) -> None:
-        """Open Edit Event dialog."""
-        EventPlanningForm.edit_event(
-            master=self,
-            event=event,
-            on_save=self._on_planning_event_saved,
-        )
+        """Open Edit Event dialog (unified form used by both tabs)."""
+        dialog = EventFormDialog(self, event=event, title="Edit Event")
+        self.wait_window(dialog)
+
+        result = dialog.get_result()
+        if result:
+            try:
+                with ui_session() as session:
+                    event_service.update_event(event.id, session=session, **result)
+                show_success("Success", "Event updated", parent=self)
+                self.refresh_all_tabs()
+                self.planning_tab._update_status(f"Event '{result['name']}' updated.")
+            except ServiceError as e:
+                handle_error(e, parent=self, operation="Update event")
+            except Exception as e:
+                handle_error(e, parent=self, operation="Update event")
 
     def _on_delete_planning_event(self, event) -> None:
         """Open Delete Event confirmation dialog."""
@@ -122,14 +168,7 @@ class PlanMode(BaseMode):
             on_confirm=lambda: self._on_planning_event_deleted(event.name),
         )
 
-    def _on_planning_event_saved(self, result: dict) -> None:
-        """Handle event save completion."""
-        self.planning_tab.refresh()
-        self.planning_tab._update_status(
-            f"Event '{result['name']}' {result['action']}."
-        )
-
     def _on_planning_event_deleted(self, event_name: str) -> None:
         """Handle event deletion."""
-        self.planning_tab.refresh()
+        self.refresh_all_tabs()
         self.planning_tab._update_status(f"Event '{event_name}' deleted.")

@@ -5,7 +5,7 @@ Provides interface for managing events and viewing event summaries.
 """
 
 import customtkinter as ctk
-from typing import Optional
+from typing import Optional, Callable
 from datetime import datetime
 
 from src.models.event import Event
@@ -43,16 +43,18 @@ class EventsTab(ctk.CTkFrame):
     - Viewing event details (assignments, costs, shopping list)
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, on_data_changed: Optional[Callable[[], None]] = None):
         """
         Initialize the events tab.
 
         Args:
             parent: Parent widget
+            on_data_changed: Optional callback invoked after any data mutation
         """
         super().__init__(parent)
 
         self.selected_event: Optional[Event] = None
+        self._on_data_changed = on_data_changed
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -232,9 +234,17 @@ class EventsTab(ctk.CTkFrame):
         if result:
             try:
                 with ui_session() as session:
-                    event_service.create_event(**result, session=session)
+                    event_service.create_planning_event(
+                        session,
+                        name=result["name"],
+                        event_date=result["event_date"],
+                        expected_attendees=result.get("expected_attendees"),
+                        notes=result.get("notes"),
+                    )
+                    session.commit()
                 show_success("Success", f"Event '{result['name']}' added successfully", parent=self)
                 self.refresh()
+                self._notify_data_changed()
             except ServiceError as e:
                 handle_error(e, parent=self, operation="Add event")
             except Exception as e:
@@ -255,6 +265,7 @@ class EventsTab(ctk.CTkFrame):
                     event_service.update_event(self.selected_event.id, session=session, **result)
                 show_success("Success", "Event updated successfully", parent=self)
                 self.refresh()
+                self._notify_data_changed()
             except EventNotFoundError as e:
                 handle_error(e, parent=self, operation="Update event")
                 self.refresh()
@@ -290,6 +301,7 @@ class EventsTab(ctk.CTkFrame):
                     "Success", f"Event '{result['name']}' cloned successfully", parent=self
                 )
                 self.refresh()
+                self._notify_data_changed()
             except ServiceError as e:
                 handle_error(e, parent=self, operation="Clone event")
             except Exception as e:
@@ -316,6 +328,7 @@ class EventsTab(ctk.CTkFrame):
             show_success("Success", "Event deleted successfully", parent=self)
             self.selected_event = None
             self.refresh()
+            self._notify_data_changed()
         except EventNotFoundError as e:
             handle_error(e, parent=self, operation="Delete event")
             self.refresh()
@@ -356,6 +369,11 @@ class EventsTab(ctk.CTkFrame):
         except Exception as e:
             handle_error(e, parent=self, operation="Load events")
             self._update_status("Failed to load events", error=True)
+
+    def _notify_data_changed(self) -> None:
+        """Notify listeners that event data has changed."""
+        if self._on_data_changed:
+            self._on_data_changed()
 
     def _update_status(self, message: str, error: bool = False):
         """

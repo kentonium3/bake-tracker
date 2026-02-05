@@ -164,11 +164,21 @@ class EventFormDialog(ctk.CTkToplevel):
         # Year is already set above
         row += 1
 
+        # Expected attendees field (optional)
+        attendees_label = ctk.CTkLabel(parent, text="Expected Attendees:", anchor="w")
+        attendees_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+
+        self.attendees_entry = ctk.CTkEntry(
+            parent, width=400, placeholder_text="Leave empty if unknown"
+        )
+        self.attendees_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        row += 1
+
         # Notes field (optional)
         notes_label = ctk.CTkLabel(parent, text="Notes:", anchor="w")
         notes_label.grid(row=row, column=0, sticky="nw", padx=PADDING_MEDIUM, pady=5)
 
-        self.notes_text = ctk.CTkTextbox(parent, width=400, height=150)
+        self.notes_text = ctk.CTkTextbox(parent, width=400, height=120)
         self.notes_text.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
@@ -226,6 +236,9 @@ class EventFormDialog(ctk.CTkToplevel):
             self.day_entry.delete(0, "end")
             self.day_entry.insert(0, str(self.event.event_date.day))
 
+        if self.event.expected_attendees:
+            self.attendees_entry.insert(0, str(self.event.expected_attendees))
+
         if self.event.notes:
             self.notes_text.insert("1.0", self.event.notes)
 
@@ -247,6 +260,10 @@ class EventFormDialog(ctk.CTkToplevel):
             self.month_combo.set(self.clone_from.event_date.strftime("%B"))
             self.day_entry.delete(0, "end")
             self.day_entry.insert(0, str(self.clone_from.event_date.day))
+
+        # Copy expected attendees if set
+        if self.clone_from.expected_attendees:
+            self.attendees_entry.insert(0, str(self.clone_from.expected_attendees))
 
         # Don't copy notes
 
@@ -278,6 +295,7 @@ class EventFormDialog(ctk.CTkToplevel):
         year_str = self.year_combo.get()
         month_str = self.month_combo.get()
         day_str = self.day_entry.get().strip()
+        attendees_str = self.attendees_entry.get().strip()
         notes = self.notes_text.get("1.0", "end-1c").strip()
 
         # Validate required fields
@@ -363,11 +381,32 @@ class EventFormDialog(ctk.CTkToplevel):
             )
             return None
 
+        # Validate expected attendees (optional, must be positive if provided)
+        expected_attendees = None
+        if attendees_str:
+            try:
+                expected_attendees = int(attendees_str)
+                if expected_attendees <= 0:
+                    show_error(
+                        "Validation Error",
+                        "Expected attendees must be a positive number",
+                        parent=self,
+                    )
+                    return None
+            except ValueError:
+                show_error(
+                    "Validation Error",
+                    "Expected attendees must be a number",
+                    parent=self,
+                )
+                return None
+
         # Return validated data
         return {
             "name": name,
             "year": year,
             "event_date": event_date,
+            "expected_attendees": expected_attendees,
             "notes": notes if notes else None,
         }
 

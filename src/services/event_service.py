@@ -780,7 +780,7 @@ def update_event(event_id: int, *, session: Session, **updates) -> Event:
     Args:
         event_id: Event ID to update
         session: Database session (required)
-        **updates: Field updates (name, event_date, year, notes)
+        **updates: Field updates (name, event_date, year, notes, expected_attendees)
 
     Returns:
         Updated Event instance
@@ -809,6 +809,12 @@ def update_event(event_id: int, *, session: Session, **updates) -> Event:
 
         if "notes" in updates:
             event.notes = updates["notes"]
+
+        if "expected_attendees" in updates:
+            attendees = updates["expected_attendees"]
+            if attendees is not None and attendees <= 0:
+                raise ValidationError(["Expected attendees must be a positive number"])
+            event.expected_attendees = attendees
 
         event.last_modified = utc_now()
         session.flush()
