@@ -55,20 +55,18 @@ class EventFormDialog(ctk.CTkToplevel):
         # Center on parent
         self.transient(parent)
 
-        # Configure grid
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        # Button frame - pack FIRST with side="bottom" to ensure always visible
+        self._create_buttons()
 
-        # Create main frame
+        # Create main frame (packs after buttons, fills remaining space)
         main_frame = ctk.CTkScrollableFrame(self)
-        main_frame.grid(row=0, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_LARGE)
+        main_frame.pack(
+            side="top", fill="both", expand=True, padx=PADDING_LARGE, pady=PADDING_LARGE
+        )
         main_frame.grid_columnconfigure(1, weight=1)
 
         # Create form fields
         self._create_form_fields(main_frame)
-
-        # Create buttons
-        self._create_buttons()
 
         # Populate if editing or cloning
         if self.event:
@@ -191,21 +189,11 @@ class EventFormDialog(ctk.CTkToplevel):
         )
 
     def _create_buttons(self):
-        """Create dialog buttons."""
+        """Create dialog buttons - packed first to ensure always visible."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
-        button_frame.grid_columnconfigure((0, 1), weight=1)
+        button_frame.pack(side="bottom", fill="x", padx=PADDING_LARGE, pady=PADDING_LARGE)
 
-        # Save button
-        save_button = ctk.CTkButton(
-            button_frame,
-            text="Save",
-            command=self._save,
-            width=150,
-        )
-        save_button.grid(row=0, column=0, padx=PADDING_MEDIUM)
-
-        # Cancel button
+        # Cancel button (pack right side first)
         cancel_button = ctk.CTkButton(
             button_frame,
             text="Cancel",
@@ -214,7 +202,16 @@ class EventFormDialog(ctk.CTkToplevel):
             fg_color="gray",
             hover_color="darkgray",
         )
-        cancel_button.grid(row=0, column=1, padx=PADDING_MEDIUM)
+        cancel_button.pack(side="right", padx=PADDING_MEDIUM)
+
+        # Save button
+        save_button = ctk.CTkButton(
+            button_frame,
+            text="Save",
+            command=self._save,
+            width=150,
+        )
+        save_button.pack(side="right", padx=PADDING_MEDIUM)
 
     def _populate_form(self):
         """Populate form fields with existing event data."""
