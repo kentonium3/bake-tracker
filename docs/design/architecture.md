@@ -1,8 +1,8 @@
 # Architecture Document
 
 > **Document Status:** Living architecture overview
-> **Last Updated:** 2026-01-29
-> **Schema Version:** v0.7+ (post-F059, F083 CLI commands)
+> **Last Updated:** 2026-02-05
+> **Schema Version:** v0.7+ (post-F059, F083 CLI commands, F089-F094 service patterns)
 
 ## Navigation
 
@@ -12,6 +12,8 @@
 | [func-spec/](../func-spec/) | Feature specification documents (F0xx) |
 | [Constitution](../../.kittify/memory/constitution.md) | Core architectural principles and project vision |
 | [src/services/](../../src/services/) | Service layer implementation |
+| [Section 8](<#8-service-layer-patterns--standards>) | Service patterns & standards (F089-F094) |
+| [transaction_patterns_guide.md](<./transaction_patterns_guide.md>) | Comprehensive transaction patterns with examples |
 
 ---
 
@@ -24,25 +26,42 @@ Bake Tracker is not just a desktop app—it's a **workflow validation platform**
 ### Evolution Path
 
 ```
-Phase 3 (Current)        Phase 4-5              Phase 6-7 (North Star)
-─────────────────        ──────────            ─────────────────────
-Desktop + SQLite    →    AI-Assisted Mobile  →   Cloud Platform
-Single User              Voice/Chat Input        10K+ Users
-Manual Workflows         Batch JSON "API"        Full API-First
-Local Development        Multi-Developer         Commercial SaaS
+Phase 3              Phase 4-5              Phase 5-6              Phase 7-8
+(Current)            (Next)                 (Web Prototype)        (North Star)
+─────────────        ──────────            ───────────────        ─────────────
+Desktop + SQLite  →  AI-Assisted Mobile  →  Web Prototype      →  Cloud Platform
+Single User          Voice/Chat Input       Multi-User (<500)      10K+ Users
+Manual Workflows     Batch JSON "API"       Core Functionality     Full Feature Set
+Local Development    Multi-Developer        Tech Validation        Commercial SaaS
+                                            PostgreSQL/FastAPI     Enterprise Scale
 ```
+
+**Phase Descriptions:**
+
+- **Phase 3 (Current):** Desktop application validating workflows, data structures, and business logic with real user
+- **Phase 4-5:** AI-assisted mobile companion (BT Mobile) proving voice/chat input patterns and batch JSON workflows
+- **Phase 5-6:** Web prototype multi-user system (<500 users) validating:
+  - Core functionality parity with desktop version
+  - Technology shift: SQLite → PostgreSQL, Desktop → FastAPI
+  - Value proposition for broader user base
+  - Multi-tenancy patterns and user management
+  - Essential problems solved at small-to-medium scale
+- **Phase 7-8 (North Star):** Full commercial SaaS at enterprise scale (10K+ users), complete feature set, production operations
 
 ### Design Decisions Traced to Vision
 
-| Decision | Current Benefit | Future Benefit |
-|----------|-----------------|----------------|
-| **Definitions vs Instantiations** | Clean separation, accurate costing | Enables shared catalogs vs per-user transactions |
-| **Slug-based FKs** | Stable references in import/export | Localization, multi-tenant isolation |
-| **UUID on all entities** | Unique identifiers | Distributed sync, mobile-server coordination |
-| **JSON Import/Export** | Backup, catalog seeding | Primitive batch API for AI-assisted input |
-| **FIFO with cost snapshots** | Accurate lot tracking | Audit trail, cost analytics at scale |
-| **Service layer isolation** | Testable business logic | API-ready services, no UI coupling |
-| **No migration scripts** | Simple reset/re-import | Avoided version-translation complexity |
+| Decision | Phase 3 (Current) | Phase 5-6 (Web Prototype) | Phase 7-8 (North Star) |
+|----------|-----------------|---------------------------|----------------------|
+| **Definitions vs Instantiations** | Clean separation, accurate costing | Per-user inventories with shared catalogs | Multi-tenant data isolation at scale |
+| **Slug-based FKs** | Stable references in import/export | Safe cross-tenant references | Localization, global catalog federation |
+| **UUID on all entities** | Unique identifiers | Multi-user conflict-free IDs | Distributed sync, microservices |
+| **JSON Import/Export** | Backup, catalog seeding | Batch data migration, onboarding | API foundation, integration ecosystem |
+| **FIFO with cost snapshots** | Accurate lot tracking | Reliable multi-user costing | Audit trail, analytics at scale |
+| **Service layer isolation** | Testable business logic | FastAPI endpoints with zero refactor | Microservice-ready architecture |
+| **Exception-based returns** | Prevents None-check bugs | Direct HTTP status code mapping | API error contracts, client SDKs |
+| **Service boundary compliance** | Centralized validation | Clean REST/GraphQL API layer | Microservice boundaries defined |
+| **Transaction boundaries** | Multi-step atomicity guaranteed | PostgreSQL transaction safety | Distributed transaction patterns |
+| **No migration scripts** | Simple reset/re-import | Tenant provisioning from templates | Schema evolution without downtime |
 
 ### The AI-Forward Principle
 
@@ -60,9 +79,10 @@ The JSON import system is the proving ground—a crude batch "API" where AI gene
 When making design decisions:
 
 1. **Prefer patterns that scale** - Even if overkill for single-user, prefer patterns that work at multi-user scale
-2. **Keep services pure** - No UI dependencies, no database assumptions that break with cloud DBs
+2. **Keep services pure** - No UI dependencies, no database assumptions that break with cloud DBs (PostgreSQL in Phase 5-6)
 3. **Design for AI input** - Validation must catch malformed data; error messages must be AI-parseable
 4. **Maintain export fidelity** - JSON export is the migration path; it must capture everything
+5. **Web-ready by default** - Service layer patterns (F089-F094) prepare for Phase 5-6 web prototype without requiring rewrites
 
 ---
 
@@ -508,9 +528,482 @@ sequenceDiagram
 
 ---
 
-## 8. Technology Decisions
+## 8. Service Layer Patterns & Standards
 
-### 8.1 Why These Technologies?
+The service layer follows strict patterns established through F089-F094 to ensure consistency, maintainability, and web-readiness.
+
+### 8.1 Service Boundary Principles (F092)
+
+**Core Rule:** Services must delegate entity operations to the owning service—never query models directly from coordinating services.
+
+```mermaid
+flowchart LR
+    subgraph Correct["✅ Correct Pattern"]
+        CS1[Coordinating Service] -->|delegates| OS1[Owning Service]
+        OS1 -->|queries| M1[Model]
+    end
+    
+    subgraph Incorrect["❌ Anti-Pattern"]
+        CS2[Coordinating Service] -.->|direct query| M2[Model]
+    end
+```
+
+**Service Ownership:**
+- Product operations → `product_catalog_service`
+- Supplier operations → `supplier_service`
+- Ingredient operations → `ingredient_service`
+- Purchase operations → `purchase_service` (coordinates only)
+
+**Example - Purchase Service (Correct):**
+
+```python
+# purchase_service coordinates but delegates entity operations
+def record_purchase(purchase_data: dict, session: Session) -> Purchase:
+    # ✅ Delegate to owning services
+    product = product_catalog_service.get_product(
+        purchase_data["product_id"], 
+        session=session
+    )
+    supplier = supplier_service.get_or_create_supplier(
+        name=purchase_data.get("store", "Unknown"),
+        session=session
+    )
+    
+    # ✅ Purchase service owns Purchase creation
+    purchase = Purchase(
+        product_id=product.id,
+        supplier_id=supplier.id,
+        # ...
+    )
+    session.add(purchase)
+    return purchase
+```
+
+**Anti-Pattern Example:**
+
+```python
+# ❌ WRONG: Direct model queries bypass service logic
+def record_purchase(purchase_data: dict, session: Session) -> Purchase:
+    # ❌ Bypasses product_catalog_service validation
+    product = session.query(Product).filter_by(id=product_data["product_id"]).first()
+    
+    # ❌ Bypasses supplier_service (no slug generation, no validation)
+    supplier = session.query(Supplier).filter_by(name=store_name).first()
+    if not supplier:
+        supplier = Supplier(name=store_name, city="Unknown")
+        session.add(supplier)
+```
+
+**Why This Matters:**
+- ✅ Cross-cutting concerns applied consistently (audit, cache, provisional entities)
+- ✅ Validation rules centralized in owning service
+- ✅ Future enhancements (slugs, webhooks) work automatically
+- ✅ Service layer remains API-ready for web migration
+
+---
+
+### 8.2 Exception-Based Error Handling (F089, F094)
+
+**Core Rule:** Service functions raise domain-specific exceptions—never return `None` for not-found cases.
+
+#### The Pattern
+
+All `get_*` service functions that look up entities by ID, slug, or name raise exceptions instead of returning `None`.
+
+**Correct Pattern:**
+
+```python
+def get_recipe_by_slug(slug: str, session: Optional[Session] = None) -> Recipe:
+    """
+    Get recipe by slug.
+    
+    Args:
+        slug: Recipe slug
+        session: Optional session for transactional composition
+    
+    Returns:
+        Recipe object
+    
+    Raises:
+        RecipeNotFoundBySlug: If recipe doesn't exist
+    """
+    with session_scope(session) as sess:
+        recipe = sess.query(Recipe).filter_by(slug=slug).first()
+        if not recipe:
+            raise RecipeNotFoundBySlug(slug)  # ✅ Explicit error
+        return recipe
+
+# Calling code (forced to handle error)
+try:
+    recipe = get_recipe_by_slug("chocolate-cake")
+    print(recipe.display_name)  # ✅ Safe - can't be None
+except RecipeNotFoundBySlug as e:
+    show_error(f"Recipe '{e.slug}' not found")
+```
+
+**Anti-Pattern:**
+
+```python
+# ❌ WRONG: Returns None (caller must remember to check)
+def get_recipe_by_slug(slug: str) -> Optional[Recipe]:
+    """Get recipe by slug."""
+    with session_scope() as session:
+        return session.query(Recipe).filter_by(slug=slug).first()
+
+# Calling code (easy to forget None check!)
+recipe = get_recipe_by_slug("chocolate-cake")
+print(recipe.display_name)  # 🐛 AttributeError if None!
+```
+
+#### Exception Naming Convention
+
+Pattern: `{Entity}NotFoundBy{LookupField}`
+
+Examples:
+- `RecipeNotFoundBySlug` - Recipe lookup by slug
+- `RecipeNotFoundByName` - Recipe lookup by name
+- `EventNotFoundById` - Event lookup by ID
+- `IngredientNotFoundBySlug` - Ingredient lookup by slug
+
+#### Three-Tier Exception Strategy
+
+**Service Layer:**
+- Raises domain exceptions with technical details
+- Includes full operation context (entity IDs, slugs, attempted operation)
+- No user-facing message concerns
+
+**UI Layer:**
+- Catches specific exception types
+- Uses centralized error handler for user messages (see F089)
+- Logs technical details for debugging
+
+**Unexpected Errors:**
+- Generic `Exception` catch as last resort
+- Always logs full stack trace
+- Shows generic "contact support" message
+
+#### Validation Pattern
+
+**Core Rule:** Validation functions raise `ValidationError`—never return tuples like `(bool, List[str])`.
+
+**Correct Pattern:**
+
+```python
+def validate_required_string(value: Optional[str], field_name: str = "Field") -> None:
+    """
+    Validate that a string is not empty.
+    
+    Raises:
+        ValidationError: If value is empty or whitespace
+    """
+    if not value or not value.strip():
+        raise ValidationError([f"{field_name} is required"])
+
+# Calling code (simpler, clearer)
+try:
+    validate_required_string(name, "Name")
+    validate_required_string(category, "Category")
+    # All validations passed
+except ValidationError as e:
+    show_errors(e.errors)  # List of error messages
+```
+
+#### Services Updated (F094)
+
+The following services fully implement exception-based patterns:
+
+**Core Services:**
+- `ingredient_service.py`, `recipe_service.py`, `event_service.py`
+- `package_service.py`, `finished_good_service.py`, `finished_unit_service.py`
+
+**Secondary Services:**
+- `composition_service.py`, `supplier_service.py`, `recipient_service.py`
+- `unit_service.py`, `material_catalog_service.py`
+
+**Validators:**
+- `utils/validators.py`, `unit_converter.py`, `material_unit_converter.py`
+
+See `src/services/exceptions.py` for the complete exception hierarchy.
+
+---
+
+### 8.3 Transaction Boundaries & Session Management (F091)
+
+**Critical:** Nested `session_scope()` calls cause SQLAlchemy objects to become detached, resulting in silent data loss.
+
+#### Session Composition Pattern
+
+**Core Rule:** Service functions accept optional `session` parameter to enable transactional composition.
+
+```python
+def service_operation(
+    ...,
+    session: Optional[Session] = None
+) -> ReturnType:
+    """
+    [Function description]
+    
+    Transaction boundary: [ALL operations in single session (atomic) | 
+                          Single operation (atomic) | 
+                          Read-only (no transaction)]
+    
+    Args:
+        ...: Operation parameters
+        session: Optional session for transactional composition
+    
+    Returns:
+        ReturnType
+    
+    Raises:
+        DomainException: Error conditions
+    """
+    def _impl(sess: Session) -> ReturnType:
+        # Implementation uses sess throughout
+        entity = sess.query(Model).first()
+        other_service_operation(session=sess)  # ✅ Pass session
+        return result
+    
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+```
+
+#### Three Transaction Patterns
+
+**Pattern A: Read-Only Operation**
+
+```python
+"""
+Transaction boundary: Read-only, no transaction needed.
+Safe to call without session - uses temporary session for query.
+"""
+```
+
+**Pattern B: Single-Step Write**
+
+```python
+"""
+Transaction boundary: Single operation, automatically atomic.
+If session provided, caller controls transaction commit/rollback.
+If session not provided, uses session_scope() (auto-commit on success).
+"""
+```
+
+**Pattern C: Multi-Step Atomic Operation**
+
+```python
+"""
+Transaction boundary: ALL operations in single session (atomic).
+Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
+Steps executed atomically:
+1. Validate product exists (delegates to product_catalog_service)
+2. Get or create supplier (delegates to supplier_service)
+3. Create purchase record
+4. Update inventory
+
+CRITICAL: All nested service calls receive session parameter to ensure
+atomicity. Never create new session_scope() within this function.
+"""
+```
+
+#### Anti-Pattern: Nested session_scope()
+
+```python
+# ❌ WRONG: Nested session_scope causes detachment
+def outer_function():
+    with session_scope() as session:
+        obj = session.query(Model).first()
+        inner_function()  # Creates new session_scope!
+        obj.field = value  # THIS CHANGE IS SILENTLY LOST
+```
+
+#### Correct Pattern: Pass Session
+
+```python
+# ✅ CORRECT: Pass session through call chain
+def outer_function():
+    with session_scope() as session:
+        obj = session.query(Model).first()
+        inner_function(session=session)  # Pass session
+        obj.field = value  # This change persists correctly
+```
+
+#### Rules for Service Functions
+
+1. **Multi-step operations MUST share a session** - If a function queries an object, calls other services, then modifies the object, all operations must use the same session.
+
+2. **Service functions that may be called from other services MUST accept `session=None`** - This allows callers to pass their session for transactional atomicity.
+
+3. **When calling another service function within a transaction, ALWAYS pass the session** - Even if the called function works without it, passing the session ensures objects remain tracked.
+
+4. **Never return ORM objects from `session_scope()` if they'll be modified later** - Objects become detached when the scope exits. Return IDs or DTOs instead, or keep operations within the same session.
+
+**Reference:** See `docs/design/transaction_patterns_guide.md` for comprehensive examples and common pitfalls.
+
+---
+
+### 8.4 API Consistency Standards (F094)
+
+**Core Rule:** All public service functions follow consistent signature and return patterns.
+
+#### Type Hints (Required)
+
+All public service functions MUST have complete type hints:
+
+```python
+from typing import Optional, List, Dict, Any
+from sqlalchemy.orm import Session
+
+def create_ingredient(
+    ingredient_data: Dict[str, Any],
+    session: Optional[Session] = None
+) -> Ingredient:
+    """Create ingredient from data."""
+    # ...
+
+def list_recipes(
+    category: Optional[str] = None,
+    name_search: Optional[str] = None,
+    session: Optional[Session] = None
+) -> List[Recipe]:
+    """Get all recipes with optional filters."""
+    # ...
+```
+
+#### Return Type Standards
+
+**Never return `None` for not-found:**
+```python
+# ✅ CORRECT: Return type is Ingredient (not Optional)
+def get_ingredient(slug: str) -> Ingredient:
+    # Raises IngredientNotFoundBySlug if not found
+    pass
+
+# ❌ WRONG: Returns Optional[Ingredient]
+def get_ingredient(slug: str) -> Optional[Ingredient]:
+    return None  # Caller must remember to check
+```
+
+**Never return tuples for validation:**
+```python
+# ✅ CORRECT: Raises ValidationError
+def validate_data(data: dict) -> None:
+    if errors:
+        raise ValidationError(errors)
+
+# ❌ WRONG: Returns (bool, List[str])
+def validate_data(data: dict) -> Tuple[bool, List[str]]:
+    return is_valid, errors
+```
+
+#### Common Type Patterns
+
+```python
+# ORM objects
+def get_item(id: int) -> Item: ...
+
+# Lists of objects
+def list_items() -> List[Item]: ...
+
+# Optional parameters
+def search(query: Optional[str] = None) -> List[Item]: ...
+
+# Session parameter (always optional)
+def operation(..., session: Optional[Session] = None) -> Item: ...
+
+# Dictionary data
+def create_item(data: Dict[str, Any]) -> Item: ...
+```
+
+---
+
+### 8.5 Pagination Foundation (F093)
+
+**Status:** DTOs available, service adoption deferred to Phase 5-6 (web prototype).
+
+#### DTOs Available
+
+- `PaginationParams`: Page number and items per page
+- `PaginatedResult[T]`: Generic result container with metadata
+
+Located in: `src/services/dto.py`
+
+#### Optional Pagination Pattern (Future Service Adoption)
+
+When adding pagination to a service function:
+
+```python
+from src.services.dto import PaginationParams, PaginatedResult
+
+def list_items(
+    filter: Optional[ItemFilter] = None,
+    pagination: Optional[PaginationParams] = None,  # Optional!
+    session: Optional[Session] = None
+) -> PaginatedResult[Item]:
+    """
+    List items with optional pagination.
+    
+    Desktop usage: pagination=None returns all items (current behavior)
+    Web usage: pagination=PaginationParams(...) returns one page
+    """
+    def _impl(sess: Session) -> PaginatedResult[Item]:
+        query = sess.query(Item)
+        
+        # Apply filters...
+        total = query.count()
+        
+        # Apply pagination (if provided)
+        if pagination:
+            items = query.offset(pagination.offset()).limit(pagination.per_page).all()
+            page, per_page = pagination.page, pagination.per_page
+        else:
+            items = query.all()
+            page, per_page = 1, total or 1
+        
+        return PaginatedResult(items=items, total=total, page=page, per_page=per_page)
+    
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+```
+
+#### Desktop vs Web Usage
+
+**Desktop (current pattern unchanged):**
+```python
+result = list_ingredients(filter=IngredientFilter(category="baking"))
+all_items = result.items  # All ingredients
+```
+
+**Web (future FastAPI):**
+```python
+@app.get("/api/ingredients")
+def get_ingredients(page: int = 1, per_page: int = 50):
+    result = list_ingredients(
+        pagination=PaginationParams(page=page, per_page=per_page)
+    )
+    return {
+        "items": [serialize(i) for i in result.items],
+        "total": result.total,
+        "page": result.page,
+        "pages": result.pages,
+        "has_next": result.has_next
+    }
+```
+
+**When to Adopt:**
+- **New services**: Use pagination from the start
+- **Existing services**: Adopt incrementally during refactoring
+- **Desktop UI**: No changes needed (pagination=None)
+- **Phase 5-6 (Web Prototype)**: See `web-prep/F003` for comprehensive adoption plan
+
+---
+
+## 9. Technology Decisions
+
+### 9.1 Why These Technologies?
 
 | Choice | Rationale |
 |--------|-----------|
@@ -519,30 +1012,23 @@ sequenceDiagram
 | **SQLAlchemy** | ORM simplifies operations, type safety, relationship management |
 | **No Migrations** | Export/reset/import simpler for single-user desktop (Constitution VI) |
 
-### 8.2 Session Management Pattern
+### 9.2 Pattern Evolution (F089-F094)
 
-**Critical:** Nested `session_scope()` calls cause object detachment.
+Recent architectural work (December 2025 - February 2026) established consistent patterns across the service layer:
 
-```python
-# CORRECT: Pass session through call chain
-def outer_function(session=None):
-    if session is not None:
-        return _impl(session)
-    with session_scope() as sess:
-        return _impl(sess)
+- **Exception-based returns** (F089, F094) - See Section 8.2
+- **Service boundary compliance** (F092) - See Section 8.1
+- **Transaction boundaries** (F091) - See Section 8.3
+- **API consistency standards** (F094) - See Section 8.4
+- **Pagination foundation** (F093) - See Section 8.5
 
-def _impl(session):
-    # All operations use same session
-    obj = session.query(Model).first()
-    inner_function(session=session)  # Pass session!
-    obj.field = value  # Changes persist
-```
+These patterns solve immediate desktop needs while preparing for Phase 5-6 (web prototype). See Section 8 for comprehensive documentation.
 
 ---
 
-## 9. Recommendations for Documentation Structure
+## 10. Recommendations for Documentation Structure
 
-### 9.1 This Document: Architecture Overview
+### 10.1 This Document: Architecture Overview
 
 Keep this document as the **architectural overview** covering:
 - Technology stack
@@ -550,26 +1036,28 @@ Keep this document as the **architectural overview** covering:
 - Domain model overview
 - Feature maturity assessment
 - Service organization
+- Service layer patterns & standards (Section 8)
 
-### 9.2 Recommended Child Documents
+### 10.2 Recommended Child Documents
 
 | Document | Purpose |
 |----------|---------|
 | `design/workflows.md` | Detailed workflow documentation (catalog->plan->purchase->make) |
 | `design/import-export.md` | Complete import/export specification and formats |
-| `design/services.md` | Detailed service responsibilities and APIs |
+| `design/transaction_patterns_guide.md` | Comprehensive transaction patterns with examples (exists) |
+| `design/service_patterns.md` | Detailed service layer pattern catalog (future) |
 | `design/data-model.md` | Complete entity relationships and field documentation |
 
-### 9.3 Items to Move to Child Documents
+### 10.3 Items to Move to Child Documents
 
-- Detailed import/export format specifications -> `import-export.md`
-- Step-by-step workflow procedures -> `workflows.md`
-- Service-by-service API documentation -> `services.md`
-- Schema evolution history -> `SCHEMA.md` or `data-model.md`
+- Detailed import/export format specifications → `import-export.md`
+- Step-by-step workflow procedures → `workflows.md`
+- Comprehensive service pattern examples → `service_patterns.md` (future)
+- Schema evolution history → `SCHEMA.md` or `data-model.md`
 
 ---
 
-## 10. Pattern Checklist for New Features
+## 11. Pattern Checklist for New Features
 
 When designing new features, verify compliance with core patterns:
 
@@ -588,10 +1076,24 @@ When designing new features, verify compliance with core patterns:
 - [ ] UI contains no business logic
 - [ ] Services contain no UI imports
 - [ ] Models define schema only
-- [ ] Session parameter pattern for composable transactions
+- [ ] Cross-layer dependencies flow downward only
+
+### Service Layer Patterns (Section 8)
+- [ ] **Exception-based returns**: No `None` returns for not-found, no tuple returns for validation
+- [ ] **Service boundaries**: Delegates to owning services (no direct model queries in coordinators)
+- [ ] **Transaction boundaries**: Documented in docstring with atomicity guarantee
+- [ ] **Session composition**: Accepts `session=None` parameter, passes to nested calls
+- [ ] **Complete type hints**: Parameters and return types fully annotated
+- [ ] **Domain exceptions**: Raises specific exceptions (`EntityNotFoundByField`)
+
+### Code Quality
+- [ ] Functions follow naming convention: `{Entity}NotFoundBy{LookupField}`
+- [ ] Multi-step operations document steps executed atomically
+- [ ] Service delegation preserves cross-cutting concerns
+- [ ] Type hints enable IDE autocomplete and early error detection
 
 ---
 
 **Document Status:** Living architecture overview
-**Last Updated:** 2026-01-29
-**Reviewed by:** Kent Gale, Claude Opus 4.5
+**Last Updated:** 2026-02-05
+**Reviewed by:** Kent Gale, Claude Sonnet 4.5
