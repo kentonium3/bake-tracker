@@ -26,6 +26,7 @@ class AssemblyType(enum.Enum):
     business rules, component constraints, and presentation guidelines.
     """
 
+    BARE = "bare"  # Single FinishedUnit with no additional packaging
     GIFT_BOX = "gift_box"  # Curated gift boxes with multiple items
     VARIETY_PACK = "variety_pack"  # Variety packs with different flavors
     HOLIDAY_SET = "holiday_set"  # Seasonal collections
@@ -144,6 +145,27 @@ class AssemblyType(enum.Enum):
 
 # Assembly Type Metadata Configuration
 ASSEMBLY_TYPE_METADATA = {
+    AssemblyType.BARE: {
+        "display_name": "Bare",
+        "description": "Single FinishedUnit served as-is with no additional packaging or bundling. Used for items like whole cakes that are deliverable without modification.",
+        "component_limits": {
+            "min_components": 1,
+            "max_components": 1,
+            "recommended_components": 1,
+        },
+        "business_rules": {
+            "min_total_cost": Decimal("0.00"),  # No minimum - cost inherited from FinishedUnit
+            "max_total_cost": None,  # No upper limit
+            "requires_unique_items": False,
+            "allows_duplicate_categories": True,
+            "packaging_cost_multiplier": Decimal("1.00"),  # No packaging overhead
+        },
+        "is_seasonal": False,
+        "packaging_priority": 5,  # Lowest priority - no packaging needed
+        "requires_special_handling": False,
+        "pricing_markup": Decimal("0.00"),  # No markup - pass-through pricing
+        "packaging_notes": "No additional packaging required",
+    },
     AssemblyType.GIFT_BOX: {
         "display_name": "Gift Box",
         "description": "Curated gift boxes with multiple complementary items, typically 3-8 different products presented in an attractive package.",
