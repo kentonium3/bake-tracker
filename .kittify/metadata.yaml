@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.13.28
+  version: 0.14.1
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-02-04T13:03:16.525698'
+  last_upgraded_at: '2026-02-05T13:44:15.722265'
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -81,3 +81,7 @@ migrations:
     applied_at: '2026-01-30T11:09:08.536477'
     result: success
     notes: Added target_branch=main to 004-finishedunit-model-refactoring
+  - id: 0.14.0_centralized_feature_detection
+    applied_at: '2026-02-05T13:44:15.722241'
+    result: skipped
+    notes: Not applicable
