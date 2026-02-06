@@ -19,9 +19,9 @@
 **Estimated size**: ~200 lines
 
 ### Included Subtasks
-- [ ] T001 Add `from_display_name()` class method to `AssemblyType` in `src/models/assembly_type.py`
-- [ ] T002 Verify `get_display_name()` and `from_display_name()` are symmetric for all enum values
-- [ ] T003 Run existing tests to confirm no regressions
+- [x] T001 Add `from_display_name()` class method to `AssemblyType` in `src/models/assembly_type.py`
+- [x] T002 Verify `get_display_name()` and `from_display_name()` are symmetric for all enum values
+- [x] T003 Run existing tests to confirm no regressions
 
 ### Implementation Notes
 - Add a single `@classmethod` that iterates `cls` members and matches on `get_display_name()`
