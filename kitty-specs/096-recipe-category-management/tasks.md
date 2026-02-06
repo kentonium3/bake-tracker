@@ -85,11 +85,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T013 Add seed_recipe_categories() to database.py
-- [ ] T014 Call seed_recipe_categories() from init_database()
-- [ ] T015 Replace hardcoded category list in finished_unit_form.py with database query
-- [ ] T016 Add save-time validation warning for unlisted categories
-- [ ] T017 Add auto-add option in the warning dialog
+- [x] T013 Add seed_recipe_categories() to database.py
+- [x] T014 Call seed_recipe_categories() from init_database()
+- [x] T015 Replace hardcoded category list in finished_unit_form.py with database query
+- [x] T016 Add save-time validation warning for unlisted categories
+- [x] T017 Add auto-add option in the warning dialog
 
 ### Implementation Notes
 - Seeding must be idempotent (check count before seeding)
