@@ -219,6 +219,61 @@ def seed_units() -> None:
         logger.info(f"Seeded {len(units_to_add)} units to reference table")
 
 
+def seed_recipe_categories() -> None:
+    """
+    Seed default recipe categories. Idempotent.
+
+    Seeds the recipe_categories table with standard baking categories on
+    first run. Also discovers any distinct Recipe.category values not
+    already in the defaults and adds them.
+
+    This function is idempotent - it only seeds if the table is empty.
+    """
+    from ..models.recipe_category import RecipeCategory
+    from ..models.recipe import Recipe
+
+    with session_scope() as session:
+        existing_count = session.query(RecipeCategory).count()
+        if existing_count > 0:
+            logger.debug("Recipe categories already exist, skipping seed")
+            return
+
+        # Default categories with sort_order gaps for easy reordering
+        defaults = [
+            ("Cakes", "cakes", 10),
+            ("Cookies", "cookies", 20),
+            ("Candies", "candies", 30),
+            ("Brownies", "brownies", 40),
+            ("Bars", "bars", 50),
+            ("Breads", "breads", 60),
+            ("Other", "other", 70),
+        ]
+
+        # Also discover existing recipe categories not in defaults
+        default_names = {name for name, _, _ in defaults}
+        existing_recipe_cats = (
+            session.query(Recipe.category)
+            .distinct()
+            .filter(Recipe.category.isnot(None))
+            .all()
+        )
+
+        sort_order = 80
+        for (cat_name,) in existing_recipe_cats:
+            if cat_name and cat_name not in default_names:
+                slug = cat_name.lower().replace(" ", "-")
+                defaults.append((cat_name, slug, sort_order))
+                sort_order += 10
+
+        for name, slug, order in defaults:
+            category = RecipeCategory(
+                name=name, slug=slug, sort_order=order
+            )
+            session.add(category)
+
+        logger.info(f"Seeded {len(defaults)} recipe categories")
+
+
 def init_database(engine: Optional[Engine] = None) -> None:
     """
     Initialize the database by creating all tables.
@@ -260,6 +315,9 @@ def init_database(engine: Optional[Engine] = None) -> None:
     # Seed reference data
     logger.info("Seeding unit reference table")
     seed_units()
+
+    logger.info("Seeding recipe categories")
+    seed_recipe_categories()
 
 
 def get_engine(force_recreate: bool = False) -> Engine:

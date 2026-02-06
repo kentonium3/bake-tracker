@@ -152,12 +152,12 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         category_label = ctk.CTkLabel(parent, text="Category:", anchor="w")
         category_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
-        categories = ["Cakes", "Cookies", "Candies", "Brownies", "Bars", "Breads", "Other"]
+        # Load categories from database (F096)
+        categories = self._load_categories_from_db()
         self.category_combo = ctk.CTkComboBox(
             parent,
             width=400,
             values=[""] + categories,
-            state="readonly",
         )
         self.category_combo.set("")
         self.category_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
@@ -498,9 +498,83 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
 
         return True
 
+    def _load_categories_from_db(self):
+        """
+        Load recipe categories from the database.
+
+        Returns:
+            List of category name strings ordered by sort_order.
+        """
+        try:
+            # Lazy import to avoid circular dependencies
+            from src.services import recipe_category_service
+
+            db_categories = recipe_category_service.list_categories()
+            return [cat.name for cat in db_categories]
+        except Exception:
+            # Fallback if database is not available
+            return ["Cakes", "Cookies", "Candies", "Brownies", "Bars", "Breads", "Other"]
+
+    def _check_category_warning(self, entered_category: str) -> bool:
+        """
+        Check if the entered category exists in the database and show warning if not.
+
+        Shows a 3-button dialog:
+        - "Add Now": Creates the category and proceeds with save
+        - "Save Anyway": Proceeds with save without adding
+        - "Cancel": Returns to form
+
+        Args:
+            entered_category: The category string entered by the user
+
+        Returns:
+            True if save should proceed, False if save should be cancelled
+        """
+        # Lazy import to avoid circular dependencies
+        from src.services import recipe_category_service
+
+        try:
+            db_categories = recipe_category_service.list_categories()
+            category_names = [cat.name for cat in db_categories]
+        except Exception:
+            # If we cannot check, allow the save
+            return True
+
+        if not entered_category or entered_category in category_names:
+            return True
+
+        # Show 3-button warning dialog
+        dialog = _CategoryWarningDialog(self, entered_category)
+        self.wait_window(dialog)
+        response = dialog.result
+
+        if response == "add_now":
+            try:
+                recipe_category_service.create_category(name=entered_category)
+                return True
+            except Exception as e:
+                from tkinter import messagebox
+
+                messagebox.showerror(
+                    "Error",
+                    f"Could not add category: {e}",
+                    parent=self,
+                )
+                return False
+        elif response == "save_anyway":
+            return True
+        else:
+            # "cancel" or dialog was closed
+            return False
+
     def _on_save(self):
         """Handle save button click."""
         if not self._validate_form():
+            return
+
+        # Check category warning (T016/T017)
+        entered_category = self.category_combo.get().strip()
+        if entered_category and not self._check_category_warning(entered_category):
             return
 
         # Find selected recipe
@@ -558,3 +632,111 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         # self.wait_window() - caller handles this
         # Debug removed
         return self.result
+
+
+class _CategoryWarningDialog(ctk.CTkToplevel):
+    """
+    Warning dialog for unlisted recipe categories.
+
+    Displays when a user enters a category not found in the database,
+    offering three options: Add Now, Save Anyway, or Cancel.
+    """
+
+    def __init__(self, parent, category_name: str):
+        """
+        Initialize the category warning dialog.
+
+        Args:
+            parent: Parent window
+            category_name: The category name that is not in the database
+        """
+        super().__init__(parent)
+
+        self.result = "cancel"
+
+        self.title("Unknown Category")
+        self.geometry("450x200")
+        self.resizable(False, False)
+
+        # Make modal
+        self.transient(parent)
+
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Message
+        message = (
+            f"Category '{category_name}' is not in the database.\n\n"
+            "You can add it now, save without adding, or cancel."
+        )
+        msg_label = ctk.CTkLabel(
+            self,
+            text=message,
+            wraplength=400,
+            justify="left",
+        )
+        msg_label.grid(row=0, column=0, padx=20, pady=(20, 10), sticky="w")
+
+        # Buttons frame
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(row=1, column=0, padx=20, pady=(10, 20))
+        button_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+        add_button = ctk.CTkButton(
+            button_frame,
+            text="Add Now",
+            width=120,
+            command=self._on_add_now,
+        )
+        add_button.grid(row=0, column=0, padx=5)
+
+        save_button = ctk.CTkButton(
+            button_frame,
+            text="Save Anyway",
+            width=120,
+            fg_color="gray",
+            command=self._on_save_anyway,
+        )
+        save_button.grid(row=0, column=1, padx=5)
+
+        cancel_button = ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            width=120,
+            fg_color="gray",
+            command=self._on_cancel,
+        )
+        cancel_button.grid(row=0, column=2, padx=5)
+
+        # Center on parent
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+        x = max(0, parent_x + (parent_width - dialog_width) // 2)
+        y = max(0, parent_y + (parent_height - dialog_height) // 2)
+        self.geometry(f"+{x}+{y}")
+
+        # Make modal after visible
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
+
+    def _on_add_now(self):
+        """Handle Add Now button click."""
+        self.result = "add_now"
+        self.destroy()
+
+    def _on_save_anyway(self):
+        """Handle Save Anyway button click."""
+        self.result = "save_anyway"
+        self.destroy()
+
+    def _on_cancel(self):
+        """Handle Cancel button click."""
+        self.result = "cancel"
+        self.destroy()
