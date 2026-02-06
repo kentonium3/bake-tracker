@@ -15,7 +15,7 @@ subtasks:
 - T012
 phase: Phase 2 - User Story 1 (Admin Management)
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "96308"
 review_status: ''
 reviewed_by: ''
@@ -233,3 +233,4 @@ Depends on WP01 (needs RecipeCategory model and service).
 ## Activity Log
 
 - 2026-02-06T04:30:00Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T04:35:28Z – claude-opus – shell_pid=96308 – lane=doing – Assigned agent via workflow command
