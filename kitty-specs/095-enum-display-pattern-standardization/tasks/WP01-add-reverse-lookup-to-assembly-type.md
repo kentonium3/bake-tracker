@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Add Reverse Lookup to AssemblyType Enum
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: ab3c7d40279d723b9dd2e5751340625bd2511d20
@@ -167,3 +167,4 @@ We need to add `from_display_name()` which is the reverse of `get_display_name()
 
 - 2026-02-06T01:55:28Z -- system -- lane=planned -- Prompt created.
 - 2026-02-06T02:02:48Z – claude-opus – shell_pid=78498 – lane=doing – Assigned agent via workflow command
+- 2026-02-06T02:43:05Z – claude-opus – shell_pid=78498 – lane=for_review – Ready for review: Added from_display_name() classmethod. All 6 enum values roundtrip correctly. 3493 tests pass.
