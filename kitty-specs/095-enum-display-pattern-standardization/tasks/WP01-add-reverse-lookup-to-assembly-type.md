@@ -12,7 +12,7 @@ subtasks:
 - T003
 phase: Phase 1 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "78498"
 review_status: ''
 reviewed_by: ''
@@ -166,3 +166,4 @@ We need to add `from_display_name()` which is the reverse of `get_display_name()
 ## Activity Log
 
 - 2026-02-06T01:55:28Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T02:02:48Z – claude-opus – shell_pid=78498 – lane=doing – Assigned agent via workflow command
