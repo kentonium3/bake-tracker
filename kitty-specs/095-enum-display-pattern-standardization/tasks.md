@@ -47,12 +47,12 @@
 **Estimated size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T004 Replace `_get_assembly_type_display()` in `src/ui/finished_goods_tab.py` with `get_display_name()` call
-- [ ] T005 Replace `_get_assembly_type_from_display()` in `src/ui/finished_goods_tab.py` with `AssemblyType.from_display_name()` call
-- [ ] T006 Remove `_type_to_enum` class attribute from `src/ui/forms/finished_good_form.py` and replace all usages with `AssemblyType.from_display_name()`
-- [ ] T007 Remove `_enum_to_type` class attribute from `src/ui/forms/finished_good_form.py` and replace all usages with `get_display_name()`
-- [ ] T008 Update dropdown population in `finished_good_form.py` to use `get_assembly_type_choices()` where applicable
-- [ ] T009 Run existing tests to confirm no regressions
+- [x] T004 Replace `_get_assembly_type_display()` in `src/ui/finished_goods_tab.py` with `get_display_name()` call
+- [x] T005 Replace `_get_assembly_type_from_display()` in `src/ui/finished_goods_tab.py` with `AssemblyType.from_display_name()` call
+- [x] T006 Remove `_type_to_enum` class attribute from `src/ui/forms/finished_good_form.py` and replace all usages with `AssemblyType.from_display_name()`
+- [x] T007 Remove `_enum_to_type` class attribute from `src/ui/forms/finished_good_form.py` and replace all usages with `get_display_name()`
+- [x] T008 Update dropdown population in `finished_good_form.py` to use `get_assembly_type_choices()` where applicable
+- [x] T009 Run existing tests to confirm no regressions
 
 ### Implementation Notes
 - **finished_goods_tab.py**: The `_get_assembly_type_display()` method (lines 362-374) has a None guard that defaults to "Custom Order" — preserve this behavior. The `_get_assembly_type_from_display()` method (lines 376-388) filters out "All Types" — preserve this guard.
