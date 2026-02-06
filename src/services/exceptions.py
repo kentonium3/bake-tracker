@@ -29,7 +29,9 @@ Exception Hierarchy:
     │   ├── MaterialNotFound
     │   ├── MaterialProductNotFound
     │   ├── RecipientNotFoundByName
-    │   └── SupplierNotFoundError
+    │   ├── SupplierNotFoundError
+    │   ├── RecipeCategoryNotFoundById
+    │   └── RecipeCategoryNotFoundByName
     ├── ValidationError (400)
     │   └── HierarchyValidationError
     │       ├── CircularReferenceError
@@ -933,6 +935,56 @@ class RecipientNotFoundByName(ServiceError):
         self.name = name
         super().__init__(
             f"Recipient with name '{name}' not found",
+            correlation_id=correlation_id,
+            name=name
+        )
+
+
+class RecipeCategoryNotFoundById(ServiceError):
+    """Raised when a recipe category cannot be found by ID.
+
+    Args:
+        category_id: The category ID that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise RecipeCategoryNotFoundById(123)
+        RecipeCategoryNotFoundById: Recipe category with ID 123 not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, category_id: int, correlation_id: Optional[str] = None):
+        self.category_id = category_id
+        super().__init__(
+            f"Recipe category with ID {category_id} not found",
+            correlation_id=correlation_id,
+            category_id=category_id
+        )
+
+
+class RecipeCategoryNotFoundByName(ServiceError):
+    """Raised when a recipe category cannot be found by name.
+
+    Args:
+        name: The category name that was not found
+        correlation_id: Optional correlation ID for tracing
+
+    Example:
+        >>> raise RecipeCategoryNotFoundByName("Pastries")
+        RecipeCategoryNotFoundByName: Recipe category with name 'Pastries' not found
+
+    HTTP Status: 404 Not Found
+    """
+
+    http_status_code = 404
+
+    def __init__(self, name: str, correlation_id: Optional[str] = None):
+        self.name = name
+        super().__init__(
+            f"Recipe category with name '{name}' not found",
             correlation_id=correlation_id,
             name=name
         )
