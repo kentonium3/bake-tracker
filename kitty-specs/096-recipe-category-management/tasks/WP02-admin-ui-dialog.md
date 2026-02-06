@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Admin UI Dialog + Menu Integration
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -234,3 +234,4 @@ Depends on WP01 (needs RecipeCategory model and service).
 
 - 2026-02-06T04:30:00Z -- system -- lane=planned -- Prompt created.
 - 2026-02-06T04:35:28Z – claude-opus – shell_pid=96308 – lane=doing – Assigned agent via workflow command
+- 2026-02-06T04:50:58Z – claude-opus – shell_pid=96308 – lane=for_review – Ready for review: RecipeCategoriesDialog with CRUD, reorder, menu integration. 3524 tests pass.
