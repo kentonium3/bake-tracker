@@ -199,26 +199,6 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
     Component management is handled in WP05/WP06.
     """
 
-    # Mapping from display names to enum values
-    _type_to_enum: Dict[str, AssemblyType] = {
-        "Bare": AssemblyType.BARE,
-        "Custom Order": AssemblyType.CUSTOM_ORDER,
-        "Gift Box": AssemblyType.GIFT_BOX,
-        "Variety Pack": AssemblyType.VARIETY_PACK,
-        "Holiday Set": AssemblyType.HOLIDAY_SET,
-        "Bulk Pack": AssemblyType.BULK_PACK,
-    }
-
-    # Reverse mapping from enum values to display names
-    _enum_to_type: Dict[AssemblyType, str] = {
-        AssemblyType.BARE: "Bare",
-        AssemblyType.CUSTOM_ORDER: "Custom Order",
-        AssemblyType.GIFT_BOX: "Gift Box",
-        AssemblyType.VARIETY_PACK: "Variety Pack",
-        AssemblyType.HOLIDAY_SET: "Holiday Set",
-        AssemblyType.BULK_PACK: "Bulk Pack",
-    }
-
     def __init__(
         self,
         parent,
@@ -339,7 +319,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         type_label.grid(row=2, column=0, sticky="w", pady=5, padx=(0, 10))
 
         # Assembly Type dropdown
-        type_values = list(self._type_to_enum.keys())
+        type_values = [at.get_display_name() for at in AssemblyType]
         self.type_dropdown = ctk.CTkComboBox(
             self.form_scroll,
             values=type_values,
@@ -733,7 +713,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
 
     def _get_assembly_type_options(self) -> List[str]:
         """Get assembly type options for filtering (WP06: T041)."""
-        return list(self._type_to_enum.keys())
+        return [at.get_display_name() for at in AssemblyType]
 
     def _on_add_component(self):
         """Open component selection popup (WP06: T041)."""
@@ -755,7 +735,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
                 ):
                     continue  # Skip items that would create circular reference
 
-            type_display = self._enum_to_type.get(fg.assembly_type, "Custom Order")
+            type_display = fg.assembly_type.get_display_name() if fg.assembly_type else "Custom Order"
             items.append((fg.id, fg.display_name, type_display))
 
         assembly_types = self._get_assembly_type_options()
@@ -888,10 +868,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         self.name_entry.insert(0, self.finished_good.display_name)
 
         # Assembly Type
-        type_display = self._enum_to_type.get(
-            self.finished_good.assembly_type,
-            "Custom Order",
-        )
+        type_display = self.finished_good.assembly_type.get_display_name() if self.finished_good.assembly_type else "Custom Order"
         self.type_dropdown.set(type_display)
 
         # Packaging Instructions
@@ -964,7 +941,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
     def _get_assembly_type(self) -> str:
         """Get the selected assembly type as enum value string."""
         selected = self.type_dropdown.get()
-        enum_value = self._type_to_enum.get(selected, AssemblyType.BARE)
+        enum_value = AssemblyType.from_display_name(selected) or AssemblyType.BARE
         return enum_value.value
 
     def _on_cancel(self):
