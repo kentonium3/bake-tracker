@@ -1,0 +1,12 @@
+agents:
+  available:
+  - codex
+  - gemini
+  - cursor
+  - claude
+  selection:
+    strategy: preferred
+    preferred_implementer: claude
+    preferred_reviewer: codex
+    preferred_tester: gemini
+
