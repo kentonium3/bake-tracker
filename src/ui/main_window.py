@@ -115,6 +115,10 @@ class MainWindow(ctk.CTk):
             label="Ingredient Hierarchy...", command=self._open_ingredient_admin
         )
         catalog_menu.add_command(label="Material Hierarchy...", command=self._open_material_admin)
+        catalog_menu.add_separator()
+        catalog_menu.add_command(
+            label="Recipe Categories...", command=self._open_recipe_categories
+        )
         self.menu_bar.add_cascade(label="Catalog", menu=catalog_menu)
 
         # Tools menu
@@ -395,6 +399,28 @@ class MainWindow(ctk.CTk):
 
         self._material_admin_window = HierarchyAdminWindow(
             self, entity_type="material", on_close=on_close
+        )
+
+    def _open_recipe_categories(self):
+        """Open Recipe Categories admin dialog (Feature 096)."""
+        from src.ui.catalog.recipe_categories_dialog import RecipeCategoriesDialog
+
+        # Prevent multiple windows
+        if (
+            hasattr(self, "_recipe_categories_dialog")
+            and self._recipe_categories_dialog is not None
+            and self._recipe_categories_dialog.winfo_exists()
+        ):
+            self._recipe_categories_dialog.focus()
+            self._recipe_categories_dialog.lift()
+            return
+
+        def on_close():
+            """Handle dialog close."""
+            self._recipe_categories_dialog = None
+
+        self._recipe_categories_dialog = RecipeCategoriesDialog(
+            self, on_close=on_close
         )
 
     # Feature 051: Removed _show_catalog_import_dialog and _show_import_view_dialog
