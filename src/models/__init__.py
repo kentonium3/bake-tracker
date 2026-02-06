@@ -76,6 +76,9 @@ from .material_consumption import MaterialConsumption
 # Feature 058: Materials FIFO Foundation
 from .material_inventory_item import MaterialInventoryItem
 
+# Feature 096: Recipe Category Management
+from .recipe_category import RecipeCategory
+
 __all__ = [
     "Base",
     "BaseModel",
@@ -160,4 +163,6 @@ __all__ = [
     "MaterialInventoryItem",
     # Feature 061: Finished Goods Inventory Service
     "FinishedGoodsAdjustment",
+    # Feature 096: Recipe Category Management
+    "RecipeCategory",
 ]
