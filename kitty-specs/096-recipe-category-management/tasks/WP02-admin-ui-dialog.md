@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Admin UI Dialog + Menu Integration
-lane: "doing"
+lane: "done"
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -17,8 +17,8 @@ phase: Phase 2 - User Story 1 (Admin Management)
 assignee: ''
 agent: "gemini-review"
 shell_pid: "99983"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned
@@ -236,3 +236,4 @@ Depends on WP01 (needs RecipeCategory model and service).
 - 2026-02-06T04:35:28Z – claude-opus – shell_pid=96308 – lane=doing – Assigned agent via workflow command
 - 2026-02-06T04:50:58Z – claude-opus – shell_pid=96308 – lane=for_review – Ready for review: RecipeCategoriesDialog with CRUD, reorder, menu integration. 3524 tests pass.
 - 2026-02-06T04:51:24Z – gemini-review – shell_pid=99983 – lane=doing – Started review via workflow command
+- 2026-02-06T05:32:18Z – gemini-review – shell_pid=99983 – lane=done – Review passed: All 8 DoD criteria verified. Dialog implements full CRUD + reorder via service layer. Menu integration follows existing pattern. Single-instance management correct. All 3524 tests pass. No business logic in UI. Lazy imports prevent circular deps.
