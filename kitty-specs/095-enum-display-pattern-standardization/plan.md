@@ -70,21 +70,21 @@ Both UI files need to convert display strings BACK to enum values (for dropdown 
 
 | Enum | File | Has Display Method | UI Hardcoded Map | Status |
 |------|------|--------------------|-------------------|--------|
-| AssemblyType | `models/assembly_type.py` | Yes (`get_display_name()`) | Yes (2 files) | FIX |
-| LossCategory | `models/enums.py` | No (uses `str(Enum)` + `.value.replace("_"," ").title()`) | No | OK* |
-| DepletionReason | `models/enums.py` | No (inherits from `str, Enum`) | Not checked yet | AUDIT |
-| ProductionStatus | `models/enums.py` | No (inherits from `str, Enum`) | Not checked yet | AUDIT |
-| FulfillmentStatus | `models/event.py` | Not checked yet | Not checked yet | AUDIT |
-| OutputMode | `models/event.py` | Not checked yet | Not checked yet | AUDIT |
-| PlanState | `models/event.py` | Not checked yet | Not checked yet | AUDIT |
-| YieldMode | `models/finished_unit.py` | Not checked yet | Not checked yet | AUDIT |
-| SnapshotType | `models/planning_snapshot.py` | Not checked yet | Not checked yet | AUDIT |
-| AmendmentType | `models/plan_amendment.py` | Not checked yet | Not checked yet | AUDIT |
-| PackageStatus | `models/package_status.py` | Not checked yet | Not checked yet | AUDIT |
+| AssemblyType | `models/assembly_type.py` | Yes (`get_display_name()`, `from_display_name()`) | None (fixed by WP01+WP02) | COMPLIANT |
+| LossCategory | `models/enums.py` | Dynamic (`.value.replace("_"," ").title()`) | None | COMPLIANT |
+| DepletionReason | `models/enums.py` | No | Yes (`REASON_LABELS` in `ui/dialogs/adjustment_dialog.py`) | VIOLATION* |
+| ProductionStatus | `models/enums.py` | No | Not used in UI | N/A |
+| FulfillmentStatus | `models/event.py` | No | State machine transitions only, not display | COMPLIANT |
+| OutputMode | `models/event.py` | No | Not used in UI | N/A |
+| PlanState | `models/event.py` | Dynamic (`.value.replace("_"," ").title()`) | None | COMPLIANT |
+| YieldMode | `models/finished_unit.py` | No | Form value conversion only, no display map | COMPLIANT |
+| SnapshotType | `models/planning_snapshot.py` | No | Not used in UI | N/A |
+| AmendmentType | `models/plan_amendment.py` | No | Not used in UI | N/A |
+| PackageStatus | `models/package_status.py` | No | Not used in UI | N/A |
 
-*LossCategory uses dynamic display via `.value.replace("_", " ").title()` in UI — not a hardcoded map, so acceptable.
+*DepletionReason has a `REASON_LABELS` hardcoded dict in `src/ui/dialogs/adjustment_dialog.py` (lines 32-37) with custom labels like "Spoilage/Waste" and "Gift/Donation". This is a pre-existing violation outside the scope of this feature — documented as follow-up work.
 
-Full audit of remaining enums will be completed during implementation (WP for audit task).
+**Audit completed by WP03 (2026-02-06). Summary: 10/11 enums compliant or not applicable. 1 pre-existing violation (DepletionReason) documented for follow-up.**
 
 ## Project Structure
 
