@@ -13,7 +13,7 @@ subtasks:
 - T013
 phase: Phase 3 - Documentation & Audit
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "84863"
 review_status: ''
 reviewed_by: ''
@@ -265,3 +265,4 @@ Depends on WP02 (audit should verify the code fixes are in place).
 ## Activity Log
 
 - 2026-02-06T01:55:28Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T03:01:32Z – claude-opus – shell_pid=84863 – lane=doing – Assigned agent via workflow command
