@@ -1,0 +1,8 @@
+{
+  "feature_number": "095",
+  "slug": "095-enum-display-pattern-standardization",
+  "friendly_name": "Enum Display Pattern Standardization",
+  "mission": "software-dev",
+  "source_description": "See docs/func-spec/F095_enum_display_pattern_standardization.md for feature inputs. See docs/func-spec/claude-pre-implementation-prompt.md for direction.",
+  "created_at": "2026-02-05T00:00:00Z"
+}
