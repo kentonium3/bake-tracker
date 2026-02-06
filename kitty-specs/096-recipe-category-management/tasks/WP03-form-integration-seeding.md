@@ -1,8 +1,11 @@
 ---
 work_package_id: WP03
 title: Form Integration + Database Seeding
-lane: "planned"
+lane: "doing"
 dependencies: [WP01]
+base_branch: 096-recipe-category-management-WP01
+base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
+created_at: '2026-02-06T04:35:38.567178+00:00'
 subtasks:
 - T013
 - T014
@@ -11,8 +14,8 @@ subtasks:
 - T017
 phase: Phase 2 - User Story 2 & 3 (Form + Migration)
 assignee: ''
-agent: ""
-shell_pid: ""
+agent: ''
+shell_pid: "96580"
 review_status: ''
 reviewed_by: ''
 history:
