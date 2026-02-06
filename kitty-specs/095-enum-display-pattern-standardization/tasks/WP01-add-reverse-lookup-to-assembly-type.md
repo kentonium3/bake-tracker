@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-title: "Add Reverse Lookup to AssemblyType Enum"
-phase: "Phase 1 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP01
+title: Add Reverse Lookup to AssemblyType Enum
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: ab3c7d40279d723b9dd2e5751340625bd2511d20
+created_at: '2026-02-06T02:02:48.060541+00:00'
+subtasks:
+- T001
+- T002
+- T003
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "78498"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T01:55:28Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T01:55:28Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 -- Add Reverse Lookup to AssemblyType Enum
