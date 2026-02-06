@@ -15,7 +15,7 @@ subtasks:
 - T009
 phase: Phase 2 - Core Fix
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "82479"
 review_status: ''
 reviewed_by: ''
@@ -272,3 +272,4 @@ Depends on WP01 (needs `from_display_name()` method).
 ## Activity Log
 
 - 2026-02-06T01:55:28Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T02:45:11Z – claude-opus – shell_pid=82479 – lane=doing – Assigned agent via workflow command
