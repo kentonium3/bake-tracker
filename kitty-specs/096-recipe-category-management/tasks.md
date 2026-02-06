@@ -118,11 +118,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T018 Add recipe_categories to full backup export in import_export_service.py
-- [ ] T019 Add recipe_categories to catalog export
-- [ ] T020 Create import_recipe_categories() in catalog_import_service.py
-- [ ] T021 Wire recipe category import into main import orchestration
-- [ ] T022 Add round-trip test (export -> import -> verify)
+- [x] T018 Add recipe_categories to full backup export in import_export_service.py
+- [x] T019 Add recipe_categories to catalog export
+- [x] T020 Create import_recipe_categories() in catalog_import_service.py
+- [x] T021 Wire recipe category import into main import orchestration
+- [x] T022 Add round-trip test (export -> import -> verify)
 
 ### Implementation Notes
 - Export format: `{"name", "slug", "sort_order", "description", "uuid"}`
