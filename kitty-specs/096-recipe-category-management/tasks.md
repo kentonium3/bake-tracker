@@ -51,12 +51,12 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T007 Create `src/ui/catalog/` directory and `__init__.py`
-- [ ] T008 Create RecipeCategoriesDialog with list view and action buttons
-- [ ] T009 Add category edit form (name, description, sort_order fields)
-- [ ] T010 Implement delete confirmation with in-use validation
-- [ ] T011 Add sort order management (move up/down buttons)
-- [ ] T012 Add "Recipe Categories..." menu item to Catalog menu in main_window.py
+- [x] T007 Create `src/ui/catalog/` directory and `__init__.py`
+- [x] T008 Create RecipeCategoriesDialog with list view and action buttons
+- [x] T009 Add category edit form (name, description, sort_order fields)
+- [x] T010 Implement delete confirmation with in-use validation
+- [x] T011 Add sort order management (move up/down buttons)
+- [x] T012 Add "Recipe Categories..." menu item to Catalog menu in main_window.py
 
 ### Implementation Notes
 - Dialog is CTkToplevel (not HierarchyAdminWindow -- flat list, not tree)
