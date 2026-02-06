@@ -14,7 +14,7 @@ subtasks:
 - T022
 phase: Phase 3 - User Story 4 (Data Portability)
 assignee: ''
-agent: ''
+agent: "gemini-wp04"
 shell_pid: "96752"
 review_status: ''
 reviewed_by: ''
@@ -243,3 +243,4 @@ Depends on WP01 (needs RecipeCategory model and service). Independent of WP02 an
 ## Activity Log
 
 - 2026-02-06T04:30:00Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T04:35:48Z – gemini-wp04 – shell_pid=96752 – lane=doing – Assigned agent via workflow command
