@@ -1,8 +1,11 @@
 ---
 work_package_id: WP04
 title: Import/Export Support
-lane: "planned"
+lane: "doing"
 dependencies: [WP01]
+base_branch: 096-recipe-category-management-WP01
+base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
+created_at: '2026-02-06T04:35:47.799400+00:00'
 subtasks:
 - T018
 - T019
@@ -11,8 +14,8 @@ subtasks:
 - T022
 phase: Phase 3 - User Story 4 (Data Portability)
 assignee: ''
-agent: ""
-shell_pid: ""
+agent: ''
+shell_pid: "96752"
 review_status: ''
 reviewed_by: ''
 history:
