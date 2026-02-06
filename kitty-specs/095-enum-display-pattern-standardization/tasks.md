@@ -81,7 +81,7 @@
 ### Included Subtasks
 - [x] T010 [P] Add "Enum Display Pattern" section to `CLAUDE.md` with correct/incorrect code examples, rationale, and references to good codebase examples
 - [x] T011 [P] Add enum usage items to code review checklist in `CLAUDE.md`
-- [ ] T012 Audit all enums in `src/models/` for display method compliance (AssemblyType, LossCategory, DepletionReason, ProductionStatus, FulfillmentStatus, OutputMode, PlanState, YieldMode, SnapshotType, AmendmentType, PackageStatus)
+- [x] T012 Audit all enums in `src/models/` for display method compliance (AssemblyType, LossCategory, DepletionReason, ProductionStatus, FulfillmentStatus, OutputMode, PlanState, YieldMode, SnapshotType, AmendmentType, PackageStatus)
 - [ ] T013 Document audit findings in the plan or as inline comments in the spec
 
 ### Implementation Notes
