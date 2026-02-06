@@ -83,6 +83,22 @@ class AssemblyType(enum.Enum):
             return None
 
     @classmethod
+    def from_display_name(cls, display_name: str) -> Optional["AssemblyType"]:
+        """
+        Get AssemblyType from its display name.
+
+        Args:
+            display_name: Human-readable display name (e.g., "Gift Box")
+
+        Returns:
+            Matching AssemblyType or None if not found
+        """
+        for assembly_type in cls:
+            if assembly_type.get_display_name() == display_name:
+                return assembly_type
+        return None
+
+    @classmethod
     def get_seasonal_types(cls) -> list["AssemblyType"]:
         """Get all seasonal assembly types."""
         return [assembly_type for assembly_type in cls if assembly_type.is_seasonal()]
