@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Replace Hardcoded Maps in UI Files
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 095-enum-display-pattern-standardization-WP01
 base_commit: 6814dab1ef120b73fd6b06f594ae6a6c63744dd2
@@ -273,3 +273,4 @@ Depends on WP01 (needs `from_display_name()` method).
 
 - 2026-02-06T01:55:28Z -- system -- lane=planned -- Prompt created.
 - 2026-02-06T02:45:11Z – claude-opus – shell_pid=82479 – lane=doing – Assigned agent via workflow command
+- 2026-02-06T03:00:18Z – claude-opus – shell_pid=82479 – lane=for_review – Ready for review: Removed all hardcoded AssemblyType maps from both UI files. 3493 tests pass, 0 failures.
