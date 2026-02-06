@@ -447,6 +447,72 @@ except ValidationError as e:
 - `ValidationError.errors` contains list of error messages
 - No tuple unpacking needed at call sites
 
+## Enum Display Pattern
+
+**ALWAYS use enum methods for display strings, NEVER create hardcoded maps.**
+
+### Correct Pattern
+
+```python
+# Enum definition (models/example_type.py)
+class ExampleType(Enum):
+    VALUE_A = "value_a"
+    VALUE_B = "value_b"
+
+    def get_display_name(self) -> str:
+        """Return human-readable display name."""
+        return {
+            ExampleType.VALUE_A: "Value A",
+            ExampleType.VALUE_B: "Value B",
+        }[self]
+
+    @classmethod
+    def from_display_name(cls, display_name: str) -> Optional["ExampleType"]:
+        """Get enum from display name. Returns None if not found."""
+        for member in cls:
+            if member.get_display_name() == display_name:
+                return member
+        return None
+
+# UI usage (ui/example_form.py)
+display = example_type.get_display_name()  # Forward lookup
+enum_val = ExampleType.from_display_name("Value A")  # Reverse lookup
+```
+
+### Incorrect Pattern
+
+```python
+# UI file (ui/example_form.py)
+# WRONG - Hardcoded map duplicates enum logic
+type_map = {
+    ExampleType.VALUE_A: "Value A",
+    ExampleType.VALUE_B: "Value B",
+}
+display = type_map.get(example_type)  # Don't do this
+```
+
+### Why This Matters
+
+- **Single source of truth**: Display logic lives in enum, not scattered in UI
+- **Easier updates**: Adding new enum value requires 1 change, not N changes
+- **Type safety**: Enum methods are type-checked, maps are not
+- **Consistency**: All code uses same display strings automatically
+
+### Good Examples in Codebase
+
+- `AssemblyType` (`src/models/assembly_type.py`) -- Uses `get_display_name()` and `from_display_name()` with centralized metadata
+- `LossCategory` (`src/models/enums.py`) -- Uses `str(Enum)` with `.value.replace("_", " ").title()` for dynamic display
+- `get_assembly_type_choices()` -- Helper function returning `[(value, display_name)]` for dropdowns
+
+### Enum Code Review Checklist
+
+When reviewing code that uses enums:
+- No hardcoded enum-to-string maps in UI code
+- Enum display methods (`get_display_name()`) used instead of manual mapping
+- New enums include `get_display_name()` method (if displayed in UI)
+- New enums include `from_display_name()` class method (if reverse lookup needed)
+- Dropdown options use enum helper methods or list comprehensions over enum members
+
 ## Pagination Pattern (Web Migration Ready)
 
 ### DTOs Available
