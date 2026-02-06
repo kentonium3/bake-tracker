@@ -14,7 +14,7 @@ subtasks:
 - T017
 phase: Phase 2 - User Story 2 & 3 (Form + Migration)
 assignee: ''
-agent: ''
+agent: "gemini-wp03"
 shell_pid: "96580"
 review_status: ''
 reviewed_by: ''
@@ -255,3 +255,4 @@ Depends on WP01 (needs RecipeCategory model and service).
 ## Activity Log
 
 - 2026-02-06T04:30:00Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T04:35:38Z – gemini-wp03 – shell_pid=96580 – lane=doing – Assigned agent via workflow command
