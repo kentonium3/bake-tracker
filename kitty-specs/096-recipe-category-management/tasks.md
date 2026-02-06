@@ -17,12 +17,12 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T001 Create RecipeCategory model in `src/models/recipe_category.py`
-- [ ] T002 Add RecipeCategoryNotFound exception to `src/services/exceptions.py`
-- [ ] T003 Create recipe_category_service.py with list and create operations
-- [ ] T004 Add get, update, delete, and is_in_use operations to service
-- [ ] T005 Register RecipeCategory model in database init imports
-- [ ] T006 [P] Write unit tests for all CRUD operations
+- [x] T001 Create RecipeCategory model in `src/models/recipe_category.py`
+- [x] T002 Add RecipeCategoryNotFound exception to `src/services/exceptions.py`
+- [x] T003 Create recipe_category_service.py with list and create operations
+- [x] T004 Add get, update, delete, and is_in_use operations to service
+- [x] T005 Register RecipeCategory model in database init imports
+- [x] T006 [P] Write unit tests for all CRUD operations
 
 ### Implementation Notes
 - Follow MaterialCategory model exactly (simplified: no hierarchy/subcategories)
