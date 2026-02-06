@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Document Pattern and Audit Enums
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 095-enum-display-pattern-standardization-WP02
 base_commit: dd9d627382a65d538ce5b9226f034ee499be70cd
@@ -266,3 +266,4 @@ Depends on WP02 (audit should verify the code fixes are in place).
 
 - 2026-02-06T01:55:28Z -- system -- lane=planned -- Prompt created.
 - 2026-02-06T03:01:32Z – claude-opus – shell_pid=84863 – lane=doing – Assigned agent via workflow command
+- 2026-02-06T03:37:25Z – claude-opus – shell_pid=84863 – lane=for_review – Ready for review: Added Enum Display Pattern section to CLAUDE.md with correct/incorrect examples, rationale, good codebase references, and code review checklist. Completed audit of all 11 enums (10 compliant/N/A, 1 pre-existing DepletionReason violation documented for follow-up). All 3493 tests pass.
