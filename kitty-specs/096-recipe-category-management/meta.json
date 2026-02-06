@@ -4,5 +4,7 @@
   "friendly_name": "Recipe Category Management",
   "mission": "software-dev",
   "source_description": "docs/func-spec/F096_recipe_category_management_v2.md",
-  "created_at": "2026-02-06T04:00:00Z"
+  "created_at": "2026-02-06T04:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-02-06T04:21:47.513269+00:00"
 }
