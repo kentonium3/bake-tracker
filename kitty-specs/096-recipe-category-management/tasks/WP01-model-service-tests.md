@@ -15,7 +15,7 @@ subtasks:
 - T006
 phase: Phase 1 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "94373"
 review_status: ''
 reviewed_by: ''
@@ -254,3 +254,4 @@ No dependencies (foundation package).
 ## Activity Log
 
 - 2026-02-06T04:30:00Z -- system -- lane=planned -- Prompt created.
+- 2026-02-06T04:21:51Z – claude-opus – shell_pid=94373 – lane=doing – Assigned agent via workflow command
