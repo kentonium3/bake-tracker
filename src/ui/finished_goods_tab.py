@@ -363,29 +363,13 @@ class FinishedGoodsTab(ctk.CTkFrame):
         """Convert AssemblyType enum to display string."""
         if not assembly_type:
             return "Custom Order"
-        type_map = {
-            AssemblyType.BARE: "Bare",
-            AssemblyType.CUSTOM_ORDER: "Custom Order",
-            AssemblyType.GIFT_BOX: "Gift Box",
-            AssemblyType.VARIETY_PACK: "Variety Pack",
-            AssemblyType.HOLIDAY_SET: "Holiday Set",
-            AssemblyType.BULK_PACK: "Bulk Pack",
-        }
-        return type_map.get(assembly_type, "Unknown")
+        return assembly_type.get_display_name()
 
     def _get_assembly_type_from_display(self, display: str) -> Optional[AssemblyType]:
         """Convert display string to AssemblyType enum."""
         if display == "All Types":
             return None
-        display_map = {
-            "Bare": AssemblyType.BARE,
-            "Custom Order": AssemblyType.CUSTOM_ORDER,
-            "Gift Box": AssemblyType.GIFT_BOX,
-            "Variety Pack": AssemblyType.VARIETY_PACK,
-            "Holiday Set": AssemblyType.HOLIDAY_SET,
-            "Bulk Pack": AssemblyType.BULK_PACK,
-        }
-        return display_map.get(display)
+        return AssemblyType.from_display_name(display)
 
     def _on_search(self):
         """Handle search and filter."""
