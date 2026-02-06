@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Import/Export Support
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -244,3 +244,4 @@ Depends on WP01 (needs RecipeCategory model and service). Independent of WP02 an
 
 - 2026-02-06T04:30:00Z -- system -- lane=planned -- Prompt created.
 - 2026-02-06T04:35:48Z – gemini-wp04 – shell_pid=96752 – lane=doing – Assigned agent via workflow command
+- 2026-02-06T05:25:10Z – gemini-wp04 – shell_pid=96752 – lane=for_review – Ready for review: recipe category import/export with 23 passing tests
