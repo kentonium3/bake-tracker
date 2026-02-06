@@ -1,8 +1,11 @@
 ---
 work_package_id: WP01
 title: RecipeCategory Model + Service + Tests
-lane: "planned"
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: a8ebe8b9e4b4d52e88ff0925deebde70244ae7d2
+created_at: '2026-02-06T04:21:51.024739+00:00'
 subtasks:
 - T001
 - T002
@@ -12,8 +15,8 @@ subtasks:
 - T006
 phase: Phase 1 - Foundation
 assignee: ''
-agent: ""
-shell_pid: ""
+agent: ''
+shell_pid: "94373"
 review_status: ''
 reviewed_by: ''
 history:
