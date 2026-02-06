@@ -38,6 +38,7 @@ from src.models.material_subcategory import MaterialSubcategory
 from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
+from src.models.recipe_category import RecipeCategory
 from src.models.supplier import Supplier
 from src.services.material_catalog_service import slugify
 from src.services.exceptions import ServiceError
@@ -76,6 +77,8 @@ VALID_ENTITIES = {
     "materials",
     "material_products",
     "material_units",
+    # Feature 096: Recipe Category Management
+    "recipe_categories",
 }
 
 
@@ -204,6 +207,8 @@ class CatalogImportResult:
             "materials": EntityImportCounts(),
             "material_products": EntityImportCounts(),
             "material_units": EntityImportCounts(),
+            # Feature 096: Recipe Category Management
+            "recipe_categories": EntityImportCounts(),
         }
         self.errors: List[ImportError] = []
         self.warnings: List[str] = []
@@ -2414,6 +2419,135 @@ def _import_material_units_impl(
         session.add(unit)
         result.add_success("material_units")
         existing_slugs[slug] = unit
+
+    if dry_run:
+        session.rollback()
+
+    return result
+
+
+# ============================================================================
+# Recipe Category Import Functions (Feature 096)
+# ============================================================================
+
+
+def import_recipe_categories(
+    data: List[Dict],
+    mode: str = "add",
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> CatalogImportResult:
+    """
+    Import recipe categories from parsed data.
+
+    Transaction boundary: Creates own session_scope if none provided; otherwise
+    inherits caller's session for atomic composition with other entity imports.
+    If dry_run=True, no changes are committed regardless of session source.
+
+    Args:
+        data: List of category dictionaries
+        mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
+        dry_run: If True, validate and preview without committing
+        session: Optional SQLAlchemy session
+
+    Returns:
+        CatalogImportResult with counts and any errors
+    """
+    if session is not None:
+        return _import_recipe_categories_impl(data, mode, dry_run, session)
+    with session_scope() as sess:
+        return _import_recipe_categories_impl(data, mode, dry_run, sess)
+
+
+def _import_recipe_categories_impl(
+    data: List[Dict],
+    mode: str,
+    dry_run: bool,
+    session: Session,
+) -> CatalogImportResult:
+    """
+    Internal implementation of recipe category import.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    All queries and inserts use the provided session. If dry_run=True, no
+    entities are added to session.
+
+    Duplicate detection: checks UUID first (if provided), then slug.
+    """
+    result = CatalogImportResult()
+    result.dry_run = dry_run
+    result.mode = mode
+
+    existing_slugs = {row.slug: row for row in session.query(RecipeCategory).all()}
+    existing_uuids = {
+        str(row.uuid): row
+        for row in session.query(RecipeCategory).all()
+        if row.uuid
+    }
+
+    for item in data:
+        slug = item.get("slug", "")
+        name = item.get("name", "")
+        identifier = slug or name or "unknown"
+
+        if not name:
+            result.add_error(
+                "recipe_categories",
+                identifier,
+                "validation",
+                "Missing required field: name",
+                "Add 'name' field to category data",
+            )
+            continue
+
+        if not slug:
+            # Auto-generate slug from name
+            slug = name.lower().replace(" ", "-").replace("_", "-")
+            slug = "".join(c for c in slug if c.isalnum() or c == "-")
+
+        # Check for existing by UUID first
+        item_uuid = item.get("uuid")
+        existing = None
+        if item_uuid and item_uuid in existing_uuids:
+            existing = existing_uuids[item_uuid]
+        elif slug in existing_slugs:
+            existing = existing_slugs[slug]
+
+        if existing is not None:
+            if mode == ImportMode.ADD_ONLY.value:
+                result.add_skip("recipe_categories", slug, "Already exists")
+                continue
+            # AUGMENT mode: update description and sort_order only if null/default
+            updated_fields = []
+            if item.get("description") and not existing.description:
+                existing.description = item["description"]
+                updated_fields.append("description")
+            if updated_fields:
+                result.add_augment("recipe_categories", slug, updated_fields)
+            else:
+                result.add_skip("recipe_categories", slug, "No null fields to update")
+            continue
+
+        category = RecipeCategory(
+            name=name,
+            slug=slug,
+            description=item.get("description"),
+            sort_order=item.get("sort_order", 0),
+        )
+        # Set UUID if provided in import data
+        if item_uuid:
+            import uuid as uuid_module
+
+            try:
+                category.uuid = uuid_module.UUID(item_uuid)
+            except (ValueError, AttributeError):
+                pass  # Invalid UUID format, let BaseModel generate one
+
+        session.add(category)
+        result.add_success("recipe_categories")
+        existing_slugs[slug] = category
+        if item_uuid:
+            existing_uuids[item_uuid] = category
 
     if dry_run:
         session.rollback()
