@@ -38,6 +38,7 @@ from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
 from src.models.supplier import Supplier
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
+from src.models.recipe_category import RecipeCategory
 from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
@@ -125,6 +126,8 @@ DEPENDENCY_ORDER = {
     "material_purchases": (13, ["material_products", "suppliers"]),
     # Feature 058: Material inventory items (FIFO)
     "material_inventory_items": (14, ["material_products", "material_purchases"]),
+    # Feature 096: Recipe categories (no dependencies, like material_categories)
+    "recipe_categories": (14.5, []),
     # Feature 049: Complete backup entities
     "finished_goods": (15, []),
     "events": (16, []),
@@ -590,6 +593,35 @@ def _export_material_categories(output_dir: Path, session: Session) -> FileEntry
         )
 
     return _write_entity_file(output_dir, "material_categories", records)
+
+
+# ============================================================================
+# Recipe Category Export Functions (Feature 096)
+# ============================================================================
+
+
+def _export_recipe_categories(output_dir: Path, session: Session) -> FileEntry:
+    """
+    Export all recipe categories to JSON file.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    Reads all recipe categories within caller's session for consistent snapshot.
+    """
+    categories = session.query(RecipeCategory).order_by(RecipeCategory.sort_order).all()
+
+    records = []
+    for c in categories:
+        records.append(
+            {
+                "uuid": str(c.uuid) if c.uuid else None,
+                "name": c.name,
+                "slug": c.slug,
+                "sort_order": c.sort_order,
+                "description": c.description,
+            }
+        )
+
+    return _write_entity_file(output_dir, "recipe_categories", records)
 
 
 def _export_material_subcategories(output_dir: Path, session: Session) -> FileEntry:
@@ -1250,6 +1282,9 @@ def _export_complete_impl(
     manifest.files.append(_export_material_units(output_dir, session))
     manifest.files.append(_export_material_purchases(output_dir, session))
     manifest.files.append(_export_material_inventory_items(output_dir, session))
+
+    # Feature 096: Recipe Category Management
+    manifest.files.append(_export_recipe_categories(output_dir, session))
 
     # Feature 049: Complete backup entities
     manifest.files.append(_export_finished_goods(output_dir, session))
@@ -1919,6 +1954,16 @@ def _import_entity_records(
                     name=record.get("name"),
                     slug=record.get("slug"),
                     description=record.get("description"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "recipe_categories":
+                obj = RecipeCategory(
+                    name=record.get("name"),
+                    slug=record.get("slug"),
+                    description=record.get("description"),
+                    sort_order=record.get("sort_order", 0),
                 )
                 session.add(obj)
                 imported_count += 1

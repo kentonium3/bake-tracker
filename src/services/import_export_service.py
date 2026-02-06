@@ -55,6 +55,7 @@ from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit  # Feature 084
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
+from src.models.recipe_category import RecipeCategory
 from src.utils.constants import (
     APP_NAME,
     APP_VERSION,
@@ -1334,6 +1335,8 @@ def export_all_to_json(
             "materials": [],
             "material_products": [],
             "material_units": [],  # Feature 084
+            # Recipe categories (Feature 096)
+            "recipe_categories": [],
             # Planning entities (Feature 068)
             "event_recipes": [],
             "event_finished_goods": [],
@@ -1849,6 +1852,24 @@ def export_all_to_json(
                     }
                 )
 
+        # Add recipe categories (Feature 096)
+        with session_scope() as session:
+            recipe_cats = (
+                session.query(RecipeCategory)
+                .order_by(RecipeCategory.sort_order)
+                .all()
+            )
+            for rc in recipe_cats:
+                export_data["recipe_categories"].append(
+                    {
+                        "uuid": str(rc.uuid) if rc.uuid else None,
+                        "name": rc.name,
+                        "slug": rc.slug,
+                        "sort_order": rc.sort_order,
+                        "description": rc.description,
+                    }
+                )
+
         # Add planning entities (Feature 068)
         with session_scope() as session:
             # Build event name lookup for FK references
@@ -1919,10 +1940,12 @@ def export_all_to_json(
                 "suppliers": ["suppliers"],
                 "ingredients": ["ingredients"],
                 "products": ["products"],
-                "recipes": ["recipes", "finished_units", "compositions"],
+                "recipes": ["recipes", "finished_units", "compositions", "recipe_categories"],
                 "materials": ["material_categories", "material_subcategories", "materials"],
                 # Feature 084: Include material_units with material_products
                 "material_products": ["material_products", "material_units"],
+                # Feature 096: Recipe categories as standalone export entity
+                "recipe_categories": ["recipe_categories"],
             }
 
             # Build set of keys to keep
@@ -1967,6 +1990,8 @@ def export_all_to_json(
             + len(export_data["materials"])
             + len(export_data["material_products"])
             + len(export_data["material_units"])  # Feature 084
+            # Recipe categories (Feature 096)
+            + len(export_data["recipe_categories"])
             # Planning entities (Feature 068)
             + len(export_data["event_recipes"])
             + len(export_data["event_finished_goods"])
@@ -2012,6 +2037,8 @@ def export_all_to_json(
         result.add_entity_count("materials", len(export_data["materials"]))
         result.add_entity_count("material_products", len(export_data["material_products"]))
         result.add_entity_count("material_units", len(export_data["material_units"]))  # F084
+        # Recipe categories (Feature 096)
+        result.add_entity_count("recipe_categories", len(export_data["recipe_categories"]))
         # Planning entities (Feature 068)
         result.add_entity_count("event_recipes", len(export_data["event_recipes"]))
         result.add_entity_count("event_finished_goods", len(export_data["event_finished_goods"]))
@@ -4548,6 +4575,23 @@ def import_all_from_json_v4(
                 result.skipped += counts.skipped
                 result.failed += counts.failed
                 result.total_records += counts.added + counts.skipped + counts.failed
+
+            # 20b. Recipe categories (Feature 096)
+            if "recipe_categories" in data:
+                rc_result = catalog_import_service.import_recipe_categories(
+                    data["recipe_categories"], mode=import_mode, session=session
+                )
+                counts = rc_result.entity_counts["recipe_categories"]
+                result.entity_counts["recipe_category"] = {
+                    "imported": counts.added,
+                    "skipped": counts.skipped,
+                    "errors": counts.failed,
+                }
+                result.successful += counts.added
+                result.skipped += counts.skipped
+                result.failed += counts.failed
+                result.total_records += counts.added + counts.skipped + counts.failed
+                session.flush()
 
             # 21. Planning entities (Feature 068)
             # Import order respects FK dependencies:
