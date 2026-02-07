@@ -352,7 +352,10 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         return ["All Categories"] + categories
 
     def _query_food_items(self) -> List[Dict]:
-        """Query FinishedGoods matching current filter state.
+        """Query FinishedUnits and FinishedGoods matching current filter state.
+
+        Bare items (FinishedUnits) are always included. FinishedGoods (assemblies)
+        are included when type filter is "All".
 
         Returns list of dicts with keys: key, id, display_name, category,
         assembly_type, comp_type, comp_id
@@ -361,59 +364,64 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         type_filter = self._food_type_var.get()
         search_text = self._food_search_var.get().strip().lower()
 
-        try:
-            all_fgs = finished_good_service.get_all_finished_goods()
-        except Exception:
-            return []
-
         items = []
-        for fg in all_fgs:
-            # Self-reference prevention: exclude current FG in edit mode
-            if self._is_edit_mode and fg.id == self._finished_good_id:
+
+        # Always include FinishedUnits as bare items
+        try:
+            all_units = finished_unit_service.get_all_finished_units()
+        except Exception:
+            all_units = []
+
+        for fu in all_units:
+            if search_text and search_text not in fu.display_name.lower():
                 continue
-
-            # Determine if bare or assembly
-            is_bare = fg.assembly_type == AssemblyType.BARE
-
-            # Type filter
-            if type_filter == "Bare Items Only" and not is_bare:
-                continue
-
-            # Search filter
-            if search_text and search_text not in fg.display_name.lower():
-                continue
-
-            # Category filter
             if category_filter != "All Categories":
-                fg_category = self._get_fg_category(fg)
-                if fg_category != category_filter:
+                if (fu.category or "") != category_filter:
                     continue
 
-            comp_type, comp_id = self._get_comp_type_and_id(fg, is_bare)
-
-            key = f"{comp_type}:{comp_id}"
+            key = f"finished_unit:{fu.id}"
             items.append({
                 "key": key,
-                "id": fg.id,
-                "display_name": fg.display_name,
-                "category": self._get_fg_category(fg),
-                "assembly_type": fg.assembly_type,
-                "comp_type": comp_type,
-                "comp_id": comp_id,
+                "id": fu.id,
+                "display_name": fu.display_name,
+                "category": fu.category or "",
+                "assembly_type": AssemblyType.BARE,
+                "comp_type": "finished_unit",
+                "comp_id": fu.id,
             })
 
-        return items
+        # Include FinishedGoods (assemblies) when not filtering to bare only
+        if type_filter != "Bare Items Only":
+            try:
+                all_fgs = finished_good_service.get_all_finished_goods()
+            except Exception:
+                all_fgs = []
 
-    @staticmethod
-    def _get_comp_type_and_id(fg, is_bare: bool) -> tuple:
-        """Determine component type and ID for a FinishedGood."""
-        if is_bare and fg.components:
-            fu_comp = next(
-                (c for c in fg.components if c.finished_unit_id), None
-            )
-            if fu_comp:
-                return "finished_unit", fu_comp.finished_unit_id
-        return "finished_good", fg.id
+            for fg in all_fgs:
+                # Self-reference prevention: exclude current FG in edit mode
+                if self._is_edit_mode and fg.id == self._finished_good_id:
+                    continue
+
+                if search_text and search_text not in fg.display_name.lower():
+                    continue
+
+                if category_filter != "All Categories":
+                    fg_category = self._get_fg_category(fg)
+                    if fg_category != category_filter:
+                        continue
+
+                key = f"finished_good:{fg.id}"
+                items.append({
+                    "key": key,
+                    "id": fg.id,
+                    "display_name": fg.display_name,
+                    "category": self._get_fg_category(fg),
+                    "assembly_type": fg.assembly_type,
+                    "comp_type": "finished_good",
+                    "comp_id": fg.id,
+                })
+
+        return items
 
     def _get_fg_category(self, fg) -> str:
         """Get the category for a FinishedGood.
