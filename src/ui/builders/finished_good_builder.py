@@ -9,6 +9,7 @@ Three-step accordion workflow:
 Feature 097: Finished Goods Builder UI
 """
 
+import re
 from typing import Dict, List, Optional
 
 import customtkinter as ctk
@@ -20,6 +21,8 @@ from src.services import (
     material_catalog_service,
     material_unit_service,
 )
+from src.services.exceptions import CircularReferenceError, ValidationError
+from src.services.finished_good_service import InvalidComponentError
 from src.ui.widgets.accordion_step import (
     AccordionStep,
     STATE_ACTIVE,
@@ -73,6 +76,14 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._mat_qty_entries: Dict[int, ctk.CTkEntry] = {}
         self._mat_item_list_frame: Optional[ctk.CTkScrollableFrame] = None
 
+        # Review step UI widget references
+        self._review_summary_frame: Optional[ctk.CTkScrollableFrame] = None
+        self._review_total_label: Optional[ctk.CTkLabel] = None
+        self.notes_text: Optional[ctk.CTkTextbox] = None
+        self._tags_entry: Optional[ctk.CTkEntry] = None
+        self._save_error_label: Optional[ctk.CTkLabel] = None
+        self._name_error_label: Optional[ctk.CTkLabel] = None
+
         self._create_widgets()
         self._set_initial_state()
         self._center_on_parent(parent)
@@ -111,6 +122,13 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         self.name_entry.pack(side="left", fill="x", expand=True, padx=(0, 10), pady=8)
         self.name_entry.bind("<KeyRelease>", self._on_name_change)
+        self.name_entry.bind("<FocusOut>", self._validate_name_uniqueness)
+
+        # Name uniqueness error label (below name entry)
+        self._name_error_label = ctk.CTkLabel(
+            self.name_frame, text="", text_color="red", anchor="w"
+        )
+        self._name_error_label.pack(side="left", padx=(5, 0), pady=8)
 
         # -- Scrollable frame for accordion steps --
         self.scroll_frame = ctk.CTkScrollableFrame(self)
@@ -144,11 +162,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         # -- Populate step content frames --
         self._create_food_step_content()
         self._create_materials_step_content()
-
-        # Placeholder label for step 3 (replaced by WP05)
-        ctk.CTkLabel(
-            self.step3.content_frame, text="Review & Save UI (WP05)", text_color="gray"
-        ).pack(padx=20, pady=20)
+        self._create_review_step_content()
 
         # -- Bottom button frame --
         self.button_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -505,6 +519,8 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             self._on_food_filter_changed()
         elif step_number == 2:
             self._on_material_filter_changed()
+        elif step_number == 3:
+            self._refresh_review_summary()
 
     def advance_to_step(self, step_number: int, summary: str = "") -> None:
         """Mark current step completed and advance to the next step.
@@ -526,6 +542,8 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         # Populate content when entering a step
         if step_number == 2:
             self._on_material_filter_changed()
+        elif step_number == 3:
+            self._refresh_review_summary()
 
     # =========================================================================
     # Dialog controls
@@ -574,6 +592,14 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         # Reset material filters
         self._mat_category_var.set("All Categories")
         self._mat_search_var.set("")
+
+        # Reset review state
+        if self.notes_text:
+            self.notes_text.delete("1.0", "end")
+        if self._tags_entry:
+            self._tags_entry.delete(0, "end")
+        self._clear_save_error()
+        self._clear_name_error()
 
     @property
     def food_selections(self) -> Dict[str, Dict]:
@@ -821,6 +847,278 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         else:
             summary = "No materials"
         self.advance_to_step(3, summary)
+
+    # =========================================================================
+    # Step 3: Review & Save
+    # =========================================================================
+
+    def _create_review_step_content(self) -> None:
+        """Build the review & save UI inside step 3's content frame."""
+        content = self.step3.content_frame
+
+        # -- Component summary (scrollable) --
+        self._review_summary_frame = ctk.CTkScrollableFrame(
+            content, height=200
+        )
+        self._review_summary_frame.pack(
+            fill="both", expand=True, padx=5, pady=(5, 2)
+        )
+
+        # -- Total line --
+        self._review_total_label = ctk.CTkLabel(
+            content, text="", anchor="w"
+        )
+        self._review_total_label.pack(fill="x", padx=10, pady=(2, 5))
+
+        # -- Notes section --
+        notes_label = ctk.CTkLabel(
+            content, text="Notes:", font=ctk.CTkFont(weight="bold")
+        )
+        notes_label.pack(fill="x", padx=10, pady=(5, 0), anchor="w")
+
+        self.notes_text = ctk.CTkTextbox(content, height=80)
+        self.notes_text.pack(fill="x", padx=10, pady=(2, 5))
+
+        # -- Tags section --
+        tags_label = ctk.CTkLabel(
+            content, text="Tags (auto-generated, editable):",
+            font=ctk.CTkFont(weight="bold"),
+        )
+        tags_label.pack(fill="x", padx=10, pady=(5, 0), anchor="w")
+
+        self._tags_entry = ctk.CTkEntry(
+            content, placeholder_text="Auto-generated from component names..."
+        )
+        self._tags_entry.pack(fill="x", padx=10, pady=(2, 5))
+
+        # -- Error label (above save button) --
+        self._save_error_label = ctk.CTkLabel(
+            content, text="", text_color="red", anchor="w"
+        )
+        self._save_error_label.pack(fill="x", padx=10, pady=(0, 2))
+
+        # -- Save button --
+        save_btn = ctk.CTkButton(
+            content,
+            text="Save Finished Good",
+            command=self._on_save,
+        )
+        save_btn.pack(anchor="e", padx=10, pady=(2, 10))
+
+    def _refresh_review_summary(self) -> None:
+        """Rebuild the review summary display from current selections."""
+        # Clear existing summary content
+        for widget in self._review_summary_frame.winfo_children():
+            widget.destroy()
+
+        # -- Food Items section --
+        ctk.CTkLabel(
+            self._review_summary_frame,
+            text="Food Items",
+            font=ctk.CTkFont(weight="bold"),
+            anchor="w",
+        ).pack(fill="x", padx=5, pady=(5, 2))
+
+        for sel in self._food_selections.values():
+            ctk.CTkLabel(
+                self._review_summary_frame,
+                text=f"  {sel['display_name']} x {sel['quantity']}",
+                anchor="w",
+            ).pack(fill="x", padx=10, pady=1)
+
+        # -- Separator --
+        separator = ctk.CTkFrame(
+            self._review_summary_frame, height=2, fg_color="gray50"
+        )
+        separator.pack(fill="x", padx=5, pady=5)
+
+        # -- Materials section --
+        if self._material_selections:
+            ctk.CTkLabel(
+                self._review_summary_frame,
+                text="Materials",
+                font=ctk.CTkFont(weight="bold"),
+                anchor="w",
+            ).pack(fill="x", padx=5, pady=(2, 2))
+
+            for sel in self._material_selections.values():
+                ctk.CTkLabel(
+                    self._review_summary_frame,
+                    text=f"  {sel['name']} x {sel['quantity']}",
+                    anchor="w",
+                ).pack(fill="x", padx=10, pady=1)
+        else:
+            ctk.CTkLabel(
+                self._review_summary_frame,
+                text="No materials",
+                text_color="gray",
+                anchor="w",
+            ).pack(fill="x", padx=5, pady=(2, 2))
+
+        # -- Total line --
+        food_count = len(self._food_selections)
+        mat_count = len(self._material_selections)
+        self._review_total_label.configure(
+            text=f"Total: {food_count} food item{'s' if food_count != 1 else ''}"
+            f", {mat_count} material{'s' if mat_count != 1 else ''}"
+        )
+
+        # -- Auto-generate tags --
+        tags = self._generate_tags()
+        if self._tags_entry:
+            self._tags_entry.delete(0, "end")
+            self._tags_entry.insert(0, tags)
+
+        self._clear_save_error()
+
+    # =========================================================================
+    # Name validation
+    # =========================================================================
+
+    def _validate_name_uniqueness(self, event=None) -> bool:
+        """Check if the name generates a unique slug. Returns True if valid."""
+        name = self.name_entry.get().strip()
+        if not name:
+            self._clear_name_error()
+            return True
+
+        slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+        try:
+            existing = finished_good_service.get_finished_good_by_slug(slug)
+            # If editing, allow the same FG's slug
+            if self._is_edit_mode and self._finished_good:
+                if existing.id == self._finished_good.id:
+                    self._clear_name_error()
+                    return True
+            self._show_name_error("Name already exists")
+            return False
+        except Exception:
+            # Not found = unique (good)
+            self._clear_name_error()
+            return True
+
+    def _show_name_error(self, message: str) -> None:
+        """Show error on name field."""
+        if self._name_error_label:
+            self._name_error_label.configure(text=message)
+        self.name_entry.configure(border_color="red")
+
+    def _clear_name_error(self) -> None:
+        """Clear name field error."""
+        if self._name_error_label:
+            self._name_error_label.configure(text="")
+        # Reset to default theme border color
+        default_color = ctk.ThemeManager.theme["CTkEntry"]["border_color"]
+        self.name_entry.configure(border_color=default_color)
+
+    # =========================================================================
+    # Tags generation
+    # =========================================================================
+
+    _SKIP_WORDS = frozenset({
+        "the", "and", "or", "a", "an", "of", "in", "for", "with", "x",
+    })
+
+    def _generate_tags(self) -> str:
+        """Auto-generate tags from component display names."""
+        words = set()
+        for sel in self._food_selections.values():
+            for word in sel["display_name"].lower().split():
+                if word not in self._SKIP_WORDS and len(word) > 1:
+                    words.add(word)
+        for sel in self._material_selections.values():
+            for word in sel["name"].lower().split():
+                if word not in self._SKIP_WORDS and len(word) > 1:
+                    words.add(word)
+        return ", ".join(sorted(words))
+
+    # =========================================================================
+    # Save operation
+    # =========================================================================
+
+    def _build_component_list(self) -> List[Dict]:
+        """Convert selections to service component format."""
+        components = []
+        sort_order = 0
+        for sel in self._food_selections.values():
+            components.append({
+                "type": sel["type"],
+                "id": sel["id"],
+                "quantity": sel["quantity"],
+                "sort_order": sort_order,
+            })
+            sort_order += 1
+        for sel in self._material_selections.values():
+            components.append({
+                "type": "material_unit",
+                "id": sel["id"],
+                "quantity": sel["quantity"],
+                "sort_order": sort_order,
+            })
+            sort_order += 1
+        return components
+
+    def _build_notes(self) -> Optional[str]:
+        """Combine tags and notes text into a single notes string."""
+        notes_text = self.notes_text.get("1.0", "end-1c").strip() if self.notes_text else ""
+        tags_text = self._tags_entry.get().strip() if self._tags_entry else ""
+        parts = []
+        if tags_text:
+            parts.append(f"Tags: {tags_text}")
+        if notes_text:
+            parts.append(notes_text)
+        combined = "\n".join(parts).strip()
+        return combined or None
+
+    def _on_save(self) -> None:
+        """Validate and save the FinishedGood via the service."""
+        name = self.name_entry.get().strip()
+        if not name:
+            self._show_save_error("Name is required")
+            return
+
+        if not self._validate_name_uniqueness():
+            self._show_save_error("A finished good with this name already exists")
+            return
+
+        components = self._build_component_list()
+        if not components:
+            self._show_save_error("At least one food item is required")
+            return
+
+        try:
+            fg = finished_good_service.create_finished_good(
+                display_name=name,
+                assembly_type=AssemblyType.CUSTOM_ORDER,
+                components=components,
+                notes=self._build_notes(),
+            )
+            self.result = {
+                "finished_good_id": fg.id,
+                "display_name": fg.display_name,
+            }
+            self.destroy()
+        except ValidationError as e:
+            errors = e.errors if hasattr(e, "errors") else [str(e)]
+            self._show_save_error("; ".join(str(err) for err in errors))
+        except InvalidComponentError:
+            self._show_save_error(
+                "One or more components are no longer available"
+            )
+        except CircularReferenceError:
+            self._show_save_error("Cannot create circular reference")
+        except Exception as e:
+            self._show_save_error(f"Save failed: {e}")
+
+    def _show_save_error(self, message: str) -> None:
+        """Display error message above the Save button."""
+        if self._save_error_label:
+            self._save_error_label.configure(text=message)
+
+    def _clear_save_error(self) -> None:
+        """Clear save error message."""
+        if self._save_error_label:
+            self._save_error_label.configure(text="")
 
     def get_result(self):
         """Wait for the dialog to close and return the result."""

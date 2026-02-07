@@ -106,6 +106,8 @@ def mock_services():
         mock_fu_svc.get_all_finished_units.return_value = []
         mock_mat_cat_svc.list_categories.return_value = []
         mock_mat_unit_svc.list_units.return_value = []
+        # Default: slug not found (unique name)
+        mock_fg_svc.get_finished_good_by_slug.side_effect = Exception("Not found")
         yield mock_fg_svc, mock_fu_svc, mock_mat_cat_svc, mock_mat_unit_svc
 
 
@@ -719,4 +721,293 @@ class TestMaterialSelectionState:
 
         assert 1 in dialog._mat_check_vars
         assert dialog._mat_check_vars[1].get() == "1"
+        dialog.destroy()
+
+
+def _setup_selections(dialog):
+    """Helper to populate food and material selections for review tests."""
+    dialog._food_selections["finished_unit:10"] = {
+        "type": "finished_unit", "id": 10,
+        "display_name": "Almond Biscotti", "quantity": 2,
+    }
+    dialog._food_selections["finished_good:5"] = {
+        "type": "finished_good", "id": 5,
+        "display_name": "Holiday Gift Box", "quantity": 1,
+    }
+    dialog._material_selections[1] = {
+        "id": 1, "name": "Red Ribbon", "quantity": 3,
+    }
+
+
+class TestReviewSummary:
+    """Tests for review panel display (T021)."""
+
+    def test_review_summary_shows_all_components(self, ctk_root, mock_services):
+        """Review summary shows all food items and materials."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        _setup_selections(dialog)
+        dialog.advance_to_step(2, "2 items selected")
+        dialog.advance_to_step(3, "1 material selected")
+
+        # Check summary frame has children (section headers + items)
+        children = dialog._review_summary_frame.winfo_children()
+        assert len(children) > 0
+
+        # Check total label
+        total_text = dialog._review_total_label.cget("text")
+        assert "2 food item" in total_text
+        assert "1 material" in total_text
+        dialog.destroy()
+
+    def test_review_summary_no_materials(self, ctk_root, mock_services):
+        """Review summary shows 'No materials' when none selected."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._food_selections["finished_good:1"] = {
+            "type": "finished_good", "id": 1,
+            "display_name": "Test Item", "quantity": 1,
+        }
+        dialog.advance_to_step(2, "1 item selected")
+        dialog.advance_to_step(3, "No materials")
+
+        # Find "No materials" label in summary
+        found_no_materials = False
+        for child in dialog._review_summary_frame.winfo_children():
+            try:
+                if "No materials" in child.cget("text"):
+                    found_no_materials = True
+            except Exception:
+                pass
+        assert found_no_materials
+        dialog.destroy()
+
+
+class TestBuildComponentList:
+    """Tests for component list building (T024)."""
+
+    def test_build_component_list_format(self, ctk_root, mock_services):
+        """Component list matches service format."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        _setup_selections(dialog)
+
+        components = dialog._build_component_list()
+
+        assert len(components) == 3
+        for comp in components:
+            assert "type" in comp
+            assert "id" in comp
+            assert "quantity" in comp
+            assert "sort_order" in comp
+        dialog.destroy()
+
+    def test_build_component_list_sort_order(self, ctk_root, mock_services):
+        """Food items come before materials in sort order."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        _setup_selections(dialog)
+
+        components = dialog._build_component_list()
+
+        # First 2 are food, last is material
+        food_types = {"finished_unit", "finished_good"}
+        assert components[0]["type"] in food_types
+        assert components[1]["type"] in food_types
+        assert components[2]["type"] == "material_unit"
+        # Sort order increases
+        orders = [c["sort_order"] for c in components]
+        assert orders == sorted(orders)
+        assert len(set(orders)) == len(orders)
+        dialog.destroy()
+
+
+class TestSaveOperation:
+    """Tests for save button and error handling (T024, T025)."""
+
+    def test_save_empty_name_shows_error(self, ctk_root, mock_services):
+        """Save with empty name shows error."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        _setup_selections(dialog)
+        # Name is empty
+        dialog._on_save()
+        assert dialog._save_error_label.cget("text") != ""
+        assert dialog.winfo_exists()
+        dialog.destroy()
+
+    def test_save_calls_create_service(self, ctk_root, mock_services):
+        """Save calls create_finished_good with correct arguments."""
+        mock_fg_svc, *_ = mock_services
+        mock_result = MagicMock()
+        mock_result.id = 42
+        mock_result.display_name = "Test FG"
+        mock_fg_svc.create_finished_good.return_value = mock_result
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.name_entry.insert(0, "Test FG")
+        _setup_selections(dialog)
+
+        dialog._on_save()
+
+        mock_fg_svc.create_finished_good.assert_called_once()
+        call_kwargs = mock_fg_svc.create_finished_good.call_args
+        assert call_kwargs.kwargs["display_name"] == "Test FG"
+        assert len(call_kwargs.kwargs["components"]) == 3
+
+    def test_save_success_sets_result_and_closes(self, ctk_root, mock_services):
+        """Successful save sets result and destroys dialog."""
+        mock_fg_svc, *_ = mock_services
+        mock_result = MagicMock()
+        mock_result.id = 42
+        mock_result.display_name = "Test FG"
+        mock_fg_svc.create_finished_good.return_value = mock_result
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.name_entry.insert(0, "Test FG")
+        _setup_selections(dialog)
+
+        dialog._on_save()
+
+        assert dialog.result is not None
+        assert dialog.result["finished_good_id"] == 42
+        assert dialog.result["display_name"] == "Test FG"
+
+    def test_save_validation_error_shows_message(self, ctk_root, mock_services):
+        """ValidationError from service shows error message."""
+        mock_fg_svc, *_ = mock_services
+        from src.services.exceptions import ValidationError
+
+        mock_fg_svc.create_finished_good.side_effect = ValidationError(
+            ["Slug already exists"]
+        )
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.name_entry.insert(0, "Duplicate Name")
+        _setup_selections(dialog)
+
+        dialog._on_save()
+
+        error_text = dialog._save_error_label.cget("text")
+        assert error_text != ""
+        assert dialog.winfo_exists()
+        dialog.destroy()
+
+    def test_save_no_components_shows_error(self, ctk_root, mock_services):
+        """Save with no food selections shows error."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.name_entry.insert(0, "Test FG")
+        # No selections added
+
+        dialog._on_save()
+
+        assert "food item" in dialog._save_error_label.cget("text").lower()
+        assert dialog.winfo_exists()
+        dialog.destroy()
+
+
+class TestTagGeneration:
+    """Tests for auto-generated tags (T023)."""
+
+    def test_generate_tags_from_selections(self, ctk_root, mock_services):
+        """Tags generated from component display names."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._food_selections["finished_unit:10"] = {
+            "type": "finished_unit", "id": 10,
+            "display_name": "Almond Biscotti", "quantity": 2,
+        }
+        dialog._food_selections["finished_unit:11"] = {
+            "type": "finished_unit", "id": 11,
+            "display_name": "Hazelnut Biscotti", "quantity": 1,
+        }
+
+        tags = dialog._generate_tags()
+
+        assert "almond" in tags
+        assert "hazelnut" in tags
+        assert "biscotti" in tags
+        dialog.destroy()
+
+    def test_generate_tags_skips_common_words(self, ctk_root, mock_services):
+        """Common words like 'the', 'and' are excluded from tags."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._food_selections["finished_good:1"] = {
+            "type": "finished_good", "id": 1,
+            "display_name": "The Cookie and Cake Box", "quantity": 1,
+        }
+
+        tags = dialog._generate_tags()
+
+        assert "the" not in tags.split(", ")
+        assert "and" not in tags.split(", ")
+        assert "cookie" in tags
+        assert "cake" in tags
+        dialog.destroy()
+
+
+class TestNameValidation:
+    """Tests for name uniqueness pre-validation (T022)."""
+
+    def test_unique_name_passes(self, ctk_root, mock_services):
+        """Unique name passes validation."""
+        mock_fg_svc, *_ = mock_services
+        # Default: get_finished_good_by_slug raises (not found)
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.name_entry.insert(0, "Brand New Name")
+
+        result = dialog._validate_name_uniqueness()
+
+        assert result is True
+        assert dialog._name_error_label.cget("text") == ""
+        dialog.destroy()
+
+    def test_duplicate_name_fails(self, ctk_root, mock_services):
+        """Duplicate name shows error."""
+        mock_fg_svc, *_ = mock_services
+        existing = MagicMock()
+        existing.id = 99
+        mock_fg_svc.get_finished_good_by_slug.side_effect = None
+        mock_fg_svc.get_finished_good_by_slug.return_value = existing
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.name_entry.insert(0, "Existing Name")
+
+        result = dialog._validate_name_uniqueness()
+
+        assert result is False
+        assert dialog._name_error_label.cget("text") != ""
+        dialog.destroy()
+
+    def test_empty_name_passes_validation(self, ctk_root, mock_services):
+        """Empty name passes uniqueness check (caught by save validation)."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        # Name is empty
+
+        result = dialog._validate_name_uniqueness()
+
+        assert result is True
         dialog.destroy()
