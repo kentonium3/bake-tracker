@@ -2102,6 +2102,12 @@ def _clear_all_tables(session) -> None:
     Args:
         session: SQLAlchemy session
     """
+    import traceback
+    print("=" * 60)
+    print("WARNING: _clear_all_tables called!")
+    traceback.print_stack()
+    print("=" * 60)
+
     from src.models.recipe import Recipe, RecipeIngredient
     from src.models.recipe_category import RecipeCategory
     from src.models.event import Event, EventRecipientPackage

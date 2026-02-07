@@ -1258,6 +1258,9 @@ def export_complete(
     """
     Export complete database to individual entity files with manifest.
 
+    Checkpoints the WAL before reading to ensure the main DB file is fully
+    up to date.
+
     Transaction boundary: Creates own session_scope if none provided; otherwise
     inherits caller's session for transactional composition. All entity exports
     execute within the same session for point-in-time consistency across all
@@ -1280,6 +1283,10 @@ def export_complete(
     Returns:
         ExportManifest with metadata for all exported files
     """
+    # Checkpoint WAL to ensure all committed data is in the main DB file
+    from src.services.database import checkpoint_wal
+    checkpoint_wal()
+
     if session is not None:
         return _export_complete_impl(output_path, create_zip, session)
     with session_scope() as sess:
@@ -1467,7 +1474,26 @@ def import_complete(
     if session is not None:
         return _import_complete_impl(import_path, session, clear_existing=clear_existing)
     with session_scope() as sess:
-        return _import_complete_impl(import_path, sess, clear_existing=clear_existing)
+        result = _import_complete_impl(import_path, sess, clear_existing=clear_existing)
+
+    # Post-import: checkpoint WAL and verify data is on disk
+    from src.services.database import checkpoint_wal
+    checkpoint_wal()
+
+    # Verify with raw sqlite3 that data persisted
+    import sqlite3
+    from src.utils.config import get_config
+    db_path = str(get_config().database_path)
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM ingredients")
+    count = cursor.fetchone()[0]
+    conn.close()
+    print(f"Post-import verification: {count} ingredients on disk")
+    if count == 0 and result.get("entity_counts", {}).get("ingredients", 0) > 0:
+        print("!!! POST-IMPORT VERIFICATION FAILED: ingredients not on disk !!!")
+
+    return result
 
 
 def _import_complete_impl(
@@ -1517,6 +1543,11 @@ def _import_complete_impl(
     }
 
     if clear_existing:
+        import traceback
+        print("=" * 60)
+        print("WARNING: coordinated import clear_existing=True!")
+        traceback.print_stack()
+        print("=" * 60)
         # Clear existing data first (replace mode)
         # Delete in reverse dependency order to avoid FK constraint violations
         from src.models.supplier import Supplier

@@ -478,6 +478,12 @@ def reset_database(confirm: bool = False) -> None:
     Raises:
         ValueError: If confirm is not True
     """
+    import traceback
+    print("=" * 60)
+    print("WARNING: reset_database called!")
+    traceback.print_stack()
+    print("=" * 60)
+
     if not confirm:
         raise ValueError("Must pass confirm=True to reset database. This will delete all data!")
 
