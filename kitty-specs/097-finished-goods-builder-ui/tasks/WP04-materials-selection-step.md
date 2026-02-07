@@ -14,7 +14,7 @@ subtasks:
 - T020
 phase: Phase B - Step Implementation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "29671"
 review_status: ''
 reviewed_by: ''
@@ -206,3 +206,4 @@ history:
 ## Activity Log
 
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
+- 2026-02-07T00:28:24Z – claude-opus – shell_pid=29671 – lane=doing – Assigned agent via workflow command
