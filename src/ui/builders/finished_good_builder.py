@@ -55,6 +55,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self.result = None
         self._finished_good = finished_good
         self._is_edit_mode = finished_good is not None
+        self._finished_good_id = finished_good.id if finished_good else None
         self._has_changes = False
 
         # Step completion tracking
@@ -187,16 +188,93 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         cancel_btn.pack(side="right", padx=5)
 
     def _set_initial_state(self) -> None:
-        """Set initial accordion states: step 1 active, steps 2-3 locked."""
-        self.step1.set_state(STATE_ACTIVE)
-        self.step2.set_state(STATE_LOCKED)
-        self.step3.set_state(STATE_LOCKED)
-
+        """Set initial accordion states based on create/edit mode."""
         if self._is_edit_mode and self._finished_good:
-            self.name_entry.insert(0, self._finished_good.display_name)
+            self._load_existing_data(self._finished_good)
+        else:
+            self.step1.set_state(STATE_ACTIVE)
+            self.step2.set_state(STATE_LOCKED)
+            self.step3.set_state(STATE_LOCKED)
+            # Load initial food items
+            self._on_food_filter_changed()
 
-        # Load initial food items
-        self._on_food_filter_changed()
+    # =========================================================================
+    # Edit mode loading
+    # =========================================================================
+
+    def _load_existing_data(self, fg) -> None:
+        """Load existing FinishedGood data into the builder for editing."""
+        # Reload via service to get fresh data with eager-loaded components
+        try:
+            fg = finished_good_service.get_finished_good_by_id(fg.id)
+        except Exception:
+            pass  # Fall back to the passed object
+
+        # Populate name
+        self.name_entry.insert(0, fg.display_name)
+
+        # Populate notes (strip "Tags: ..." prefix if present)
+        if fg.notes and self.notes_text:
+            notes = fg.notes
+            if notes.startswith("Tags: "):
+                lines = notes.split("\n", 1)
+                notes = lines[1] if len(lines) > 1 else ""
+            self.notes_text.insert("1.0", notes)
+
+        # Populate selections from components
+        self._populate_selections_from_components(fg)
+
+        # Mark steps 1 and 2 as completed, open step 3
+        food_count = len(self._food_selections)
+        mat_count = len(self._material_selections)
+
+        self.step1.mark_completed(
+            f"{food_count} item{'s' if food_count != 1 else ''} selected"
+        )
+        self._step_completed[1] = True
+
+        if mat_count > 0:
+            self.step2.mark_completed(
+                f"{mat_count} material{'s' if mat_count != 1 else ''} selected"
+            )
+        else:
+            self.step2.mark_completed("No materials")
+        self._step_completed[2] = True
+
+        self.step3.expand()
+        self._refresh_review_summary()
+        self._has_changes = False
+
+    def _populate_selections_from_components(self, fg) -> None:
+        """Convert existing Composition records into builder selection state."""
+        for comp in fg.components:
+            comp_type = comp.component_type
+            comp_name = comp.component_name
+            qty = int(comp.component_quantity)
+
+            if comp_type == "finished_unit":
+                key = f"finished_unit:{comp.finished_unit_id}"
+                self._food_selections[key] = {
+                    "type": "finished_unit",
+                    "id": comp.finished_unit_id,
+                    "display_name": comp_name,
+                    "quantity": qty,
+                }
+            elif comp_type == "finished_good":
+                key = f"finished_good:{comp.finished_good_id}"
+                self._food_selections[key] = {
+                    "type": "finished_good",
+                    "id": comp.finished_good_id,
+                    "display_name": comp_name,
+                    "quantity": qty,
+                }
+            elif comp_type == "material_unit":
+                self._material_selections[comp.material_unit_id] = {
+                    "id": comp.material_unit_id,
+                    "name": comp_name,
+                    "quantity": qty,
+                }
+            # packaging_product type is not managed by builder (legacy)
 
     # =========================================================================
     # Step 1: Food Selection
@@ -290,6 +368,10 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
 
         items = []
         for fg in all_fgs:
+            # Self-reference prevention: exclude current FG in edit mode
+            if self._is_edit_mode and fg.id == self._finished_good_id:
+                continue
+
             # Determine if bare or assembly
             is_bare = fg.assembly_type == AssemblyType.BARE
 
@@ -307,22 +389,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
                 if fg_category != category_filter:
                     continue
 
-            # Determine component type and ID for Composition
-            if is_bare and fg.components:
-                # BARE wraps a single FinishedUnit
-                fu_comp = next(
-                    (c for c in fg.components if c.finished_unit_id),
-                    None,
-                )
-                if fu_comp:
-                    comp_type = "finished_unit"
-                    comp_id = fu_comp.finished_unit_id
-                else:
-                    comp_type = "finished_good"
-                    comp_id = fg.id
-            else:
-                comp_type = "finished_good"
-                comp_id = fg.id
+            comp_type, comp_id = self._get_comp_type_and_id(fg, is_bare)
 
             key = f"{comp_type}:{comp_id}"
             items.append({
@@ -336,6 +403,17 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             })
 
         return items
+
+    @staticmethod
+    def _get_comp_type_and_id(fg, is_bare: bool) -> tuple:
+        """Determine component type and ID for a FinishedGood."""
+        if is_bare and fg.components:
+            fu_comp = next(
+                (c for c in fg.components if c.finished_unit_id), None
+            )
+            if fu_comp:
+                return "finished_unit", fu_comp.finished_unit_id
+        return "finished_good", fg.id
 
     def _get_fg_category(self, fg) -> str:
         """Get the category for a FinishedGood.
@@ -1087,12 +1165,20 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             return
 
         try:
-            fg = finished_good_service.create_finished_good(
-                display_name=name,
-                assembly_type=AssemblyType.CUSTOM_ORDER,
-                components=components,
-                notes=self._build_notes(),
-            )
+            if self._is_edit_mode:
+                fg = finished_good_service.update_finished_good(
+                    self._finished_good_id,
+                    display_name=name,
+                    components=components,
+                    notes=self._build_notes(),
+                )
+            else:
+                fg = finished_good_service.create_finished_good(
+                    display_name=name,
+                    assembly_type=AssemblyType.CUSTOM_ORDER,
+                    components=components,
+                    notes=self._build_notes(),
+                )
             self.result = {
                 "finished_good_id": fg.id,
                 "display_name": fg.display_name,
