@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: AccordionStep Widget
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: e16f536c3b9ac0cbab64ca424daa36776536ed63
@@ -196,3 +196,4 @@ history:
 
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
 - 2026-02-07T00:00:08Z – claude-opus – shell_pid=23922 – lane=doing – Assigned agent via workflow command
+- 2026-02-07T00:15:10Z – claude-opus – shell_pid=23922 – lane=for_review – Ready for review: AccordionStep widget with 3-state machine, expand/collapse, Change button callback, 23 passing tests
