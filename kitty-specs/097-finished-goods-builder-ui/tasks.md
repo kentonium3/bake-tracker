@@ -153,12 +153,12 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T021 Create review panel with component summary display (food items section + materials section)
-- [ ] T022 Implement editable name field with slug-based uniqueness pre-validation
-- [ ] T023 Implement notes text field and auto-suggested tags from component names
-- [ ] T024 Implement Save button with create_finished_good() service call and component format conversion
-- [ ] T025 Implement error handling (validation errors, duplicate name, service errors) with user feedback
-- [ ] T026 Write unit tests for review display, save operation, and error handling
+- [x] T021 Create review panel with component summary display (food items section + materials section)
+- [x] T022 Implement editable name field with slug-based uniqueness pre-validation
+- [x] T023 Implement notes text field and auto-suggested tags from component names
+- [x] T024 Implement Save button with create_finished_good() service call and component format conversion
+- [x] T025 Implement error handling (validation errors, duplicate name, service errors) with user feedback
+- [x] T026 Write unit tests for review display, save operation, and error handling
 
 ### Implementation Notes
 - Summary display: Two sections — "Food Items" and "Materials" — each listing component name + quantity
