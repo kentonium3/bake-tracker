@@ -1203,3 +1203,152 @@ class TestEditMode:
         assert dialog._food_selections["finished_good:200"]["quantity"] == 1
         assert dialog._material_selections[300]["quantity"] == 3
         dialog.destroy()
+
+
+class TestTabIntegration:
+    """Tests for FinishedGoodsTab integration with FinishedGoodBuilderDialog (T036)."""
+
+    @pytest.fixture
+    def mock_tab_services(self):
+        """Mock services used by the tab."""
+        with patch(
+            "src.ui.finished_goods_tab.finished_good_service"
+        ) as mock_fg_svc, patch(
+            "src.ui.finished_goods_tab.show_success"
+        ) as mock_show_success:
+            mock_fg_svc.get_all_finished_goods.return_value = []
+            yield mock_fg_svc, mock_show_success
+
+    def _make_tab(self, ctk_root, mock_tab_services):
+        """Create a FinishedGoodsTab instance for testing."""
+        from src.ui.finished_goods_tab import FinishedGoodsTab
+
+        tab = FinishedGoodsTab(ctk_root)
+        return tab
+
+    @patch("src.ui.finished_goods_tab.FinishedGoodBuilderDialog")
+    def test_add_launches_builder_create_mode(
+        self, mock_dialog_cls, ctk_root, mock_tab_services
+    ):
+        """Add button launches builder with no finished_good arg."""
+        mock_dialog = MagicMock()
+        mock_dialog.result = None
+        mock_dialog_cls.return_value = mock_dialog
+
+        tab = self._make_tab(ctk_root, mock_tab_services)
+        tab.wait_window = MagicMock()
+        tab._add_finished_good()
+
+        mock_dialog_cls.assert_called_once_with(tab)
+        tab.destroy()
+
+    @patch("src.ui.finished_goods_tab.FinishedGoodBuilderDialog")
+    def test_edit_launches_builder_with_fg(
+        self, mock_dialog_cls, ctk_root, mock_tab_services
+    ):
+        """Edit button launches builder with finished_good arg."""
+        mock_fg_svc, _ = mock_tab_services
+        fg = MagicMock()
+        fg.id = 1
+        fg.display_name = "Test FG"
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        mock_dialog = MagicMock()
+        mock_dialog.result = None
+        mock_dialog_cls.return_value = mock_dialog
+
+        tab = self._make_tab(ctk_root, mock_tab_services)
+        tab.wait_window = MagicMock()
+        tab.selected_finished_good = fg
+        tab._edit_finished_good()
+
+        mock_dialog_cls.assert_called_once_with(tab, finished_good=fg)
+        tab.destroy()
+
+    @patch("src.ui.finished_goods_tab.FinishedGoodBuilderDialog")
+    def test_refresh_after_create(
+        self, mock_dialog_cls, ctk_root, mock_tab_services
+    ):
+        """Tab refreshes after successful create."""
+        mock_fg_svc, mock_show_success = mock_tab_services
+
+        mock_dialog = MagicMock()
+        mock_dialog.result = {"finished_good_id": 42, "display_name": "New FG"}
+        mock_dialog_cls.return_value = mock_dialog
+
+        tab = self._make_tab(ctk_root, mock_tab_services)
+        tab.wait_window = MagicMock()
+        tab.refresh = MagicMock()
+        tab._add_finished_good()
+
+        tab.refresh.assert_called_once()
+        mock_show_success.assert_called_once()
+        tab.destroy()
+
+    @patch("src.ui.finished_goods_tab.FinishedGoodBuilderDialog")
+    def test_refresh_after_edit(
+        self, mock_dialog_cls, ctk_root, mock_tab_services
+    ):
+        """Tab refreshes after successful edit."""
+        mock_fg_svc, mock_show_success = mock_tab_services
+        fg = MagicMock()
+        fg.id = 1
+        fg.display_name = "Test FG"
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        mock_dialog = MagicMock()
+        mock_dialog.result = {"finished_good_id": 1, "display_name": "Updated FG"}
+        mock_dialog_cls.return_value = mock_dialog
+
+        tab = self._make_tab(ctk_root, mock_tab_services)
+        tab.wait_window = MagicMock()
+        tab.selected_finished_good = fg
+        tab.refresh = MagicMock()
+        tab._edit_finished_good()
+
+        tab.refresh.assert_called_once()
+        mock_show_success.assert_called_once()
+        tab.destroy()
+
+    @patch("src.ui.finished_goods_tab.FinishedGoodBuilderDialog")
+    def test_no_refresh_on_cancel(
+        self, mock_dialog_cls, ctk_root, mock_tab_services
+    ):
+        """Tab does NOT refresh when dialog is cancelled."""
+        mock_dialog = MagicMock()
+        mock_dialog.result = None
+        mock_dialog_cls.return_value = mock_dialog
+
+        tab = self._make_tab(ctk_root, mock_tab_services)
+        tab.wait_window = MagicMock()
+        tab.refresh = MagicMock()
+        tab._add_finished_good()
+
+        tab.refresh.assert_not_called()
+        tab.destroy()
+
+    def test_button_text_is_create(self, ctk_root, mock_tab_services):
+        """Button text should be '+ Create Finished Good'."""
+        tab = self._make_tab(ctk_root, mock_tab_services)
+
+        # Find the create button in the button frame
+        button_frame = tab.winfo_children()[1]  # Row 1 is action buttons
+        buttons = button_frame.winfo_children()
+        add_button = buttons[0]
+
+        assert add_button.cget("text") == "+ Create Finished Good"
+        tab.destroy()
+
+    def test_double_click_calls_edit(self, ctk_root, mock_tab_services):
+        """Double-click on a row calls _edit_finished_good."""
+        tab = self._make_tab(ctk_root, mock_tab_services)
+        fg = MagicMock()
+        fg.id = 1
+        fg.display_name = "Test FG"
+
+        tab._edit_finished_good = MagicMock()
+        tab._on_row_double_click(fg)
+
+        tab._edit_finished_good.assert_called_once()
+        assert tab.selected_finished_good == fg
+        tab.destroy()
