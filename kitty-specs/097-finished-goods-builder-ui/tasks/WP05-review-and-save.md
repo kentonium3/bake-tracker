@@ -15,7 +15,7 @@ subtasks:
 - T026
 phase: Phase C - Integration
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "31568"
 review_status: ''
 reviewed_by: ''
@@ -271,3 +271,4 @@ history:
 ## Activity Log
 
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
+- 2026-02-07T00:35:17Z – claude-opus – shell_pid=31568 – lane=doing – Assigned agent via workflow command
