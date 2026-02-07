@@ -11,7 +11,7 @@ import sys
 import traceback
 import customtkinter as ctk
 
-from src.services.database import initialize_app_database, reset_database
+from src.services.database import initialize_app_database, reset_database, close_connections
 from src.services.exceptions import ServiceError
 from src.services.health_service import HealthCheckService
 from src.ui.main_window import MainWindow
@@ -210,6 +210,10 @@ def main():
         if _health_service:
             print("Stopping health check service...")
             _health_service.stop()
+
+        # Checkpoint WAL and close database connections
+        print("Closing database connections...")
+        close_connections()
 
     print("Application closed successfully")
     sys.exit(0)

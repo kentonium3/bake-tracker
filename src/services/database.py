@@ -13,7 +13,7 @@ from typing import Optional
 from contextlib import contextmanager
 import logging
 
-from sqlalchemy import create_engine, event, inspect
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -92,8 +92,9 @@ def _set_sqlite_pragma(dbapi_connection, connection_record):
     # Set WAL (Write-Ahead Logging) mode for better concurrency
     cursor.execute("PRAGMA journal_mode=WAL")
 
-    # Set synchronous mode for better performance while maintaining safety
-    cursor.execute("PRAGMA synchronous=NORMAL")
+    # Set synchronous mode - FULL ensures WAL writes are durable on disk
+    # before returning from commit (prevents data loss on app exit)
+    cursor.execute("PRAGMA synchronous=FULL")
 
     cursor.close()
 
@@ -500,13 +501,35 @@ def reset_database(confirm: bool = False) -> None:
     logger.info("Database files deleted - will be recreated on next initialization")
 
 
+def checkpoint_wal() -> None:
+    """
+    Force a WAL checkpoint to move all WAL data into the main database file.
+
+    Should be called before application exit to ensure all committed data
+    is durably stored in the main database file, not just the WAL.
+    """
+    global _engine
+
+    if _engine is not None:
+        try:
+            with _engine.connect() as conn:
+                conn.execute(text("PRAGMA wal_checkpoint(TRUNCATE)"))
+            logger.info("WAL checkpoint completed")
+        except Exception as e:
+            logger.error(f"WAL checkpoint failed: {e}")
+
+
 def close_connections() -> None:
     """
     Close all database connections.
 
-    Useful for cleanup or before application exit.
+    Checkpoints the WAL and disposes the engine. Should be called
+    before application exit.
     """
     global _engine, _SessionFactory
+
+    # Checkpoint WAL before closing to ensure durability
+    checkpoint_wal()
 
     if _SessionFactory is not None:
         _SessionFactory.close_all()
