@@ -123,7 +123,7 @@ class TestDeferredPackagingFullWorkflow:
         fg = FinishedGood(
             slug="test-cookies-generic",
             display_name="Test Cookies (Generic Bags)",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -229,7 +229,7 @@ class TestDeferredPackagingFullWorkflow:
         fg = FinishedGood(
             slug="cost-test-item",
             display_name="Cost Test Item",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -304,7 +304,7 @@ class TestDeferredPackagingFullWorkflow:
         fg = FinishedGood(
             slug="ribbon-test-package",
             display_name="Ribbon Test Package",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -396,7 +396,7 @@ class TestDeferredPackagingEdgeCases:
         fg = FinishedGood(
             slug="partial-test",
             display_name="Partial Test Item",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -469,7 +469,7 @@ class TestDeferredPackagingEdgeCases:
         fg = FinishedGood(
             slug="reassign-test",
             display_name="Reassign Test Item",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -526,7 +526,7 @@ class TestDeferredPackagingEdgeCases:
         fg = FinishedGood(
             slug="bypass-test",
             display_name="Bypass Test Item",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -591,7 +591,7 @@ class TestDeferredPackagingAssignmentSummary:
         fg = FinishedGood(
             slug="summary-test",
             display_name="Summary Test Item",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -639,7 +639,7 @@ class TestDeferredPackagingAssignmentSummary:
         fg = FinishedGood(
             slug="full-summary-test",
             display_name="Full Summary Test",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)

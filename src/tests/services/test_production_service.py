@@ -313,7 +313,7 @@ def setup_package_status_test_data(test_db, setup_production_test_data):
     fg = FinishedGood(
         display_name="Cookie Box",
         slug="cookie-box",
-        assembly_type=AssemblyType.CUSTOM_ORDER,
+        assembly_type=AssemblyType.BUNDLE,
     )
     session.add(fg)
     session.flush()

@@ -2137,7 +2137,7 @@ def _import_entity_records(
                     try:
                         assembly_type = AssemblyType(assembly_type_str)
                     except ValueError:
-                        assembly_type = AssemblyType.SIMPLE
+                        assembly_type = AssemblyType.BUNDLE
 
                 obj = FinishedGood(
                     slug=record.get("slug"),

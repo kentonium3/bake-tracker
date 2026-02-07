@@ -88,7 +88,7 @@ def event_with_targets(test_db):
     finished_good = FinishedGood(
         display_name="Cookie Box",
         slug="cookie-box",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
     )
     session.add(finished_good)
     session.flush()

@@ -265,7 +265,7 @@ class TestCheckAssemblyFeasibility:
         gift_bag = FinishedGood(
             display_name="Holiday Gift Bag",
             slug="holiday-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_bag)
@@ -362,7 +362,7 @@ class TestCheckAssemblyFeasibility:
         another_bag = FinishedGood(
             display_name="Mini Gift Bag",
             slug="mini-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(another_bag)
@@ -423,7 +423,7 @@ class TestPartialAssemblyCalculation:
         bundle = FinishedGood(
             display_name="Deluxe Bag",
             slug="deluxe-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(bundle)
@@ -562,7 +562,7 @@ class TestCheckSingleAssemblyFeasibility:
         bundle = FinishedGood(
             display_name="Cookie Box",
             slug="cookie-box",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
         )
         session.add(bundle)
         session.flush()
@@ -639,7 +639,7 @@ class TestMissingComponentsStructure:
         bundle = FinishedGood(
             display_name="Cookie Gift Box",
             slug="cookie-gift-box",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
         )
         session.add(bundle)
         session.flush()

@@ -102,7 +102,7 @@ def finished_good(test_db):
         slug="test-cookie-dozen",
         display_name="Test Cookie Dozen",
         description="A dozen test cookies",
-        assembly_type=AssemblyType.CUSTOM_ORDER,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=0,
     )
     test_db.add(fg)

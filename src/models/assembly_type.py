@@ -1,16 +1,13 @@
 """
 Assembly Type Enumeration and Metadata Support
 
-This module defines the AssemblyType enum with comprehensive metadata support
-and business rules for different package types used in the FinishedGood
+This module defines the AssemblyType enum with metadata support
+and business rules for package types used in the FinishedGood
 assembly system.
 
-Features:
-- Extensible assembly type enumeration
-- Display names and descriptions for UI presentation
-- Assembly type-specific business rules and constraints
-- Component limit guidelines and pricing rules
-- Validation helpers and metadata access
+Two assembly types:
+- BARE: Single FinishedUnit with no additional packaging
+- BUNDLE: Any multi-component assembly (gift boxes, variety packs, etc.)
 """
 
 import enum
@@ -22,16 +19,12 @@ class AssemblyType(enum.Enum):
     """
     Enumeration for finished good assembly types.
 
-    Each assembly type defines specific packaging scenarios with their own
-    business rules, component constraints, and presentation guidelines.
+    BARE: Single FinishedUnit served as-is with no additional packaging.
+    BUNDLE: Multi-component assembly with flexible composition rules.
     """
 
     BARE = "bare"  # Single FinishedUnit with no additional packaging
-    GIFT_BOX = "gift_box"  # Curated gift boxes with multiple items
-    VARIETY_PACK = "variety_pack"  # Variety packs with different flavors
-    HOLIDAY_SET = "holiday_set"  # Seasonal collections
-    BULK_PACK = "bulk_pack"  # Large quantities of same/similar items
-    CUSTOM_ORDER = "custom_order"  # Customer-specific combinations
+    BUNDLE = "bundle"  # Any multi-component assembly
 
     def __str__(self) -> str:
         """Return the display name for this assembly type."""
@@ -88,7 +81,7 @@ class AssemblyType(enum.Enum):
         Get AssemblyType from its display name.
 
         Args:
-            display_name: Human-readable display name (e.g., "Gift Box")
+            display_name: Human-readable display name (e.g., "Bundle")
 
         Returns:
             Matching AssemblyType or None if not found
@@ -170,118 +163,38 @@ ASSEMBLY_TYPE_METADATA = {
             "recommended_components": 1,
         },
         "business_rules": {
-            "min_total_cost": Decimal("0.00"),  # No minimum - cost inherited from FinishedUnit
-            "max_total_cost": None,  # No upper limit
+            "min_total_cost": Decimal("0.00"),
+            "max_total_cost": None,
             "requires_unique_items": False,
             "allows_duplicate_categories": True,
-            "packaging_cost_multiplier": Decimal("1.00"),  # No packaging overhead
+            "packaging_cost_multiplier": Decimal("1.00"),
         },
         "is_seasonal": False,
-        "packaging_priority": 5,  # Lowest priority - no packaging needed
+        "packaging_priority": 5,
         "requires_special_handling": False,
-        "pricing_markup": Decimal("0.00"),  # No markup - pass-through pricing
+        "pricing_markup": Decimal("0.00"),
         "packaging_notes": "No additional packaging required",
     },
-    AssemblyType.GIFT_BOX: {
-        "display_name": "Gift Box",
-        "description": "Curated gift boxes with multiple complementary items, typically 3-8 different products presented in an attractive package.",
-        "component_limits": {"min_components": 3, "max_components": 8, "recommended_components": 5},
-        "business_rules": {
-            "min_total_cost": Decimal("0.00"),
-            "max_total_cost": Decimal("150.00"),
-            "requires_unique_items": True,
-            "allows_duplicate_categories": False,
-            "packaging_cost_multiplier": Decimal("1.15"),  # 15% packaging overhead
-        },
-        "is_seasonal": False,
-        "packaging_priority": 1,  # High priority - premium packaging
-        "requires_special_handling": True,
-        "pricing_markup": Decimal("0.25"),  # 25% markup
-        "packaging_notes": "Use premium gift box with tissue paper and ribbon",
-    },
-    AssemblyType.VARIETY_PACK: {
-        "display_name": "Variety Pack",
-        "description": "Multiple flavors or varieties of similar items, typically 4-12 different variations of the same product type.",
-        "component_limits": {
-            "min_components": 4,
-            "max_components": 12,
-            "recommended_components": 6,
-        },
-        "business_rules": {
-            "min_total_cost": Decimal("0.00"),
-            "max_total_cost": Decimal("75.00"),
-            "requires_unique_items": True,
-            "allows_duplicate_categories": True,
-            "packaging_cost_multiplier": Decimal("1.08"),  # 8% packaging overhead
-        },
-        "is_seasonal": False,
-        "packaging_priority": 3,  # Standard priority
-        "requires_special_handling": False,
-        "pricing_markup": Decimal("0.15"),  # 15% markup
-        "packaging_notes": "Use variety pack box with clear labeling for each variety",
-    },
-    AssemblyType.HOLIDAY_SET: {
-        "display_name": "Holiday Set",
-        "description": "Seasonal collections themed around holidays or special occasions, with festive packaging and presentation.",
-        "component_limits": {
-            "min_components": 3,
-            "max_components": 10,
-            "recommended_components": 6,
-        },
-        "business_rules": {
-            "min_total_cost": Decimal("0.00"),
-            "max_total_cost": Decimal("200.00"),
-            "requires_unique_items": False,
-            "allows_duplicate_categories": True,
-            "packaging_cost_multiplier": Decimal("1.20"),  # 20% packaging overhead
-        },
-        "is_seasonal": True,
-        "packaging_priority": 1,  # High priority - seasonal timing critical
-        "requires_special_handling": True,
-        "pricing_markup": Decimal("0.30"),  # 30% markup - seasonal premium
-        "packaging_notes": "Use holiday-themed packaging with seasonal colors and decorations",
-    },
-    AssemblyType.BULK_PACK: {
-        "display_name": "Bulk Pack",
-        "description": "Large quantities of the same or similar items for cost-conscious customers, focusing on value over presentation.",
+    AssemblyType.BUNDLE: {
+        "display_name": "Bundle",
+        "description": "Multi-component assembly combining multiple FinishedUnits and/or materials into a single package.",
         "component_limits": {
             "min_components": 1,
-            "max_components": 20,
-            "recommended_components": 8,
-        },
-        "business_rules": {
-            "min_total_cost": Decimal("0.00"),
-            "max_total_cost": None,  # No upper limit
-            "requires_unique_items": False,
-            "allows_duplicate_categories": True,
-            "packaging_cost_multiplier": Decimal("1.03"),  # 3% packaging overhead
-        },
-        "is_seasonal": False,
-        "packaging_priority": 4,  # Low priority - efficiency focused
-        "requires_special_handling": False,
-        "pricing_markup": Decimal("0.05"),  # 5% markup - volume pricing
-        "packaging_notes": "Use efficient bulk packaging, minimal decoration",
-    },
-    AssemblyType.CUSTOM_ORDER: {
-        "display_name": "Custom Order",
-        "description": "Customer-specific combinations with flexible rules and personalized packaging options.",
-        "component_limits": {
-            "min_components": 1,
-            "max_components": 15,
+            "max_components": 50,
             "recommended_components": 5,
         },
         "business_rules": {
             "min_total_cost": Decimal("0.00"),
-            "max_total_cost": None,  # No upper limit
+            "max_total_cost": None,
             "requires_unique_items": False,
             "allows_duplicate_categories": True,
-            "packaging_cost_multiplier": Decimal("1.10"),  # 10% packaging overhead
+            "packaging_cost_multiplier": Decimal("1.10"),
         },
         "is_seasonal": False,
-        "packaging_priority": 2,  # Medium-high priority - customer satisfaction
-        "requires_special_handling": True,
-        "pricing_markup": Decimal("0.20"),  # 20% markup - customization premium
-        "packaging_notes": "Follow customer-specified packaging preferences and instructions",
+        "packaging_priority": 2,
+        "requires_special_handling": False,
+        "pricing_markup": Decimal("0.10"),
+        "packaging_notes": "Package per assembly instructions",
     },
 }
 

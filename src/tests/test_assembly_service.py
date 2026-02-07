@@ -128,7 +128,7 @@ def finished_good_gift_bag(test_db, finished_unit_cookie, product_cellophane):
     fg = FinishedGood(
         slug="cookie-gift-bag",
         display_name="Cookie Gift Bag",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=0,
     )
     session.add(fg)
@@ -633,7 +633,7 @@ class TestAssemblyHistorySessionVisibility:
             fg = FinishedGood(
                 slug="test-session-visibility-fg",
                 display_name="Test Session FG",
-                assembly_type=AssemblyType.VARIETY_PACK,
+                assembly_type=AssemblyType.BUNDLE,
                 inventory_count=0,
             )
             session.add(fg)
@@ -668,7 +668,7 @@ class TestAssemblyHistorySessionVisibility:
             fg = FinishedGood(
                 slug="test-run-visibility-fg",
                 display_name="Test Run FG",
-                assembly_type=AssemblyType.VARIETY_PACK,
+                assembly_type=AssemblyType.BUNDLE,
                 inventory_count=0,
             )
             session.add(fg)
@@ -1048,7 +1048,7 @@ class TestNestedFinishedGoodConsumption:
         inner_fg = FinishedGood(
             slug="cookie-tin",
             display_name="Cookie Tin",
-            assembly_type=AssemblyType.VARIETY_PACK,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=10,  # Start with some assembled inventory
         )
         session.add(inner_fg)
@@ -1072,7 +1072,7 @@ class TestNestedFinishedGoodConsumption:
         outer_fg = FinishedGood(
             slug="gift-basket",
             display_name="Gift Basket",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(outer_fg)

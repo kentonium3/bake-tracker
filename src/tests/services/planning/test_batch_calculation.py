@@ -233,7 +233,7 @@ class TestExplodeBundleRequirements:
         gift_bag = FinishedGood(
             display_name="Holiday Gift Bag",
             slug="holiday-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
         )
         session.add(gift_bag)
         session.flush()
@@ -269,7 +269,7 @@ class TestExplodeBundleRequirements:
         mega_bundle = FinishedGood(
             display_name="Mega Holiday Bundle",
             slug="mega-holiday-bundle",
-            assembly_type=AssemblyType.HOLIDAY_SET,
+            assembly_type=AssemblyType.BUNDLE,
         )
         session.add(mega_bundle)
         session.flush()

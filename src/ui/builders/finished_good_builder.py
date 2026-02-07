@@ -131,6 +131,29 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         self._name_error_label.pack(side="left", padx=(5, 0), pady=8)
 
+        # -- Assembly type selector (Bare / Bundle) --
+        self.type_frame = ctk.CTkFrame(self)
+        self.type_frame.pack(fill="x", padx=10, pady=(0, 5))
+
+        type_label = ctk.CTkLabel(
+            self.type_frame,
+            text="Type:",
+            font=ctk.CTkFont(weight="bold"),
+        )
+        type_label.pack(side="left", padx=(10, 5), pady=8)
+
+        self._assembly_type_var = ctk.StringVar(
+            value=self._finished_good.assembly_type.get_display_name()
+            if self._is_edit_mode and self._finished_good.assembly_type
+            else "Bundle"
+        )
+        self.assembly_type_selector = ctk.CTkSegmentedButton(
+            self.type_frame,
+            values=[at.get_display_name() for at in AssemblyType],
+            variable=self._assembly_type_var,
+        )
+        self.assembly_type_selector.pack(side="left", padx=(0, 10), pady=8)
+
         # -- Scrollable frame for accordion steps --
         self.scroll_frame = ctk.CTkScrollableFrame(self)
         self.scroll_frame.pack(fill="both", expand=True, padx=10, pady=5)
@@ -1172,18 +1195,23 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             self._show_save_error("At least one food item is required")
             return
 
+        selected_type = AssemblyType.from_display_name(self._assembly_type_var.get())
+        if not selected_type:
+            selected_type = AssemblyType.BUNDLE
+
         try:
             if self._is_edit_mode:
                 fg = finished_good_service.update_finished_good(
                     self._finished_good_id,
                     display_name=name,
+                    assembly_type=selected_type,
                     components=components,
                     notes=self._build_notes(),
                 )
             else:
                 fg = finished_good_service.create_finished_good(
                     display_name=name,
-                    assembly_type=AssemblyType.CUSTOM_ORDER,
+                    assembly_type=selected_type,
                     components=components,
                     notes=self._build_notes(),
                 )

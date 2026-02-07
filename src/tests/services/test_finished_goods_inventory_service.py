@@ -64,7 +64,7 @@ def sample_finished_good(test_db):
     fg = FinishedGood(
         display_name="Cookie Gift Box",
         slug="cookie-gift-box",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=10,
     )
     session.add(fg)

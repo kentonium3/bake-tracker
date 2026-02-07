@@ -210,7 +210,7 @@ def inner_finished_good(db_session, finished_unit):
     """Create a nested FinishedGood for testing composite assemblies."""
     fg = finished_good_service.create_finished_good(
         display_name="Small Gift Box",
-        assembly_type=AssemblyType.CUSTOM_ORDER,
+        assembly_type=AssemblyType.BUNDLE,
         components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
         session=db_session,
     )
@@ -231,17 +231,17 @@ class TestCreateWithFoodsComponents:
             {"type": "finished_unit", "id": finished_unit.id, "quantity": 6, "sort_order": 0}
         ]
 
-        # Use CUSTOM_ORDER as it has no minimum component requirements
+        # Use BUNDLE as it has no minimum component requirements
         fg = finished_good_service.create_finished_good(
             display_name="Cookie Gift Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
 
         assert fg.id is not None
         assert fg.display_name == "Cookie Gift Box"
-        assert fg.assembly_type == AssemblyType.CUSTOM_ORDER
+        assert fg.assembly_type == AssemblyType.BUNDLE
         assert len(fg.components) == 1
         assert fg.components[0].finished_unit_id == finished_unit.id
         assert fg.components[0].component_quantity == 6
@@ -257,7 +257,7 @@ class TestCreateWithFoodsComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Variety Cookie Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -280,7 +280,7 @@ class TestCreateWithFoodsComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Dozen Cookie Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -302,7 +302,7 @@ class TestCreateWithFoodsComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Cookie Box with Notes",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -326,7 +326,7 @@ class TestCreateWithMaterialsComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Gift Package",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -352,7 +352,7 @@ class TestCreateWithMaterialsComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Complete Gift Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -383,7 +383,7 @@ class TestCreateWithMaterialsComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Decorated Package",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -409,7 +409,7 @@ class TestCreateWithNestedComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Large Gift Bundle",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -431,7 +431,7 @@ class TestCreateWithNestedComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Ultimate Gift Package",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -455,7 +455,7 @@ class TestCreateWithNestedComponents:
 
         fg = finished_good_service.create_finished_good(
             display_name="Sorted Bundle",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -486,7 +486,7 @@ class TestComponentValidation:
         with pytest.raises(ValidationError, match="missing 'type' field"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -500,7 +500,7 @@ class TestComponentValidation:
         with pytest.raises(ValidationError, match="missing 'id' field"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -514,7 +514,7 @@ class TestComponentValidation:
         with pytest.raises(ValidationError, match="invalid type"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -528,7 +528,7 @@ class TestComponentValidation:
         with pytest.raises(ValidationError, match="quantity must be positive"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -542,7 +542,7 @@ class TestComponentValidation:
         with pytest.raises(ValidationError, match="quantity must be positive"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -556,7 +556,7 @@ class TestComponentValidation:
         with pytest.raises(InvalidComponentError, match="FinishedUnit 99999 not found"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -570,7 +570,7 @@ class TestComponentValidation:
         with pytest.raises(InvalidComponentError, match="MaterialUnit 99999 not found"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -584,7 +584,7 @@ class TestComponentValidation:
         with pytest.raises(InvalidComponentError, match="FinishedGood 99999 not found"):
             finished_good_service.create_finished_good(
                 display_name="Invalid Box",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
                 components=components,
                 session=db_session,
             )
@@ -606,7 +606,7 @@ class TestSessionManagement:
 
         fg = finished_good_service.create_finished_good(
             display_name="Session Test Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -625,7 +625,7 @@ class TestSessionManagement:
 
         fg = finished_good_service.create_finished_good(
             display_name="No Session Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             # No session parameter - should use session_scope
         )
@@ -654,7 +654,7 @@ class TestLegacyFormatCompatibility:
 
         fg = finished_good_service.create_finished_good(
             display_name="Legacy Format Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=components,
             session=db_session,
         )
@@ -676,7 +676,7 @@ class TestUpdateWithComponents:
         """Test updating basic fields of a FinishedGood."""
         fg = finished_good_service.create_finished_good(
             display_name="Original Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BARE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
             session=db_session,
         )
@@ -685,14 +685,14 @@ class TestUpdateWithComponents:
         updated = finished_good_service.update_finished_good(
             fg.id,
             display_name="Updated Box Name",
-            assembly_type=AssemblyType.HOLIDAY_SET,
+            assembly_type=AssemblyType.BUNDLE,
             notes="New notes here",
             session=db_session,
         )
 
         assert updated.id == original_id
         assert updated.display_name == "Updated Box Name"
-        assert updated.assembly_type == AssemblyType.HOLIDAY_SET
+        assert updated.assembly_type == AssemblyType.BUNDLE
         assert updated.notes == "New notes here"
 
     def test_update_finished_good_replace_components(
@@ -702,7 +702,7 @@ class TestUpdateWithComponents:
         # Create with initial component
         fg = finished_good_service.create_finished_good(
             display_name="Replaceable Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 5}],
             session=db_session,
         )
@@ -734,7 +734,7 @@ class TestUpdateWithComponents:
         """Test clearing all components with empty list."""
         fg = finished_good_service.create_finished_good(
             display_name="Box to Clear",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 3}],
             session=db_session,
         )
@@ -757,7 +757,7 @@ class TestUpdateWithComponents:
         """Test updating to include a nested FinishedGood."""
         fg = finished_good_service.create_finished_good(
             display_name="To Be Nested",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
             session=db_session,
         )
@@ -790,7 +790,7 @@ class TestUpdateWithComponents:
         """Test that update preserves fields not explicitly changed."""
         fg = finished_good_service.create_finished_good(
             display_name="Preserve Test",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             packaging_instructions="Original instructions",
             notes="Original notes",
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
@@ -824,7 +824,7 @@ class TestCircularReferenceDetection:
         # First create the FinishedGood without nested components
         fg = finished_good_service.create_finished_good(
             display_name="Self Reference Test",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
             session=db_session,
         )
@@ -843,14 +843,14 @@ class TestCircularReferenceDetection:
         # Create A (empty for now, will add component later)
         fg_a = finished_good_service.create_finished_good(
             display_name="FG A",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             session=db_session,
         )
 
         # Create B containing A
         fg_b = finished_good_service.create_finished_good(
             display_name="FG B",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_good", "id": fg_a.id, "quantity": 1}],
             session=db_session,
         )
@@ -869,14 +869,14 @@ class TestCircularReferenceDetection:
         # Create A (empty initially)
         fg_a = finished_good_service.create_finished_good(
             display_name="FG A Transitive",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             session=db_session,
         )
 
         # Create B containing A
         fg_b = finished_good_service.create_finished_good(
             display_name="FG B Transitive",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_good", "id": fg_a.id, "quantity": 1}],
             session=db_session,
         )
@@ -884,7 +884,7 @@ class TestCircularReferenceDetection:
         # Create C containing B
         fg_c = finished_good_service.create_finished_good(
             display_name="FG C Transitive",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_good", "id": fg_b.id, "quantity": 1}],
             session=db_session,
         )
@@ -903,7 +903,7 @@ class TestCircularReferenceDetection:
         # Create A containing FinishedUnit
         fg_a = finished_good_service.create_finished_good(
             display_name="FG A Valid",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 2}],
             session=db_session,
         )
@@ -911,7 +911,7 @@ class TestCircularReferenceDetection:
         # Create B containing A - this should succeed (A -> B is fine)
         fg_b = finished_good_service.create_finished_good(
             display_name="FG B Valid",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_good", "id": fg_a.id, "quantity": 1}],
             session=db_session,
         )
@@ -934,7 +934,7 @@ class TestDeleteSafetyChecks:
         # Create inner FG
         inner = finished_good_service.create_finished_good(
             display_name="Inner Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
             session=db_session,
         )
@@ -942,7 +942,7 @@ class TestDeleteSafetyChecks:
         # Create outer FG containing inner
         outer = finished_good_service.create_finished_good(
             display_name="Outer Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_good", "id": inner.id, "quantity": 1}],
             session=db_session,
         )
@@ -958,7 +958,7 @@ class TestDeleteSafetyChecks:
         """Test delete succeeds when there are no references."""
         fg = finished_good_service.create_finished_good(
             display_name="Standalone Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
             session=db_session,
         )
@@ -975,7 +975,7 @@ class TestDeleteSafetyChecks:
         """Test that deleting FinishedGood cascades to Composition records."""
         fg = finished_good_service.create_finished_good(
             display_name="Test Cascade Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[
                 {"type": "finished_unit", "id": finished_unit.id, "quantity": 2},
             ],
@@ -1004,7 +1004,7 @@ class TestDeleteSafetyChecks:
         # Create inner FG
         inner = finished_good_service.create_finished_good(
             display_name="Inner to Remove",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
             session=db_session,
         )
@@ -1012,7 +1012,7 @@ class TestDeleteSafetyChecks:
         # Create outer FG containing inner
         outer = finished_good_service.create_finished_good(
             display_name="Outer Container",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_good", "id": inner.id, "quantity": 1}],
             session=db_session,
         )
@@ -1050,7 +1050,7 @@ class TestEventReferenceChecks:
         # Create FinishedGood
         fg = finished_good_service.create_finished_good(
             display_name="Event Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
             session=db_session,
         )
@@ -1088,7 +1088,7 @@ class TestEventReferenceChecks:
         # Create FinishedGood
         fg = finished_good_service.create_finished_good(
             display_name="Non-Event Box",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             components=[{"type": "finished_unit", "id": finished_unit.id, "quantity": 1}],
             session=db_session,
         )

@@ -109,7 +109,7 @@ def sample_finished_good(test_db):
     fg = FinishedGood(
         display_name="Holiday Box",
         slug="holiday-box",
-        assembly_type=AssemblyType.CUSTOM_ORDER,
+        assembly_type=AssemblyType.BUNDLE,
     )
     session.add(fg)
     session.flush()

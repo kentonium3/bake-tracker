@@ -109,7 +109,7 @@ def sample_finished_good(test_db, sample_finished_unit):
     fg = FinishedGood(
         display_name="Cookie Box",
         slug="cookie-box",
-        assembly_type=AssemblyType.CUSTOM_ORDER,
+        assembly_type=AssemblyType.BUNDLE,
     )
     session.add(fg)
     session.commit()
@@ -578,7 +578,7 @@ class TestEdgeCases:
         fg = FinishedGood(
             display_name="Test Item",
             slug="test-item",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         session.add(fg)
         session.commit()

@@ -209,7 +209,7 @@ class FinishedGoodService:
     @staticmethod
     def create_finished_good(
         display_name: str,
-        assembly_type: AssemblyType = AssemblyType.CUSTOM_ORDER,
+        assembly_type: AssemblyType = AssemblyType.BUNDLE,
         components: Optional[List[Dict]] = None,
         session=None,
         **kwargs
@@ -229,7 +229,7 @@ class FinishedGoodService:
 
         Args:
             display_name: Required string name
-            assembly_type: AssemblyType enum value (default: CUSTOM_ORDER)
+            assembly_type: AssemblyType enum value (default: BUNDLE)
             components: Optional list of component specifications with structure:
                 [{"type": "finished_unit"|"material_unit"|"finished_good",
                   "id": int, "quantity": int, "notes": str|None, "sort_order": int}]
@@ -1894,7 +1894,7 @@ def get_all_finished_goods() -> List[FinishedGood]:
 
 def create_finished_good(
     display_name: str,
-    assembly_type: AssemblyType = AssemblyType.CUSTOM_ORDER,
+    assembly_type: AssemblyType = AssemblyType.BUNDLE,
     components: Optional[List[Dict]] = None,
     session=None,
     **kwargs

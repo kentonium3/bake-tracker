@@ -112,7 +112,7 @@ class TestPackagingBOMFlow:
             slug="chocolate-chip-dozen",
             display_name="Chocolate Chip Cookie Dozen",
             description="12 delicious cookies",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(cookie_fg)
@@ -361,7 +361,7 @@ class TestPackagingImportExport:
         fg = FinishedGood(
             slug="export-test-cookies",
             display_name="Export Test Cookies",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -462,7 +462,7 @@ class TestPackagingImportExport:
         fg = FinishedGood(
             slug="generic-export-test",
             display_name="Generic Export Test",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -536,7 +536,7 @@ class TestPackagingEdgeCases:
         fg = FinishedGood(
             slug="fractional-test-cookies",
             display_name="Fractional Test Cookies",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -582,7 +582,7 @@ class TestPackagingEdgeCases:
         fg = FinishedGood(
             slug="aggregation-test-cookies",
             display_name="Aggregation Test Cookies",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -705,7 +705,7 @@ class TestPackagingEdgeCases:
         fg = FinishedGood(
             slug="fg-cascade-test",
             display_name="FG Cascade Test",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)
@@ -797,7 +797,7 @@ class TestPackagingEdgeCases:
         fg = FinishedGood(
             slug="restrict-test-cookies",
             display_name="RESTRICT Test Cookies",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         test_db.add(fg)

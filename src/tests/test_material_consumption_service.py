@@ -64,7 +64,7 @@ def sample_finished_good(db_session):
         slug="test-gift-box",
         display_name="Test Gift Box",
         description="A test gift box assembly",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
     )
     db_session.add(fg)
     db_session.flush()

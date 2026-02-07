@@ -191,7 +191,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
 
     Provides form fields for:
     - Name (required)
-    - Assembly Type (required, defaults to Custom Order)
+    - Assembly Type (required, defaults to Bundle)
     - Packaging Instructions (optional)
     - Notes (optional)
 
@@ -325,7 +325,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
             values=type_values,
             state="readonly",
         )
-        self.type_dropdown.set("Custom Order")  # Default
+        self.type_dropdown.set("Bundle")  # Default
         self.type_dropdown.grid(row=2, column=1, sticky="ew", pady=5)
 
     def _create_packaging_section(self):
@@ -735,7 +735,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
                 ):
                     continue  # Skip items that would create circular reference
 
-            type_display = fg.assembly_type.get_display_name() if fg.assembly_type else "Custom Order"
+            type_display = fg.assembly_type.get_display_name() if fg.assembly_type else "Bundle"
             items.append((fg.id, fg.display_name, type_display))
 
         assembly_types = self._get_assembly_type_options()
@@ -868,7 +868,7 @@ class FinishedGoodFormDialog(ctk.CTkToplevel):
         self.name_entry.insert(0, self.finished_good.display_name)
 
         # Assembly Type
-        type_display = self.finished_good.assembly_type.get_display_name() if self.finished_good.assembly_type else "Custom Order"
+        type_display = self.finished_good.assembly_type.get_display_name() if self.finished_good.assembly_type else "Bundle"
         self.type_dropdown.set(type_display)
 
         # Packaging Instructions

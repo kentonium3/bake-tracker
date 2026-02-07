@@ -86,14 +86,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
 
     def _get_assembly_type_options(self) -> List[str]:
         """Get display names for assembly type filter dropdown."""
-        return [
-            "Bare",
-            "Custom Order",
-            "Gift Box",
-            "Variety Pack",
-            "Holiday Set",
-            "Bulk Pack",
-        ]
+        return [at.get_display_name() for at in AssemblyType]
 
     def _create_search_bar(self):
         """Create the search bar with assembly type filter."""
@@ -362,7 +355,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
     def _get_assembly_type_display(self, assembly_type: Optional[AssemblyType]) -> str:
         """Convert AssemblyType enum to display string."""
         if not assembly_type:
-            return "Custom Order"
+            return "Bundle"
         return assembly_type.get_display_name()
 
     def _get_assembly_type_from_display(self, display: str) -> Optional[AssemblyType]:

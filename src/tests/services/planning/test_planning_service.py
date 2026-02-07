@@ -150,7 +150,7 @@ class TestCalculatePlan:
         gift_bag = FinishedGood(
             display_name="Holiday Gift Bag",
             slug="holiday-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_bag)
@@ -880,7 +880,7 @@ class TestGetAssemblyChecklist:
         gift_box = FinishedGood(
             display_name="Cookie Box",
             slug="cookie-box",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=5,
         )
         session.add(gift_box)
@@ -956,7 +956,7 @@ class TestRecordAssemblyConfirmation:
         gift_box = FinishedGood(
             display_name="Test Gift Box",
             slug="test-gift-box",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_box)
@@ -1029,7 +1029,7 @@ class TestIntegration:
         gift_bag = FinishedGood(
             display_name="Holiday Gift Bag",
             slug="holiday-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_bag)
@@ -1097,7 +1097,7 @@ class TestIntegration:
         another_bag = FinishedGood(
             display_name="Mini Gift Bag",
             slug="mini-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(another_bag)
@@ -1204,7 +1204,7 @@ class TestAggregatedIngredients:
         gift_bag = FinishedGood(
             display_name="Holiday Gift Bag",
             slug="holiday-gift-bag",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_bag)

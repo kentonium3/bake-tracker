@@ -132,7 +132,7 @@ def sample_finished_good(test_db):
     fg = FinishedGood(
         display_name="Cookie Gift Box Integration",
         slug="cookie-gift-box-integration",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=10,
     )
     session.add(fg)
@@ -150,7 +150,7 @@ def sample_finished_good_with_unit_component(test_db, sample_finished_unit):
     fg = FinishedGood(
         display_name="Cookie Assortment Box",
         slug="cookie-assortment-box",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=0,
     )
     session.add(fg)
@@ -638,7 +638,7 @@ class TestImportInventory:
         import_data = {
             "slug": "imported-test-good",
             "display_name": "Imported Test Good",
-            "assembly_type": AssemblyType.GIFT_BOX,
+            "assembly_type": AssemblyType.BUNDLE,
             "inventory_count": 77,  # Expected to be imported
         }
 

@@ -263,7 +263,7 @@ class TestPlanAssemblySnapshotReuse:
         gift_box = FinishedGood(
             display_name="Holiday Gift Box",
             slug="holiday-gift-box",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_box)
@@ -443,7 +443,7 @@ class TestBackwardCompatibility:
         gift_box = FinishedGood(
             display_name="Holiday Gift Box",
             slug="holiday-gift-box",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
             inventory_count=0,
         )
         session.add(gift_box)

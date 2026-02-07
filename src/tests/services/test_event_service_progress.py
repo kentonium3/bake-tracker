@@ -117,7 +117,7 @@ def finished_good_gift_box(test_db):
     fg = FinishedGood(
         slug="cookie-gift-box",
         display_name="Cookie Gift Box",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=0,
     )
     session.add(fg)
@@ -132,7 +132,7 @@ def finished_good_tray(test_db):
     fg = FinishedGood(
         slug="cookie-tray",
         display_name="Cookie Tray",
-        assembly_type=AssemblyType.VARIETY_PACK,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=0,
     )
     session.add(fg)

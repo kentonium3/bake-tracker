@@ -71,7 +71,7 @@ class FinishedGood(BaseModel):
     description = Column(Text, nullable=True)
 
     # Assembly-specific attributes
-    assembly_type = Column(Enum(AssemblyType), nullable=False, default=AssemblyType.CUSTOM_ORDER)
+    assembly_type = Column(Enum(AssemblyType), nullable=False, default=AssemblyType.BUNDLE)
     packaging_instructions = Column(Text, nullable=True)
 
     # Inventory tracking

@@ -107,7 +107,7 @@ def test_finished_good(test_db):
     fg = FinishedGood(
         slug="cookie-box-assortment",
         display_name="Cookie Box Assortment",
-        assembly_type=AssemblyType.VARIETY_PACK,
+        assembly_type=AssemblyType.BUNDLE,
     )
     session.add(fg)
     session.commit()

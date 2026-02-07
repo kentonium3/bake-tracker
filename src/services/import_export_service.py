@@ -4251,11 +4251,11 @@ def import_all_from_json_v4(
 
                         from src.models.assembly_type import AssemblyType
 
-                        assembly_type_str = fg_data.get("assembly_type", "custom_order")
+                        assembly_type_str = fg_data.get("assembly_type", "bundle")
                         try:
                             assembly_type = AssemblyType(assembly_type_str)
                         except ValueError:
-                            assembly_type = AssemblyType.CUSTOM_ORDER
+                            assembly_type = AssemblyType.BUNDLE
 
                         fg = FinishedGood(
                             slug=slug,

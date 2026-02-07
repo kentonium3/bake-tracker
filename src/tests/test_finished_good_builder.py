@@ -320,7 +320,7 @@ class TestFoodQuery:
         bare_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Cookie Box", "bare", components=[bare_comp]),
-            _make_mock_fg(2, "Gift Set", "gift_box"),
+            _make_mock_fg(2, "Gift Set", "bundle"),
         ]
         mock_fu_svc.get_all_finished_units.return_value = [
             _make_mock_fu(10, "Chocolate Cookie", "Cookies"),
@@ -344,7 +344,7 @@ class TestFoodQuery:
         bare_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Cookie Box", "bare", components=[bare_comp]),
-            _make_mock_fg(2, "Gift Set", "gift_box"),
+            _make_mock_fg(2, "Gift Set", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
@@ -381,8 +381,8 @@ class TestFoodQuery:
         """Search filter matches display_name case-insensitively."""
         mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(1, "Chocolate Chip Cookies", "gift_box"),
-            _make_mock_fg(2, "Vanilla Cake Set", "gift_box"),
+            _make_mock_fg(1, "Chocolate Chip Cookies", "bundle"),
+            _make_mock_fg(2, "Vanilla Cake Set", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
@@ -400,7 +400,7 @@ class TestFoodQuery:
         """Non-BARE FinishedGood should use finished_good as comp_type."""
         mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(5, "Holiday Gift Box", "gift_box"),
+            _make_mock_fg(5, "Holiday Gift Box", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
@@ -421,8 +421,8 @@ class TestFoodSelectionState:
         """Selections persist when filter changes."""
         mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(1, "Item A", "gift_box"),
-            _make_mock_fg(2, "Item B", "gift_box"),
+            _make_mock_fg(1, "Item A", "bundle"),
+            _make_mock_fg(2, "Item B", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
@@ -445,7 +445,7 @@ class TestFoodSelectionState:
         """When list re-renders, previously selected items show as checked."""
         mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(1, "Item A", "gift_box"),
+            _make_mock_fg(1, "Item A", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
@@ -1127,8 +1127,8 @@ class TestEditMode:
         mock_fg_svc.get_finished_good_by_id.return_value = fg
         # Set up food items including self
         mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(10, "Holiday Box", "gift_box"),
-            _make_mock_fg(11, "Other Box", "gift_box"),
+            _make_mock_fg(10, "Holiday Box", "bundle"),
+            _make_mock_fg(11, "Other Box", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog

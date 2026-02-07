@@ -197,7 +197,7 @@ def simple_finished_good(db_session, finished_unit):
         slug="simple-gift-box",
         display_name="Simple Gift Box",
         description="A simple gift box with cookies",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
         inventory_count=5,
     )
     db_session.add(fg)
@@ -223,7 +223,7 @@ def finished_good_with_material(db_session, finished_unit, material_unit):
         slug="decorated-gift-box",
         display_name="Decorated Gift Box",
         description="Gift box with ribbon",
-        assembly_type=AssemblyType.GIFT_BOX,
+        assembly_type=AssemblyType.BUNDLE,
     )
     db_session.add(fg)
     db_session.flush()
@@ -255,7 +255,7 @@ def base_finished_good(db_session):
     fg = FinishedGood(
         slug="base-fg",
         display_name="Base FG",
-        assembly_type=AssemblyType.CUSTOM_ORDER,
+        assembly_type=AssemblyType.BUNDLE,
     )
     db_session.add(fg)
     db_session.flush()
@@ -392,7 +392,7 @@ class TestCreateFinishedGoodSnapshot:
         parent_fg = FinishedGood(
             slug="parent-gift-set",
             display_name="Parent Gift Set",
-            assembly_type=AssemblyType.VARIETY_PACK,
+            assembly_type=AssemblyType.BUNDLE,
         )
         db_session.add(parent_fg)
         db_session.flush()
@@ -436,12 +436,12 @@ class TestCreateFinishedGoodSnapshot:
         fg_a = FinishedGood(
             slug="fg-a",
             display_name="FG A",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         fg_b = FinishedGood(
             slug="fg-b",
             display_name="FG B",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         db_session.add_all([fg_a, fg_b])
         db_session.flush()
@@ -479,17 +479,17 @@ class TestCreateFinishedGoodSnapshot:
         fg_a = FinishedGood(
             slug="fg-a",
             display_name="FG A",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         fg_b = FinishedGood(
             slug="fg-b",
             display_name="FG B",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         fg_c = FinishedGood(
             slug="fg-c",
             display_name="FG C",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         db_session.add_all([fg_a, fg_b, fg_c])
         db_session.flush()
@@ -530,7 +530,7 @@ class TestCreateFinishedGoodSnapshot:
             fg = FinishedGood(
                 slug=f"fg-level-{i}",
                 display_name=f"FG Level {i}",
-                assembly_type=AssemblyType.CUSTOM_ORDER,
+                assembly_type=AssemblyType.BUNDLE,
             )
             db_session.add(fg)
             fgs.append(fg)
@@ -562,7 +562,7 @@ class TestCreateFinishedGoodSnapshot:
         fg = FinishedGood(
             slug="fg-with-generic",
             display_name="FG With Generic Material",
-            assembly_type=AssemblyType.CUSTOM_ORDER,
+            assembly_type=AssemblyType.BUNDLE,
         )
         db_session.add(fg)
         db_session.flush()
@@ -620,7 +620,7 @@ class TestCreateFinishedGoodSnapshot:
         fg = FinishedGood(
             slug="sorted-fg",
             display_name="Sorted FG",
-            assembly_type=AssemblyType.GIFT_BOX,
+            assembly_type=AssemblyType.BUNDLE,
         )
         db_session.add(fg)
         db_session.flush()
