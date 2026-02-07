@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Builder Dialog Shell & Navigation
+lane: "doing"
+dependencies: [WP01]
+base_branch: 097-finished-goods-builder-ui-WP01
+base_commit: ced1f690e9cc5fc09d210bb528d1f81fdc5736ba
+created_at: '2026-02-07T00:15:42.235969+00:00'
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Builder Dialog Shell & Navigation"
-phase: "Phase A - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+- T009
+phase: Phase A - Foundation
+assignee: ''
+agent: ''
+shell_pid: "26279"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T23:51:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T23:51:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 -- Builder Dialog Shell & Navigation
