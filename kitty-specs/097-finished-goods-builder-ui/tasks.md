@@ -224,11 +224,11 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T032 Update FinishedGoodsTab._add_finished_good() to launch FinishedGoodBuilderDialog
-- [ ] T033 Update FinishedGoodsTab._edit_finished_good() to launch FinishedGoodBuilderDialog in edit mode
-- [ ] T034 Rename "+ Add" button to "+ Create Finished Good" and wire to builder
-- [ ] T035 Verify double-click and Edit button launch builder correctly, list refreshes after save
-- [ ] T036 Write integration tests for end-to-end create and edit flows via tab
+- [x] T032 Update FinishedGoodsTab._add_finished_good() to launch FinishedGoodBuilderDialog
+- [x] T033 Update FinishedGoodsTab._edit_finished_good() to launch FinishedGoodBuilderDialog in edit mode
+- [x] T034 Rename "+ Add" button to "+ Create Finished Good" and wire to builder
+- [x] T035 Verify double-click and Edit button launch builder correctly, list refreshes after save
+- [x] T036 Write integration tests for end-to-end create and edit flows via tab
 
 ### Implementation Notes
 - `finished_goods_tab.py`: Change import from `FinishedGoodFormDialog` to `FinishedGoodBuilderDialog`
