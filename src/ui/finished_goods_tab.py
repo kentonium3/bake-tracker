@@ -199,7 +199,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
         self.grid_container.grid_rowconfigure(0, weight=1)
 
         # Define columns: Name, Assembly Type, Component Count, Notes
-        columns = ("name", "assembly_type", "components", "notes")
+        columns = ("name", "assembly_type", "yield_type", "components", "notes")
         self.tree = ttk.Treeview(
             self.grid_container,
             columns=columns,
@@ -217,6 +217,10 @@ class FinishedGoodsTab(ctk.CTkFrame):
             command=lambda: self._on_header_click("assembly_type")
         )
         self.tree.heading(
+            "yield_type", text="Yield Type", anchor="w",
+            command=lambda: self._on_header_click("yield_type")
+        )
+        self.tree.heading(
             "components", text="Components", anchor="w",
             command=lambda: self._on_header_click("components")
         )
@@ -228,6 +232,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
         # Configure column widths
         self.tree.column("name", width=250, minwidth=150)
         self.tree.column("assembly_type", width=120, minwidth=80)
+        self.tree.column("yield_type", width=90, minwidth=70)
         self.tree.column("components", width=100, minwidth=60)
         self.tree.column("notes", width=200, minwidth=100)
 
@@ -332,6 +337,8 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 return (fg.display_name or "").lower()
             elif self.sort_column == "assembly_type":
                 return (fg.assembly_type.value if fg.assembly_type else "").lower()
+            elif self.sort_column == "yield_type":
+                return self._get_bare_yield_type(fg).lower()
             elif self.sort_column == "components":
                 return len(fg.components) if fg.components else 0
             elif self.sort_column == "notes":
@@ -340,16 +347,25 @@ class FinishedGoodsTab(ctk.CTkFrame):
 
         return sorted(finished_goods, key=get_sort_key, reverse=not self.sort_ascending)
 
+    def _get_bare_yield_type(self, fg: FinishedGood) -> str:
+        """Get yield type string for bare FinishedGoods, empty for bundles."""
+        if fg.assembly_type == AssemblyType.BARE and fg.components:
+            comp = fg.components[0]
+            if comp.finished_unit_component:
+                return comp.finished_unit_component.yield_type or ""
+        return ""
+
     def _insert_finished_good_row(self, fg: FinishedGood):
         """Insert a finished good row into the tree."""
         name = fg.display_name or ""
         assembly_type = self._get_assembly_type_display(fg.assembly_type)
+        yield_type = self._get_bare_yield_type(fg)
         component_count = str(len(fg.components)) if fg.components else "0"
         notes = (fg.notes or "")[:50]  # Truncate notes for display
         if fg.notes and len(fg.notes) > 50:
             notes += "..."
 
-        values = (name, assembly_type, component_count, notes)
+        values = (name, assembly_type, yield_type, component_count, notes)
         self.tree.insert("", "end", iid=str(fg.id), values=values)
 
     def _get_assembly_type_display(self, assembly_type: Optional[AssemblyType]) -> str:
