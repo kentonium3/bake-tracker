@@ -18,7 +18,6 @@ from src.services import finished_good_service, finished_unit_service
 from src.ui.widgets.accordion_step import (
     AccordionStep,
     STATE_ACTIVE,
-    STATE_COMPLETED,
     STATE_LOCKED,
 )
 from src.ui.widgets.dialogs import show_confirmation
