@@ -51,11 +51,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T005 Create FinishedGoodBuilderDialog class as CTkToplevel with modal behavior
-- [ ] T006 Wire up 3 AccordionStep instances (Food, Materials, Review) in scrollable container
-- [ ] T007 Implement step navigation controller (mutual exclusion, sequential progression, Change callbacks)
-- [ ] T008 Implement dialog-level controls (name entry, Cancel with confirmation, Start Over)
-- [ ] T009 Write unit tests for dialog shell navigation and state management
+- [x] T005 Create FinishedGoodBuilderDialog class as CTkToplevel with modal behavior
+- [x] T006 Wire up 3 AccordionStep instances (Food, Materials, Review) in scrollable container
+- [x] T007 Implement step navigation controller (mutual exclusion, sequential progression, Change callbacks)
+- [x] T008 Implement dialog-level controls (name entry, Cancel with confirmation, Start Over)
+- [x] T009 Write unit tests for dialog shell navigation and state management
 
 ### Implementation Notes
 - New file: `src/ui/builders/finished_good_builder.py` (new `builders/` directory)
