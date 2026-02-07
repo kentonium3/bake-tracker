@@ -681,6 +681,24 @@ class TestMaterialSelectionState:
         assert "No materials" in dialog.step2._summary_label.cget("text")
         dialog.destroy()
 
+    def test_advance_to_step_2_populates_material_list(self, ctk_root, mock_services):
+        """Advancing to step 2 should auto-populate the material item list."""
+        _, _, _, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "Red Ribbon", "Red Satin", "Ribbons"),
+            _make_mock_material_unit(2, "Gold Box", "Gold Box", "Boxes"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.advance_to_step(2, "3 items selected")
+
+        # Material list should be populated (not empty)
+        children = dialog._mat_item_list_frame.winfo_children()
+        assert len(children) == 2
+        dialog.destroy()
+
     def test_material_selection_restored_in_rendered_list(
         self, ctk_root, mock_services
     ):
