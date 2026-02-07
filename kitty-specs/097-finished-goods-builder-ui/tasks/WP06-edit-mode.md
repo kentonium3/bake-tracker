@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Edit Mode
+lane: "doing"
+dependencies: [WP05]
+base_branch: 097-finished-goods-builder-ui-WP05
+base_commit: 0995392f6b9db5523c2fc8732fa0100c560713fb
+created_at: '2026-02-07T00:43:55.428898+00:00'
 subtasks:
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-title: "Edit Mode"
-phase: "Phase C - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP05"]
+- T027
+- T028
+- T029
+- T030
+- T031
+phase: Phase C - Integration
+assignee: ''
+agent: ''
+shell_pid: "33322"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T23:51:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T23:51:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 -- Edit Mode
