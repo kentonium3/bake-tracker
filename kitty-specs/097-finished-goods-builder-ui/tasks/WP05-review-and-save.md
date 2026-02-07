@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Review & Save (Create Mode)
+lane: "doing"
+dependencies: [WP04]
+base_branch: 097-finished-goods-builder-ui-WP04
+base_commit: f8941c4e075f34fceb85767f384ed7789063c40a
+created_at: '2026-02-07T00:35:16.697975+00:00'
 subtasks:
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-title: "Review & Save (Create Mode)"
-phase: "Phase C - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP04"]
+- T021
+- T022
+- T023
+- T024
+- T025
+- T026
+phase: Phase C - Integration
+assignee: ''
+agent: ''
+shell_pid: "31568"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T23:51:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T23:51:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 -- Review & Save (Create Mode)
