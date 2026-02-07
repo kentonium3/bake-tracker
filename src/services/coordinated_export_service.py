@@ -130,6 +130,7 @@ DEPENDENCY_ORDER = {
     "recipe_categories": (14.5, []),
     # Feature 049: Complete backup entities
     "finished_goods": (15, []),
+    "compositions": (15.5, ["finished_goods", "finished_units", "material_units"]),
     "events": (16, []),
     "production_runs": (17, ["recipes", "events", "finished_units"]),
     "inventory_depletions": (18, ["inventory_items"]),
@@ -867,6 +868,43 @@ def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
     return _write_entity_file(output_dir, "finished_goods", records)
 
 
+def _export_compositions(output_dir: Path, session: Session) -> FileEntry:
+    """Export all compositions to JSON file with FK resolution to slugs.
+
+    Transaction boundary: Inherits session from caller (read-only query).
+    """
+    from src.models.composition import Composition
+
+    compositions = session.query(Composition).all()
+
+    # Build ID-to-slug lookup dicts
+    fg_slug_map = {fg.id: fg.slug for fg in session.query(FinishedGood).all()}
+    fu_slug_map = {fu.id: fu.slug for fu in session.query(FinishedUnit).all()}
+    mu_slug_map = {mu.id: mu.slug for mu in session.query(MaterialUnit).all()}
+    product_slug_map = {
+        p.id: p.slug for p in session.query(Product).all()
+    }
+
+    records = []
+    for c in compositions:
+        records.append(
+            {
+                "uuid": str(c.uuid) if c.uuid else None,
+                "assembly_slug": fg_slug_map.get(c.assembly_id) if c.assembly_id else None,
+                "finished_unit_slug": fu_slug_map.get(c.finished_unit_id) if c.finished_unit_id else None,
+                "finished_good_slug": fg_slug_map.get(c.finished_good_id) if c.finished_good_id else None,
+                "material_unit_slug": mu_slug_map.get(c.material_unit_id) if c.material_unit_id else None,
+                "packaging_product_slug": product_slug_map.get(c.packaging_product_id) if c.packaging_product_id else None,
+                "component_quantity": c.component_quantity,
+                "component_notes": c.component_notes,
+                "sort_order": c.sort_order,
+                "is_generic": c.is_generic,
+            }
+        )
+
+    return _write_entity_file(output_dir, "compositions", records)
+
+
 def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
     """Export all finished units to JSON file with FK resolution.
 
@@ -1294,6 +1332,7 @@ def _export_complete_impl(
 
     # Feature 049: Complete backup entities
     manifest.files.append(_export_finished_goods(output_dir, session))
+    manifest.files.append(_export_compositions(output_dir, session))
     manifest.files.append(_export_events(output_dir, session))
     manifest.files.append(_export_production_runs(output_dir, session))
     manifest.files.append(_export_inventory_depletions(output_dir, session))
@@ -1507,6 +1546,9 @@ def _import_complete_impl(
         session.query(InventoryDepletion).delete()
         session.query(ProductionRun).delete()
         session.query(Event).delete()
+        # Delete compositions before their parent entities (FK constraints)
+        from src.models.composition import Composition
+        session.query(Composition).delete()
         # Feature 081: Delete snapshots BEFORE their parent entities (FK constraints)
         session.query(FinishedGoodSnapshot).delete()
         session.query(FinishedGood).delete()
@@ -2173,6 +2215,68 @@ def _import_entity_records(
                     packaging_instructions=record.get("packaging_instructions"),
                     inventory_count=record.get("inventory_count", 0),
                     notes=record.get("notes"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "compositions":
+                from src.models.composition import Composition
+
+                # Resolve slug-based FKs to IDs
+                assembly_slug = record.get("assembly_slug")
+                assembly_id = None
+                if assembly_slug:
+                    fg = session.query(FinishedGood).filter_by(slug=assembly_slug).first()
+                    if fg:
+                        assembly_id = fg.id
+                    else:
+                        logger.warning(f"Composition: assembly slug '{assembly_slug}' not found, skipping")
+                        continue
+
+                fu_slug = record.get("finished_unit_slug")
+                fu_id = None
+                if fu_slug:
+                    fu = session.query(FinishedUnit).filter_by(slug=fu_slug).first()
+                    if fu:
+                        fu_id = fu.id
+                    else:
+                        logger.warning(f"Composition: finished_unit slug '{fu_slug}' not found")
+
+                fg_slug = record.get("finished_good_slug")
+                fg_comp_id = None
+                if fg_slug:
+                    fg_comp = session.query(FinishedGood).filter_by(slug=fg_slug).first()
+                    if fg_comp:
+                        fg_comp_id = fg_comp.id
+                    else:
+                        logger.warning(f"Composition: finished_good slug '{fg_slug}' not found")
+
+                mu_slug = record.get("material_unit_slug")
+                mu_id = None
+                if mu_slug:
+                    mu = session.query(MaterialUnit).filter_by(slug=mu_slug).first()
+                    if mu:
+                        mu_id = mu.id
+                    else:
+                        logger.warning(f"Composition: material_unit slug '{mu_slug}' not found")
+
+                pkg_slug = record.get("packaging_product_slug")
+                pkg_id = None
+                if pkg_slug:
+                    pkg = session.query(Product).filter_by(slug=pkg_slug).first()
+                    if pkg:
+                        pkg_id = pkg.id
+
+                obj = Composition(
+                    assembly_id=assembly_id,
+                    finished_unit_id=fu_id,
+                    finished_good_id=fg_comp_id,
+                    material_unit_id=mu_id,
+                    packaging_product_id=pkg_id,
+                    component_quantity=record.get("component_quantity", 1.0),
+                    component_notes=record.get("component_notes"),
+                    sort_order=record.get("sort_order", 0),
+                    is_generic=record.get("is_generic", False),
                 )
                 session.add(obj)
                 imported_count += 1
