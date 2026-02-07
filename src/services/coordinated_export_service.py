@@ -416,6 +416,9 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
         .all()
     )
 
+    # Build lookup for variant export (avoids lazy-loading base_recipe relationship)
+    recipe_id_to_slug = {r.id: r.slug for r in recipes}
+
     records = []
     for r in recipes:
         # Build ingredient list with FK resolution fields
@@ -463,6 +466,9 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
                 "notes": r.notes,
                 "is_archived": r.is_archived,
                 "is_production_ready": r.is_production_ready,
+                # Variant fields (F037)
+                "base_recipe_slug": recipe_id_to_slug.get(r.base_recipe_id) if r.base_recipe_id else None,
+                "variant_name": r.variant_name,
                 # Nested data
                 "ingredients": ingredients,
                 "components": components,
@@ -1627,6 +1633,10 @@ def _import_entity_records(
     if entity_type == "ingredients":
         records = sorted(records, key=lambda r: r.get("hierarchy_level", 2))
 
+    # Sort recipes so base recipes are imported before variants (F037)
+    if entity_type == "recipes":
+        records = sorted(records, key=lambda r: 0 if not r.get("base_recipe_slug") else 1)
+
     for record in records:
         try:
             if entity_type == "suppliers":
@@ -1764,7 +1774,21 @@ def _import_entity_records(
                     notes=record.get("notes"),
                     is_archived=record.get("is_archived", False),
                     is_production_ready=record.get("is_production_ready", True),
+                    variant_name=record.get("variant_name"),
                 )
+
+                # Resolve variant relationship (F037)
+                base_recipe_slug = record.get("base_recipe_slug")
+                if base_recipe_slug:
+                    base_id = _resolve_recipe(
+                        base_recipe_slug,
+                        None,
+                        session,
+                        context=f"base recipe for '{recipe_name}'",
+                    )
+                    if base_id:
+                        obj.base_recipe_id = base_id
+
                 session.add(obj)
                 session.flush()
 
