@@ -19,10 +19,10 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Create AccordionStep widget class with header and content frames
-- [ ] T002 Implement state machine (locked, active, completed) with visual indicators
-- [ ] T003 Implement content show/hide via pack/pack_forget with "Change" button callback
-- [ ] T004 Write unit tests for AccordionStep state transitions and rendering
+- [x] T001 Create AccordionStep widget class with header and content frames
+- [x] T002 Implement state machine (locked, active, completed) with visual indicators
+- [x] T003 Implement content show/hide via pack/pack_forget with "Change" button callback
+- [x] T004 Write unit tests for AccordionStep state transitions and rendering
 
 ### Implementation Notes
 - New file: `src/ui/widgets/accordion_step.py`
