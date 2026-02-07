@@ -189,11 +189,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T027 Implement edit mode initialization (accept FinishedGood parameter, partition existing Composition records)
-- [ ] T028 Pre-populate food and material selection states from existing component data
-- [ ] T029 Open builder to Step 3 (Review) in edit mode with Steps 1-2 marked completed
-- [ ] T030 Implement self-reference prevention (exclude current FinishedGood from Step 1 selectable items)
-- [ ] T031 Implement Save in edit mode (update_finished_good() call with name uniqueness exclusion)
+- [x] T027 Implement edit mode initialization (accept FinishedGood parameter, partition existing Composition records)
+- [x] T028 Pre-populate food and material selection states from existing component data
+- [x] T029 Open builder to Step 3 (Review) in edit mode with Steps 1-2 marked completed
+- [x] T030 Implement self-reference prevention (exclude current FinishedGood from Step 1 selectable items)
+- [x] T031 Implement Save in edit mode (update_finished_good() call with name uniqueness exclusion)
 
 ### Implementation Notes
 - Constructor: `FinishedGoodBuilderDialog(parent, finished_good=None)` — if finished_good provided, enter edit mode
