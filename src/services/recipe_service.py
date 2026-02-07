@@ -2602,8 +2602,10 @@ def _create_recipe_variant_impl(
     # Create variant
     # F056: yield_quantity, yield_unit, yield_description removed
     # FinishedUnits will be copied separately if needed
+    slug = _generate_unique_slug(name, session)
     variant = Recipe(
         name=name,
+        slug=slug,
         category=base.category,
         source=base.source,
         estimated_time_minutes=base.estimated_time_minutes,
