@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Builder Dialog Shell & Navigation
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 097-finished-goods-builder-ui-WP01
 base_commit: ced1f690e9cc5fc09d210bb528d1f81fdc5736ba
@@ -237,3 +237,4 @@ history:
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
 - 2026-02-07T00:15:42Z – claude-opus – shell_pid=26279 – lane=doing – Assigned agent via workflow command
 - 2026-02-07T00:19:18Z – claude-opus – shell_pid=26279 – lane=for_review – Ready for review: Builder dialog shell with 3 accordion steps, navigation controller, Cancel/Start Over, 15 passing tests
+- 2026-02-07T00:21:26Z – claude-opus – shell_pid=26279 – lane=doing – Review returned: flake8 F401 - STATE_COMPLETED imported but unused in finished_good_builder.py line 19. Remove unused import to satisfy 'No linting errors' DoD criterion.
