@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Materials Selection Step
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 097-finished-goods-builder-ui-WP03
 base_commit: dc88d9df821188a2edab7ff87369ebf920e30f67
@@ -209,3 +209,4 @@ history:
 - 2026-02-07T00:28:24Z – claude-opus – shell_pid=29671 – lane=doing – Assigned agent via workflow command
 - 2026-02-07T00:34:13Z – claude-opus – shell_pid=29671 – lane=for_review – Materials selection step: filter by category/search, checkbox+qty list, skip/continue, 9 new tests (35 total)
 - 2026-02-07T00:36:48Z – claude-opus – shell_pid=29671 – lane=doing – Review returned: advance_to_step(2) does not call _on_material_filter_changed(), so material list is empty on first arrival to step 2. Must populate items when step 2 first opens, similar to how _set_initial_state() calls _on_food_filter_changed() for step 1.
+- 2026-02-07T00:39:00Z – claude-opus – shell_pid=29671 – lane=for_review – Fixed: advance_to_step(2) now populates material list. Added test.
