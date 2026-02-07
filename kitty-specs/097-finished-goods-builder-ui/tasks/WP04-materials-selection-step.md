@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Materials Selection Step
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 097-finished-goods-builder-ui-WP03
 base_commit: dc88d9df821188a2edab7ff87369ebf920e30f67
@@ -207,3 +207,4 @@ history:
 
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
 - 2026-02-07T00:28:24Z – claude-opus – shell_pid=29671 – lane=doing – Assigned agent via workflow command
+- 2026-02-07T00:34:13Z – claude-opus – shell_pid=29671 – lane=for_review – Materials selection step: filter by category/search, checkbox+qty list, skip/continue, 9 new tests (35 total)
