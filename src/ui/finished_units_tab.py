@@ -555,6 +555,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 finished_unit_service.create_finished_unit(
                     display_name=data["display_name"],
                     recipe_id=recipe_id,
+                    yield_type=data.get("yield_type", "SERVING"),
                     item_unit=data.get("item_unit"),
                     items_per_batch=data["items_per_batch"],
                 )
@@ -564,6 +565,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 finished_unit_service.update_finished_unit(
                     data["id"],
                     display_name=data["display_name"],
+                    yield_type=data.get("yield_type", "SERVING"),
                     item_unit=data.get("item_unit"),
                     items_per_batch=data["items_per_batch"],
                 )
@@ -572,6 +574,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
         for unit in existing_units:
             if unit.id not in keeping_ids:
                 finished_unit_service.delete_finished_unit(unit.id)
+
+        # Propagate yield changes to variant recipes
+        finished_unit_service.propagate_yield_to_variants(recipe_id)
 
     def refresh(self):
         """

@@ -2674,6 +2674,7 @@ def _create_recipe_variant_impl(
                 # Copy yield fields from base (variants must match base yield structure)
                 items_per_batch=base_fu.items_per_batch,
                 item_unit=base_fu.item_unit,
+                yield_type=base_fu.yield_type,
                 # Copy other fields from base
                 yield_mode=base_fu.yield_mode,
                 category=base_fu.category,

@@ -8,6 +8,7 @@ Tests verify:
 - create_finished_unit() accepts and validates yield_type
 - update_finished_unit() validates yield_type changes
 - Backward compatibility: default yield_type is 'SERVING'
+- propagate_yield_to_variants() syncs yield fields to variant FUs
 """
 
 import pytest
@@ -16,7 +17,9 @@ from src.services import finished_unit_service
 from src.services.finished_unit_service import (
     VALID_YIELD_TYPES,
     validate_yield_type,
+    propagate_yield_to_variants,
 )
+from src.models.finished_unit import FinishedUnit
 from src.models.recipe import Recipe
 from src.services.database import session_scope
 
@@ -277,3 +280,170 @@ class TestUpdateFinishedUnitYieldType:
             )
 
         assert "required" in str(exc_info.value).lower()
+
+
+class TestPropagateYieldToVariants:
+    """Test propagate_yield_to_variants function."""
+
+    def _create_base_with_variant(self, session, base_yield_type="SERVING"):
+        """Helper to create a base recipe with one variant, each having one FU."""
+        base = Recipe(name="Base Cookie", slug="base-cookie", category="Cookies")
+        session.add(base)
+        session.flush()
+
+        base_fu = FinishedUnit(
+            recipe_id=base.id,
+            slug="base-cookie-serving",
+            display_name="Base Cookie",
+            yield_type=base_yield_type,
+            item_unit="cookie",
+            items_per_batch=24,
+        )
+        session.add(base_fu)
+        session.flush()
+
+        variant = Recipe(
+            name="Raspberry Cookie",
+            slug="raspberry-cookie",
+            category="Cookies",
+            base_recipe_id=base.id,
+            variant_name="Raspberry",
+        )
+        session.add(variant)
+        session.flush()
+
+        variant_fu = FinishedUnit(
+            recipe_id=variant.id,
+            slug="raspberry-cookie-serving",
+            display_name="Raspberry Cookie",
+            yield_type=base_yield_type,
+            item_unit="cookie",
+            items_per_batch=24,
+        )
+        session.add(variant_fu)
+        session.commit()
+
+        return base, base_fu, variant, variant_fu
+
+    def test_propagate_yield_type_change(self, test_db):
+        """Changing base yield_type propagates to variant."""
+        session = test_db()
+        base, base_fu, variant, variant_fu = self._create_base_with_variant(session)
+
+        # Update base FU yield_type
+        finished_unit_service.update_finished_unit(base_fu.id, yield_type="EA")
+
+        # Propagate
+        count = propagate_yield_to_variants(base.id)
+        assert count == 1
+
+        # Verify variant FU updated
+        session.expire_all()
+        updated_variant_fu = session.query(FinishedUnit).get(variant_fu.id)
+        assert updated_variant_fu.yield_type == "EA"
+
+    def test_propagate_items_per_batch_change(self, test_db):
+        """Changing base items_per_batch propagates to variant."""
+        session = test_db()
+        base, base_fu, variant, variant_fu = self._create_base_with_variant(session)
+
+        # Update base FU items_per_batch
+        finished_unit_service.update_finished_unit(base_fu.id, items_per_batch=48)
+
+        count = propagate_yield_to_variants(base.id)
+        assert count == 1
+
+        session.expire_all()
+        updated_variant_fu = session.query(FinishedUnit).get(variant_fu.id)
+        assert updated_variant_fu.items_per_batch == 48
+
+    def test_propagate_no_variants_returns_zero(self, test_db):
+        """No variants means nothing to propagate."""
+        session = test_db()
+        base = Recipe(name="Solo Recipe", slug="solo-recipe", category="Test")
+        session.add(base)
+        session.commit()
+
+        count = propagate_yield_to_variants(base.id)
+        assert count == 0
+
+    def test_propagate_variant_recipe_returns_zero(self, test_db):
+        """Calling propagate on a variant recipe (not base) returns zero."""
+        session = test_db()
+        base, base_fu, variant, variant_fu = self._create_base_with_variant(session)
+
+        # Try propagating from the variant — should be a no-op
+        count = propagate_yield_to_variants(variant.id)
+        assert count == 0
+
+    def test_propagate_multiple_variants(self, test_db):
+        """Yield changes propagate to all variants."""
+        session = test_db()
+        base, base_fu, variant1, variant1_fu = self._create_base_with_variant(session)
+
+        # Add a second variant
+        variant2 = Recipe(
+            name="Strawberry Cookie",
+            slug="strawberry-cookie",
+            category="Cookies",
+            base_recipe_id=base.id,
+            variant_name="Strawberry",
+        )
+        session.add(variant2)
+        session.flush()
+
+        variant2_fu = FinishedUnit(
+            recipe_id=variant2.id,
+            slug="strawberry-cookie-serving",
+            display_name="Strawberry Cookie",
+            yield_type="SERVING",
+            item_unit="cookie",
+            items_per_batch=24,
+        )
+        session.add(variant2_fu)
+        session.commit()
+
+        # Update base
+        finished_unit_service.update_finished_unit(base_fu.id, yield_type="EA", items_per_batch=1)
+
+        count = propagate_yield_to_variants(base.id)
+        assert count == 2
+
+        session.expire_all()
+        for vfu_id in [variant1_fu.id, variant2_fu.id]:
+            vfu = session.query(FinishedUnit).get(vfu_id)
+            assert vfu.yield_type == "EA"
+            assert vfu.items_per_batch == 1
+
+    def test_propagate_skips_mismatched_fu_count(self, test_db):
+        """Variant with different FU count is skipped (logged warning)."""
+        session = test_db()
+        base, base_fu, variant, variant_fu = self._create_base_with_variant(session)
+
+        # Add extra FU to variant (creates mismatch)
+        extra_fu = FinishedUnit(
+            recipe_id=variant.id,
+            slug="raspberry-cookie-extra",
+            display_name="Raspberry Cookie Extra",
+            yield_type="EA",
+            item_unit="piece",
+            items_per_batch=12,
+        )
+        session.add(extra_fu)
+        session.commit()
+
+        # Update base
+        finished_unit_service.update_finished_unit(base_fu.id, yield_type="EA")
+
+        # Should skip variant due to FU count mismatch
+        count = propagate_yield_to_variants(base.id)
+        assert count == 0
+
+    def test_propagate_no_change_returns_zero(self, test_db):
+        """If variant FUs already match base, count is zero."""
+        session = test_db()
+        base, base_fu, variant, variant_fu = self._create_base_with_variant(session)
+
+        # No changes to base — variant already matches
+        count = propagate_yield_to_variants(base.id)
+        assert count == 0

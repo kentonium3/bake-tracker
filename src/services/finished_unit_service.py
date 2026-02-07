@@ -311,10 +311,10 @@ class FinishedUnitService:
             try:
                 # Validate required fields
                 if not display_name or not display_name.strip():
-                    raise ValidationError("Display name is required and cannot be empty")
+                    raise ValidationError(["Display name is required and cannot be empty"])
 
                 if recipe_id is None:
-                    raise ValidationError("Recipe ID is required and cannot be None")
+                    raise ValidationError(["Recipe ID is required and cannot be None"])
 
                 # Feature 083: Validate yield_type (default to 'SERVING' for backward compatibility)
                 yield_type = kwargs.get("yield_type", "SERVING")
@@ -329,7 +329,7 @@ class FinishedUnitService:
                     # Validate recipe reference (required)
                     recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
                     if not recipe:
-                        raise ValidationError(f"Recipe ID {recipe_id} does not exist")
+                        raise ValidationError([f"Recipe ID {recipe_id} does not exist"])
 
                     # Validate name uniqueness within recipe (per yield_type)
                     FinishedUnitService._validate_name_unique_in_recipe(
@@ -428,7 +428,7 @@ class FinishedUnitService:
                 if "display_name" in updates:
                     display_name = updates["display_name"]
                     if not display_name or not display_name.strip():
-                        raise ValidationError("Display name cannot be empty")
+                        raise ValidationError(["Display name cannot be empty"])
 
                     # Update slug if display name changed
                     if display_name.strip() != unit.display_name:
@@ -447,12 +447,12 @@ class FinishedUnitService:
                         raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
 
                 if "inventory_count" in updates and updates["inventory_count"] < 0:
-                    raise ValidationError("Inventory count must be non-negative")
+                    raise ValidationError(["Inventory count must be non-negative"])
 
                 if "recipe_id" in updates and updates["recipe_id"] is not None:
                     recipe = session.query(Recipe).filter(Recipe.id == updates["recipe_id"]).first()
                     if not recipe:
-                        raise ValidationError(f"Recipe ID {updates['recipe_id']} does not exist")
+                        raise ValidationError([f"Recipe ID {updates['recipe_id']} does not exist"])
 
                 # Validate name uniqueness within recipe for renames or recipe changes
                 # Get the effective values after update
@@ -797,7 +797,7 @@ class FinishedUnitService:
             if not existing:
                 return candidate_slug
 
-        raise ValidationError(f"Unable to generate unique slug after {max_attempts} attempts")
+        raise ValidationError([f"Unable to generate unique slug after {max_attempts} attempts"])
 
     @staticmethod
     def _validate_name_unique_in_recipe(
@@ -840,8 +840,8 @@ class FinishedUnitService:
         existing = query.first()
         if existing:
             raise ValidationError(
-                f"A yield type named '{display_name}' with type '{yield_type}' "
-                f"already exists for this recipe"
+                [f"A yield type named '{display_name}' with type '{yield_type}' "
+                 f"already exists for this recipe"]
             )
 
 
@@ -917,6 +917,96 @@ def search_finished_units(query: str) -> List[FinishedUnit]:
 def get_units_by_recipe(recipe_id: int) -> List[FinishedUnit]:
     """Get all FinishedUnits associated with a specific recipe."""
     return FinishedUnitService.get_units_by_recipe(recipe_id)
+
+
+def propagate_yield_to_variants(recipe_id: int) -> int:
+    """
+    Propagate yield fields from a base recipe's FinishedUnits to all variant recipes.
+
+    When a base recipe's yield data changes (yield_type, items_per_batch, item_unit,
+    yield_mode), this function pushes those changes to all variant recipe FUs.
+
+    Matching strategy: base FUs and variant FUs are matched by ID order, since
+    variants are created with the same number of FUs in the same order as the base.
+
+    Args:
+        recipe_id: ID of the base recipe whose yield data changed
+
+    Returns:
+        Number of variant FinishedUnits updated
+
+    Raises:
+        DatabaseError: If database operation fails
+    """
+    try:
+        with session_scope() as session:
+            # Check if this recipe is a base recipe (not a variant itself)
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe or recipe.base_recipe_id is not None:
+                return 0
+
+            # Get all variant recipes
+            variants = (
+                session.query(Recipe)
+                .filter_by(base_recipe_id=recipe_id, is_archived=False)
+                .all()
+            )
+            if not variants:
+                return 0
+
+            # Get base FUs ordered by ID for stable matching
+            base_fus = (
+                session.query(FinishedUnit)
+                .filter_by(recipe_id=recipe_id)
+                .order_by(FinishedUnit.id)
+                .all()
+            )
+            if not base_fus:
+                return 0
+
+            updated_count = 0
+            yield_fields = [
+                "yield_type", "items_per_batch", "item_unit",
+                "yield_mode", "batch_percentage", "portion_description",
+            ]
+
+            for variant in variants:
+                variant_fus = (
+                    session.query(FinishedUnit)
+                    .filter_by(recipe_id=variant.id)
+                    .order_by(FinishedUnit.id)
+                    .all()
+                )
+
+                if len(variant_fus) != len(base_fus):
+                    logger.warning(
+                        f"Variant recipe {variant.id} has {len(variant_fus)} FUs "
+                        f"but base has {len(base_fus)}; skipping propagation"
+                    )
+                    continue
+
+                for base_fu, variant_fu in zip(base_fus, variant_fus):
+                    changed = False
+                    for field in yield_fields:
+                        base_val = getattr(base_fu, field)
+                        if getattr(variant_fu, field) != base_val:
+                            setattr(variant_fu, field, base_val)
+                            changed = True
+                    if changed:
+                        variant_fu.updated_at = utc_now()
+                        updated_count += 1
+
+            session.flush()
+            if updated_count:
+                logger.info(
+                    f"Propagated yield changes from recipe {recipe_id} "
+                    f"to {updated_count} variant FinishedUnit(s)"
+                )
+            return updated_count
+
+    except SQLAlchemyError as e:
+        logger.error(f"Failed to propagate yield to variants for recipe {recipe_id}: {e}")
+        raise DatabaseError(f"Failed to propagate yield to variants: {e}")
 
 
 # =============================================================================
