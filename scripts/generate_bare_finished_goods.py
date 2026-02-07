@@ -35,12 +35,22 @@ from src.services.finished_good_service import (
 )
 from src.services.finished_unit_service import get_all_finished_units
 from src.models import AssemblyType
+from src.models.composition import Composition
 
 
-def get_existing_finished_good_names(session) -> set:
-    """Get set of existing FinishedGood display names (case-insensitive)."""
-    finished_goods = get_all_finished_goods()
-    return {fg.display_name.lower() for fg in finished_goods}
+def get_existing_bare_fu_ids() -> set:
+    """Get set of FinishedUnit IDs that are already wrapped in a bare FinishedGood."""
+    with session_scope() as session:
+        rows = (
+            session.query(Composition.finished_unit_id)
+            .join(Composition.assembly)
+            .filter(
+                Composition.finished_unit_id.isnot(None),
+                Composition.assembly.has(assembly_type=AssemblyType.BARE),
+            )
+            .all()
+        )
+        return {row[0] for row in rows}
 
 
 def generate_bare_finished_goods(
@@ -75,20 +85,20 @@ def generate_bare_finished_goods(
     print(f"\nFound {len(finished_units)} FinishedUnits to process")
     print("-" * 60)
 
-    # Get existing FinishedGood names to avoid duplicates
-    existing_names = get_existing_finished_good_names(None)
+    # Get FU IDs already wrapped in a bare FinishedGood
+    existing_fu_ids = get_existing_bare_fu_ids()
 
     for fu in finished_units:
         display_name = fu.display_name
         recipe_name = fu.recipe.name if fu.recipe else "Unknown"
 
-        # Check if FinishedGood already exists with this name
-        if display_name.lower() in existing_names:
+        # Skip if this FinishedUnit is already wrapped in a bare FinishedGood
+        if fu.id in existing_fu_ids:
             results["skipped"].append({
                 "name": display_name,
-                "reason": "FinishedGood already exists",
+                "reason": f"FinishedUnit #{fu.id} already has a bare FinishedGood",
             })
-            print(f"  SKIP: {display_name} (already exists)")
+            print(f"  SKIP: {display_name} (FU #{fu.id} already wrapped)")
             continue
 
         if dry_run:
@@ -123,8 +133,8 @@ def generate_bare_finished_goods(
                 })
                 print(f"  CREATED: {display_name} (FinishedGood #{fg.id})")
 
-                # Add to existing names to prevent duplicates within this run
-                existing_names.add(display_name.lower())
+                # Track this FU to prevent duplicates within this run
+                existing_fu_ids.add(fu.id)
 
             except Exception as e:
                 results["errors"].append({
