@@ -129,8 +129,14 @@ class TestDialogCreation:
     def test_dialog_creates_in_edit_mode(self, ctk_root, mock_services):
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
+        mock_fg_svc, *_ = mock_services
         fg = MagicMock()
+        fg.id = 1
         fg.display_name = "Test Gift Box"
+        fg.notes = None
+        fg.components = []
+        # get_finished_good_by_id returns the same fg for reload
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
         dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
         assert dialog._is_edit_mode
         assert dialog.name_entry.get() == "Test Gift Box"
@@ -1010,4 +1016,190 @@ class TestNameValidation:
         result = dialog._validate_name_uniqueness()
 
         assert result is True
+        dialog.destroy()
+
+
+def _make_mock_edit_fg(fg_id=10, display_name="Holiday Box", notes=None):
+    """Create a mock FinishedGood with components for edit mode testing."""
+    fg = MagicMock()
+    fg.id = fg_id
+    fg.display_name = display_name
+    fg.notes = notes
+    fg.assembly_type = MagicMock()
+
+    # Food component (finished_unit)
+    comp1 = MagicMock()
+    comp1.component_type = "finished_unit"
+    comp1.component_name = "Almond Biscotti"
+    comp1.component_quantity = 2.0
+    comp1.finished_unit_id = 100
+    comp1.finished_good_id = None
+    comp1.material_unit_id = None
+
+    # Food component (finished_good)
+    comp2 = MagicMock()
+    comp2.component_type = "finished_good"
+    comp2.component_name = "Cookie Sampler"
+    comp2.component_quantity = 1.0
+    comp2.finished_unit_id = None
+    comp2.finished_good_id = 200
+    comp2.material_unit_id = None
+
+    # Material component
+    comp3 = MagicMock()
+    comp3.component_type = "material_unit"
+    comp3.component_name = "Red Ribbon"
+    comp3.component_quantity = 3.0
+    comp3.finished_unit_id = None
+    comp3.finished_good_id = None
+    comp3.material_unit_id = 300
+
+    fg.components = [comp1, comp2, comp3]
+    return fg
+
+
+class TestEditMode:
+    """Tests for edit mode (T027, T028, T029, T030, T031)."""
+
+    def test_edit_mode_populates_selections(self, ctk_root, mock_services):
+        """Edit mode populates food and material selections from components."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg()
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+
+        assert len(dialog._food_selections) == 2
+        assert len(dialog._material_selections) == 1
+        assert "finished_unit:100" in dialog._food_selections
+        assert "finished_good:200" in dialog._food_selections
+        assert 300 in dialog._material_selections
+        dialog.destroy()
+
+    def test_edit_mode_opens_to_step_3(self, ctk_root, mock_services):
+        """Edit mode opens with step 3 active and steps 1-2 completed."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg()
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+        from src.ui.widgets.accordion_step import STATE_ACTIVE, STATE_COMPLETED
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+
+        assert dialog.step1.state == STATE_COMPLETED
+        assert dialog.step2.state == STATE_COMPLETED
+        assert dialog.step3.state == STATE_ACTIVE
+        assert dialog._step_completed[1] is True
+        assert dialog._step_completed[2] is True
+        dialog.destroy()
+
+    def test_edit_mode_no_changes_initially(self, ctk_root, mock_services):
+        """Edit mode starts with _has_changes = False."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg()
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+        assert not dialog._has_changes
+        dialog.destroy()
+
+    def test_edit_mode_name_populated(self, ctk_root, mock_services):
+        """Edit mode populates name entry."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg(display_name="My Gift Box")
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+        assert dialog.name_entry.get() == "My Gift Box"
+        dialog.destroy()
+
+    def test_edit_mode_excludes_self_from_food_items(self, ctk_root, mock_services):
+        """Edit mode excludes the current FG from food item query."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg(fg_id=10)
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+        # Set up food items including self
+        mock_fg_svc.get_all_finished_goods.return_value = [
+            _make_mock_fg(10, "Holiday Box", "gift_box"),
+            _make_mock_fg(11, "Other Box", "gift_box"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+        dialog._food_category_var.set("All Categories")
+        items = dialog._query_food_items()
+
+        assert len(items) == 1
+        assert items[0]["id"] == 11
+        dialog.destroy()
+
+    def test_edit_mode_save_calls_update(self, ctk_root, mock_services):
+        """Save in edit mode calls update_finished_good, not create."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg(fg_id=10)
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        mock_result = MagicMock()
+        mock_result.id = 10
+        mock_result.display_name = "Updated Box"
+        mock_fg_svc.update_finished_good.return_value = mock_result
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+        dialog.name_entry.delete(0, "end")
+        dialog.name_entry.insert(0, "Updated Box")
+
+        dialog._on_save()
+
+        mock_fg_svc.update_finished_good.assert_called_once()
+        mock_fg_svc.create_finished_good.assert_not_called()
+        call_kwargs = mock_fg_svc.update_finished_good.call_args
+        assert call_kwargs[0][0] == 10  # finished_good_id
+        assert call_kwargs.kwargs["display_name"] == "Updated Box"
+
+    def test_edit_mode_name_uniqueness_excludes_self(self, ctk_root, mock_services):
+        """Name uniqueness check allows the current FG's own name."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg(fg_id=10, display_name="Holiday Box")
+
+        # Reload returns the fg
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        # Slug lookup returns the same fg (same id = self)
+        existing = MagicMock()
+        existing.id = 10
+        mock_fg_svc.get_finished_good_by_slug.side_effect = None
+        mock_fg_svc.get_finished_good_by_slug.return_value = existing
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+        # Name is "Holiday Box" (same as existing)
+        result = dialog._validate_name_uniqueness()
+
+        assert result is True
+        dialog.destroy()
+
+    def test_edit_mode_quantities_correct(self, ctk_root, mock_services):
+        """Edit mode correctly converts float quantities to int."""
+        mock_fg_svc, *_ = mock_services
+        fg = _make_mock_edit_fg()
+        mock_fg_svc.get_finished_good_by_id.return_value = fg
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+
+        assert dialog._food_selections["finished_unit:100"]["quantity"] == 2
+        assert dialog._food_selections["finished_good:200"]["quantity"] == 1
+        assert dialog._material_selections[300]["quantity"] == 3
         dialog.destroy()
