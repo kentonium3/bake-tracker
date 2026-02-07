@@ -85,12 +85,12 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T010 Create food selection content panel with filter bar UI (category dropdown, bare/assembly toggles, search entry)
-- [ ] T011 Implement data query for available FinishedGoods with category, bare/assembly, and search filtering
-- [ ] T012 Implement scrollable checkbox list with per-item quantity entries
-- [ ] T013 Implement selection state management (global selections persisting across filter changes)
-- [ ] T014 Implement validation (minimum 1 item with quantity >= 1) and Continue button
-- [ ] T015 Write unit tests for food selection filtering, selection state, and validation
+- [x] T010 Create food selection content panel with filter bar UI (category dropdown, bare/assembly toggles, search entry)
+- [x] T011 Implement data query for available FinishedGoods with category, bare/assembly, and search filtering
+- [x] T012 Implement scrollable checkbox list with per-item quantity entries
+- [x] T013 Implement selection state management (global selections persisting across filter changes)
+- [x] T014 Implement validation (minimum 1 item with quantity >= 1) and Continue button
+- [x] T015 Write unit tests for food selection filtering, selection state, and validation
 
 ### Implementation Notes
 - Category dropdown populated from distinct `FinishedUnit.category` values + "All Categories" option
