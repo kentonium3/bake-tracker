@@ -14,7 +14,12 @@ from typing import Dict, List, Optional
 import customtkinter as ctk
 
 from src.models.assembly_type import AssemblyType
-from src.services import finished_good_service, finished_unit_service
+from src.services import (
+    finished_good_service,
+    finished_unit_service,
+    material_catalog_service,
+    material_unit_service,
+)
 from src.ui.widgets.accordion_step import (
     AccordionStep,
     STATE_ACTIVE,
@@ -54,14 +59,19 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
 
         # Food selection state: {component_key: {type, id, display_name, quantity}}
         self._food_selections: Dict[str, Dict] = {}
-        # Material selection state (populated by WP04)
-        self.material_selections: Dict[int, int] = {}
+        # Material selection state: {material_unit_id: {id, name, quantity}}
+        self._material_selections: Dict[int, Dict] = {}
 
         # Food step UI widget references
         self._food_check_vars: Dict[str, ctk.StringVar] = {}
         self._food_qty_entries: Dict[str, ctk.CTkEntry] = {}
         self._food_item_list_frame: Optional[ctk.CTkScrollableFrame] = None
         self._food_error_label: Optional[ctk.CTkLabel] = None
+
+        # Material step UI widget references
+        self._mat_check_vars: Dict[int, ctk.StringVar] = {}
+        self._mat_qty_entries: Dict[int, ctk.CTkEntry] = {}
+        self._mat_item_list_frame: Optional[ctk.CTkScrollableFrame] = None
 
         self._create_widgets()
         self._set_initial_state()
@@ -133,11 +143,9 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
 
         # -- Populate step content frames --
         self._create_food_step_content()
+        self._create_materials_step_content()
 
-        # Placeholder labels for steps 2 and 3 (replaced by WP04, WP05)
-        ctk.CTkLabel(
-            self.step2.content_frame, text="Materials selection UI (WP04)", text_color="gray"
-        ).pack(padx=20, pady=20)
+        # Placeholder label for step 3 (replaced by WP05)
         ctk.CTkLabel(
             self.step3.content_frame, text="Review & Save UI (WP05)", text_color="gray"
         ).pack(padx=20, pady=20)
@@ -492,9 +500,11 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._collapse_all_steps()
         step = self._get_step(step_number)
         step.expand()
-        # Re-render food items when going back to step 1
+        # Re-render items when going back to a step
         if step_number == 1:
             self._on_food_filter_changed()
+        elif step_number == 2:
+            self._on_material_filter_changed()
 
     def advance_to_step(self, step_number: int, summary: str = "") -> None:
         """Mark current step completed and advance to the next step.
@@ -512,6 +522,10 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         target_step = self._get_step(step_number)
         target_step.expand()
         self._has_changes = True
+
+        # Populate content when entering a step
+        if step_number == 2:
+            self._on_material_filter_changed()
 
     # =========================================================================
     # Dialog controls
@@ -537,7 +551,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
     def _on_start_over(self) -> None:
         """Reset all state and return to step 1."""
         self._food_selections.clear()
-        self.material_selections.clear()
+        self._material_selections.clear()
         self._step_completed = {1: False, 2: False, 3: False}
         self._has_changes = False
         self.name_entry.delete(0, "end")
@@ -557,6 +571,10 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._clear_food_error()
         self._on_food_filter_changed()
 
+        # Reset material filters
+        self._mat_category_var.set("All Categories")
+        self._mat_search_var.set("")
+
     @property
     def food_selections(self) -> Dict[str, Dict]:
         """Return the current food selections dict."""
@@ -566,6 +584,243 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
     def food_selections(self, value):
         """Allow setting food_selections for backward compatibility."""
         self._food_selections = value
+
+    @property
+    def material_selections(self) -> Dict[int, Dict]:
+        """Return the current material selections dict."""
+        return self._material_selections
+
+    @material_selections.setter
+    def material_selections(self, value):
+        """Allow setting material_selections."""
+        self._material_selections = value
+
+    # =========================================================================
+    # Step 2: Materials Selection
+    # =========================================================================
+
+    def _create_materials_step_content(self) -> None:
+        """Build the materials selection UI inside step 2's content frame."""
+        content = self.step2.content_frame
+
+        # -- Filter bar --
+        filter_frame = ctk.CTkFrame(content, fg_color="transparent")
+        filter_frame.pack(fill="x", padx=5, pady=(5, 2))
+
+        # Category dropdown
+        categories = self._get_material_categories()
+        self._mat_category_var = ctk.StringVar(value="All Categories")
+        self._mat_category_combo = ctk.CTkComboBox(
+            filter_frame,
+            values=categories,
+            variable=self._mat_category_var,
+            width=160,
+            command=lambda _: self._on_material_filter_changed(),
+        )
+        self._mat_category_combo.pack(side="left", padx=(0, 5))
+
+        # Search entry
+        self._mat_search_var = ctk.StringVar()
+        self._mat_search_entry = ctk.CTkEntry(
+            filter_frame,
+            placeholder_text="Search materials...",
+            textvariable=self._mat_search_var,
+            width=180,
+        )
+        self._mat_search_entry.pack(
+            side="left", fill="x", expand=True, padx=(5, 0)
+        )
+        self._mat_search_entry.bind(
+            "<KeyRelease>", lambda _: self._on_material_filter_changed()
+        )
+
+        # -- Scrollable item list --
+        self._mat_item_list_frame = ctk.CTkScrollableFrame(content, height=250)
+        self._mat_item_list_frame.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # -- Button frame: Skip (left) and Continue (right) --
+        btn_frame = ctk.CTkFrame(content, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=10, pady=(2, 5))
+
+        skip_btn = ctk.CTkButton(
+            btn_frame,
+            text="Skip - No Materials Needed",
+            fg_color="gray",
+            command=self._on_materials_skip,
+        )
+        skip_btn.pack(side="left")
+
+        continue_btn = ctk.CTkButton(
+            btn_frame,
+            text="Continue",
+            command=self._on_materials_continue,
+        )
+        continue_btn.pack(side="right")
+
+    def _get_material_categories(self) -> List[str]:
+        """Get material category names for the dropdown."""
+        try:
+            categories = material_catalog_service.list_categories()
+        except Exception:
+            return ["All Categories"]
+
+        names = sorted(cat.name for cat in categories if cat.name)
+        return ["All Categories"] + names
+
+    def _query_material_items(self) -> List[Dict]:
+        """Query MaterialUnits matching current filter state.
+
+        Returns list of dicts with keys: id, name, category_name, product_name
+        """
+        category_filter = self._mat_category_var.get()
+        search_text = self._mat_search_var.get().strip().lower()
+
+        try:
+            units = material_unit_service.list_units(include_relationships=True)
+        except Exception:
+            return []
+
+        items = []
+        for unit in units:
+            product = unit.material_product
+            if not product or product.is_hidden:
+                continue
+
+            material = product.material if product else None
+            subcategory = material.subcategory if material else None
+            category = subcategory.category if subcategory else None
+            category_name = category.name if category else ""
+
+            # Category filter
+            if category_filter != "All Categories":
+                if category_name != category_filter:
+                    continue
+
+            # Search filter
+            if search_text and search_text not in unit.name.lower():
+                continue
+
+            items.append({
+                "id": unit.id,
+                "name": unit.name,
+                "category_name": category_name,
+                "product_name": product.name if product else "",
+            })
+
+        return items
+
+    def _on_material_filter_changed(self) -> None:
+        """Re-query and re-render the material item list."""
+        items = self._query_material_items()
+        self._render_material_items(items)
+
+    def _render_material_items(self, items: List[Dict]) -> None:
+        """Render filtered MaterialUnits as checkbox rows with quantity entries."""
+        for widget in self._mat_item_list_frame.winfo_children():
+            widget.destroy()
+        self._mat_check_vars.clear()
+        self._mat_qty_entries.clear()
+
+        if not items:
+            ctk.CTkLabel(
+                self._mat_item_list_frame,
+                text="No materials match the current filters.",
+                text_color="gray",
+            ).pack(padx=20, pady=20)
+            return
+
+        for item in items:
+            unit_id = item["id"]
+            row = ctk.CTkFrame(self._mat_item_list_frame, fg_color="transparent")
+            row.pack(fill="x", padx=2, pady=1)
+
+            # Checkbox
+            is_selected = unit_id in self._material_selections
+            var = ctk.StringVar(value="1" if is_selected else "0")
+            self._mat_check_vars[unit_id] = var
+
+            cb = ctk.CTkCheckBox(
+                row,
+                text=item["name"],
+                variable=var,
+                onvalue="1",
+                offvalue="0",
+                command=lambda uid=unit_id, i=item: self._on_material_item_toggled(
+                    uid, i
+                ),
+            )
+            cb.pack(side="left", fill="x", expand=True, padx=(0, 5))
+
+            # Quantity entry
+            qty_entry = ctk.CTkEntry(row, width=60, justify="center")
+            qty_entry.pack(side="right", padx=(5, 0))
+            self._mat_qty_entries[unit_id] = qty_entry
+
+            if is_selected:
+                qty_entry.insert(
+                    0, str(self._material_selections[unit_id]["quantity"])
+                )
+                qty_entry.configure(state="normal")
+            else:
+                qty_entry.insert(0, "1")
+                qty_entry.configure(state="disabled")
+
+            qty_entry.bind(
+                "<FocusOut>",
+                lambda e, uid=unit_id: self._on_material_qty_changed(uid),
+            )
+            qty_entry.bind(
+                "<KeyRelease>",
+                lambda e, uid=unit_id: self._on_material_qty_changed(uid),
+            )
+
+    def _on_material_item_toggled(self, unit_id: int, item: Dict) -> None:
+        """Handle checkbox toggle for a material item."""
+        var = self._mat_check_vars.get(unit_id)
+        qty_entry = self._mat_qty_entries.get(unit_id)
+        if not var or not qty_entry:
+            return
+
+        if var.get() == "1":
+            qty_entry.configure(state="normal")
+            qty_str = qty_entry.get().strip()
+            qty = self._parse_quantity(qty_str)
+            self._material_selections[unit_id] = {
+                "id": unit_id,
+                "name": item["name"],
+                "quantity": qty,
+            }
+        else:
+            qty_entry.configure(state="disabled")
+            self._material_selections.pop(unit_id, None)
+
+        self._has_changes = True
+
+    def _on_material_qty_changed(self, unit_id: int) -> None:
+        """Handle quantity entry change for a material item."""
+        if unit_id not in self._material_selections:
+            return
+        qty_entry = self._mat_qty_entries.get(unit_id)
+        if not qty_entry:
+            return
+        qty_str = qty_entry.get().strip()
+        qty = self._parse_quantity(qty_str)
+        self._material_selections[unit_id]["quantity"] = qty
+        self._has_changes = True
+
+    def _on_materials_skip(self) -> None:
+        """Skip materials — advance to step 3 with no materials."""
+        self._material_selections.clear()
+        self.advance_to_step(3, "No materials")
+
+    def _on_materials_continue(self) -> None:
+        """Continue from materials step to step 3."""
+        if self._material_selections:
+            count = len(self._material_selections)
+            summary = f"{count} material{'s' if count != 1 else ''} selected"
+        else:
+            summary = "No materials"
+        self.advance_to_step(3, summary)
 
     def get_result(self):
         """Wait for the dialog to close and return the result."""
