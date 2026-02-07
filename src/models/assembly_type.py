@@ -187,7 +187,7 @@ ASSEMBLY_TYPE_METADATA = {
         "description": "Curated gift boxes with multiple complementary items, typically 3-8 different products presented in an attractive package.",
         "component_limits": {"min_components": 3, "max_components": 8, "recommended_components": 5},
         "business_rules": {
-            "min_total_cost": Decimal("15.00"),
+            "min_total_cost": Decimal("0.00"),
             "max_total_cost": Decimal("150.00"),
             "requires_unique_items": True,
             "allows_duplicate_categories": False,
@@ -208,7 +208,7 @@ ASSEMBLY_TYPE_METADATA = {
             "recommended_components": 6,
         },
         "business_rules": {
-            "min_total_cost": Decimal("10.00"),
+            "min_total_cost": Decimal("0.00"),
             "max_total_cost": Decimal("75.00"),
             "requires_unique_items": True,
             "allows_duplicate_categories": True,
@@ -229,7 +229,7 @@ ASSEMBLY_TYPE_METADATA = {
             "recommended_components": 6,
         },
         "business_rules": {
-            "min_total_cost": Decimal("20.00"),
+            "min_total_cost": Decimal("0.00"),
             "max_total_cost": Decimal("200.00"),
             "requires_unique_items": False,
             "allows_duplicate_categories": True,
@@ -250,7 +250,7 @@ ASSEMBLY_TYPE_METADATA = {
             "recommended_components": 8,
         },
         "business_rules": {
-            "min_total_cost": Decimal("20.00"),
+            "min_total_cost": Decimal("0.00"),
             "max_total_cost": None,  # No upper limit
             "requires_unique_items": False,
             "allows_duplicate_categories": True,
@@ -271,7 +271,7 @@ ASSEMBLY_TYPE_METADATA = {
             "recommended_components": 5,
         },
         "business_rules": {
-            "min_total_cost": Decimal("5.00"),
+            "min_total_cost": Decimal("0.00"),
             "max_total_cost": None,  # No upper limit
             "requires_unique_items": False,
             "allows_duplicate_categories": True,
