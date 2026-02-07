@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Food Selection Step
+lane: "doing"
+dependencies: [WP02]
+base_branch: 097-finished-goods-builder-ui-WP02
+base_commit: 2ee0f735330f610e0e5a20f50351289422a882a6
+created_at: '2026-02-07T00:19:41.778791+00:00'
 subtasks:
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Food Selection Step"
-phase: "Phase B - Step Implementation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase B - Step Implementation
+assignee: ''
+agent: ''
+shell_pid: "27248"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T23:51:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T23:51:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 -- Food Selection Step
