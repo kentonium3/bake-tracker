@@ -28,7 +28,7 @@ from src.ui.widgets.dialogs import (
     show_success,
     show_info,
 )
-from src.ui.forms.finished_good_form import FinishedGoodFormDialog
+from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
 
 class FinishedGoodsTab(ctk.CTkFrame):
@@ -144,10 +144,10 @@ class FinishedGoodsTab(ctk.CTkFrame):
             padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
 
-        # Add button
+        # Create button
         add_button = ctk.CTkButton(
             button_frame,
-            text="+ Add Finished Good",
+            text="+ Create Finished Good",
             command=self._add_finished_good,
             width=180,
         )
@@ -417,110 +417,45 @@ class FinishedGoodsTab(ctk.CTkFrame):
         self._edit_finished_good()
 
     def _add_finished_good(self):
-        """Show dialog to add a new finished good."""
-        dialog = FinishedGoodFormDialog(self, title="Add New Finished Good")
+        """Show builder dialog to create a new finished good."""
+        dialog = FinishedGoodBuilderDialog(self)
         self.wait_window(dialog)
         result = dialog.result
 
         if result:
-            try:
-                # Extract components from result
-                components = result.pop("components", [])
-
-                # Map assembly_type string to enum
-                assembly_type_str = result.pop("assembly_type", "custom_order")
-                assembly_type = self._get_assembly_type_from_value(assembly_type_str)
-
-                # Create finished good
-                new_fg = finished_good_service.create_finished_good(
-                    display_name=result.get("display_name", ""),
-                    assembly_type=assembly_type,
-                    packaging_instructions=result.get("packaging_instructions"),
-                    notes=result.get("notes"),
-                    components=components,
-                )
-
-                show_success(
-                    "Success",
-                    f"Finished good '{new_fg.display_name}' added successfully",
-                    parent=self,
-                )
-                self.refresh()
-                self._update_status(f"Added: {new_fg.display_name}", success=True)
-            except ServiceError as e:
-                handle_error(e, parent=self, operation="Add finished good")
-                self._update_status("Failed to add finished good", error=True)
-            except Exception as e:
-                handle_error(e, parent=self, operation="Add finished good")
-                self._update_status("Failed to add finished good", error=True)
-
-    def _get_assembly_type_from_value(self, value: str) -> AssemblyType:
-        """Convert assembly type value string to AssemblyType enum."""
-        value_map = {
-            "bare": AssemblyType.BARE,
-            "custom_order": AssemblyType.CUSTOM_ORDER,
-            "gift_box": AssemblyType.GIFT_BOX,
-            "variety_pack": AssemblyType.VARIETY_PACK,
-            "holiday_set": AssemblyType.HOLIDAY_SET,
-            "bulk_pack": AssemblyType.BULK_PACK,
-        }
-        return value_map.get(value.lower(), AssemblyType.BARE)
+            show_success(
+                "Success",
+                f"Finished good '{result['display_name']}' created successfully",
+                parent=self,
+            )
+            self.refresh()
+            self._update_status(f"Created: {result['display_name']}", success=True)
 
     def _edit_finished_good(self):
-        """Show dialog to edit the selected finished good."""
+        """Show builder dialog to edit the selected finished good."""
         if not self.selected_finished_good:
             return
 
         try:
-            # Reload finished good to avoid lazy loading issues
-            fg = finished_good_service.get_finished_good_by_id(self.selected_finished_good.id)
-
-            dialog = FinishedGoodFormDialog(
-                self,
-                finished_good=fg,
-                title=f"Edit: {fg.display_name}",
+            fg = finished_good_service.get_finished_good_by_id(
+                self.selected_finished_good.id
             )
-            self.wait_window(dialog)
-            result = dialog.result
         except ServiceError as e:
             handle_error(e, parent=self, operation="Load finished good for editing")
             return
-        except Exception as e:
-            handle_error(e, parent=self, operation="Load finished good for editing")
-            return
+
+        dialog = FinishedGoodBuilderDialog(self, finished_good=fg)
+        self.wait_window(dialog)
+        result = dialog.result
 
         if result:
-            try:
-                # Extract components from result
-                components = result.pop("components", [])
-
-                # Map assembly_type string to enum
-                assembly_type_str = result.pop("assembly_type", "custom_order")
-                assembly_type = self._get_assembly_type_from_value(assembly_type_str)
-
-                # Update finished good
-                updated_fg = finished_good_service.update_finished_good(
-                    self.selected_finished_good.id,
-                    display_name=result.get("display_name"),
-                    assembly_type=assembly_type,
-                    packaging_instructions=result.get("packaging_instructions"),
-                    notes=result.get("notes"),
-                    components=components,
-                )
-
-                show_success(
-                    "Success",
-                    f"Finished good '{updated_fg.display_name}' updated successfully",
-                    parent=self,
-                )
-                self.refresh()
-                self._update_status(f"Updated: {updated_fg.display_name}", success=True)
-            except ServiceError as e:
-                handle_error(e, parent=self, operation="Update finished good")
-                self._update_status("Failed to update finished good", error=True)
-            except Exception as e:
-                handle_error(e, parent=self, operation="Update finished good")
-                self._update_status("Failed to update finished good", error=True)
+            show_success(
+                "Success",
+                f"Finished good '{result['display_name']}' updated successfully",
+                parent=self,
+            )
+            self.refresh()
+            self._update_status(f"Updated: {result['display_name']}", success=True)
 
     def _delete_finished_good(self):
         """Delete the selected finished good after confirmation."""
@@ -629,7 +564,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
             if finished_goods:
                 self._update_status(f"Loaded {len(finished_goods)} finished good(s)")
             else:
-                self._update_status("No finished goods found. Click '+ Add Finished Good' to create one.")
+                self._update_status("No finished goods found. Click '+ Create Finished Good' to create one.")
         except ServiceError as e:
             handle_error(e, parent=self, operation="Load finished goods")
             self._update_status("Failed to load finished goods", error=True)
