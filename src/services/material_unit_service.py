@@ -28,7 +28,9 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..models import (
+    Material,
     MaterialProduct,
+    MaterialSubcategory,
     MaterialUnit,
     MaterialUnitSnapshot,
     Composition,
@@ -315,7 +317,10 @@ def _list_units_impl(
     # Feature 085: Eager load relationships when needed for UI display
     if include_relationships:
         query = query.options(
-            joinedload(MaterialUnit.material_product).joinedload(MaterialProduct.material)
+            joinedload(MaterialUnit.material_product)
+            .joinedload(MaterialProduct.material)
+            .joinedload(Material.subcategory)
+            .joinedload(MaterialSubcategory.category)
         )
 
     if material_product_id is not None:
