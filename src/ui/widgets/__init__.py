@@ -28,6 +28,7 @@ from src.ui.widgets.dropdown_builders import (
     STAR_PREFIX,
 )
 from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
+from src.ui.widgets.accordion_step import AccordionStep
 
 __all__ = [
     # Base widget
@@ -58,4 +59,6 @@ __all__ = [
     "STAR_PREFIX",
     # Feature 031 widgets
     "IngredientTreeWidget",
+    # Feature 097 widgets
+    "AccordionStep",
 ]
