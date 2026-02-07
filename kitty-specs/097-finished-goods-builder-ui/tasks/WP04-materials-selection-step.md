@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Materials Selection Step
+lane: "doing"
+dependencies: [WP03]
+base_branch: 097-finished-goods-builder-ui-WP03
+base_commit: dc88d9df821188a2edab7ff87369ebf920e30f67
+created_at: '2026-02-07T00:28:24.554404+00:00'
 subtasks:
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-title: "Materials Selection Step"
-phase: "Phase B - Step Implementation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T016
+- T017
+- T018
+- T019
+- T020
+phase: Phase B - Step Implementation
+assignee: ''
+agent: ''
+shell_pid: "29671"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T23:51:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T23:51:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 -- Materials Selection Step
