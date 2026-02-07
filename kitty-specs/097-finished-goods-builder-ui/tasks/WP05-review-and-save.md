@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Review & Save (Create Mode)
-lane: "doing"
+lane: "for_review"
 dependencies: [WP04]
 base_branch: 097-finished-goods-builder-ui-WP04
 base_commit: f8941c4e075f34fceb85767f384ed7789063c40a
@@ -272,3 +272,4 @@ history:
 
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
 - 2026-02-07T00:35:17Z – claude-opus – shell_pid=31568 – lane=doing – Assigned agent via workflow command
+- 2026-02-07T00:43:31Z – claude-opus – shell_pid=31568 – lane=for_review – Ready for review: Review & Save step with component summary, name validation, notes/tags, save with error handling. 50 tests pass, lint clean.
