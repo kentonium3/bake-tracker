@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Tab Integration & Polish
+lane: "doing"
+dependencies: [WP06]
+base_branch: 097-finished-goods-builder-ui-WP06
+base_commit: 8a0fc0ded00f910027a9383b5efc42c56cef54ab
+created_at: '2026-02-07T00:49:54.543369+00:00'
 subtasks:
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-title: "Tab Integration & Polish"
-phase: "Phase D - Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP06"]
+- T032
+- T033
+- T034
+- T035
+- T036
+phase: Phase D - Polish
+assignee: ''
+agent: ''
+shell_pid: "34512"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-06T23:51:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-06T23:51:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 -- Tab Integration & Polish
