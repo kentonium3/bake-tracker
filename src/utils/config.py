@@ -10,6 +10,7 @@ This module handles:
 
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -69,8 +70,8 @@ class Config:
             # Use project data/ directory for development
             self._base_dir = self._get_project_data_dir()
         else:
-            # Use user's Documents folder for production
-            self._base_dir = self._get_user_documents_dir()
+            # Use platform-specific app data dir (NOT Documents — iCloud sync corrupts SQLite WAL)
+            self._base_dir = self._get_app_data_dir()
 
         # Database configuration
         self._database_dir = self._base_dir
@@ -91,23 +92,25 @@ class Config:
         data_dir = project_root / "data"
         return data_dir
 
-    def _get_user_documents_dir(self) -> Path:
+    def _get_app_data_dir(self) -> Path:
         """
-        Get the user's Documents directory for production.
+        Get the platform-specific app data directory for production.
+
+        Uses directories that are NOT synced by cloud services (iCloud, OneDrive)
+        to prevent SQLite WAL corruption from cloud sync interference.
 
         Returns:
-            Path to user's Documents folder with app subdirectory
+            Path to app data directory
         """
-        # Try to get user's Documents folder
-        if os.name == "nt":  # Windows
-            # Try to get Documents folder from Windows
-            documents = Path(os.path.expanduser("~")) / "Documents"
-        else:  # Linux/Mac
-            documents = Path.home() / "Documents"
-
-        # Create app-specific subdirectory
-        app_dir = documents / "BakeTracker"
-        return app_dir
+        if sys.platform == "darwin":
+            return Path.home() / "Library" / "Application Support" / "BakeTracker"
+        elif os.name == "nt":
+            app_data = os.environ.get("APPDATA")
+            if app_data:
+                return Path(app_data) / "BakeTracker"
+            return Path.home() / "AppData" / "Roaming" / "BakeTracker"
+        else:
+            return Path.home() / ".local" / "share" / "BakeTracker"
 
     def _ensure_directories(self):
         """Create necessary directories if they don't exist."""

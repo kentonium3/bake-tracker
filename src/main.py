@@ -27,9 +27,12 @@ def check_database_environment():
 
     Warns if the current database is empty but the alternate environment
     has data, which could indicate data was written to the wrong location.
+    Also checks the legacy Documents path for databases from before the
+    iCloud-safe migration.
     """
     import sqlite3
     from pathlib import Path
+    from src.utils.constants import DATABASE_FILENAME
 
     config = get_config()
     current_db = config.database_path
@@ -81,6 +84,22 @@ def check_database_environment():
         print(f"\n  To use {alt_env} mode, set BAKING_TRACKER_ENV={alt_env}")
         print(f"  Or import data from: test_data/sample_data.json")
         print("=" * 60 + "\n")
+
+    # Check legacy Documents path (pre-iCloud-safe migration)
+    if current_env == "production":
+        legacy_db = Path.home() / "Documents" / "BakeTracker" / DATABASE_FILENAME
+        if legacy_db.exists() and legacy_db != current_db:
+            legacy_count = get_row_count(legacy_db)
+            if legacy_count > 0 and current_count == 0:
+                print("\n" + "=" * 60)
+                print("MIGRATION NOTICE: Database found at legacy location!")
+                print(f"  Legacy (iCloud-synced): {legacy_db} ({legacy_count} records)")
+                print(f"  New (safe) location:    {current_db}")
+                print("")
+                print("  The database was moved out of ~/Documents to prevent")
+                print("  iCloud Drive from corrupting SQLite WAL files.")
+                print("  Import your latest backup to populate the new location.")
+                print("=" * 60 + "\n")
 
 
 def initialize_application():

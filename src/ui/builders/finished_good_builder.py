@@ -9,7 +9,6 @@ Three-step accordion workflow:
 Feature 097: Finished Goods Builder UI
 """
 
-import re
 from typing import Dict, List, Optional
 
 import customtkinter as ctk
@@ -83,7 +82,6 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self.notes_text: Optional[ctk.CTkTextbox] = None
         self._tags_entry: Optional[ctk.CTkEntry] = None
         self._save_error_label: Optional[ctk.CTkLabel] = None
-        self._name_error_label: Optional[ctk.CTkLabel] = None
 
         self._create_widgets()
         self._set_initial_state()
@@ -123,13 +121,6 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         self.name_entry.pack(side="left", fill="x", expand=True, padx=(0, 10), pady=8)
         self.name_entry.bind("<KeyRelease>", self._on_name_change)
-        self.name_entry.bind("<FocusOut>", self._validate_name_uniqueness)
-
-        # Name uniqueness error label (below name entry)
-        self._name_error_label = ctk.CTkLabel(
-            self.name_frame, text="", text_color="red", anchor="w"
-        )
-        self._name_error_label.pack(side="left", padx=(5, 0), pady=8)
 
         # -- Assembly type selector (Bare / Bundle) --
         self.type_frame = ctk.CTkFrame(self)
@@ -708,7 +699,6 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         if self._tags_entry:
             self._tags_entry.delete(0, "end")
         self._clear_save_error()
-        self._clear_name_error()
 
     @property
     def food_selections(self) -> Dict[str, Dict]:
@@ -1081,46 +1071,6 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._clear_save_error()
 
     # =========================================================================
-    # Name validation
-    # =========================================================================
-
-    def _validate_name_uniqueness(self, event=None) -> bool:
-        """Check if the name generates a unique slug. Returns True if valid."""
-        name = self.name_entry.get().strip()
-        if not name:
-            self._clear_name_error()
-            return True
-
-        slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-        try:
-            existing = finished_good_service.get_finished_good_by_slug(slug)
-            # If editing, allow the same FG's slug
-            if self._is_edit_mode and self._finished_good:
-                if existing.id == self._finished_good.id:
-                    self._clear_name_error()
-                    return True
-            self._show_name_error("Name already exists")
-            return False
-        except Exception:
-            # Not found = unique (good)
-            self._clear_name_error()
-            return True
-
-    def _show_name_error(self, message: str) -> None:
-        """Show error on name field."""
-        if self._name_error_label:
-            self._name_error_label.configure(text=message)
-        self.name_entry.configure(border_color="red")
-
-    def _clear_name_error(self) -> None:
-        """Clear name field error."""
-        if self._name_error_label:
-            self._name_error_label.configure(text="")
-        # Reset to default theme border color
-        default_color = ctk.ThemeManager.theme["CTkEntry"]["border_color"]
-        self.name_entry.configure(border_color=default_color)
-
-    # =========================================================================
     # Tags generation
     # =========================================================================
 
@@ -1184,10 +1134,6 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         name = self.name_entry.get().strip()
         if not name:
             self._show_save_error("Name is required")
-            return
-
-        if not self._validate_name_uniqueness():
-            self._show_save_error("A finished good with this name already exists")
             return
 
         components = self._build_component_list()

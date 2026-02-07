@@ -239,9 +239,11 @@ class TestGetProductionProgress:
 class TestGetAssemblyProgress:
     """Tests for get_assembly_progress() function."""
 
+    @patch("src.services.planning.progress.feasibility")
     @patch("src.services.planning.progress.event_service")
-    def test_zero_assembled(self, mock_event_service):
+    def test_zero_assembled(self, mock_event_service, mock_feasibility):
         """Test 0/50 assembled = 0%."""
+        mock_feasibility.check_assembly_feasibility.return_value = []
         mock_event_service.get_assembly_progress.return_value = [
             {
                 "finished_good_id": 1,
@@ -262,9 +264,11 @@ class TestGetAssemblyProgress:
         assert result[0].progress_percent == 0.0
         assert result[0].is_complete is False
 
+    @patch("src.services.planning.progress.feasibility")
     @patch("src.services.planning.progress.event_service")
-    def test_partial_assembled(self, mock_event_service):
+    def test_partial_assembled(self, mock_event_service, mock_feasibility):
         """Test 25/50 assembled = 50%."""
+        mock_feasibility.check_assembly_feasibility.return_value = []
         mock_event_service.get_assembly_progress.return_value = [
             {
                 "finished_good_id": 1,
@@ -283,9 +287,11 @@ class TestGetAssemblyProgress:
         assert result[0].progress_percent == 50.0
         assert result[0].is_complete is False
 
+    @patch("src.services.planning.progress.feasibility")
     @patch("src.services.planning.progress.event_service")
-    def test_complete_assembled(self, mock_event_service):
+    def test_complete_assembled(self, mock_event_service, mock_feasibility):
         """Test 50/50 assembled = 100%, is_complete=True."""
+        mock_feasibility.check_assembly_feasibility.return_value = []
         mock_event_service.get_assembly_progress.return_value = [
             {
                 "finished_good_id": 1,
@@ -304,18 +310,22 @@ class TestGetAssemblyProgress:
         assert result[0].progress_percent == 100.0
         assert result[0].is_complete is True
 
+    @patch("src.services.planning.progress.feasibility")
     @patch("src.services.planning.progress.event_service")
-    def test_no_assembly_targets(self, mock_event_service):
+    def test_no_assembly_targets(self, mock_event_service, mock_feasibility):
         """Test empty result when no assembly targets."""
+        mock_feasibility.check_assembly_feasibility.return_value = []
         mock_event_service.get_assembly_progress.return_value = []
 
         result = get_assembly_progress(event_id=1)
 
         assert result == []
 
+    @patch("src.services.planning.progress.feasibility")
     @patch("src.services.planning.progress.event_service")
-    def test_available_to_assemble_defaults_to_zero(self, mock_event_service):
+    def test_available_to_assemble_defaults_to_zero(self, mock_event_service, mock_feasibility):
         """Test that available_to_assemble defaults to 0."""
+        mock_feasibility.check_assembly_feasibility.return_value = []
         mock_event_service.get_assembly_progress.return_value = [
             {
                 "finished_good_id": 1,
