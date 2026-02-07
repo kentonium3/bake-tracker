@@ -523,6 +523,10 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         target_step.expand()
         self._has_changes = True
 
+        # Populate content when entering a step
+        if step_number == 2:
+            self._on_material_filter_changed()
+
     # =========================================================================
     # Dialog controls
     # =========================================================================
