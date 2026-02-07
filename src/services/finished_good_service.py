@@ -177,27 +177,43 @@ class FinishedGoodService:
             raise DatabaseError(f"Failed to retrieve FinishedGood by slug: {e}")
 
     @staticmethod
-    def get_all_finished_goods() -> List[FinishedGood]:
+    def get_all_finished_goods(
+        name_search: Optional[str] = None,
+        assembly_type: Optional[AssemblyType] = None,
+    ) -> List[FinishedGood]:
         """
-        Retrieve all FinishedGood assemblies.
+        Retrieve all FinishedGood assemblies with optional filtering.
 
         Transaction boundary: Read-only operation.
         Queries FinishedGood table with components eager loaded.
 
+        Args:
+            name_search: Optional substring filter on display_name (case-insensitive)
+            assembly_type: Optional filter by AssemblyType
+
         Returns:
-            List of all FinishedGood instances
+            List of matching FinishedGood instances
 
         Performance:
             Must complete in <300ms for up to 1000 assemblies per contract
         """
         try:
             with get_db_session() as session:
-                finished_goods = (
+                query = (
                     session.query(FinishedGood)
                     .options(selectinload(FinishedGood.components))
-                    .order_by(FinishedGood.display_name)
-                    .all()
                 )
+
+                if name_search:
+                    query = query.filter(
+                        FinishedGood.display_name.ilike(f"%{name_search}%")
+                    )
+                if assembly_type is not None:
+                    query = query.filter(
+                        FinishedGood.assembly_type == assembly_type
+                    )
+
+                finished_goods = query.order_by(FinishedGood.display_name).all()
 
                 logger.debug(f"Retrieved {len(finished_goods)} FinishedGoods")
                 return finished_goods
@@ -1887,9 +1903,14 @@ def get_finished_good_by_slug(slug: str) -> FinishedGood:
     return FinishedGoodService.get_finished_good_by_slug(slug)
 
 
-def get_all_finished_goods() -> List[FinishedGood]:
-    """Retrieve all FinishedGoods."""
-    return FinishedGoodService.get_all_finished_goods()
+def get_all_finished_goods(
+    name_search: Optional[str] = None,
+    assembly_type: Optional[AssemblyType] = None,
+) -> List[FinishedGood]:
+    """Retrieve all FinishedGoods with optional filtering."""
+    return FinishedGoodService.get_all_finished_goods(
+        name_search=name_search, assembly_type=assembly_type
+    )
 
 
 def create_finished_good(
