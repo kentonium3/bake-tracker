@@ -1482,6 +1482,7 @@ def _import_complete_impl(
         from src.models.inventory_item import InventoryItem
         from src.models.material import Material
         from src.models.material_category import MaterialCategory
+        from src.models.recipe_category import RecipeCategory
         from src.models.material_subcategory import MaterialSubcategory
         from src.models.material_product import MaterialProduct
         from src.models.material_unit import MaterialUnit
@@ -1521,6 +1522,7 @@ def _import_complete_impl(
         # Feature 081: Delete RecipeSnapshot BEFORE Recipe (FK constraint)
         session.query(RecipeSnapshot).delete()
         session.query(Recipe).delete()
+        session.query(RecipeCategory).delete()
         session.query(Product).delete()
         session.query(Ingredient).delete()
         session.query(Supplier).delete()

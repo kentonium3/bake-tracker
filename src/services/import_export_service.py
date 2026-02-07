@@ -2103,6 +2103,7 @@ def _clear_all_tables(session) -> None:
         session: SQLAlchemy session
     """
     from src.models.recipe import Recipe, RecipeIngredient
+    from src.models.recipe_category import RecipeCategory
     from src.models.event import Event, EventRecipientPackage
     from src.models.recipient import Recipient
 
@@ -2127,6 +2128,7 @@ def _clear_all_tables(session) -> None:
         FinishedUnit,
         RecipeIngredient,
         Recipe,
+        RecipeCategory,
         InventoryItem,
         Purchase,
         Product,
