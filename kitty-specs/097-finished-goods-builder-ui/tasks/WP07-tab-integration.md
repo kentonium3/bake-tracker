@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Tab Integration & Polish
-lane: "for_review"
+lane: "done"
 dependencies: [WP06]
 base_branch: 097-finished-goods-builder-ui-WP06
 base_commit: 8a0fc0ded00f910027a9383b5efc42c56cef54ab
@@ -16,8 +16,8 @@ phase: Phase D - Polish
 assignee: ''
 agent: "claude-opus"
 shell_pid: "34512"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned
@@ -233,3 +233,4 @@ history:
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
 - 2026-02-07T00:49:55Z – claude-opus – shell_pid=34512 – lane=doing – Assigned agent via workflow command
 - 2026-02-07T00:54:00Z – claude-opus – shell_pid=34512 – lane=for_review – Ready for review: Tab integration complete. FinishedGoodBuilderDialog replaces FinishedGoodFormDialog for create and edit. Button renamed. 65 tests pass.
+- 2026-02-07T00:55:41Z – claude-opus – shell_pid=34512 – lane=done – Review passed: all 10 checklist items verified. 65/65 tests pass. C901 on _view_details is pre-existing.
