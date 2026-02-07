@@ -1,4 +1,4 @@
-"""Tests for the FinishedGoodBuilderDialog shell, navigation, and food selection."""
+"""Tests for the FinishedGoodBuilderDialog: shell, navigation, food selection, materials."""
 
 import os
 import sys
@@ -65,6 +65,30 @@ def _make_mock_composition(finished_unit_id=None, finished_good_id=None, fu_cate
     return comp
 
 
+def _make_mock_material_unit(unit_id, name, product_name, category_name,
+                             is_hidden=False):
+    """Create a mock MaterialUnit with full relationship chain."""
+    category = MagicMock()
+    category.name = category_name
+
+    subcategory = MagicMock()
+    subcategory.category = category
+
+    material = MagicMock()
+    material.subcategory = subcategory
+
+    product = MagicMock()
+    product.name = product_name
+    product.material = material
+    product.is_hidden = is_hidden
+
+    unit = MagicMock()
+    unit.id = unit_id
+    unit.name = name
+    unit.material_product = product
+    return unit
+
+
 @pytest.fixture
 def mock_services():
     """Mock the service calls used by the builder dialog."""
@@ -72,11 +96,17 @@ def mock_services():
         "src.ui.builders.finished_good_builder.finished_good_service"
     ) as mock_fg_svc, patch(
         "src.ui.builders.finished_good_builder.finished_unit_service"
-    ) as mock_fu_svc:
+    ) as mock_fu_svc, patch(
+        "src.ui.builders.finished_good_builder.material_catalog_service"
+    ) as mock_mat_cat_svc, patch(
+        "src.ui.builders.finished_good_builder.material_unit_service"
+    ) as mock_mat_unit_svc:
         # Default: no items
         mock_fg_svc.get_all_finished_goods.return_value = []
         mock_fu_svc.get_all_finished_units.return_value = []
-        yield mock_fg_svc, mock_fu_svc
+        mock_mat_cat_svc.list_categories.return_value = []
+        mock_mat_unit_svc.list_units.return_value = []
+        yield mock_fg_svc, mock_fu_svc, mock_mat_cat_svc, mock_mat_unit_svc
 
 
 class TestDialogCreation:
@@ -206,7 +236,9 @@ class TestDialogControls:
         dialog._food_selections["finished_unit:1"] = {
             "type": "finished_unit", "id": 1, "display_name": "Test", "quantity": 2
         }
-        dialog.material_selections[5] = 3
+        dialog._material_selections[5] = {
+            "id": 5, "name": "Red Ribbon", "quantity": 3
+        }
         dialog.advance_to_step(2, "3 items")
         dialog.advance_to_step(3, "2 materials")
 
@@ -276,7 +308,7 @@ class TestFoodQuery:
 
     def test_food_query_bare_only(self, ctk_root, mock_services):
         """Bare Items Only filter returns only BARE FinishedGoods."""
-        mock_fg_svc, mock_fu_svc = mock_services
+        mock_fg_svc, mock_fu_svc, _, _ = mock_services
         bare_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Cookie Box", "bare", components=[bare_comp]),
@@ -300,7 +332,7 @@ class TestFoodQuery:
 
     def test_food_query_include_assemblies(self, ctk_root, mock_services):
         """All filter returns both BARE and non-BARE items."""
-        mock_fg_svc, mock_fu_svc = mock_services
+        mock_fg_svc, mock_fu_svc, _, _ = mock_services
         bare_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Cookie Box", "bare", components=[bare_comp]),
@@ -319,7 +351,7 @@ class TestFoodQuery:
 
     def test_food_query_category_filter(self, ctk_root, mock_services):
         """Category filter narrows results to matching category."""
-        mock_fg_svc, mock_fu_svc = mock_services
+        mock_fg_svc, mock_fu_svc, _, _ = mock_services
         cookie_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
         cake_comp = _make_mock_composition(finished_unit_id=11, fu_category="Cakes")
         mock_fg_svc.get_all_finished_goods.return_value = [
@@ -339,7 +371,7 @@ class TestFoodQuery:
 
     def test_food_query_search_filter(self, ctk_root, mock_services):
         """Search filter matches display_name case-insensitively."""
-        mock_fg_svc, _ = mock_services
+        mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Chocolate Chip Cookies", "gift_box"),
             _make_mock_fg(2, "Vanilla Cake Set", "gift_box"),
@@ -358,7 +390,7 @@ class TestFoodQuery:
 
     def test_assembly_fg_uses_finished_good_comp_type(self, ctk_root, mock_services):
         """Non-BARE FinishedGood should use finished_good as comp_type."""
-        mock_fg_svc, _ = mock_services
+        mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(5, "Holiday Gift Box", "gift_box"),
         ]
@@ -379,7 +411,7 @@ class TestFoodSelectionState:
 
     def test_food_selection_persists_across_filter(self, ctk_root, mock_services):
         """Selections persist when filter changes."""
-        mock_fg_svc, _ = mock_services
+        mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Item A", "gift_box"),
             _make_mock_fg(2, "Item B", "gift_box"),
@@ -403,7 +435,7 @@ class TestFoodSelectionState:
 
     def test_food_selection_restored_in_rendered_list(self, ctk_root, mock_services):
         """When list re-renders, previously selected items show as checked."""
-        mock_fg_svc, _ = mock_services
+        mock_fg_svc, *_ = mock_services
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Item A", "gift_box"),
         ]
@@ -483,3 +515,190 @@ class TestFoodValidation:
         assert FinishedGoodBuilderDialog._parse_quantity("1000") == 999
         assert FinishedGoodBuilderDialog._parse_quantity("") == 1
         assert FinishedGoodBuilderDialog._parse_quantity("abc") == 1
+
+
+class TestMaterialQuery:
+    """Tests for material item querying and filtering (T017)."""
+
+    def test_material_query_all(self, ctk_root, mock_services):
+        """All MaterialUnits returned with no filter."""
+        _, _, mock_mat_cat_svc, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "6in Red Ribbon", "Red Satin", "Ribbons"),
+            _make_mock_material_unit(2, "Small Gold Box", "Gold Box", "Boxes"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._mat_category_var.set("All Categories")
+        dialog._mat_search_var.set("")
+        items = dialog._query_material_items()
+
+        assert len(items) == 2
+        assert items[0]["name"] == "6in Red Ribbon"
+        assert items[1]["name"] == "Small Gold Box"
+        dialog.destroy()
+
+    def test_material_query_category_filter(self, ctk_root, mock_services):
+        """MaterialCategory filter narrows results."""
+        _, _, mock_mat_cat_svc, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "6in Red Ribbon", "Red Satin", "Ribbons"),
+            _make_mock_material_unit(2, "Small Gold Box", "Gold Box", "Boxes"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._mat_category_var.set("Ribbons")
+        items = dialog._query_material_items()
+
+        assert len(items) == 1
+        assert items[0]["name"] == "6in Red Ribbon"
+        assert items[0]["category_name"] == "Ribbons"
+        dialog.destroy()
+
+    def test_material_query_search(self, ctk_root, mock_services):
+        """Name search filters MaterialUnits case-insensitively."""
+        _, _, _, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "6in Red Ribbon", "Red Satin", "Ribbons"),
+            _make_mock_material_unit(2, "Small Gold Box", "Gold Box", "Boxes"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._mat_category_var.set("All Categories")
+        dialog._mat_search_var.set("gold")
+        items = dialog._query_material_items()
+
+        assert len(items) == 1
+        assert items[0]["name"] == "Small Gold Box"
+        dialog.destroy()
+
+    def test_material_query_hidden_excluded(self, ctk_root, mock_services):
+        """Hidden MaterialProducts are excluded."""
+        _, _, _, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "Visible Unit", "Prod A", "Cat A"),
+            _make_mock_material_unit(
+                2, "Hidden Unit", "Prod B", "Cat A", is_hidden=True
+            ),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        items = dialog._query_material_items()
+
+        assert len(items) == 1
+        assert items[0]["name"] == "Visible Unit"
+        dialog.destroy()
+
+
+class TestMaterialSelectionState:
+    """Tests for material selection state management (T018, T019)."""
+
+    def test_material_selection_persists_across_filter(self, ctk_root, mock_services):
+        """Material selections persist when filter changes."""
+        _, _, _, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "Red Ribbon", "Red Satin", "Ribbons"),
+            _make_mock_material_unit(2, "Gold Box", "Gold Box", "Boxes"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        # Manually add a selection
+        dialog._material_selections[1] = {
+            "id": 1, "name": "Red Ribbon", "quantity": 5,
+        }
+
+        # Re-render (simulates filter change)
+        dialog._on_material_filter_changed()
+
+        assert 1 in dialog._material_selections
+        assert dialog._material_selections[1]["quantity"] == 5
+        dialog.destroy()
+
+    def test_materials_skip_advances_to_step_3(self, ctk_root, mock_services):
+        """Skip clears material selections and advances to step 3."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+        from src.ui.widgets.accordion_step import STATE_ACTIVE, STATE_COMPLETED
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.advance_to_step(2, "3 items")
+        # Add accidental selection
+        dialog._material_selections[1] = {
+            "id": 1, "name": "Ribbon", "quantity": 2,
+        }
+
+        dialog._on_materials_skip()
+
+        assert len(dialog._material_selections) == 0
+        assert dialog.step2.state == STATE_COMPLETED
+        assert dialog.step3.state == STATE_ACTIVE
+        assert "No materials" in dialog.step2._summary_label.cget("text")
+        dialog.destroy()
+
+    def test_materials_continue_with_selections(self, ctk_root, mock_services):
+        """Continue with selections advances to step 3 with correct summary."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+        from src.ui.widgets.accordion_step import STATE_ACTIVE, STATE_COMPLETED
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.advance_to_step(2, "3 items")
+        dialog._material_selections[1] = {
+            "id": 1, "name": "Ribbon", "quantity": 2,
+        }
+        dialog._material_selections[2] = {
+            "id": 2, "name": "Box", "quantity": 1,
+        }
+
+        dialog._on_materials_continue()
+
+        assert dialog.step2.state == STATE_COMPLETED
+        assert dialog.step3.state == STATE_ACTIVE
+        assert "2 materials" in dialog.step2._summary_label.cget("text")
+        assert len(dialog._material_selections) == 2
+        dialog.destroy()
+
+    def test_materials_continue_empty_same_as_skip(self, ctk_root, mock_services):
+        """Continue with no selections behaves like Skip."""
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+        from src.ui.widgets.accordion_step import STATE_ACTIVE, STATE_COMPLETED
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog.advance_to_step(2, "3 items")
+
+        dialog._on_materials_continue()
+
+        assert dialog.step2.state == STATE_COMPLETED
+        assert dialog.step3.state == STATE_ACTIVE
+        assert "No materials" in dialog.step2._summary_label.cget("text")
+        dialog.destroy()
+
+    def test_material_selection_restored_in_rendered_list(
+        self, ctk_root, mock_services
+    ):
+        """When material list re-renders, previously selected items show checked."""
+        _, _, _, mock_mat_unit_svc = mock_services
+        mock_mat_unit_svc.list_units.return_value = [
+            _make_mock_material_unit(1, "Red Ribbon", "Red Satin", "Ribbons"),
+        ]
+
+        from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
+
+        dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._material_selections[1] = {
+            "id": 1, "name": "Red Ribbon", "quantity": 3,
+        }
+
+        dialog._on_material_filter_changed()
+
+        assert 1 in dialog._mat_check_vars
+        assert dialog._mat_check_vars[1].get() == "1"
+        dialog.destroy()
