@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Food Selection Step
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 097-finished-goods-builder-ui-WP02
 base_commit: 2ee0f735330f610e0e5a20f50351289422a882a6
@@ -248,3 +248,4 @@ history:
 
 - 2026-02-06T23:51:59Z -- system -- lane=planned -- Prompt created.
 - 2026-02-07T00:19:42Z – claude-opus – shell_pid=27248 – lane=doing – Assigned agent via workflow command
+- 2026-02-07T00:23:44Z – claude-opus – shell_pid=27248 – lane=for_review – Ready for review: Food selection step with category/type/search filters, multi-select with quantities, global selection persistence, validation, 26 tests (49 total)
