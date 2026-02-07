@@ -120,11 +120,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T016 Create materials selection content panel with filter bar UI (MaterialCategory dropdown, search entry)
-- [ ] T017 Implement data query for MaterialUnits with MaterialCategory filtering and search
-- [ ] T018 Implement scrollable checkbox list with per-item quantity entries (reuse pattern from WP03)
-- [ ] T019 Implement Skip button and optional step completion logic
-- [ ] T020 Write unit tests for materials selection and skip functionality
+- [x] T016 Create materials selection content panel with filter bar UI (MaterialCategory dropdown, search entry)
+- [x] T017 Implement data query for MaterialUnits with MaterialCategory filtering and search
+- [x] T018 Implement scrollable checkbox list with per-item quantity entries (reuse pattern from WP03)
+- [x] T019 Implement Skip button and optional step completion logic
+- [x] T020 Write unit tests for materials selection and skip functionality
 
 ### Implementation Notes
 - MaterialUnits (not MaterialProducts) are the selectable items — Composition stores `material_unit_id`
