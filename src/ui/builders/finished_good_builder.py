@@ -45,7 +45,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             if not finished_good
             else f"Edit: {finished_good.display_name}"
         )
-        self.geometry("700x750")
+        self.geometry("700x620")
         self.minsize(600, 600)
         self.resizable(True, True)
         self.transient(parent)
@@ -336,7 +336,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._food_search_entry.bind("<KeyRelease>", lambda _: self._on_food_filter_changed())
 
         # -- Scrollable item list --
-        self._food_item_list_frame = ctk.CTkScrollableFrame(content, height=250)
+        self._food_item_list_frame = ctk.CTkScrollableFrame(content, height=180)
         self._food_item_list_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         # -- Error label (hidden by default) --
@@ -760,7 +760,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
 
         # -- Scrollable item list --
-        self._mat_item_list_frame = ctk.CTkScrollableFrame(content, height=250)
+        self._mat_item_list_frame = ctk.CTkScrollableFrame(content, height=180)
         self._mat_item_list_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         # -- Button frame: Skip (left) and Continue (right) --
@@ -957,7 +957,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
 
         # -- Component summary (scrollable) --
         self._review_summary_frame = ctk.CTkScrollableFrame(
-            content, height=200
+            content, height=140
         )
         self._review_summary_frame.pack(
             fill="both", expand=True, padx=5, pady=(5, 2)
@@ -975,7 +975,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         notes_label.pack(fill="x", padx=10, pady=(5, 0), anchor="w")
 
-        self.notes_text = ctk.CTkTextbox(content, height=80)
+        self.notes_text = ctk.CTkTextbox(content, height=50)
         self.notes_text.pack(fill="x", padx=10, pady=(2, 5))
 
         # -- Tags section --
