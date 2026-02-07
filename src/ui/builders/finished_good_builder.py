@@ -16,7 +16,6 @@ import customtkinter as ctk
 from src.ui.widgets.accordion_step import (
     AccordionStep,
     STATE_ACTIVE,
-    STATE_COMPLETED,
     STATE_LOCKED,
 )
 from src.ui.widgets.dialogs import show_confirmation
