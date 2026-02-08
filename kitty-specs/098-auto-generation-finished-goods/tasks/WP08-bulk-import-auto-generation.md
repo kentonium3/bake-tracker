@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Bulk Import Auto-Generation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -204,3 +204,4 @@ Extend bulk recipe import to auto-generate FinishedUnit + bare FinishedGood pair
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T19:51:08Z – unknown – shell_pid=53895 – lane=for_review – All subtasks complete. 12 new tests, 3611 total passing. Extends FU import with yield_type field and auto-creates bare FGs for EA FUs. Export also updated for round-trip.
