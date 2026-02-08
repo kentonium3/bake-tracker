@@ -4,5 +4,7 @@
   "friendly_name": "Auto-Generation of Finished Goods from Finished Units",
   "mission": "software-dev",
   "source_description": "See docs/func-spec/F098_auto_generation_finished_goods.md for this feature inputs. Follow instructions in docs/func-spec/claude-pre-implementation-prompt.md.",
-  "created_at": "2026-02-08T00:00:00Z"
+  "created_at": "2026-02-08T00:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-02-08T17:23:18.832320+00:00"
 }
