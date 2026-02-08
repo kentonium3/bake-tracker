@@ -222,7 +222,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T036 Create migration function to identify bare FGs needing conversion
+- [x] T036 Create migration function to identify bare FGs needing conversion
 - [ ] T037 Implement reclassification logic (BUNDLE → BARE for single-FU-component FGs)
 - [ ] T038 Verify/establish 1:1 FU↔FG linkage for existing data
 - [ ] T039 Preserve user metadata during migration (notes, custom attributes)
