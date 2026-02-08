@@ -156,7 +156,7 @@
 
 ### Included Subtasks
 - [x] T025 Create assembly reference check function in `finished_good_service.py`
-- [ ] T026 Create `cascade_delete_bare_fg()` function
+- [x] T026 Create `cascade_delete_bare_fg()` function
 - [ ] T027 Integrate cascade delete into `save_recipe_with_yields()` delete path
 - [ ] T028 Implement error message with affected assembly listing
 - [ ] T029 Write tests: clean cascade delete when no assembly references
