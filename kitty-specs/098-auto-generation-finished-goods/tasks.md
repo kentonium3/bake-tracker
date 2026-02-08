@@ -155,7 +155,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T025 Create assembly reference check function in `finished_good_service.py`
+- [x] T025 Create assembly reference check function in `finished_good_service.py`
 - [ ] T026 Create `cascade_delete_bare_fg()` function
 - [ ] T027 Integrate cascade delete into `save_recipe_with_yields()` delete path
 - [ ] T028 Implement error message with affected assembly listing
