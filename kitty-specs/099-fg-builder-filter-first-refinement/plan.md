@@ -1,108 +1,140 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: FG Builder Filter-First Refinement
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `src/specify_cli/missions/software-dev/command-templates/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `099-fg-builder-filter-first-refinement` | **Date**: 2026-02-08 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `kitty-specs/099-fg-builder-filter-first-refinement/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Refine the FinishedGoods Builder dialog to start blank with a filter-first workflow. Replace the current auto-load-all behavior with deferred loading that only queries after the user selects item type ("Finished Units" / "Existing Assemblies" / "Both") and optionally a category. Replace "Bare items only" terminology, enforce that the builder only creates BUNDLE-type assemblies, and block editing of BARE (atomic) FinishedGoods. No schema changes required -- uses existing `assembly_type` enum (BARE/BUNDLE).
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+
+**Primary Dependencies**: CustomTkinter (UI), SQLAlchemy 2.x (ORM)
+**Storage**: SQLite with WAL mode
+**Testing**: pytest
+**Target Platform**: macOS desktop (cross-platform)
+**Project Type**: Single desktop application
+**Performance Goals**: Dialog opens in <200ms; filtered item load <1s
+**Constraints**: Dialog must fit 1080p screens (700x620 current size)
+**Scale/Scope**: Single user, catalog of ~500 FinishedUnits + ~50 assemblies
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. User-Centric Design | PASS | Directly addresses user testing findings (slow load, confusing terminology) |
+| II. Data Integrity | PASS | No data model changes; assembly_type enforcement preserves integrity |
+| III. Future-Proof Schema | PASS | No schema changes needed |
+| IV. Test-Driven Development | PASS | Service-layer query logic testable; UI filter behavior verifiable |
+| V. Layered Architecture | PASS | Query logic stays in services; filter UI in UI layer; no cross-layer violations |
+| VI.A. Error Handling | PASS | Uses existing exception patterns for service calls |
+| VI.C. Dependency Injection | N/A | No new service functions requiring session parameter |
+| VI.D. API Consistency | PASS | Uses existing service APIs with existing filter parameters |
+| VII. Schema Change Strategy | PASS | No schema changes |
+| VIII. Pragmatic Aspiration | PASS | Simplest approach: reuse existing enum instead of adding new field |
+
+No constitution violations. No complexity tracking entries needed.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/099-fg-builder-filter-first-refinement/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output (no schema changes)
+├── spec.md              # Feature specification
+├── checklists/
+│   └── requirements.md  # Quality checklist
+└── tasks/               # Work packages (generated by /spec-kitty.tasks)
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+### Source Code (files to modify)
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── models/
+├── ui/
+│   ├── builders/
+│   │   └── finished_good_builder.py   # PRIMARY: Filter-first UI changes
+│   └── finished_goods_tab.py          # Edit protection check
 ├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+│   ├── finished_good_service.py       # No changes needed (existing filters sufficient)
+│   └── finished_unit_service.py       # No changes needed (existing filters sufficient)
+├── models/
+│   └── assembly_type.py               # No changes needed (BARE/BUNDLE already defined)
 └── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+    └── (new test files for F099)       # Filter logic and edit protection tests
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+## Design Decisions
 
-## Complexity Tracking
+### D1: Use assembly_type Instead of is_assembled
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+The func-spec references `is_assembled=True/False` but the model already has `assembly_type` (AssemblyType enum: BARE/BUNDLE). Using the existing enum avoids a redundant boolean field and schema change. See `research.md#R1`.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+### D2: Modify Builder In-Place
+
+The existing `FinishedGoodBuilderDialog` is well-factored with clear method boundaries. Surgical modifications to `_create_food_step_content()`, `_query_food_items()`, and `_set_initial_state()` are sufficient. No new classes needed. See `research.md#R2`.
+
+### D3: No Service Layer Changes
+
+Existing service methods already support all needed filtering:
+- `get_all_finished_units(name_search=..., category=...)` -- name + category
+- `get_all_finished_goods(name_search=..., assembly_type=...)` -- name + type
+
+Category filtering for FinishedGoods is done in the UI via `_get_fg_category()` which inspects components. This is acceptable for current scale. See `research.md#R3`.
+
+### D4: Filter Change Clears Selections with Warning
+
+When the user has items selected and changes the type or category filter, a confirmation dialog warns them. If confirmed, selections clear and items reload. If cancelled, the filter reverts to its previous value. Requires tracking previous filter values. See `research.md#R6`.
+
+### D5: Edit Protection in Tab, Not Builder
+
+The edit protection check (`assembly_type == BARE`) is added in `finished_goods_tab.py:_edit_finished_good()` before opening the builder dialog. This prevents unnecessary dialog instantiation and shows the message in the correct context. See `research.md#R5`.
+
+## Implementation Approach
+
+### Changes by File
+
+**`src/ui/builders/finished_good_builder.py`** (primary changes):
+
+1. **Blank start**: Remove `_on_food_filter_changed()` call from `_set_initial_state()` (line 213). Add placeholder label in scrollable frame: "Select item type above to see available items."
+
+2. **New filter options**: Change `CTkSegmentedButton` values from `["All", "Bare Items Only"]` to `["Finished Units", "Existing Assemblies", "Both"]`. Default value: none selected (blank start).
+
+3. **Updated query logic**: Modify `_query_food_items()` to map new filter values:
+   - "Finished Units" → query FinishedUnits only (current BARE items behavior)
+   - "Existing Assemblies" → query FinishedGoods where `assembly_type=BUNDLE` only
+   - "Both" → query both FinishedUnits and BUNDLE FinishedGoods
+
+4. **Filter change warning**: Modify `_on_food_filter_changed()` to check for existing selections before reloading. Show confirmation dialog if selections exist.
+
+5. **Track previous filter values**: Add `_prev_food_type` and `_prev_food_category` instance variables for revert-on-cancel.
+
+6. **Category filter behavior**: Category dropdown remains available at all times (not gated behind type selection). This matches the current layout and avoids adding UI complexity for progressive disclosure.
+
+7. **Search debounce**: Add 300ms debounce to search input. Replace `<KeyRelease>` binding with `after()` timer pattern.
+
+**`src/ui/finished_goods_tab.py`**:
+
+1. **Edit protection**: In `_edit_finished_good()`, after loading the FG, check `fg.assembly_type == AssemblyType.BARE`. If true, show info message and return without opening builder.
+
+2. **Double-click protection**: Same check in `_on_row_double_click()`.
+
+**`src/tests/`**:
+
+1. **Filter query logic tests**: Test that `_query_food_items()` returns correct subsets for each filter option.
+2. **Edit protection tests**: Test that BARE FGs are blocked from editing and BUNDLE FGs are allowed.
+3. **Builder creation tests**: Test that all builder-created FGs have `assembly_type=BUNDLE`.
+
+### What This Feature Does NOT Change
+
+- No schema/model changes (uses existing `assembly_type` enum)
+- No service layer changes (existing filters are sufficient)
+- No changes to the save/create logic (already creates BUNDLE type)
+- No changes to Step 2 (Materials) or Step 3 (Review & Save)
+- No changes to import/export
