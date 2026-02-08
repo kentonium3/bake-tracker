@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Bulk Import Auto-Generation
-lane: "for_review"
+lane: "done"
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -16,8 +16,8 @@ phase: Phase 3 - Integration
 assignee: ''
 agent: ''
 shell_pid: "53895"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
@@ -205,3 +205,4 @@ Extend bulk recipe import to auto-generate FinishedUnit + bare FinishedGood pair
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
 - 2026-02-08T19:51:08Z – unknown – shell_pid=53895 – lane=for_review – All subtasks complete. 12 new tests, 3611 total passing. Extends FU import with yield_type field and auto-creates bare FGs for EA FUs. Export also updated for round-trip.
+- 2026-02-08T20:05:16Z – unknown – shell_pid=53895 – lane=done – Review passed: Import correctly reads yield_type from JSON (defaults SERVING), auto-creates bare FGs for EA FUs via find_bare_fg_for_unit/auto_create_bare_finished_good with session passed through, non-EA FUs left alone, duplicates prevented, export includes yield_type for round-trip. session.flush() ensures fu.id before FG creation, dry_run guard prevents side effects. 10 WP08 tests pass, full suite 3611 passed.
