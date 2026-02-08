@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Refactor UI to Use New Orchestration
-lane: "for_review"
+lane: "done"
 dependencies: [WP02]
 base_branch: 098-auto-generation-finished-goods-WP02
 base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
@@ -16,8 +16,8 @@ phase: Phase 2 - Integration
 assignee: ''
 agent: ''
 shell_pid: "48035"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
@@ -232,3 +232,4 @@ def _add_recipe(self):
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
 - 2026-02-08T18:36:40Z – unknown – shell_pid=48035 – lane=for_review – Ready for review: _save_yield_types removed, _add_recipe and _edit_recipe use save_recipe_with_yields, no finished_unit_service import in UI, 3586 tests pass
+- 2026-02-08T18:52:54Z – unknown – shell_pid=48035 – lane=done – Review passed: UI refactored to use save_recipe_with_yields() for atomic recipe+yield saves. _save_yield_types() removed, no finished_unit_service imports remain, error handling correct, sub-recipe components unchanged. 3586/3586 tests pass.
