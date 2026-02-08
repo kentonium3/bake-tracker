@@ -2,6 +2,7 @@
 
 WP03 - F098: Auto-Generation of FinishedGoods
 WP04 - F098: Propagate FU Updates to Bare FG
+WP05 - F098: Cascade Delete with Assembly Protection
 
 Tests verify:
 - find_bare_fg_for_unit() lookup works correctly
@@ -12,6 +13,9 @@ Tests verify:
 - sync_bare_finished_good() propagates name and slug changes
 - Name propagation within same transaction
 - Edge cases: no bare FG, unchanged name, slug collision
+- cascade_delete_bare_fg() cleans up bare FG and Composition
+- Assembly protection blocks deletion when bare FG is referenced
+- Error messages list affected assembly names
 """
 
 import pytest
@@ -749,3 +753,341 @@ class TestSyncBareFgEdgeCases:
         fus1 = finished_unit_service.get_units_by_recipe(recipe1.id)
         fg1 = finished_good_service.find_bare_fg_for_unit(fus1[0].id)
         assert fg1.slug != fg2.slug
+
+# ============================================================================
+# WP05: Cascade Delete with Assembly Protection
+# ============================================================================
+
+
+class TestCascadeDeleteBareFg:
+    """Test cascade_delete_bare_fg() clean deletion (T029)."""
+
+    def test_cascade_deletes_bare_fg_and_composition(self, test_db):
+        """Delete FU -> bare FG and Composition both deleted."""
+        test_db()
+
+        recipe_data = {"name": "Delete Test", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Delete Me",
+                "yield_type": "EA",
+                "items_per_batch": 1.0,
+            },
+        ]
+        recipe = save_recipe_with_yields(recipe_data, yield_types)
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        fu = fus[0]
+
+        fg = finished_good_service.find_bare_fg_for_unit(fu.id)
+        assert fg is not None
+        fg_id = fg.id
+
+        # Cascade delete
+        result = finished_good_service.cascade_delete_bare_fg(fu.id)
+        assert result is True
+
+        # Bare FG gone
+        assert finished_good_service.find_bare_fg_for_unit(fu.id) is None
+
+        # No orphaned Compositions
+        with session_scope() as sess:
+            comps = (
+                sess.query(Composition)
+                .filter(Composition.assembly_id == fg_id)
+                .all()
+            )
+            assert len(comps) == 0
+
+    def test_cascade_returns_false_when_no_bare_fg(self, test_db):
+        """FU with no bare FG (SERVING type) -> returns False, no error."""
+        test_db()
+
+        recipe_data = {"name": "Serving Delete", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Serving Only",
+                "yield_type": "SERVING",
+                "items_per_batch": 8.0,
+            },
+        ]
+        recipe = save_recipe_with_yields(recipe_data, yield_types)
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        fu = fus[0]
+
+        result = finished_good_service.cascade_delete_bare_fg(fu.id)
+        assert result is False
+
+    def test_recipe_delete_cascades_to_bare_fg(self, test_db):
+        """Removing EA yield from recipe -> bare FG deleted via cascade."""
+        test_db()
+
+        recipe_data = {"name": "Cascade Via Recipe", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Will Be Removed",
+                "yield_type": "EA",
+                "items_per_batch": 1.0,
+            },
+        ]
+        recipe = save_recipe_with_yields(recipe_data, yield_types)
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        fu = fus[0]
+        fg = finished_good_service.find_bare_fg_for_unit(fu.id)
+        assert fg is not None
+
+        # Remove the yield type (empty list = delete all)
+        save_recipe_with_yields(
+            {"name": "Cascade Via Recipe", "category": "Test"},
+            [],
+            recipe_id=recipe.id,
+        )
+
+        # Both FU and bare FG gone
+        remaining_fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        assert len(remaining_fus) == 0
+
+        with session_scope() as sess:
+            bare_fgs = (
+                sess.query(FinishedGood)
+                .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+                .all()
+            )
+            assert len(bare_fgs) == 0
+
+    def test_no_orphaned_records_after_delete(self, test_db):
+        """After deletion, no orphaned Composition records remain."""
+        test_db()
+
+        recipe_data = {"name": "Orphan Check", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Orphan Test",
+                "yield_type": "EA",
+                "items_per_batch": 1.0,
+            },
+        ]
+        recipe = save_recipe_with_yields(recipe_data, yield_types)
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+
+        # Record composition count before
+        with session_scope() as sess:
+            comp_count_before = sess.query(Composition).count()
+            assert comp_count_before >= 1  # At least the bare FG composition
+
+        # Delete via recipe update (remove yield type)
+        save_recipe_with_yields(
+            {"name": "Orphan Check", "category": "Test"},
+            [],
+            recipe_id=recipe.id,
+        )
+
+        # All compositions for this recipe's FGs gone
+        with session_scope() as sess:
+            bare_fgs = (
+                sess.query(FinishedGood)
+                .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+                .all()
+            )
+            assert len(bare_fgs) == 0
+            # No compositions left since we deleted everything
+            comp_count_after = sess.query(Composition).count()
+            assert comp_count_after == 0
+
+
+class TestAssemblyProtection:
+    """Test deletion blocked by assembly reference (T030)."""
+
+    def _create_recipe_with_bare_fg(self, name="Test Recipe"):
+        """Helper: create recipe with EA yield, return (recipe, fu, bare_fg)."""
+        recipe = save_recipe_with_yields(
+            {"name": name, "category": "Test"},
+            [
+                {
+                    "id": None,
+                    "display_name": f"{name} Unit",
+                    "yield_type": "EA",
+                    "items_per_batch": 1.0,
+                },
+            ],
+        )
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        fu = fus[0]
+        fg = finished_good_service.find_bare_fg_for_unit(fu.id)
+        return recipe, fu, fg
+
+    def test_deletion_blocked_when_bare_fg_in_assembly(self, test_db):
+        """Deletion blocked with ValidationError when bare FG used in assembly."""
+        test_db()
+
+        recipe, fu, bare_fg = self._create_recipe_with_bare_fg("Protected Item")
+
+        # Create an assembled FG that uses the bare FG as component
+        assembled_fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Holiday Gift Box",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": bare_fg.id, "quantity": 2},
+            ],
+        )
+
+        # Attempting to cascade-delete should be blocked
+        with pytest.raises(ValidationError, match="Cannot delete"):
+            finished_good_service.cascade_delete_bare_fg(fu.id)
+
+    def test_error_message_lists_assembly_names(self, test_db):
+        """Error message includes assembly display names."""
+        test_db()
+
+        recipe, fu, bare_fg = self._create_recipe_with_bare_fg("Named Item")
+
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Gift Basket Alpha",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": bare_fg.id, "quantity": 1},
+            ],
+        )
+
+        with pytest.raises(ValidationError, match="Gift Basket Alpha"):
+            finished_good_service.cascade_delete_bare_fg(fu.id)
+
+    def test_records_intact_after_blocked_deletion(self, test_db):
+        """After blocked deletion, all records still intact."""
+        test_db()
+
+        recipe, fu, bare_fg = self._create_recipe_with_bare_fg("Intact Check")
+        bare_fg_id = bare_fg.id
+
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Blocking Assembly",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": bare_fg.id, "quantity": 1},
+            ],
+        )
+
+        # Attempt deletion (will be blocked)
+        with pytest.raises(ValidationError):
+            finished_good_service.cascade_delete_bare_fg(fu.id)
+
+        # Bare FG still exists
+        fg_after = finished_good_service.find_bare_fg_for_unit(fu.id)
+        assert fg_after is not None
+        assert fg_after.id == bare_fg_id
+
+        # Composition still exists
+        with session_scope() as sess:
+            comps = (
+                sess.query(Composition)
+                .filter(Composition.assembly_id == bare_fg_id)
+                .all()
+            )
+            assert len(comps) == 1
+
+    def test_multiple_assemblies_listed_in_error(self, test_db):
+        """With 2 assemblies referencing, both names listed in error."""
+        test_db()
+
+        recipe, fu, bare_fg = self._create_recipe_with_bare_fg("Multi Ref")
+
+        # Create two assemblies referencing the same bare FG
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Assembly One",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": bare_fg.id, "quantity": 1},
+            ],
+        )
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Assembly Two",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": bare_fg.id, "quantity": 1},
+            ],
+        )
+
+        with pytest.raises(ValidationError, match="2 assembled product") as exc_info:
+            finished_good_service.cascade_delete_bare_fg(fu.id)
+
+        error_msg = exc_info.value.errors[0]
+        assert "Assembly One" in error_msg
+        assert "Assembly Two" in error_msg
+
+    def test_recipe_update_blocked_when_removing_referenced_fu(self, test_db):
+        """Removing a yield type whose bare FG is in an assembly -> blocked."""
+        test_db()
+
+        recipe, fu, bare_fg = self._create_recipe_with_bare_fg("Recipe Block")
+
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Blocking Box",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": bare_fg.id, "quantity": 1},
+            ],
+        )
+
+        # Try removing the yield type via recipe update
+        with pytest.raises(ValidationError, match="Cannot delete"):
+            save_recipe_with_yields(
+                {"name": "Recipe Block", "category": "Test"},
+                [],
+                recipe_id=recipe.id,
+            )
+
+
+class TestGetAssemblyReferences:
+    """Test get_assembly_references() function."""
+
+    def test_returns_empty_when_no_references(self, test_db):
+        """No assemblies reference this FG -> returns empty list."""
+        test_db()
+
+        recipe_data = {"name": "No Refs", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Unreferenced",
+                "yield_type": "EA",
+                "items_per_batch": 1.0,
+            },
+        ]
+        recipe = save_recipe_with_yields(recipe_data, yield_types)
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        fg = finished_good_service.find_bare_fg_for_unit(fus[0].id)
+
+        refs = finished_good_service.get_assembly_references(fg.id)
+        assert refs == []
+
+    def test_returns_referencing_assemblies(self, test_db):
+        """Returns list of assemblies that use this FG as component."""
+        test_db()
+
+        recipe_data = {"name": "Referenced", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Component FG",
+                "yield_type": "EA",
+                "items_per_batch": 1.0,
+            },
+        ]
+        recipe = save_recipe_with_yields(recipe_data, yield_types)
+        fus = finished_unit_service.get_units_by_recipe(recipe.id)
+        fg = finished_good_service.find_bare_fg_for_unit(fus[0].id)
+
+        assembled = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Parent Assembly",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_good", "id": fg.id, "quantity": 1},
+            ],
+        )
+
+        refs = finished_good_service.get_assembly_references(fg.id)
+        assert len(refs) == 1
+        assert refs[0].display_name == "Parent Assembly"

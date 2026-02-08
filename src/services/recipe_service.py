@@ -528,10 +528,8 @@ def _reconcile_yield_types(
     # Delete removed yield types (and their bare FGs)
     for fu_id in existing_fu_map:
         if fu_id not in keeping_ids:
-            # Delete associated bare FG first to avoid reference constraint (F098)
-            bare_fg = finished_good_service.find_bare_fg_for_unit(fu_id, session=session)
-            if bare_fg is not None:
-                finished_good_service.delete_finished_good(bare_fg.id, session=session)
+            # Cascade-delete bare FG first (checks assembly refs, F098)
+            finished_good_service.cascade_delete_bare_fg(fu_id, session=session)
             finished_unit_service.delete_finished_unit(fu_id, session=session)
 
 
