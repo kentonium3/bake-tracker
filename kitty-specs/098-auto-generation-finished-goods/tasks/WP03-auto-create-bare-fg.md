@@ -15,7 +15,7 @@ subtasks:
 - T018
 phase: Phase 1 - Core Feature
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "45414"
 review_status: ''
 reviewed_by: ''
@@ -287,3 +287,4 @@ session.add(composition)
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T18:02:31Z – claude-opus – shell_pid=45414 – lane=doing – Assigned agent via workflow command
