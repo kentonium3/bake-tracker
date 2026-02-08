@@ -88,12 +88,12 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T013 Create `find_bare_fg_for_unit()` lookup in `finished_good_service.py`
-- [ ] T014 Create `auto_create_bare_finished_good()` in `finished_good_service.py`
-- [ ] T015 Integrate auto-creation into `save_recipe_with_yields()` orchestration
-- [ ] T016 Handle duplicate prevention (skip if bare FG already exists for this FU)
-- [ ] T017 Write tests: FU created → bare FG + Composition created correctly
-- [ ] T018 Write tests: duplicate prevention, edge cases, weight-yield skipping
+- [x] T013 Create `find_bare_fg_for_unit()` lookup in `finished_good_service.py`
+- [x] T014 Create `auto_create_bare_finished_good()` in `finished_good_service.py`
+- [x] T015 Integrate auto-creation into `save_recipe_with_yields()` orchestration
+- [x] T016 Handle duplicate prevention (skip if bare FG already exists for this FU)
+- [x] T017 Write tests: FU created → bare FG + Composition created correctly
+- [x] T018 Write tests: duplicate prevention, edge cases, weight-yield skipping
 
 ### Implementation Notes
 - `auto_create_bare_finished_good(finished_unit_id, session)` creates FG + Composition atomically
