@@ -1979,6 +1979,52 @@ def auto_create_bare_finished_good(
         raise DatabaseError(f"Failed to auto-create bare FinishedGood: {e}")
 
 
+def sync_bare_finished_good(
+    finished_unit_id: int,
+    display_name: Optional[str] = None,
+    session: Optional[Session] = None,
+) -> Optional[FinishedGood]:
+    """Sync bare FinishedGood with FinishedUnit changes.
+
+    Finds the bare FG for the given FU and updates display_name
+    and slug if the name has changed. Returns None if no bare FG exists.
+
+    Note: FinishedGood has no category field, so only display_name
+    and slug are synced.
+
+    Transaction boundary: Uses provided session or creates new.
+
+    Args:
+        finished_unit_id: The FinishedUnit whose bare FG to sync
+        display_name: New display name (if changed)
+        session: Optional session for transaction composition
+
+    Returns:
+        The updated bare FinishedGood, or None if no bare FG exists
+    """
+    def _impl(sess: Session) -> Optional[FinishedGood]:
+        bare_fg = find_bare_fg_for_unit(finished_unit_id, session=sess)
+        if bare_fg is None:
+            return None
+
+        updated = False
+        if display_name and bare_fg.display_name != display_name:
+            bare_fg.display_name = display_name
+            bare_fg.slug = FinishedGoodService._generate_unique_slug(
+                display_name, sess, exclude_id=bare_fg.id
+            )
+            updated = True
+
+        if updated:
+            sess.flush()
+        return bare_fg
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+
+
 # Module-level convenience functions
 
 
