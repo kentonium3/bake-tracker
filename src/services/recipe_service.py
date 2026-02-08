@@ -508,7 +508,7 @@ def _reconcile_yield_types(
         else:
             # Existing yield type -> update FU
             keeping_ids.add(yt_id)
-            finished_unit_service.update_finished_unit(
+            fu = finished_unit_service.update_finished_unit(
                 yt_id,
                 session=session,
                 display_name=yt["display_name"],
@@ -516,6 +516,14 @@ def _reconcile_yield_types(
                 items_per_batch=yt.get("items_per_batch"),
                 yield_type=yt.get("yield_type", "SERVING"),
             )
+
+            # Sync bare FG if this is an EA yield type (F098)
+            if yt.get("yield_type") == "EA":
+                finished_good_service.sync_bare_finished_good(
+                    finished_unit_id=yt_id,
+                    display_name=yt["display_name"],
+                    session=session,
+                )
 
     # Delete removed yield types (and their bare FGs)
     for fu_id in existing_fu_map:
