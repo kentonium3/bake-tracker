@@ -23,12 +23,12 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Refactor `create_finished_unit()` to accept and use `session` parameter
-- [ ] T002 Refactor `update_finished_unit()` to accept and use `session` parameter
-- [ ] T003 Refactor `delete_finished_unit()` to accept and use `session` parameter
-- [ ] T004 Update module-level convenience functions to pass through `session`
-- [ ] T005 Write tests: session parameter is used when provided (no new session_scope)
-- [ ] T006 Verify all existing tests pass with `session=None` (backward compatibility)
+- [x] T001 Refactor `create_finished_unit()` to accept and use `session` parameter
+- [x] T002 Refactor `update_finished_unit()` to accept and use `session` parameter
+- [x] T003 Refactor `delete_finished_unit()` to accept and use `session` parameter
+- [x] T004 Update module-level convenience functions to pass through `session`
+- [x] T005 Write tests: session parameter is used when provided (no new session_scope)
+- [x] T006 Verify all existing tests pass with `session=None` (backward compatibility)
 
 ### Implementation Notes
 - Follow the `_impl` pattern already used in `finished_good_service.py`
