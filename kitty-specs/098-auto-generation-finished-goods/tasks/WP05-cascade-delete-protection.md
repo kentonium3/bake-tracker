@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Cascade Delete with Assembly Protection
+lane: "doing"
+dependencies: [WP03]
+base_branch: 098-auto-generation-finished-goods-WP03
+base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
+created_at: '2026-02-08T18:51:36.722783+00:00'
 subtasks:
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-title: "Cascade Delete with Assembly Protection"
-phase: "Phase 2 - User Stories"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T025
+- T026
+- T027
+- T028
+- T029
+- T030
+phase: Phase 2 - User Stories
+assignee: ''
+agent: ''
+shell_pid: "51195"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Cascade Delete with Assembly Protection
