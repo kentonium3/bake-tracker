@@ -260,7 +260,7 @@
 - [x] T043 Add auto-generation of bare FGs within import transaction
 - [x] T044 Handle duplicate names during bulk creation (disambiguate)
 - [x] T045 Write tests: bulk import creates FU + bare FG for each EA-yield recipe
-- [ ] T046 Write tests: rollback on failure, duplicate name handling
+- [x] T046 Write tests: rollback on failure, duplicate name handling
 
 ### Implementation Notes
 - Import already operates within single session — add FU/FG creation to same flow
