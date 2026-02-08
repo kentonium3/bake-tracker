@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Recipe Save Orchestration
+lane: "doing"
+dependencies: [WP01]
+base_branch: 098-auto-generation-finished-goods-WP01
+base_commit: 5c7a242e9c98aa9dc3bfb31df13eeacbf7a5a6b9
+created_at: '2026-02-08T17:46:58.533771+00:00'
 subtasks:
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Recipe Save Orchestration"
-phase: "Phase 0 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "42991"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Recipe Save Orchestration
