@@ -42,6 +42,10 @@ from src.models.recipe_category import RecipeCategory
 from src.models.supplier import Supplier
 from src.services.material_catalog_service import slugify
 from src.services.exceptions import ServiceError
+from src.services.finished_good_service import (
+    find_bare_fg_for_unit,
+    auto_create_bare_finished_good,
+)
 
 
 # ============================================================================
@@ -1594,12 +1598,15 @@ def _import_finished_units_impl(
                 yield_mode = YieldMode.DISCRETE_COUNT
 
         # Create new FinishedUnit
+        # F098/WP08: Include yield_type from import data (defaults to SERVING)
+        yield_type = item.get("yield_type", "SERVING")
         fu = FinishedUnit(
             recipe_id=recipe_id,
             slug=slug,
             display_name=item.get("display_name"),
             category=item.get("category"),
             yield_mode=yield_mode,
+            yield_type=yield_type,
             items_per_batch=item.get("items_per_batch"),
             item_unit=item.get("item_unit"),
             batch_percentage=item.get("batch_percentage"),
@@ -1609,7 +1616,18 @@ def _import_finished_units_impl(
             notes=item.get("notes"),
         )
         session.add(fu)
+        session.flush()  # F098: Ensure fu.id is available for bare FG creation
         result.add_success("finished_units")
+
+        # F098/WP08: Auto-create bare FinishedGood for EA yield types
+        if yield_type == "EA" and not dry_run:
+            existing_fg = find_bare_fg_for_unit(fu.id, session=session)
+            if existing_fg is None:
+                auto_create_bare_finished_good(
+                    finished_unit_id=fu.id,
+                    display_name=fu.display_name,
+                    session=session,
+                )
 
         # Track for duplicate detection within same import
         existing_slugs.add(slug)
