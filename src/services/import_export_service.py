@@ -892,6 +892,8 @@ def export_finished_units_to_json() -> List[Dict]:
                 "recipe_name": fu.recipe.name if fu.recipe else None,
                 "display_name": fu.display_name,
                 "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+                # F098/WP08: Include yield_type for round-trip import/export
+                "yield_type": fu.yield_type,
             }
 
             # Conditional fields based on yield mode

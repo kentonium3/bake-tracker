@@ -19,13 +19,25 @@ Tests verify:
 - Error messages list affected assembly names
 - identify_bare_fg_candidates() finds FGs needing reclassification
 - migrate_bare_finished_goods() reclassifies BUNDLE->BARE and creates missing bare FGs
+
+WP08 - F098: Bulk Import Auto-Generation
+
+Tests verify:
+- Bulk FU import auto-creates bare FGs for EA yield types
+- Non-EA FUs do not get bare FGs during import
+- Backward compatibility (FUs without yield_type still import)
+- Duplicate handling and slug uniqueness during bulk import
+- Transactional integrity (all or nothing)
+- Re-import does not create duplicate FGs
 """
 
 import pytest
 
 from src.services.recipe_service import save_recipe_with_yields, create_recipe
 from src.services import finished_unit_service, finished_good_service
-from src.models import FinishedGood, Composition, AssemblyType
+from src.services.catalog_import_service import import_finished_units
+from src.models import FinishedGood, FinishedUnit, Composition, AssemblyType, Recipe
+from src.models.finished_unit import YieldMode
 from src.services.database import session_scope
 from src.services.exceptions import ValidationError
 
@@ -1393,3 +1405,403 @@ class TestMigrateBareFgsEdgeCases:
         assert result["already_correct"] == 0
         assert result["fus_gained_bare_fg"] == 0
         assert result["orphaned_bare_fgs"] == 0
+
+
+# =============================================================================
+# WP08 - Bulk Import Auto-Generation Tests
+# =============================================================================
+
+
+def _create_test_recipe(name="Import Test Recipe", category="Test"):
+    """Helper to create a recipe for import tests."""
+    with session_scope() as session:
+        recipe = Recipe(name=name, category=category)
+        session.add(recipe)
+        session.flush()
+        return recipe.id, recipe.name
+
+
+class TestBulkImportAutoGeneration:
+    """WP08: Test auto-generation of bare FGs during bulk FU import."""
+
+    def test_import_ea_fu_creates_bare_fg(self, test_db):
+        """Import of EA yield_type FU auto-creates a bare FinishedGood."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "import-ea-cookie",
+                "display_name": "Imported EA Cookie",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+                "item_unit": "cookie",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 1
+        assert result.has_errors is False
+
+        # Verify FU was created with correct yield_type
+        with session_scope() as sess:
+            fu = sess.query(FinishedUnit).filter_by(slug="import-ea-cookie").first()
+            assert fu is not None
+            assert fu.yield_type == "EA"
+
+            # Verify bare FG was auto-created
+            fg = finished_good_service.find_bare_fg_for_unit(fu.id, session=sess)
+            assert fg is not None
+            assert fg.assembly_type == AssemblyType.BARE
+            assert fg.display_name == "Imported EA Cookie"
+
+            # Verify Composition links them
+            comp = (
+                sess.query(Composition)
+                .filter_by(assembly_id=fg.id, finished_unit_id=fu.id)
+                .first()
+            )
+            assert comp is not None
+            assert comp.component_quantity == 1
+
+    def test_import_serving_fu_no_bare_fg(self, test_db):
+        """Import of SERVING yield_type FU does NOT create a bare FG."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "import-serving-slice",
+                "display_name": "Imported Cake Slice",
+                "recipe_name": recipe_name,
+                "yield_type": "SERVING",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 8,
+                "item_unit": "slice",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 1
+
+        with session_scope() as sess:
+            fu = sess.query(FinishedUnit).filter_by(slug="import-serving-slice").first()
+            assert fu is not None
+            assert fu.yield_type == "SERVING"
+
+            fg = finished_good_service.find_bare_fg_for_unit(fu.id, session=sess)
+            assert fg is None
+
+    def test_import_without_yield_type_defaults_to_serving(self, test_db):
+        """FU imported without yield_type defaults to SERVING (backward compat)."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "import-no-yield-type",
+                "display_name": "Legacy FU",
+                "recipe_name": recipe_name,
+                "yield_mode": "discrete_count",
+                "items_per_batch": 12,
+                "item_unit": "piece",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 1
+
+        with session_scope() as sess:
+            fu = sess.query(FinishedUnit).filter_by(slug="import-no-yield-type").first()
+            assert fu is not None
+            assert fu.yield_type == "SERVING"
+
+            # No bare FG for SERVING default
+            fg = finished_good_service.find_bare_fg_for_unit(fu.id, session=sess)
+            assert fg is None
+
+    def test_bulk_import_multiple_ea_creates_multiple_bare_fgs(self, test_db):
+        """Import of 5 EA FUs creates 5 corresponding bare FGs."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = []
+        for i in range(5):
+            data.append(
+                {
+                    "slug": f"bulk-ea-{i+1}",
+                    "display_name": f"Bulk Cookie {i+1}",
+                    "recipe_name": recipe_name,
+                    "yield_type": "EA",
+                    "yield_mode": "discrete_count",
+                    "items_per_batch": 24,
+                    "item_unit": "cookie",
+                }
+            )
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 5
+        assert result.has_errors is False
+
+        with session_scope() as sess:
+            for i in range(5):
+                fu = sess.query(FinishedUnit).filter_by(slug=f"bulk-ea-{i+1}").first()
+                assert fu is not None
+                fg = finished_good_service.find_bare_fg_for_unit(fu.id, session=sess)
+                assert fg is not None
+                assert fg.assembly_type == AssemblyType.BARE
+                assert fg.display_name == f"Bulk Cookie {i+1}"
+
+    def test_mixed_ea_and_serving_import(self, test_db):
+        """Import mix of EA and SERVING FUs -> only EA get bare FGs."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "mix-ea-1",
+                "display_name": "EA Item",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 1,
+            },
+            {
+                "slug": "mix-serving-1",
+                "display_name": "Serving Item",
+                "recipe_name": recipe_name,
+                "yield_type": "SERVING",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 8,
+            },
+            {
+                "slug": "mix-ea-2",
+                "display_name": "EA Item 2",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 12,
+            },
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 3
+
+        with session_scope() as sess:
+            ea_fu_1 = sess.query(FinishedUnit).filter_by(slug="mix-ea-1").first()
+            serving_fu = sess.query(FinishedUnit).filter_by(slug="mix-serving-1").first()
+            ea_fu_2 = sess.query(FinishedUnit).filter_by(slug="mix-ea-2").first()
+
+            assert finished_good_service.find_bare_fg_for_unit(
+                ea_fu_1.id, session=sess
+            ) is not None
+            assert finished_good_service.find_bare_fg_for_unit(
+                serving_fu.id, session=sess
+            ) is None
+            assert finished_good_service.find_bare_fg_for_unit(
+                ea_fu_2.id, session=sess
+            ) is not None
+
+    def test_import_transaction_integrity(self, test_db):
+        """All FUs and FGs from a single import share the same transaction."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "tx-ea-1",
+                "display_name": "TX Cookie 1",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+            },
+            {
+                "slug": "tx-ea-2",
+                "display_name": "TX Cookie 2",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 12,
+            },
+        ]
+
+        # Import within a single session to verify atomicity
+        with session_scope() as sess:
+            result = import_finished_units(data, mode="add", session=sess)
+            assert result.entity_counts["finished_units"].added == 2
+
+            # Both FUs and FGs should be visible in same session
+            fu1 = sess.query(FinishedUnit).filter_by(slug="tx-ea-1").first()
+            fu2 = sess.query(FinishedUnit).filter_by(slug="tx-ea-2").first()
+            assert fu1 is not None
+            assert fu2 is not None
+
+            fg1 = finished_good_service.find_bare_fg_for_unit(fu1.id, session=sess)
+            fg2 = finished_good_service.find_bare_fg_for_unit(fu2.id, session=sess)
+            assert fg1 is not None
+            assert fg2 is not None
+
+
+class TestBulkImportDuplicateHandling:
+    """WP08: Test duplicate handling during bulk import auto-generation."""
+
+    def test_reimport_same_data_no_duplicate_fgs(self, test_db):
+        """Re-importing same FU data skips FU (ADD_ONLY) and creates no new FGs."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "reimport-ea-1",
+                "display_name": "Reimport Cookie",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+            },
+        ]
+
+        # First import
+        result1 = import_finished_units(data, mode="add")
+        assert result1.entity_counts["finished_units"].added == 1
+
+        with session_scope() as sess:
+            fu = sess.query(FinishedUnit).filter_by(slug="reimport-ea-1").first()
+            fg1 = finished_good_service.find_bare_fg_for_unit(fu.id, session=sess)
+            assert fg1 is not None
+            fg1_id = fg1.id
+
+        # Second import -- should skip the FU (already exists)
+        result2 = import_finished_units(data, mode="add")
+        assert result2.entity_counts["finished_units"].added == 0
+        assert result2.entity_counts["finished_units"].skipped == 1
+
+        # Verify no duplicate FGs created
+        with session_scope() as sess:
+            fu = sess.query(FinishedUnit).filter_by(slug="reimport-ea-1").first()
+            fg2 = finished_good_service.find_bare_fg_for_unit(fu.id, session=sess)
+            assert fg2 is not None
+            assert fg2.id == fg1_id  # Same FG, not a new one
+
+            # Count total bare FGs
+            bare_count = (
+                sess.query(FinishedGood)
+                .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+                .count()
+            )
+            assert bare_count == 1
+
+    def test_duplicate_display_names_get_unique_fg_slugs(self, test_db):
+        """FUs with same display_name get FGs with disambiguated slugs."""
+        test_db()
+        # Create two recipes so we can have two FUs with the same display_name
+        _, recipe_name_1 = _create_test_recipe("Recipe A", "Test")
+        _, recipe_name_2 = _create_test_recipe("Recipe B", "Test")
+
+        data = [
+            {
+                "slug": "dup-name-1",
+                "display_name": "Chocolate Chip Cookie",
+                "recipe_name": recipe_name_1,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+            },
+            {
+                "slug": "dup-name-2",
+                "display_name": "Chocolate Chip Cookie",
+                "recipe_name": recipe_name_2,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+            },
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 2
+
+        with session_scope() as sess:
+            fu1 = sess.query(FinishedUnit).filter_by(slug="dup-name-1").first()
+            fu2 = sess.query(FinishedUnit).filter_by(slug="dup-name-2").first()
+
+            fg1 = finished_good_service.find_bare_fg_for_unit(fu1.id, session=sess)
+            fg2 = finished_good_service.find_bare_fg_for_unit(fu2.id, session=sess)
+
+            assert fg1 is not None
+            assert fg2 is not None
+            # Both exist with unique slugs
+            assert fg1.slug != fg2.slug
+            # Both have same display_name
+            assert fg1.display_name == "Chocolate Chip Cookie"
+            assert fg2.display_name == "Chocolate Chip Cookie"
+
+    def test_large_batch_import_performance(self, test_db):
+        """Import 100+ EA FUs completes without error (performance sanity check)."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = []
+        for i in range(100):
+            data.append(
+                {
+                    "slug": f"perf-ea-{i+1:03d}",
+                    "display_name": f"Perf Cookie {i+1}",
+                    "recipe_name": recipe_name,
+                    "yield_type": "EA",
+                    "yield_mode": "discrete_count",
+                    "items_per_batch": 24,
+                }
+            )
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].added == 100
+        assert result.has_errors is False
+
+        # Verify all bare FGs created
+        with session_scope() as sess:
+            bare_count = (
+                sess.query(FinishedGood)
+                .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+                .count()
+            )
+            assert bare_count == 100
+
+    def test_dry_run_no_bare_fgs_created(self, test_db):
+        """Dry run does not create FUs or bare FGs."""
+        test_db()
+        recipe_id, recipe_name = _create_test_recipe()
+
+        data = [
+            {
+                "slug": "dryrun-ea-1",
+                "display_name": "Dry Run Cookie",
+                "recipe_name": recipe_name,
+                "yield_type": "EA",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+            },
+        ]
+
+        result = import_finished_units(data, mode="add", dry_run=True)
+
+        # dry_run rolls back, so nothing persists
+        with session_scope() as sess:
+            fu = sess.query(FinishedUnit).filter_by(slug="dryrun-ea-1").first()
+            assert fu is None
+
+            bare_count = (
+                sess.query(FinishedGood)
+                .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+                .count()
+            )
+            assert bare_count == 0
