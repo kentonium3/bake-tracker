@@ -770,15 +770,17 @@ class FinishedUnitService:
             raise DatabaseError(f"Failed to search FinishedUnits: {e}")
 
     @staticmethod
-    def get_units_by_recipe(recipe_id: int) -> List[FinishedUnit]:
+    def get_units_by_recipe(
+        recipe_id: int, session: Optional[Session] = None
+    ) -> List[FinishedUnit]:
         """
         Get all FinishedUnits associated with a specific recipe.
 
-        Transaction boundary: Read-only operation.
-        Queries FinishedUnit filtered by recipe_id.
+        Transaction boundary: Uses provided session or creates new read-only session.
 
         Args:
             recipe_id: Recipe ID to filter by
+            session: Optional session for transaction composition
 
         Returns:
             List of FinishedUnit instances
@@ -786,22 +788,33 @@ class FinishedUnitService:
         Performance:
             Must complete in <200ms per contract
         """
-        try:
-            with get_db_session() as session:
-                units = (
-                    session.query(FinishedUnit)
-                    .options(selectinload(FinishedUnit.recipe))
-                    .filter(FinishedUnit.recipe_id == recipe_id)
-                    .order_by(FinishedUnit.display_name)
-                    .all()
-                )
+        if session is not None:
+            return FinishedUnitService._get_units_by_recipe_impl(recipe_id, session)
 
-                logger.debug(f"Retrieved {len(units)} FinishedUnits for recipe ID {recipe_id}")
-                return units
+        try:
+            with get_db_session() as sess:
+                return FinishedUnitService._get_units_by_recipe_impl(recipe_id, sess)
 
         except SQLAlchemyError as e:
             logger.error(f"Database error retrieving FinishedUnits for recipe ID {recipe_id}: {e}")
             raise DatabaseError(f"Failed to retrieve FinishedUnits by recipe: {e}")
+
+    @staticmethod
+    def _get_units_by_recipe_impl(recipe_id: int, session: Session) -> List[FinishedUnit]:
+        """Internal implementation of get_units_by_recipe.
+
+        Transaction boundary: Inherits session from caller.
+        """
+        units = (
+            session.query(FinishedUnit)
+            .options(selectinload(FinishedUnit.recipe))
+            .filter(FinishedUnit.recipe_id == recipe_id)
+            .order_by(FinishedUnit.display_name)
+            .all()
+        )
+
+        logger.debug(f"Retrieved {len(units)} FinishedUnits for recipe ID {recipe_id}")
+        return units
 
     # Utility methods
 
@@ -992,9 +1005,11 @@ def search_finished_units(query: str) -> List[FinishedUnit]:
     return FinishedUnitService.search_finished_units(query)
 
 
-def get_units_by_recipe(recipe_id: int) -> List[FinishedUnit]:
+def get_units_by_recipe(
+    recipe_id: int, session: Optional[Session] = None
+) -> List[FinishedUnit]:
     """Get all FinishedUnits associated with a specific recipe."""
-    return FinishedUnitService.get_units_by_recipe(recipe_id)
+    return FinishedUnitService.get_units_by_recipe(recipe_id, session=session)
 
 
 def propagate_yield_to_variants(recipe_id: int) -> int:

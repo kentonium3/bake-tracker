@@ -38,7 +38,12 @@ from src.services.exceptions import (
     DatabaseError,
     NonLeafIngredientError,
 )
-from src.services import inventory_item_service, product_service, purchase_service
+from src.services import (
+    inventory_item_service,
+    product_service,
+    purchase_service,
+    finished_unit_service,
+)
 
 from src.services.unit_converter import convert_any_units
 from src.services.exceptions import ConversionError
@@ -253,11 +258,14 @@ def get_recipe_by_slug(
 # ============================================================================
 
 
-def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Recipe:
+def create_recipe(
+    recipe_data: Dict, ingredients_data: List[Dict] = None, session: Optional[Session] = None
+) -> Recipe:
     """
     Create a new recipe with optional ingredients.
 
-    Transaction boundary: Multi-step atomic operation.
+    Transaction boundary: Uses provided session or creates new session_scope.
+    When session is provided, all operations execute within the caller's transaction.
     Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
     Steps executed atomically:
     1. Validate recipe data
@@ -265,9 +273,6 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
     3. Create Recipe record
     4. Create RecipeIngredient records for each ingredient (if provided)
     5. Validate leaf-only constraint for each ingredient
-
-    Uses session_scope() which commits all changes on success or rolls back
-    all changes on error. All operations execute within single transaction.
 
     Feature 080: Automatically generates a unique slug from the recipe name
     if not provided in recipe_data.
@@ -279,6 +284,7 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
             - quantity: float
             - unit: str
             - notes: str (optional)
+        session: Optional session for transaction composition
 
     Returns:
         Created Recipe instance with ingredients
@@ -291,75 +297,216 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
     # Validate recipe data (raises ValidationError on failure)
     validate_recipe_data(recipe_data)
 
+    if session is not None:
+        return _create_recipe_impl(recipe_data, ingredients_data, session)
+
     try:
-        with session_scope() as session:
-            # Feature 080: Generate unique slug if not provided
-            slug = recipe_data.get("slug")
-            if not slug:
-                slug = _generate_unique_slug(recipe_data["name"], session)
-
-            # Create recipe
-            # T032 - Feature 037: is_production_ready defaults to False if not provided
-            # F056: yield_quantity, yield_unit, yield_description removed
-            # Use FinishedUnit for yield information instead
-            recipe = Recipe(
-                name=recipe_data["name"],
-                slug=slug,
-                category=recipe_data["category"],
-                estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
-                source=recipe_data.get("source"),
-                notes=recipe_data.get("notes"),
-                is_production_ready=recipe_data.get("is_production_ready", False),
-            )
-
-            session.add(recipe)
-            session.flush()
-
-            # Add ingredients if provided
-            if ingredients_data:
-                for ing_data in ingredients_data:
-                    # Verify ingredient exists
-                    ingredient = (
-                        session.query(Ingredient).filter_by(id=ing_data["ingredient_id"]).first()
-                    )
-
-                    if not ingredient:
-                        raise IngredientNotFound(ing_data["ingredient_id"])
-
-                    # Feature 031: Validate leaf-only constraint
-                    _validate_leaf_ingredient(ingredient, "recipe", session)
-
-                    # Create recipe ingredient
-                    recipe_ingredient = RecipeIngredient(
-                        recipe_id=recipe.id,
-                        ingredient_id=ing_data["ingredient_id"],
-                        quantity=ing_data["quantity"],
-                        unit=ing_data["unit"],
-                        notes=ing_data.get("notes"),
-                    )
-
-                    session.add(recipe_ingredient)
-
-            session.flush()
-            session.refresh(recipe)
-
-            # Eagerly load relationships to avoid lazy loading issues
-            _ = recipe.recipe_ingredients
-            for ri in recipe.recipe_ingredients:
-                _ = ri.ingredient
-                # Load products for cost calculation (get_preferred_product())
-                if ri.ingredient:
-                    _ = ri.ingredient.products
-                    # Also load purchases for cost calculation (get_current_cost_per_unit())
-                    for product in ri.ingredient.products:
-                        _ = product.purchases
-
-            return recipe
+        with session_scope() as sess:
+            return _create_recipe_impl(recipe_data, ingredients_data, sess)
 
     except (ValidationError, IngredientNotFound, NonLeafIngredientError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError("Failed to create recipe", e)
+
+
+def _create_recipe_impl(
+    recipe_data: Dict, ingredients_data: Optional[List[Dict]], session: Session
+) -> Recipe:
+    """Internal implementation of recipe creation.
+
+    Transaction boundary: Inherits session from caller.
+    All operations execute within the caller's transaction scope.
+    """
+    # Feature 080: Generate unique slug if not provided
+    slug = recipe_data.get("slug")
+    if not slug:
+        slug = _generate_unique_slug(recipe_data["name"], session)
+
+    # Create recipe
+    # T032 - Feature 037: is_production_ready defaults to False if not provided
+    # F056: yield_quantity, yield_unit, yield_description removed
+    # Use FinishedUnit for yield information instead
+    recipe = Recipe(
+        name=recipe_data["name"],
+        slug=slug,
+        category=recipe_data["category"],
+        estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
+        source=recipe_data.get("source"),
+        notes=recipe_data.get("notes"),
+        is_production_ready=recipe_data.get("is_production_ready", False),
+    )
+
+    session.add(recipe)
+    session.flush()
+
+    # Add ingredients if provided
+    if ingredients_data:
+        for ing_data in ingredients_data:
+            # Verify ingredient exists
+            ingredient = (
+                session.query(Ingredient).filter_by(id=ing_data["ingredient_id"]).first()
+            )
+
+            if not ingredient:
+                raise IngredientNotFound(ing_data["ingredient_id"])
+
+            # Feature 031: Validate leaf-only constraint
+            _validate_leaf_ingredient(ingredient, "recipe", session)
+
+            # Create recipe ingredient
+            recipe_ingredient = RecipeIngredient(
+                recipe_id=recipe.id,
+                ingredient_id=ing_data["ingredient_id"],
+                quantity=ing_data["quantity"],
+                unit=ing_data["unit"],
+                notes=ing_data.get("notes"),
+            )
+
+            session.add(recipe_ingredient)
+
+    session.flush()
+    session.refresh(recipe)
+
+    # Eagerly load relationships to avoid lazy loading issues
+    _ = recipe.recipe_ingredients
+    for ri in recipe.recipe_ingredients:
+        _ = ri.ingredient
+        # Load products for cost calculation (get_preferred_product())
+        if ri.ingredient:
+            _ = ri.ingredient.products
+            # Also load purchases for cost calculation (get_current_cost_per_unit())
+            for product in ri.ingredient.products:
+                _ = product.purchases
+
+    return recipe
+
+
+def save_recipe_with_yields(
+    recipe_data: Dict,
+    yield_types: List[Dict],
+    ingredients_data: Optional[List[Dict]] = None,
+    recipe_id: Optional[int] = None,
+    session: Optional[Session] = None,
+) -> Recipe:
+    """
+    Orchestrate recipe save with yield types atomically.
+
+    Creates or updates a recipe along with its yield types (FinishedUnits)
+    in a single transaction. If recipe_id is provided, updates existing recipe;
+    otherwise creates new.
+
+    Transaction boundary: Single session for all operations. Either all succeed
+    or entire operation rolls back.
+
+    Args:
+        recipe_data: Dict with recipe fields (name, category, etc.)
+        yield_types: List of yield type dicts with keys:
+            - id: Optional[int] (None = new, int = update existing)
+            - display_name: str
+            - item_unit: Optional[str]
+            - items_per_batch: float
+            - yield_type: str ("EA" or "SERVING")
+        ingredients_data: Optional list of ingredient dicts
+        recipe_id: If provided, update this recipe; otherwise create new
+        session: Optional session for transaction composition
+
+    Returns:
+        The created or updated Recipe object
+
+    Raises:
+        ValidationError: If recipe or yield type data is invalid
+        ServiceError: If creation/update fails
+    """
+    if session is not None:
+        return _save_recipe_with_yields_impl(
+            recipe_data, yield_types, ingredients_data, recipe_id, session
+        )
+
+    try:
+        with session_scope() as sess:
+            return _save_recipe_with_yields_impl(
+                recipe_data, yield_types, ingredients_data, recipe_id, sess
+            )
+
+    except (ValidationError, RecipeNotFound, IngredientNotFound, NonLeafIngredientError):
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError("Failed to save recipe with yields", e)
+
+
+def _save_recipe_with_yields_impl(
+    recipe_data: Dict,
+    yield_types: List[Dict],
+    ingredients_data: Optional[List[Dict]],
+    recipe_id: Optional[int],
+    session: Session,
+) -> Recipe:
+    """Internal implementation of save_recipe_with_yields.
+
+    Transaction boundary: Inherits session from caller.
+    All operations execute within the caller's transaction scope.
+    """
+    # Create or update recipe using the public functions with session
+    # (this ensures validation runs before database operations)
+    if recipe_id is not None:
+        recipe = update_recipe(recipe_id, recipe_data, ingredients_data, session=session)
+    else:
+        recipe = create_recipe(recipe_data, ingredients_data, session=session)
+
+    session.flush()  # Ensure recipe.id is available
+
+    # Reconcile yield types (FinishedUnits)
+    _reconcile_yield_types(recipe.id, yield_types, session)
+
+    return recipe
+
+
+def _reconcile_yield_types(
+    recipe_id: int, yield_types: List[Dict], session: Session
+) -> None:
+    """Reconcile yield types for a recipe within an existing session.
+
+    Handles creating new FUs, updating existing FUs, and deleting removed FUs.
+
+    Args:
+        recipe_id: The recipe ID to reconcile yield types for
+        yield_types: List of yield type dicts
+        session: Active session for all operations
+    """
+    # Get existing FUs for this recipe
+    existing_fus = finished_unit_service.get_units_by_recipe(recipe_id, session=session)
+    existing_fu_map = {fu.id: fu for fu in existing_fus}
+    keeping_ids = set()
+
+    for yt in yield_types:
+        yt_id = yt.get("id")
+        if yt_id is None:
+            # New yield type -> create FU
+            finished_unit_service.create_finished_unit(
+                display_name=yt["display_name"],
+                recipe_id=recipe_id,
+                session=session,
+                item_unit=yt.get("item_unit"),
+                items_per_batch=yt.get("items_per_batch"),
+                yield_type=yt.get("yield_type", "EA"),
+            )
+        else:
+            # Existing yield type -> update FU
+            keeping_ids.add(yt_id)
+            finished_unit_service.update_finished_unit(
+                yt_id,
+                session=session,
+                display_name=yt["display_name"],
+                item_unit=yt.get("item_unit"),
+                items_per_batch=yt.get("items_per_batch"),
+                yield_type=yt.get("yield_type", "SERVING"),
+            )
+
+    # Delete removed yield types
+    for fu_id in existing_fu_map:
+        if fu_id not in keeping_ids:
+            finished_unit_service.delete_finished_unit(fu_id, session=session)
 
 
 def get_recipe(recipe_id: int, include_costs: bool = False) -> Recipe:
@@ -535,12 +682,16 @@ def get_recipe_by_name(name: str) -> Recipe:
 
 
 def update_recipe(  # noqa: C901
-    recipe_id: int, recipe_data: Dict, ingredients_data: Optional[List[Dict]] = None
+    recipe_id: int,
+    recipe_data: Dict,
+    ingredients_data: Optional[List[Dict]] = None,
+    session: Optional[Session] = None,
 ) -> Recipe:
     """
     Update a recipe and optionally its ingredients.
 
-    Transaction boundary: Multi-step atomic operation.
+    Transaction boundary: Uses provided session or creates new session_scope.
+    When session is provided, all operations execute within the caller's transaction.
     Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
     Steps executed atomically:
     1. Validate recipe data
@@ -549,9 +700,6 @@ def update_recipe(  # noqa: C901
     4. Update recipe fields
     5. If ingredients_data provided: delete existing ingredients, add new ones
     6. Validate leaf-only constraint for each new ingredient
-
-    Uses session_scope() which commits all changes on success or rolls back
-    all changes on error. All operations execute within single transaction.
 
     Feature 080: When the recipe name changes, automatically regenerates the slug
     and preserves the previous slug in `previous_slug` for one-rename grace period.
@@ -562,6 +710,7 @@ def update_recipe(  # noqa: C901
         recipe_data: Dictionary with recipe fields to update
         ingredients_data: If provided, replaces all recipe ingredients
             Format: List of dicts with ingredient_id, quantity, unit, notes
+        session: Optional session for transaction composition
 
     Returns:
         Updated Recipe instance
@@ -575,85 +724,102 @@ def update_recipe(  # noqa: C901
     # Validate recipe data (raises ValidationError on failure)
     validate_recipe_data(recipe_data)
 
+    if session is not None:
+        return _update_recipe_impl(recipe_id, recipe_data, ingredients_data, session)
+
     try:
-        with session_scope() as session:
-            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
-
-            if not recipe:
-                raise RecipeNotFound(recipe_id)
-
-            # Feature 080: Handle name change with slug regeneration
-            old_name = recipe.name
-            new_name = recipe_data.get("name")
-
-            if new_name and new_name != old_name:
-                # Name is changing - regenerate slug and preserve old one
-                old_slug = recipe.slug
-                new_slug = _generate_unique_slug(new_name, session, exclude_id=recipe_id)
-
-                # Preserve the old slug as previous_slug (one-rename grace period)
-                recipe.previous_slug = old_slug
-                recipe.slug = new_slug
-
-            # Update recipe fields (excluding slug which we handle specially)
-            for field, value in recipe_data.items():
-                if field == "slug":
-                    # Skip slug - we handle it above on name change
-                    # Or allow explicit slug override from import
-                    if not new_name or new_name == old_name:
-                        # No name change, allow explicit slug update
-                        setattr(recipe, field, value)
-                elif hasattr(recipe, field):
-                    setattr(recipe, field, value)
-
-            # Update ingredients if provided
-            if ingredients_data is not None:
-                # Remove existing ingredients
-                session.query(RecipeIngredient).filter_by(recipe_id=recipe_id).delete()
-
-                # Add new ingredients
-                for ing_data in ingredients_data:
-                    # Verify ingredient exists
-                    ingredient = (
-                        session.query(Ingredient).filter_by(id=ing_data["ingredient_id"]).first()
-                    )
-
-                    if not ingredient:
-                        raise IngredientNotFound(ing_data["ingredient_id"])
-
-                    # Feature 031: Validate leaf-only constraint
-                    _validate_leaf_ingredient(ingredient, "recipe", session)
-
-                    recipe_ingredient = RecipeIngredient(
-                        recipe_id=recipe.id,
-                        ingredient_id=ing_data["ingredient_id"],
-                        quantity=ing_data["quantity"],
-                        unit=ing_data["unit"],
-                        notes=ing_data.get("notes"),
-                    )
-
-                    session.add(recipe_ingredient)
-
-            session.flush()
-            session.refresh(recipe)
-
-            # Eagerly load relationships to avoid lazy loading issues
-            _ = recipe.recipe_ingredients
-            for ri in recipe.recipe_ingredients:
-                _ = ri.ingredient
-                # Load products for cost calculation (get_preferred_product())
-                if ri.ingredient:
-                    _ = ri.ingredient.products
-                    # Also load purchases for cost calculation (get_current_cost_per_unit())
-                    for product in ri.ingredient.products:
-                        _ = product.purchases
-
-            return recipe
+        with session_scope() as sess:
+            return _update_recipe_impl(recipe_id, recipe_data, ingredients_data, sess)
 
     except (RecipeNotFound, ValidationError, IngredientNotFound, NonLeafIngredientError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to update recipe {recipe_id}", e)
+
+
+def _update_recipe_impl(  # noqa: C901
+    recipe_id: int,
+    recipe_data: Dict,
+    ingredients_data: Optional[List[Dict]],
+    session: Session,
+) -> Recipe:
+    """Internal implementation of recipe update.
+
+    Transaction boundary: Inherits session from caller.
+    All operations execute within the caller's transaction scope.
+    """
+    recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+
+    if not recipe:
+        raise RecipeNotFound(recipe_id)
+
+    # Feature 080: Handle name change with slug regeneration
+    old_name = recipe.name
+    new_name = recipe_data.get("name")
+
+    if new_name and new_name != old_name:
+        # Name is changing - regenerate slug and preserve old one
+        old_slug = recipe.slug
+        new_slug = _generate_unique_slug(new_name, session, exclude_id=recipe_id)
+
+        # Preserve the old slug as previous_slug (one-rename grace period)
+        recipe.previous_slug = old_slug
+        recipe.slug = new_slug
+
+    # Update recipe fields (excluding slug which we handle specially)
+    for field, value in recipe_data.items():
+        if field == "slug":
+            # Skip slug - we handle it above on name change
+            # Or allow explicit slug override from import
+            if not new_name or new_name == old_name:
+                # No name change, allow explicit slug update
+                setattr(recipe, field, value)
+        elif hasattr(recipe, field):
+            setattr(recipe, field, value)
+
+    # Update ingredients if provided
+    if ingredients_data is not None:
+        # Remove existing ingredients
+        session.query(RecipeIngredient).filter_by(recipe_id=recipe_id).delete()
+
+        # Add new ingredients
+        for ing_data in ingredients_data:
+            # Verify ingredient exists
+            ingredient = (
+                session.query(Ingredient).filter_by(id=ing_data["ingredient_id"]).first()
+            )
+
+            if not ingredient:
+                raise IngredientNotFound(ing_data["ingredient_id"])
+
+            # Feature 031: Validate leaf-only constraint
+            _validate_leaf_ingredient(ingredient, "recipe", session)
+
+            recipe_ingredient = RecipeIngredient(
+                recipe_id=recipe.id,
+                ingredient_id=ing_data["ingredient_id"],
+                quantity=ing_data["quantity"],
+                unit=ing_data["unit"],
+                notes=ing_data.get("notes"),
+            )
+
+            session.add(recipe_ingredient)
+
+    session.flush()
+    session.refresh(recipe)
+
+    # Eagerly load relationships to avoid lazy loading issues
+    _ = recipe.recipe_ingredients
+    for ri in recipe.recipe_ingredients:
+        _ = ri.ingredient
+        # Load products for cost calculation (get_preferred_product())
+        if ri.ingredient:
+            _ = ri.ingredient.products
+            # Also load purchases for cost calculation (get_current_cost_per_unit())
+            for product in ri.ingredient.products:
+                _ = product.purchases
+
+    return recipe
 
 
 def delete_recipe(recipe_id: int) -> bool:
