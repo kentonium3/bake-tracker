@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Save Orchestration
-lane: "doing"
+lane: "for_review"
 dependencies: [WP01]
 base_branch: 098-auto-generation-finished-goods-WP01
 base_commit: 5c7a242e9c98aa9dc3bfb31df13eeacbf7a5a6b9
@@ -301,3 +301,4 @@ This pattern moves to the service layer as-is.
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
 - 2026-02-08T17:46:59Z – claude-opus – shell_pid=42991 – lane=doing – Assigned agent via workflow command
+- 2026-02-08T18:02:06Z – claude-opus – shell_pid=42991 – lane=for_review – Ready for review: save_recipe_with_yields orchestration, session params on create/update_recipe and get_units_by_recipe, 11 new tests, 3586 pass
