@@ -188,11 +188,11 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T031 Refactor `_add_recipe()` to call `save_recipe_with_yields()`
-- [ ] T032 Refactor `_edit_recipe()` to call `save_recipe_with_yields()`
-- [ ] T033 Remove `_save_yield_types()` method from `recipes_tab.py`
-- [ ] T034 Update error handling in UI for new service exceptions
-- [ ] T035 Write integration tests: full UI→Service→DB flow
+- [x] T031 Refactor `_add_recipe()` to call `save_recipe_with_yields()`
+- [x] T032 Refactor `_edit_recipe()` to call `save_recipe_with_yields()`
+- [x] T033 Remove `_save_yield_types()` method from `recipes_tab.py`
+- [x] T034 Update error handling in UI for new service exceptions
+- [x] T035 Write integration tests: full UI→Service→DB flow
 
 ### Implementation Notes
 - `_add_recipe()` currently calls `recipe_service.create_recipe()` then `_save_yield_types()` separately
