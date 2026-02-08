@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Add Session Parameter to finished_unit_service
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 76e546c87bd9242af1b5f6190504ce51d009b99a
@@ -241,3 +241,4 @@ def create_finished_good(display_name, assembly_type=AssemblyType.BUNDLE,
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
 - 2026-02-08T17:23:22Z – claude-opus – shell_pid=40598 – lane=doing – Assigned agent via workflow command
+- 2026-02-08T17:46:16Z – claude-opus – shell_pid=40598 – lane=for_review – Ready for review: Added session=None to create/update/delete, _impl pattern, 12 new tests, 3575 pass
