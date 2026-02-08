@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Migration of Existing Bare FinishedGoods
+lane: "doing"
+dependencies: [WP03]
+base_branch: 098-auto-generation-finished-goods-WP03
+base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
+created_at: '2026-02-08T19:03:27.939298+00:00'
 subtasks:
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-title: "Migration of Existing Bare FinishedGoods"
-phase: "Phase 3 - Data Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T036
+- T037
+- T038
+- T039
+- T040
+- T041
+phase: Phase 3 - Data Migration
+assignee: ''
+agent: ''
+shell_pid: "53440"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Migration of Existing Bare FinishedGoods
