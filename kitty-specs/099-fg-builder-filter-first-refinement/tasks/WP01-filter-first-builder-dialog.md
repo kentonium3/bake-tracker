@@ -15,7 +15,7 @@ subtasks:
 - T006
 phase: Phase 1 - Core UI Changes
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "82425"
 review_status: ''
 reviewed_by: ''
@@ -409,3 +409,4 @@ spec-kitty implement WP01
 ## Activity Log
 
 - 2026-02-08T23:13:33Z -- system -- lane=planned -- Prompt created.
+- 2026-02-08T23:58:31Z – claude-opus – shell_pid=82425 – lane=doing – Assigned agent via workflow command
