@@ -227,7 +227,7 @@
 - [x] T038 Verify/establish 1:1 FU↔FG linkage for existing data
 - [x] T039 Preserve user metadata during migration (notes, custom attributes)
 - [x] T040 Write tests: migration correctly identifies and converts bare FGs
-- [ ] T041 Write tests: edge cases (no matching FU, already correct, metadata preserved)
+- [x] T041 Write tests: edge cases (no matching FU, already correct, metadata preserved)
 
 ### Implementation Notes
 - Identification: FG with single Composition where component is a FU, quantity=1
