@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Cascade Delete with Assembly Protection
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -276,3 +276,4 @@ When a FinishedUnit is deleted, cascade-delete its bare FinishedGood and Composi
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T19:02:54Z – unknown – shell_pid=51195 – lane=for_review – All subtasks done. get_assembly_references(), cascade_delete_bare_fg() with assembly protection. 11 new tests, 3563 full suite pass.
