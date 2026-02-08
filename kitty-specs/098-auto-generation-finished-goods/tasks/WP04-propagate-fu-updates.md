@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Propagate FU Updates to Bare FG
+lane: "doing"
+dependencies: [WP03]
+base_branch: 098-auto-generation-finished-goods-WP03
+base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
+created_at: '2026-02-08T18:37:19.692801+00:00'
 subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-title: "Propagate FU Updates to Bare FG"
-phase: "Phase 2 - User Stories"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T019
+- T020
+- T021
+- T022
+- T023
+- T024
+phase: Phase 2 - User Stories
+assignee: ''
+agent: ''
+shell_pid: "49344"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Propagate FU Updates to Bare FG
