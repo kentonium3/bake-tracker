@@ -1979,6 +1979,108 @@ def auto_create_bare_finished_good(
         raise DatabaseError(f"Failed to auto-create bare FinishedGood: {e}")
 
 
+def get_assembly_references(
+    finished_good_id: int, session: Optional[Session] = None
+) -> List[FinishedGood]:
+    """Find all assembled FinishedGoods that use this FG as a component.
+
+    Checks Composition table for records where finished_good_id matches
+    (meaning this FG is used as a component in another FG's assembly).
+
+    Transaction boundary: Read-only query within provided or new session.
+
+    Args:
+        finished_good_id: The FinishedGood ID to check
+        session: Optional session for transaction composition
+
+    Returns:
+        List of parent FinishedGoods (assemblies) that reference this FG
+    """
+    def _impl(sess: Session) -> List[FinishedGood]:
+        compositions = (
+            sess.query(Composition)
+            .filter(Composition.finished_good_id == finished_good_id)
+            .all()
+        )
+        assembly_ids = [c.assembly_id for c in compositions]
+        if not assembly_ids:
+            return []
+        assemblies = (
+            sess.query(FinishedGood)
+            .filter(FinishedGood.id.in_(assembly_ids))
+            .all()
+        )
+        return assemblies
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+
+
+def cascade_delete_bare_fg(
+    finished_unit_id: int, session: Optional[Session] = None
+) -> bool:
+    """Cascade-delete the bare FG for a FinishedUnit.
+
+    Checks for assembly references first. If the bare FG is used as a
+    component in any assembled FinishedGood, raises ValidationError
+    with affected assembly names.
+
+    Transaction boundary: Uses provided session or creates new.
+
+    Args:
+        finished_unit_id: The FinishedUnit whose bare FG to delete
+        session: Optional session for transaction composition
+
+    Returns:
+        True if deleted, False if no bare FG existed
+
+    Raises:
+        ValidationError: If bare FG is used in assembled FGs
+    """
+    def _impl(sess: Session) -> bool:
+        bare_fg = find_bare_fg_for_unit(finished_unit_id, session=sess)
+        if bare_fg is None:
+            return False
+
+        # Check assembly references
+        assemblies = get_assembly_references(bare_fg.id, session=sess)
+        if assemblies:
+            names = [a.display_name for a in assemblies]
+            raise ValidationError(
+                [
+                    f"Cannot delete - this item is used in {len(assemblies)} "
+                    f"assembled product(s): {', '.join(names)}"
+                ]
+            )
+
+        # Delete Composition(s) linking bare FG to FU
+        compositions = (
+            sess.query(Composition)
+            .filter(Composition.assembly_id == bare_fg.id)
+            .all()
+        )
+        for comp in compositions:
+            sess.delete(comp)
+
+        # Delete bare FG
+        sess.delete(bare_fg)
+        sess.flush()
+        return True
+
+    if session is not None:
+        return _impl(session)
+    try:
+        with session_scope() as sess:
+            return _impl(sess)
+    except (ValidationError,):
+        raise
+    except SQLAlchemyError as e:
+        logger.error(f"Database error cascade-deleting bare FG: {e}")
+        raise DatabaseError(f"Failed to cascade-delete bare FinishedGood: {e}")
+
+
 # Module-level convenience functions
 
 
