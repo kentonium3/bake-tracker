@@ -1544,6 +1544,35 @@ def _import_complete_impl(
 
     if clear_existing:
         import traceback
+        import os
+        from datetime import timezone
+
+        # Persistent audit log (survives even if stdout is not watched)
+        stack_text = "".join(traceback.format_stack())
+        audit_entry = (
+            f"\n{'=' * 60}\n"
+            f"AUDIT: coordinated_import clear_existing=True\n"
+            f"Time: {datetime.now(timezone.utc).isoformat()}\n"
+            f"PID: {os.getpid()}\n"
+            f"CWD: {os.getcwd()}\n"
+            f"Session bind: {session.bind}\n"
+            f"Stack trace:\n{stack_text}"
+            f"{'=' * 60}\n"
+        )
+        try:
+            from src.utils.config import get_config
+            audit_path = Path(get_config().database_path).parent / "destructive_ops_audit.log"
+            with open(audit_path, "a", encoding="utf-8") as f:
+                f.write(audit_entry)
+        except Exception:
+            pass
+        try:
+            project_audit = Path(__file__).parent.parent.parent / "data" / "destructive_ops_audit.log"
+            with open(project_audit, "a", encoding="utf-8") as f:
+                f.write(audit_entry)
+        except Exception:
+            pass
+
         print("=" * 60)
         print("WARNING: coordinated import clear_existing=True!")
         traceback.print_stack()

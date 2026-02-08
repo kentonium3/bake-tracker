@@ -2105,6 +2105,38 @@ def _clear_all_tables(session) -> None:
         session: SQLAlchemy session
     """
     import traceback
+    import os
+    from datetime import timezone
+
+    # Persistent audit log (survives even if stdout is not watched)
+    stack_text = "".join(traceback.format_stack())
+    audit_entry = (
+        f"\n{'=' * 60}\n"
+        f"AUDIT: _clear_all_tables called\n"
+        f"Time: {datetime.now(timezone.utc).isoformat()}\n"
+        f"PID: {os.getpid()}\n"
+        f"CWD: {os.getcwd()}\n"
+        f"Session bind: {session.bind}\n"
+        f"Stack trace:\n{stack_text}"
+        f"{'=' * 60}\n"
+    )
+    # Write to persistent audit file next to production DB
+    try:
+        from src.utils.config import get_config
+        audit_path = Path(get_config().database_path).parent / "destructive_ops_audit.log"
+        with open(audit_path, "a", encoding="utf-8") as f:
+            f.write(audit_entry)
+    except Exception:
+        pass  # Don't let audit logging break the import
+    # Also write to project data dir (catches test-time calls)
+    try:
+        project_audit = Path(__file__).parent.parent.parent / "data" / "destructive_ops_audit.log"
+        with open(project_audit, "a", encoding="utf-8") as f:
+            f.write(audit_entry)
+    except Exception:
+        pass
+
+    # Also print to stdout for immediate visibility
     print("=" * 60)
     print("WARNING: _clear_all_tables called!")
     traceback.print_stack()
