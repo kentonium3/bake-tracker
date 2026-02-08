@@ -15,7 +15,7 @@ subtasks:
 - T006
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "40598"
 review_status: ''
 reviewed_by: ''
@@ -240,3 +240,4 @@ def create_finished_good(display_name, assembly_type=AssemblyType.BUNDLE,
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T17:23:22Z – claude-opus – shell_pid=40598 – lane=doing – Assigned agent via workflow command
