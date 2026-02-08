@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Auto-Create Bare FinishedGood on FU Creation
+lane: "doing"
+dependencies: [WP02]
+base_branch: 098-auto-generation-finished-goods-WP02
+base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
+created_at: '2026-02-08T18:02:31.313861+00:00'
 subtasks:
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-title: "Auto-Create Bare FinishedGood on FU Creation"
-phase: "Phase 1 - Core Feature"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T013
+- T014
+- T015
+- T016
+- T017
+- T018
+phase: Phase 1 - Core Feature
+assignee: ''
+agent: ''
+shell_pid: "45414"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Auto-Create Bare FinishedGood on FU Creation
