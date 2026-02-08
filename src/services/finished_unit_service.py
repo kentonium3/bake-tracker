@@ -271,11 +271,14 @@ class FinishedUnitService:
             raise DatabaseError(f"Failed to retrieve FinishedUnits: {e}")
 
     @staticmethod
-    def create_finished_unit(display_name: str, recipe_id: int, **kwargs) -> FinishedUnit:
+    def create_finished_unit(
+        display_name: str, recipe_id: int, session: Optional[Session] = None, **kwargs
+    ) -> FinishedUnit:
         """
         Create a new FinishedUnit.
 
-        Transaction boundary: Multi-step operation (atomic).
+        Transaction boundary: Uses provided session or creates new session_scope.
+        When session is provided, all operations execute within the caller's transaction.
         Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
         Steps executed atomically:
             1. Validate display_name and recipe_id
@@ -288,6 +291,7 @@ class FinishedUnitService:
         Args:
             display_name: Required string name
             recipe_id: Required Recipe ID reference (cannot be None)
+            session: Optional session for transaction composition
             **kwargs: Additional optional fields
 
         Returns:
@@ -305,67 +309,32 @@ class FinishedUnitService:
             Feature 045: unit_cost removed from FinishedUnit model.
             Costs are now tracked on ProductionRun instances.
         """
+        # Validate required fields (before session — pure validation)
+        if not display_name or not display_name.strip():
+            raise ValidationError(["Display name is required and cannot be empty"])
+
+        if recipe_id is None:
+            raise ValidationError(["Recipe ID is required and cannot be None"])
+
+        # Feature 083: Validate yield_type (default to 'SERVING' for backward compatibility)
+        yield_type = kwargs.pop("yield_type", "SERVING")
+        yield_type_errors = validate_yield_type(yield_type)
+        if yield_type_errors:
+            raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
+
+        if session is not None:
+            return FinishedUnitService._create_finished_unit_impl(
+                display_name, recipe_id, session, yield_type, **kwargs
+            )
+
         # Retry logic for handling race conditions in slug generation
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                # Validate required fields
-                if not display_name or not display_name.strip():
-                    raise ValidationError(["Display name is required and cannot be empty"])
-
-                if recipe_id is None:
-                    raise ValidationError(["Recipe ID is required and cannot be None"])
-
-                # Feature 083: Validate yield_type (default to 'SERVING' for backward compatibility)
-                yield_type = kwargs.get("yield_type", "SERVING")
-                yield_type_errors = validate_yield_type(yield_type)
-                if yield_type_errors:
-                    raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
-
-                with session_scope() as session:
-                    # Generate unique slug (more robust against race conditions)
-                    slug = FinishedUnitService._generate_unique_slug(display_name.strip(), session)
-
-                    # Validate recipe reference (required)
-                    recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
-                    if not recipe:
-                        raise ValidationError([f"Recipe ID {recipe_id} does not exist"])
-
-                    # Validate name uniqueness within recipe (per yield_type)
-                    FinishedUnitService._validate_name_unique_in_recipe(
-                        display_name.strip(), recipe_id, session, yield_type
+                with session_scope() as sess:
+                    return FinishedUnitService._create_finished_unit_impl(
+                        display_name, recipe_id, sess, yield_type, **kwargs
                     )
-
-                    # Create FinishedUnit with validated data
-                    # Feature 045: unit_cost removed from FinishedUnit model
-                    # Feature 083: yield_type added for dual-yield support
-                    unit_data = {
-                        "slug": slug,
-                        "display_name": display_name.strip(),
-                        "recipe_id": recipe_id,
-                        "inventory_count": kwargs.get("inventory_count", 0),
-                        "yield_mode": kwargs.get("yield_mode"),
-                        "yield_type": yield_type,  # Feature 083: Dual-yield support
-                        "items_per_batch": kwargs.get("items_per_batch"),
-                        "item_unit": kwargs.get("item_unit"),
-                        "batch_percentage": kwargs.get("batch_percentage"),
-                        "portion_description": kwargs.get("portion_description"),
-                        "category": kwargs.get("category") or recipe.category,
-                        "production_notes": kwargs.get("production_notes"),
-                        "notes": kwargs.get("notes"),
-                    }
-
-                    # Remove None values
-                    unit_data = {k: v for k, v in unit_data.items() if v is not None}
-
-                    finished_unit = FinishedUnit(**unit_data)
-                    session.add(finished_unit)
-                    session.flush()  # Get the ID
-
-                    logger.info(
-                        f"Created FinishedUnit: {finished_unit.display_name} (ID: {finished_unit.id})"
-                    )
-                    return finished_unit
 
             except IntegrityError as e:
                 if "uq_finished_unit_slug" in str(e) and attempt < max_retries - 1:
@@ -387,11 +356,71 @@ class FinishedUnitService:
                 raise DatabaseError(f"Failed to create FinishedUnit: {e}")
 
     @staticmethod
-    def update_finished_unit(finished_unit_id: int, **updates) -> FinishedUnit:
+    def _create_finished_unit_impl(
+        display_name: str,
+        recipe_id: int,
+        session: Session,
+        yield_type: str,
+        **kwargs,
+    ) -> FinishedUnit:
+        """Internal implementation of FinishedUnit creation.
+
+        Transaction boundary: Inherits session from caller.
+        All operations execute within the caller's transaction scope.
+        """
+        # Generate unique slug (more robust against race conditions)
+        slug = FinishedUnitService._generate_unique_slug(display_name.strip(), session)
+
+        # Validate recipe reference (required)
+        recipe = session.query(Recipe).filter(Recipe.id == recipe_id).first()
+        if not recipe:
+            raise ValidationError([f"Recipe ID {recipe_id} does not exist"])
+
+        # Validate name uniqueness within recipe (per yield_type)
+        FinishedUnitService._validate_name_unique_in_recipe(
+            display_name.strip(), recipe_id, session, yield_type
+        )
+
+        # Create FinishedUnit with validated data
+        # Feature 045: unit_cost removed from FinishedUnit model
+        # Feature 083: yield_type added for dual-yield support
+        unit_data = {
+            "slug": slug,
+            "display_name": display_name.strip(),
+            "recipe_id": recipe_id,
+            "inventory_count": kwargs.get("inventory_count", 0),
+            "yield_mode": kwargs.get("yield_mode"),
+            "yield_type": yield_type,  # Feature 083: Dual-yield support
+            "items_per_batch": kwargs.get("items_per_batch"),
+            "item_unit": kwargs.get("item_unit"),
+            "batch_percentage": kwargs.get("batch_percentage"),
+            "portion_description": kwargs.get("portion_description"),
+            "category": kwargs.get("category") or recipe.category,
+            "production_notes": kwargs.get("production_notes"),
+            "notes": kwargs.get("notes"),
+        }
+
+        # Remove None values
+        unit_data = {k: v for k, v in unit_data.items() if v is not None}
+
+        finished_unit = FinishedUnit(**unit_data)
+        session.add(finished_unit)
+        session.flush()  # Get the ID
+
+        logger.info(
+            f"Created FinishedUnit: {finished_unit.display_name} (ID: {finished_unit.id})"
+        )
+        return finished_unit
+
+    @staticmethod
+    def update_finished_unit(
+        finished_unit_id: int, session: Optional[Session] = None, **updates
+    ) -> FinishedUnit:
         """
         Update an existing FinishedUnit.
 
-        Transaction boundary: Multi-step operation (atomic).
+        Transaction boundary: Uses provided session or creates new session_scope.
+        When session is provided, all operations execute within the caller's transaction.
         Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
         Steps executed atomically:
             1. Query existing FinishedUnit
@@ -402,6 +431,7 @@ class FinishedUnitService:
 
         Args:
             finished_unit_id: ID of FinishedUnit to update
+            session: Optional session for transaction composition
             **updates: Dictionary of fields to update
 
         Returns:
@@ -415,88 +445,107 @@ class FinishedUnitService:
         Performance:
             Must complete in <500ms per contract
         """
+        if session is not None:
+            return FinishedUnitService._update_finished_unit_impl(
+                finished_unit_id, session, **updates
+            )
+
         try:
-            with session_scope() as session:
-                unit = (
-                    session.query(FinishedUnit).filter(FinishedUnit.id == finished_unit_id).first()
+            with session_scope() as sess:
+                return FinishedUnitService._update_finished_unit_impl(
+                    finished_unit_id, sess, **updates
                 )
-
-                if not unit:
-                    raise FinishedUnitNotFoundError(f"FinishedUnit ID {finished_unit_id} not found")
-
-                # Validate updates
-                if "display_name" in updates:
-                    display_name = updates["display_name"]
-                    if not display_name or not display_name.strip():
-                        raise ValidationError(["Display name cannot be empty"])
-
-                    # Update slug if display name changed
-                    if display_name.strip() != unit.display_name:
-                        new_slug = FinishedUnitService._generate_unique_slug(
-                            display_name.strip(), session, unit.id
-                        )
-                        updates["slug"] = new_slug
-
-                # Feature 045: unit_cost validation removed (field no longer exists)
-
-                # Feature 083: Validate yield_type if being updated
-                if "yield_type" in updates:
-                    yield_type = updates["yield_type"]
-                    yield_type_errors = validate_yield_type(yield_type)
-                    if yield_type_errors:
-                        raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
-
-                if "inventory_count" in updates and updates["inventory_count"] < 0:
-                    raise ValidationError(["Inventory count must be non-negative"])
-
-                if "recipe_id" in updates and updates["recipe_id"] is not None:
-                    recipe = session.query(Recipe).filter(Recipe.id == updates["recipe_id"]).first()
-                    if not recipe:
-                        raise ValidationError([f"Recipe ID {updates['recipe_id']} does not exist"])
-
-                # Validate name uniqueness within recipe for renames or recipe changes
-                # Get the effective values after update
-                effective_name = updates.get("display_name", unit.display_name)
-                if effective_name:
-                    effective_name = effective_name.strip()
-                effective_recipe_id = updates.get("recipe_id", unit.recipe_id)
-                effective_yield_type = updates.get("yield_type", unit.yield_type or "SERVING")
-
-                # Check if name, recipe, or yield_type is changing
-                name_changing = "display_name" in updates and effective_name != unit.display_name
-                recipe_changing = "recipe_id" in updates and effective_recipe_id != unit.recipe_id
-                yield_type_changing = "yield_type" in updates and effective_yield_type != unit.yield_type
-
-                if name_changing or recipe_changing or yield_type_changing:
-                    FinishedUnitService._validate_name_unique_in_recipe(
-                        effective_name,
-                        effective_recipe_id,
-                        session,
-                        effective_yield_type,
-                        exclude_id=finished_unit_id,
-                    )
-
-                # Apply updates
-                for field, value in updates.items():
-                    if hasattr(unit, field):
-                        setattr(unit, field, value)
-
-                unit.updated_at = utc_now()
-                session.flush()
-
-                logger.info(f"Updated FinishedUnit ID {finished_unit_id}: {unit.display_name}")
-                return unit
 
         except SQLAlchemyError as e:
             logger.error(f"Database error updating FinishedUnit ID {finished_unit_id}: {e}")
             raise DatabaseError(f"Failed to update FinishedUnit: {e}")
 
     @staticmethod
-    def delete_finished_unit(finished_unit_id: int) -> bool:
+    def _update_finished_unit_impl(
+        finished_unit_id: int, session: Session, **updates
+    ) -> FinishedUnit:
+        """Internal implementation of FinishedUnit update.
+
+        Transaction boundary: Inherits session from caller.
+        All operations execute within the caller's transaction scope.
+        """
+        unit = (
+            session.query(FinishedUnit).filter(FinishedUnit.id == finished_unit_id).first()
+        )
+
+        if not unit:
+            raise FinishedUnitNotFoundError(f"FinishedUnit ID {finished_unit_id} not found")
+
+        # Validate updates
+        if "display_name" in updates:
+            display_name = updates["display_name"]
+            if not display_name or not display_name.strip():
+                raise ValidationError(["Display name cannot be empty"])
+
+            # Update slug if display name changed
+            if display_name.strip() != unit.display_name:
+                new_slug = FinishedUnitService._generate_unique_slug(
+                    display_name.strip(), session, unit.id
+                )
+                updates["slug"] = new_slug
+
+        # Feature 045: unit_cost validation removed (field no longer exists)
+
+        # Feature 083: Validate yield_type if being updated
+        if "yield_type" in updates:
+            yield_type = updates["yield_type"]
+            yield_type_errors = validate_yield_type(yield_type)
+            if yield_type_errors:
+                raise ValueError(f"Invalid yield_type: {'; '.join(yield_type_errors)}")
+
+        if "inventory_count" in updates and updates["inventory_count"] < 0:
+            raise ValidationError(["Inventory count must be non-negative"])
+
+        if "recipe_id" in updates and updates["recipe_id"] is not None:
+            recipe = session.query(Recipe).filter(Recipe.id == updates["recipe_id"]).first()
+            if not recipe:
+                raise ValidationError([f"Recipe ID {updates['recipe_id']} does not exist"])
+
+        # Validate name uniqueness within recipe for renames or recipe changes
+        # Get the effective values after update
+        effective_name = updates.get("display_name", unit.display_name)
+        if effective_name:
+            effective_name = effective_name.strip()
+        effective_recipe_id = updates.get("recipe_id", unit.recipe_id)
+        effective_yield_type = updates.get("yield_type", unit.yield_type or "SERVING")
+
+        # Check if name, recipe, or yield_type is changing
+        name_changing = "display_name" in updates and effective_name != unit.display_name
+        recipe_changing = "recipe_id" in updates and effective_recipe_id != unit.recipe_id
+        yield_type_changing = "yield_type" in updates and effective_yield_type != unit.yield_type
+
+        if name_changing or recipe_changing or yield_type_changing:
+            FinishedUnitService._validate_name_unique_in_recipe(
+                effective_name,
+                effective_recipe_id,
+                session,
+                effective_yield_type,
+                exclude_id=finished_unit_id,
+            )
+
+        # Apply updates
+        for field, value in updates.items():
+            if hasattr(unit, field):
+                setattr(unit, field, value)
+
+        unit.updated_at = utc_now()
+        session.flush()
+
+        logger.info(f"Updated FinishedUnit ID {finished_unit_id}: {unit.display_name}")
+        return unit
+
+    @staticmethod
+    def delete_finished_unit(finished_unit_id: int, session: Optional[Session] = None) -> bool:
         """
         Delete a FinishedUnit.
 
-        Transaction boundary: Multi-step operation (atomic).
+        Transaction boundary: Uses provided session or creates new session_scope.
+        When session is provided, all operations execute within the caller's transaction.
         Atomicity guarantee: Either ALL steps succeed OR entire operation rolls back.
         Steps executed atomically:
             1. Query FinishedUnit
@@ -505,6 +554,7 @@ class FinishedUnitService:
 
         Args:
             finished_unit_id: ID of FinishedUnit to delete
+            session: Optional session for transaction composition
 
         Returns:
             True if deleted, False if not found
@@ -516,39 +566,55 @@ class FinishedUnitService:
         Performance:
             Must complete in <500ms per contract
         """
+        if session is not None:
+            return FinishedUnitService._delete_finished_unit_impl(
+                finished_unit_id, session
+            )
+
         try:
-            with session_scope() as session:
-                unit = (
-                    session.query(FinishedUnit).filter(FinishedUnit.id == finished_unit_id).first()
+            with session_scope() as sess:
+                return FinishedUnitService._delete_finished_unit_impl(
+                    finished_unit_id, sess
                 )
-
-                if not unit:
-                    logger.debug(f"FinishedUnit ID {finished_unit_id} not found for deletion")
-                    return False
-
-                # Check for composition references
-                composition_count = (
-                    session.query(Composition)
-                    .filter(Composition.finished_unit_id == finished_unit_id)
-                    .count()
-                )
-
-                if composition_count > 0:
-                    raise ReferencedUnitError(
-                        f"Cannot delete FinishedUnit '{unit.display_name}' - "
-                        f"it is referenced in {composition_count} compositions"
-                    )
-
-                # Delete the unit
-                display_name = unit.display_name
-                session.delete(unit)
-
-                logger.info(f"Deleted FinishedUnit ID {finished_unit_id}: {display_name}")
-                return True
 
         except SQLAlchemyError as e:
             logger.error(f"Database error deleting FinishedUnit ID {finished_unit_id}: {e}")
             raise DatabaseError(f"Failed to delete FinishedUnit: {e}")
+
+    @staticmethod
+    def _delete_finished_unit_impl(finished_unit_id: int, session: Session) -> bool:
+        """Internal implementation of FinishedUnit deletion.
+
+        Transaction boundary: Inherits session from caller.
+        All operations execute within the caller's transaction scope.
+        """
+        unit = (
+            session.query(FinishedUnit).filter(FinishedUnit.id == finished_unit_id).first()
+        )
+
+        if not unit:
+            logger.debug(f"FinishedUnit ID {finished_unit_id} not found for deletion")
+            return False
+
+        # Check for composition references
+        composition_count = (
+            session.query(Composition)
+            .filter(Composition.finished_unit_id == finished_unit_id)
+            .count()
+        )
+
+        if composition_count > 0:
+            raise ReferencedUnitError(
+                f"Cannot delete FinishedUnit '{unit.display_name}' - "
+                f"it is referenced in {composition_count} compositions"
+            )
+
+        # Delete the unit
+        display_name = unit.display_name
+        session.delete(unit)
+
+        logger.info(f"Deleted FinishedUnit ID {finished_unit_id}: {display_name}")
+        return True
 
     # Inventory Management
 
@@ -884,19 +950,31 @@ def get_all_finished_units(
     )
 
 
-def create_finished_unit(display_name: str, **kwargs) -> FinishedUnit:
+def create_finished_unit(
+    display_name: str, recipe_id: int = None, session: Optional[Session] = None, **kwargs
+) -> FinishedUnit:
     """Create a new FinishedUnit."""
-    return FinishedUnitService.create_finished_unit(display_name, **kwargs)
+    return FinishedUnitService.create_finished_unit(
+        display_name, recipe_id=recipe_id, session=session, **kwargs
+    )
 
 
-def update_finished_unit(finished_unit_id: int, **updates) -> FinishedUnit:
+def update_finished_unit(
+    finished_unit_id: int, session: Optional[Session] = None, **updates
+) -> FinishedUnit:
     """Update an existing FinishedUnit."""
-    return FinishedUnitService.update_finished_unit(finished_unit_id, **updates)
+    return FinishedUnitService.update_finished_unit(
+        finished_unit_id, session=session, **updates
+    )
 
 
-def delete_finished_unit(finished_unit_id: int) -> bool:
+def delete_finished_unit(
+    finished_unit_id: int, session: Optional[Session] = None
+) -> bool:
     """Delete a FinishedUnit."""
-    return FinishedUnitService.delete_finished_unit(finished_unit_id)
+    return FinishedUnitService.delete_finished_unit(
+        finished_unit_id, session=session
+    )
 
 
 def update_inventory(finished_unit_id: int, quantity_change: int) -> FinishedUnit:
