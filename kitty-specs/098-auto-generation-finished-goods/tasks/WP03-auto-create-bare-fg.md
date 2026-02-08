@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Auto-Create Bare FinishedGood on FU Creation
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 098-auto-generation-finished-goods-WP02
 base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
@@ -288,3 +288,4 @@ session.add(composition)
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
 - 2026-02-08T18:02:31Z – claude-opus – shell_pid=45414 – lane=doing – Assigned agent via workflow command
+- 2026-02-08T18:25:18Z – claude-opus – shell_pid=45414 – lane=for_review – Ready for review: find_bare_fg_for_unit, auto_create_bare_finished_good, integration with _reconcile_yield_types, cascade delete on FU removal, 15 tests passing, 3601 full suite pass
