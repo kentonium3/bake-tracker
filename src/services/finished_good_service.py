@@ -1882,7 +1882,104 @@ class FinishedGoodService:
             raise DatabaseError(f"Failed to get assemblies requiring attention: {e}")
 
 
-# Module-level convenience functions for backward compatibility
+# ============================================================================
+# F098: Auto-Generation of Bare FinishedGoods
+# ============================================================================
+
+
+def find_bare_fg_for_unit(
+    finished_unit_id: int, session: Optional[Session] = None
+) -> Optional[FinishedGood]:
+    """Find the bare FinishedGood linked to a FinishedUnit.
+
+    Returns None if no bare FG exists for this FU (instead of raising exception,
+    since "not found" is a valid state during creation flow).
+
+    Transaction boundary: Read-only query within provided or new session.
+
+    Args:
+        finished_unit_id: The FinishedUnit ID to look up
+        session: Optional session for transaction composition
+
+    Returns:
+        The bare FinishedGood or None if not found
+    """
+    def _impl(sess: Session) -> Optional[FinishedGood]:
+        composition = (
+            sess.query(Composition)
+            .join(FinishedGood, FinishedGood.id == Composition.assembly_id)
+            .filter(Composition.finished_unit_id == finished_unit_id)
+            .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+            .first()
+        )
+        if composition:
+            return composition.assembly
+        return None
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+
+
+def auto_create_bare_finished_good(
+    finished_unit_id: int,
+    display_name: str,
+    session: Optional[Session] = None,
+) -> FinishedGood:
+    """Auto-create a bare FinishedGood for a FinishedUnit.
+
+    Creates a FinishedGood with assembly_type=BARE and a single
+    Composition linking to the source FinishedUnit (quantity=1).
+
+    Transaction boundary: Uses provided session or creates new.
+    All operations atomic within the session.
+
+    Args:
+        finished_unit_id: Source FinishedUnit ID
+        display_name: Display name (inherited from the FU)
+        session: Optional session for transaction composition
+
+    Returns:
+        The created bare FinishedGood
+
+    Raises:
+        ValidationError: If bare FG already exists for this FU
+    """
+    def _impl(sess: Session) -> FinishedGood:
+        existing = find_bare_fg_for_unit(finished_unit_id, session=sess)
+        if existing:
+            raise ValidationError(
+                [f"Bare FinishedGood already exists for FinishedUnit {finished_unit_id}"]
+            )
+
+        component_spec = {
+            "type": "finished_unit",
+            "id": finished_unit_id,
+            "quantity": 1,
+        }
+        fg = FinishedGoodService.create_finished_good(
+            display_name=display_name,
+            assembly_type=AssemblyType.BARE,
+            components=[component_spec],
+            session=sess,
+        )
+        return fg
+
+    if session is not None:
+        return _impl(session)
+
+    try:
+        with session_scope() as sess:
+            return _impl(sess)
+    except (ValidationError,):
+        raise
+    except SQLAlchemyError as e:
+        logger.error(f"Database error auto-creating bare FG: {e}")
+        raise DatabaseError(f"Failed to auto-create bare FinishedGood: {e}")
+
+
+# Module-level convenience functions
 
 
 def get_finished_good_by_id(finished_good_id: int) -> FinishedGood:

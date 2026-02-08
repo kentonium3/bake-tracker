@@ -43,6 +43,7 @@ from src.services import (
     product_service,
     purchase_service,
     finished_unit_service,
+    finished_good_service,
 )
 
 from src.services.unit_converter import convert_any_units
@@ -483,7 +484,7 @@ def _reconcile_yield_types(
         yt_id = yt.get("id")
         if yt_id is None:
             # New yield type -> create FU
-            finished_unit_service.create_finished_unit(
+            fu = finished_unit_service.create_finished_unit(
                 display_name=yt["display_name"],
                 recipe_id=recipe_id,
                 session=session,
@@ -491,6 +492,19 @@ def _reconcile_yield_types(
                 items_per_batch=yt.get("items_per_batch"),
                 yield_type=yt.get("yield_type", "EA"),
             )
+
+            # Auto-create bare FG for EA yield types (F098)
+            if yt.get("yield_type") == "EA":
+                session.flush()  # Ensure fu.id is available
+                existing_fg = finished_good_service.find_bare_fg_for_unit(
+                    fu.id, session=session
+                )
+                if existing_fg is None:
+                    finished_good_service.auto_create_bare_finished_good(
+                        finished_unit_id=fu.id,
+                        display_name=fu.display_name,
+                        session=session,
+                    )
         else:
             # Existing yield type -> update FU
             keeping_ids.add(yt_id)
@@ -503,9 +517,13 @@ def _reconcile_yield_types(
                 yield_type=yt.get("yield_type", "SERVING"),
             )
 
-    # Delete removed yield types
+    # Delete removed yield types (and their bare FGs)
     for fu_id in existing_fu_map:
         if fu_id not in keeping_ids:
+            # Delete associated bare FG first to avoid reference constraint (F098)
+            bare_fg = finished_good_service.find_bare_fg_for_unit(fu_id, session=session)
+            if bare_fg is not None:
+                finished_good_service.delete_finished_good(bare_fg.id, session=session)
             finished_unit_service.delete_finished_unit(fu_id, session=session)
 
 
