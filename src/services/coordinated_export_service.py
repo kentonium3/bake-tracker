@@ -1573,10 +1573,15 @@ def _import_complete_impl(
         except Exception:
             pass
 
-        print("=" * 60)
-        print("WARNING: coordinated import clear_existing=True!")
-        traceback.print_stack()
-        print("=" * 60)
+        # Log using Python logging module for proper integration
+        logger.warning(
+            "DESTRUCTIVE OPERATION: coordinated import clear_existing=True\n"
+            "PID: %s, CWD: %s, Session: %s\n"
+            "See destructive_ops_audit.log for full stack trace",
+            os.getpid(),
+            os.getcwd(),
+            session.bind,
+        )
         # Clear existing data first (replace mode)
         # Delete in reverse dependency order to avoid FK constraint violations
         from src.models.supplier import Supplier

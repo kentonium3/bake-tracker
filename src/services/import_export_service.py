@@ -2136,20 +2136,32 @@ def _clear_all_tables(session) -> None:
     except Exception:
         pass
 
-    # Also print to stdout for immediate visibility
-    print("=" * 60)
-    print("WARNING: _clear_all_tables called!")
-    traceback.print_stack()
-    print("=" * 60)
+    # Log using Python logging module for proper integration
+    logger.warning(
+        "DESTRUCTIVE OPERATION: _clear_all_tables called\n"
+        "PID: %s, CWD: %s, Session: %s\n"
+        "See destructive_ops_audit.log for full stack trace",
+        os.getpid(),
+        os.getcwd(),
+        session.bind,
+    )
 
     from src.models.recipe import Recipe, RecipeIngredient
     from src.models.recipe_category import RecipeCategory
     from src.models.event import Event, EventRecipientPackage
     from src.models.recipient import Recipient
+    from src.models.material_category import MaterialCategory
+    from src.models.material_subcategory import MaterialSubcategory
+    from src.models.material import Material
+    from src.models.material_product import MaterialProduct
+    from src.models.material_unit import MaterialUnit
+    from src.models.material_purchase import MaterialPurchase
+    from src.models.material_inventory_item import MaterialInventoryItem
 
     # Tables in REVERSE dependency order to avoid FK violations
     # Order: dependent tables cleared first, base tables cleared last
     # Feature 027: Added Supplier (cleared after Products since Products reference Suppliers)
+    # Feature 047: Added Material tables (cleared in reverse dependency order)
     # Feature 068: Added planning tables (cleared before Event)
     tables_to_clear = [
         ProductionRecord,
@@ -2174,6 +2186,14 @@ def _clear_all_tables(session) -> None:
         Product,
         Supplier,  # Feature 027: Products reference suppliers, purchases reference suppliers
         Ingredient,
+        # Feature 047: Material management tables
+        MaterialInventoryItem,  # Depends on MaterialUnit
+        MaterialPurchase,  # Depends on MaterialProduct
+        MaterialUnit,  # Depends on Material
+        MaterialProduct,  # Depends on Material
+        Material,  # Depends on MaterialSubcategory
+        MaterialSubcategory,  # Depends on MaterialCategory
+        MaterialCategory,  # Base material table
     ]
 
     for table in tables_to_clear:
@@ -4849,6 +4869,26 @@ def import_all_from_json_v4(
                             str(e)
                         )
                 session.flush()
+
+            # Safety check for replace mode (Fix 1 - Data loss prevention)
+            # Verify critical tables have data before committing if data was provided
+            if mode == "replace":
+                critical_checks = [
+                    ("ingredients", Ingredient, "ingredient"),
+                    ("recipes", Recipe, "recipe"),
+                    ("products", Product, "product"),
+                ]
+                for data_key, table_class, entity_name in critical_checks:
+                    # Only check if data was provided for this entity type
+                    if data.get(data_key):
+                        count = session.query(table_class).count()
+                        if count == 0:
+                            # Rollback happens when session_scope exits
+                            raise ImportError(
+                                f"Replace import would leave {entity_name} table empty "
+                                f"even though {len(data[data_key])} {entity_name}(s) were provided. "
+                                f"This indicates import failures. Rolling back to preserve existing data."
+                            )
 
             # Commit transaction
             session.commit()

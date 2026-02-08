@@ -985,7 +985,23 @@ def import_all(input_file: str, mode: str = "merge", force: bool = False):
                 return 1
 
         result = import_all_from_json_v4(input_file, mode=mode)
-        print(result.get_summary())
+        summary_text = result.get_summary()
+        print(summary_text)
+
+        # Write log file for audit trail (Fix 4 - using proper service layer)
+        try:
+            from src.services import import_log_service
+            log_path = import_log_service.write_import_log(
+                input_file,
+                result,
+                summary_text,
+                purpose="backup",
+                mode=mode,
+            )
+            print(f"\nLog file: {log_path}")
+        except Exception as e:
+            # Don't fail the import if logging fails
+            print(f"\nWarning: Could not write log file: {e}")
 
         if result.failed > 0:
             return 1

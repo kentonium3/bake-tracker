@@ -507,10 +507,15 @@ def reset_database(confirm: bool = False) -> None:
     except Exception:
         pass
 
-    print("=" * 60)
-    print("WARNING: reset_database called!")
-    traceback.print_stack()
-    print("=" * 60)
+    # Log using Python logging module for proper integration
+    logger.warning(
+        "DESTRUCTIVE OPERATION: reset_database called (confirm=%s)\n"
+        "PID: %s, CWD: %s\n"
+        "See destructive_ops_audit.log for full stack trace",
+        confirm,
+        os.getpid(),
+        os.getcwd(),
+    )
 
     if not confirm:
         raise ValueError("Must pass confirm=True to reset database. This will delete all data!")
