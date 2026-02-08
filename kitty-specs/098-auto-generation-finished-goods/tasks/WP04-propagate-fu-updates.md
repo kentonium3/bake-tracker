@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Propagate FU Updates to Bare FG
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -233,3 +233,4 @@ When a FinishedUnit's name or category changes during recipe update, automatical
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T18:50:49Z – unknown – shell_pid=49344 – lane=for_review – All subtasks done. sync_bare_finished_good() propagates display_name and slug. 8 new tests, 3563 full suite pass.
