@@ -55,12 +55,12 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T007 Design and implement `save_recipe_with_yields()` function signature
-- [ ] T008 Implement yield type reconciliation logic (port from `_save_yield_types()`)
-- [ ] T009 Wire FU create/update/delete calls within single session
-- [ ] T010 Write tests: create recipe with multiple yield types atomically
-- [ ] T011 Write tests: yield reconciliation (add new, update existing, remove old)
-- [ ] T012 Write tests: transaction rollback on any failure
+- [x] T007 Design and implement `save_recipe_with_yields()` function signature
+- [x] T008 Implement yield type reconciliation logic (port from `_save_yield_types()`)
+- [x] T009 Wire FU create/update/delete calls within single session
+- [x] T010 Write tests: create recipe with multiple yield types atomically
+- [x] T011 Write tests: yield reconciliation (add new, update existing, remove old)
+- [x] T012 Write tests: transaction rollback on any failure
 
 ### Implementation Notes
 - Port reconciliation logic from `recipes_tab._save_yield_types()` (lines 660-718)
