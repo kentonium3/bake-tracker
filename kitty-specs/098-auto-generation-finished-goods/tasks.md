@@ -122,7 +122,7 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T019 Create `sync_bare_finished_good()` in `finished_good_service.py`
+- [x] T019 Create `sync_bare_finished_good()` in `finished_good_service.py`
 - [ ] T020 Integrate sync into `save_recipe_with_yields()` update path
 - [ ] T021 [P] Implement name propagation (display_name + slug regeneration)
 - [ ] T022 [P] Implement category propagation
