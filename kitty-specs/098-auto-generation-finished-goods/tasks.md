@@ -127,7 +127,7 @@
 - [x] T021 [P] Implement name propagation (display_name + slug regeneration)
 - [x] T022 [P] Implement category propagation
 - [x] T023 Write tests: name and category propagation within same transaction
-- [ ] T024 Write tests: edge cases (no bare FG, only changed fields updated, unrelated FU unaffected)
+- [x] T024 Write tests: edge cases (no bare FG, only changed fields updated, unrelated FU unaffected)
 
 ### Implementation Notes
 - `sync_bare_finished_good(finished_unit_id, session)` finds bare FG via Composition join, updates name/category
