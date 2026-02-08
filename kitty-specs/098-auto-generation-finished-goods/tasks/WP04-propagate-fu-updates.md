@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Propagate FU Updates to Bare FG
-lane: "doing"
+lane: "done"
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -17,8 +17,8 @@ phase: Phase 2 - User Stories
 assignee: ''
 agent: "claude-opus"
 shell_pid: "53922"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
@@ -235,3 +235,4 @@ When a FinishedUnit's name or category changes during recipe update, automatical
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
 - 2026-02-08T18:50:49Z – unknown – shell_pid=49344 – lane=for_review – All subtasks done. sync_bare_finished_good() propagates display_name and slug. 8 new tests, 3563 full suite pass.
 - 2026-02-08T19:03:57Z – claude-opus – shell_pid=53922 – lane=doing – Started review via workflow command
+- 2026-02-08T19:05:32Z – claude-opus – shell_pid=53922 – lane=done – Review passed: sync_bare_finished_good() correctly propagates display_name and slug changes from FU to bare FG. 8 new tests all pass. T022 (category) correctly N/A since FinishedGood has no category field. Session management, slug collision handling, and EA-only gating all verified. Full suite 3609 passed.
