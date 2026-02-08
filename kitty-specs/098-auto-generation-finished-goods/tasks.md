@@ -256,7 +256,7 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T042 Extend `catalog_import_service._import_recipes_impl()` to create FUs during import
+- [x] T042 Extend `catalog_import_service._import_recipes_impl()` to create FUs during import
 - [ ] T043 Add auto-generation of bare FGs within import transaction
 - [ ] T044 Handle duplicate names during bulk creation (disambiguate)
 - [ ] T045 Write tests: bulk import creates FU + bare FG for each EA-yield recipe
