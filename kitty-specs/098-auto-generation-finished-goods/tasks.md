@@ -160,7 +160,7 @@
 - [x] T027 Integrate cascade delete into `save_recipe_with_yields()` delete path
 - [x] T028 Implement error message with affected assembly listing
 - [x] T029 Write tests: clean cascade delete when no assembly references
-- [ ] T030 Write tests: deletion blocked with correct error when referenced by assemblies
+- [x] T030 Write tests: deletion blocked with correct error when referenced by assemblies
 
 ### Implementation Notes
 - Assembly check: `Composition WHERE finished_good_id = :bare_fg_id` (bare FG used as component)
