@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Refactor UI to Use New Orchestration
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 098-auto-generation-finished-goods-WP02
 base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
@@ -231,3 +231,4 @@ def _add_recipe(self):
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T18:36:40Z – unknown – shell_pid=48035 – lane=for_review – Ready for review: _save_yield_types removed, _add_recipe and _edit_recipe use save_recipe_with_yields, no finished_unit_service import in UI, 3586 tests pass
