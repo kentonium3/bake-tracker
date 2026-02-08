@@ -225,7 +225,7 @@
 - [x] T036 Create migration function to identify bare FGs needing conversion
 - [x] T037 Implement reclassification logic (BUNDLE → BARE for single-FU-component FGs)
 - [x] T038 Verify/establish 1:1 FU↔FG linkage for existing data
-- [ ] T039 Preserve user metadata during migration (notes, custom attributes)
+- [x] T039 Preserve user metadata during migration (notes, custom attributes)
 - [ ] T040 Write tests: migration correctly identifies and converts bare FGs
 - [ ] T041 Write tests: edge cases (no matching FU, already correct, metadata preserved)
 
