@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Bulk Import Auto-Generation
+lane: "doing"
+dependencies: [WP03]
+base_branch: 098-auto-generation-finished-goods-WP03
+base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
+created_at: '2026-02-08T19:04:00.471390+00:00'
 subtasks:
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-  - "T046"
-title: "Bulk Import Auto-Generation"
-phase: "Phase 3 - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP03"]
+- T042
+- T043
+- T044
+- T045
+- T046
+phase: Phase 3 - Integration
+assignee: ''
+agent: ''
+shell_pid: "53895"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Bulk Import Auto-Generation
