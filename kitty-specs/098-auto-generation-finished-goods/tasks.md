@@ -159,7 +159,7 @@
 - [x] T026 Create `cascade_delete_bare_fg()` function
 - [x] T027 Integrate cascade delete into `save_recipe_with_yields()` delete path
 - [x] T028 Implement error message with affected assembly listing
-- [ ] T029 Write tests: clean cascade delete when no assembly references
+- [x] T029 Write tests: clean cascade delete when no assembly references
 - [ ] T030 Write tests: deletion blocked with correct error when referenced by assemblies
 
 ### Implementation Notes
