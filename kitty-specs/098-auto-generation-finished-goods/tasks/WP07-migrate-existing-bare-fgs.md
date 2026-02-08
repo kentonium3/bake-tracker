@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Migration of Existing Bare FinishedGoods
-lane: "doing"
+lane: "for_review"
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -264,3 +264,4 @@ Identify and convert existing manually-created bare FinishedGoods to auto-manage
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T19:29:05Z – unknown – shell_pid=53440 – lane=for_review – Migration functions complete: identify_bare_fg_candidates(), migrate_bare_finished_goods() with dry_run, orphan detection. 14 tests, 3615 full suite pass.
