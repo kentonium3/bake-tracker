@@ -457,10 +457,11 @@ class RecipesTab(ctk.CTkFrame):
                 if "prep_time" in result:
                     result["estimated_time_minutes"] = result.pop("prep_time")
 
-                # Create recipe
-                new_recipe = recipe_service.create_recipe(
-                    result,
-                    ingredients,
+                # Create recipe with yield types atomically (F098)
+                new_recipe = recipe_service.save_recipe_with_yields(
+                    recipe_data=result,
+                    yield_types=yield_types,
+                    ingredients_data=ingredients,
                 )
 
                 # Add pending sub-recipe components
@@ -475,27 +476,12 @@ class RecipesTab(ctk.CTkFrame):
                         # Silently skip component errors (already handled in form validation)
                         pass
 
-                # Save yield types (F044 - WP03 T008)
-                yield_types_saved = self._save_yield_types(new_recipe.id, yield_types)
-
-                # Show appropriate message based on yield type save result
-                if yield_types_saved:
-                    show_success(
-                        "Success",
-                        f"Recipe '{new_recipe.name}' added successfully",
-                        parent=self,
-                    )
-                    self._update_status(f"Added: {new_recipe.name}", success=True)
-                else:
-                    show_error(
-                        "Partial Success",
-                        f"Recipe '{new_recipe.name}' was saved, but yield types could not be saved.\n\n"
-                        "Please edit the recipe to add yield types again.",
-                        parent=self,
-                    )
-                    self._update_status(
-                        f"Added: {new_recipe.name} (yield types failed)", error=True
-                    )
+                show_success(
+                    "Success",
+                    f"Recipe '{new_recipe.name}' added successfully",
+                    parent=self,
+                )
+                self._update_status(f"Added: {new_recipe.name}", success=True)
 
                 self.refresh()
             except ServiceError as e:
@@ -539,34 +525,20 @@ class RecipesTab(ctk.CTkFrame):
                 if "prep_time" in result:
                     result["estimated_time_minutes"] = result.pop("prep_time")
 
-                # Update recipe
-                updated_recipe = recipe_service.update_recipe(
-                    self.selected_recipe.id,
-                    result,
-                    ingredients,
+                # Update recipe with yield types atomically (F098)
+                updated_recipe = recipe_service.save_recipe_with_yields(
+                    recipe_data=result,
+                    yield_types=yield_types,
+                    ingredients_data=ingredients,
+                    recipe_id=self.selected_recipe.id,
                 )
 
-                # Save yield types (F044 - WP03 T008)
-                yield_types_saved = self._save_yield_types(self.selected_recipe.id, yield_types)
-
-                # Show appropriate message based on yield type save result
-                if yield_types_saved:
-                    show_success(
-                        "Success",
-                        f"Recipe '{updated_recipe.name}' updated successfully",
-                        parent=self,
-                    )
-                    self._update_status(f"Updated: {updated_recipe.name}", success=True)
-                else:
-                    show_error(
-                        "Partial Success",
-                        f"Recipe '{updated_recipe.name}' was saved, but yield types could not be saved.\n\n"
-                        "Please edit the recipe to update yield types again.",
-                        parent=self,
-                    )
-                    self._update_status(
-                        f"Updated: {updated_recipe.name} (yield types failed)", error=True
-                    )
+                show_success(
+                    "Success",
+                    f"Recipe '{updated_recipe.name}' updated successfully",
+                    parent=self,
+                )
+                self._update_status(f"Updated: {updated_recipe.name}", success=True)
 
                 self.refresh()
             except ServiceError as e:
@@ -656,66 +628,6 @@ class RecipesTab(ctk.CTkFrame):
         """
         self._update_status(f"Created variant: {result['name']}", success=True)
         self.refresh()
-
-    def _save_yield_types(self, recipe_id: int, yield_types: list) -> bool:
-        """
-        Persist yield type changes for a recipe (F044 - WP03 T008).
-
-        Handles:
-        - Creating new yield types (id=None)
-        - Updating existing yield types (id set)
-        - Deleting removed yield types
-
-        Returns:
-            True if yield types were saved successfully, False otherwise.
-        """
-        from src.services import finished_unit_service
-        import logging
-
-        try:
-            # Get existing yield types for this recipe
-            existing_units = finished_unit_service.get_units_by_recipe(recipe_id)
-            existing_ids = {unit.id for unit in existing_units}
-
-            # Track which IDs we're keeping
-            keeping_ids = set()
-
-            for data in yield_types:
-                if data["id"] is None:
-                    # Create new
-                    finished_unit_service.create_finished_unit(
-                        display_name=data["display_name"],
-                        recipe_id=recipe_id,
-                        item_unit=data.get("item_unit"),
-                        items_per_batch=data["items_per_batch"],
-                        yield_type=data.get("yield_type", "SERVING"),  # Feature 083
-                    )
-                else:
-                    # Update existing
-                    keeping_ids.add(data["id"])
-                    finished_unit_service.update_finished_unit(
-                        data["id"],
-                        display_name=data["display_name"],
-                        item_unit=data.get("item_unit"),
-                        items_per_batch=data["items_per_batch"],
-                        yield_type=data.get("yield_type", "SERVING"),  # Feature 083
-                    )
-
-            # Delete removed yield types
-            for unit in existing_units:
-                if unit.id not in keeping_ids:
-                    finished_unit_service.delete_finished_unit(unit.id)
-
-            return True
-
-        except ServiceError as e:
-            # Log the error (F044 fix: don't silently swallow, return False for caller to handle)
-            logging.exception(f"Error saving yield types for recipe {recipe_id}: {e}")
-            return False
-        except Exception as e:
-            # Log the error (F044 fix: don't silently swallow, return False for caller to handle)
-            logging.exception(f"Error saving yield types for recipe {recipe_id}: {e}")
-            return False
 
     def _view_details(self):
         """Show detailed information about the selected recipe."""
