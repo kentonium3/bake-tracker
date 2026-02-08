@@ -23,7 +23,7 @@ from datetime import datetime
 from src.utils.datetime_utils import utc_now
 from collections import deque
 
-from sqlalchemy import and_, or_, text
+from sqlalchemy import and_, or_, text, func
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -2126,6 +2126,191 @@ def cascade_delete_bare_fg(
         logger.error(f"Database error cascade-deleting bare FG: {e}")
         raise DatabaseError(f"Failed to cascade-delete bare FinishedGood: {e}")
 
+
+def identify_bare_fg_candidates(
+    session: Optional[Session] = None,
+) -> List[Dict[str, Any]]:
+    """Identify FinishedGoods that should be classified as BARE.
+
+    Finds FGs with exactly one Composition record where that composition
+    links to a FinishedUnit (not another FG, packaging, or material)
+    with quantity=1. These are functionally bare even if classified as BUNDLE.
+
+    Transaction boundary: Read-only query within provided or new session.
+
+    Args:
+        session: Optional session for transaction composition
+
+    Returns:
+        List of dicts with analysis for each candidate:
+            - fg_id: FinishedGood ID
+            - fg_name: FinishedGood display_name
+            - current_assembly_type: current AssemblyType value
+            - fu_id: linked FinishedUnit ID
+            - fu_name: FinishedUnit display_name
+            - needs_reclassification: bool (True if BUNDLE -> BARE needed)
+    """
+    def _impl(sess: Session) -> List[Dict[str, Any]]:
+        # Find FGs with exactly one composition
+        comp_count_subq = (
+            sess.query(
+                Composition.assembly_id,
+                func.count(Composition.id).label("comp_count"),
+            )
+            .group_by(Composition.assembly_id)
+            .having(func.count(Composition.id) == 1)
+            .subquery()
+        )
+
+        # Join to get the FG and its single Composition (must be FU type, qty=1)
+        candidates = (
+            sess.query(FinishedGood, Composition)
+            .join(comp_count_subq, FinishedGood.id == comp_count_subq.c.assembly_id)
+            .join(Composition, FinishedGood.id == Composition.assembly_id)
+            .filter(Composition.finished_unit_id.isnot(None))
+            .filter(Composition.component_quantity == 1)
+            .all()
+        )
+
+        results = []
+        for fg, comp in candidates:
+            fu = comp.finished_unit_component
+            results.append(
+                {
+                    "fg_id": fg.id,
+                    "fg_name": fg.display_name,
+                    "current_assembly_type": fg.assembly_type,
+                    "fu_id": comp.finished_unit_id,
+                    "fu_name": fu.display_name if fu else "Unknown",
+                    "needs_reclassification": fg.assembly_type != AssemblyType.BARE,
+                }
+            )
+        return results
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
+
+
+def migrate_bare_finished_goods(
+    dry_run: bool = True, session: Optional[Session] = None
+) -> Dict[str, Any]:
+    """Migrate existing bare FGs to correct classification.
+
+    Identifies functionally-bare FGs and:
+    1. Reclassifies BUNDLE -> BARE where appropriate
+    2. Creates bare FGs for EA FUs that lack them
+    3. Flags orphaned bare FGs (no valid FU) for review
+
+    Only changes assembly_type field - preserves all other metadata
+    (display_name, description, notes, slug).
+
+    Idempotent: safe to run multiple times.
+
+    Transaction boundary: Uses provided session or creates new.
+
+    Args:
+        dry_run: If True, report changes without modifying data
+        session: Optional session for transaction composition
+
+    Returns:
+        Dict with counts:
+            - reclassified: FGs changed from BUNDLE to BARE
+            - already_correct: FGs already classified as BARE
+            - fus_gained_bare_fg: EA FUs that got new bare FGs
+            - orphaned_bare_fgs: bare FGs with no valid FU link
+            - details: list of action descriptions
+    """
+    def _impl(sess: Session) -> Dict[str, Any]:
+        result = {
+            "reclassified": 0,
+            "already_correct": 0,
+            "fus_gained_bare_fg": 0,
+            "orphaned_bare_fgs": 0,
+            "details": [],
+        }
+
+        # Step 1: Identify and reclassify candidates
+        candidates = identify_bare_fg_candidates(session=sess)
+        for candidate in candidates:
+            if candidate["needs_reclassification"]:
+                if not dry_run:
+                    fg = sess.get(FinishedGood, candidate["fg_id"])
+                    if fg:
+                        fg.assembly_type = AssemblyType.BARE
+                result["reclassified"] += 1
+                result["details"].append(
+                    f"Reclassify '{candidate['fg_name']}' "
+                    f"(ID {candidate['fg_id']}) from "
+                    f"{candidate['current_assembly_type']} to BARE"
+                )
+            else:
+                result["already_correct"] += 1
+
+        # Step 2: Find EA FUs without bare FGs and create them
+        all_ea_fus = (
+            sess.query(FinishedUnit)
+            .filter(FinishedUnit.yield_type == "EA")
+            .all()
+        )
+        for fu in all_ea_fus:
+            bare_fg = find_bare_fg_for_unit(fu.id, session=sess)
+            if bare_fg is None:
+                if not dry_run:
+                    auto_create_bare_finished_good(
+                        finished_unit_id=fu.id,
+                        display_name=fu.display_name,
+                        session=sess,
+                    )
+                result["fus_gained_bare_fg"] += 1
+                result["details"].append(
+                    f"Create bare FG for FU '{fu.display_name}' (ID {fu.id})"
+                )
+
+        # Step 3: Find orphaned bare FGs (bare FG with no valid FU)
+        bare_fgs = (
+            sess.query(FinishedGood)
+            .filter(FinishedGood.assembly_type == AssemblyType.BARE)
+            .all()
+        )
+        for fg in bare_fgs:
+            # Check if this bare FG has a valid FU composition
+            comp = (
+                sess.query(Composition)
+                .filter(Composition.assembly_id == fg.id)
+                .filter(Composition.finished_unit_id.isnot(None))
+                .first()
+            )
+            if comp is None:
+                result["orphaned_bare_fgs"] += 1
+                result["details"].append(
+                    f"ORPHANED: Bare FG '{fg.display_name}' (ID {fg.id}) "
+                    f"has no FU composition - needs manual review"
+                )
+                logger.warning(
+                    f"Orphaned bare FG: '{fg.display_name}' (ID {fg.id})"
+                )
+            elif comp.finished_unit_component is None:
+                result["orphaned_bare_fgs"] += 1
+                result["details"].append(
+                    f"ORPHANED: Bare FG '{fg.display_name}' (ID {fg.id}) "
+                    f"references non-existent FU ID {comp.finished_unit_id}"
+                )
+                logger.warning(
+                    f"Orphaned bare FG: '{fg.display_name}' (ID {fg.id}) "
+                    f"- FU ID {comp.finished_unit_id} not found"
+                )
+
+        if not dry_run:
+            sess.flush()
+
+        return result
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as sess:
+        return _impl(sess)
 
 
 # Module-level convenience functions

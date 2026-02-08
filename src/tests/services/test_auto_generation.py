@@ -3,6 +3,7 @@
 WP03 - F098: Auto-Generation of FinishedGoods
 WP04 - F098: Propagate FU Updates to Bare FG
 WP05 - F098: Cascade Delete with Assembly Protection
+WP07 - F098: Migration of Existing Bare FinishedGoods
 
 Tests verify:
 - find_bare_fg_for_unit() lookup works correctly
@@ -16,6 +17,8 @@ Tests verify:
 - cascade_delete_bare_fg() cleans up bare FG and Composition
 - Assembly protection blocks deletion when bare FG is referenced
 - Error messages list affected assembly names
+- identify_bare_fg_candidates() finds FGs needing reclassification
+- migrate_bare_finished_goods() reclassifies BUNDLE->BARE and creates missing bare FGs
 """
 
 import pytest
@@ -1091,3 +1094,302 @@ class TestGetAssemblyReferences:
         refs = finished_good_service.get_assembly_references(fg.id)
         assert len(refs) == 1
         assert refs[0].display_name == "Parent Assembly"
+
+
+# ============================================================================
+# WP07: Migration of Existing Bare FinishedGoods
+# ============================================================================
+
+
+class TestIdentifyBareFgCandidates:
+    """Test identify_bare_fg_candidates() analysis function (T040)."""
+
+    def test_finds_bundle_with_single_fu_component(self, test_db):
+        """FG with single FU component + BUNDLE type -> identified as candidate."""
+        test_db()
+
+        # Manually create a BUNDLE FG with single FU component (pre-F098 pattern)
+        recipe = create_recipe({"name": "Manual Recipe", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Manual Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Manual Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 1}],
+        )
+
+        candidates = finished_good_service.identify_bare_fg_candidates()
+        assert len(candidates) == 1
+        assert candidates[0]["fg_id"] == fg.id
+        assert candidates[0]["fu_id"] == fu.id
+        assert candidates[0]["needs_reclassification"] is True
+
+    def test_already_bare_identified_as_correct(self, test_db):
+        """FG with BARE type -> identified but needs_reclassification=False."""
+        test_db()
+
+        recipe_data = {"name": "Auto Recipe", "category": "Test"}
+        yield_types = [
+            {
+                "id": None,
+                "display_name": "Auto Unit",
+                "yield_type": "EA",
+                "items_per_batch": 1.0,
+            },
+        ]
+        save_recipe_with_yields(recipe_data, yield_types)
+
+        candidates = finished_good_service.identify_bare_fg_candidates()
+        assert len(candidates) == 1
+        assert candidates[0]["needs_reclassification"] is False
+
+    def test_multi_component_fg_not_identified(self, test_db):
+        """FG with multiple components -> NOT a candidate."""
+        test_db()
+
+        recipe = create_recipe({"name": "Multi Recipe", "category": "Test"})
+        fu1 = finished_unit_service.create_finished_unit(
+            display_name="Unit A", recipe_id=recipe.id, yield_type="EA",
+        )
+        fu2 = finished_unit_service.create_finished_unit(
+            display_name="Unit B", recipe_id=recipe.id, yield_type="EA",
+        )
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Multi Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[
+                {"type": "finished_unit", "id": fu1.id, "quantity": 1},
+                {"type": "finished_unit", "id": fu2.id, "quantity": 1},
+            ],
+        )
+
+        candidates = finished_good_service.identify_bare_fg_candidates()
+        assert len(candidates) == 0
+
+    def test_empty_database(self, test_db):
+        """Empty database -> no candidates, no error."""
+        test_db()
+
+        candidates = finished_good_service.identify_bare_fg_candidates()
+        assert candidates == []
+
+
+class TestMigrateBareFgs:
+    """Test migrate_bare_finished_goods() migration function (T040)."""
+
+    def test_reclassifies_bundle_to_bare(self, test_db):
+        """FG with single FU component + BUNDLE -> reclassified to BARE."""
+        test_db()
+
+        recipe = create_recipe({"name": "Migrate Recipe", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Migrate Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Migrate Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 1}],
+        )
+
+        result = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result["reclassified"] == 1
+        assert result["already_correct"] == 0
+
+        # Verify reclassification
+        with session_scope() as sess:
+            updated_fg = sess.get(FinishedGood, fg.id)
+            assert updated_fg.assembly_type == AssemblyType.BARE
+
+    def test_already_correct_skipped(self, test_db):
+        """FG already BARE -> counted as already_correct, not modified."""
+        test_db()
+
+        save_recipe_with_yields(
+            {"name": "Already Bare", "category": "Test"},
+            [
+                {
+                    "id": None,
+                    "display_name": "Already Bare Unit",
+                    "yield_type": "EA",
+                    "items_per_batch": 1.0,
+                },
+            ],
+        )
+
+        result = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result["reclassified"] == 0
+        assert result["already_correct"] == 1
+
+    def test_creates_bare_fg_for_orphaned_ea_fu(self, test_db):
+        """EA FU without bare FG -> bare FG auto-created."""
+        test_db()
+
+        recipe = create_recipe({"name": "Orphan FU", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Lonely FU",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+
+        # Verify no bare FG yet
+        assert finished_good_service.find_bare_fg_for_unit(fu.id) is None
+
+        result = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result["fus_gained_bare_fg"] == 1
+
+        # Verify bare FG now exists
+        fg = finished_good_service.find_bare_fg_for_unit(fu.id)
+        assert fg is not None
+        assert fg.assembly_type == AssemblyType.BARE
+        assert fg.display_name == "Lonely FU"
+
+    def test_dry_run_reports_without_modifying(self, test_db):
+        """dry_run=True reports changes without modifying data."""
+        test_db()
+
+        recipe = create_recipe({"name": "Dry Run", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Dry Run Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Dry Run Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 1}],
+        )
+
+        result = finished_good_service.migrate_bare_finished_goods(dry_run=True)
+        assert result["reclassified"] == 1
+
+        # Verify NOT actually changed
+        with session_scope() as sess:
+            unchanged_fg = sess.get(FinishedGood, fg.id)
+            assert unchanged_fg.assembly_type == AssemblyType.BUNDLE
+
+    def test_idempotent_second_run(self, test_db):
+        """Running migration twice produces same result."""
+        test_db()
+
+        recipe = create_recipe({"name": "Idempotent", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Idempotent Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Idempotent Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 1}],
+        )
+
+        # First run
+        result1 = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result1["reclassified"] == 1
+
+        # Second run - should be all already_correct
+        result2 = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result2["reclassified"] == 0
+        assert result2["already_correct"] == 1
+
+    def test_serving_fu_not_given_bare_fg(self, test_db):
+        """SERVING FUs are NOT given bare FGs during migration."""
+        test_db()
+
+        recipe = create_recipe({"name": "Serving", "category": "Test"})
+        finished_unit_service.create_finished_unit(
+            display_name="Serving Only",
+            recipe_id=recipe.id,
+            yield_type="SERVING",
+        )
+
+        result = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result["fus_gained_bare_fg"] == 0
+
+
+class TestMigrateBareFgsEdgeCases:
+    """Test migration edge cases (T041)."""
+
+    def test_preserves_notes_during_reclassification(self, test_db):
+        """User-added notes preserved when reclassifying BUNDLE -> BARE."""
+        test_db()
+
+        recipe = create_recipe({"name": "Notes Test", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Notes Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Notes Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 1}],
+            notes="User added these notes",
+        )
+
+        finished_good_service.migrate_bare_finished_goods(dry_run=False)
+
+        with session_scope() as sess:
+            updated_fg = sess.get(FinishedGood, fg.id)
+            assert updated_fg.assembly_type == AssemblyType.BARE
+            assert updated_fg.notes == "User added these notes"
+
+    def test_preserves_description_during_reclassification(self, test_db):
+        """User-added description preserved when reclassifying BUNDLE -> BARE."""
+        test_db()
+
+        recipe = create_recipe({"name": "Desc Test", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Desc Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Desc Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 1}],
+            description="A detailed description",
+        )
+
+        finished_good_service.migrate_bare_finished_goods(dry_run=False)
+
+        with session_scope() as sess:
+            updated_fg = sess.get(FinishedGood, fg.id)
+            assert updated_fg.assembly_type == AssemblyType.BARE
+            assert updated_fg.description == "A detailed description"
+
+    def test_quantity_greater_than_one_not_candidate(self, test_db):
+        """FG with single FU component but quantity > 1 -> NOT a candidate."""
+        test_db()
+
+        recipe = create_recipe({"name": "Qty Test", "category": "Test"})
+        fu = finished_unit_service.create_finished_unit(
+            display_name="Qty Unit",
+            recipe_id=recipe.id,
+            yield_type="EA",
+        )
+        # Create BUNDLE with quantity=2 (not bare pattern)
+        fg = finished_good_service.FinishedGoodService.create_finished_good(
+            display_name="Qty Bundle",
+            assembly_type=AssemblyType.BUNDLE,
+            components=[{"type": "finished_unit", "id": fu.id, "quantity": 2}],
+        )
+
+        candidates = finished_good_service.identify_bare_fg_candidates()
+        fg_ids = [c["fg_id"] for c in candidates]
+        assert fg.id not in fg_ids
+
+    def test_empty_database_migration(self, test_db):
+        """Empty database -> migration completes without error."""
+        test_db()
+
+        result = finished_good_service.migrate_bare_finished_goods(dry_run=False)
+        assert result["reclassified"] == 0
+        assert result["already_correct"] == 0
+        assert result["fus_gained_bare_fg"] == 0
+        assert result["orphaned_bare_fgs"] == 0
