@@ -15,7 +15,7 @@ subtasks:
 - T012
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "42991"
 review_status: ''
 reviewed_by: ''
@@ -300,3 +300,4 @@ This pattern moves to the service layer as-is.
 ## Activity Log
 
 - 2026-02-08T17:14:59Z - system - lane=planned - Prompt created.
+- 2026-02-08T17:46:59Z – claude-opus – shell_pid=42991 – lane=doing – Assigned agent via workflow command
