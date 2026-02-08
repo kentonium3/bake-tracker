@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Refactor UI to Use New Orchestration
+lane: "doing"
+dependencies: [WP02]
+base_branch: 098-auto-generation-finished-goods-WP02
+base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
+created_at: '2026-02-08T18:26:12.472696+00:00'
 subtasks:
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-title: "Refactor UI to Use New Orchestration"
-phase: "Phase 2 - Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP02"]
+- T031
+- T032
+- T033
+- T034
+- T035
+phase: Phase 2 - Integration
+assignee: ''
+agent: ''
+shell_pid: "48035"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T17:14:59Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T17:14:59Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Refactor UI to Use New Orchestration
