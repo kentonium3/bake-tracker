@@ -125,7 +125,7 @@
 - [x] T019 Create `sync_bare_finished_good()` in `finished_good_service.py`
 - [x] T020 Integrate sync into `save_recipe_with_yields()` update path
 - [x] T021 [P] Implement name propagation (display_name + slug regeneration)
-- [ ] T022 [P] Implement category propagation
+- [x] T022 [P] Implement category propagation
 - [ ] T023 Write tests: name and category propagation within same transaction
 - [ ] T024 Write tests: edge cases (no bare FG, only changed fields updated, unrelated FU unaffected)
 
