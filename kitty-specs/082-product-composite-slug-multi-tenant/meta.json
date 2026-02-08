@@ -6,5 +6,7 @@
   "source_description": "F082 - Reserved placeholder. See docs/func-spec/F082_product_composite_slug_multi_tenant_readiness.md",
   "created_at": "2026-01-30T00:00:00Z",
   "status": "skipped",
-  "notes": "No kitty-spec implementation was created for this feature. Placeholder to preserve numbering."
+  "vcs": "git",
+  "vcs_locked_at": "2026-01-30T00:00:00Z",
+  "notes": "Kitty-spec artifacts lost due to accidental deletion and failed merge. Placeholder to preserve numbering."
 }
