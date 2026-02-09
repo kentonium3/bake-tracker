@@ -4,5 +4,7 @@
   "friendly_name": "FG Builder Filter-First Refinement",
   "mission": "software-dev",
   "source_description": "See docs/func-spec/F099_finished_goods_builder_refinement.md for feature inputs. See docs/func-spec/claude-pre-implementation-prompt.md for direction.",
-  "created_at": "2026-02-08T20:00:00Z"
+  "created_at": "2026-02-08T20:00:00Z",
+  "vcs": "git",
+  "vcs_locked_at": "2026-02-08T23:58:27.437227+00:00"
 }
