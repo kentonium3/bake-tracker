@@ -667,7 +667,12 @@ class PlanningTab(ctk.CTkFrame):
         """
         Show and populate FG selection for an event.
 
-        F071: Now loads quantities via get_event_fg_quantities().
+        F100/WP03: Filter-first blank start. Sets event context on the frame
+        to populate filter dropdowns. Does NOT auto-populate FGs -- the frame
+        starts blank until the user selects at least one filter.
+
+        F071: Loads existing selections with quantities and restores them
+        in the persistence layer so they appear when the user filters.
 
         Args:
             event_id: ID of the selected event
@@ -678,16 +683,13 @@ class PlanningTab(ctk.CTkFrame):
                 event = event_service.get_event_by_id(event_id, session=session)
                 event_name = event.name if event else ""
 
-                # Get available FGs (filtered by selected recipes)
-                available_fgs = event_service.get_available_finished_goods(event_id, session)
-
                 # F071: Get existing selections with quantities
                 fg_quantities = event_service.get_event_fg_quantities(session, event_id)
 
-            # Populate frame
-            self._fg_selection_frame.populate_finished_goods(available_fgs, event_name)
+            # Set event context and populate filter dropdowns (blank start)
+            self._fg_selection_frame.set_event(event_id, event_name)
 
-            # F071: Set quantities (converts from (FG, qty) to (fg_id, qty) tuples)
+            # F071: Restore existing selections in persistence layer
             qty_tuples = [(fg.id, qty) for fg, qty in fg_quantities]
             self._fg_selection_frame.set_selected_with_quantities(qty_tuples)
 
