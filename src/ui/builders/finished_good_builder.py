@@ -56,6 +56,9 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._is_edit_mode = finished_good is not None
         self._finished_good_id = finished_good.id if finished_good else None
         self._has_changes = False
+        self._search_debounce_id = None
+        self._prev_food_type = ""
+        self._prev_food_category = "All Categories"
 
         # Step completion tracking
         self._step_completed = {1: False, 2: False, 3: False}
@@ -209,8 +212,6 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             self.step1.set_state(STATE_ACTIVE)
             self.step2.set_state(STATE_LOCKED)
             self.step3.set_state(STATE_LOCKED)
-            # Load initial food items
-            self._on_food_filter_changed()
 
     # =========================================================================
     # Edit mode loading
@@ -314,11 +315,11 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         self._food_category_combo.pack(side="left", padx=(0, 5))
 
-        # Bare/Assembly toggle
-        self._food_type_var = ctk.StringVar(value="All")
+        # Item type filter toggle
+        self._food_type_var = ctk.StringVar(value="")
         self._food_type_toggle = ctk.CTkSegmentedButton(
             filter_frame,
-            values=["All", "Bare Items Only"],
+            values=["Finished Units", "Existing Assemblies", "Both"],
             variable=self._food_type_var,
             command=lambda _: self._on_food_filter_changed(),
         )
@@ -333,11 +334,20 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             width=150,
         )
         self._food_search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
-        self._food_search_entry.bind("<KeyRelease>", lambda _: self._on_food_filter_changed())
+        self._food_search_entry.bind("<KeyRelease>", self._on_search_key_release)
 
         # -- Scrollable item list --
         self._food_item_list_frame = ctk.CTkScrollableFrame(content, height=180)
         self._food_item_list_frame.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # -- Blank-start placeholder (removed when items load) --
+        self._food_placeholder_label = ctk.CTkLabel(
+            self._food_item_list_frame,
+            text="Select item type above to see available items",
+            text_color="gray",
+            wraplength=400,
+        )
+        self._food_placeholder_label.pack(padx=20, pady=40)
 
         # -- Error label (hidden by default) --
         self._food_error_label = ctk.CTkLabel(
@@ -366,59 +376,65 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         return ["All Categories"] + categories
 
     def _query_food_items(self) -> List[Dict]:
-        """Query FinishedUnits and FinishedGoods matching current filter state.
+        """Query items matching current filter state.
 
-        Bare items (FinishedUnits) are always included. FinishedGoods (assemblies)
-        are included when type filter is "All".
+        Filter mapping:
+        - "Finished Units": FinishedUnits only (atomic recipe outputs)
+        - "Existing Assemblies": FinishedGoods where assembly_type=BUNDLE
+        - "Both": FinishedUnits + BUNDLE FinishedGoods
+        - "" (empty): No query (blank start)
 
         Returns list of dicts with keys: key, id, display_name, category,
         assembly_type, comp_type, comp_id
         """
-        category_filter = self._food_category_var.get()
         type_filter = self._food_type_var.get()
+        category_filter = self._food_category_var.get()
         search_text = self._food_search_var.get().strip().lower()
+
+        # Blank start: no filter selected yet
+        if not type_filter:
+            return []
 
         items = []
 
-        # Always include FinishedUnits as bare items
-        try:
-            all_units = finished_unit_service.get_all_finished_units()
-        except Exception:
-            all_units = []
-
-        for fu in all_units:
-            if search_text and search_text not in fu.display_name.lower():
-                continue
-            if category_filter != "All Categories":
-                if (fu.category or "") != category_filter:
-                    continue
-
-            key = f"finished_unit:{fu.id}"
-            items.append({
-                "key": key,
-                "id": fu.id,
-                "display_name": fu.display_name,
-                "category": fu.category or "",
-                "assembly_type": AssemblyType.BARE,
-                "comp_type": "finished_unit",
-                "comp_id": fu.id,
-            })
-
-        # Include FinishedGoods (assemblies) when not filtering to bare only
-        if type_filter != "Bare Items Only":
+        # Include FinishedUnits when "Finished Units" or "Both"
+        if type_filter in ("Finished Units", "Both"):
             try:
-                all_fgs = finished_good_service.get_all_finished_goods()
+                all_units = finished_unit_service.get_all_finished_units(
+                    name_search=search_text if search_text else None,
+                    category=category_filter if category_filter != "All Categories" else None,
+                )
+            except Exception:
+                all_units = []
+
+            for fu in all_units:
+                key = f"finished_unit:{fu.id}"
+                items.append({
+                    "key": key,
+                    "id": fu.id,
+                    "display_name": fu.display_name,
+                    "category": fu.category or "",
+                    "assembly_type": AssemblyType.BARE,
+                    "comp_type": "finished_unit",
+                    "comp_id": fu.id,
+                })
+
+        # Include assembled FinishedGoods when "Existing Assemblies" or "Both"
+        if type_filter in ("Existing Assemblies", "Both"):
+            try:
+                all_fgs = finished_good_service.get_all_finished_goods(
+                    name_search=search_text if search_text else None,
+                    assembly_type=AssemblyType.BUNDLE,
+                )
             except Exception:
                 all_fgs = []
 
             for fg in all_fgs:
-                # Self-reference prevention: exclude current FG in edit mode
+                # Self-reference prevention in edit mode
                 if self._is_edit_mode and fg.id == self._finished_good_id:
                     continue
 
-                if search_text and search_text not in fg.display_name.lower():
-                    continue
-
+                # In-memory category filter for FGs (service doesn't support it)
                 if category_filter != "All Categories":
                     fg_category = self._get_fg_category(fg)
                     if fg_category != category_filter:
@@ -449,13 +465,68 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
                     return comp.finished_unit_component.category or ""
         return "Assemblies"
 
+    def _on_search_key_release(self, event=None) -> None:
+        """Debounce search input by 300ms."""
+        if self._search_debounce_id:
+            self.after_cancel(self._search_debounce_id)
+        self._search_debounce_id = self.after(300, self._on_food_search_changed)
+
+    def _on_food_search_changed(self) -> None:
+        """Handle search text changes (no warning dialog, just re-query)."""
+        self._search_debounce_id = None
+        type_filter = self._food_type_var.get()
+        if not type_filter:
+            return
+        items = self._query_food_items()
+        self._render_food_items(items)
+
     def _on_food_filter_changed(self) -> None:
-        """Re-query and re-render the food item list based on current filters."""
+        """Re-query and re-render the food item list based on current filters.
+
+        Shows a confirmation dialog if selections exist and the type or category
+        filter has changed. If cancelled, reverts to previous filter values.
+        """
+        current_type = self._food_type_var.get()
+        current_category = self._food_category_var.get()
+
+        # Check if selections exist and filter actually changed
+        if self._food_selections and (
+            current_type != self._prev_food_type
+            or current_category != self._prev_food_category
+        ):
+            confirmed = show_confirmation(
+                "Clear Selections?",
+                "Changing filters will clear your current selections. Continue?",
+                parent=self,
+            )
+            if not confirmed:
+                # Revert to previous values
+                self._food_type_var.set(self._prev_food_type)
+                self._food_category_var.set(self._prev_food_category)
+                return
+
+            # Clear selections on confirm
+            self._food_selections.clear()
+
+        # Update previous values
+        self._prev_food_type = current_type
+        self._prev_food_category = current_category
+
+        # Skip query if no filter selected (blank start)
+        if not current_type:
+            return
+
+        # Query and render
         items = self._query_food_items()
         self._render_food_items(items)
 
     def _render_food_items(self, items: List[Dict]) -> None:
         """Render the filtered food items as checkbox rows with quantity entries."""
+        # Remove placeholder if present
+        if self._food_placeholder_label is not None:
+            self._food_placeholder_label.destroy()
+            self._food_placeholder_label = None
+
         # Clear existing children
         for widget in self._food_item_list_frame.winfo_children():
             widget.destroy()
@@ -682,12 +753,24 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self.step3.set_state(STATE_LOCKED)
         self.step3.set_summary("")
 
-        # Reset food filters and re-render
+        # Reset food filters to blank-start state
         self._food_category_var.set("All Categories")
-        self._food_type_var.set("All")
+        self._food_type_var.set("")
         self._food_search_var.set("")
+        self._prev_food_type = ""
+        self._prev_food_category = "All Categories"
         self._clear_food_error()
-        self._on_food_filter_changed()
+
+        # Clear items and re-show placeholder
+        for widget in self._food_item_list_frame.winfo_children():
+            widget.destroy()
+        self._food_placeholder_label = ctk.CTkLabel(
+            self._food_item_list_frame,
+            text="Select item type above to see available items",
+            text_color="gray",
+            wraplength=400,
+        )
+        self._food_placeholder_label.pack(padx=20, pady=40)
 
         # Reset material filters
         self._mat_category_var.set("All Categories")
