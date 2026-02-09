@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Filter-First Builder Dialog
-lane: "planned"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 847afa7bf6ac7099bb461302afd2ce53a409309f
@@ -437,3 +437,4 @@ spec-kitty implement WP01
 - 2026-02-09T00:14:23Z – claude-opus – shell_pid=82425 – lane=for_review – Ready for review: Filter-first blank-start builder with debounce, new filter options, and selection-aware filter change warnings. All 3644 tests pass.
 - 2026-02-09T00:15:16Z – gemini-reviewer – shell_pid=85620 – lane=doing – Started review via workflow command
 - 2026-02-09T00:42:32Z – gemini-reviewer – shell_pid=85620 – lane=planned – Moved to planned
+- 2026-02-09T00:45:00Z – gemini-reviewer – shell_pid=85620 – lane=for_review – Addressed review feedback: Updated 6 semantically broken tests with new filter values and query patterns. Tests now use Finished Units/Existing Assemblies/Both values and set type filter before querying.
