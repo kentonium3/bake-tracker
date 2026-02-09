@@ -114,7 +114,7 @@
 
 ### Included Subtasks
 - [x] T013 Add "Clear All" button with confirmation dialog to planning container
-- [ ] T014 Add "Clear Finished Goods" button with confirmation dialog to planning container
+- [x] T014 Add "Clear Finished Goods" button with confirmation dialog to planning container
 - [ ] T015 Wire clear button callbacks to reset appropriate state (recipes/FGs/quantities)
 - [ ] T016 Add "Show All Selected" toggle button to FG frame
 - [ ] T017 Implement show-selected-only rendering mode
