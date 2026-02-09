@@ -1,27 +1,30 @@
 ---
 work_package_id: WP03
-title: "FG Selection Filter-First with Persistence"
-lane: "planned"
+title: FG Selection Filter-First with Persistence
+lane: "doing"
 dependencies:
-  - WP01
+- WP01
+base_branch: 100-planning-fg-selection-refinement-WP01
+base_commit: 6c92909fd76434cb9e671aba7680c5efcfb2be4a
+created_at: '2026-02-09T21:59:05.619014+00:00'
 subtasks:
-  - T008
-  - T009
-  - T010
-  - T011
-  - T012
-phase: "Phase 2 - FG Filtered Selection"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Phase 2 - FG Filtered Selection
+assignee: ''
+agent: ''
+shell_pid: "26148"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-09T21:25:52Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-09T21:25:52Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 -- FG Selection Filter-First with Persistence
