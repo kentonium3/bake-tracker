@@ -238,6 +238,7 @@ class FGSelectionFrame(ctk.CTkFrame):
         )
         self._placeholder_label.pack(pady=40)
         self._update_count()
+        self._update_save_button_state()
 
     def _on_filter_change(self, choice: str) -> None:
         """
@@ -376,8 +377,9 @@ class FGSelectionFrame(ctk.CTkFrame):
         finally:
             self._restoring = False
 
-        # Update count display
+        # Update count display and save button state
         self._update_count()
+        self._update_save_button_state()
 
     def populate_finished_goods(
         self,
@@ -421,6 +423,8 @@ class FGSelectionFrame(ctk.CTkFrame):
             else:
                 self._selected_fg_ids.discard(fg_id)
         self._update_count()
+        self._validate_quantity(fg_id)
+        self._update_save_button_state()
 
     def _on_quantity_change(self, fg_id: int) -> None:
         """
@@ -514,6 +518,7 @@ class FGSelectionFrame(ctk.CTkFrame):
                 if fg_id in self._quantity_vars:
                     self._quantity_vars[fg_id].set("")
         self._update_count()
+        self._update_save_button_state()
 
     def get_selected(self) -> List[Tuple[int, int]]:
         """
@@ -589,36 +594,78 @@ class FGSelectionFrame(ctk.CTkFrame):
         for qty_var in self._quantity_vars.values():
             qty_var.set("")
         self._update_count()
+        self._update_save_button_state()
 
     def _validate_quantity(self, fg_id: int) -> None:
         """
-        Validate quantity input and show feedback (F071).
+        Validate quantity input and show spec-mandated error messages (T019).
+
+        Messages match spec US6 exactly:
+        - "Quantity required" for empty on checked FG
+        - "Enter a valid number" for non-numeric
+        - "Whole numbers only" for decimals
+        - "Quantity must be positive" for negatives
+        - "Quantity must be greater than zero" for zero
 
         Args:
             fg_id: The finished good ID to validate
         """
         qty_var = self._quantity_vars.get(fg_id)
         feedback_label = self._feedback_labels.get(fg_id)
+        checkbox_var = self._checkbox_vars.get(fg_id)
 
         if qty_var is None or feedback_label is None:
             return
 
         qty_text = qty_var.get().strip()
+        is_checked = checkbox_var.get() if checkbox_var else False
 
-        # Empty is valid (FG not selected or quantity not yet entered)
-        if not qty_text:
+        # If not checked, no validation needed
+        if not is_checked:
             feedback_label.configure(text="", text_color=("gray60", "gray40"))
+            self._update_save_button_state()
             return
 
+        # Empty quantity on checked item
+        if not qty_text:
+            feedback_label.configure(text="Quantity required", text_color="orange")
+            self._update_save_button_state()
+            return
+
+        # Try parsing as float first to detect decimals
         try:
-            qty = int(qty_text)
-            if qty <= 0:
-                feedback_label.configure(text="Must be > 0", text_color="orange")
-            else:
-                # Valid - clear feedback
-                feedback_label.configure(text="", text_color=("gray60", "gray40"))
+            value = float(qty_text)
         except ValueError:
-            feedback_label.configure(text="Integer only", text_color="orange")
+            feedback_label.configure(text="Enter a valid number", text_color="orange")
+            self._update_save_button_state()
+            return
+
+        # Check for decimal
+        if value != int(value):
+            feedback_label.configure(text="Whole numbers only", text_color="orange")
+            self._update_save_button_state()
+            return
+
+        int_value = int(value)
+
+        # Check for negative
+        if int_value < 0:
+            feedback_label.configure(text="Quantity must be positive", text_color="orange")
+            self._update_save_button_state()
+            return
+
+        # Check for zero
+        if int_value == 0:
+            feedback_label.configure(
+                text="Quantity must be greater than zero", text_color="orange"
+            )
+            self._update_save_button_state()
+            return
+
+        # Valid
+        feedback_label.configure(text="", text_color=("gray60", "gray40"))
+        self._fg_quantities[fg_id] = int_value
+        self._update_save_button_state()
 
     def _update_count(self) -> None:
         """Update the count label with current selection (including hidden)."""
@@ -636,6 +683,18 @@ class FGSelectionFrame(ctk.CTkFrame):
             self._count_label.configure(
                 text=f"{visible_selected} of {total_visible} selected"
             )
+
+    def _update_save_button_state(self) -> None:
+        """Enable/disable Save button based on validation state (T021)."""
+        if not self._selected_fg_ids:
+            self._save_button.configure(state="disabled")
+            return
+
+        if self.has_validation_errors():
+            self._save_button.configure(state="disabled")
+            return
+
+        self._save_button.configure(state="normal")
 
     def _handle_save(self) -> None:
         """Handle Save button click."""
