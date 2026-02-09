@@ -22,7 +22,7 @@
 - [x] T003 Update `_query_food_items()` to map new filter values to correct service calls
 - [x] T004 Add 300ms search debounce using `after()` timer pattern
 - [x] T005 Add previous filter value tracking (`_prev_food_type`, `_prev_food_category`)
-- [ ] T006 Add filter change warning dialog when selections exist, with revert-on-cancel
+- [x] T006 Add filter change warning dialog when selections exist, with revert-on-cancel
 
 ### Implementation Notes
 - Primary file: `src/ui/builders/finished_good_builder.py`
