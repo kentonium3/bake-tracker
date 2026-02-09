@@ -1,11 +1,14 @@
 ---
 work_package_id: WP05
 title: Quantity Persistence and Atomic Save
-lane: planned
+lane: "doing"
 dependencies:
 - WP01
 - WP02
 - WP03
+base_branch: 100-planning-fg-selection-refinement-WP03
+base_commit: 363711d4de2a48bd1f05a085f599e79586555c78
+created_at: '2026-02-09T22:58:48.551008+00:00'
 subtasks:
 - T019
 - T020
@@ -13,7 +16,7 @@ subtasks:
 phase: Phase 4 - Save Integration
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "34708"
 review_status: ''
 reviewed_by: ''
 history:
