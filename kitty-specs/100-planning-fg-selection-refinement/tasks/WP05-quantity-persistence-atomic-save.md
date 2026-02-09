@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Quantity Persistence and Atomic Save
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP02
@@ -275,3 +275,4 @@ def has_validation_errors(self) -> bool:
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
 - 2026-02-09T22:58:49Z – claude-opus – shell_pid=34708 – lane=doing – Assigned agent via workflow command
+- 2026-02-09T23:11:06Z – claude-opus – shell_pid=34708 – lane=for_review – Ready for review: T019 validation messages, T020 save wiring verified, T021 save button state management
