@@ -548,31 +548,45 @@ class PlanningTab(ctk.CTkFrame):
 
     def _show_recipe_selection(self, event_id: int) -> None:
         """
-        Show and populate recipe selection for an event.
+        Show recipe selection for an event with filter-first pattern.
+
+        Populates the category dropdown and restores existing selections,
+        but does NOT auto-load all recipes. The user selects a category
+        to see available recipes.
 
         Args:
             event_id: ID of the selected event
         """
         try:
             with session_scope() as session:
-                # Get event name
+                # Get event name for header
                 event = event_service.get_event_by_id(event_id, session=session)
                 event_name = event.name if event else ""
-
-                # Get all recipes for selection (non-archived only)
-                recipes = recipe_service.get_all_recipes(include_archived=False)
 
                 # Get existing selections
                 selected_ids = event_service.get_event_recipe_ids(session, event_id)
 
-            # Populate frame
-            self._recipe_selection_frame.populate_recipes(recipes, event_name)
+            # Update header with event name
+            if event_name:
+                self._recipe_selection_frame._header_label.configure(
+                    text=f"Recipe Selection for {event_name}"
+                )
+            else:
+                self._recipe_selection_frame._header_label.configure(
+                    text="Recipe Selection"
+                )
+            self._recipe_selection_frame._event_name = event_name
+
+            # Load category dropdown options
+            self._recipe_selection_frame.populate_categories()
+
+            # Restore existing selections into persistence set
             self._recipe_selection_frame.set_selected(selected_ids)
 
             # Store for cancel functionality
             self._original_recipe_selection = selected_ids.copy()
 
-            # Show frame using pack
+            # Show frame using pack (starts blank; user selects category)
             self._recipe_selection_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
         except ServiceError as e:
