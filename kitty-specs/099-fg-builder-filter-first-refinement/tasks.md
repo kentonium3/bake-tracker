@@ -52,9 +52,9 @@
 **Estimated Size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T007 [P] Add assembly_type guard check in `_edit_finished_good()` before opening builder
-- [ ] T008 [P] Add user-facing info message for blocked edit attempts
-- [ ] T009 [P] Add same guard check in `_on_row_double_click()` for double-click edit path
+- [x] T007 [P] Add assembly_type guard check in `_edit_finished_good()` before opening builder
+- [x] T008 [P] Add user-facing info message for blocked edit attempts
+- [x] T009 [P] Add same guard check in `_on_row_double_click()` for double-click edit path
 
 ### Implementation Notes
 - Primary file: `src/ui/finished_goods_tab.py`
