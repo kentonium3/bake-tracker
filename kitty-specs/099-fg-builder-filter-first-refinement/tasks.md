@@ -21,7 +21,7 @@
 - [x] T002 Replace CTkSegmentedButton values from `["All", "Bare Items Only"]` to `["Finished Units", "Existing Assemblies", "Both"]`
 - [x] T003 Update `_query_food_items()` to map new filter values to correct service calls
 - [x] T004 Add 300ms search debounce using `after()` timer pattern
-- [ ] T005 Add previous filter value tracking (`_prev_food_type`, `_prev_food_category`)
+- [x] T005 Add previous filter value tracking (`_prev_food_type`, `_prev_food_category`)
 - [ ] T006 Add filter change warning dialog when selections exist, with revert-on-cancel
 
 ### Implementation Notes
