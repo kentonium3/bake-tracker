@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Filter-First Builder Dialog
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 847afa7bf6ac7099bb461302afd2ce53a409309f
@@ -438,3 +438,4 @@ spec-kitty implement WP01
 - 2026-02-09T00:15:16Z – gemini-reviewer – shell_pid=85620 – lane=doing – Started review via workflow command
 - 2026-02-09T00:42:32Z – gemini-reviewer – shell_pid=85620 – lane=planned – Moved to planned
 - 2026-02-09T00:45:00Z – gemini-reviewer – shell_pid=85620 – lane=for_review – Addressed review feedback: Updated 6 semantically broken tests with new filter values and query patterns. Tests now use Finished Units/Existing Assemblies/Both values and set type filter before querying.
+- 2026-02-09T01:08:22Z – gemini-reviewer – shell_pid=85620 – lane=done – Re-review passed: All 6 previously flagged test issues resolved. Tests use correct filter values (Finished Units/Existing Assemblies/Both), set type filter before querying, and mock service-level filtering correctly. Implementation meets all T001-T006 subtask criteria. Full test suite passes (3644 passed). No regressions.
