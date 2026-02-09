@@ -1,9 +1,12 @@
 ---
 work_package_id: WP04
 title: Clear Buttons and Show All Selected
-lane: planned
+lane: "doing"
 dependencies:
 - WP02
+base_branch: 100-planning-fg-selection-refinement-WP02
+base_commit: edb0cb78f8dfec56da3b6d6d55f98924929028e0
+created_at: '2026-02-09T22:41:31.159132+00:00'
 subtasks:
 - T013
 - T014
@@ -14,7 +17,7 @@ subtasks:
 phase: Phase 3 - UX Enhancements
 assignee: ''
 agent: ''
-shell_pid: ''
+shell_pid: "31798"
 review_status: ''
 reviewed_by: ''
 history:
