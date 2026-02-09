@@ -79,11 +79,11 @@
 **Estimated Size**: ~500 lines
 
 ### Included Subtasks
-- [ ] T008 Refactor `FGSelectionFrame` - add three filter dropdowns (recipe category, item type, yield type), blank-start placeholder
-- [ ] T009 Implement AND-combine filter logic calling `get_filtered_available_fgs()`
-- [ ] T010 Add selection persistence (`_selected_fg_ids: Set[int]`, `_fg_quantities: Dict[int, int]`) across filter changes
-- [ ] T011 Restore checkbox + quantity state when rendering FG list after filter change
-- [ ] T012 Update `planning_tab.py` orchestration for filtered FG selection
+- [x] T008 Refactor `FGSelectionFrame` - add three filter dropdowns (recipe category, item type, yield type), blank-start placeholder
+- [x] T009 Implement AND-combine filter logic calling `get_filtered_available_fgs()`
+- [x] T010 Add selection persistence (`_selected_fg_ids: Set[int]`, `_fg_quantities: Dict[int, int]`) across filter changes
+- [x] T011 Restore checkbox + quantity state when rendering FG list after filter change
+- [x] T012 Update `planning_tab.py` orchestration for filtered FG selection
 
 ### Implementation Notes
 - Three independent dropdowns: Recipe Category, Item Type (Finished Units/Assemblies/All), Yield Type (EA/SERVING/All)
