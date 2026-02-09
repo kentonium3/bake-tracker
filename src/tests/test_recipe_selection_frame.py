@@ -105,6 +105,7 @@ class TestSelectionLogic:
                 from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 
                 frame = object.__new__(RecipeSelectionFrame)
+                frame._selected_recipe_ids = set()
 
                 # Mock BooleanVars
                 var1 = MagicMock()
@@ -126,6 +127,7 @@ class TestSelectionLogic:
             from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 
             frame = object.__new__(RecipeSelectionFrame)
+            frame._selected_recipe_ids = set()
 
             # Mock BooleanVars - all unchecked
             var1 = MagicMock()
@@ -212,6 +214,7 @@ class TestCallbacks:
             from src.ui.components.recipe_selection_frame import RecipeSelectionFrame
 
             frame = object.__new__(RecipeSelectionFrame)
+            frame._selected_recipe_ids = set()
 
             # Mock
             callback = MagicMock()
