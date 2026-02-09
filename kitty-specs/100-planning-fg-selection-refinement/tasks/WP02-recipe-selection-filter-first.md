@@ -1,24 +1,27 @@
 ---
 work_package_id: WP02
-title: "Recipe Selection Filter-First"
-lane: "planned"
+title: Recipe Selection Filter-First
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 25479c9caf608df6fc4f8a2c1cd76a6c8df5ee38
+created_at: '2026-02-09T21:32:52.569797+00:00'
 subtasks:
-  - T005
-  - T006
-  - T007
-phase: "Phase 1 - Recipe Selection Enhancement"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T005
+- T006
+- T007
+phase: Phase 1 - Recipe Selection Enhancement
+assignee: ''
+agent: ''
+shell_pid: "22294"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-09T21:25:52Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-09T21:25:52Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 -- Recipe Selection Filter-First
