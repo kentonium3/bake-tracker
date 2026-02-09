@@ -13,7 +13,7 @@ subtasks:
 - T004
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "22118"
 review_status: ''
 reviewed_by: ''
@@ -270,3 +270,4 @@ def get_available_recipe_categories_for_event(
 ## Activity Log
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
+- 2026-02-09T21:32:13Z – claude-opus – shell_pid=22118 – lane=doing – Assigned agent via workflow command
