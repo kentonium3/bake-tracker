@@ -17,7 +17,7 @@
 **Estimated Size**: ~450 lines
 
 ### Included Subtasks
-- [ ] T001 Remove auto-load from `_set_initial_state()`, add placeholder label in scrollable frame
+- [x] T001 Remove auto-load from `_set_initial_state()`, add placeholder label in scrollable frame
 - [ ] T002 Replace CTkSegmentedButton values from `["All", "Bare Items Only"]` to `["Finished Units", "Existing Assemblies", "Both"]`
 - [ ] T003 Update `_query_food_items()` to map new filter values to correct service calls
 - [ ] T004 Add 300ms search debounce using `after()` timer pattern
