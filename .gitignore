@@ -36,8 +36,9 @@ data/*.db-wal
 *.sqlite
 *.sqlite3
 
-# Health check runtime files
+# Audit and runtime files
 data/health.json*
+data/destructive_ops_audit.log
 
 # IDE
 .idea/

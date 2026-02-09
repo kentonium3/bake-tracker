@@ -563,7 +563,7 @@ class TestImportVersionHandling:
 class TestImportModeValidation:
     """Tests for import mode parameter validation."""
 
-    def test_invalid_mode_raises_error(self):
+    def test_invalid_mode_raises_error(self, test_db):
         """Test invalid mode raises ValueError."""
         v3_data = {"version": "4.0", "ingredients": []}
 
@@ -581,7 +581,7 @@ class TestImportModeValidation:
         finally:
             os.unlink(temp_path)
 
-    def test_merge_mode_accepted(self):
+    def test_merge_mode_accepted(self, test_db):
         """Test merge mode is accepted."""
         v3_data = {"version": "4.0", "ingredients": []}
 
@@ -601,7 +601,7 @@ class TestImportModeValidation:
         finally:
             os.unlink(temp_path)
 
-    def test_replace_mode_accepted(self):
+    def test_replace_mode_accepted(self, test_db):
         """Test replace mode is accepted."""
         v3_data = {"version": "4.0", "ingredients": []}
 
@@ -625,7 +625,7 @@ class TestImportModeValidation:
 class TestImportUserFriendlyErrors:
     """Tests for user-friendly error messages (SC-006)."""
 
-    def test_file_not_found_error(self):
+    def test_file_not_found_error(self, test_db):
         """Test file not found returns ImportResult with error."""
         result = import_all_from_json_v4("/nonexistent/path/data.json")
 

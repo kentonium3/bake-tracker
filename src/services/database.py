@@ -478,45 +478,6 @@ def reset_database(confirm: bool = False) -> None:
     Raises:
         ValueError: If confirm is not True
     """
-    import traceback
-    import os
-    from datetime import datetime, timezone
-    from pathlib import Path
-
-    # Persistent audit log
-    stack_text = "".join(traceback.format_stack())
-    audit_entry = (
-        f"\n{'=' * 60}\n"
-        f"AUDIT: reset_database called (confirm={confirm})\n"
-        f"Time: {datetime.now(timezone.utc).isoformat()}\n"
-        f"PID: {os.getpid()}\n"
-        f"CWD: {os.getcwd()}\n"
-        f"Stack trace:\n{stack_text}"
-        f"{'=' * 60}\n"
-    )
-    try:
-        audit_path = Path(get_config().database_path).parent / "destructive_ops_audit.log"
-        with open(audit_path, "a", encoding="utf-8") as f:
-            f.write(audit_entry)
-    except Exception:
-        pass
-    try:
-        project_audit = Path(__file__).parent.parent.parent / "data" / "destructive_ops_audit.log"
-        with open(project_audit, "a", encoding="utf-8") as f:
-            f.write(audit_entry)
-    except Exception:
-        pass
-
-    # Log using Python logging module for proper integration
-    logger.warning(
-        "DESTRUCTIVE OPERATION: reset_database called (confirm=%s)\n"
-        "PID: %s, CWD: %s\n"
-        "See destructive_ops_audit.log for full stack trace",
-        confirm,
-        os.getpid(),
-        os.getcwd(),
-    )
-
     if not confirm:
         raise ValueError("Must pass confirm=True to reset database. This will delete all data!")
 

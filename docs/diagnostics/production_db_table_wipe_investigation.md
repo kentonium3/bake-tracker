@@ -3,7 +3,7 @@
 **Date**: 2026-02-08
 **Reported by**: User (Kent)
 **Investigated by**: Claude Code (Opus 4.6)
-**Status**: Root cause identified, remediation recommendations provided
+**Status**: RESOLVED - Root cause confirmed and fixed (2026-02-08)
 
 ## Symptom
 
@@ -135,12 +135,12 @@ print("=" * 60)
 
 The debug traceback prints to stdout, which is only visible if the terminal is being watched. It's not logged to a file.
 
-## Negative Findings (Ruled Out)
+## Negative Findings (Ruled Out -- REVISED)
 
-### Test Suite: SAFE
-- All tests use `sqlite:///:memory:` databases (verified in `conftest.py:24`)
+### Test Suite: ~~SAFE~~ **NOT SAFE (Fixed)**
+- Most tests use `sqlite:///:memory:` databases via `test_db` fixture in `conftest.py:24`
 - `get_session_factory()` is monkey-patched per-test to use in-memory sessions
-- Tests cannot affect the production database
+- **However**: `TestImportModeValidation::test_replace_mode_accepted` was missing the `test_db` fixture entirely, causing it to operate on the production database (see "Confirmed Root Cause" below)
 
 ### App Startup: SAFE
 - `initialize_app_database()` calls `Base.metadata.create_all()` which only creates missing tables
@@ -233,9 +233,123 @@ Each writes to `destructive_ops_audit.log` alongside the production DB AND in `d
 
 The initial audit logging introduced a Python scoping bug: `from pathlib import Path` and `from datetime import datetime, timezone` inside function bodies shadowed module-level imports. In `coordinated_export_service.py`, the import inside an `if clear_existing:` block made `Path` a local variable for the entire function scope, causing `UnboundLocalError` when `clear_existing=False`. Fixed by removing redundant local imports (using module-level `Path` and `datetime`, only importing `timezone` locally).
 
+## Confirmed Root Cause (2026-02-08)
+
+### The Audit Trap Results
+
+The audit trap deployed earlier in this investigation wrote 252 entries to `data/destructive_ops_audit.log`:
+
+| Session Bind | Count | Source |
+|---|---|---|
+| `Engine(sqlite:///:memory:)` | 242 | Test suite (correctly isolated) |
+| `Engine(sqlite:////Users/.../bake_tracker.db)` | **10** | **Production DB wipes** |
+
+**All 10 production DB wipes came from the same test:**
+
+```
+src/tests/services/test_import_export_service.py:614
+TestImportModeValidation::test_replace_mode_accepted
+```
+
+### Why This Test Wiped Production
+
+```python
+class TestImportModeValidation:
+    """Tests for import mode parameter validation."""
+
+    def test_replace_mode_accepted(self):          # <-- NO test_db fixture!
+        v3_data = {"version": "4.0", "ingredients": []}
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+        try:
+            result = import_all_from_json_v4(temp_path, mode="replace")  # <-- WIPES PRODUCTION DB
+```
+
+The test method signature was `def test_replace_mode_accepted(self):` with **no `test_db` parameter**. Without the fixture:
+
+1. No monkey-patch of `get_session_factory()` is applied
+2. `import_all_from_json_v4(mode="replace")` calls `session_scope()` which creates a session bound to the **real production database**
+3. `_clear_all_tables(session)` deletes all core table data from production
+4. The import data is an empty `{"ingredients": []}`, so 0 records are imported
+5. Transaction commits with empty tables
+6. **This happened on every single pytest run** (10 runs = 10 wipes)
+
+The sibling tests `test_invalid_mode_raises_error` and `test_merge_mode_accepted` also lacked `test_db` but were less destructive: the invalid mode raises before touching the DB, and merge mode doesn't call `_clear_all_tables()`.
+
+### Why the Initial Investigation Missed This
+
+The initial investigation (earlier in this document) concluded "Test Suite: SAFE" based on:
+- Verifying `conftest.py` correctly patches `get_session_factory`
+- Confirming the monkey-patch mechanism works
+
+The flaw was assuming **all tests use the fixture**. The audit trap was needed to catch the one test that didn't.
+
+### Correlation with Symptom Pattern
+
+This explains the repeating pattern the user experienced:
+- **Every pytest run** wiped core tables from production
+- **Material tables survived** because they're not in `_clear_all_tables()`
+- **Recipe categories reappeared** because `seed_recipe_categories()` runs on app startup
+- **Units survived** because they're not in `_clear_all_tables()` and re-seeded on startup
+
+## Fix Applied (2026-02-08)
+
+### Fix 1: Added `test_db` Fixture to Broken Tests
+
+**File**: `src/tests/services/test_import_export_service.py`
+
+Added `test_db` parameter to all 4 tests that were missing it:
+- `TestImportModeValidation::test_invalid_mode_raises_error`
+- `TestImportModeValidation::test_merge_mode_accepted`
+- `TestImportModeValidation::test_replace_mode_accepted` (the actual culprit)
+- `TestImportUserFriendlyErrors::test_file_not_found_error`
+
+### Fix 2: Defense-in-Depth Safety Guard
+
+**File**: `src/services/import_export_service.py` - `_clear_all_tables()`
+
+Added a permanent safety check that raises `RuntimeError` if:
+- `pytest` is loaded (`"pytest" in sys.modules`)
+- AND the session is bound to a file-based database (not `:memory:`)
+
+```python
+def _clear_all_tables(session) -> None:
+    import sys
+    if "pytest" in sys.modules:
+        bind_str = str(session.bind)
+        if ":memory:" not in bind_str and "mode=memory" not in bind_str:
+            raise RuntimeError(
+                f"SAFETY: _clear_all_tables refusing to clear file-based database "
+                f"under pytest. Session bind: {bind_str}. "
+                f"Ensure the test uses the test_db fixture."
+            )
+```
+
+This ensures that even if a future test is written without the `test_db` fixture, the safety guard will catch it with a clear error message rather than silently wiping production data.
+
+### Fix 3: Removed Audit Trap Instrumentation
+
+Cleaned up all temporary diagnostic code:
+- Removed audit file writes from `_clear_all_tables()`, `_import_complete_impl()`, `reset_database()`
+- Removed raw `sqlite3` post-import verification from `import_complete()`
+- Added `data/destructive_ops_audit.log` to `.gitignore`
+
+### Full Audit of Test Files
+
+Performed automated scan of all test files that call destructive functions (`mode="replace"`, `clear_existing=True`, `import_complete()`, `import_all_from_json_v4()`). Accounted for both direct `test_db` parameters and `@pytest.fixture(autouse=True) setup_database(self, test_db)` patterns.
+
+**Result**: No other tests are missing the `test_db` fixture.
+
+### Verification
+
+- All 3644 tests pass after the fix
+- No new production DB entries in the audit log after fix
+- Safety guard manually verified: correctly raises `RuntimeError` when a file-based session is used under pytest
+
 ## Related Previous Work
 
 - DB moved from `~/Documents` to `~/Library/Application Support` (iCloud corruption prevention)
 - WAL durability measures: `PRAGMA synchronous=FULL`, explicit `checkpoint_wal()` on close
-- Post-import verification added to coordinated import path
-- Debug traceback prints added to `_clear_all_tables()` and `reset_database()`
+- Pre-export WAL checkpoint added to `export_complete()` path
+- Post-import WAL checkpoint added to `import_complete()` path
