@@ -15,7 +15,7 @@ subtasks:
 - T012
 phase: Phase 2 - FG Filtered Selection
 assignee: ''
-agent: ''
+agent: "gemini"
 shell_pid: "26148"
 review_status: ''
 reviewed_by: ''
@@ -464,3 +464,4 @@ def _show_fg_selection(self, event_id):
 ## Activity Log
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
+- 2026-02-09T21:59:06Z – gemini – shell_pid=26148 – lane=doing – Assigned agent via workflow command
