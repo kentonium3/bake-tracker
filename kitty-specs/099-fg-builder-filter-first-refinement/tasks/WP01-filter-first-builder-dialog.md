@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Filter-First Builder Dialog
-lane: "doing"
+lane: "planned"
 dependencies: []
 base_branch: main
 base_commit: 847afa7bf6ac7099bb461302afd2ce53a409309f
@@ -17,8 +17,8 @@ phase: Phase 1 - Core UI Changes
 assignee: ''
 agent: "gemini-reviewer"
 shell_pid: "85620"
-review_status: ''
-reviewed_by: ''
+review_status: "has_feedback"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-08T23:13:33Z'
   lane: planned
@@ -40,9 +40,33 @@ history:
 
 ## Review Feedback
 
-*[This section is empty initially. Reviewers will populate it if the work is returned from review.]*
+**Reviewed by**: Kent Gale
+**Status**: ❌ Changes Requested
+**Date**: 2026-02-09
 
----
+## Review Feedback for WP01
+
+### Issue 1: Tests Not Updated for New Filter Values (BLOCKING)
+
+File: src/tests/test_finished_good_builder.py
+
+The test file was not modified in this branch. Six tests use old filter values or miss the new blank-start guard:
+
+1. test_food_query_bare_only (line 332) - Uses "Bare Items Only" (removed). Rewrite for "Finished Units".
+2. test_food_query_include_assemblies (line 353) - Uses "All" (removed). Rewrite for "Both".
+3. test_food_query_category_filter (line 374) - No type filter set, returns [] due to blank-start.
+4. test_food_query_search_filter (line 393) - Same issue, no type filter set.
+5. test_assembly_fg_uses_finished_good_comp_type (line 409) - Same issue.
+6. test_edit_mode_excludes_self_from_food_items (line 1138) - Same issue.
+
+Fix: Set dialog._food_type_var to a valid value ("Finished Units", "Existing Assemblies", or "Both") before calling _query_food_items(). Update assertions to match new query behavior.
+
+These tests are skipped in headless CI but would fail with BAKE_TRACKER_UI_TESTS=1.
+
+### Implementation Quality
+
+The builder implementation is correct and well-structured. All spec criteria are met in the code.
+
 
 ## Markdown Formatting
 Wrap HTML/XML tags in backticks: `` `<div>` ``, `` `<script>` ``
@@ -412,3 +436,4 @@ spec-kitty implement WP01
 - 2026-02-08T23:58:31Z – claude-opus – shell_pid=82425 – lane=doing – Assigned agent via workflow command
 - 2026-02-09T00:14:23Z – claude-opus – shell_pid=82425 – lane=for_review – Ready for review: Filter-first blank-start builder with debounce, new filter options, and selection-aware filter change warnings. All 3644 tests pass.
 - 2026-02-09T00:15:16Z – gemini-reviewer – shell_pid=85620 – lane=doing – Started review via workflow command
+- 2026-02-09T00:42:32Z – gemini-reviewer – shell_pid=85620 – lane=planned – Moved to planned
