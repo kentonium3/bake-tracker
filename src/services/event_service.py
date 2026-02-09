@@ -29,6 +29,7 @@ from sqlalchemy.orm import Session, joinedload
 from src.services.dto_utils import cost_to_string
 
 from src.models import (
+    AssemblyType,
     Event,
     EventRecipe,  # Feature 069
     EventFinishedGood,  # Feature 070
@@ -477,6 +478,118 @@ def get_available_finished_goods(
             available_fgs.append(fg)
 
     return available_fgs
+
+
+# ============================================================================
+# F100: Filtered FG Queries for Planning Tab
+# ============================================================================
+
+
+def get_filtered_available_fgs(
+    event_id: int,
+    session: Session,
+    recipe_category: Optional[str] = None,
+    assembly_type: Optional[str] = None,
+    yield_type: Optional[str] = None,
+) -> List[FinishedGood]:
+    """
+    Get available FGs for an event with optional filters.
+
+    Extends get_available_finished_goods() with AND-combinable filters.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+
+    Args:
+        event_id: The event to check availability for
+        session: Database session (required)
+        recipe_category: Filter by recipe category name (e.g., "Cookies"). None = all.
+        assembly_type: Filter by assembly type ("bare" or "bundle"). None = all.
+        yield_type: Filter by yield type ("EA" or "SERVING"). None = all.
+                    When specified, only BARE FGs are included (BUNDLEs have no yield_type).
+
+    Returns:
+        List of FinishedGood objects matching all active filters
+
+    Raises:
+        ValidationError: If event_id not found
+    """
+    available_fgs = get_available_finished_goods(event_id, session)
+
+    if not available_fgs:
+        return []
+
+    result = available_fgs
+
+    # Filter by assembly_type
+    if assembly_type is not None:
+        at = AssemblyType(assembly_type)
+        result = [fg for fg in result if fg.assembly_type == at]
+
+    # Filter by yield_type — only BARE FGs have a meaningful yield_type
+    if yield_type is not None:
+        filtered = []
+        for fg in result:
+            if fg.assembly_type != AssemblyType.BARE:
+                continue
+            # BARE FG has exactly one FinishedUnit component
+            for comp in fg.components:
+                if comp.finished_unit_id is not None and comp.finished_unit_component:
+                    if comp.finished_unit_component.yield_type == yield_type:
+                        filtered.append(fg)
+                    break
+        result = filtered
+
+    # Filter by recipe_category
+    if recipe_category is not None:
+        filtered = []
+        for fg in result:
+            for comp in fg.components:
+                if comp.finished_unit_id is not None and comp.finished_unit_component:
+                    fu = comp.finished_unit_component
+                    if fu.recipe and fu.recipe.category == recipe_category:
+                        filtered.append(fg)
+                        break
+        result = filtered
+
+    return result
+
+
+def get_available_recipe_categories_for_event(
+    event_id: int,
+    session: Session,
+) -> List[str]:
+    """
+    Get distinct recipe categories with available FGs for an event.
+
+    Returns category names that have at least one available FG, suitable
+    for populating filter dropdown options.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+
+    Args:
+        event_id: The event to check
+        session: Database session (required)
+
+    Returns:
+        Sorted list of distinct recipe category names
+
+    Raises:
+        ValidationError: If event_id not found
+    """
+    available_fgs = get_available_finished_goods(event_id, session)
+
+    if not available_fgs:
+        return []
+
+    categories: Set[str] = set()
+    for fg in available_fgs:
+        for comp in fg.components:
+            if comp.finished_unit_id is not None and comp.finished_unit_component:
+                fu = comp.finished_unit_component
+                if fu.recipe and fu.recipe.category:
+                    categories.add(fu.recipe.category)
+
+    return sorted(categories)
 
 
 def remove_invalid_fg_selections(
