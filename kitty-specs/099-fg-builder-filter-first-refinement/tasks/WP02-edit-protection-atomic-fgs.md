@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Edit Protection for Atomic FGs
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 7923c0cac7a0bde71b2793aaf29e645557c9ba42
@@ -236,3 +236,4 @@ spec-kitty implement WP02
 
 - 2026-02-08T23:13:33Z -- system -- lane=planned -- Prompt created.
 - 2026-02-09T00:00:39Z – gemini – shell_pid=82712 – lane=doing – Assigned agent via workflow command
+- 2026-02-09T00:33:30Z – gemini – shell_pid=82712 – lane=for_review – Ready for review: Added assembly type guard to block editing of BARE FGs via Edit button and double-click
