@@ -314,43 +314,42 @@ class TestDialogControls:
 class TestFoodQuery:
     """Tests for food item querying and filtering (T011)."""
 
-    def test_food_query_bare_only(self, ctk_root, mock_services):
-        """Bare Items Only filter returns only BARE FinishedGoods."""
+    def test_food_query_finished_units_only(self, ctk_root, mock_services):
+        """Finished Units filter returns only FinishedUnits, no assembled FGs."""
         mock_fg_svc, mock_fu_svc, _, _ = mock_services
-        bare_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
-        mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(1, "Cookie Box", "bare", components=[bare_comp]),
-            _make_mock_fg(2, "Gift Set", "bundle"),
-        ]
         mock_fu_svc.get_all_finished_units.return_value = [
             _make_mock_fu(10, "Chocolate Cookie", "Cookies"),
+        ]
+        mock_fg_svc.get_all_finished_goods.return_value = [
+            _make_mock_fg(2, "Gift Set", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
         dialog = FinishedGoodBuilderDialog(ctk_root)
-        dialog._food_type_var.set("Bare Items Only")
+        dialog._food_type_var.set("Finished Units")
         items = dialog._query_food_items()
 
         assert len(items) == 1
-        assert items[0]["display_name"] == "Cookie Box"
+        assert items[0]["display_name"] == "Chocolate Cookie"
         assert items[0]["comp_type"] == "finished_unit"
         assert items[0]["comp_id"] == 10
         dialog.destroy()
 
-    def test_food_query_include_assemblies(self, ctk_root, mock_services):
-        """All filter returns both BARE and non-BARE items."""
+    def test_food_query_both_types(self, ctk_root, mock_services):
+        """Both filter returns FinishedUnits and BUNDLE FinishedGoods."""
         mock_fg_svc, mock_fu_svc, _, _ = mock_services
-        bare_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
+        mock_fu_svc.get_all_finished_units.return_value = [
+            _make_mock_fu(10, "Chocolate Cookie", "Cookies"),
+        ]
         mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(1, "Cookie Box", "bare", components=[bare_comp]),
             _make_mock_fg(2, "Gift Set", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
         dialog = FinishedGoodBuilderDialog(ctk_root)
-        dialog._food_type_var.set("All")
+        dialog._food_type_var.set("Both")
         dialog._food_category_var.set("All Categories")
         items = dialog._query_food_items()
 
@@ -360,34 +359,35 @@ class TestFoodQuery:
     def test_food_query_category_filter(self, ctk_root, mock_services):
         """Category filter narrows results to matching category."""
         mock_fg_svc, mock_fu_svc, _, _ = mock_services
-        cookie_comp = _make_mock_composition(finished_unit_id=10, fu_category="Cookies")
-        cake_comp = _make_mock_composition(finished_unit_id=11, fu_category="Cakes")
-        mock_fg_svc.get_all_finished_goods.return_value = [
-            _make_mock_fg(1, "Cookie Box", "bare", components=[cookie_comp]),
-            _make_mock_fg(2, "Cake Box", "bare", components=[cake_comp]),
+        # Service-level category filter: mock returns only matching items
+        mock_fu_svc.get_all_finished_units.return_value = [
+            _make_mock_fu(10, "Chocolate Cookie", "Cookies"),
         ]
+        mock_fg_svc.get_all_finished_goods.return_value = []
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
         dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._food_type_var.set("Both")
         dialog._food_category_var.set("Cookies")
         items = dialog._query_food_items()
 
         assert len(items) == 1
-        assert items[0]["display_name"] == "Cookie Box"
+        assert items[0]["display_name"] == "Chocolate Cookie"
         dialog.destroy()
 
     def test_food_query_search_filter(self, ctk_root, mock_services):
-        """Search filter matches display_name case-insensitively."""
+        """Search filter is passed to service for name_search."""
         mock_fg_svc, *_ = mock_services
+        # Service-level name_search: mock returns only matching items
         mock_fg_svc.get_all_finished_goods.return_value = [
             _make_mock_fg(1, "Chocolate Chip Cookies", "bundle"),
-            _make_mock_fg(2, "Vanilla Cake Set", "bundle"),
         ]
 
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
         dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._food_type_var.set("Existing Assemblies")
         dialog._food_category_var.set("All Categories")
         dialog._food_search_var.set("choco")
         items = dialog._query_food_items()
@@ -406,6 +406,7 @@ class TestFoodQuery:
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
         dialog = FinishedGoodBuilderDialog(ctk_root)
+        dialog._food_type_var.set("Existing Assemblies")
         items = dialog._query_food_items()
 
         assert len(items) == 1
@@ -1134,6 +1135,7 @@ class TestEditMode:
         from src.ui.builders.finished_good_builder import FinishedGoodBuilderDialog
 
         dialog = FinishedGoodBuilderDialog(ctk_root, finished_good=fg)
+        dialog._food_type_var.set("Existing Assemblies")
         dialog._food_category_var.set("All Categories")
         items = dialog._query_food_items()
 
