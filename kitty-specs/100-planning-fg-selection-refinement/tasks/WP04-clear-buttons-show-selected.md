@@ -16,7 +16,7 @@ subtasks:
 - T018
 phase: Phase 3 - UX Enhancements
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "31798"
 review_status: ''
 reviewed_by: ''
@@ -360,3 +360,4 @@ def _on_filter_change(self, choice: str) -> None:
 ## Activity Log
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
+- 2026-02-09T22:41:31Z – claude-opus – shell_pid=31798 – lane=doing – Assigned agent via workflow command
