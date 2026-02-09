@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FG Selection Filter-First with Persistence
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 base_branch: 100-planning-fg-selection-refinement-WP01
@@ -465,3 +465,4 @@ def _show_fg_selection(self, event_id):
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
 - 2026-02-09T21:59:06Z – gemini – shell_pid=26148 – lane=doing – Assigned agent via workflow command
+- 2026-02-09T22:40:33Z – gemini – shell_pid=26148 – lane=for_review – Ready for review: Filter-first FG selection with 3 dropdowns (recipe category, item type, yield type), blank start, AND-combine filters, selection+quantity persistence across filter changes. All 3663 tests pass.
