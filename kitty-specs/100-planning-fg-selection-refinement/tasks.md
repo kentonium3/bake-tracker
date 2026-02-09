@@ -118,7 +118,7 @@
 - [x] T015 Wire clear button callbacks to reset appropriate state (recipes/FGs/quantities)
 - [x] T016 Add "Show All Selected" toggle button to FG frame
 - [x] T017 Implement show-selected-only rendering mode
-- [ ] T018 Auto-exit show-selected mode on filter dropdown change
+- [x] T018 Auto-exit show-selected mode on filter dropdown change
 
 ### Implementation Notes
 - Clear All: confirmation → reset `_selected_recipe_ids`, `_selected_fg_ids`, `_fg_quantities`, return both frames to blank
