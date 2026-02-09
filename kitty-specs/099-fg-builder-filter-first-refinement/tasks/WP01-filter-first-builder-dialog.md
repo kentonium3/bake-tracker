@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Filter-First Builder Dialog
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 847afa7bf6ac7099bb461302afd2ce53a409309f
@@ -410,3 +410,4 @@ spec-kitty implement WP01
 
 - 2026-02-08T23:13:33Z -- system -- lane=planned -- Prompt created.
 - 2026-02-08T23:58:31Z – claude-opus – shell_pid=82425 – lane=doing – Assigned agent via workflow command
+- 2026-02-09T00:14:23Z – claude-opus – shell_pid=82425 – lane=for_review – Ready for review: Filter-first blank-start builder with debounce, new filter options, and selection-aware filter change warnings. All 3644 tests pass.
