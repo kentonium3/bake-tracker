@@ -206,19 +206,20 @@ class TestPlanningTabFGIntegration:
             []
         )
         mock_dependencies["event_service"].get_event_finished_good_ids.return_value = []
+        mock_dependencies["event_service"].get_event_fg_quantities.return_value = []
 
         parent = MagicMock()
         tab = PlanningTab(parent)
         tab._selected_event_id = 1
 
         fg_frame_instance = mock_dependencies["fg_frame"].return_value
-        fg_frame_instance.populate_finished_goods.reset_mock()
+        fg_frame_instance.set_event.reset_mock()
 
         # Save recipe selection
         tab._on_recipe_selection_save([1, 2])
 
-        # FG frame should be refreshed
-        fg_frame_instance.populate_finished_goods.assert_called()
+        # FG frame should be refreshed via set_event (F100 filter-first)
+        fg_frame_instance.set_event.assert_called()
 
     def test_recipe_save_shows_removed_fg_notification(self, mock_dependencies):
         """Saving recipe selection shows notification for removed FGs."""

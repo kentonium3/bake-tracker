@@ -3,21 +3,28 @@ FGSelectionFrame - UI component for selecting finished goods.
 
 Part of F070: Finished Goods Filtering for Event Planning.
 Enhanced in F071: Finished Goods Quantity Specification.
+Enhanced in F100/WP03: Filter-first with persistence.
 """
 
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 import customtkinter as ctk
 
 from src.models.finished_good import FinishedGood
+from src.services import event_service
+from src.services.database import session_scope
 
 
 class FGSelectionFrame(ctk.CTkFrame):
     """
     Frame for selecting finished goods from available list.
 
-    Displays checkboxes for each available FG with quantity input fields,
+    Displays filter dropdowns (recipe category, item type, yield type),
+    checkboxes for each available FG with quantity input fields,
     live count, and Save/Cancel buttons.
+
+    Filter-first pattern: starts blank until at least one filter is applied.
+    Selections and quantities persist across filter changes.
     """
 
     def __init__(
@@ -41,18 +48,31 @@ class FGSelectionFrame(ctk.CTkFrame):
         self._on_save = on_save
         self._on_cancel = on_cancel
 
-        # Track checkboxes and their variables
+        # Track checkboxes and their variables (visible widgets only)
         self._checkbox_vars: Dict[int, ctk.BooleanVar] = {}  # fg_id -> BooleanVar
         self._checkboxes: Dict[int, ctk.CTkCheckBox] = {}  # fg_id -> checkbox widget
         self._fg_data: Dict[int, FinishedGood] = {}  # fg_id -> FG object
 
-        # Track quantity inputs (F071)
+        # Track quantity inputs (F071) -- visible widgets only
         self._quantity_vars: Dict[int, ctk.StringVar] = {}  # fg_id -> StringVar
         self._quantity_entries: Dict[int, ctk.CTkEntry] = {}  # fg_id -> entry widget
         self._feedback_labels: Dict[int, ctk.CTkLabel] = {}  # fg_id -> feedback label
 
-        # Event name for header
+        # Event context
         self._event_name: str = ""
+        self._event_id: Optional[int] = None
+
+        # Filter state
+        self._current_recipe_category: Optional[str] = None
+        self._current_assembly_type: Optional[str] = None
+        self._current_yield_type: Optional[str] = None
+
+        # Selection persistence (survives filter changes)
+        self._selected_fg_ids: Set[int] = set()
+        self._fg_quantities: Dict[int, int] = {}  # fg_id -> int quantity
+
+        # Flag to suppress trace callbacks during restore
+        self._restoring: bool = False
 
         # Build UI
         self._create_widgets()
@@ -73,7 +93,62 @@ class FGSelectionFrame(ctk.CTkFrame):
             text="0 of 0 selected",
             font=ctk.CTkFont(size=12),
         )
-        self._count_label.pack(pady=(0, 10), padx=10, anchor="w")
+        self._count_label.pack(pady=(0, 5), padx=10, anchor="w")
+
+        # Filter frame with three dropdowns
+        self._filter_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self._filter_frame.pack(fill="x", padx=10, pady=(0, 5))
+
+        # Row 1: Recipe Category
+        cat_row = ctk.CTkFrame(self._filter_frame, fg_color="transparent")
+        cat_row.pack(fill="x", pady=2)
+        ctk.CTkLabel(cat_row, text="Recipe Category:", width=120, anchor="w").pack(
+            side="left"
+        )
+        self._recipe_cat_var = ctk.StringVar(value="")
+        self._recipe_cat_dropdown = ctk.CTkComboBox(
+            cat_row,
+            variable=self._recipe_cat_var,
+            values=[],
+            command=self._on_filter_change,
+            width=200,
+            state="readonly",
+        )
+        self._recipe_cat_dropdown.pack(side="left", padx=5)
+
+        # Row 2: Item Type
+        type_row = ctk.CTkFrame(self._filter_frame, fg_color="transparent")
+        type_row.pack(fill="x", pady=2)
+        ctk.CTkLabel(type_row, text="Item Type:", width=120, anchor="w").pack(
+            side="left"
+        )
+        self._item_type_var = ctk.StringVar(value="")
+        self._item_type_dropdown = ctk.CTkComboBox(
+            type_row,
+            variable=self._item_type_var,
+            values=["All Types", "Finished Units", "Assemblies"],
+            command=self._on_filter_change,
+            width=200,
+            state="readonly",
+        )
+        self._item_type_dropdown.pack(side="left", padx=5)
+
+        # Row 3: Yield Type
+        yield_row = ctk.CTkFrame(self._filter_frame, fg_color="transparent")
+        yield_row.pack(fill="x", pady=2)
+        ctk.CTkLabel(yield_row, text="Yield Type:", width=120, anchor="w").pack(
+            side="left"
+        )
+        self._yield_type_var = ctk.StringVar(value="")
+        self._yield_type_dropdown = ctk.CTkComboBox(
+            yield_row,
+            variable=self._yield_type_var,
+            values=["All Yields", "EA", "SERVING"],
+            command=self._on_filter_change,
+            width=200,
+            state="readonly",
+        )
+        self._yield_type_dropdown.pack(side="left", padx=5)
 
         # Scrollable frame for checkboxes
         self._scroll_frame = ctk.CTkScrollableFrame(
@@ -81,6 +156,15 @@ class FGSelectionFrame(ctk.CTkFrame):
             height=200,
         )
         self._scroll_frame.pack(fill="both", expand=True, padx=10, pady=5)
+
+        # Placeholder label (shown until filters are applied)
+        self._placeholder_label = ctk.CTkLabel(
+            self._scroll_frame,
+            text="Select filters to see available finished goods",
+            font=ctk.CTkFont(size=12, slant="italic"),
+            text_color=("gray50", "gray60"),
+        )
+        self._placeholder_label.pack(pady=40)
 
         # Button frame
         self._button_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -102,18 +186,15 @@ class FGSelectionFrame(ctk.CTkFrame):
         )
         self._save_button.pack(side="right")
 
-    def populate_finished_goods(
-        self,
-        finished_goods: List[FinishedGood],
-        event_name: str = "",
-    ) -> None:
+    def set_event(self, event_id: int, event_name: str = "") -> None:
         """
-        Populate the frame with finished goods.
+        Set the event context and populate filter options.
 
         Args:
-            finished_goods: List of available FinishedGood objects to display
-            event_name: Name of the event (for header display)
+            event_id: The event ID to set context for
+            event_name: Event name for header display
         """
+        self._event_id = event_id
         self._event_name = event_name
 
         # Update header
@@ -122,6 +203,99 @@ class FGSelectionFrame(ctk.CTkFrame):
         else:
             self._header_label.configure(text="Select Finished Goods")
 
+        # Reset filter dropdowns
+        self._recipe_cat_var.set("")
+        self._item_type_var.set("")
+        self._yield_type_var.set("")
+
+        # Populate recipe category dropdown from service
+        with session_scope() as session:
+            categories = event_service.get_available_recipe_categories_for_event(
+                event_id, session
+            )
+        cat_values = ["All Categories"] + categories
+        self._recipe_cat_dropdown.configure(values=cat_values)
+
+        # Show placeholder (blank start)
+        self._show_placeholder()
+
+    def _show_placeholder(self) -> None:
+        """Show placeholder text and clear visible FG widgets."""
+        for widget in self._scroll_frame.winfo_children():
+            widget.destroy()
+        self._checkbox_vars.clear()
+        self._checkboxes.clear()
+        self._fg_data.clear()
+        self._quantity_vars.clear()
+        self._quantity_entries.clear()
+        self._feedback_labels.clear()
+
+        self._placeholder_label = ctk.CTkLabel(
+            self._scroll_frame,
+            text="Select filters to see available finished goods",
+            font=ctk.CTkFont(size=12, slant="italic"),
+            text_color=("gray50", "gray60"),
+        )
+        self._placeholder_label.pack(pady=40)
+        self._update_count()
+
+    def _on_filter_change(self, choice: str) -> None:
+        """
+        Handle any filter dropdown change.
+
+        Reads all current filter values, queries the service layer,
+        and re-renders the FG list with persistence restoration.
+
+        Args:
+            choice: The selected dropdown value (unused directly;
+                    we read all vars for AND-combination)
+        """
+        if self._event_id is None:
+            return
+
+        # Read current filter values
+        recipe_cat = self._recipe_cat_var.get()
+        item_type = self._item_type_var.get()
+        yield_type = self._yield_type_var.get()
+
+        # Check if at least one filter is set (FR-007)
+        if not recipe_cat and not item_type and not yield_type:
+            return  # Keep showing placeholder
+
+        # Convert display values to service parameters
+        cat_param = None if recipe_cat in ("", "All Categories") else recipe_cat
+        type_param = None
+        if item_type == "Finished Units":
+            type_param = "bare"
+        elif item_type == "Assemblies":
+            type_param = "bundle"
+        yield_param = None if yield_type in ("", "All Yields") else yield_type
+
+        # Save current selections before re-render
+        self._save_current_selections()
+
+        # Query service
+        with session_scope() as session:
+            fgs = event_service.get_filtered_available_fgs(
+                self._event_id,
+                session,
+                recipe_category=cat_param,
+                assembly_type=type_param,
+                yield_type=yield_param,
+            )
+
+        self._render_finished_goods(fgs)
+
+    def _render_finished_goods(self, finished_goods: List[FinishedGood]) -> None:
+        """
+        Render FG rows in the scroll frame, restoring persisted selections.
+
+        This replaces the direct rendering in populate_finished_goods() and
+        is called after filter changes.
+
+        Args:
+            finished_goods: List of FinishedGood objects to display
+        """
         # Clear existing widgets
         for widget in self._scroll_frame.winfo_children():
             widget.destroy()
@@ -136,70 +310,171 @@ class FGSelectionFrame(ctk.CTkFrame):
         if not finished_goods:
             empty_label = ctk.CTkLabel(
                 self._scroll_frame,
-                text="No finished goods available",
+                text="No finished goods match the selected filters",
                 font=ctk.CTkFont(size=12, slant="italic"),
             )
             empty_label.pack(pady=20)
             self._update_count()
             return
 
-        # Configure grid columns for scroll frame
-        self._scroll_frame.grid_columnconfigure(0, weight=1)  # Checkbox expands
-        self._scroll_frame.grid_columnconfigure(1, weight=0)  # Entry fixed width
-        self._scroll_frame.grid_columnconfigure(2, weight=0)  # Feedback fixed width
+        # Set restoring flag to suppress trace callbacks during setup
+        self._restoring = True
 
-        # Create row for each FG with checkbox, quantity entry, and feedback label
-        for i, fg in enumerate(finished_goods):
-            # Checkbox variable
-            var = ctk.BooleanVar(value=False)
-            self._checkbox_vars[fg.id] = var
-            self._fg_data[fg.id] = fg
+        try:
+            # Configure grid columns for scroll frame
+            self._scroll_frame.grid_columnconfigure(0, weight=1)  # Checkbox expands
+            self._scroll_frame.grid_columnconfigure(1, weight=0)  # Entry fixed width
+            self._scroll_frame.grid_columnconfigure(2, weight=0)  # Feedback fixed
 
-            # Checkbox
-            checkbox = ctk.CTkCheckBox(
-                self._scroll_frame,
-                text=fg.display_name,
-                variable=var,
-                command=self._update_count,
-            )
-            checkbox.grid(row=i, column=0, sticky="w", pady=2, padx=5)
-            self._checkboxes[fg.id] = checkbox
+            # Create row for each FG with checkbox, quantity entry, and feedback label
+            for i, fg in enumerate(finished_goods):
+                # Restore selection state from persistence
+                var = ctk.BooleanVar(value=fg.id in self._selected_fg_ids)
+                self._checkbox_vars[fg.id] = var
+                self._fg_data[fg.id] = fg
 
-            # Quantity entry (F071)
-            qty_var = ctk.StringVar(value="")
-            self._quantity_vars[fg.id] = qty_var
-            qty_entry = ctk.CTkEntry(
-                self._scroll_frame,
-                width=80,
-                textvariable=qty_var,
-                placeholder_text="Qty",
-            )
-            qty_entry.grid(row=i, column=1, padx=(10, 0), pady=2)
-            self._quantity_entries[fg.id] = qty_entry
+                # Checkbox with persistence-aware toggle
+                checkbox = ctk.CTkCheckBox(
+                    self._scroll_frame,
+                    text=fg.display_name,
+                    variable=var,
+                    command=lambda fid=fg.id: self._on_checkbox_toggle(fid),
+                )
+                checkbox.grid(row=i, column=0, sticky="w", pady=2, padx=5)
+                self._checkboxes[fg.id] = checkbox
 
-            # Bind validation on text change
-            qty_var.trace_add("write", lambda *args, fid=fg.id: self._validate_quantity(fid))
+                # Quantity entry (F071) -- restore from persistence
+                qty_var = ctk.StringVar(value="")
+                if fg.id in self._fg_quantities:
+                    qty_var.set(str(self._fg_quantities[fg.id]))
+                self._quantity_vars[fg.id] = qty_var
 
-            # Feedback label for validation messages
-            feedback_label = ctk.CTkLabel(
-                self._scroll_frame,
-                text="",
-                width=100,
-                anchor="w",
-            )
-            feedback_label.grid(row=i, column=2, padx=(5, 0), pady=2)
-            self._feedback_labels[fg.id] = feedback_label
+                qty_entry = ctk.CTkEntry(
+                    self._scroll_frame,
+                    width=80,
+                    textvariable=qty_var,
+                    placeholder_text="Qty",
+                )
+                qty_entry.grid(row=i, column=1, padx=(10, 0), pady=2)
+                self._quantity_entries[fg.id] = qty_entry
+
+                # Bind validation and persistence on text change
+                qty_var.trace_add(
+                    "write",
+                    lambda *args, fid=fg.id: self._on_quantity_change(fid),
+                )
+
+                # Feedback label for validation messages
+                feedback_label = ctk.CTkLabel(
+                    self._scroll_frame,
+                    text="",
+                    width=100,
+                    anchor="w",
+                )
+                feedback_label.grid(row=i, column=2, padx=(5, 0), pady=2)
+                self._feedback_labels[fg.id] = feedback_label
+        finally:
+            self._restoring = False
 
         # Update count display
         self._update_count()
+
+    def populate_finished_goods(
+        self,
+        finished_goods: List[FinishedGood],
+        event_name: str = "",
+    ) -> None:
+        """
+        Populate the frame with finished goods (legacy method).
+
+        Retained for backward compatibility with existing callers.
+
+        Args:
+            finished_goods: List of available FinishedGood objects to display
+            event_name: Name of the event (for header display)
+        """
+        self._event_name = event_name
+
+        # Update header
+        if event_name:
+            self._header_label.configure(text=f"Finished Goods for {event_name}")
+        else:
+            self._header_label.configure(text="Select Finished Goods")
+
+        # Clear persistence state for fresh populate
+        self._selected_fg_ids.clear()
+        self._fg_quantities.clear()
+
+        self._render_finished_goods(finished_goods)
+
+    def _on_checkbox_toggle(self, fg_id: int) -> None:
+        """
+        Handle checkbox toggle and update persistence.
+
+        Args:
+            fg_id: The finished good ID that was toggled
+        """
+        var = self._checkbox_vars.get(fg_id)
+        if var:
+            if var.get():
+                self._selected_fg_ids.add(fg_id)
+            else:
+                self._selected_fg_ids.discard(fg_id)
+        self._update_count()
+
+    def _on_quantity_change(self, fg_id: int) -> None:
+        """
+        Handle quantity entry change and update persistence.
+
+        Args:
+            fg_id: The finished good ID whose quantity changed
+        """
+        if self._restoring:
+            return
+
+        qty_var = self._quantity_vars.get(fg_id)
+        if qty_var:
+            qty_text = qty_var.get().strip()
+            try:
+                qty = int(qty_text)
+                if qty > 0:
+                    self._fg_quantities[fg_id] = qty
+            except (ValueError, TypeError):
+                pass  # Keep existing quantity in persistence dict
+        self._validate_quantity(fg_id)
+
+    def _save_current_selections(self) -> None:
+        """Save current UI state to persistence dicts."""
+        for fg_id, var in self._checkbox_vars.items():
+            if var.get():
+                self._selected_fg_ids.add(fg_id)
+                # Save quantity if valid
+                qty_var = self._quantity_vars.get(fg_id)
+                if qty_var:
+                    qty_text = qty_var.get().strip()
+                    try:
+                        qty = int(qty_text)
+                        if qty > 0:
+                            self._fg_quantities[fg_id] = qty
+                    except (ValueError, TypeError):
+                        pass  # Keep existing quantity in dict
+            else:
+                self._selected_fg_ids.discard(fg_id)
+                # Don't remove from _fg_quantities -- user might re-check later
 
     def set_selected(self, fg_ids: List[int]) -> None:
         """
         Set which FGs are selected (checkbox only, no quantities).
 
+        Updates both persistence state and visible checkboxes.
+
         Args:
             fg_ids: List of FG IDs to mark as selected
         """
+        # Update persistence
+        self._selected_fg_ids = set(fg_ids)
+
+        # Update visible checkboxes
         selected_set = set(fg_ids)
         for fg_id, var in self._checkbox_vars.items():
             var.set(fg_id in selected_set)
@@ -212,81 +487,78 @@ class FGSelectionFrame(ctk.CTkFrame):
         self, fg_quantities: List[Tuple[int, int]]
     ) -> None:
         """
-        Set selected FGs with their quantities (F071).
+        Set selected FGs with their quantities (F071/F100).
+
+        Updates both persistence state and visible checkboxes/quantities.
 
         Args:
             fg_quantities: List of (fg_id, quantity) tuples
         """
-        # Create lookup for quantities
-        qty_lookup = {fg_id: qty for fg_id, qty in fg_quantities}
+        # Update persistence state
+        self._selected_fg_ids.clear()
+        self._fg_quantities.clear()
+        for fg_id, qty in fg_quantities:
+            self._selected_fg_ids.add(fg_id)
+            self._fg_quantities[fg_id] = qty
 
+        # Update visible checkboxes and quantities
         for fg_id, checkbox_var in self._checkbox_vars.items():
-            if fg_id in qty_lookup:
-                # Check the checkbox and set quantity
+            if fg_id in self._selected_fg_ids:
                 checkbox_var.set(True)
                 if fg_id in self._quantity_vars:
-                    self._quantity_vars[fg_id].set(str(qty_lookup[fg_id]))
+                    self._quantity_vars[fg_id].set(
+                        str(self._fg_quantities.get(fg_id, ""))
+                    )
             else:
-                # Uncheck and clear quantity
                 checkbox_var.set(False)
                 if fg_id in self._quantity_vars:
                     self._quantity_vars[fg_id].set("")
-
         self._update_count()
 
     def get_selected(self) -> List[Tuple[int, int]]:
         """
-        Get selected FGs with their quantities (F071).
+        Get ALL selected FGs with their quantities (including hidden ones).
 
         Returns:
             List of (fg_id, quantity) tuples for FGs with valid quantities.
-            FGs with checked checkbox but empty or invalid quantities are excluded.
+            Includes FGs selected in other filter views.
         """
-        result = []
-        for fg_id, checkbox_var in self._checkbox_vars.items():
-            # Only include if checkbox is checked
-            if not checkbox_var.get():
-                continue
-
-            # Get quantity value
-            qty_var = self._quantity_vars.get(fg_id)
-            if qty_var is None:
-                continue
-
-            qty_text = qty_var.get().strip()
-
-            # Skip empty quantities
-            if not qty_text:
-                continue
-
-            # Skip invalid quantities
-            try:
-                qty = int(qty_text)
-                if qty > 0:
-                    result.append((fg_id, qty))
-            except ValueError:
-                continue  # Skip invalid entries
-
-        return result
+        self._save_current_selections()
+        return [
+            (fg_id, self._fg_quantities.get(fg_id, 0))
+            for fg_id in self._selected_fg_ids
+            if self._fg_quantities.get(fg_id, 0) > 0
+        ]
 
     def get_selected_ids(self) -> List[int]:
         """
-        Get list of selected FG IDs (checkbox only, ignores quantity validation).
-
-        This is a backward-compatible method for callers that only need IDs.
+        Get ALL selected FG IDs (including hidden ones).
 
         Returns:
-            List of FG IDs that are currently checked
+            List of FG IDs that are currently selected across all filter views
         """
-        return [fg_id for fg_id, var in self._checkbox_vars.items() if var.get()]
+        self._save_current_selections()
+        return list(self._selected_fg_ids)
 
     def has_validation_errors(self) -> bool:
         """
         Check if any checked FG has an invalid quantity.
 
+        Checks both visible and persisted selections.
+
         Returns:
-            True if any checked FG has empty, zero, negative, or non-integer quantity.
+            True if any selected FG has empty, zero, negative, or non-integer quantity.
         """
+        # Save current visible state first
+        self._save_current_selections()
+
+        # Check all persisted selections
+        for fg_id in self._selected_fg_ids:
+            qty = self._fg_quantities.get(fg_id, 0)
+            if qty <= 0:
+                return True
+
+        # Also check visible items for in-progress edits
         for fg_id, checkbox_var in self._checkbox_vars.items():
             if not checkbox_var.get():
                 continue
@@ -307,6 +579,16 @@ class FGSelectionFrame(ctk.CTkFrame):
                 return True
 
         return False
+
+    def clear_selections(self) -> None:
+        """Clear all FG selections and quantities (needed by WP04)."""
+        self._selected_fg_ids.clear()
+        self._fg_quantities.clear()
+        for var in self._checkbox_vars.values():
+            var.set(False)
+        for qty_var in self._quantity_vars.values():
+            qty_var.set("")
+        self._update_count()
 
     def _validate_quantity(self, fg_id: int) -> None:
         """
@@ -339,10 +621,21 @@ class FGSelectionFrame(ctk.CTkFrame):
             feedback_label.configure(text="Integer only", text_color="orange")
 
     def _update_count(self) -> None:
-        """Update the count label with current selection."""
-        selected_count = sum(1 for var in self._checkbox_vars.values() if var.get())
-        total_count = len(self._checkbox_vars)
-        self._count_label.configure(text=f"{selected_count} of {total_count} selected")
+        """Update the count label with current selection (including hidden)."""
+        visible_selected = sum(
+            1 for var in self._checkbox_vars.values() if var.get()
+        )
+        total_visible = len(self._checkbox_vars)
+        total_selected = len(self._selected_fg_ids)
+        if total_selected > visible_selected:
+            self._count_label.configure(
+                text=f"{visible_selected} of {total_visible} shown "
+                f"({total_selected} total selected)"
+            )
+        else:
+            self._count_label.configure(
+                text=f"{visible_selected} of {total_visible} selected"
+            )
 
     def _handle_save(self) -> None:
         """Handle Save button click."""
