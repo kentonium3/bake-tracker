@@ -1,25 +1,28 @@
 ---
 work_package_id: WP01
-title: "Service Layer - Filtered FG Queries"
-lane: "planned"
+title: Service Layer - Filtered FG Queries
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 999b93111f5aba3ee46c2e633469cd4c0d06fa18
+created_at: '2026-02-09T21:32:13.250058+00:00'
 subtasks:
-  - T001
-  - T002
-  - T003
-  - T004
-phase: "Phase 0 - Foundation"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "22118"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-09T21:25:52Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-09T21:25:52Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 -- Service Layer - Filtered FG Queries
