@@ -74,6 +74,9 @@ class FGSelectionFrame(ctk.CTkFrame):
         # Flag to suppress trace callbacks during restore
         self._restoring: bool = False
 
+        # Show-selected-only mode (T016)
+        self._show_selected_only: bool = False
+
         # Build UI
         self._create_widgets()
 
@@ -149,6 +152,25 @@ class FGSelectionFrame(ctk.CTkFrame):
             state="readonly",
         )
         self._yield_type_dropdown.pack(side="left", padx=5)
+
+        # Toggle frame for "Show All Selected" button (T016)
+        self._toggle_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self._toggle_frame.pack(fill="x", padx=10, pady=(0, 5))
+
+        self._show_selected_button = ctk.CTkButton(
+            self._toggle_frame,
+            text="Show All Selected",
+            width=150,
+            command=self._toggle_show_selected,
+        )
+        self._show_selected_button.pack(side="left")
+
+        self._selected_indicator = ctk.CTkLabel(
+            self._toggle_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+        )
+        self._selected_indicator.pack(side="left", padx=10)
 
         # Scrollable frame for checkboxes
         self._scroll_frame = ctk.CTkScrollableFrame(
@@ -250,6 +272,13 @@ class FGSelectionFrame(ctk.CTkFrame):
             choice: The selected dropdown value (unused directly;
                     we read all vars for AND-combination)
         """
+        # Exit show-selected mode if active (T018/FR-012)
+        if self._show_selected_only:
+            self._show_selected_only = False
+            self._show_selected_button.configure(text="Show All Selected")
+            self._selected_indicator.configure(text="")
+
+
         if self._event_id is None:
             return
 
@@ -636,6 +665,80 @@ class FGSelectionFrame(ctk.CTkFrame):
             self._count_label.configure(
                 text=f"{visible_selected} of {total_visible} selected"
             )
+
+    def _reset_to_blank(self) -> None:
+        """Reset the frame to blank state with placeholder (T015)."""
+        # Clear rendered items
+        for widget in self._scroll_frame.winfo_children():
+            widget.destroy()
+        self._checkbox_vars.clear()
+        self._checkboxes.clear()
+        self._fg_data.clear()
+        self._quantity_vars.clear()
+        self._quantity_entries.clear()
+        self._feedback_labels.clear()
+
+        # Reset filter dropdowns
+        self._recipe_cat_var.set("")
+        self._item_type_var.set("")
+        self._yield_type_var.set("")
+
+        # Exit show-selected mode if active
+        self._show_selected_only = False
+        self._show_selected_button.configure(text="Show All Selected")
+        self._selected_indicator.configure(text="")
+
+        # Show placeholder
+        self._placeholder_label = ctk.CTkLabel(
+            self._scroll_frame,
+            text="Select filters to see available finished goods",
+            font=ctk.CTkFont(size=12, slant="italic"),
+            text_color=("gray50", "gray60"),
+        )
+        self._placeholder_label.pack(pady=40)
+
+        # Reset count
+        self._count_label.configure(text="0 of 0 selected")
+
+    def _toggle_show_selected(self) -> None:
+        """Toggle between filtered view and selected-only view (T017)."""
+        self._save_current_selections()
+
+        if self._show_selected_only:
+            # Exit selected-only mode, restore filter view
+            self._show_selected_only = False
+            self._show_selected_button.configure(text="Show All Selected")
+            self._selected_indicator.configure(text="")
+            # Re-apply current filters
+            self._on_filter_change("")
+        else:
+            # Enter selected-only mode
+            if not self._selected_fg_ids:
+                self._selected_indicator.configure(text="No items selected")
+                return
+
+            self._show_selected_only = True
+            self._show_selected_button.configure(text="Show Filtered View")
+            count = len(self._selected_fg_ids)
+            self._selected_indicator.configure(text=f"Showing {count} selected items")
+
+            # Render only selected FGs
+            self._render_selected_only()
+
+    def _render_selected_only(self) -> None:
+        """Render only the currently selected FGs (T017)."""
+        if self._event_id is None:
+            return
+
+        # Get FG objects for selected IDs
+        with session_scope() as session:
+            selected_fgs = (
+                session.query(FinishedGood)
+                .filter(FinishedGood.id.in_(self._selected_fg_ids))
+                .all()
+            )
+
+        self._render_finished_goods(selected_fgs)
 
     def _handle_save(self) -> None:
         """Handle Save button click."""

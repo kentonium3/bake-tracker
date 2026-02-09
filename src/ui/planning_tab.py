@@ -105,6 +105,7 @@ class PlanningTab(ctk.CTkFrame):
         self._create_event_selector()  # New: compact dropdown-based event selector
         self._create_planning_container()  # New: scrollable container for all planning sections
         self._create_recipe_selection_frame()
+        self._create_clear_buttons_frame()
         self._create_fg_selection_frame()
         self._create_batch_options_frame()
         self._create_plan_state_frame()  # F077
@@ -201,6 +202,33 @@ class PlanningTab(ctk.CTkFrame):
             on_save=self._on_recipe_selection_save,
             on_cancel=self._on_recipe_selection_cancel,
         )
+        # Frame starts hidden - will be shown when event is selected
+
+    def _create_clear_buttons_frame(self) -> None:
+        """Create the clear buttons frame (T013/T014, initially hidden)."""
+        self._clear_buttons_frame = ctk.CTkFrame(
+            self._planning_container, fg_color="transparent"
+        )
+
+        self._clear_all_button = ctk.CTkButton(
+            self._clear_buttons_frame,
+            text="Clear All",
+            width=100,
+            fg_color="gray40",
+            hover_color="gray30",
+            command=self._handle_clear_all,
+        )
+        self._clear_all_button.pack(side="left", padx=5)
+
+        self._clear_fgs_button = ctk.CTkButton(
+            self._clear_buttons_frame,
+            text="Clear Finished Goods",
+            width=150,
+            fg_color="gray40",
+            hover_color="gray30",
+            command=self._handle_clear_fgs,
+        )
+        self._clear_fgs_button.pack(side="left", padx=5)
         # Frame starts hidden - will be shown when event is selected
 
     def _create_fg_selection_frame(self) -> None:
@@ -475,6 +503,7 @@ class PlanningTab(ctk.CTkFrame):
         self._selected_event_id = None
         self.event_details_label.configure(text="")
         self._hide_recipe_selection()
+        self._hide_clear_buttons()
         self._hide_fg_selection()
         self._hide_batch_options()
         self._hide_plan_state_controls()
@@ -514,6 +543,7 @@ class PlanningTab(ctk.CTkFrame):
 
         # Show planning sections
         self._show_recipe_selection(self.selected_event.id)
+        self._show_clear_buttons()
         self._show_fg_selection(self.selected_event.id)
         self._show_batch_options(self.selected_event.id)
         self._show_plan_state_controls()
@@ -658,6 +688,59 @@ class PlanningTab(ctk.CTkFrame):
         """Handle recipe selection cancel - revert to last saved state."""
         self._recipe_selection_frame.set_selected(self._original_recipe_selection)
         self._update_status("Reverted to saved recipe selections")
+
+    # =========================================================================
+    # F100/WP04: Clear Buttons
+    # =========================================================================
+
+    def _show_clear_buttons(self) -> None:
+        """Show the clear buttons frame."""
+        self._clear_buttons_frame.pack(
+            fill="x", padx=PADDING_MEDIUM, pady=(0, PADDING_MEDIUM)
+        )
+
+    def _hide_clear_buttons(self) -> None:
+        """Hide the clear buttons frame."""
+        self._safe_pack_forget(self._clear_buttons_frame)
+
+    def _handle_clear_all(self) -> None:
+        """Handle Clear All button - reset entire plan (T013)."""
+        confirmed = messagebox.askyesno(
+            "Clear All",
+            "Clear all recipes and finished goods?\n\n"
+            "This resets the entire plan to blank.",
+        )
+        if not confirmed:
+            return
+
+        # Clear recipe selections
+        self._recipe_selection_frame.clear_selections()
+
+        # Clear FG selections
+        self._fg_selection_frame.clear_selections()
+
+        # Return FG frame to blank state
+        self._fg_selection_frame._reset_to_blank()
+
+        self._update_status("Cleared all selections")
+
+    def _handle_clear_fgs(self) -> None:
+        """Handle Clear FGs button - reset only FG selections (T014)."""
+        confirmed = messagebox.askyesno(
+            "Clear Finished Goods",
+            "Clear all finished good selections?\n\n"
+            "Recipe selections will remain.",
+        )
+        if not confirmed:
+            return
+
+        # Clear only FG selections
+        self._fg_selection_frame.clear_selections()
+
+        # Reset FG frame to blank (recipes stay)
+        self._fg_selection_frame._reset_to_blank()
+
+        self._update_status("Cleared finished good selections")
 
     # =========================================================================
     # F070: Finished Good Selection
