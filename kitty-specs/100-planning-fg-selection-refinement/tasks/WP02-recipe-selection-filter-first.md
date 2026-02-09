@@ -12,7 +12,7 @@ subtasks:
 - T007
 phase: Phase 1 - Recipe Selection Enhancement
 assignee: ''
-agent: ''
+agent: "gemini"
 shell_pid: "22294"
 review_status: ''
 reviewed_by: ''
@@ -309,3 +309,4 @@ def _show_recipe_selection(self, event_id):
 ## Activity Log
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
+- 2026-02-09T21:32:53Z – gemini – shell_pid=22294 – lane=doing – Assigned agent via workflow command
