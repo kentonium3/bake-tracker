@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Layer - Filtered FG Queries
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 999b93111f5aba3ee46c2e633469cd4c0d06fa18
@@ -271,3 +271,4 @@ def get_available_recipe_categories_for_event(
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
 - 2026-02-09T21:32:13Z – claude-opus – shell_pid=22118 – lane=doing – Assigned agent via workflow command
+- 2026-02-09T21:39:24Z – claude-opus – shell_pid=22118 – lane=for_review – Ready for review: get_filtered_available_fgs() and get_available_recipe_categories_for_event() with 19 passing tests
