@@ -453,6 +453,16 @@ class FinishedGoodsTab(ctk.CTkFrame):
             handle_error(e, parent=self, operation="Load finished good for editing")
             return
 
+        # Block editing atomic (BARE) FGs - they are auto-created from recipes
+        if fg.assembly_type == AssemblyType.BARE:
+            show_info(
+                "Cannot Edit",
+                "This item is auto-created from a recipe. "
+                "Edit the recipe to change it.",
+                parent=self,
+            )
+            return
+
         dialog = FinishedGoodBuilderDialog(self, finished_good=fg)
         self.wait_window(dialog)
         result = dialog.result
