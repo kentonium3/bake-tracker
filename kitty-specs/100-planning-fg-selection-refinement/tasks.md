@@ -19,10 +19,10 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 Add `get_filtered_available_fgs()` to `src/services/event_service.py`
-- [ ] T002 Add `get_available_recipe_categories_for_event()` to `src/services/event_service.py`
-- [ ] T003 Write tests for `get_filtered_available_fgs()` covering all filter combinations
-- [ ] T004 Write tests for `get_available_recipe_categories_for_event()`
+- [x] T001 Add `get_filtered_available_fgs()` to `src/services/event_service.py`
+- [x] T002 Add `get_available_recipe_categories_for_event()` to `src/services/event_service.py`
+- [x] T003 Write tests for `get_filtered_available_fgs()` covering all filter combinations
+- [x] T004 Write tests for `get_available_recipe_categories_for_event()`
 
 ### Implementation Notes
 - `get_filtered_available_fgs()` builds on existing `get_available_finished_goods()` adding recipe_category, assembly_type, and yield_type filter parameters
