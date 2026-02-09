@@ -15,7 +15,7 @@ subtasks:
 - T021
 phase: Phase 4 - Save Integration
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "34708"
 review_status: ''
 reviewed_by: ''
@@ -274,3 +274,4 @@ def has_validation_errors(self) -> bool:
 ## Activity Log
 
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
+- 2026-02-09T22:58:49Z – claude-opus – shell_pid=34708 – lane=doing – Assigned agent via workflow command
