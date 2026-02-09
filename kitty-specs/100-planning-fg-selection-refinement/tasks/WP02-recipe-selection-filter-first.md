@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Selection Filter-First
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 25479c9caf608df6fc4f8a2c1cd76a6c8df5ee38
@@ -14,8 +14,8 @@ phase: Phase 1 - Recipe Selection Enhancement
 assignee: ''
 agent: "gemini"
 shell_pid: "22294"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-09T21:25:52Z'
   lane: planned
@@ -311,3 +311,4 @@ def _show_recipe_selection(self, event_id):
 - 2026-02-09T21:25:52Z -- system -- lane=planned -- Prompt created.
 - 2026-02-09T21:32:53Z – gemini – shell_pid=22294 – lane=doing – Assigned agent via workflow command
 - 2026-02-09T21:45:30Z – gemini – shell_pid=22294 – lane=for_review – Ready for review: recipe selection filter-first with category dropdown, blank start, and selection persistence
+- 2026-02-09T22:38:00Z – gemini – shell_pid=22294 – lane=done – Review fix applied: added _selected_recipe_ids to 3 tests. All 13 tests pass.
