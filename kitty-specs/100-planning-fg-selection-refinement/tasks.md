@@ -148,7 +148,7 @@
 
 ### Included Subtasks
 - [x] T019 Integrate quantity persistence with FG selection persistence (sync `_fg_quantities` dict on every qty change)
-- [ ] T020 Wire Save button to `set_event_fg_quantities()` with all (fg_id, quantity) pairs from in-memory state
+- [x] T020 Wire Save button to `set_event_fg_quantities()` with all (fg_id, quantity) pairs from in-memory state
 - [ ] T021 Validate Save button disabled when validation errors exist or no FGs selected
 
 ### Implementation Notes
