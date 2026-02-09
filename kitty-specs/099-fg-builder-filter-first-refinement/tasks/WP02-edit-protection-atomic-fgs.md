@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Edit Protection for Atomic FGs"
-phase: "Phase 1 - Edit Protection"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP02
+title: Edit Protection for Atomic FGs
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 7923c0cac7a0bde71b2793aaf29e645557c9ba42
+created_at: '2026-02-09T00:00:39.207020+00:00'
+subtasks:
+- T007
+- T008
+- T009
+phase: Phase 1 - Edit Protection
+assignee: ''
+agent: ''
+shell_pid: "82712"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-08T23:13:33Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-08T23:13:33Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 -- Edit Protection for Atomic FGs
