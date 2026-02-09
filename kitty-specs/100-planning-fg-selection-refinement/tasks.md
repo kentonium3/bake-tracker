@@ -50,9 +50,9 @@
 **Estimated Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T005 Refactor `RecipeSelectionFrame` - add category filter dropdown, blank-start placeholder
-- [ ] T006 Add selection persistence (`_selected_recipe_ids: Set[int]`) across category changes
-- [ ] T007 Update `planning_tab.py` orchestration for filtered recipe selection
+- [x] T005 Refactor `RecipeSelectionFrame` - add category filter dropdown, blank-start placeholder
+- [x] T006 Add selection persistence (`_selected_recipe_ids: Set[int]`) across category changes
+- [x] T007 Update `planning_tab.py` orchestration for filtered recipe selection
 
 ### Implementation Notes
 - Category dropdown populated via `recipe_category_service.list_categories()` + "All Categories" option
