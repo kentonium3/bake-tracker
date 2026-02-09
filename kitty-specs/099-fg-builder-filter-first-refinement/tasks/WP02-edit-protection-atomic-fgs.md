@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Edit Protection for Atomic FGs
-lane: "for_review"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: 7923c0cac7a0bde71b2793aaf29e645557c9ba42
@@ -14,8 +14,8 @@ phase: Phase 1 - Edit Protection
 assignee: ''
 agent: "gemini"
 shell_pid: "82712"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-02-08T23:13:33Z'
   lane: planned
@@ -237,3 +237,4 @@ spec-kitty implement WP02
 - 2026-02-08T23:13:33Z -- system -- lane=planned -- Prompt created.
 - 2026-02-09T00:00:39Z – gemini – shell_pid=82712 – lane=doing – Assigned agent via workflow command
 - 2026-02-09T00:33:30Z – gemini – shell_pid=82712 – lane=for_review – Ready for review: Added assembly type guard to block editing of BARE FGs via Edit button and double-click
+- 2026-02-09T00:36:04Z – gemini – shell_pid=82712 – lane=done – Review passed: BARE FG edit guard correctly blocks editing with show_info dialog, BUNDLE editing unaffected, double-click delegates to _edit_finished_good() so both paths covered (DRY), uses project show_info utility, no import conflicts (AssemblyType and show_info both pre-existing imports), 128 tests pass
