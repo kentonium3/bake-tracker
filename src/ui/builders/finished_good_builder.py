@@ -181,6 +181,24 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         cancel_btn.pack(side="right", padx=5)
 
+        self._save_btn = ctk.CTkButton(
+            self.button_frame,
+            text="Save Finished Good",
+            width=160,
+            command=self._on_save,
+        )
+        # Hidden initially — shown when Step 3 is active
+        self._save_btn_visible = False
+
+    def _show_save_button(self, show: bool) -> None:
+        """Show or hide the Save button in the fixed footer."""
+        if show and not self._save_btn_visible:
+            self._save_btn.pack(side="right", padx=5)
+            self._save_btn_visible = True
+        elif not show and self._save_btn_visible:
+            self._save_btn.pack_forget()
+            self._save_btn_visible = False
+
     def _set_initial_state(self) -> None:
         """Set initial accordion states based on create/edit mode."""
         if self._is_edit_mode and self._finished_good:
@@ -234,6 +252,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._step_completed[2] = True
 
         self.step3.expand()
+        self._show_save_button(True)
         self._refresh_review_summary()
         self._has_changes = False
 
@@ -390,6 +409,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
                     "key": key,
                     "id": fu.id,
                     "display_name": fu.display_name,
+                    "yield_type": fu.yield_type,
                     "category": fu.category or "",
                     "assembly_type": AssemblyType.BARE,
                     "comp_type": "finished_unit",
@@ -528,9 +548,14 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
             var = ctk.StringVar(value="1" if is_selected else "0")
             self._food_check_vars[key] = var
 
+            display_text = item["display_name"]
+            yield_type = item.get("yield_type")
+            if yield_type:
+                display_text = f"{display_text} ({yield_type})"
+
             cb = ctk.CTkCheckBox(
                 row,
-                text=item["display_name"],
+                text=display_text,
                 variable=var,
                 onvalue="1",
                 offvalue="0",
@@ -662,6 +687,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self._collapse_all_steps()
         step = self._get_step(step_number)
         step.expand()
+        self._show_save_button(step_number == 3)
         # Re-render items when going back to a step
         if step_number == 1:
             self._on_food_filter_changed()
@@ -686,6 +712,8 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         target_step = self._get_step(step_number)
         target_step.expand()
         self._has_changes = True
+
+        self._show_save_button(step_number == 3)
 
         # Populate content when entering a step
         if step_number == 2:
@@ -723,6 +751,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         self.name_entry.delete(0, "end")
 
         self._collapse_all_steps()
+        self._show_save_button(False)
         self.step1.set_state(STATE_ACTIVE)
         self.step1.set_summary("")
         self.step2.set_state(STATE_LOCKED)
@@ -1056,13 +1085,7 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         )
         self._save_error_label.pack(fill="x", padx=10, pady=(0, 2))
 
-        # -- Save button --
-        save_btn = ctk.CTkButton(
-            content,
-            text="Save Finished Good",
-            command=self._on_save,
-        )
-        save_btn.pack(anchor="e", padx=10, pady=(2, 10))
+        # Save button is in the fixed footer (button_frame), not here
 
     def _refresh_review_summary(self) -> None:
         """Rebuild the review summary display from current selections."""
