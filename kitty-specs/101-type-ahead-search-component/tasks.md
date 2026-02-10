@@ -57,7 +57,7 @@
 - [x] T006 Implement Down Arrow key navigation with highlight index clamping
 - [x] T007 Implement Up Arrow key navigation with highlight index clamping
 - [x] T008 Apply visual highlight styling on active dropdown item
-- [ ] T009 Implement Enter key selection (no-op when no highlight)
+- [x] T009 Implement Enter key selection (no-op when no highlight)
 - [ ] T010 Implement click-outside detection via root window binding
 - [ ] T011 Handle screen edge clamping and multiple widget instances
 - [ ] T012 Handle edge cases: special characters, rapid typing, exact match
