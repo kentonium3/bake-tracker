@@ -1,25 +1,28 @@
 ---
 work_package_id: WP04
 title: Material Selection Integration
-lane: "planned"
-dependencies: ["WP02"]
+lane: "doing"
+dependencies: [WP02]
+base_branch: 101-type-ahead-search-component-WP02
+base_commit: fdf836dbc1a3c8d4e65269c62a74115e9d7555b6
+created_at: '2026-02-10T22:22:18.151048+00:00'
 subtasks:
-  - T018
-  - T019
-  - T020
-  - T021
-phase: "Phase 2 - US3 Material Reuse"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T018
+- T019
+- T020
+- T021
+phase: Phase 2 - US3 Material Reuse
+assignee: ''
+agent: ''
+shell_pid: "92063"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-10T21:59:40Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-10T21:59:40Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 -- Material Selection Integration
