@@ -95,7 +95,7 @@
 - [x] T014 Add TypeAheadEntry widget to ingredient selection workflow in recipe form
 - [x] T015 Wire on_select_callback to populate ingredient data in recipe form
 - [x] T016 [P] Format dropdown display with ancestor breadcrumb info
-- [ ] T017 [P] Write integration tests for ingredient type-ahead flow
+- [x] T017 [P] Write integration tests for ingredient type-ahead flow
 
 ### Implementation Notes
 - Callback wrapper calls `ingredient_hierarchy_service.search_ingredients(query, limit=10)`
