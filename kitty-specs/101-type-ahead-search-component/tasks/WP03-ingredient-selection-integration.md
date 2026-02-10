@@ -14,7 +14,7 @@ subtasks:
 - T017
 phase: Phase 1 - US1 Ingredient Search
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "90348"
 review_status: ''
 reviewed_by: ''
@@ -263,3 +263,4 @@ Choose the approach that minimizes disruption while delivering the P1 value. Doc
 ## Activity Log
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
+- 2026-02-10T22:18:03Z – claude-opus – shell_pid=90348 – lane=doing – Assigned agent via workflow command
