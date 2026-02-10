@@ -317,6 +317,159 @@ class TestDismissal:
         assert widget._dropdown_visible is False
 
 
+class TestClickOutside:
+    """Test click-outside detection (T010)."""
+
+    def test_root_click_binding_set_on_show(self, widget, root):
+        widget._execute_search("cho")
+        assert widget._root_click_id is not None
+
+    def test_root_click_binding_cleared_on_hide(self, widget, root):
+        widget._execute_search("cho")
+        widget._hide_dropdown()
+        assert widget._root_click_id is None
+
+    def test_click_outside_closes_dropdown(self, widget, root):
+        widget._execute_search("cho")
+        assert widget._dropdown_visible is True
+        # Simulate click far outside both entry and dropdown
+        event = MagicMock()
+        event.x_root = -100
+        event.y_root = -100
+        widget._on_root_click(event)
+        assert widget._dropdown_visible is False
+
+    def test_click_on_entry_keeps_dropdown_open(self, widget, root):
+        widget._execute_search("cho")
+        assert widget._dropdown_visible is True
+        # Mock entry geometry to simulate realistic coordinates
+        with patch.object(widget._entry, "winfo_rootx", return_value=100), \
+             patch.object(widget._entry, "winfo_rooty", return_value=200), \
+             patch.object(widget._entry, "winfo_width", return_value=300), \
+             patch.object(widget._entry, "winfo_height", return_value=30):
+            event = MagicMock()
+            event.x_root = 150  # Inside entry bounds
+            event.y_root = 210
+            widget._on_root_click(event)
+        assert widget._dropdown_visible is True
+
+    def test_click_on_dropdown_keeps_it_open(self, widget, root):
+        widget._execute_search("cho")
+        assert widget._dropdown_visible is True
+        # Mock dropdown geometry to simulate realistic coordinates
+        with patch.object(widget._entry, "winfo_rootx", return_value=100), \
+             patch.object(widget._entry, "winfo_rooty", return_value=200), \
+             patch.object(widget._entry, "winfo_width", return_value=300), \
+             patch.object(widget._entry, "winfo_height", return_value=30), \
+             patch.object(widget._dropdown, "winfo_rootx", return_value=100), \
+             patch.object(widget._dropdown, "winfo_rooty", return_value=230), \
+             patch.object(widget._dropdown, "winfo_width", return_value=300), \
+             patch.object(widget._dropdown, "winfo_height", return_value=96):
+            event = MagicMock()
+            event.x_root = 150  # Inside dropdown bounds
+            event.y_root = 260
+            widget._on_root_click(event)
+        assert widget._dropdown_visible is True
+
+    def test_click_outside_when_not_visible_is_noop(self, widget):
+        # Should not raise when no dropdown visible
+        event = MagicMock()
+        event.x_root = -100
+        event.y_root = -100
+        widget._on_root_click(event)
+        assert widget._dropdown_visible is False
+
+
+class TestMultipleInstances:
+    """Test that multiple TypeAheadEntry widgets maintain independent state (T011)."""
+
+    def test_independent_state(self, root, mock_items_callback, mock_select_callback):
+        from src.ui.widgets.type_ahead_entry import TypeAheadEntry
+
+        cb1 = MagicMock(return_value=[{"display_name": "A1", "id": 1}])
+        cb2 = MagicMock(return_value=[{"display_name": "B1", "id": 2}])
+        sel1 = MagicMock()
+        sel2 = MagicMock()
+
+        w1 = TypeAheadEntry(master=root, items_callback=cb1,
+                            on_select_callback=sel1, debounce_ms=50)
+        w2 = TypeAheadEntry(master=root, items_callback=cb2,
+                            on_select_callback=sel2, debounce_ms=50)
+        w1.pack()
+        w2.pack()
+
+        try:
+            # Search on w1 only
+            w1._execute_search("aaa")
+            assert w1._dropdown_visible is True
+            assert w2._dropdown_visible is False
+
+            # w1 results don't affect w2
+            assert len(w1._results) == 1
+            assert len(w2._results) == 0
+
+            # Search on w2
+            w2._execute_search("bbb")
+            assert w2._dropdown_visible is True
+            assert len(w2._results) == 1
+
+            # w1 still has its own state
+            assert w1._dropdown_visible is True
+            assert w1._results[0]["display_name"] == "A1"
+            assert w2._results[0]["display_name"] == "B1"
+
+            # Highlight on w1 doesn't affect w2
+            w1._on_arrow_down(MagicMock())
+            assert w1._highlight_index == 0
+            assert w2._highlight_index == -1
+        finally:
+            w1.destroy()
+            w2.destroy()
+
+
+class TestKeyboardWorkflow:
+    """Test complete keyboard-only workflow (type -> arrow -> enter)."""
+
+    def test_full_keyboard_selection_workflow(
+        self, widget, mock_items_callback, mock_select_callback, root
+    ):
+        # Step 1: Execute search (simulating debounce completion)
+        widget._execute_search("cho")
+        assert widget._dropdown_visible is True
+        assert widget._highlight_index == -1
+
+        # Step 2: Arrow down to first item
+        widget._on_arrow_down(MagicMock())
+        assert widget._highlight_index == 0
+
+        # Step 3: Arrow down to second item
+        widget._on_arrow_down(MagicMock())
+        assert widget._highlight_index == 1
+
+        # Step 4: Enter selects second item
+        widget._on_enter(MagicMock())
+        expected_item = {"display_name": "Chocolate (baking)", "id": 2,
+                         "slug": "chocolate-baking"}
+        mock_select_callback.assert_called_once_with(expected_item)
+        assert widget._dropdown_visible is False
+
+    def test_arrow_up_with_no_dropdown_does_nothing(self, widget):
+        result = widget._on_arrow_up(MagicMock())
+        assert result == ""
+        assert widget._highlight_index == -1
+
+    def test_enter_returns_break_when_dropdown_visible(self, widget, root):
+        widget._execute_search("cho")
+        # No highlight, but dropdown visible -- should return "break"
+        result = widget._on_enter(MagicMock())
+        assert result == "break"
+
+    def test_arrow_handlers_return_break(self, widget, root):
+        widget._execute_search("cho")
+        assert widget._on_arrow_down(MagicMock()) == "break"
+        assert widget._on_arrow_up(MagicMock()) == "break"
+
+
 class TestEdgeCases:
     """Test edge cases."""
 
