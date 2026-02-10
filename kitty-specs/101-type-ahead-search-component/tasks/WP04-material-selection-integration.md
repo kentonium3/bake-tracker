@@ -13,7 +13,7 @@ subtasks:
 - T021
 phase: Phase 2 - US3 Material Reuse
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "92063"
 review_status: ''
 reviewed_by: ''
@@ -222,3 +222,4 @@ Integrate the `TypeAheadEntry` widget into the finished good builder for materia
 ## Activity Log
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
+- 2026-02-10T22:22:18Z – claude-opus – shell_pid=92063 – lane=doing – Assigned agent via workflow command
