@@ -1,26 +1,29 @@
 ---
 work_package_id: WP01
 title: Core Widget - Entry, Debounce & Dropdown
-lane: "planned"
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 7c1185effbe3a7e9a6245997e8d5e67f1e4e6f8b
+created_at: '2026-02-10T22:07:25.148851+00:00'
 subtasks:
-  - T001
-  - T002
-  - T003
-  - T004
-  - T005
-phase: "Phase 0 - Foundation"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "86815"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-10T21:59:40Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-10T21:59:40Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 -- Core Widget - Entry, Debounce & Dropdown
