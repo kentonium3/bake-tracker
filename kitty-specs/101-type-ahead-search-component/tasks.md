@@ -19,11 +19,11 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T001 Create TypeAheadEntry class skeleton in `src/ui/widgets/type_ahead_entry.py`
-- [ ] T002 Implement debounce search trigger with after/after_cancel pattern
-- [ ] T003 Create floating CTkToplevel dropdown with positioning
-- [ ] T004 Render search results in dropdown with no-match and truncation messages
-- [ ] T005 Implement mouse-click selection, clear_on_select, dismissal, and cleanup
+- [x] T001 Create TypeAheadEntry class skeleton in `src/ui/widgets/type_ahead_entry.py`
+- [x] T002 Implement debounce search trigger with after/after_cancel pattern
+- [x] T003 Create floating CTkToplevel dropdown with positioning
+- [x] T004 Render search results in dropdown with no-match and truncation messages
+- [x] T005 Implement mouse-click selection, clear_on_select, dismissal, and cleanup
 
 ### Implementation Notes
 - Inherit from `ctk.CTkFrame` with `fg_color="transparent"` (matches TypeAheadComboBox pattern)
