@@ -1,28 +1,31 @@
 ---
 work_package_id: WP02
 title: Keyboard Navigation & Edge Cases
-lane: "planned"
-dependencies: ["WP01"]
+lane: "doing"
+dependencies: [WP01]
+base_branch: 101-type-ahead-search-component-WP01
+base_commit: 0e019b4b9408cb10a77bbdfd504c4ad55fe90cfb
+created_at: '2026-02-10T22:13:06.679255+00:00'
 subtasks:
-  - T006
-  - T007
-  - T008
-  - T009
-  - T010
-  - T011
-  - T012
-phase: "Phase 0 - Foundation"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T006
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Phase 0 - Foundation
+assignee: ''
+agent: ''
+shell_pid: "88543"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-10T21:59:40Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-10T21:59:40Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 -- Keyboard Navigation & Edge Cases
