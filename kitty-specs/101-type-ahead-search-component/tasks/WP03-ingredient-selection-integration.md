@@ -1,26 +1,29 @@
 ---
 work_package_id: WP03
 title: Ingredient Selection Integration
-lane: "planned"
-dependencies: ["WP02"]
+lane: "doing"
+dependencies: [WP02]
+base_branch: 101-type-ahead-search-component-WP02
+base_commit: fdf836dbc1a3c8d4e65269c62a74115e9d7555b6
+created_at: '2026-02-10T22:18:03.414651+00:00'
 subtasks:
-  - T013
-  - T014
-  - T015
-  - T016
-  - T017
-phase: "Phase 1 - US1 Ingredient Search"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T013
+- T014
+- T015
+- T016
+- T017
+phase: Phase 1 - US1 Ingredient Search
+assignee: ''
+agent: ''
+shell_pid: "90348"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-10T21:59:40Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-10T21:59:40Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 -- Ingredient Selection Integration
