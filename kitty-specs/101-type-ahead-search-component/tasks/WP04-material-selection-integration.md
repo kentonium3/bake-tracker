@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Material Selection Integration
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 101-type-ahead-search-component-WP02
 base_commit: fdf836dbc1a3c8d4e65269c62a74115e9d7555b6
@@ -223,3 +223,4 @@ Integrate the `TypeAheadEntry` widget into the finished good builder for materia
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
 - 2026-02-10T22:22:18Z – claude-opus – shell_pid=92063 – lane=doing – Assigned agent via workflow command
+- 2026-02-10T22:25:18Z – claude-opus – shell_pid=92063 – lane=for_review – Material type-ahead integrated into FG builder Step 2. TypeAheadEntry above filter bar for quick-add with client-side search. Selection adds to _material_selections and re-renders checkbox list. 11 integration tests pass.
