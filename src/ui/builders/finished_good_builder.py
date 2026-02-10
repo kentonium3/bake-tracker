@@ -817,6 +817,22 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
         """Build the materials selection UI inside step 2's content frame."""
         content = self.step2.content_frame
 
+        # -- Type-ahead quick-add (Feature 101) --
+        from src.ui.widgets.type_ahead_entry import TypeAheadEntry
+
+        self._mat_typeahead = TypeAheadEntry(
+            master=content,
+            items_callback=self._search_materials_for_typeahead,
+            on_select_callback=self._on_typeahead_material_selected,
+            min_chars=3,
+            debounce_ms=300,
+            max_results=10,
+            placeholder_text="Type material name to quick-add...",
+            clear_on_select=True,
+            display_key="display_name",
+        )
+        self._mat_typeahead.pack(fill="x", padx=5, pady=(5, 2))
+
         # -- Filter bar --
         filter_frame = ctk.CTkFrame(content, fg_color="transparent")
         filter_frame.pack(fill="x", padx=5, pady=(5, 2))
@@ -925,6 +941,64 @@ class FinishedGoodBuilderDialog(ctk.CTkToplevel):
 
     def _on_material_filter_changed(self) -> None:
         """Re-query and re-render the material item list."""
+        items = self._query_material_items()
+        self._render_material_items(items)
+
+    def _search_materials_for_typeahead(self, query: str) -> List[Dict]:
+        """Search materials for TypeAheadEntry dropdown.
+
+        Wraps the same data source as _query_material_items() but formatted
+        for the TypeAheadEntry callback interface.
+        """
+        query_lower = query.lower()
+        try:
+            units = material_unit_service.list_units(include_relationships=True)
+        except Exception:
+            return []
+
+        items = []
+        for unit in units:
+            product = unit.material_product
+            if not product or product.is_hidden:
+                continue
+
+            if query_lower not in unit.name.lower():
+                continue
+
+            material = product.material if product else None
+            subcategory = material.subcategory if material else None
+            category = subcategory.category if subcategory else None
+            category_name = category.name if category else ""
+
+            items.append({
+                "id": unit.id,
+                "display_name": unit.name,
+                "name": unit.name,
+                "category_name": category_name,
+                "product_name": product.name if product else "",
+            })
+            if len(items) >= 10:
+                break
+
+        return items
+
+    def _on_typeahead_material_selected(self, item: Dict) -> None:
+        """Handle TypeAheadEntry material selection.
+
+        Adds the selected material to selections and re-renders the list.
+        """
+        unit_id = item["id"]
+
+        # Add to selections with default quantity 1
+        if unit_id not in self._material_selections:
+            self._material_selections[unit_id] = {
+                "id": unit_id,
+                "name": item["name"],
+                "quantity": 1,
+            }
+            self._has_changes = True
+
+        # Re-render to show checkbox as checked
         items = self._query_material_items()
         self._render_material_items(items)
 
