@@ -1,0 +1,8 @@
+{
+  "feature_number": "101",
+  "slug": "101-type-ahead-search-component",
+  "friendly_name": "Type-Ahead Search Component",
+  "mission": "software-dev",
+  "source_description": "See docs/func-spec/F101_type_ahead_search_component.md for this feature's inputs. Follow directions in docs/func-spec/claude-pre-implementation-prompt.md.",
+  "created_at": "2026-02-10T00:00:00Z"
+}
