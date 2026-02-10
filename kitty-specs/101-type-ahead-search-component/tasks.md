@@ -60,7 +60,7 @@
 - [x] T009 Implement Enter key selection (no-op when no highlight)
 - [x] T010 Implement click-outside detection via root window binding
 - [x] T011 Handle screen edge clamping and multiple widget instances
-- [ ] T012 Handle edge cases: special characters, rapid typing, exact match
+- [x] T012 Handle edge cases: special characters, rapid typing, exact match
 
 ### Implementation Notes
 - Track `self._highlight_index` (int, -1 = nothing highlighted)
