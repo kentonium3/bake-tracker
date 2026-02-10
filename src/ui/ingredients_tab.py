@@ -794,16 +794,15 @@ class IngredientsTab(ctk.CTkFrame):
         dialog = IngredientFormDialog(self, title="Add Ingredient")
         try:
             self.wait_window(dialog)
-        except (ServiceError, Exception):
-            # Dialog was destroyed before wait could complete
-            return
+        except Exception:
+            pass  # TclError after dialog destroy is expected; check result below
 
         if getattr(dialog, "result", None):
             try:
                 # Create ingredient using service
                 ingredient_obj = ingredient_service.create_ingredient(dialog.result)
                 ingredient_name = getattr(
-                    ingredient_obj, "name", dialog.result.get("name", "Ingredient")
+                    ingredient_obj, "display_name", dialog.result.get("name", "Ingredient")
                 )
                 self.selected_ingredient_slug = getattr(ingredient_obj, "slug", None)
                 self.refresh()
@@ -846,9 +845,8 @@ class IngredientsTab(ctk.CTkFrame):
             )
             try:
                 self.wait_window(dialog)
-            except (ServiceError, Exception):
-                # Dialog was destroyed before wait could complete
-                return
+            except Exception:
+                pass  # TclError after dialog destroy is expected; check result below
 
             # Check if ingredient was deleted
             if getattr(dialog, "deleted", False):
@@ -1485,8 +1483,16 @@ class IngredientFormDialog(ctk.CTkToplevel):
             return False, "Please enter valid numbers for density values"
 
         from src.services.ingredient_service import validate_density_fields
+        from src.services.exceptions import ServiceError
 
-        return validate_density_fields(volume_value, volume_unit, weight_value, weight_unit)
+        try:
+            validate_density_fields(volume_value, volume_unit, weight_value, weight_unit)
+        except ServiceError as e:
+            errors = getattr(e, "errors", None)
+            msg = "; ".join(str(err) for err in errors) if errors else str(e)
+            return False, msg
+
+        return True, ""
 
     def _save(self):
         """Validate and save the form data."""
@@ -1530,9 +1536,17 @@ class IngredientFormDialog(ctk.CTkToplevel):
             self.density_error_label.configure(text="Please enter valid numbers")
             return
 
+        # Derive category from hierarchy: L0 uses own name, L1/L2 use L0 selection
+        l0_selection = self.l0_var.get()
+        if hierarchy_level == 0 or l0_selection in ("(None - create root)", ""):
+            category = name
+        else:
+            category = l0_selection
+
         # Build result dict - Feature 032: Use hierarchy_level and parent_ingredient_id
         result: Dict[str, Any] = {
             "name": name,
+            "category": category,
             "hierarchy_level": hierarchy_level,
         }
 
