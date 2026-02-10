@@ -59,7 +59,7 @@
 - [x] T008 Apply visual highlight styling on active dropdown item
 - [x] T009 Implement Enter key selection (no-op when no highlight)
 - [x] T010 Implement click-outside detection via root window binding
-- [ ] T011 Handle screen edge clamping and multiple widget instances
+- [x] T011 Handle screen edge clamping and multiple widget instances
 - [ ] T012 Handle edge cases: special characters, rapid typing, exact match
 
 ### Implementation Notes
