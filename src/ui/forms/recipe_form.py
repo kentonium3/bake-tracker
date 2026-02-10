@@ -35,10 +35,13 @@ from src.ui.widgets.dialogs import show_error, show_confirmation
 
 class IngredientSelectionDialog(ctk.CTkToplevel):
     """
-    Dialog for selecting an ingredient using the tree widget (Feature 031).
+    Dialog for selecting an ingredient using type-ahead search and tree widget.
 
-    Provides hierarchical browsing of ingredients with leaf-only selection
-    for recipe ingredient assignment.
+    Provides two selection paths:
+    1. Type-ahead search: fast keyboard-driven selection with breadcrumbs
+    2. Hierarchical tree browsing: for discovery and exploration
+
+    Feature 031 (tree widget) + Feature 101 (type-ahead search).
     """
 
     def __init__(self, parent, title: str = "Select Ingredient"):
@@ -55,7 +58,7 @@ class IngredientSelectionDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        self.geometry("500x500")
+        self.geometry("500x550")
         self.resizable(True, True)
 
         # Center on parent
@@ -64,7 +67,10 @@ class IngredientSelectionDialog(ctk.CTkToplevel):
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)  # Tree row gets weight
+
+        # Create type-ahead search (Feature 101)
+        self._create_typeahead()
 
         # Create tree widget
         self._create_tree_widget()
@@ -84,12 +90,74 @@ class IngredientSelectionDialog(ctk.CTkToplevel):
         y = max(0, parent_y + (parent_height - dialog_height) // 2)
         self.geometry(f"+{x}+{y}")
 
+        # Set focus to type-ahead for immediate typing
+        self.after(100, self._ingredient_typeahead.set_focus)
+
+    def _create_typeahead(self):
+        """Create the type-ahead search entry (Feature 101)."""
+        from src.ui.widgets.type_ahead_entry import TypeAheadEntry
+
+        self._ingredient_typeahead = TypeAheadEntry(
+            master=self,
+            items_callback=self._search_ingredients_for_typeahead,
+            on_select_callback=self._on_typeahead_select,
+            min_chars=3,
+            debounce_ms=300,
+            max_results=10,
+            placeholder_text="Type ingredient name to search...",
+            clear_on_select=True,
+            display_key="typeahead_display",
+        )
+        self._ingredient_typeahead.grid(
+            row=0, column=0, sticky="ew", padx=10, pady=(10, 5)
+        )
+
+    def _search_ingredients_for_typeahead(self, query: str) -> List[Dict[str, Any]]:
+        """Search ingredients for type-ahead dropdown with breadcrumbs.
+
+        Wraps ingredient_hierarchy_service.search_ingredients() to match
+        the TypeAheadEntry items_callback interface. Filters to leaf
+        ingredients only and formats display with ancestor breadcrumbs.
+        """
+        try:
+            results = ingredient_hierarchy_service.search_ingredients(
+                query, limit=10
+            )
+            # Filter to leaf ingredients only (hierarchy_level == 2)
+            leaf_results = [
+                r for r in results if r.get("hierarchy_level", 0) >= 2
+            ]
+            # Format display with ancestor breadcrumbs
+            for item in leaf_results:
+                ancestors = item.get("ancestors", [])
+                if ancestors:
+                    breadcrumb = " > ".join(
+                        a["display_name"] for a in reversed(ancestors)
+                    )
+                    item["typeahead_display"] = (
+                        f"{item['display_name']}  ({breadcrumb})"
+                    )
+                else:
+                    item["typeahead_display"] = item["display_name"]
+            return leaf_results
+        except Exception:
+            return []
+
+    def _on_typeahead_select(self, item: Dict[str, Any]):
+        """Handle type-ahead ingredient selection.
+
+        Directly sets the dialog result and closes -- no need to click
+        the Select button for type-ahead selections.
+        """
+        self.result = item
+        self.destroy()
+
     def _create_tree_widget(self):
         """Create the ingredient tree widget."""
         from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
 
         tree_frame = ctk.CTkFrame(self)
-        tree_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        tree_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 5))
         tree_frame.grid_columnconfigure(0, weight=1)
         tree_frame.grid_rowconfigure(0, weight=1)
 
@@ -105,16 +173,16 @@ class IngredientSelectionDialog(ctk.CTkToplevel):
         # Help text
         help_label = ctk.CTkLabel(
             self,
-            text="Select a specific ingredient (not a category). Use search to find ingredients quickly.",
+            text="Type above for quick search, or browse the tree below.",
             text_color="gray",
             font=ctk.CTkFont(size=11),
         )
-        help_label.grid(row=1, column=0, sticky="w", padx=10, pady=(0, 5))
+        help_label.grid(row=2, column=0, sticky="w", padx=10, pady=(0, 5))
 
     def _create_buttons(self):
         """Create dialog buttons."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=10)
+        button_frame.grid(row=3, column=0, sticky="ew", padx=10, pady=10)
         button_frame.grid_columnconfigure((0, 1), weight=1)
 
         # Select button
