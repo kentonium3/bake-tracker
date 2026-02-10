@@ -128,7 +128,7 @@
 - [x] T018 Create material search callback wrapper for material_catalog_service
 - [x] T019 Add TypeAheadEntry to finished_good_builder material selection workflow
 - [x] T020 Wire on_select_callback to handle material selection in builder
-- [ ] T021 Verify identical UX behavior between ingredient and material contexts
+- [x] T021 Verify identical UX behavior between ingredient and material contexts
 
 ### Implementation Notes
 - material_catalog_service has `list_products()` with filter params but no `search_*` function → create a thin search wrapper using ilike or client-side filtering
