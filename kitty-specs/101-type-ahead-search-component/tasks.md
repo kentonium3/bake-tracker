@@ -125,7 +125,7 @@
 **Estimated Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T018 Create material search callback wrapper for material_catalog_service
+- [x] T018 Create material search callback wrapper for material_catalog_service
 - [ ] T019 Add TypeAheadEntry to finished_good_builder material selection workflow
 - [ ] T020 Wire on_select_callback to handle material selection in builder
 - [ ] T021 Verify identical UX behavior between ingredient and material contexts
