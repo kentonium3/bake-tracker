@@ -16,7 +16,7 @@ subtasks:
 - T012
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "88543"
 review_status: ''
 reviewed_by: ''
@@ -334,3 +334,4 @@ Note: Testing tkinter widgets requires careful setup. If direct widget testing i
 ## Activity Log
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
+- 2026-02-10T22:13:07Z – claude-opus – shell_pid=88543 – lane=doing – Assigned agent via workflow command
