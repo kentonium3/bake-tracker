@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Core Widget - Entry, Debounce & Dropdown
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 7c1185effbe3a7e9a6245997e8d5e67f1e4e6f8b
@@ -343,3 +343,4 @@ Create the complete `TypeAheadEntry` widget in `src/ui/widgets/type_ahead_entry.
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
 - 2026-02-10T22:07:25Z – claude-opus – shell_pid=86815 – lane=doing – Assigned agent via workflow command
+- 2026-02-10T22:12:26Z – claude-opus – shell_pid=86815 – lane=for_review – Ready for review: TypeAheadEntry widget with 40 passing tests
