@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Ingredient Selection Integration
-lane: "doing"
+lane: "for_review"
 dependencies: [WP02]
 base_branch: 101-type-ahead-search-component-WP02
 base_commit: fdf836dbc1a3c8d4e65269c62a74115e9d7555b6
@@ -264,3 +264,4 @@ Choose the approach that minimizes disruption while delivering the P1 value. Doc
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
 - 2026-02-10T22:18:03Z – claude-opus – shell_pid=90348 – lane=doing – Assigned agent via workflow command
+- 2026-02-10T22:21:50Z – claude-opus – shell_pid=90348 – lane=for_review – Ingredient type-ahead integrated into IngredientSelectionDialog. TypeAheadEntry above tree widget with breadcrumb display, leaf-only filtering, direct selection. 10 integration tests pass. 51 widget tests pass independently.
