@@ -91,7 +91,7 @@
 **Estimated Size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T013 Create ingredient search callback wrapper using ingredient_hierarchy_service
+- [x] T013 Create ingredient search callback wrapper using ingredient_hierarchy_service
 - [ ] T014 Add TypeAheadEntry widget to ingredient selection workflow in recipe form
 - [ ] T015 Wire on_select_callback to populate ingredient data in recipe form
 - [ ] T016 [P] Format dropdown display with ancestor breadcrumb info
