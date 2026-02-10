@@ -14,7 +14,7 @@ subtasks:
 - T005
 phase: Phase 0 - Foundation
 assignee: ''
-agent: ''
+agent: "claude-opus"
 shell_pid: "86815"
 review_status: ''
 reviewed_by: ''
@@ -342,3 +342,4 @@ Create the complete `TypeAheadEntry` widget in `src/ui/widgets/type_ahead_entry.
 ## Activity Log
 
 - 2026-02-10T21:59:40Z -- system -- lane=planned -- Prompt created.
+- 2026-02-10T22:07:25Z – claude-opus – shell_pid=86815 – lane=doing – Assigned agent via workflow command
