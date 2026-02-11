@@ -705,22 +705,17 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.focus_force()
 
     def _load_recipe_categories(self) -> List[str]:
-        """Load recipe categories from database.
+        """Load recipe categories from the RecipeCategory table.
 
         Returns:
-            List of distinct category names, or default if empty.
+            List of category names ordered by sort_order, or default if empty.
         """
         try:
-            with session_scope() as session:
-                categories = (
-                    session.query(Recipe.category)
-                    .distinct()
-                    .filter(Recipe.category.isnot(None))
-                    .order_by(Recipe.category)
-                    .all()
-                )
-                cat_list = [cat[0] for cat in categories if cat[0]]
-                return cat_list if cat_list else ["Uncategorized"]
+            from src.services import recipe_category_service
+
+            categories = recipe_category_service.list_categories()
+            cat_list = [cat.name for cat in categories if cat.name]
+            return cat_list if cat_list else ["Uncategorized"]
         except (ServiceError, Exception):
             return ["Uncategorized"]
 

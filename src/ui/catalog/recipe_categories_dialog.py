@@ -30,8 +30,9 @@ class RecipeCategoriesDialog(ctk.CTkToplevel):
 
         # Window setup
         self.title("Recipe Categories")
-        self.geometry("600x500")
-        self.minsize(500, 400)
+        self.geometry("600x450")
+        self.resizable(False, False)
+        self.transient(parent)
 
         # Build UI
         self._create_layout()
@@ -42,6 +43,18 @@ class RecipeCategoriesDialog(ctk.CTkToplevel):
         # Handle window close
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
+        # Center on parent
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_w = parent.winfo_width()
+        parent_h = parent.winfo_height()
+        dialog_w = self.winfo_width()
+        dialog_h = self.winfo_height()
+        x = max(0, parent_x + (parent_w - dialog_w) // 2)
+        y = max(0, parent_y + (parent_h - dialog_h) // 2)
+        self.geometry(f"+{x}+{y}")
+
     def _on_close(self):
         """Handle window close."""
         if self.on_close:
@@ -50,6 +63,14 @@ class RecipeCategoriesDialog(ctk.CTkToplevel):
 
     def _create_layout(self):
         """Create the main layout with list and action buttons."""
+        # Done button at bottom
+        bottom_frame = ctk.CTkFrame(self, fg_color="transparent")
+        bottom_frame.pack(side="bottom", fill="x", padx=10, pady=(0, 10))
+
+        ctk.CTkButton(
+            bottom_frame, text="Done", width=100, command=self._on_close
+        ).pack(side="right")
+
         # Main container
         main_frame = ctk.CTkFrame(self)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
