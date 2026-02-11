@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Clear Buttons and Show All Selected
-lane: "for_review"
+lane: "done"
 dependencies:
 - WP02
 base_branch: 100-planning-fg-selection-refinement-WP02

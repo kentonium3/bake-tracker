@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FG Selection Filter-First with Persistence
-lane: "for_review"
+lane: "done"
 dependencies:
 - WP01
 base_branch: 100-planning-fg-selection-refinement-WP01
