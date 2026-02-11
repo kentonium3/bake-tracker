@@ -848,13 +848,13 @@ class RecipeFormDialog(ctk.CTkToplevel):
         row += 1
 
         # F067: Updated help text with consistent "Finished Unit" terminology
-        yield_types_info = ctk.CTkLabel(
+        self._yield_types_info = ctk.CTkLabel(
             parent,
             text="Each row defines a Finished Unit and quantity per batch for this recipe.",
             text_color="gray",
             font=ctk.CTkFont(size=11),
         )
-        yield_types_info.grid(
+        self._yield_types_info.grid(
             row=row,
             column=0,
             columnspan=2,
@@ -884,7 +884,8 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # F067: Column labels for yield inputs
         # Feature 083: Added Type column
-        labels_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self._yield_labels_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        labels_frame = self._yield_labels_frame
         labels_frame.grid(
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM
         )
@@ -917,8 +918,12 @@ class RecipeFormDialog(ctk.CTkToplevel):
         qty_label.grid(row=0, column=3, sticky="w", padx=PADDING_MEDIUM)
         row += 1
 
-        # Yield types container
-        self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        # Hide help text and column headers until first yield type is added
+        self._yield_types_info.grid_remove()
+        self._yield_labels_frame.grid_remove()
+
+        # Yield types container (height=0 so it collapses when empty)
+        self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent", height=0)
         self.yield_types_frame.grid(
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
@@ -952,8 +957,8 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Ingredients container
-        self.ingredients_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        # Ingredients container (height=0 so it collapses when empty)
+        self.ingredients_frame = ctk.CTkFrame(parent, fg_color="transparent", height=0)
         self.ingredients_frame.grid(
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
@@ -1014,8 +1019,8 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         add_subrecipe_btn.pack(side="left")
 
-        # Sub-recipe list frame (T038)
-        self.subrecipes_list_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        # Sub-recipe list frame (T038) (height=0 so it collapses when empty)
+        self.subrecipes_list_frame = ctk.CTkFrame(parent, fg_color="transparent", height=0)
         self.subrecipes_list_frame.grid(
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
@@ -1324,6 +1329,11 @@ class RecipeFormDialog(ctk.CTkToplevel):
             items_per_batch: Number of items per batch
             yield_type: Type of yield - 'EA' (whole unit) or 'SERVING' (consumption unit)
         """
+        # Show column headers when first yield type is added
+        if not self.yield_type_rows:
+            self._yield_types_info.grid()
+            self._yield_labels_frame.grid()
+
         row = YieldTypeRow(
             self.yield_types_frame,
             self._remove_yield_type_row,
@@ -1373,6 +1383,10 @@ class RecipeFormDialog(ctk.CTkToplevel):
             # Re-grid remaining rows
             for idx, remaining_row in enumerate(self.yield_type_rows):
                 remaining_row.grid(row=idx, column=0, sticky="ew", pady=2)
+            # Hide column headers when all yield types removed
+            if not self.yield_type_rows:
+                self._yield_types_info.grid_remove()
+                self._yield_labels_frame.grid_remove()
             # Update remove button states (T019)
             self._update_remove_buttons()
 
