@@ -3605,7 +3605,7 @@ def set_event_fg_quantities(
     # Delete existing records
     session.query(EventFinishedGood).filter(
         EventFinishedGood.event_id == event_id
-    ).delete(synchronize_session=False)
+    ).delete(synchronize_session="fetch")
 
     # Insert new records with quantities
     for fg_id, quantity in valid_pairs:
