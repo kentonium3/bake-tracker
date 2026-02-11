@@ -293,29 +293,29 @@ class RecipeIngredientRow(ctk.CTkFrame):
         self.unit_combo.set(self._last_valid_unit)
         self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
 
-        # Ingredient dropdown (leaf ingredients only - Feature 031)
-        ingredient_names = [i.display_name for i in ingredients]
-        self.ingredient_combo = ctk.CTkComboBox(
-            self,
-            values=ingredient_names if ingredient_names else ["No ingredients available"],
-            state="readonly" if ingredient_names else "disabled",
-            width=200,
-        )
-        if ingredient_names:
-            # Set selected ingredient or default to first
-            if ingredient_id:
-                for idx, ing in enumerate(ingredients):
-                    if ing.id == ingredient_id:
-                        self.ingredient_combo.set(ingredient_names[idx])
-                        break
-            else:
-                self.ingredient_combo.set(ingredient_names[0])
-                if ingredients:
-                    self._selected_ingredient_id = ingredients[0].id
+        # Ingredient type-ahead (Feature 101 - replaces dropdown)
+        from src.ui.widgets.type_ahead_entry import TypeAheadEntry
 
-        self.ingredient_combo.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5, sticky="ew")
-        # Bind selection change to update tracked ID
-        self.ingredient_combo.configure(command=self._on_ingredient_selected)
+        self._ingredient_typeahead = TypeAheadEntry(
+            master=self,
+            items_callback=self._search_ingredients_for_row,
+            on_select_callback=self._on_typeahead_ingredient_selected,
+            min_chars=2,
+            debounce_ms=200,
+            max_results=10,
+            placeholder_text="Type to search ingredients...",
+            clear_on_select=False,
+            display_key="display_name",
+        )
+        self._ingredient_typeahead.grid(
+            row=0, column=2, padx=PADDING_MEDIUM, pady=5, sticky="ew"
+        )
+        # Pre-populate for existing ingredient (editing recipe)
+        if ingredient_id:
+            for ing in ingredients:
+                if ing.id == ingredient_id:
+                    self._ingredient_typeahead.set_text(ing.display_name)
+                    break
 
         # Browse button (Feature 031) - opens tree dialog for hierarchical selection
         browse_button = ctk.CTkButton(
@@ -337,12 +337,24 @@ class RecipeIngredientRow(ctk.CTkFrame):
         )
         remove_button.grid(row=0, column=4, padx=(0, 0), pady=5)
 
-    def _on_ingredient_selected(self, selected_name: str):
-        """Handle ingredient dropdown selection (Feature 031)."""
+    def _search_ingredients_for_row(self, query: str) -> List[Dict[str, Any]]:
+        """Search available ingredients by name for type-ahead (Feature 101)."""
+        query_lower = query.lower()
+        results = []
         for ing in self.ingredients:
-            if ing.display_name == selected_name:
-                self._selected_ingredient_id = ing.id
+            if query_lower in ing.display_name.lower():
+                results.append({
+                    "id": ing.id,
+                    "display_name": ing.display_name,
+                })
+            if len(results) >= 10:
                 break
+        return results
+
+    def _on_typeahead_ingredient_selected(self, item: Dict[str, Any]):
+        """Handle type-ahead ingredient selection (Feature 101)."""
+        self._selected_ingredient_id = item["id"]
+        self._ingredient_typeahead.set_text(item["display_name"])
 
     def _browse_ingredients(self):
         """Open tree dialog to browse and select ingredient (Feature 031)."""
@@ -353,20 +365,12 @@ class RecipeIngredientRow(ctk.CTkFrame):
         result = dialog.get_result()
 
         if result:
-            # Update the combo box with selected ingredient
             display_name = result.get("display_name", "")
             ingredient_id = result.get("id")
 
             if display_name and ingredient_id:
                 self._selected_ingredient_id = ingredient_id
-                # Check if ingredient is in our list, add if not
-                if display_name not in [i.display_name for i in self.ingredients]:
-                    # Need to refresh or add to dropdown
-                    current_values = list(self.ingredient_combo.cget("values"))
-                    if display_name not in current_values:
-                        current_values.append(display_name)
-                        self.ingredient_combo.configure(values=current_values)
-                self.ingredient_combo.set(display_name)
+                self._ingredient_typeahead.set_text(display_name)
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
@@ -375,11 +379,11 @@ class RecipeIngredientRow(ctk.CTkFrame):
         Returns:
             Dictionary with ingredient_id, quantity, and unit, or None if invalid
         """
-        # Feature 031: Use tracked ingredient ID (supports tree selection)
+        # Feature 031: Use tracked ingredient ID (supports tree/type-ahead selection)
         ingredient_id = self._selected_ingredient_id
         if not ingredient_id:
-            # Fallback: try to find by display name
-            selected_name = self.ingredient_combo.get()
+            # Fallback: try to find by display name from type-ahead text
+            selected_name = self._ingredient_typeahead.get_text().strip()
             for ing in self.ingredients:
                 if ing.display_name == selected_name:
                     ingredient_id = ing.id

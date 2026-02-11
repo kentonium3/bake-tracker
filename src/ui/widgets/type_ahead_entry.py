@@ -123,6 +123,11 @@ class TypeAheadEntry(ctk.CTkFrame):
         """Return current entry field text."""
         return self._entry.get()
 
+    def set_text(self, text: str) -> None:
+        """Set the entry field text programmatically."""
+        self._entry.delete(0, "end")
+        self._entry.insert(0, text)
+
     def set_focus(self) -> None:
         """Set keyboard focus to the entry field."""
         self._entry.focus_set()

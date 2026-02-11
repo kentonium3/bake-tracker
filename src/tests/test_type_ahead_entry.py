@@ -10,27 +10,36 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Guard against missing display -- tkinter requires a display
+# Guard against missing display -- tkinter requires a display.
+# IMPORTANT: Do NOT create Tk() at module level. Module-level Tk()
+# runs at pytest collection time and corrupts tkinter state when
+# 3000+ other tests run in the same session (Bus error / segfault).
 try:
     import tkinter as tk
 
-    _root = tk.Tk()
-    _root.withdraw()
     _HAS_DISPLAY = True
-except Exception:
+except ImportError:
     _HAS_DISPLAY = False
 
 pytestmark = pytest.mark.skipif(
     not _HAS_DISPLAY, reason="No display available for tkinter tests"
 )
 
+_root = None
+
 
 @pytest.fixture
 def root():
     """Provide a hidden tkinter root window for testing."""
+    global _root
     if not _HAS_DISPLAY:
         pytest.skip("No display")
-    # Reuse the module-level root to avoid multiple Tk instances
+    if _root is None:
+        try:
+            _root = tk.Tk()
+            _root.withdraw()
+        except Exception:
+            pytest.skip("Cannot create Tk root")
     yield _root
 
 
