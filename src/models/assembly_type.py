@@ -155,7 +155,7 @@ class AssemblyType(enum.Enum):
 # Assembly Type Metadata Configuration
 ASSEMBLY_TYPE_METADATA = {
     AssemblyType.BARE: {
-        "display_name": "Bare",
+        "display_name": "Finished Unit",
         "description": "Single FinishedUnit served as-is with no additional packaging or bundling. Used for items like whole cakes that are deliverable without modification.",
         "component_limits": {
             "min_components": 1,
