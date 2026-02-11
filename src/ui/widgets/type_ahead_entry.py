@@ -181,8 +181,10 @@ class TypeAheadEntry(ctk.CTkFrame):
 
     def _on_focus_out(self, event) -> None:
         """Handle focus leaving the entry field."""
-        # Delay to allow dropdown clicks to process first
-        self.after(150, self._check_focus_and_hide)
+        # Delay to allow dropdown clicks to process first.
+        # 250ms gives enough time for ButtonRelease-1 on macOS
+        # where overrideredirect windows consume the initial Button-1.
+        self.after(250, self._check_focus_and_hide)
 
     def _on_arrow_down(self, event) -> str:
         """Move highlight to next item in dropdown."""
@@ -244,9 +246,8 @@ class TypeAheadEntry(ctk.CTkFrame):
 
         self._dropdown = ctk.CTkToplevel(self)
         self._dropdown.overrideredirect(True)
-        self._dropdown.wm_attributes("-topmost", True)
         self._dropdown.configure(fg_color=("gray92", "gray14"))
-        # Associate with parent window
+        # Associate with parent window so it floats above
         try:
             self._dropdown.wm_transient(self.winfo_toplevel())
         except Exception:
@@ -256,10 +257,6 @@ class TypeAheadEntry(ctk.CTkFrame):
             self._dropdown, fg_color="transparent"
         )
         self._dropdown_frame.pack(fill="both", expand=True)
-
-        # macOS: overrideredirect windows may not deliver <Button-1> to
-        # child labels on the first click.  Bind at the toplevel as fallback.
-        self._dropdown.bind("<ButtonRelease-1>", self._on_dropdown_click)
 
     def _position_dropdown(self, item_count: int) -> None:
         """Position the dropdown below the entry field."""
@@ -308,8 +305,11 @@ class TypeAheadEntry(ctk.CTkFrame):
                 fg_color="transparent",
             )
             label.pack(fill="x")
+            # Use ButtonRelease (not Button-1): on macOS, overrideredirect
+            # windows consume the first Button-1 for window activation but
+            # ButtonRelease-1 still fires reliably.
             label.bind(
-                "<Button-1>", lambda e, item=result: self._on_item_click(item)
+                "<ButtonRelease-1>", lambda e, item=result: self._on_item_click(item)
             )
             # Hover effect
             label.bind("<Enter>", lambda e, lbl=label: self._on_label_hover(lbl, True))
@@ -337,10 +337,10 @@ class TypeAheadEntry(ctk.CTkFrame):
 
         self._position_dropdown(total_item_count)
         self._dropdown.deiconify()
+        self._dropdown.lift()
         self._dropdown_visible = True
         self._bind_root_click()
-        # Keep focus on entry for keyboard navigation (dropdown.deiconify
-        # can steal focus on macOS, breaking arrow key navigation)
+        # Keep focus on entry for keyboard navigation
         self._entry.focus_set()
 
     def _show_no_results(self, query: str) -> None:
@@ -363,6 +363,7 @@ class TypeAheadEntry(ctk.CTkFrame):
 
         self._position_dropdown(1)
         self._dropdown.deiconify()
+        self._dropdown.lift()
         self._dropdown_visible = True
         self._bind_root_click()
 
@@ -388,32 +389,6 @@ class TypeAheadEntry(ctk.CTkFrame):
     def _on_item_click(self, item: Dict[str, Any]) -> None:
         """Handle mouse click on a dropdown item."""
         self._select_item(item)
-
-    def _on_dropdown_click(self, event) -> None:
-        """Fallback click handler at dropdown toplevel level.
-
-        On macOS, overrideredirect(True) windows sometimes swallow the
-        first <Button-1> on child labels.  This handler uses coordinates
-        to determine which result was clicked and fires the selection.
-        """
-        if not self._dropdown_visible or not self._result_labels:
-            return
-
-        click_x = event.x_root
-        click_y = event.y_root
-
-        for i, label in enumerate(self._result_labels):
-            try:
-                lx = label.winfo_rootx()
-                ly = label.winfo_rooty()
-                lw = label.winfo_width()
-                lh = label.winfo_height()
-                if lx <= click_x <= lx + lw and ly <= click_y <= ly + lh:
-                    if i < len(self._results):
-                        self._select_item(self._results[i])
-                    return
-            except Exception:
-                continue
 
     def _select_item(self, item: Dict[str, Any]) -> None:
         """Execute selection: fire callback, optionally clear, hide dropdown."""
@@ -509,21 +484,6 @@ class TypeAheadEntry(ctk.CTkFrame):
         """Hide dropdown if focus has truly left the widget."""
         if not self._dropdown_visible:
             return
-
-        # Check if mouse pointer is over the dropdown (click in progress)
-        if self._dropdown is not None and self._dropdown.winfo_exists():
-            try:
-                mx = self.winfo_pointerx()
-                my = self.winfo_pointery()
-                dx = self._dropdown.winfo_rootx()
-                dy = self._dropdown.winfo_rooty()
-                dw = self._dropdown.winfo_width()
-                dh = self._dropdown.winfo_height()
-                if dx <= mx <= dx + dw and dy <= my <= dy + dh:
-                    return  # Mouse is over dropdown, don't hide
-            except Exception:
-                pass
-
         try:
             focused = self.focus_get()
         except Exception:
