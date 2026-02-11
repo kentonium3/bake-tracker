@@ -368,9 +368,16 @@ class TypeAheadEntry(ctk.CTkFrame):
         self._bind_root_click()
 
     def _hide_dropdown(self) -> None:
-        """Hide the dropdown and reset state."""
+        """Hide the dropdown and reset state.
+
+        Destroys (not withdraws) the toplevel to avoid macOS quirk where
+        a withdrawn overrideredirect window still intercepts the next
+        mouse click.
+        """
         if self._dropdown is not None and self._dropdown.winfo_exists():
-            self._dropdown.withdraw()
+            self._dropdown.destroy()
+        self._dropdown = None
+        self._dropdown_frame = None
         self._dropdown_visible = False
         self._result_labels = []
         self._highlight_index = -1

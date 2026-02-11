@@ -828,11 +828,23 @@ class RecipeFormDialog(ctk.CTkToplevel):
         yield_label.grid(
             row=row,
             column=0,
-            columnspan=2,
             sticky="w",
             padx=PADDING_MEDIUM,
             pady=(PADDING_LARGE, PADDING_MEDIUM),
         )
+
+        # Add yield type button inline with title (hidden for variants - F066)
+        if not self.is_variant:
+            add_yield_type_button = ctk.CTkButton(
+                parent,
+                text="+ Add Yield Type",
+                command=self._add_yield_type_row,
+                width=150,
+            )
+            add_yield_type_button.grid(
+                row=row, column=1, sticky="e",
+                padx=PADDING_MEDIUM, pady=(PADDING_LARGE, PADDING_MEDIUM),
+            )
         row += 1
 
         # F067: Updated help text with consistent "Finished Unit" terminology
@@ -913,17 +925,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.yield_types_frame.grid_columnconfigure(0, weight=1)
         row += 1
 
-        # Add yield type button (hidden for variants - F066)
-        if not self.is_variant:
-            add_yield_type_button = ctk.CTkButton(
-                parent,
-                text="+ Add Yield Type",
-                command=self._add_yield_type_row,
-                width=150,
-            )
-            add_yield_type_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
-            row += 1
-
         # Ingredients section
         ingredients_label = ctk.CTkLabel(
             parent,
@@ -933,10 +934,21 @@ class RecipeFormDialog(ctk.CTkToplevel):
         ingredients_label.grid(
             row=row,
             column=0,
-            columnspan=2,
             sticky="w",
             padx=PADDING_MEDIUM,
             pady=(PADDING_LARGE, PADDING_MEDIUM),
+        )
+
+        # Add ingredient button inline with title
+        add_ingredient_button = ctk.CTkButton(
+            parent,
+            text="+ Add Ingredient",
+            command=self._add_ingredient_row,
+            width=150,
+        )
+        add_ingredient_button.grid(
+            row=row, column=1, sticky="e",
+            padx=PADDING_MEDIUM, pady=(PADDING_LARGE, PADDING_MEDIUM),
         )
         row += 1
 
@@ -946,16 +958,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
         self.ingredients_frame.grid_columnconfigure(0, weight=1)
-        row += 1
-
-        # Add ingredient button
-        add_ingredient_button = ctk.CTkButton(
-            parent,
-            text="+ Add Ingredient",
-            command=self._add_ingredient_row,
-            width=150,
-        )
-        add_ingredient_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
         row += 1
 
         # Sub-Recipes Section (T034)
