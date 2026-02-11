@@ -35,9 +35,14 @@ class TypeAheadEntry(ctk.CTkFrame):
     """
     Type-ahead search entry with floating dropdown.
 
-    A composite widget combining a CTkEntry with a floating CTkToplevel
-    dropdown that displays filtered search results from a caller-provided
+    A composite widget combining a CTkEntry with a dropdown frame
+    that displays filtered search results from a caller-provided
     callback. Supports mouse click and keyboard selection.
+
+    The dropdown is implemented as a CTkFrame placed on the toplevel
+    window (not a separate CTkToplevel), which avoids macOS issues
+    where overrideredirect windows don't deliver mouse events to
+    child widgets.
 
     The widget imports no service modules. All data comes through two
     injected callbacks: items_callback for searching and on_select_callback
@@ -87,13 +92,13 @@ class TypeAheadEntry(ctk.CTkFrame):
 
         # Internal state
         self._debounce_id: Optional[str] = None
-        self._dropdown: Optional[ctk.CTkToplevel] = None
-        self._dropdown_frame: Optional[ctk.CTkFrame] = None
+        self._dropdown: Optional[ctk.CTkFrame] = None
         self._results: List[Dict[str, Any]] = []
         self._highlight_index: int = -1
         self._result_labels: List[ctk.CTkLabel] = []
         self._root_click_id: Optional[str] = None
         self._dropdown_visible: bool = False
+        self._place_parent: Any = None
 
         # Create entry widget
         self._entry = ctk.CTkEntry(
@@ -133,7 +138,7 @@ class TypeAheadEntry(ctk.CTkFrame):
         self._entry.focus_set()
 
     def destroy(self) -> None:
-        """Clean up bindings, debounce, and toplevel before destroying."""
+        """Clean up bindings, debounce, and dropdown before destroying."""
         if self._debounce_id:
             self.after_cancel(self._debounce_id)
             self._debounce_id = None
@@ -181,10 +186,8 @@ class TypeAheadEntry(ctk.CTkFrame):
 
     def _on_focus_out(self, event) -> None:
         """Handle focus leaving the entry field."""
-        # Delay to allow dropdown clicks to process first.
-        # 250ms gives enough time for ButtonRelease-1 on macOS
-        # where overrideredirect windows consume the initial Button-1.
-        self.after(250, self._check_focus_and_hide)
+        # Delay to allow dropdown clicks to process first
+        self.after(200, self._check_focus_and_hide)
 
     def _on_arrow_down(self, event) -> str:
         """Move highlight to next item in dropdown."""
@@ -240,50 +243,61 @@ class TypeAheadEntry(ctk.CTkFrame):
     # ------------------------------------------------------------------
 
     def _create_dropdown(self) -> None:
-        """Create or reuse the floating dropdown toplevel window."""
-        if self._dropdown is not None and self._dropdown.winfo_exists():
+        """Create the dropdown frame placed on the toplevel window.
+
+        Uses a regular CTkFrame with place() instead of a CTkToplevel
+        with overrideredirect(True). This avoids the macOS issue where
+        overrideredirect windows don't deliver mouse click events to
+        child widgets.
+        """
+        if self._dropdown is not None:
             return
 
-        self._dropdown = ctk.CTkToplevel(self)
-        self._dropdown.overrideredirect(True)
-        self._dropdown.configure(fg_color=("gray92", "gray14"))
-        # Associate with parent window so it floats above
-        try:
-            self._dropdown.wm_transient(self.winfo_toplevel())
-        except Exception:
-            pass
+        # Place on the toplevel so it floats above scrollable content
+        self._place_parent = self.winfo_toplevel()
 
-        self._dropdown_frame = ctk.CTkFrame(
-            self._dropdown, fg_color="transparent"
+        self._dropdown = ctk.CTkFrame(
+            self._place_parent,
+            fg_color=("gray92", "gray14"),
+            border_width=1,
+            border_color=("gray70", "gray30"),
         )
-        self._dropdown_frame.pack(fill="both", expand=True)
 
     def _position_dropdown(self, item_count: int) -> None:
-        """Position the dropdown below the entry field."""
+        """Position the dropdown below the entry field using place()."""
         self._entry.update_idletasks()
 
-        x = self._entry.winfo_rootx()
-        y = self._entry.winfo_rooty() + self._entry.winfo_height()
-        width = self._entry.winfo_width()
+        # Entry position in screen coordinates
+        entry_root_x = self._entry.winfo_rootx()
+        entry_root_y = self._entry.winfo_rooty() + self._entry.winfo_height()
+        entry_width = self._entry.winfo_width()
+
+        # Convert to coordinates relative to the place parent
+        parent_root_x = self._place_parent.winfo_rootx()
+        parent_root_y = self._place_parent.winfo_rooty()
+
+        rel_x = entry_root_x - parent_root_x
+        rel_y = entry_root_y - parent_root_y
 
         # Estimate height: ~32px per item
         item_height = 32
         height = item_count * item_height
 
-        # Screen edge clamping
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
+        # Clamp to parent bounds
+        parent_height = self._place_parent.winfo_height()
+        if rel_y + height > parent_height:
+            # Try above the entry
+            above_y = (entry_root_y - self._entry.winfo_height()) - parent_root_y - height
+            if above_y >= 0:
+                rel_y = above_y
+            else:
+                # Truncate height to fit
+                height = parent_height - rel_y
 
-        if x + width > screen_width:
-            x = screen_width - width
-        if y + height > screen_height:
-            # Show above entry if no room below
-            y = self._entry.winfo_rooty() - height
-
-        x = max(0, x)
-        y = max(0, y)
-
-        self._dropdown.geometry(f"{width}x{height}+{x}+{y}")
+        # CTkFrame requires width/height via configure, not place()
+        self._dropdown.configure(width=entry_width, height=height)
+        self._dropdown.place(x=rel_x, y=rel_y)
+        self._dropdown.lift()
 
     def _show_results(self, results: List[Dict[str, Any]]) -> None:
         """Display search results in the dropdown."""
@@ -296,7 +310,7 @@ class TypeAheadEntry(ctk.CTkFrame):
         for result in display_results:
             text = result.get(self._display_key, str(result))
             label = ctk.CTkLabel(
-                self._dropdown_frame,
+                self._dropdown,
                 text=text,
                 anchor="w",
                 padx=8,
@@ -305,11 +319,8 @@ class TypeAheadEntry(ctk.CTkFrame):
                 fg_color="transparent",
             )
             label.pack(fill="x")
-            # Use ButtonRelease (not Button-1): on macOS, overrideredirect
-            # windows consume the first Button-1 for window activation but
-            # ButtonRelease-1 still fires reliably.
             label.bind(
-                "<ButtonRelease-1>", lambda e, item=result: self._on_item_click(item)
+                "<Button-1>", lambda e, item=result: self._on_item_click(item)
             )
             # Hover effect
             label.bind("<Enter>", lambda e, lbl=label: self._on_label_hover(lbl, True))
@@ -324,7 +335,7 @@ class TypeAheadEntry(ctk.CTkFrame):
                 f"Refine search for more."
             )
             trunc_label = ctk.CTkLabel(
-                self._dropdown_frame,
+                self._dropdown,
                 text=msg,
                 text_color="gray50",
                 anchor="w",
@@ -336,8 +347,6 @@ class TypeAheadEntry(ctk.CTkFrame):
             total_item_count += 1
 
         self._position_dropdown(total_item_count)
-        self._dropdown.deiconify()
-        self._dropdown.lift()
         self._dropdown_visible = True
         self._bind_root_click()
         # Keep focus on entry for keyboard navigation
@@ -351,7 +360,7 @@ class TypeAheadEntry(ctk.CTkFrame):
 
         msg = f"No items match '{query}'"
         label = ctk.CTkLabel(
-            self._dropdown_frame,
+            self._dropdown,
             text=msg,
             text_color="gray50",
             anchor="w",
@@ -362,22 +371,18 @@ class TypeAheadEntry(ctk.CTkFrame):
         label.pack(fill="x")
 
         self._position_dropdown(1)
-        self._dropdown.deiconify()
-        self._dropdown.lift()
         self._dropdown_visible = True
         self._bind_root_click()
 
     def _hide_dropdown(self) -> None:
-        """Hide the dropdown and reset state.
-
-        Destroys (not withdraws) the toplevel to avoid macOS quirk where
-        a withdrawn overrideredirect window still intercepts the next
-        mouse click.
-        """
-        if self._dropdown is not None and self._dropdown.winfo_exists():
-            self._dropdown.destroy()
+        """Hide the dropdown and reset state."""
+        if self._dropdown is not None:
+            try:
+                self._dropdown.place_forget()
+                self._dropdown.destroy()
+            except Exception:
+                pass
         self._dropdown = None
-        self._dropdown_frame = None
         self._dropdown_visible = False
         self._result_labels = []
         self._highlight_index = -1
@@ -385,8 +390,8 @@ class TypeAheadEntry(ctk.CTkFrame):
 
     def _clear_dropdown_children(self) -> None:
         """Remove all children from the dropdown frame."""
-        if self._dropdown_frame is not None:
-            for child in self._dropdown_frame.winfo_children():
+        if self._dropdown is not None:
+            for child in self._dropdown.winfo_children():
                 child.destroy()
 
     # ------------------------------------------------------------------
