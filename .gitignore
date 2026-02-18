@@ -105,3 +105,6 @@ bake-tracker/
 
 # Spec-kitty workspace tracking (transient)
 .kittify/workspaces/
+
+# direnv (machine-specific absolute paths)
+.envrc
