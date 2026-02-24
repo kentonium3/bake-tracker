@@ -33,6 +33,7 @@ except ImportError:
 
     HAS_FINISHED_UNIT_SERVICE = False
 from src.models.recipe import Recipe
+from src.services import recipe_category_service
 from src.services.database import session_scope
 from src.utils.constants import (
     PADDING_MEDIUM,
@@ -152,17 +153,10 @@ class FinishedUnitsTab(ctk.CTkFrame):
             raise  # Re-raise the exception
 
     def _load_recipe_categories(self) -> list:
-        """Load recipe categories from database."""
+        """Load recipe categories from the recipe_categories table."""
         try:
-            with session_scope() as session:
-                categories = (
-                    session.query(Recipe.category)
-                    .distinct()
-                    .filter(Recipe.category.isnot(None))
-                    .order_by(Recipe.category)
-                    .all()
-                )
-                return [cat[0] for cat in categories if cat[0]]
+            categories = recipe_category_service.list_categories()
+            return [cat.name for cat in categories]
         except Exception:
             return []
 

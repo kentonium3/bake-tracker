@@ -10,7 +10,7 @@ from tkinter import ttk
 from typing import Optional, List
 
 from src.models.recipe import Recipe
-from src.services import recipe_service
+from src.services import recipe_service, recipe_category_service
 from src.services.database import session_scope
 from src.utils.constants import (
     PADDING_MEDIUM,
@@ -83,21 +83,14 @@ class RecipesTab(ctk.CTkFrame):
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
     def _load_recipe_categories(self) -> list:
-        """Load recipe categories from database.
+        """Load recipe categories from the recipe_categories table.
 
         Returns:
-            List of distinct category names from recipes table.
+            List of category names maintained by the user.
         """
         try:
-            with session_scope() as session:
-                categories = (
-                    session.query(Recipe.category)
-                    .distinct()
-                    .filter(Recipe.category.isnot(None))
-                    .order_by(Recipe.category)
-                    .all()
-                )
-                return [cat[0] for cat in categories if cat[0]]
+            categories = recipe_category_service.list_categories()
+            return [cat.name for cat in categories]
         except ServiceError:
             return []
         except Exception:

@@ -418,6 +418,9 @@ class MainWindow(ctk.CTk):
         def on_close():
             """Handle dialog close."""
             self._recipe_categories_dialog = None
+            # Refresh recipes tab so category filter reflects changes
+            if hasattr(self, "recipes_tab") and self.recipes_tab:
+                self.recipes_tab.refresh()
 
         self._recipe_categories_dialog = RecipeCategoriesDialog(
             self, on_close=on_close
