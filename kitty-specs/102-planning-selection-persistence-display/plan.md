@@ -1,108 +1,144 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Planning Selection Persistence Display
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `src/specify_cli/missions/software-dev/command-templates/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `102-planning-selection-persistence-display` | **Date**: 2026-02-28 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `kitty-specs/102-planning-selection-persistence-display/spec.md`
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+When the Planning tab loads an event with saved recipe/FG selections, the selection frames show blank placeholders despite having the data loaded into memory. This plan adds `render_saved_selections()` methods to both frames that display saved selections on load, with a contextual label ("Saved plan selections") to distinguish them from filter results. The fix is purely UI rendering — no service or model changes.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+
+**Primary Dependencies**: CustomTkinter (UI framework), SQLAlchemy 2.x (ORM)
+**Storage**: SQLite with WAL mode (no changes — persistence already correct)
+**Testing**: pytest (regression tests for blank-start and saved-selections display)
+**Target Platform**: macOS desktop (CustomTkinter)
+**Project Type**: Single desktop application
+**Performance Goals**: Saved selections render in <1 second
+**Constraints**: UI-only changes; no service or model modifications
+**Scale/Scope**: 3 files modified, ~60 lines of new code
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. User-Centric Design | PASS | Directly addresses user confusion from testing — blank selections → populated batch calculations disconnect |
+| II. Data Integrity & FIFO Accuracy | N/A | No data changes — persistence layer untouched |
+| IV. Test-Driven Development | PASS | Regression tests will cover both blank-start and saved-selections paths |
+| V. Layered Architecture | PASS | All changes in UI layer only; service queries already correct |
+| VI.C. Dependency & State Management | PASS | Uses existing session_scope() pattern for DB queries within UI frame (consistent with populate_categories()) |
+| VI.G. Code Organization | PASS | New methods follow existing patterns in both frames |
+
+No violations. No complexity tracking needed.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/102-planning-selection-persistence-display/
+├── plan.md              # This file
+├── research.md          # Phase 0 output (completed)
+├── spec.md              # Feature specification
+├── meta.json            # Feature metadata
+├── checklists/
+│   └── requirements.md  # Spec quality checklist
+└── tasks/               # Work packages (created by /spec-kitty.tasks)
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+### Source Code (files to modify)
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+└── ui/
+    ├── planning_tab.py                          # Trigger render after set_selected() calls
+    └── components/
+        ├── recipe_selection_frame.py            # Add render_saved_selections() method
+        └── fg_selection_frame.py                # Add render_saved_selections() method
 
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
+src/
 └── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+    └── (regression tests for planning tab load)
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Existing single-project structure. No new files created — only modifications to 3 existing UI files plus test additions.
+
+## Design
+
+### Change 1: RecipeSelectionFrame — Add `render_saved_selections()`
+
+**File**: `src/ui/components/recipe_selection_frame.py`
+
+**New method** that queries Recipe objects by the IDs in `_selected_recipe_ids` and renders them:
+
+1. Guard: if `_selected_recipe_ids` is empty, do nothing (preserve blank placeholder)
+2. Query: Use `session_scope()` to fetch `Recipe` objects matching `_selected_recipe_ids`
+3. Add contextual label: Insert a "Saved plan selections" label before the recipe list
+4. Render: Call existing `_render_recipes(recipes)` with the fetched recipes
+5. All recipes will appear checked because `_render_recipes()` already reads from `_selected_recipe_ids` (line 222)
+
+**Pattern reference**: Follows the same query-then-render pattern as FGSelectionFrame's `_render_selected_only()` (lines 775-788).
+
+**Contextual label**: Add a muted italic label ("Saved plan selections") at the top of the scroll frame. This label is destroyed when `_render_recipes()` is called by a filter (since it clears all children at line 200-201).
+
+### Change 2: FGSelectionFrame — Add `render_saved_selections()`
+
+**File**: `src/ui/components/fg_selection_frame.py`
+
+**New method** that leverages existing `_render_selected_only()`:
+
+1. Guard: if `_selected_fg_ids` is empty, do nothing (preserve blank placeholder)
+2. Set visual state: `_show_selected_only = True`, update button text to "Show Filtered View"
+3. Update indicator: Set `_selected_indicator` to "Saved plan selections (N items)"
+4. Call: `_render_selected_only()` — this queries FG objects and renders them
+
+**Why not call `_render_selected_only()` directly from planning_tab.py**: The method is private (`_render_selected_only`). A public `render_saved_selections()` wrapper encapsulates the state setup and provides a clean API.
+
+**Filter transition**: When user applies a filter, `_on_filter_change()` is called. It checks `_show_selected_only` (line 276-279) and exits that mode, which is exactly the correct transition behavior.
+
+### Change 3: PlanningTab — Trigger render after data load
+
+**File**: `src/ui/planning_tab.py`
+
+**In `_show_recipe_selection()`** (after line 614):
+- After `self._recipe_selection_frame.set_selected(selected_ids)`, add:
+- `if selected_ids: self._recipe_selection_frame.render_saved_selections()`
+
+**In `_show_fg_selection()`** (after line 777):
+- After `self._fg_selection_frame.set_selected_with_quantities(qty_tuples)`, add:
+- `if qty_tuples: self._fg_selection_frame.render_saved_selections()`
+
+Both are single-line additions — the conditional preserves blank-start for events with no selections.
+
+### Contextual Label Design
+
+Both frames display a contextual label when showing saved selections:
+
+- **Text**: "Saved plan selections" (recipe frame) / "Saved plan selections (N items)" (FG frame)
+- **Style**: Italic, muted color (`gray50`/`gray60`), matching placeholder style
+- **Lifecycle**: Destroyed automatically when user applies a filter (render methods clear all children before re-rendering)
+- **FG frame**: Uses existing `_selected_indicator` label (already positioned correctly)
+- **Recipe frame**: Adds a label to the scroll frame before rendering recipes
+
+### State Diagram
+
+```
+Event selected in Planning tab
+│
+├── Has saved selections?
+│   ├── YES → set_selected() + render_saved_selections()
+│   │         → Show saved items with contextual label
+│   │         → User applies filter?
+│   │              → Transition to filtered view (selections pre-checked)
+│   │
+│   └── NO  → set_selected([]) → Show blank placeholder (unchanged)
+│            → User applies filter?
+│                 → Normal filter-first workflow (unchanged)
+```
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+No constitution violations. No complexity justifications needed.
