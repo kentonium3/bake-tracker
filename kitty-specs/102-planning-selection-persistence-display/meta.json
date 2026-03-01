@@ -1,12 +1,26 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-03-01T14:54:28Z",
+      "accepted_by": "claude-opus",
+      "accepted_from_commit": "61ed9d2a89490a1b4d8e096b249918edd1ae274a",
+      "branch": "main",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-03-01T14:54:28Z",
+  "accepted_by": "claude-opus",
+  "accepted_from_commit": "61ed9d2a89490a1b4d8e096b249918edd1ae274a",
+  "created_at": "2026-03-01T14:01:04.074675+00:00",
   "feature_number": "102",
-  "slug": "102-planning-selection-persistence-display",
   "feature_slug": "102-planning-selection-persistence-display",
   "friendly_name": "Planning Selection Persistence Display",
   "mission": "software-dev",
+  "slug": "102-planning-selection-persistence-display",
   "source_description": "docs/func-spec/F102_planning_selection_persistence_display.md",
   "target_branch": "main",
-  "created_at": "2026-03-01T14:01:04.074675+00:00",
   "vcs": "git",
   "vcs_locked_at": "2026-03-01T14:29:03.110051+00:00"
 }
