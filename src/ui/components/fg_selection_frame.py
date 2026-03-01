@@ -549,6 +549,31 @@ class FGSelectionFrame(ctk.CTkFrame):
         self._update_count()
         self._update_save_button_state()
 
+    def render_saved_selections(self) -> None:
+        """
+        Render saved selections on initial load (F102).
+
+        Sets up the selected-only view state and renders saved FGs using
+        the existing _render_selected_only() method. Called by PlanningTab
+        after set_selected_with_quantities() when loading an event with
+        existing selections.
+        """
+        if not self._selected_fg_ids:
+            return
+
+        # Enter selected-only mode (same state as _toggle_show_selected)
+        self._show_selected_only = True
+        self._show_selected_button.configure(text="Show Filtered View")
+
+        # Set contextual indicator label
+        count = len(self._selected_fg_ids)
+        self._selected_indicator.configure(
+            text=f"Saved plan selections ({count} items)"
+        )
+
+        # Render only selected FGs (queries DB and calls _render_finished_goods)
+        self._render_selected_only()
+
     def get_selected(self) -> List[Tuple[int, int]]:
         """
         Get ALL selected FGs with their quantities (including hidden ones).

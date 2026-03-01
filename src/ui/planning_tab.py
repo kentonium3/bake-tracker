@@ -613,6 +613,10 @@ class PlanningTab(ctk.CTkFrame):
             # Restore existing selections into persistence set
             self._recipe_selection_frame.set_selected(selected_ids)
 
+            # F102: Render saved selections if event has existing plan
+            if selected_ids:
+                self._recipe_selection_frame.render_saved_selections()
+
             # Store for cancel functionality
             self._original_recipe_selection = selected_ids.copy()
 
@@ -775,6 +779,10 @@ class PlanningTab(ctk.CTkFrame):
             # F071: Restore existing selections in persistence layer
             qty_tuples = [(fg.id, qty) for fg, qty in fg_quantities]
             self._fg_selection_frame.set_selected_with_quantities(qty_tuples)
+
+            # F102: Render saved selections if event has existing plan
+            if qty_tuples:
+                self._fg_selection_frame.render_saved_selections()
 
             # Store for cancel functionality
             self._original_fg_selection = qty_tuples.copy()
