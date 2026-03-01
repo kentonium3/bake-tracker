@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Render Saved Selections on Planning Tab Load
-lane: "for_review"
+lane: "doing"
 dependencies: []
 base_branch: main
 base_commit: a47eaf74994131dc3d0b24c50e1e183c00a51e73
@@ -14,7 +14,7 @@ subtasks:
 phase: Phase 1 - Core Implementation
 assignee: ''
 agent: "claude-opus"
-shell_pid: "86639"
+shell_pid: "88222"
 review_status: ''
 reviewed_by: ''
 history:
@@ -386,3 +386,4 @@ The CLI command updates both frontmatter and activity log automatically.
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 - 2026-03-01T14:29:06Z – claude-opus – shell_pid=86639 – lane=doing – Assigned agent via workflow command
 - 2026-03-01T14:44:43Z – claude-opus – shell_pid=86639 – lane=for_review – Ready for review: All 4 subtasks complete. render_saved_selections() added to both frames, PlanningTab wired up, 8 regression tests passing.
+- 2026-03-01T14:50:28Z – claude-opus – shell_pid=88222 – lane=doing – Started review via workflow command
