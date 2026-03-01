@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Render Saved Selections on Planning Tab Load"
-phase: "Phase 1 - Core Implementation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP01
+title: Render Saved Selections on Planning Tab Load
+lane: "for_review"
 dependencies: []
+base_branch: main
+base_commit: a47eaf74994131dc3d0b24c50e1e183c00a51e73
+created_at: '2026-03-01T14:29:05.768199+00:00'
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Core Implementation
+assignee: ''
+agent: "claude-opus"
+shell_pid: "86639"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-01T14:25:50Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-01T14:25:50Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Render Saved Selections on Planning Tab Load
@@ -381,3 +384,5 @@ To change a work package's lane, either:
 The CLI command updates both frontmatter and activity log automatically.
 
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
+- 2026-03-01T14:29:06Z – claude-opus – shell_pid=86639 – lane=doing – Assigned agent via workflow command
+- 2026-03-01T14:44:43Z – claude-opus – shell_pid=86639 – lane=for_review – Ready for review: All 4 subtasks complete. render_saved_selections() added to both frames, PlanningTab wired up, 8 regression tests passing.
