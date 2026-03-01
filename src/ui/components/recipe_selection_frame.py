@@ -302,6 +302,44 @@ class RecipeSelectionFrame(ctk.CTkFrame):
             var.set(recipe_id in self._selected_recipe_ids)
         self._update_count()
 
+    def render_saved_selections(self) -> None:
+        """
+        Render saved selections on initial load (F102).
+
+        Queries Recipe objects for IDs in the persistence set and renders
+        them with a contextual label. Called by PlanningTab after
+        set_selected() when loading an event with existing selections.
+        """
+        if not self._selected_recipe_ids:
+            return
+
+        # Query Recipe objects for saved IDs
+        with session_scope() as session:
+            recipes = (
+                session.query(Recipe)
+                .filter(Recipe.id.in_(self._selected_recipe_ids))
+                .all()
+            )
+
+        if not recipes:
+            return
+
+        # Render the saved recipes (restores checkbox state from persistence set)
+        self._render_recipes(recipes)
+
+        # Add contextual label at the top of the scroll frame, before recipe checkboxes
+        saved_label = ctk.CTkLabel(
+            self._scroll_frame,
+            text="Saved plan selections",
+            font=ctk.CTkFont(size=11, slant="italic"),
+            text_color=("gray50", "gray60"),
+        )
+        saved_label.pack(anchor="w", pady=(5, 2), padx=5)
+        # Move to top of pack order (before recipe checkboxes)
+        children = self._scroll_frame.winfo_children()
+        if len(children) > 1 and children[0] != saved_label:
+            saved_label.pack_configure(before=children[0])
+
     def clear_selections(self) -> None:
         """Clear all selections and return to blank state."""
         self._selected_recipe_ids.clear()
