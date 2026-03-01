@@ -23,10 +23,10 @@
 **Estimated Prompt Size**: ~350 lines
 
 ### Included Subtasks
-- [ ] T001 [P] Add `render_saved_selections()` method to `RecipeSelectionFrame` in `src/ui/components/recipe_selection_frame.py`
-- [ ] T002 [P] Add `render_saved_selections()` method to `FGSelectionFrame` in `src/ui/components/fg_selection_frame.py`
-- [ ] T003 Wire conditional render triggers in `PlanningTab._show_recipe_selection()` and `_show_fg_selection()` in `src/ui/planning_tab.py`
-- [ ] T004 [P] Add regression tests for blank-start and saved-selections display in `src/tests/`
+- [x] T001 [P] Add `render_saved_selections()` method to `RecipeSelectionFrame` in `src/ui/components/recipe_selection_frame.py`
+- [x] T002 [P] Add `render_saved_selections()` method to `FGSelectionFrame` in `src/ui/components/fg_selection_frame.py`
+- [x] T003 Wire conditional render triggers in `PlanningTab._show_recipe_selection()` and `_show_fg_selection()` in `src/ui/planning_tab.py`
+- [x] T004 [P] Add regression tests for blank-start and saved-selections display in `src/tests/`
 
 ### Implementation Notes
 - T001 and T002 can proceed in parallel (different files, independent frame components)
