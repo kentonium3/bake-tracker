@@ -6,20 +6,53 @@ dismissal, and edge cases. Uses mock callbacks to verify behavior without
 requiring real service layers.
 """
 
+import subprocess
+import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Guard against missing display -- tkinter requires a display.
-# IMPORTANT: Do NOT create Tk() at module level. Module-level Tk()
-# runs at pytest collection time and corrupts tkinter state when
-# 3000+ other tests run in the same session (Bus error / segfault).
+# IMPORTANT: Do NOT create Tk() at module level in-process. On headless
+# macOS, attempting Tk() can abort the interpreter instead of raising.
+# Probe Tk in a subprocess so a failed display check cannot crash pytest.
 try:
     import tkinter as tk
-
-    _HAS_DISPLAY = True
 except ImportError:
-    _HAS_DISPLAY = False
+    tk = None
+
+
+def _can_create_tk_root() -> bool:
+    """Return True when a Tk root can be created in this environment."""
+    if tk is None:
+        return False
+
+    probe = [
+        sys.executable,
+        "-c",
+        (
+            "import tkinter as tk; "
+            "root = tk.Tk(); "
+            "root.withdraw(); "
+            "root.update_idletasks(); "
+            "root.destroy()"
+        ),
+    ]
+    try:
+        result = subprocess.run(
+            probe,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+    return result.returncode == 0
+
+
+_HAS_DISPLAY = _can_create_tk_root()
 
 pytestmark = pytest.mark.skipif(
     not _HAS_DISPLAY, reason="No display available for tkinter tests"

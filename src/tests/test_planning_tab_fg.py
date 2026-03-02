@@ -80,6 +80,8 @@ def mock_ctk_module():
         "src.ui.planning_tab",
         "src.ui.widgets.data_table",
         "src.ui.widgets.batch_options_frame",
+        "src.ui.components.assembly_status_frame",
+        "src.ui.components.production_progress_frame",
         "src.ui.components.shopping_summary_frame",
         "src.ui.components.fg_selection_frame",
         "src.ui.components.recipe_selection_frame",
@@ -107,32 +109,42 @@ class TestPlanningTabFGIntegration:
         with patch("src.ui.planning_tab.DataTable") as mock_dt:
             with patch("src.ui.planning_tab.RecipeSelectionFrame") as mock_rsf:
                 with patch("src.ui.planning_tab.FGSelectionFrame") as mock_fgsf:
-                    with patch("src.ui.planning_tab.session_scope") as mock_scope:
-                        with patch("src.ui.planning_tab.event_service") as mock_es:
-                            with patch("src.ui.planning_tab.recipe_service") as mock_rs:
-                                # Setup default mocks
-                                mock_dt.return_value = MagicMock()
-                                mock_rsf.return_value = MagicMock()
-                                mock_fgsf.return_value = MagicMock()
-                                mock_es.get_events_for_planning.return_value = []
+                    with patch(
+                        "src.ui.planning_tab.AssemblyStatusFrame"
+                    ) as mock_asf:
+                        with patch(
+                            "src.ui.planning_tab.ProductionProgressFrame"
+                        ) as mock_ppf:
+                            with patch("src.ui.planning_tab.session_scope") as mock_scope:
+                                with patch("src.ui.planning_tab.event_service") as mock_es:
+                                    with patch("src.ui.planning_tab.recipe_service") as mock_rs:
+                                        # Setup default mocks
+                                        mock_dt.return_value = MagicMock()
+                                        mock_rsf.return_value = MagicMock()
+                                        mock_fgsf.return_value = MagicMock()
+                                        mock_asf.return_value = MagicMock()
+                                        mock_ppf.return_value = MagicMock()
+                                        mock_es.get_events_for_planning.return_value = []
 
-                                session = MagicMock()
-                                mock_scope.return_value.__enter__ = MagicMock(
-                                    return_value=session
-                                )
-                                mock_scope.return_value.__exit__ = MagicMock(
-                                    return_value=False
-                                )
+                                        session = MagicMock()
+                                        mock_scope.return_value.__enter__ = MagicMock(
+                                            return_value=session
+                                        )
+                                        mock_scope.return_value.__exit__ = MagicMock(
+                                            return_value=False
+                                        )
 
-                                yield {
-                                    "data_table": mock_dt,
-                                    "recipe_frame": mock_rsf,
-                                    "fg_frame": mock_fgsf,
-                                    "session_scope": mock_scope,
-                                    "event_service": mock_es,
-                                    "recipe_service": mock_rs,
-                                    "session": session,
-                                }
+                                        yield {
+                                            "data_table": mock_dt,
+                                            "recipe_frame": mock_rsf,
+                                            "fg_frame": mock_fgsf,
+                                            "assembly_frame": mock_asf,
+                                            "progress_frame": mock_ppf,
+                                            "session_scope": mock_scope,
+                                            "event_service": mock_es,
+                                            "recipe_service": mock_rs,
+                                            "session": session,
+                                        }
 
     def test_fg_selection_frame_created(self, mock_dependencies):
         """FGSelectionFrame is created during initialization."""
@@ -329,23 +341,25 @@ class TestRemovedFGNotification:
         with patch("src.ui.planning_tab.DataTable") as mock_dt:
             with patch("src.ui.planning_tab.RecipeSelectionFrame") as mock_rsf:
                 with patch("src.ui.planning_tab.FGSelectionFrame") as mock_fgsf:
-                    with patch("src.ui.planning_tab.session_scope") as mock_scope:
-                        with patch("src.ui.planning_tab.event_service") as mock_es:
-                            with patch("src.ui.planning_tab.recipe_service"):
-                                mock_dt.return_value = MagicMock()
-                                mock_rsf.return_value = MagicMock()
-                                mock_fgsf.return_value = MagicMock()
-                                mock_es.get_events_for_planning.return_value = []
+                    with patch("src.ui.planning_tab.AssemblyStatusFrame"):
+                        with patch("src.ui.planning_tab.ProductionProgressFrame"):
+                            with patch("src.ui.planning_tab.session_scope") as mock_scope:
+                                with patch("src.ui.planning_tab.event_service") as mock_es:
+                                    with patch("src.ui.planning_tab.recipe_service"):
+                                        mock_dt.return_value = MagicMock()
+                                        mock_rsf.return_value = MagicMock()
+                                        mock_fgsf.return_value = MagicMock()
+                                        mock_es.get_events_for_planning.return_value = []
 
-                                session = MagicMock()
-                                mock_scope.return_value.__enter__ = MagicMock(
-                                    return_value=session
-                                )
-                                mock_scope.return_value.__exit__ = MagicMock(
-                                    return_value=False
-                                )
+                                        session = MagicMock()
+                                        mock_scope.return_value.__enter__ = MagicMock(
+                                            return_value=session
+                                        )
+                                        mock_scope.return_value.__exit__ = MagicMock(
+                                            return_value=False
+                                        )
 
-                                yield
+                                        yield
 
     def test_single_fg_notification_format(self, mock_dependencies):
         """Single removed FG shows name and missing recipes."""
