@@ -16,6 +16,7 @@ from src.services.exceptions import ServiceError
 from src.services.health_service import HealthCheckService
 from src.ui.main_window import MainWindow
 from src.utils.config import get_config, Config
+from src.utils.scroll_fix import apply_touchpad_scroll_fix
 
 # Global health service instance
 _health_service = None
@@ -190,6 +191,9 @@ def main():
     if not initialize_application():
         print("Application initialization failed. Exiting.")
         sys.exit(1)
+
+    # Patch CTkScrollableFrame for macOS trackpad scrolling (Tk 9.0+)
+    apply_touchpad_scroll_fix()
 
     # Create and run main window
     try:
