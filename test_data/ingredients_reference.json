@@ -1,0 +1,1700 @@
+{
+  "ingredients": [
+    {
+      "slug": "gelatin_powder",
+      "display_name": "Gelatin powder",
+      "category": "Additives & Thickeners"
+    },
+    {
+      "slug": "gelatin_sheets",
+      "display_name": "Gelatin sheets",
+      "category": "Additives & Thickeners"
+    },
+    {
+      "slug": "guar_gum",
+      "display_name": "Guar gum",
+      "category": "Additives & Thickeners"
+    },
+    {
+      "slug": "pectin",
+      "display_name": "Pectin",
+      "category": "Additives & Thickeners"
+    },
+    {
+      "slug": "xanthan_gum",
+      "display_name": "Xanthan gum",
+      "category": "Additives & Thickeners"
+    },
+    {
+      "slug": "baking_wafers_chocolate",
+      "display_name": "Baking wafers, chocolate",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "baking_wafers_vanilla",
+      "display_name": "Baking wafers, vanilla",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "candy_melts_colored",
+      "display_name": "Candy melts, colored",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "candy_melts_white",
+      "display_name": "Candy melts, white",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_bittersweet",
+      "display_name": "Chocolate chips, bittersweet",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_dark",
+      "display_name": "Chocolate chips, dark",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_espresso",
+      "display_name": "Chocolate chips, espresso",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_milk",
+      "display_name": "Chocolate chips, milk",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_semi_sweet",
+      "display_name": "Chocolate chips, semi-sweet",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_semi_sweet_allergen_free",
+      "display_name": "Chocolate chips, semi-sweet, allergen-free",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chips_white",
+      "display_name": "Chocolate chips, white",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_chunks_semi_sweet",
+      "display_name": "Chocolate chunks, semi-sweet",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_coating_milk",
+      "display_name": "Chocolate coating, milk chocolate",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_couverture_ruby",
+      "display_name": "Chocolate couverture, ruby",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_baking_bittersweet",
+      "display_name": "Chocolate, baking bittersweet",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_baking_semi_sweet",
+      "display_name": "Chocolate, baking semi-sweet",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_baking_unsweetened",
+      "display_name": "Chocolate, baking unsweetened",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_couverture_dark",
+      "display_name": "Chocolate, couverture dark",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_couverture_milk",
+      "display_name": "Chocolate, couverture milk",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_couverture_white",
+      "display_name": "Chocolate, couverture white",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "cinnamon_chips",
+      "display_name": "Cinnamon baking chips",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "cocoa_powder_black",
+      "display_name": "Cocoa powder, black",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "cocoa_powder_dutch_processed",
+      "display_name": "Cocoa powder, dutch-processed",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "cocoa_powder_natural",
+      "display_name": "Cocoa powder, natural",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "cocoa_powder_red",
+      "display_name": "Cocoa powder, red",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "malt_powder",
+      "display_name": "Malt powder",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "mini_chocolate_chips_semi_sweet",
+      "display_name": "Mini chocolate chips, semi-sweet",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_mint_chips",
+      "display_name": "Mint chocolate baking chips",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "chocolate_ruby_callets",
+      "display_name": "Ruby chocolate callets",
+      "category": "Chocolate & Cocoa"
+    },
+    {
+      "slug": "cheddar_cheese",
+      "display_name": "Cheddar cheese",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "cottage_cheese",
+      "display_name": "Cottage cheese",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "cream_cheese",
+      "display_name": "Cream cheese",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "cream_heavy",
+      "display_name": "Cream, heavy",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "cream_light",
+      "display_name": "Cream, light",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "creme_fraiche",
+      "display_name": "Cr\u00e8me fra\u00eeche",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "egg_whites",
+      "display_name": "Egg whites",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "egg_yolks",
+      "display_name": "Egg yolks",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "eggnog",
+      "display_name": "Eggnog",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "eggnog_low_fat",
+      "display_name": "Eggnog, low fat",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "eggs_whole",
+      "display_name": "Eggs, whole",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "greek_yogurt_plain",
+      "display_name": "Greek yogurt, plain",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "mascarpone",
+      "display_name": "Mascarpone",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "mascarpone_cheese",
+      "display_name": "Mascarpone cheese",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_powder_nonfat",
+      "display_name": "Milk powder, nonfat",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_powder_whole",
+      "display_name": "Milk powder, whole",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_2",
+      "display_name": "Milk, 2%",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_buttermilk",
+      "display_name": "Milk, buttermilk",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_condensed_sweetened",
+      "display_name": "Milk, condensed sweetened",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_evaporated",
+      "display_name": "Milk, evaporated",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_skim",
+      "display_name": "Milk, skim",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "milk_whole",
+      "display_name": "Milk, whole",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "parmesan_cheese",
+      "display_name": "Parmesan cheese",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "powdered_milk_malted",
+      "display_name": "Powdered milk, malted",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "ricotta",
+      "display_name": "Ricotta",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "ricotta_cheese",
+      "display_name": "Ricotta cheese",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "sour_cream",
+      "display_name": "Sour cream",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "yogurt_plain",
+      "display_name": "Yogurt, plain",
+      "category": "Dairy & Eggs"
+    },
+    {
+      "slug": "almond_paste",
+      "display_name": "Almond paste",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "butterscotch_chips",
+      "display_name": "Butterscotch chips",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "candied_cherries",
+      "display_name": "Candied cherries",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "candied_citrus_peel",
+      "display_name": "Candied citrus peel",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "candied_ginger",
+      "display_name": "Candied ginger",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "candy_canes",
+      "display_name": "Candy canes",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "caramel_bits",
+      "display_name": "Caramel bits",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "caramel_sauce",
+      "display_name": "Caramel sauce",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "caramels",
+      "display_name": "Caramels",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "cherries_maraschino",
+      "display_name": "Cherries, maraschino",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "chocolate_cocoa_nibs",
+      "display_name": "Chocolate, cocoa nibs",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "chocolate_kisses_dark",
+      "display_name": "Chocolate, kisses, dark",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "chocolate_covered_candies_assorted",
+      "display_name": "Chocolate-covered candies, assorted",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "edible_glitter",
+      "display_name": "Edible glitter",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "edible_pearls",
+      "display_name": "Edible pearls",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "fondant",
+      "display_name": "Fondant",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "fruit_candied_mixed",
+      "display_name": "Fruit, candied mixed",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "gel",
+      "display_name": "Gel",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "gum_paste",
+      "display_name": "Gum paste",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "gumdrops",
+      "display_name": "Gumdrops",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "hard_candy_assorted",
+      "display_name": "Hard candy, assorted",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "jelly_beans",
+      "display_name": "Jelly beans",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "liquid",
+      "display_name": "Liquid",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "mandms_peanut",
+      "display_name": "M&M's, peanut",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "mandms_plain_chocolate",
+      "display_name": "M&M's, plain chocolate",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "malted_milk_balls",
+      "display_name": "Malted milk balls",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "marshmallows",
+      "display_name": "Marshmallows",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "marzipan",
+      "display_name": "Marzipan",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "mini_marshmallows",
+      "display_name": "Mini marshmallows",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "mint_chocolate_candies",
+      "display_name": "Mint chocolate candies",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "nonpareils",
+      "display_name": "Nonpareils",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "paste",
+      "display_name": "Paste",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "peppermint_bark",
+      "display_name": "Peppermint bark",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "peppermints",
+      "display_name": "Peppermints",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "pineapple_candied",
+      "display_name": "Pineapple, candied",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "powder",
+      "display_name": "Powder",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "royal_icing_mix",
+      "display_name": "Royal icing mix",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "sanding_sugar",
+      "display_name": "Sanding sugar",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "sprinkles_chocolate",
+      "display_name": "Sprinkles, chocolate",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "sprinkles_rainbow",
+      "display_name": "Sprinkles, rainbow",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "sugar_pearl",
+      "display_name": "Sugar, pearl",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "sugar_sanding",
+      "display_name": "Sugar, sanding",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "toblerone",
+      "display_name": "Toblerone chocolate",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "toffee_bits",
+      "display_name": "Toffee bits",
+      "category": "Decorations & Candies"
+    },
+    {
+      "slug": "almond_extract",
+      "display_name": "Almond extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "espresso_powder",
+      "display_name": "Espresso powder",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_chocolate",
+      "display_name": "Extract, chocolate",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_coconut",
+      "display_name": "Extract, coconut",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_coffee",
+      "display_name": "Extract, coffee",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_mint",
+      "display_name": "Extract, mint",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_raspberry",
+      "display_name": "Extract, raspberry",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_vanilla_mexican",
+      "display_name": "Extract, vanilla, Mexican",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_vanilla_oak_aged",
+      "display_name": "Extract, vanilla, oak-aged",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "extract_vanilla_spiced",
+      "display_name": "Extract, vanilla, spiced",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "instant_coffee_granules",
+      "display_name": "Instant coffee granules",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "lemon_extract",
+      "display_name": "Lemon extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "maple_extract",
+      "display_name": "Maple extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "matcha_powder",
+      "display_name": "Matcha powder",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "orange_extract",
+      "display_name": "Orange extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "peppermint_extract",
+      "display_name": "Peppermint extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "pistachio_extract",
+      "display_name": "Pistachio extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "rum_extract",
+      "display_name": "Rum extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "tea_matcha_powder",
+      "display_name": "Tea, matcha powder",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "vanilla_extract",
+      "display_name": "Vanilla extract",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "vanilla_paste",
+      "display_name": "Vanilla paste",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "vanilla_powder_extract_blend",
+      "display_name": "Vanilla powder, extract blend",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "vanilla_powder_pure",
+      "display_name": "Vanilla powder, pure",
+      "category": "Extracts & Flavorings"
+    },
+    {
+      "slug": "baking_spray",
+      "display_name": "Baking spray",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "butter_clarified",
+      "display_name": "Butter, clarified",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "butter_salted",
+      "display_name": "Butter, salted",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "butter_unsalted",
+      "display_name": "Butter, unsalted",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "cocoa_butter",
+      "display_name": "Cocoa butter",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "cooking_spray",
+      "display_name": "Cooking spray",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "lard",
+      "display_name": "Lard",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "margarine",
+      "display_name": "Margarine",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_avocado",
+      "display_name": "Oil, avocado",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_canola",
+      "display_name": "Oil, canola",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_coconut",
+      "display_name": "Oil, coconut",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_grapeseed",
+      "display_name": "Oil, grapeseed",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_olive",
+      "display_name": "Oil, olive",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_spray",
+      "display_name": "Oil, spray",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_sunflower",
+      "display_name": "Oil, sunflower",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "oil_vegetable",
+      "display_name": "Oil, vegetable",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "shortening",
+      "display_name": "Shortening",
+      "category": "Fats & Oils"
+    },
+    {
+      "slug": "almond_meal",
+      "display_name": "Almond meal",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "arrowroot_starch",
+      "display_name": "Arrowroot starch",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "bread_flour",
+      "display_name": "Bread flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "buckwheat_flour",
+      "display_name": "Buckwheat flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "cake_flour",
+      "display_name": "Cake flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "coconut_flour",
+      "display_name": "Coconut flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "cornmeal",
+      "display_name": "Cornmeal",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "cornstarch",
+      "display_name": "Cornstarch",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_all_purpose",
+      "display_name": "Flour, all-purpose",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_almond",
+      "display_name": "Flour, almond",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_hazelnut",
+      "display_name": "Flour, hazelnut",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_pastry",
+      "display_name": "Flour, pastry",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_rice",
+      "display_name": "Flour, rice",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_semolina",
+      "display_name": "Flour, semolina",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "flour_sorghum",
+      "display_name": "Flour, sorghum",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "gluten_free_flour_blend",
+      "display_name": "Gluten-free flour blend",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "graham_cracker_crumbs",
+      "display_name": "Graham cracker crumbs",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "oat_flour",
+      "display_name": "Oat flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "oats_quick",
+      "display_name": "Oats, quick",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "oats_rolled",
+      "display_name": "Oats, rolled",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "pastry_flour",
+      "display_name": "Pastry flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "pecan_flour",
+      "display_name": "Pecan flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "potato_starch",
+      "display_name": "Potato starch",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "rye_flour",
+      "display_name": "Rye flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "self_rising_flour",
+      "display_name": "Self-rising flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "spelt_flour",
+      "display_name": "Spelt flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "tapioca_starch",
+      "display_name": "Tapioca starch",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "vital_wheat_gluten",
+      "display_name": "Vital wheat gluten",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "white_whole_wheat_flour",
+      "display_name": "White whole wheat flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "whole_wheat_flour",
+      "display_name": "Whole wheat flour",
+      "category": "Flours & Starches"
+    },
+    {
+      "slug": "apples",
+      "display_name": "Apples",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "applesauce_unsweetened",
+      "display_name": "Applesauce, unsweetened",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "apricots",
+      "display_name": "Apricots",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "apricots_dried",
+      "display_name": "Apricots, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "bananas",
+      "display_name": "Bananas",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "blueberries",
+      "display_name": "Blueberries",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "cherries_dried",
+      "display_name": "Cherries, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "cherries_fresh",
+      "display_name": "Cherries, fresh",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "cranberries",
+      "display_name": "Cranberries",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "cranberries_dried",
+      "display_name": "Cranberries, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "currants_dried",
+      "display_name": "Currants, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "dates_pitted",
+      "display_name": "Dates, pitted",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "figs_dried",
+      "display_name": "Figs, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "lemon_juice",
+      "display_name": "Lemon juice",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "lemon_whole",
+      "display_name": "Lemon, whole",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "lime_juice",
+      "display_name": "Lime juice",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "lime_whole",
+      "display_name": "Lime, whole",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "mango_dried",
+      "display_name": "Mango, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "mincemeat",
+      "display_name": "Mincemeat",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "orange_juice",
+      "display_name": "Orange juice",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "orange_zest",
+      "display_name": "Orange zest",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "orange_whole",
+      "display_name": "Orange, whole",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "pears_dried",
+      "display_name": "Pears, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "pineapple_crushed",
+      "display_name": "Pineapple, crushed",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "pineapple_crushed_canned",
+      "display_name": "Pineapple, crushed canned",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "pineapple_dried",
+      "display_name": "Pineapple, dried",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "prunes",
+      "display_name": "Prunes",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "pumpkin_puree",
+      "display_name": "Pumpkin puree",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "raisins",
+      "display_name": "Raisins",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "raspberries",
+      "display_name": "Raspberries",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "strawberries",
+      "display_name": "Strawberries",
+      "category": "Fruits & Dried Fruits"
+    },
+    {
+      "slug": "ammonium_bicarbonate",
+      "display_name": "Ammonium bicarbonate",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "baking_powder",
+      "display_name": "Baking powder",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "baking_soda",
+      "display_name": "Baking soda",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "cream_of_tartar",
+      "display_name": "Cream of tartar",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "sourdough_starter",
+      "display_name": "Sourdough starter",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "yeast_active_dry",
+      "display_name": "Yeast, active dry",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "yeast_fresh",
+      "display_name": "Yeast, fresh",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "yeast_instant",
+      "display_name": "Yeast, instant",
+      "category": "Leaveners & stabilizers"
+    },
+    {
+      "slug": "apple_cider",
+      "display_name": "Apple cider",
+      "category": "Liquids"
+    },
+    {
+      "slug": "apple_juice",
+      "display_name": "Apple juice",
+      "category": "Liquids"
+    },
+    {
+      "slug": "coconut_milk_canned",
+      "display_name": "Coconut milk, canned",
+      "category": "Liquids"
+    },
+    {
+      "slug": "coffee_brewed",
+      "display_name": "Coffee, brewed",
+      "category": "Liquids"
+    },
+    {
+      "slug": "grape_juice",
+      "display_name": "Grape juice",
+      "category": "Liquids"
+    },
+    {
+      "slug": "milk_alternative_almond",
+      "display_name": "Milk alternative, almond",
+      "category": "Liquids"
+    },
+    {
+      "slug": "milk_alternative_oat",
+      "display_name": "Milk alternative, oat",
+      "category": "Liquids"
+    },
+    {
+      "slug": "milk_alternative_soy",
+      "display_name": "Milk alternative, soy",
+      "category": "Liquids"
+    },
+    {
+      "slug": "tea_brewed",
+      "display_name": "Tea, brewed",
+      "category": "Liquids"
+    },
+    {
+      "slug": "vinegar_apple_cider",
+      "display_name": "Vinegar, apple cider",
+      "category": "Liquids"
+    },
+    {
+      "slug": "vinegar_white",
+      "display_name": "Vinegar, white",
+      "category": "Liquids"
+    },
+    {
+      "slug": "water",
+      "display_name": "Water",
+      "category": "Liquids"
+    },
+    {
+      "slug": "amaretto",
+      "display_name": "Amaretto",
+      "category": "Liquors"
+    },
+    {
+      "slug": "bourbon",
+      "display_name": "Bourbon",
+      "category": "Liquors"
+    },
+    {
+      "slug": "calvados",
+      "display_name": "Calvados",
+      "category": "Liquors"
+    },
+    {
+      "slug": "liqueur_coffee",
+      "display_name": "Coffee Liqueur",
+      "category": "Liquors"
+    },
+    {
+      "slug": "liqueur_blackcurrant",
+      "display_name": "Cr\u00e8me de cassis",
+      "category": "Liquors"
+    },
+    {
+      "slug": "liqueur_hazelnut",
+      "display_name": "Hazelnut Liqueur",
+      "category": "Liquors"
+    },
+    {
+      "slug": "liqueur_chocolate",
+      "display_name": "Liqueur, chocolate",
+      "category": "Liquors"
+    },
+    {
+      "slug": "liqueur_orange",
+      "display_name": "Liqueur, orange",
+      "category": "Liquors"
+    },
+    {
+      "slug": "schnapps_peach",
+      "display_name": "Peach Schnapps",
+      "category": "Liquors"
+    },
+    {
+      "slug": "liqueur_raspberry",
+      "display_name": "Raspberry Liqueur",
+      "category": "Liquors"
+    },
+    {
+      "slug": "rum",
+      "display_name": "Rum",
+      "category": "Liquors"
+    },
+    {
+      "slug": "rum_amber",
+      "display_name": "Rum, amber",
+      "category": "Liquors"
+    },
+    {
+      "slug": "rum_dark",
+      "display_name": "Rum, dark",
+      "category": "Liquors"
+    },
+    {
+      "slug": "rum_white",
+      "display_name": "Rum, white",
+      "category": "Liquors"
+    },
+    {
+      "slug": "vodka_flavored",
+      "display_name": "Vodka, flavored",
+      "category": "Liquors"
+    },
+    {
+      "slug": "vodka_plain",
+      "display_name": "Vodka, plain",
+      "category": "Liquors"
+    },
+    {
+      "slug": "whiskey_irish",
+      "display_name": "Whiskey, Irish",
+      "category": "Liquors"
+    },
+    {
+      "slug": "almonds",
+      "display_name": "Almonds",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "almonds_sliced",
+      "display_name": "Almonds, sliced",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "almonds_whole",
+      "display_name": "Almonds, whole",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "brazil_nuts",
+      "display_name": "Brazil nuts",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "cashews",
+      "display_name": "Cashews",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "chia_seeds",
+      "display_name": "Chia seeds",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "coconut_flakes",
+      "display_name": "Coconut flakes",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "coconut_shredded_sweetened",
+      "display_name": "Coconut, shredded sweetened",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "coconut_shredded_unsweetened",
+      "display_name": "Coconut, shredded unsweetened",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "flaxseed_meal",
+      "display_name": "Flaxseed meal",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "flaxseed_whole",
+      "display_name": "Flaxseed, whole",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "hazelnuts",
+      "display_name": "Hazelnuts",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "macadamia_nuts",
+      "display_name": "Macadamia nuts",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "peanuts",
+      "display_name": "Peanuts",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "pecans",
+      "display_name": "Pecans",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "pecans_chopped",
+      "display_name": "Pecans, chopped",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "pecans_halves",
+      "display_name": "Pecans, halves",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "pine_nuts",
+      "display_name": "Pine nuts",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "pistachios",
+      "display_name": "Pistachios",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "poppy_seeds",
+      "display_name": "Poppy seeds",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "pumpkin_seeds",
+      "display_name": "Pumpkin seeds",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "sesame_seeds",
+      "display_name": "Sesame seeds",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "sunflower_seeds",
+      "display_name": "Sunflower seeds",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "walnuts",
+      "display_name": "Walnuts",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "walnuts_chopped",
+      "display_name": "Walnuts, chopped",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "walnuts_halves",
+      "display_name": "Walnuts, halves",
+      "category": "Nuts & Seeds"
+    },
+    {
+      "slug": "allspice_ground",
+      "display_name": "Allspice, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "allspice_whole",
+      "display_name": "Allspice, whole",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "anise_seed",
+      "display_name": "Anise seed",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "apple_pie_spice",
+      "display_name": "Apple pie spice",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "basil_dried",
+      "display_name": "Basil, dried",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cardamom_pods",
+      "display_name": "Cardamom pods",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cardamom_ground",
+      "display_name": "Cardamom, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cayenne_pepper",
+      "display_name": "Cayenne pepper",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cinnamon_sticks",
+      "display_name": "Cinnamon sticks",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cinnamon_ground",
+      "display_name": "Cinnamon, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cloves_ground",
+      "display_name": "Cloves, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "cloves_whole",
+      "display_name": "Cloves, whole",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "coriander_ground",
+      "display_name": "Coriander, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "fennel_seeds",
+      "display_name": "Fennel seeds",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "ginger_fresh",
+      "display_name": "Ginger, fresh",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "ginger_ground",
+      "display_name": "Ginger, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "lavender_culinary",
+      "display_name": "Lavender, culinary",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "mace_ground",
+      "display_name": "Mace, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "marjoram_dried",
+      "display_name": "Marjoram, dried",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "nutmeg_ground",
+      "display_name": "Nutmeg, ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "nutmeg_ground_east_indian",
+      "display_name": "Nutmeg, ground, East Indian",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "nutmeg_ground_west_indian",
+      "display_name": "Nutmeg, ground, West Indian",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "nutmeg_whole",
+      "display_name": "Nutmeg, whole",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "oregano_dried",
+      "display_name": "Oregano, dried",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "paprika",
+      "display_name": "Paprika",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "pepper_black_ground",
+      "display_name": "Pepper, black ground",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "pumpkin_pie_spice",
+      "display_name": "Pumpkin pie spice",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "rosemary_dried",
+      "display_name": "Rosemary, dried",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "sage_dried",
+      "display_name": "Sage, dried",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "salt_fine",
+      "display_name": "Salt, fine",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "salt_kosher",
+      "display_name": "Salt, kosher",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "sea_salt_flaky",
+      "display_name": "Sea salt, flaky",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "spice_blend_chinese_five_spice",
+      "display_name": "Spice blend, Chinese five spice",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "spice_blend_mulling",
+      "display_name": "Spice blend, mulling spices",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "star_anise",
+      "display_name": "Star anise",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "thyme_dried",
+      "display_name": "Thyme, dried",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "vanilla_bean",
+      "display_name": "Vanilla bean",
+      "category": "Spices & Herbs"
+    },
+    {
+      "slug": "almond_butter",
+      "display_name": "Almond butter",
+      "category": "Spreads"
+    },
+    {
+      "slug": "nutella",
+      "display_name": "Hazelnut cocoa spread",
+      "category": "Spreads"
+    },
+    {
+      "slug": "jelly_currant",
+      "display_name": "Jelly, currant",
+      "category": "Spreads"
+    },
+    {
+      "slug": "peanut_butter_crunchy",
+      "display_name": "Peanut butter, crunchy",
+      "category": "Spreads"
+    },
+    {
+      "slug": "peanut_butter_smooth",
+      "display_name": "Peanut butter, smooth",
+      "category": "Spreads"
+    },
+    {
+      "slug": "biscoff_spread",
+      "display_name": "Speculoos cookie butter",
+      "category": "Spreads"
+    },
+    {
+      "slug": "tahini",
+      "display_name": "Tahini",
+      "category": "Spreads"
+    },
+    {
+      "slug": "agave_syrup",
+      "display_name": "Agave syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "brown_rice_syrup",
+      "display_name": "Brown rice syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "corn_syrup_dark",
+      "display_name": "Corn syrup, dark",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "corn_syrup_light",
+      "display_name": "Corn syrup, light",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "demerara_sugar",
+      "display_name": "Demerara sugar",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "glucose_syrup",
+      "display_name": "Glucose syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "golden_syrup",
+      "display_name": "Golden syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "honey",
+      "display_name": "Honey",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "invert_sugar_syrup",
+      "display_name": "Invert sugar syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "malt_syrup",
+      "display_name": "Malt syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "maple_syrup",
+      "display_name": "Maple syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "molasses_blackstrap",
+      "display_name": "Molasses, blackstrap",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "molasses_dark",
+      "display_name": "Molasses, dark",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "molasses_light",
+      "display_name": "Molasses, light",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "muscovado_sugar",
+      "display_name": "Muscovado sugar",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "simple_syrup",
+      "display_name": "Simple syrup",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "sugar_brown_dark",
+      "display_name": "Sugar, brown dark",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "sugar_brown_light",
+      "display_name": "Sugar, brown light",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "sugar_granulated",
+      "display_name": "Sugar, granulated",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "sugar_powdered",
+      "display_name": "Sugar, powdered",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "sugar_superfine",
+      "display_name": "Sugar, superfine",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "sweetener_stevia",
+      "display_name": "Sweetener, stevia",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "swerve_sweetener",
+      "display_name": "Swerve sweetener",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "turbinado_sugar",
+      "display_name": "Turbinado sugar",
+      "category": "Sugars & Sweeteners"
+    },
+    {
+      "slug": "vanilla_sugar",
+      "display_name": "Vanilla sugar",
+      "category": "Sugars & Sweeteners"
+    }
+  ],
+  "count": 339
+}

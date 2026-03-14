@@ -7,6 +7,7 @@ for testing purposes. No UI required - designed for programmatic use.
 
 import json
 import logging
+import re
 from decimal import Decimal
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, date
@@ -4098,6 +4099,33 @@ def import_all_from_json_v4(
                             session.add(ri)
 
                         # T009: Import finished_units[] with yield_mode
+                        # Bug fix: auto-create default finished unit when none provided
+                        if not finished_units_data:
+                            default_fu_name = name
+                            default_fu_slug = (
+                                re.sub(r"[^\w\s-]", "", default_fu_name)
+                                .strip()
+                                .lower()
+                            )
+                            default_fu_slug = re.sub(r"[\s_-]+", "-", default_fu_slug).strip("-")
+                            # Deduplicate slug
+                            base_slug = default_fu_slug
+                            suffix = 0
+                            while session.query(FinishedUnit).filter_by(slug=default_fu_slug).first():
+                                suffix += 1
+                                default_fu_slug = f"{base_slug}-{suffix}"
+
+                            default_fu = FinishedUnit(
+                                recipe_id=recipe.id,
+                                slug=default_fu_slug,
+                                display_name=default_fu_name,
+                                yield_mode=YieldMode.DISCRETE_COUNT,
+                                items_per_batch=1,
+                                item_unit="batch",
+                            )
+                            session.add(default_fu)
+                            result.add_success("finished_unit")
+
                         for fu_data in finished_units_data:
                             fu_slug = fu_data.get("slug")
                             if not fu_slug:

@@ -524,3 +524,148 @@ class TestImportModes:
         updated_flour = session.query(Ingredient).filter_by(slug="flour").first()
         # Note: merge behavior may vary - check actual implementation
         # This test documents expected behavior
+
+
+# ============================================================================
+# Default Finished Unit on Recipe Import
+# ============================================================================
+
+
+class TestRecipeImportDefaultFinishedUnit:
+    """Tests that recipe import auto-creates a default finished unit when none provided."""
+
+    def test_recipe_import_creates_default_finished_unit(self, test_db, tmp_path):
+        """Recipe imported without finished_units gets a default one."""
+        session = test_db()
+
+        # Create ingredient for recipe reference
+        flour = Ingredient(
+            slug="flour", display_name="Flour", category="Dry Goods"
+        )
+        session.add(flour)
+        session.commit()
+
+        # Build import file with recipe that has no finished_units
+        data = {
+            "version": "4.1",
+            "recipes": [
+                {
+                    "name": "Simple Bread",
+                    "category": "Bread",
+                    "is_production_ready": True,
+                    "ingredients": [
+                        {"ingredient_slug": "flour", "quantity": 3, "unit": "cup"}
+                    ],
+                    "components": [],
+                }
+            ],
+        }
+        import_path = tmp_path / "no_fu.json"
+        with open(import_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_all_from_json_v4(str(import_path), mode="merge")
+        assert result.failed == 0, f"Import errors: {result.errors}"
+
+        recipe = session.query(Recipe).filter_by(name="Simple Bread").first()
+        assert recipe is not None
+
+        fus = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).all()
+        assert len(fus) == 1, "Should auto-create one default finished unit"
+        assert fus[0].display_name == "Simple Bread"
+        assert fus[0].yield_mode == YieldMode.DISCRETE_COUNT
+        assert fus[0].items_per_batch == 1
+        assert fus[0].item_unit == "batch"
+
+    def test_recipe_import_with_finished_units_does_not_create_default(
+        self, test_db, tmp_path
+    ):
+        """Recipe imported with explicit finished_units does not get a default."""
+        session = test_db()
+
+        flour = Ingredient(
+            slug="flour", display_name="Flour", category="Dry Goods"
+        )
+        session.add(flour)
+        session.commit()
+
+        data = {
+            "version": "4.1",
+            "recipes": [
+                {
+                    "name": "Cookie Recipe",
+                    "category": "Cookies",
+                    "is_production_ready": True,
+                    "ingredients": [
+                        {"ingredient_slug": "flour", "quantity": 2, "unit": "cup"}
+                    ],
+                    "finished_units": [
+                        {
+                            "name": "Cookie",
+                            "yield_mode": "discrete_count",
+                            "unit_yield_quantity": 24,
+                            "unit_yield_unit": "cookie",
+                        }
+                    ],
+                    "components": [],
+                }
+            ],
+        }
+        import_path = tmp_path / "with_fu.json"
+        with open(import_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_all_from_json_v4(str(import_path), mode="merge")
+        assert result.failed == 0, f"Import errors: {result.errors}"
+
+        recipe = session.query(Recipe).filter_by(name="Cookie Recipe").first()
+        fus = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).all()
+        assert len(fus) == 1
+        assert fus[0].display_name == "Cookie"
+        assert fus[0].items_per_batch == 24
+        assert fus[0].item_unit == "cookie"
+
+    def test_recipe_import_default_fu_slug_dedup(self, test_db, tmp_path):
+        """Default finished unit slug is deduplicated when collision exists."""
+        session = test_db()
+
+        flour = Ingredient(
+            slug="flour", display_name="Flour", category="Dry Goods"
+        )
+        session.add(flour)
+        session.commit()
+
+        data = {
+            "version": "4.1",
+            "recipes": [
+                {
+                    "name": "Test Bread",
+                    "category": "Bread",
+                    "is_production_ready": True,
+                    "ingredients": [
+                        {"ingredient_slug": "flour", "quantity": 3, "unit": "cup"}
+                    ],
+                    "components": [],
+                },
+                {
+                    "name": "Test Bread v2",
+                    "category": "Bread",
+                    "is_production_ready": True,
+                    "ingredients": [
+                        {"ingredient_slug": "flour", "quantity": 4, "unit": "cup"}
+                    ],
+                    "components": [],
+                },
+            ],
+        }
+        import_path = tmp_path / "dedup.json"
+        with open(import_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_all_from_json_v4(str(import_path), mode="merge")
+        assert result.failed == 0, f"Import errors: {result.errors}"
+
+        fus = session.query(FinishedUnit).all()
+        assert len(fus) == 2
+        slugs = {fu.slug for fu in fus}
+        assert len(slugs) == 2, f"Slugs should be unique, got: {slugs}"

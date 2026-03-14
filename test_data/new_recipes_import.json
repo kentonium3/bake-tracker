@@ -1,0 +1,139 @@
+{
+  "recipes": [
+    {
+      "name": "Hot Cross Buns",
+      "category": "Bread",
+      "source": "Martha Stewart Living, April/May",
+      "estimated_time_minutes": 180,
+      "notes": "Makes 24 buns. 1. Generously butter a large bowl. In a small saucepan set over medium heat, heat 1 cup milk until it is warm to the touch. 2. Pour warm milk into the bowl of an electric mixer fitted with the dough hook. With mixer on low, add yeast, granulated sugar, 2 teaspoons salt, melted butter, cinnamon, nutmeg, and beaten eggs. 3. With mixer on low, add flour, 1 cup at a time, until a soft, slightly sticky dough forms around the dough hook, about 3 minutes. [Instructions continue — full recipe at http://www.marthastewart.com/332286/hot-cross-buns]",
+      "is_production_ready": true,
+      "ingredients": [
+        {"ingredient_slug": "butter_unsalted", "quantity": 12, "unit": "tbsp", "notes": "melted and cooled; plus more for bowl and baking sheet"},
+        {"ingredient_slug": "milk_whole", "quantity": 1, "unit": "cup", "notes": "plus 1 tablespoon"},
+        {"ingredient_slug": "yeast_active_dry", "quantity": 2, "unit": "each", "notes": "2 packages"},
+        {"ingredient_slug": "sugar_granulated", "quantity": 0.5, "unit": "cup"},
+        {"ingredient_slug": "salt_fine", "quantity": 2, "unit": "tsp", "notes": "plus 1 pinch, divided"},
+        {"ingredient_slug": "cinnamon_ground", "quantity": 0.75, "unit": "tsp"},
+        {"ingredient_slug": "nutmeg_ground", "quantity": 0.75, "unit": "tsp", "notes": "freshly grated"},
+        {"ingredient_slug": "eggs_whole", "quantity": 4, "unit": "each", "notes": "large, lightly beaten"},
+        {"ingredient_slug": "flour_all_purpose", "quantity": 5.5, "unit": "cup", "notes": "plus more for dusting"},
+        {"ingredient_slug": "currants_dried", "quantity": 1.33, "unit": "cup"},
+        {"ingredient_slug": "egg_whites", "quantity": 1, "unit": "each", "notes": "large; for cross icing"},
+        {"ingredient_slug": "sugar_powdered", "quantity": 2, "unit": "cup", "notes": "for cross icing"},
+        {"ingredient_slug": "lemon_juice", "quantity": 2, "unit": "tbsp", "notes": "freshly squeezed; for cross icing"}
+      ],
+      "components": []
+    },
+    {
+      "name": "Browned Butter, Mini Egg, and Chocolate Chunk Cookies",
+      "category": "Cookies",
+      "source": "Bake From Scratch",
+      "estimated_time_minutes": 90,
+      "notes": "Makes about 20 cookies. 1. Line a rimmed baking sheet with parchment paper. 2. In a medium saucepan, melt butter over medium heat. Cook until butter turns a medium-brown color and has a nutty aroma, about 10 minutes. Remove from heat and pour into a medium bowl. Place bowl in a large bowl full of ice water. Let cool, stirring every 5 minutes, until butter solidifies. 3. In the bowl of a stand mixer fitted with the paddle attachment, beat browned butter and sugars at medium speed until fluffy, 2 to 3 minutes, stopping to scrape sides of bowl. Add eggs and egg yolk one at a time, beating well after each addition. Beat in vanilla. 4. In a medium bowl, whisk together flour, kosher salt, and baking soda. With mixer on low speed, gradually add flour mixture to butter mixture, beating just until combined. Beat in 1 cup (163g) of the crushed candy-coated milk chocolate eggs and all the chocolate chunks.",
+      "is_production_ready": true,
+      "ingredients": [
+        {"ingredient_slug": "butter_unsalted", "quantity": 1, "unit": "cup", "notes": "227g"},
+        {"ingredient_slug": "sugar_granulated", "quantity": 0.75, "unit": "cup", "notes": "150g"},
+        {"ingredient_slug": "sugar_brown_light", "quantity": 0.5, "unit": "cup", "notes": "110g, firmly packed"},
+        {"ingredient_slug": "eggs_whole", "quantity": 2, "unit": "each", "notes": "large, 100g"},
+        {"ingredient_slug": "egg_yolks", "quantity": 1, "unit": "each", "notes": "large, 19g"},
+        {"ingredient_slug": "vanilla_extract", "quantity": 1, "unit": "tsp", "notes": "4g"},
+        {"ingredient_slug": "flour_all_purpose", "quantity": 2.75, "unit": "cup", "notes": "344g"},
+        {"ingredient_slug": "salt_kosher", "quantity": 1, "unit": "tsp", "notes": "3g"},
+        {"ingredient_slug": "baking_soda", "quantity": 0.75, "unit": "tsp", "notes": "3.75g"},
+        {"ingredient_slug": "candy_coated_milk_chocolate_eggs", "quantity": 1.75, "unit": "cup", "notes": "1 cup (163g) crushed into dough + 0.75 cup (157g) lightly crushed for topping; divided"},
+        {"ingredient_slug": "chocolate_chunks_semi_sweet", "quantity": 1, "unit": "cup", "notes": "163g"},
+        {"ingredient_slug": "sea_salt_flaky", "quantity": 0.25, "unit": "tsp", "notes": "garnish, to taste"}
+      ],
+      "components": []
+    },
+    {
+      "name": "Miniature Cream Scones with Currants",
+      "category": "Scones",
+      "source": "Gourmet, March 1990",
+      "estimated_time_minutes": 35,
+      "notes": "Makes about 16 miniature scones. In a bowl whisk together the cream, the egg, the vanilla, and 3 tablespoons of the sugar until well combined. In another bowl stir together the flour, the salt, the baking powder, and the baking soda and blend in the butter until the mixture resembles coarse meal. Stir in the currants and the cream mixture with a fork until the mixture just forms a sticky but manageable dough. Knead the dough gently on a lightly floured surface for 30 seconds, pat it into a 1/2-inch-thick round, and with a 1.5-inch fluted cutter cut it into rounds. Gather the scraps, repat the dough, and cut out more rounds. On an ungreased baking sheet brush the scones with the additional cream and sprinkle them with the additional sugar. Bake in the middle of a preheated 400F oven for 15 to 18 minutes, or until golden.",
+      "is_production_ready": true,
+      "ingredients": [
+        {"ingredient_slug": "cream_heavy", "quantity": 0.5, "unit": "cup", "notes": "plus additional for brushing"},
+        {"ingredient_slug": "eggs_whole", "quantity": 1, "unit": "each", "notes": "large"},
+        {"ingredient_slug": "vanilla_extract", "quantity": 1, "unit": "tsp"},
+        {"ingredient_slug": "sugar_granulated", "quantity": 3, "unit": "tbsp", "notes": "plus additional for sprinkling"},
+        {"ingredient_slug": "cake_flour", "quantity": 2.25, "unit": "cup", "notes": "not self-rising"},
+        {"ingredient_slug": "salt_fine", "quantity": 0.5, "unit": "tsp"},
+        {"ingredient_slug": "baking_powder", "quantity": 1, "unit": "tbsp", "notes": "double-acting"},
+        {"ingredient_slug": "baking_soda", "quantity": 0.5, "unit": "tsp"},
+        {"ingredient_slug": "butter_unsalted", "quantity": 6, "unit": "tbsp", "notes": "cold, cut into bits (3/4 stick)"},
+        {"ingredient_slug": "currants_dried", "quantity": 0.5, "unit": "cup"}
+      ],
+      "components": []
+    },
+    {
+      "name": "Cheddar, Bacon, and Fresh Chive Biscuits",
+      "category": "Scones",
+      "source": "Bon Appetit, February 2010",
+      "estimated_time_minutes": 55,
+      "notes": "Makes 12. Prep 25 minutes, Total 55 minutes. Great for sandwiches -- split in half, slather with Dijon, pile on thinly sliced ham, and add a lettuce leaf. Position rack just above center of oven. [Instructions not fully visible in source image -- see source: Bon Appetit, February 2010]",
+      "is_production_ready": false,
+      "ingredients": [
+        {"ingredient_slug": "bacon_thick_cut", "quantity": 6, "unit": "each", "notes": "thick-cut bacon slices"},
+        {"ingredient_slug": "bread_flour", "quantity": 3.75, "unit": "cup"},
+        {"ingredient_slug": "baking_powder", "quantity": 1.5, "unit": "tbsp"},
+        {"ingredient_slug": "baking_soda", "quantity": 1.5, "unit": "tsp"},
+        {"ingredient_slug": "salt_fine", "quantity": 1.25, "unit": "tsp"},
+        {"ingredient_slug": "butter_unsalted", "quantity": 0.5, "unit": "cup", "notes": "1 stick, chilled, cut into 1/2-inch cubes; plus melted butter for brushing"},
+        {"ingredient_slug": "cheddar_cheese", "quantity": 2.5, "unit": "cup", "notes": "coarsely grated sharp cheddar, packed; about 12 oz"},
+        {"ingredient_slug": "chives_fresh", "quantity": 0.33, "unit": "cup", "notes": "chopped"},
+        {"ingredient_slug": "milk_buttermilk", "quantity": 1.75, "unit": "cup", "notes": "chilled"},
+        {"ingredient_slug": "honey", "quantity": 1, "unit": "tbsp", "notes": "optional, for serving"}
+      ],
+      "components": []
+    },
+    {
+      "name": "Strawberry Basil Scones",
+      "category": "Scones",
+      "source": "Bake From Scratch",
+      "estimated_time_minutes": 40,
+      "notes": "Makes 12. Welcome the year's first haul of strawberries with these tender basil-scented scones. Sprinkle with sanding sugar for a breakfast that sparkles. 1. Preheat oven to 400F (200C). Line a baking sheet with parchment paper. [Instructions continue beyond visible image -- see source: Bake From Scratch]",
+      "is_production_ready": true,
+      "ingredients": [
+        {"ingredient_slug": "flour_all_purpose", "quantity": 4, "unit": "cup", "notes": "500g"},
+        {"ingredient_slug": "sugar_granulated", "quantity": 0.5, "unit": "cup", "notes": "100g"},
+        {"ingredient_slug": "baking_powder", "quantity": 1, "unit": "tbsp", "notes": "15g"},
+        {"ingredient_slug": "salt_kosher", "quantity": 0.75, "unit": "tsp", "notes": "2.25g"},
+        {"ingredient_slug": "butter_unsalted", "quantity": 0.75, "unit": "cup", "notes": "170g, cold, grated"},
+        {"ingredient_slug": "strawberries", "quantity": 1, "unit": "cup", "notes": "147g, diced fresh"},
+        {"ingredient_slug": "basil_fresh", "quantity": 2, "unit": "tbsp", "notes": "4g, chopped"},
+        {"ingredient_slug": "milk_whole", "quantity": 0.75, "unit": "cup", "notes": "180g"},
+        {"ingredient_slug": "eggs_whole", "quantity": 2, "unit": "each", "notes": "large, 100g, divided"},
+        {"ingredient_slug": "cream_heavy", "quantity": 1, "unit": "tbsp", "notes": "15g, for egg wash"},
+        {"ingredient_slug": "sanding_sugar", "quantity": 1, "unit": "tbsp", "notes": "garnish"}
+      ],
+      "components": []
+    },
+    {
+      "name": "Gruyere Prosciutto Scones",
+      "category": "Scones",
+      "source": "Bake From Scratch",
+      "estimated_time_minutes": 40,
+      "notes": "Makes 8. A sophisticated reboot of the classic ham and cheese coupling -- nutty Gruyere with the salty punch of prosciutto. Fresh dill introduces a taste of the season's bounty. [Full instructions not visible in source image -- see source: Bake From Scratch]",
+      "is_production_ready": false,
+      "ingredients": [
+        {"ingredient_slug": "flour_all_purpose", "quantity": 3, "unit": "cup", "notes": "375g"},
+        {"ingredient_slug": "sugar_granulated", "quantity": 0.25, "unit": "cup", "notes": "50g"},
+        {"ingredient_slug": "baking_powder", "quantity": 1, "unit": "tbsp", "notes": "15g"},
+        {"ingredient_slug": "salt_kosher", "quantity": 0.75, "unit": "tsp", "notes": "2.25g"},
+        {"ingredient_slug": "pepper_black_ground", "quantity": 0.5, "unit": "tsp", "notes": "1g; plus more for garnish"},
+        {"ingredient_slug": "butter_unsalted", "quantity": 0.5, "unit": "cup", "notes": "113g, cold, grated"},
+        {"ingredient_slug": "gruyere_cheese", "quantity": 0.5, "unit": "cup", "notes": "50g, freshly grated"},
+        {"ingredient_slug": "prosciutto", "quantity": 0.25, "unit": "lb", "notes": "115g, chopped"},
+        {"ingredient_slug": "dill_fresh", "quantity": 2, "unit": "tbsp", "notes": "4g, chopped"},
+        {"ingredient_slug": "milk_whole", "quantity": 1, "unit": "cup", "notes": "240g"},
+        {"ingredient_slug": "eggs_whole", "quantity": 2, "unit": "each", "notes": "large, 100g, divided"},
+        {"ingredient_slug": "cream_heavy", "quantity": 1, "unit": "tbsp", "notes": "15g, for egg wash"},
+        {"ingredient_slug": "sea_salt_flaky", "quantity": 0.25, "unit": "tsp", "notes": "garnish"}
+      ],
+      "components": []
+    }
+  ]
+}
