@@ -108,7 +108,7 @@ class FGSelectionFrame(ctk.CTkFrame):
         ctk.CTkLabel(cat_row, text="Recipe Category:", width=120, anchor="w").pack(
             side="left"
         )
-        self._recipe_cat_var = ctk.StringVar(value="")
+        self._recipe_cat_var = ctk.StringVar(value="All Categories")
         self._recipe_cat_dropdown = ctk.CTkComboBox(
             cat_row,
             variable=self._recipe_cat_var,
@@ -125,7 +125,7 @@ class FGSelectionFrame(ctk.CTkFrame):
         ctk.CTkLabel(type_row, text="Item Type:", width=120, anchor="w").pack(
             side="left"
         )
-        self._item_type_var = ctk.StringVar(value="")
+        self._item_type_var = ctk.StringVar(value="All Types")
         self._item_type_dropdown = ctk.CTkComboBox(
             type_row,
             variable=self._item_type_var,
@@ -142,7 +142,7 @@ class FGSelectionFrame(ctk.CTkFrame):
         ctk.CTkLabel(yield_row, text="Yield Type:", width=120, anchor="w").pack(
             side="left"
         )
-        self._yield_type_var = ctk.StringVar(value="")
+        self._yield_type_var = ctk.StringVar(value="All Yields")
         self._yield_type_dropdown = ctk.CTkComboBox(
             yield_row,
             variable=self._yield_type_var,
@@ -225,10 +225,10 @@ class FGSelectionFrame(ctk.CTkFrame):
         else:
             self._header_label.configure(text="Select Finished Goods")
 
-        # Reset filter dropdowns
-        self._recipe_cat_var.set("")
-        self._item_type_var.set("")
-        self._yield_type_var.set("")
+        # Reset filter dropdowns to sensible defaults
+        self._recipe_cat_var.set("All Categories")
+        self._item_type_var.set("All Types")
+        self._yield_type_var.set("All Yields")
 
         # Populate recipe category dropdown from canonical table
         with session_scope() as session:
@@ -748,10 +748,10 @@ class FGSelectionFrame(ctk.CTkFrame):
         self._quantity_entries.clear()
         self._feedback_labels.clear()
 
-        # Reset filter dropdowns
-        self._recipe_cat_var.set("")
-        self._item_type_var.set("")
-        self._yield_type_var.set("")
+        # Reset filter dropdowns to sensible defaults
+        self._recipe_cat_var.set("All Categories")
+        self._item_type_var.set("All Types")
+        self._yield_type_var.set("All Yields")
 
         # Exit show-selected mode if active
         self._show_selected_only = False
