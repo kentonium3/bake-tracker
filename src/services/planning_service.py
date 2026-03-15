@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 from src.models import (
     Event,
     EventFinishedGood,
+    EventRecipe,
     FinishedGood,
     FinishedUnit,
     Recipe,
@@ -34,6 +35,7 @@ from src.services.event_service import (
     CircularReferenceError,
     MaxDepthExceededError,
     MAX_FG_NESTING_DEPTH,
+    get_event_recipe_ids,
 )
 from src.services.exceptions import ValidationError
 from src.models.finished_unit import YieldMode
@@ -102,6 +104,9 @@ def _decompose_event_to_fu_requirements_impl(
     if not efgs:
         return []
 
+    # Get selected recipe IDs for defense-in-depth filtering
+    selected_recipe_ids = set(get_event_recipe_ids(session, event_id))
+
     # Collect FU requirements across all FG selections (no aggregation)
     result: List[FURequirement] = []
     for efg in efgs:
@@ -113,6 +118,12 @@ def _decompose_event_to_fu_requirements_impl(
             0,  # Start at depth 0
         )
         result.extend(fu_requirements)
+
+    # Defense-in-depth: exclude FU requirements for deselected recipes.
+    # Only filter when EventRecipes exist (recipes have been explicitly selected).
+    # If no EventRecipes exist, skip filtering (backward compat, no recipe selection step).
+    if selected_recipe_ids:
+        result = [req for req in result if req.recipe.id in selected_recipe_ids]
 
     return result
 

@@ -4124,7 +4124,32 @@ def import_all_from_json_v4(
                                 item_unit="batch",
                             )
                             session.add(default_fu)
+                            session.flush()
                             result.add_success("finished_unit")
+
+                            # Create bare FinishedGood + Composition link
+                            from src.models.assembly_type import AssemblyType
+
+                            fg_slug = default_fu_slug
+                            fg_base = fg_slug
+                            fg_suffix = 0
+                            while session.query(FinishedGood).filter_by(slug=fg_slug).first():
+                                fg_suffix += 1
+                                fg_slug = f"{fg_base}-{fg_suffix}"
+                            bare_fg = FinishedGood(
+                                slug=fg_slug,
+                                display_name=default_fu_name,
+                                assembly_type=AssemblyType.BARE,
+                            )
+                            session.add(bare_fg)
+                            session.flush()
+                            comp_link = Composition(
+                                assembly_id=bare_fg.id,
+                                finished_unit_id=default_fu.id,
+                                component_quantity=1,
+                            )
+                            session.add(comp_link)
+                            result.add_success("finished_good")
 
                         for fu_data in finished_units_data:
                             fu_slug = fu_data.get("slug")
@@ -4181,7 +4206,32 @@ def import_all_from_json_v4(
                                     finished_unit.portion_description = fu_data["unit_yield_unit"]
 
                             session.add(finished_unit)
+                            session.flush()
                             result.add_success("finished_unit")
+
+                            # Create bare FinishedGood + Composition link for this FU
+                            from src.models.assembly_type import AssemblyType
+
+                            explicit_fg_slug = fu_slug
+                            explicit_fg_base = explicit_fg_slug
+                            explicit_fg_suffix = 0
+                            while session.query(FinishedGood).filter_by(slug=explicit_fg_slug).first():
+                                explicit_fg_suffix += 1
+                                explicit_fg_slug = f"{explicit_fg_base}-{explicit_fg_suffix}"
+                            explicit_bare_fg = FinishedGood(
+                                slug=explicit_fg_slug,
+                                display_name=fu_data.get("name", name),
+                                assembly_type=AssemblyType.BARE,
+                            )
+                            session.add(explicit_bare_fg)
+                            session.flush()
+                            explicit_comp = Composition(
+                                assembly_id=explicit_bare_fg.id,
+                                finished_unit_id=finished_unit.id,
+                                component_quantity=1,
+                            )
+                            session.add(explicit_comp)
+                            result.add_success("finished_good")
 
                         result.add_success("recipe")
                     except (ServiceError, Exception) as e:

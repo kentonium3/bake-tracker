@@ -577,6 +577,19 @@ class TestRecipeImportDefaultFinishedUnit:
         assert fus[0].items_per_batch == 1
         assert fus[0].item_unit == "batch"
 
+        # Verify bare FinishedGood + Composition link was also created
+        from src.models.composition import Composition
+        from src.models.finished_good import FinishedGood as FG
+
+        comp = session.query(Composition).filter_by(
+            finished_unit_id=fus[0].id
+        ).first()
+        assert comp is not None, "Should create Composition link for default FU"
+        assert comp.assembly_id is not None
+        fg = session.query(FG).filter_by(id=comp.assembly_id).first()
+        assert fg is not None, "Should create bare FinishedGood for default FU"
+        assert fg.display_name == "Simple Bread"
+
     def test_recipe_import_with_finished_units_does_not_create_default(
         self, test_db, tmp_path
     ):

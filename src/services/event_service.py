@@ -554,6 +554,121 @@ def get_filtered_available_fgs(
     return result
 
 
+def get_finished_units_for_event_recipes(
+    event_id: int,
+    session: Session,
+    recipe_category: Optional[str] = None,
+    yield_type: Optional[str] = None,
+) -> List[FinishedUnit]:
+    """
+    Get all finished units whose recipe is selected for the event.
+
+    Unlike get_available_finished_goods() which requires ALL component recipes
+    to be selected (designed for assembly availability), this function returns
+    finished units based on simple recipe membership in the event's selections.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
+    Args:
+        event_id: Event to get finished units for
+        session: Database session
+        recipe_category: Optional filter by recipe category name
+        yield_type: Optional filter by yield_type ("EA" or "SERVING")
+
+    Returns:
+        List of FinishedUnit objects for selected recipes
+
+    Raises:
+        ValidationError: If event_id not found
+    """
+    # Validate event exists
+    event = session.query(Event).filter(Event.id == event_id).first()
+    if event is None:
+        raise ValidationError([f"Event {event_id} not found"])
+
+    # Build query: FinishedUnit -> Recipe -> EventRecipe
+    query = (
+        session.query(FinishedUnit)
+        .join(Recipe, FinishedUnit.recipe_id == Recipe.id)
+        .join(EventRecipe, EventRecipe.recipe_id == Recipe.id)
+        .filter(EventRecipe.event_id == event_id)
+    )
+
+    if recipe_category:
+        query = query.filter(Recipe.category == recipe_category)
+
+    if yield_type:
+        query = query.filter(FinishedUnit.yield_type == yield_type)
+
+    query = query.order_by(Recipe.category, Recipe.name, FinishedUnit.display_name)
+
+    return query.all()
+
+
+def get_fgs_for_selected_recipes(
+    event_id: int,
+    session: Session,
+    recipe_category: Optional[str] = None,
+    item_type: Optional[str] = None,
+    yield_type: Optional[str] = None,
+) -> List[FinishedGood]:
+    """
+    Get FinishedGoods for recipes selected in an event.
+
+    Maps finished units back to their parent FinishedGood (bare) objects
+    to maintain compatibility with the UI which works with FinishedGood objects.
+
+    Transaction boundary: Inherits session from caller (required parameter).
+    Read-only query within the caller's transaction scope.
+
+    Args:
+        event_id: Event to get FGs for
+        session: Database session
+        recipe_category: Optional filter by recipe category name
+        item_type: Optional filter - "Finished Units" or "Assemblies"
+        yield_type: Optional filter by yield_type ("EA" or "SERVING")
+
+    Returns:
+        List of FinishedGood objects for selected recipes (deduplicated)
+
+    Raises:
+        ValidationError: If event_id not found
+    """
+    finished_units = get_finished_units_for_event_recipes(
+        event_id, session, recipe_category, yield_type
+    )
+
+    if not finished_units:
+        return []
+
+    # Map each FinishedUnit to its parent bare FinishedGood via Composition
+    seen_fg_ids: Set[int] = set()
+    result: List[FinishedGood] = []
+
+    for fu in finished_units:
+        # Find the Composition that links this FU to a FinishedGood
+        comp = (
+            session.query(Composition)
+            .filter(Composition.finished_unit_id == fu.id)
+            .filter(Composition.assembly_id.isnot(None))
+            .first()
+        )
+        if comp and comp.assembly_id not in seen_fg_ids:
+            fg = session.query(FinishedGood).filter_by(id=comp.assembly_id).first()
+            if fg:
+                seen_fg_ids.add(fg.id)
+                result.append(fg)
+
+    # Apply item_type filter
+    if item_type == "Finished Units":
+        result = [fg for fg in result if fg.assembly_type == AssemblyType.BARE]
+    elif item_type == "Assemblies":
+        result = [fg for fg in result if fg.assembly_type == AssemblyType.BUNDLE]
+
+    return result
+
+
 def get_available_recipe_categories_for_event(
     event_id: int,
     session: Session,
@@ -635,23 +750,30 @@ def remove_invalid_fg_selections(
     removed_fgs: List[RemovedFGInfo] = []
 
     for efg in current_fg_selections:
-        result = check_fg_availability(efg.finished_good_id, selected_recipe_ids, session)
+        fg = session.query(FinishedGood).filter_by(id=efg.finished_good_id).first()
+        if not fg:
+            session.delete(efg)
+            continue
 
-        if not result.is_available:
-            # Get recipe names for notification
-            missing_recipe_names = []
-            if result.missing_recipe_ids:
-                recipes = (
-                    session.query(Recipe)
-                    .filter(Recipe.id.in_(result.missing_recipe_ids))
-                    .all()
-                )
-                missing_recipe_names = [r.name for r in recipes]
+        # Check if any component FU's recipe is still selected
+        has_valid_recipe = False
+        missing_recipe_names = []
 
+        for comp in fg.components:
+            if comp.finished_unit_id and comp.finished_unit_component:
+                fu = comp.finished_unit_component
+                if fu.recipe_id in selected_recipe_ids:
+                    has_valid_recipe = True
+                else:
+                    # Track the missing recipe name for notification
+                    if fu.recipe:
+                        missing_recipe_names.append(fu.recipe.name)
+
+        if not has_valid_recipe:
             removed_fgs.append(
                 RemovedFGInfo(
-                    fg_id=result.fg_id,
-                    fg_name=result.fg_name,
+                    fg_id=fg.id,
+                    fg_name=fg.display_name,
                     missing_recipes=missing_recipe_names,
                 )
             )

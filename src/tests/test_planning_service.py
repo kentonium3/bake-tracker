@@ -27,6 +27,7 @@ from src.services.event_service import CircularReferenceError
 from src.services.exceptions import ValidationError
 from src.models.event import Event
 from src.models.event_finished_good import EventFinishedGood
+from src.models.event_recipe import EventRecipe
 from src.models.finished_good import FinishedGood
 from src.models.finished_unit import FinishedUnit
 from src.models.composition import Composition
@@ -160,6 +161,24 @@ def bundle_finished_good(test_db, test_finished_unit, second_finished_unit):
     test_db.flush()
 
     return fg
+
+
+@pytest.fixture
+def event_recipe_link(test_db, planning_event, test_recipe):
+    """Link test recipe to planning event via EventRecipe (Feature 103)."""
+    er = EventRecipe(event_id=planning_event.id, recipe_id=test_recipe.id)
+    test_db.add(er)
+    test_db.flush()
+    return er
+
+
+@pytest.fixture
+def event_second_recipe_link(test_db, planning_event, second_recipe):
+    """Link second recipe to planning event via EventRecipe (Feature 103)."""
+    er = EventRecipe(event_id=planning_event.id, recipe_id=second_recipe.id)
+    test_db.add(er)
+    test_db.flush()
+    return er
 
 
 # ============================================================================
