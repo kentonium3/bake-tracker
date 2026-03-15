@@ -1,4 +1,4 @@
-# F103: Production-Aware Planning Calculations
+# F104: Production-Aware Planning Calculations
 
 **Version**: 1.0
 **Priority**: HIGH
