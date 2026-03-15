@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-title: "Service Layer Fixes"
-phase: "Phase 1 - Service Layer"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+work_package_id: WP01
+title: Service Layer Fixes
+lane: "doing"
 dependencies: []
+base_branch: main
+base_commit: 745d7a2241df121c90969d93eeb48b50c255311e
+created_at: '2026-03-15T04:48:49.787341+00:00'
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Service Layer
+assignee: ''
+agent: ''
+shell_pid: "25482"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-15T04:45:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-15T04:45:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 -- Service Layer Fixes
