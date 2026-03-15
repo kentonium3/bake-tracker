@@ -1,0 +1,8 @@
+{
+  "feature_id": "WEB-001",
+  "title": "Web Foundation",
+  "status": "draft",
+  "created": "2026-03-10",
+  "parent": "WEB-000",
+  "type": "feature"
+}
