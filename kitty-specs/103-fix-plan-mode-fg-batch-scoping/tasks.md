@@ -19,11 +19,11 @@
 **Estimated size**: ~400 lines
 
 ### Included Subtasks
-- [ ] T001 Create `get_finished_units_for_event_recipes()` in `src/services/event_service.py`
-- [ ] T002 Create wrapper `get_fgs_for_selected_recipes()` that maps FinishedUnits back to FinishedGoods
-- [ ] T003 Simplify `remove_invalid_fg_selections()` to use direct recipe_id check
-- [ ] T004 Add recipe-scoping filter to `decompose_event_to_fu_requirements()` in `src/services/planning_service.py`
-- [ ] T005 Write tests for all three fixes
+- [x] T001 Create `get_finished_units_for_event_recipes()` in `src/services/event_service.py`
+- [x] T002 Create wrapper `get_fgs_for_selected_recipes()` that maps FinishedUnits back to FinishedGoods
+- [x] T003 Simplify `remove_invalid_fg_selections()` to use direct recipe_id check
+- [x] T004 Add recipe-scoping filter to `decompose_event_to_fu_requirements()` in `src/services/planning_service.py`
+- [x] T005 Write tests for all three fixes
 
 ### Implementation Notes
 - T001: Join FinishedUnit -> Recipe -> EventRecipe, with optional category/yield_type filters
