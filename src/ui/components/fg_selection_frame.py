@@ -11,7 +11,7 @@ from typing import Callable, Dict, List, Optional, Set, Tuple
 import customtkinter as ctk
 
 from src.models.finished_good import FinishedGood
-from src.services import event_service
+from src.services import event_service, recipe_category_service
 from src.services.database import session_scope
 
 
@@ -230,12 +230,10 @@ class FGSelectionFrame(ctk.CTkFrame):
         self._item_type_var.set("")
         self._yield_type_var.set("")
 
-        # Populate recipe category dropdown from service
+        # Populate recipe category dropdown from canonical table
         with session_scope() as session:
-            categories = event_service.get_available_recipe_categories_for_event(
-                event_id, session
-            )
-        cat_values = ["All Categories"] + categories
+            categories = recipe_category_service.list_categories(session=session)
+        cat_values = ["All Categories"] + [c.name for c in categories]
         self._recipe_cat_dropdown.configure(values=cat_values)
 
         # Show placeholder (blank start)
