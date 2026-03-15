@@ -292,23 +292,19 @@ class FGSelectionFrame(ctk.CTkFrame):
 
         # Convert display values to service parameters
         cat_param = None if recipe_cat in ("", "All Categories") else recipe_cat
-        type_param = None
-        if item_type == "Finished Units":
-            type_param = "bare"
-        elif item_type == "Assemblies":
-            type_param = "bundle"
+        type_param = None if item_type in ("", "All Types") else item_type
         yield_param = None if yield_type in ("", "All Yields") else yield_type
 
         # Save current selections before re-render
         self._save_current_selections()
 
-        # Query service
+        # Query service - uses recipe-scoped FG query (Feature 103)
         with session_scope() as session:
-            fgs = event_service.get_filtered_available_fgs(
+            fgs = event_service.get_fgs_for_selected_recipes(
                 self._event_id,
                 session,
                 recipe_category=cat_param,
-                assembly_type=type_param,
+                item_type=type_param,
                 yield_type=yield_param,
             )
 
