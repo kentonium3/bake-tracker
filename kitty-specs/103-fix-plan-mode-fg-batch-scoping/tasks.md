@@ -52,9 +52,9 @@
 **Estimated size**: ~250 lines
 
 ### Included Subtasks
-- [ ] T006 Update `fg_selection_frame.py` to call `get_fgs_for_selected_recipes()` instead of `get_filtered_available_fgs()`
-- [ ] T007 Verify filter dropdowns (category, item type, yield type) work with new service call
-- [ ] T008 Manual verification checklist: end-to-end planning flow with Easter 2026 event
+- [x] T006 Update `fg_selection_frame.py` to call `get_fgs_for_selected_recipes()` instead of `get_filtered_available_fgs()`
+- [x] T007 Verify filter dropdowns (category, item type, yield type) work with new service call
+- [x] T008 Manual verification checklist: end-to-end planning flow with Easter 2026 event
 
 ### Implementation Notes
 - T006: Replace `event_service.get_filtered_available_fgs()` call in `_on_filter_change()` with new function
