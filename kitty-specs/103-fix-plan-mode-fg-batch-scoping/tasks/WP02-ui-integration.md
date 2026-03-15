@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: UI Integration
-lane: "for_review"
+lane: "doing"
 dependencies: [WP01]
 base_branch: 103-fix-plan-mode-fg-batch-scoping-WP01
 base_commit: f8eb27c4e90fcf5073e82aca88610f9e25e44a88
@@ -13,7 +13,7 @@ subtasks:
 phase: Phase 2 - UI Integration
 assignee: ''
 agent: "claude-opus"
-shell_pid: "29384"
+shell_pid: "30464"
 review_status: ''
 reviewed_by: ''
 history:
@@ -192,3 +192,4 @@ To change a work package's lane, either:
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 - 2026-03-15T04:59:04Z – claude-opus – shell_pid=29384 – lane=doing – Assigned agent via workflow command
 - 2026-03-15T05:00:11Z – claude-opus – shell_pid=29384 – lane=for_review – Ready for review: UI wired to new recipe-scoped FG query. Manual testing needed (T008).
+- 2026-03-15T05:01:07Z – claude-opus – shell_pid=30464 – lane=doing – Started review via workflow command
