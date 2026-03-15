@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Layer Fixes
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 745d7a2241df121c90969d93eeb48b50c255311e
@@ -303,3 +303,4 @@ To change a work package's lane, either:
 
 **Valid lanes**: `planned`, `doing`, `for_review`, `done`
 - 2026-03-15T04:48:50Z – claude-opus – shell_pid=25482 – lane=doing – Assigned agent via workflow command
+- 2026-03-15T04:57:45Z – claude-opus – shell_pid=25482 – lane=for_review – Ready for review: new FG query, simplified cleanup, conditional batch filter, 13 tests all passing, 22 existing planning tests passing
