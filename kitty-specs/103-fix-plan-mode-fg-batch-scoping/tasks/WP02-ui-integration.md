@@ -1,24 +1,27 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: UI Integration
+lane: "doing"
+dependencies: [WP01]
+base_branch: 103-fix-plan-mode-fg-batch-scoping-WP01
+base_commit: f8eb27c4e90fcf5073e82aca88610f9e25e44a88
+created_at: '2026-03-15T04:59:04.129980+00:00'
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-title: "UI Integration"
-phase: "Phase 2 - UI Integration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+phase: Phase 2 - UI Integration
+assignee: ''
+agent: ''
+shell_pid: "29384"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-03-15T04:45:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-03-15T04:45:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 -- UI Integration
