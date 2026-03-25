@@ -2,23 +2,24 @@
 work_package_id: WP02
 title: Inventory-Purchase Service Integration
 lane: done
+dependencies: []
+subtasks:
+- T004
+- T005
+- T006
+- T007
+phase: Phase 1 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: reconciled
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-22T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Service Layer
-review_status: ''
-reviewed_by: ''
-shell_pid: reconciled
-subtasks:
-- T004
-- T005
-- T006
-- T007
 ---
 
 # Work Package Prompt: WP02 - Inventory-Purchase Service Integration

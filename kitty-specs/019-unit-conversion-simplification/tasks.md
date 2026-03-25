@@ -19,7 +19,7 @@
 
 **Goal**: Delete UnitConversion model and remove recipe_unit column from Ingredient.
 **Independent Test**: Application starts without import errors; `from src.models import *` succeeds.
-**Prompt**: `tasks/done/WP01-model-schema-deletion.md`
+**Prompt**: `tasks/WP01-model-schema-deletion.md`
 
 ### Included Subtasks
 - [X] T001 Delete `src/models/unit_conversion.py` entirely
@@ -49,7 +49,7 @@
 
 **Goal**: Update import/export service to v3.3 format without unit_conversions.
 **Independent Test**: Export produces JSON without `unit_conversions` array; import rejects v3.2 files.
-**Prompt**: `tasks/done/WP02-import-export-v33.md`
+**Prompt**: `tasks/WP02-import-export-v33.md`
 
 ### Included Subtasks
 - [X] T005 Update `src/services/import_export_service.py` - remove `from src.models.unit_conversion import UnitConversion`
@@ -80,7 +80,7 @@
 
 **Goal**: Remove all recipe_unit and UnitConversion references from service layer.
 **Independent Test**: All services import cleanly; no undefined attribute errors.
-**Prompt**: `tasks/done/WP03-service-layer-cleanup.md`
+**Prompt**: `tasks/WP03-service-layer-cleanup.md`
 
 ### Included Subtasks
 - [X] T011 Update `src/services/unit_converter.py` - rename `recipe_unit` param to `target_unit` in `format_ingredient_conversion()`
@@ -113,7 +113,7 @@
 
 **Goal**: Update tests for model changes; add conversion accuracy tests.
 **Independent Test**: `pytest src/tests -v` passes; coverage >70% on affected services.
-**Prompt**: `tasks/done/WP04-test-updates.md`
+**Prompt**: `tasks/WP04-test-updates.md`
 
 ### Included Subtasks
 - [X] T019 Remove/update tests in `src/tests/test_models.py` for UnitConversion
@@ -145,7 +145,7 @@
 
 **Goal**: Update test data to v3.3 format; update all documentation; clean up UI.
 **Independent Test**: JSON files parse correctly; documentation is consistent; app runs without UI errors.
-**Prompt**: `tasks/done/WP05-data-docs-ui.md`
+**Prompt**: `tasks/WP05-data-docs-ui.md`
 
 ### Included Subtasks
 - [X] T024 Convert `test_data/baking_ingredients_v32.json` to v3.3 (N/A in worktree - will handle at merge)
@@ -223,3 +223,12 @@ WP01 (Model Deletion) ─┬─► WP02 (Import/Export v3.3)
 | T029 | Clean inventory_tab.py | WP05 | P3 | Yes |
 | T030 | Clean recipe_form.py | WP05 | P3 | Yes |
 | T031 | Clean event_detail_window.py | WP05 | P3 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

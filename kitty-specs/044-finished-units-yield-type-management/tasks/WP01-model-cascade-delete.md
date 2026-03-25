@@ -1,21 +1,22 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Model - Cascade Delete
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-title: "Model - Cascade Delete"
-phase: "Phase 1 - Parallel Foundation"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+phase: Phase 1 - Parallel Foundation
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-09T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Model - Cascade Delete

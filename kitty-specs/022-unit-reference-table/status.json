@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "022-unit-reference-table",
+  "last_event_id": "01KMKK28XJMQ17PW8BEPGQGKFK",
+  "materialized_at": "2026-03-25T22:50:30.424943+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28X0D32MAMJPMQQX38HY",
+      "last_transition_at": "2025-12-16T16:56:32Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28X41NASD9NNGCA4T23K",
+      "last_transition_at": "2025-12-16T16:56:32Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28X9YFK4V70D6DTEBAZ3",
+      "last_transition_at": "2025-12-16T16:56:32Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28XEPTEFMRCRXZZ6CS4V",
+      "last_transition_at": "2025-12-16T16:56:32Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28XJMQ17PW8BEPGQGKFK",
+      "last_transition_at": "2025-12-16T16:56:32Z"
+    }
+  }
+}

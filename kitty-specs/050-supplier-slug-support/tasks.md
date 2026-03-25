@@ -267,3 +267,13 @@ WP01 (Model/Slug) ─────┬──> WP02 (Service Integration) ──> W
 | T036 | Update sample_data_all.json | WP06 | P3 | Yes |
 | T037 | Tests for dry-run mode | WP06 | P3 | Yes |
 | T038 | Round-trip integration test | WP06 | P3 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

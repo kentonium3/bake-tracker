@@ -202,3 +202,11 @@ A work package is complete when:
 - [x] **SC-005**: Purchase workflow never blocked by missing products
 - [x] **SC-006**: All provisional products visible in review queue
 - [x] **SC-007**: Service boundaries enforced
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

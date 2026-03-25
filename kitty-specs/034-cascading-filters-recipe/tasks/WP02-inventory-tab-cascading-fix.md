@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Inventory Tab Cascading Fix
 lane: done
-history:
-- timestamp: '2026-01-02T10:45:22Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase B - Parallel Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '3311'
+dependencies: []
 subtasks:
 - T009
 - T010
@@ -22,6 +11,18 @@ subtasks:
 - T013
 - T014
 - T015
+phase: Phase B - Parallel Implementation
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '3311'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T10:45:22Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Inventory Tab Cascading Fix

@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Complete System Backup (16 Entities)
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Complete System Backup (16 Entities)"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T007
+- T008
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Complete System Backup (16 Entities)

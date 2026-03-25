@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Purchase Transaction Import
+lane: done
+dependencies: []
 subtasks:
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-title: "Purchase Transaction Import"
-phase: "Phase 3 - Wave 2"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T029
+- T030
+- T031
+- T032
+- T033
+- T034
+- T035
+- T036
+- T037
+phase: Phase 3 - Wave 2
+assignee: claude
+agent: claude
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Purchase Transaction Import

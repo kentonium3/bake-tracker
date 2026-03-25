@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Purchase Import Service
 lane: done
-history:
-- timestamp: '2026-01-06T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - BT Mobile Workflows
-review_status: ''
-reviewed_by: ''
-shell_pid: '11228'
+dependencies: []
 subtasks:
 - T019
 - T020
@@ -21,6 +10,18 @@ subtasks:
 - T022
 - T023
 - T024
+phase: Phase 2 - BT Mobile Workflows
+assignee: claude
+agent: claude-reviewer
+shell_pid: '11228'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Purchase Import Service

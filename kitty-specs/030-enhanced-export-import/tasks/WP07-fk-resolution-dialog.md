@@ -2,23 +2,24 @@
 work_package_id: WP07
 title: FK Resolution Dialog
 lane: done
+dependencies: []
+subtasks:
+- T033
+- T034
+- T035
+- T036
+phase: Phase 3 - UI Integration
+assignee: claude
+agent: claude
+shell_pid: reviewed
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - UI Integration
-review_status: ''
-reviewed_by: ''
-shell_pid: reviewed
-subtasks:
-- T033
-- T034
-- T035
-- T036
 ---
 
 # Work Package Prompt: WP07 - FK Resolution Dialog

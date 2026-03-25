@@ -2,18 +2,7 @@
 work_package_id: WP08
 title: UI - Targets Tab
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 6 - UI Targets Tab
-review_status: ''
-reviewed_by: ''
-shell_pid: '94501'
+dependencies: []
 subtasks:
 - T041
 - T042
@@ -24,6 +13,18 @@ subtasks:
 - T047
 - T048
 - T049
+phase: Phase 6 - UI Targets Tab
+assignee: claude
+agent: claude
+shell_pid: '94501'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - UI - Targets Tab

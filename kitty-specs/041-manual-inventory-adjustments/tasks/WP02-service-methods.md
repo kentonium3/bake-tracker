@@ -2,22 +2,23 @@
 work_package_id: WP02
 title: Service Methods Implementation
 lane: done
-history:
-- timestamp: '2026-01-07T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Service Layer (Claude)
-shell_pid: '49624'
+dependencies: []
 subtasks:
 - T005
 - T006
 - T007
 - T008
 - T009
+phase: Phase 1 - Service Layer (Claude)
+assignee: claude
+agent: claude-reviewer
+shell_pid: '49624'
+history:
+- timestamp: '2026-01-07T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Service Methods Implementation

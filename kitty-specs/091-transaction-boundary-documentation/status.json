@@ -1,0 +1,102 @@
+{
+  "event_count": 12,
+  "feature_slug": "091-transaction-boundary-documentation",
+  "last_event_id": "01KMKK2AQJFZ92EF3D2NMCJXA8",
+  "materialized_at": "2026-03-25T22:50:40.439605+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 12,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ANXDEG429QS95GKS5RJ",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AP27PMSH3N1VGFHJ5R9",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AP6N4J0ZHQCP788HT5N",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2APC5TQFQX72CP721DXS",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2APG2QZHYQWG345EAQBX",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP06": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2APN29JGPM44EEWEF7ZD",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP07": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2APTXWKW96TYSQMHCZRS",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP08": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2APZ113BJ9TGPPT8ST01",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP09": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AQ425CDSZCMH5H7GT5E",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP10": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AQ97HK2TPJM18K45E3E",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP11": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AQE07SFXSWDMVXPBSC0",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    },
+    "WP12": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AQJFZ92EF3D2NMCJXA8",
+      "last_transition_at": "2026-02-03T04:37:19Z"
+    }
+  }
+}

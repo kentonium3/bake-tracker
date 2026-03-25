@@ -2,21 +2,22 @@
 work_package_id: WP05
 title: Service Layer - Export/Import
 lane: done
+dependencies: []
+subtasks:
+- T030
+- T031
+- T032
+- T033
+phase: Phase 5 - Export/Import
+assignee: claude
+agent: claude-reviewer
+shell_pid: '74814'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 5 - Export/Import
-shell_pid: '74814'
-subtasks:
-- T030
-- T031
-- T032
-- T033
 ---
 
 # Work Package Prompt: WP05 - Service Layer - Export/Import

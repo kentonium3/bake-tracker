@@ -15,7 +15,7 @@
 
 **Goal**: Add `dry_run=True` parameter to `consume_fifo()` enabling read-only FIFO cost simulation.
 **Independent Test**: Call `consume_fifo(ingredient_slug, quantity, dry_run=True)` and verify pantry quantities unchanged, cost returned.
-**Prompt**: `tasks/done/WP01-pantry-dry-run.md`
+**Prompt**: `tasks/WP01-pantry-dry-run.md`
 **Status**: COMPLETE - All tests passing (14 tests: 8 dry_run + 6 FIFO scenarios)
 
 ### Included Subtasks
@@ -47,7 +47,7 @@
 
 **Goal**: Implement `calculate_actual_cost()` in RecipeService using FIFO pantry inventory.
 **Independent Test**: Create recipe with known ingredient quantities, pantry with known costs at different dates, verify FIFO ordering in returned cost.
-**Prompt**: `tasks/done/WP02-actual-cost.md`
+**Prompt**: `tasks/WP02-actual-cost.md`
 **Status**: COMPLETE - All 10 tests passing
 
 ### Included Subtasks
@@ -83,7 +83,7 @@
 
 **Goal**: Implement `calculate_estimated_cost()` using preferred variant pricing (ignores pantry).
 **Independent Test**: Calculate cost for recipe with empty pantry, verify uses preferred variant's most recent purchase price.
-**Prompt**: `tasks/done/WP03-estimated-cost.md`
+**Prompt**: `tasks/WP03-estimated-cost.md`
 **Status**: COMPLETE - All 9 estimated_cost tests passing
 
 ### Included Subtasks
@@ -117,7 +117,7 @@
 
 **Goal**: Ensure `calculate_actual_cost()` correctly blends FIFO costs with fallback pricing for partial inventory.
 **Independent Test**: Recipe needs 3 cups, pantry has 2 cups at $0.10/cup, verify cost = (2 x $0.10) + (1 x fallback price).
-**Prompt**: `tasks/done/WP04-partial-inventory.md`
+**Prompt**: `tasks/WP04-partial-inventory.md`
 **Status**: COMPLETE - Blended FIFO + fallback costing verified with 4 tests
 
 ### Included Subtasks
@@ -146,7 +146,7 @@
 
 **Goal**: Handle all edge cases and verify test coverage meets >70% threshold.
 **Independent Test**: All edge case tests pass; `pytest --cov` shows >70% on new methods.
-**Prompt**: `tasks/done/WP05-edge-cases-validation.md`
+**Prompt**: `tasks/WP05-edge-cases-validation.md`
 **Status**: COMPLETE - All 40 tests passing, edge cases handled
 
 ### Included Subtasks
@@ -227,3 +227,12 @@ WP01 (PantryService dry_run)
 | T022 | Validate error messages | WP05 | P4 | No |
 | T023 | Verify >70% test coverage | WP05 | P4 | No |
 | T024 | Validate quickstart.md scenarios | WP05 | P4 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

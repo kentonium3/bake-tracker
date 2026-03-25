@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Catalog Variant Grouping + Production Ready Default
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 328768f4daee82a997d39359558c3f7d6a9c9f78
@@ -12,10 +12,10 @@ subtasks:
 - T010
 phase: Phase 1 - UI Polish
 assignee: ''
-agent: "claude-opus"
-shell_pid: "51931"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '51931'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned

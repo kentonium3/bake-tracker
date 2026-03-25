@@ -1,19 +1,19 @@
 ---
-work_package_id: "WP02"
-title: "Service Layer - Create with Components"
-lane: "done"
+work_package_id: WP02
+title: Service Layer - Create with Components
+lane: done
 dependencies: []
-subtasks: ["T008", "T009", "T010", "T011", "T012", "T013"]
-priority: "P0"
-estimated_lines: 400
-agent: "gemini-wp02"
-shell_pid: "21725"
-reviewed_by: "Kent Gale"
-review_status: "approved"
+subtasks: [T008, T009, T010, T011, T012, T013]
+agent: gemini-wp02
+shell_pid: '21725'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - date: "2026-01-30"
-    action: "created"
-    agent: "claude"
+- date: '2026-01-30'
+  action: created
+  agent: claude
+estimated_lines: 400
+priority: P0
 ---
 
 # WP02: Service Layer - Create with Components

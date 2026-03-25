@@ -2,18 +2,7 @@
 work_package_id: WP08
 title: Production Dashboard Tab
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: ''
-phase: Phase 4 - Dashboard
-review_status: ''
-reviewed_by: ''
-shell_pid: ''
+dependencies: []
 subtasks:
 - T042
 - T043
@@ -22,6 +11,18 @@ subtasks:
 - T046
 - T047
 - T048
+phase: Phase 4 - Dashboard
+assignee: ''
+agent: system
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Production Dashboard Tab

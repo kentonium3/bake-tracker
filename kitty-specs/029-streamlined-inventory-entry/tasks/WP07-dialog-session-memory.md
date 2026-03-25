@@ -2,18 +2,7 @@
 work_package_id: WP07
 title: AddInventoryDialog - Session Memory
 lane: done
-history:
-- timestamp: '2025-12-24T23:15:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: gemini
-assignee: claude
-phase: Phase 2 - Core Integration
-review_status: ''
-reviewed_by: ''
-shell_pid: gemini
+dependencies: []
 subtasks:
 - T041
 - T042
@@ -22,6 +11,18 @@ subtasks:
 - T045
 - T046
 - T047
+phase: Phase 2 - Core Integration
+assignee: claude
+agent: gemini
+shell_pid: gemini
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-24T23:15:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – AddInventoryDialog Session Memory

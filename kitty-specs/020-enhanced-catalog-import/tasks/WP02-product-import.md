@@ -2,24 +2,25 @@
 work_package_id: WP02
 title: Product Import
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '63528'
+dependencies: []
 subtasks:
 - T008
 - T009
 - T010
 - T011
 - T012
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '63528'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Product Import

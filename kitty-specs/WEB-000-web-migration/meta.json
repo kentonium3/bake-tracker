@@ -1,7 +1,14 @@
 {
-  "feature_id": "WEB-000",
-  "title": "Web Migration Master Plan",
-  "status": "planning",
   "created": "2026-03-10",
+  "created_at": "2026-03-10T19:52:29.076835+00:00",
+  "feature_id": "WEB-000",
+  "feature_number": "",
+  "feature_slug": "WEB-000-web-migration",
+  "friendly_name": "000 web migration",
+  "mission": "software-dev",
+  "slug": "WEB-000-web-migration",
+  "status": "planning",
+  "target_branch": "main",
+  "title": "Web Migration Master Plan",
   "type": "master_plan"
 }

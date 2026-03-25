@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Rename Operations
+lane: done
+dependencies: []
 subtasks:
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-title: "Rename Operations"
-phase: "Phase 4 - Operations"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T036
+- T037
+- T038
+- T039
+- T040
+- T041
+- T042
+- T043
+phase: Phase 4 - Operations
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – Rename Operations

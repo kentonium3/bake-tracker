@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: CLI Tests
-lane: "done"
+lane: done
 dependencies: []
 subtasks:
 - T011
@@ -9,10 +9,10 @@ subtasks:
 - T013
 phase: Phase 3 - Testing
 assignee: ''
-agent: "claude"
-shell_pid: "48820"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '48820'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T04:45:00Z'
   lane: planned

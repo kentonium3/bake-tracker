@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: PlanningSnapshot Container
-lane: "done"
+lane: done
 dependencies: [WP01, WP02, WP03]
 base_branch: 064-finishedgoods-snapshot-architecture-WP03
 base_commit: 98fadf2cddb70706811c213f524311e10316dad5
@@ -16,10 +16,10 @@ subtasks:
 - T025
 phase: Phase 3 - Container
 assignee: ''
-agent: "claude-opus"
-shell_pid: "62838"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '62838'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T05:30:00Z'
   lane: planned

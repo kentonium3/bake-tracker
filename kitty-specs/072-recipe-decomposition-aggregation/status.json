@@ -1,0 +1,39 @@
+{
+  "event_count": 3,
+  "feature_slug": "072-recipe-decomposition-aggregation",
+  "last_event_id": "01KMKK2A835FK6M00K44AMXS29",
+  "materialized_at": "2026-03-25T22:50:37.827007+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 3,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A7SWDQKAESQGP1TXS3Z",
+      "last_transition_at": "2026-01-27T16:30:47Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A7YPJ94962P1VHJ4VYB",
+      "last_transition_at": "2026-01-27T16:30:47Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A835FK6M00K44AMXS29",
+      "last_transition_at": "2026-01-27T16:30:47Z"
+    }
+  }
+}

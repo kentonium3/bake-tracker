@@ -1,7 +1,7 @@
 ---
 work_package_id: WP12
 title: Service Layer & Infrastructure
-lane: "done"
+lane: done
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -17,9 +17,9 @@ subtasks:
 phase: Phase 2 - UI Migration
 assignee: ''
 agent: ''
-shell_pid: "77222"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+shell_pid: '77222'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned

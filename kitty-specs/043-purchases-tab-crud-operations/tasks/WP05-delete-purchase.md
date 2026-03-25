@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Delete Purchase
+lane: done
+dependencies: []
 subtasks:
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-title: "Delete Purchase"
-phase: "Phase 3 - Secondary Features"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T034
+- T035
+- T036
+- T037
+- T038
+- T039
+phase: Phase 3 - Secondary Features
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-08T22:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-08T22:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Delete Purchase

@@ -349,3 +349,14 @@ WP06 (Form Materials+Components)│         (depends on all)    │
 | T049 | Implement search functionality | WP07 | P1 | Yes |
 | T050 | Implement assembly type filter | WP07 | P1 | Yes |
 | T051 | Implement selection state | WP07 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

@@ -2,24 +2,25 @@
 work_package_id: WP04
 title: Service Layer Validation Updates
 lane: done
-history:
-- timestamp: '2025-12-30T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Services
-review_status: ''
-reviewed_by: ''
-shell_pid: '4288'
+dependencies: []
 subtasks:
 - T021
 - T022
 - T023
 - T024
 - T025
+phase: Phase 2 - Services
+assignee: claude
+agent: claude-reviewer
+shell_pid: '4288'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-30T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Service Layer Validation Updates

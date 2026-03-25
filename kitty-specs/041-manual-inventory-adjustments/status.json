@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "041-manual-inventory-adjustments",
+  "last_event_id": "01KMKK29EFGWXFK9MRJN3YE0WW",
+  "materialized_at": "2026-03-25T22:50:33.397534+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29E2QRFPBVHHZKHHVB7T",
+      "last_transition_at": "2026-01-07T12:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29E53FASPBGG8722FGE7",
+      "last_transition_at": "2026-01-07T12:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29E85J2M344HNDBYZ08J",
+      "last_transition_at": "2026-01-07T12:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29ECDKYTYZD7K03DQKKV",
+      "last_transition_at": "2026-01-07T12:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29EFGWXFK9MRJN3YE0WW",
+      "last_transition_at": "2026-01-07T12:00:00Z"
+    }
+  }
+}

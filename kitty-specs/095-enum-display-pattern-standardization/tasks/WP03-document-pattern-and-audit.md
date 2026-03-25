@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Document Pattern and Audit Enums
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 095-enum-display-pattern-standardization-WP02
 base_commit: dd9d627382a65d538ce5b9226f034ee499be70cd
@@ -13,10 +13,10 @@ subtasks:
 - T013
 phase: Phase 3 - Documentation & Audit
 assignee: ''
-agent: "claude-opus"
-shell_pid: "84863"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '84863'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T01:55:28Z'
   lane: planned

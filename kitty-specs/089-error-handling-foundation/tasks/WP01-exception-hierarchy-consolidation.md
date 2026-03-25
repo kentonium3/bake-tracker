@@ -1,27 +1,27 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-title: "Exception Hierarchy Consolidation"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "56364"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Exception Hierarchy Consolidation
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+phase: Phase 1 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '56364'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-02-02T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Exception Hierarchy Consolidation

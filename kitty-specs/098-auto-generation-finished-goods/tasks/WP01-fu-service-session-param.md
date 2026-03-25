@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Add Session Parameter to finished_unit_service
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 76e546c87bd9242af1b5f6190504ce51d009b99a
@@ -15,10 +15,10 @@ subtasks:
 - T006
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "40598"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '40598'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned

@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Purchases Tab - List & Filters
+lane: done
+dependencies: []
 subtasks:
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Purchases Tab - List & Filters"
-phase: "Phase 2 - Core UI"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T008
+- T009
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 2 - Core UI
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-08T22:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-08T22:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Purchases Tab - List & Filters

@@ -2,23 +2,24 @@
 work_package_id: WP02
 title: Snapshot Service
 lane: done
+dependencies: []
+subtasks:
+- T006
+- T007
+- T008
+- T009
+phase: Phase 1 - Core Snapshot System
+assignee: claude
+agent: claude-reviewer
+shell_pid: '96946'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Core Snapshot System
-review_status: ''
-reviewed_by: ''
-shell_pid: '96946'
-subtasks:
-- T006
-- T007
-- T008
-- T009
 ---
 
 # Work Package Prompt: WP02 - Snapshot Service

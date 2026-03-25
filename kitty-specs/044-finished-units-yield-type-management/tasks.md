@@ -214,3 +214,12 @@ Phase 3 - Validation (WP05):
 | T016 | Test User Story 1 scenarios | WP05 | P2 | No |
 | T017 | Test User Story 2 scenarios | WP05 | P2 | No |
 | T018 | Test User Story 3 scenarios | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

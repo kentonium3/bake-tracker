@@ -19,7 +19,7 @@
 
 **Goal**: Create the ProductionRun and ProductionConsumption models that form the foundation of batch production tracking.
 **Independent Test**: Models can be instantiated, saved to DB, and queried with proper constraints enforced.
-**Prompt**: `tasks/planned/WP01-production-run-models.md`
+**Prompt**: `tasks/WP01-production-run-models.md`
 
 ### Included Subtasks
 - [X] T001 [P] Create ProductionRun model in `src/models/production_run.py`
@@ -48,7 +48,7 @@
 
 **Goal**: Create the AssemblyRun and its two consumption ledger models.
 **Independent Test**: Models can be instantiated, saved to DB, and queried with proper constraints enforced.
-**Prompt**: `tasks/planned/WP02-assembly-run-models.md`
+**Prompt**: `tasks/WP02-assembly-run-models.md`
 
 ### Included Subtasks
 - [X] T005 [P] Create AssemblyRun model in `src/models/assembly_run.py`
@@ -77,7 +77,7 @@
 
 **Goal**: Implement `check_can_produce()` and `record_batch_production()` functions in BatchProductionService.
 **Independent Test**: Can verify ingredient availability and record batch production with FIFO consumption.
-**Prompt**: `tasks/planned/WP03-batch-production-service-core.md`
+**Prompt**: `tasks/WP03-batch-production-service-core.md`
 
 ### Included Subtasks
 - [X] T009 Create `src/services/batch_production_service.py` with module structure
@@ -109,7 +109,7 @@
 
 **Goal**: Achieve >70% test coverage for BatchProductionService with comprehensive test scenarios.
 **Independent Test**: All tests pass, coverage meets threshold.
-**Prompt**: `tasks/planned/WP04-batch-production-service-tests.md`
+**Prompt**: `tasks/WP04-batch-production-service-tests.md`
 
 ### Included Subtasks
 - [X] T014 Create test file `src/tests/test_batch_production_service.py`
@@ -144,7 +144,7 @@
 
 **Goal**: Implement `check_can_assemble()` and `record_assembly()` functions in AssemblyService.
 **Independent Test**: Can verify component availability and record assembly with inventory updates.
-**Prompt**: `tasks/planned/WP05-assembly-service-core.md`
+**Prompt**: `tasks/WP05-assembly-service-core.md`
 
 ### Included Subtasks
 - [X] T023 Create `src/services/assembly_service.py` with module structure
@@ -177,7 +177,7 @@
 
 **Goal**: Achieve >70% test coverage for AssemblyService with comprehensive test scenarios.
 **Independent Test**: All tests pass, coverage meets threshold.
-**Prompt**: `tasks/planned/WP06-assembly-service-tests.md`
+**Prompt**: `tasks/WP06-assembly-service-tests.md`
 
 ### Included Subtasks
 - [X] T028 Create test file `src/tests/test_assembly_service.py`
@@ -211,7 +211,7 @@
 
 **Goal**: Implement production and assembly history query functions.
 **Independent Test**: Can query production/assembly history with filters and get full consumption details.
-**Prompt**: `tasks/planned/WP07-history-query-functions.md`
+**Prompt**: `tasks/WP07-history-query-functions.md`
 
 ### Included Subtasks
 - [X] T036 [P] Implement `get_production_history()` in batch_production_service.py
@@ -241,7 +241,7 @@
 
 **Goal**: Implement import/export functionality for production and assembly history.
 **Independent Test**: Can export production/assembly data, reimport, and verify data integrity.
-**Prompt**: `tasks/planned/WP08-import-export.md`
+**Prompt**: `tasks/WP08-import-export.md`
 
 ### Included Subtasks
 - [X] T041 [P] Implement `export_production_history()` serialization
@@ -337,3 +337,15 @@ WP02 (Assembly Models) ───┼─► WP05 (Assembly Service) ─► WP06 (A
 | T043 | Implement export_assembly_history() | WP08 | P3 | Yes |
 | T044 | Implement import_assembly_history() | WP08 | P3 | Yes |
 | T045 | Add import/export tests | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

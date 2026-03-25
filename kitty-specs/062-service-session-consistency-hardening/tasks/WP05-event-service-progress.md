@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Event Service Progress Operations
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-title: "Event Service Progress Operations"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "codex"
-agent: "codex"
-shell_pid: "65344"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T021
+- T022
+- T023
+- T024
+- T025
+phase: Phase 1 - Service Hardening
+assignee: codex
+agent: codex
+shell_pid: '65344'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Event Service Progress Operations

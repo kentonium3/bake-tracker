@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Hierarchy Admin UI Shell
+lane: done
+dependencies: []
 subtasks:
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-title: "Hierarchy Admin UI Shell"
-phase: "Phase 3 - UI Shell"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T022
+- T023
+- T024
+- T025
+- T026
+- T027
+- T028
+phase: Phase 3 - UI Shell
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Hierarchy Admin UI Shell

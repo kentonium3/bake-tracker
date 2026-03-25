@@ -1,30 +1,31 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Hierarchy Admin Services
+lane: done
+dependencies: []
 subtasks:
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "Hierarchy Admin Services"
-phase: "Phase 2 - Services"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T012
+- T013
+- T014
+- T015
+- T016
+- T017
+- T018
+- T019
+- T020
+- T021
+phase: Phase 2 - Services
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Hierarchy Admin Services

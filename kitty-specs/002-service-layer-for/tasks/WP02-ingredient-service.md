@@ -2,21 +2,7 @@
 work_package_id: WP02
 title: IngredientService Implementation
 lane: done
-history:
-- timestamp: '2025-11-09T03:08:51Z'
-  lane: planned
-  agent: system
-  shell_pid: '4504'
-  action: Prompt generated via /spec-kitty.tasks
-- timestamp: '2025-11-09T07:58:47Z'
-  lane: done
-  agent: Claude Code
-  shell_pid: '4504'
-  action: Work package completed - all tasks implemented and integration tests passing
-agent: Claude Code
-assignee: Claude Code
-phase: Phase 2 - Service Implementation
-shell_pid: '4504'
+dependencies: []
 subtasks:
 - T006
 - T007
@@ -32,6 +18,21 @@ subtasks:
 - T017
 - T018
 - T019
+phase: Phase 2 - Service Implementation
+assignee: Claude Code
+agent: Claude Code
+shell_pid: '4504'
+history:
+- timestamp: '2025-11-09T03:08:51Z'
+  lane: planned
+  agent: system
+  shell_pid: '4504'
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2025-11-09T07:58:47Z'
+  lane: done
+  agent: Claude Code
+  shell_pid: '4504'
+  action: Work package completed - all tasks implemented and integration tests passing
 ---
 
 # Work Package Prompt: WP02 – IngredientService Implementation

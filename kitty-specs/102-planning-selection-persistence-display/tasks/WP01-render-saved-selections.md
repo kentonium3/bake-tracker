@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Render Saved Selections on Planning Tab Load
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: a47eaf74994131dc3d0b24c50e1e183c00a51e73
@@ -13,10 +13,10 @@ subtasks:
 - T004
 phase: Phase 1 - Core Implementation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "88222"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '88222'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-03-01T14:25:50Z'
   lane: planned

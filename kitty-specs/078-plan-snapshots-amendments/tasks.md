@@ -232,3 +232,12 @@ WP01 (Model) → WP02 (Service+Hook)
 | T024 | FG diff highlighting | WP05 | P2 | Yes |
 | T025 | Batch diff highlighting | WP05 | P2 | Yes |
 | T026 | Full workflow integration test | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

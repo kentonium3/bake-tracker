@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Service Layer Foundation
 lane: done
-history:
-- timestamp: '2025-12-11T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Service Layer
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '30686'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -21,6 +10,18 @@ subtasks:
 - T004
 - T005
 - T006
+phase: Phase 1 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: '30686'
+review_status: approved without changes
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-11T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Service Layer Foundation

@@ -1,31 +1,31 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Event Service Session Normalization
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Event Service Session Normalization"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "84929"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+- T009
+phase: Phase 0 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '84929'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-20T20:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-20T22:42:10Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "84929"
-    action: "Review passed - Session propagation implemented"
+- timestamp: '2026-01-20T20:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-20T22:42:10Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '84929'
+  action: Review passed - Session propagation implemented
 ---
 
 # Work Package Prompt: WP02 – Event Service Session Normalization

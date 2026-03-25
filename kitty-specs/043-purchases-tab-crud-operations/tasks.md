@@ -340,3 +340,14 @@ WP01 (Service Layer) ──┬──> WP02 (Tab UI) ───────> WP05 
 | T050 | Unit test verification | WP07 | P3 | No |
 | T051 | Manual testing | WP07 | P3 | No |
 | T052 | UI polish fixes | WP07 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

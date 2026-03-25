@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Batch Calculation Service
 lane: done
-history:
-- timestamp: '2026-01-06T03:09:20Z'
-  lane: planned
-  agent: claude
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Services
-review_status: ''
-reviewed_by: ''
-shell_pid: '66971'
+dependencies: []
 subtasks:
 - T007
 - T008
@@ -21,6 +10,18 @@ subtasks:
 - T010
 - T011
 - T012
+phase: Phase 2 - Services
+assignee: claude
+agent: claude-reviewer
+shell_pid: '66971'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T03:09:20Z'
+  lane: planned
+  agent: claude
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Batch Calculation Service

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Snapshot Service & Production Hook
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 078-plan-snapshots-amendments-WP01
 base_commit: d2f8686ceba5c554cd7771fbb22fd17de0e66172
@@ -14,10 +14,10 @@ subtasks:
 - T009
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "gemini"
-shell_pid: "86354"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini
+shell_pid: '86354'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned

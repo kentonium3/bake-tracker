@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Model & Slug Generation Foundation
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-title: "Model & Slug Generation Foundation"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "59105"
-review_status: "approved"
-reviewed_by: "claude"
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+phase: Phase 0 - Foundation
+assignee: claude
+agent: claude
+shell_pid: '59105'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T23:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T23:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Model & Slug Generation Foundation

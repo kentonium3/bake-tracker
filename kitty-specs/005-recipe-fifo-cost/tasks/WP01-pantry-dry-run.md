@@ -2,25 +2,26 @@
 work_package_id: WP01
 title: PantryService dry_run Extension
 lane: done
-history:
-- timestamp: '2025-12-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 0 - Foundational
-review_status: approved
-reviewed_by: claude
-reviewer_shell_pid: '79852'
-shell_pid: '75194'
+dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 - T004
 - T005
+phase: Phase 0 - Foundational
+assignee: claude
+agent: claude
+shell_pid: '75194'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+reviewer_shell_pid: '79852'
 ---
 
 # Work Package Prompt: WP01 – PantryService dry_run Extension

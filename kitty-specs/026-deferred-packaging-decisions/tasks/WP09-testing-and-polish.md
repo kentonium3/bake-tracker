@@ -2,19 +2,7 @@
 work_package_id: WP09
 title: Testing & Polish
 lane: done
-history:
-- timestamp: '2025-12-21T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-gemini_candidate: true
-phase: Phase 9 - Testing & Polish
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
+dependencies: []
 subtasks:
 - T045
 - T046
@@ -23,6 +11,19 @@ subtasks:
 - T049
 - T050
 - T051
+phase: Phase 9 - Testing & Polish
+assignee: claude
+agent: claude
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-21T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+gemini_candidate: true
 ---
 
 # Work Package Prompt: WP09 - Testing & Polish

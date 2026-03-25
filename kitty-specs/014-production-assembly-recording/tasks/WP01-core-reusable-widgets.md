@@ -2,23 +2,24 @@
 work_package_id: WP01
 title: Core Reusable Widgets
 lane: done
+dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Foundational Widgets
+assignee: ''
+agent: claude
+shell_pid: '45064'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: ''
-phase: Phase 1 - Foundational Widgets
-review_status: ''
-reviewed_by: ''
-shell_pid: '45064'
-subtasks:
-- T001
-- T002
-- T003
-- T004
 ---
 
 # Work Package Prompt: WP01 - Core Reusable Widgets

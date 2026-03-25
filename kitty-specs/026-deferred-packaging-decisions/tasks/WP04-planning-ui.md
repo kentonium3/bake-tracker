@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Planning UI
 lane: done
-history:
-- timestamp: '2025-12-21T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - UI Planning
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
+dependencies: []
 subtasks:
 - T018
 - T019
@@ -21,6 +10,18 @@ subtasks:
 - T021
 - T022
 - T023
+phase: Phase 3 - UI Planning
+assignee: claude
+agent: claude
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-21T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Planning UI

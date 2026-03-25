@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Menu Cleanup and Multi-Entity Support
+lane: done
+dependencies: []
 subtasks:
-  - "T052"
-  - "T053"
-  - "T054"
-  - "T055"
-  - "T056"
-  - "T057"
-  - "T058"
-title: "Menu Cleanup and Multi-Entity Support"
-phase: "Phase 3 - Cleanup"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T052
+- T053
+- T054
+- T055
+- T056
+- T057
+- T058
+phase: Phase 3 - Cleanup
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Menu Cleanup and Multi-Entity Support

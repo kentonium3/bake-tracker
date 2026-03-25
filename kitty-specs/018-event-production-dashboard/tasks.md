@@ -19,7 +19,7 @@
 
 **Goal**: Add batch event progress method and color constants to enable UI development.
 **Independent Test**: `get_events_with_progress()` returns correct data for multiple events with various filter options.
-**Prompt**: `tasks/planned/WP01-service-layer-foundation.md`
+**Prompt**: `tasks/WP01-service-layer-foundation.md`
 
 ### Included Subtasks
 - [x] T001 Add STATUS_COLORS dict to `src/utils/constants.py`
@@ -46,7 +46,7 @@
 
 **Goal**: Create reusable EventCard widget with collapsed/expanded views, color-coded progress bars, and quick action buttons.
 **Independent Test**: Widget renders correctly with sample event data; expand/collapse toggles work; colors match status.
-**Prompt**: `tasks/planned/WP02-event-card-widget.md`
+**Prompt**: `tasks/WP02-event-card-widget.md`
 
 ### Included Subtasks
 - [x] T004 [P] Create EventCard class skeleton in `src/ui/widgets/event_card.py`
@@ -81,7 +81,7 @@
 
 **Goal**: Transform ProductionDashboardTab from single-event selector to multi-event status board with filters.
 **Independent Test**: Dashboard shows multiple event cards; filter dropdown changes visible events; quick actions work.
-**Prompt**: `tasks/planned/WP03-dashboard-tab-enhancement.md`
+**Prompt**: `tasks/WP03-dashboard-tab-enhancement.md`
 
 ### Included Subtasks
 - [x] T010 Add filter controls frame (dropdown for Active/Future, Past, All + date pickers)
@@ -119,7 +119,7 @@
 
 **Goal**: Verify complete feature integration, tab ordering, and edge case handling.
 **Independent Test**: App launches with Production Dashboard as default; all acceptance scenarios pass.
-**Prompt**: `tasks/planned/WP04-integration-validation.md`
+**Prompt**: `tasks/WP04-integration-validation.md`
 
 ### Included Subtasks
 - [x] T017 Verify Production Dashboard is first/default tab on app launch
@@ -192,3 +192,11 @@ WP02 (EventCard Widget) ──────────────────�
 | T020 | Test quick action integration | WP04 | P2 | Yes |
 | T021 | Validate performance | WP04 | P2 | Yes |
 | T022 | Run full regression | WP04 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

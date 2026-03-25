@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Foundation - Material Models
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Foundation - Material Models"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T007
+- T008
+phase: Phase 0 - Foundation
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Foundation - Material Models

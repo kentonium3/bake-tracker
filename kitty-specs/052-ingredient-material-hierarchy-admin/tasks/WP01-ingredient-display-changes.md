@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Ingredient Display Changes
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-title: "Ingredient Display Changes"
-phase: "Phase 1 - MVP Display"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+phase: Phase 1 - MVP Display
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Ingredient Display Changes

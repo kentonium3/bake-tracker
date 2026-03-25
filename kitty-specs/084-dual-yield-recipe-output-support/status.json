@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "084-dual-yield-recipe-output-support",
+  "last_event_id": "01KMKK2AFFR8WPH3SKG5MKHQGZ",
+  "materialized_at": "2026-03-25T22:50:39.258079+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AEXWQQAVHQ4NAVEKC1E",
+      "last_transition_at": "2026-01-29T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AF18VZHRSWQFHSVB0A4",
+      "last_transition_at": "2026-01-29T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AF6KHM8PYWGMCJ15B3Y",
+      "last_transition_at": "2026-01-29T00:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AFA493JYC3P0NEA3M4N",
+      "last_transition_at": "2026-01-29T00:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AFFR8WPH3SKG5MKHQGZ",
+      "last_transition_at": "2026-01-29T00:00:00Z"
+    }
+  }
+}

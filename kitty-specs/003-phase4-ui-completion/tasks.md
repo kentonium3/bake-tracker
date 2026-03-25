@@ -149,3 +149,13 @@ git commit -m "feat: Complete WP01 - My Ingredients Tab CRUD"
 - **Plan:** `plan.md` - Detailed implementation plan
 - **Meta:** `meta.json` - Feature metadata
 - **Work Packages:** `tasks/doing/*.md` - Individual work package files
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

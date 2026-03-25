@@ -2,18 +2,7 @@
 work_package_id: WP09
 title: Price Suggestions
 lane: done
-history:
-- timestamp: '2025-12-24T23:15:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: claude
-phase: Phase 3 - Advanced Features
-review_status: ''
-reviewed_by: ''
-shell_pid: '33920'
+dependencies: []
 subtasks:
 - T060
 - T061
@@ -23,6 +12,18 @@ subtasks:
 - T065
 - T066
 - T067
+phase: Phase 3 - Advanced Features
+assignee: claude
+agent: system
+shell_pid: '33920'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-24T23:15:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 – Price Suggestions

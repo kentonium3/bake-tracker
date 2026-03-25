@@ -136,3 +136,10 @@ WP01 (Core Service) ─┬─→ WP02 (Nested Bundles)
 | T012       | Empty event handling | WP03 | P3 | Yes |
 | T013       | Missing recipe validation | WP03 | P3 | Yes |
 | T014       | Zero-quantity component handling | WP03 | P3 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+<!-- status-model:end -->

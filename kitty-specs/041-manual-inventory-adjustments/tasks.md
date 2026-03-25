@@ -20,7 +20,7 @@
 **Goal**: Create DepletionReason enum and InventoryDepletion model as foundation for service layer.
 **Agent**: Claude
 **Independent Test**: Model can be imported and instantiated; enum values accessible.
-**Prompt**: `tasks/planned/WP01-service-layer-foundation.md`
+**Prompt**: `tasks/WP01-service-layer-foundation.md`
 
 ### Included Subtasks
 - [x] T001 [P] Add DepletionReason enum to `src/models/enums.py`
@@ -51,7 +51,7 @@
 **Goal**: Implement manual_adjustment() and get_depletion_history() service methods.
 **Agent**: Claude
 **Independent Test**: Service methods can be called and return expected results with test data.
-**Prompt**: `tasks/planned/WP02-service-methods.md`
+**Prompt**: `tasks/WP02-service-methods.md`
 
 ### Included Subtasks
 - [x] T005 Implement manual_adjustment() in `src/services/inventory_item_service.py`
@@ -83,7 +83,7 @@
 **Goal**: Write unit tests for service layer per Constitution Principle IV.
 **Agent**: Claude
 **Independent Test**: `pytest src/tests/test_inventory_adjustment.py -v` passes.
-**Prompt**: `tasks/planned/WP03-service-layer-tests.md`
+**Prompt**: `tasks/WP03-service-layer-tests.md`
 
 ### Included Subtasks
 - [x] T010 [P] Create test file `src/tests/test_inventory_adjustment.py`
@@ -116,7 +116,7 @@
 **Goal**: Create the manual adjustment dialog with live preview.
 **Agent**: Gemini
 **Independent Test**: Dialog opens, displays current inventory info, and shows live preview as user types.
-**Prompt**: `tasks/planned/WP04-ui-adjustment-dialog.md`
+**Prompt**: `tasks/WP04-ui-adjustment-dialog.md`
 
 ### Included Subtasks
 - [x] T017 Create dialog class in `src/ui/dialogs/adjustment_dialog.py`
@@ -151,7 +151,7 @@
 **Goal**: Wire dialog to inventory tab and connect to service layer.
 **Agent**: Gemini
 **Independent Test**: Full workflow: click Adjust -> enter data -> Apply -> inventory updates.
-**Prompt**: `tasks/planned/WP05-ui-integration.md`
+**Prompt**: `tasks/WP05-ui-integration.md`
 
 ### Included Subtasks
 - [x] T024 Add [Adjust] button to inventory item rows in `src/ui/inventory_tab.py`
@@ -233,3 +233,12 @@ WP01 (Foundation) ────────────────────�
 | T027 | Handle ValidationError | WP05 | P2 | No | Gemini |
 | T028 | Refresh inventory after adjustment | WP05 | P2 | No | Gemini |
 | T029 | Update history view | WP05 | P2 | Yes | Gemini |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

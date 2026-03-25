@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: FK Resolver Service
 lane: done
-history:
-- timestamp: '2025-12-25T14:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Import Services
-review_status: ''
-reviewed_by: ''
-shell_pid: reviewed
+dependencies: []
 subtasks:
 - T016
 - T017
@@ -21,6 +10,18 @@ subtasks:
 - T019
 - T020
 - T021
+phase: Phase 2 - Import Services
+assignee: claude
+agent: claude
+shell_pid: reviewed
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-25T14:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - FK Resolver Service

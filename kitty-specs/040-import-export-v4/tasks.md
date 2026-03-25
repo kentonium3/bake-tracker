@@ -20,7 +20,7 @@
 
 **Goal**: Update recipe export to include F037 fields (base_recipe_slug, variant_name, is_production_ready) and linked FinishedUnits with yield_mode.
 **Independent Test**: Export a database with variant recipes, verify JSON contains all new fields correctly.
-**Prompt**: `tasks/planned/WP01-recipe-export-v4.md`
+**Prompt**: `tasks/WP01-recipe-export-v4.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -50,7 +50,7 @@
 
 **Goal**: Update recipe import to handle F037 fields with proper dependency ordering (base recipes before variants).
 **Independent Test**: Import a JSON file with variant recipes, verify database contains correct relationships.
-**Prompt**: `tasks/planned/WP02-recipe-import-v4.md`
+**Prompt**: `tasks/WP02-recipe-import-v4.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -81,7 +81,7 @@
 
 **Goal**: Add output_mode field to event export/import with validation against target types.
 **Independent Test**: Export/import event with output_mode="bundled", verify field preserved and targets validated.
-**Prompt**: `tasks/planned/WP03-event-export-import-v4.md`
+**Prompt**: `tasks/WP03-event-export-import-v4.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -110,7 +110,7 @@
 
 **Goal**: Bump schema version to "4.0", rename functions, update version validation.
 **Independent Test**: Export file shows version "4.0", v3.x import is rejected with clear error.
-**Prompt**: `tasks/planned/WP04-version-bump.md`
+**Prompt**: `tasks/WP04-version-bump.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -138,7 +138,7 @@
 
 **Goal**: Implement `import_purchases_from_bt_mobile()` function for UPC-based purchase import.
 **Independent Test**: Import JSON file with known UPCs, verify Purchase and InventoryItem records created.
-**Prompt**: `tasks/planned/WP05-purchase-import-service.md`
+**Prompt**: `tasks/WP05-purchase-import-service.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -170,7 +170,7 @@
 
 **Goal**: Create CustomTkinter dialog for resolving unknown UPCs during purchase import.
 **Independent Test**: Dialog displays, user can map/create/skip, resulting actions complete successfully.
-**Prompt**: `tasks/planned/WP06-upc-resolution-dialog.md`
+**Prompt**: `tasks/WP06-upc-resolution-dialog.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -200,7 +200,7 @@
 
 **Goal**: Implement `import_inventory_updates_from_bt_mobile()` function for percentage-based inventory corrections.
 **Independent Test**: Import JSON with percentage updates, verify InventoryItem.current_quantity adjusted correctly.
-**Prompt**: `tasks/planned/WP07-inventory-update-service.md`
+**Prompt**: `tasks/WP07-inventory-update-service.md`
 **Assignee**: Gemini
 
 ### Included Subtasks
@@ -232,7 +232,7 @@
 
 **Goal**: Comprehensive unit tests for inventory update service covering edge cases.
 **Independent Test**: All tests pass with >90% coverage of WP07 code.
-**Prompt**: `tasks/planned/WP08-inventory-update-tests.md`
+**Prompt**: `tasks/WP08-inventory-update-tests.md`
 **Assignee**: Gemini
 
 ### Included Subtasks
@@ -261,7 +261,7 @@
 
 **Goal**: End-to-end tests validating full export/import round-trips for all entity types.
 **Independent Test**: All integration tests pass, data integrity verified across round-trips.
-**Prompt**: `tasks/planned/WP09-integration-tests.md`
+**Prompt**: `tasks/WP09-integration-tests.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -290,7 +290,7 @@
 
 **Goal**: Update sample data files to v4.0 format, create BT Mobile sample files.
 **Independent Test**: Sample files import successfully, documentation accurate.
-**Prompt**: `tasks/planned/WP10-sample-data-docs.md`
+**Prompt**: `tasks/WP10-sample-data-docs.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -381,3 +381,17 @@ Phase 3 (Sequential - Claude):
 | T042 | Update sample_data.json | WP10 | P2 | Yes |
 | T043 | Create purchase sample | WP10 | P2 | Yes |
 | T044 | Create inventory sample | WP10 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+- WP10: done
+<!-- status-model:end -->

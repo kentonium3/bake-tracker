@@ -1,32 +1,32 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Batch & Assembly Service Bug Fixes
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-title: "Batch & Assembly Service Bug Fixes"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "55981"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T036
+- T037
+- T038
+- T039
+- T040
+- T041
+phase: Phase 1 - Service Hardening
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '55981'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T21:00:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "55981"
-    action: "Review passed, moved to done"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T21:00:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '55981'
+  action: Review passed, moved to done
 ---
 
 # Work Package Prompt: WP08 – Batch & Assembly Service Bug Fixes

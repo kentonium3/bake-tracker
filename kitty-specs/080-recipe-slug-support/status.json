@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "080-recipe-slug-support",
+  "last_event_id": "01KMKK2AD8CB4Y37M82SGSHGCV",
+  "materialized_at": "2026-03-25T22:50:38.748699+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ACNVXYCB4C8QDEBPK5K",
+      "last_transition_at": "2026-01-28T07:45:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ACS71H6H69Z6DRS0YPK",
+      "last_transition_at": "2026-01-28T07:45:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ACYW4560V1K54DCCCZN",
+      "last_transition_at": "2026-01-28T07:45:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AD3A09DGC1RH75QASAA",
+      "last_transition_at": "2026-01-28T07:45:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AD8CB4Y37M82SGSHGCV",
+      "last_transition_at": "2026-01-28T07:45:00Z"
+    }
+  }
+}

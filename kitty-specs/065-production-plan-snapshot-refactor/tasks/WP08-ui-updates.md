@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: UI Layer Updates
+lane: done
+dependencies: [WP07]
 subtasks:
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-title: "UI Layer Updates"
-phase: "Phase 5 - UI Updates"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "780"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP07"]
+- T035
+- T036
+- T037
+- T038
+- T039
+phase: Phase 5 - UI Updates
+assignee: ''
+agent: claude-opus
+shell_pid: '780'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-24T19:47:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-24T19:47:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 – UI Layer Updates

@@ -224,3 +224,12 @@ WP01: Model Layer
 | T022 | Migration docs | WP05 | P2 | Yes |
 | T023 | Migration test | WP05 | P2 | No |
 | T024 | Verify no data loss | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

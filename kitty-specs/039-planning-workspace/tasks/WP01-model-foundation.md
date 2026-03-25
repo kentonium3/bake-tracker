@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Model Foundation
 lane: done
-history:
-- timestamp: '2026-01-06T03:09:20Z'
-  lane: planned
-  agent: claude
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '66740'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -21,6 +10,18 @@ subtasks:
 - T004
 - T005
 - T006
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '66740'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T03:09:20Z'
+  lane: planned
+  agent: claude
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Model Foundation

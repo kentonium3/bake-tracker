@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Material Units Service - User Story 3
+lane: done
+dependencies: []
 subtasks:
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-title: "Material Units Service - User Story 3"
-phase: "Phase 1 - Core Services"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T024
+- T025
+- T026
+- T027
+- T028
+- T029
+phase: Phase 1 - Core Services
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Material Units Service - User Story 3

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Recipe Snapshot Service Planning Context
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 065-production-plan-snapshot-refactor-WP02
 base_commit: 77ba3b57119846919c8e1e7a55fa3c38ee273971
@@ -13,10 +13,10 @@ subtasks:
 - T013
 phase: Phase 2 - Service Layer - Snapshot Creation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "82445"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '82445'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned

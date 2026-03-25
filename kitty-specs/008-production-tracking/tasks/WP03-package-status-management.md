@@ -2,23 +2,24 @@
 work_package_id: WP03
 title: Package Status Management
 lane: done
+dependencies: []
+subtasks:
+- T011
+- T012
+- T013
+- T014
+phase: Phase 2 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: '58999'
+review_status: approved
+reviewed_by: claude
 history:
 - timestamp: '2025-12-04T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Service Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '58999'
-subtasks:
-- T011
-- T012
-- T013
-- T014
 ---
 
 # Work Package Prompt: WP03 - Package Status Management

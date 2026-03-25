@@ -20,7 +20,7 @@
 **Goal**: Fix cascading filter behavior in Products tab and add Clear Filters button.
 **Agent**: Claude
 **Independent Test**: Select an L0 category, verify L1 dropdown updates to show only children of that L0.
-**Prompt**: `tasks/planned/WP01-products-tab-cascading-fix.md`
+**Prompt**: `tasks/WP01-products-tab-cascading-fix.md`
 
 ### Included Subtasks
 - [x] T001 Debug `_on_l0_filter_change()` to identify cascading issue in `src/ui/products_tab.py`
@@ -55,7 +55,7 @@
 **Goal**: Apply same cascading fix pattern from WP01 to Inventory tab.
 **Agent**: Gemini (parallel with WP03)
 **Independent Test**: Select an L0 category in Inventory tab, verify L1 dropdown updates correctly.
-**Prompt**: `tasks/planned/WP02-inventory-tab-cascading-fix.md`
+**Prompt**: `tasks/WP02-inventory-tab-cascading-fix.md`
 
 ### Included Subtasks
 - [x] T009 [P] Review WP01 fix pattern from `src/ui/products_tab.py`
@@ -89,7 +89,7 @@
 **Goal**: Verify recipe ingredient selection enforces L2-only and uses proper hierarchy navigation.
 **Agent**: Claude (parallel with WP02)
 **Independent Test**: Open recipe form, attempt to add ingredient, verify only L2 can be selected.
-**Prompt**: `tasks/planned/WP03-recipe-integration-verification.md`
+**Prompt**: `tasks/WP03-recipe-integration-verification.md`
 
 ### Included Subtasks
 - [x] T016 [P] Review `IngredientSelectionDialog` in `src/ui/forms/recipe_form.py`
@@ -125,7 +125,7 @@
 **Agent**: Claude
 **Status**: COMPLETE - 14 integration tests added, all passing.
 **Independent Test**: Tests pass in CI and cover all cascading scenarios.
-**Prompt**: `tasks/for_review/WP04-integration-tests.md`
+**Prompt**: `tasks/WP04-integration-tests.md`
 
 ### Included Subtasks
 - [x] T023 Create test file `src/tests/ui/test_cascading_filters.py`
@@ -208,3 +208,11 @@ Phase C (Sequential):
 | T027 | Test inventory cascading | WP04 | P3 | No |
 | T028 | Test recipe L2-only | WP04 | P3 | No |
 | T029 | Run full test suite | WP04 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

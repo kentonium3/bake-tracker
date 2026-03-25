@@ -2,23 +2,24 @@
 work_package_id: WP01
 title: Model Layer - Add product_name Column
 lane: done
+dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Model Changes
+assignee: claude
+agent: claude-reviewer
+shell_pid: '30408'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Model Changes
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '30408'
-subtasks:
-- T001
-- T002
-- T003
-- T004
 ---
 
 # Work Package Prompt: WP01 - Model Layer - Add product_name Column

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Integration Tests
-lane: "done"
+lane: done
 dependencies:
 - WP02
 base_branch: 066-recipe-variant-yield-remediation-WP01
@@ -13,10 +13,10 @@ subtasks:
 - T018
 phase: Phase 4 - Validation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "32935"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '32935'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned

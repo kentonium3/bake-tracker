@@ -181,3 +181,11 @@
 | T019 | Add TypeAheadEntry to FG builder materials | WP04 | P2 | No |
 | T020 | Wire material selection callback | WP04 | P2 | No |
 | T021 | Verify identical UX across contexts | WP04 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

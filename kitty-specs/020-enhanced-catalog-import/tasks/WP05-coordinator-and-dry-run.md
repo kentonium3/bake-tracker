@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Coordinator and Dry-Run
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Features
-review_status: ''
-reviewed_by: ''
-shell_pid: '63528'
+dependencies: []
 subtasks:
 - T031
 - T032
@@ -24,6 +13,18 @@ subtasks:
 - T037
 - T038
 - T039
+phase: Phase 2 - Features
+assignee: claude
+agent: claude-reviewer
+shell_pid: '63528'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Coordinator and Dry-Run

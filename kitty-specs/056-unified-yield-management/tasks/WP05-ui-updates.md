@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: UI Updates
+lane: done
+dependencies: []
 subtasks:
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-title: "UI Updates"
-phase: "Phase 4 - UI Updates"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "N/A"
-review_status: ""
-reviewed_by: ""
+- T016
+- T017
+- T018
+- T019
+- T020
+phase: Phase 4 - UI Updates
+assignee: claude
+agent: claude
+shell_pid: N/A
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-16T22:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-16T22:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – UI Updates 🎯 MVP

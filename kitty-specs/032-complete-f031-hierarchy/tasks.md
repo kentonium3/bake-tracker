@@ -19,7 +19,7 @@
 
 **Goal**: Replace deprecated "Category" column with three-tier hierarchy columns (L0, L1, Name) in Ingredients tab.
 **Independent Test**: Open Ingredients tab, verify columns show Root Category, Subcategory, and Name for all ingredients.
-**Prompt**: `tasks/planned/WP01-ingredients-grid-columns.md`
+**Prompt**: `tasks/WP01-ingredients-grid-columns.md`
 **User Story**: US1 - View Ingredients by Hierarchy
 
 ### Included Subtasks
@@ -52,7 +52,7 @@
 
 **Goal**: Replace deprecated category dropdown with hierarchy level filter in Ingredients tab.
 **Independent Test**: Select each filter option (All, L0, L1, L2) and verify correct ingredients appear.
-**Prompt**: `tasks/planned/WP02-ingredients-level-filter.md`
+**Prompt**: `tasks/WP02-ingredients-level-filter.md`
 **User Story**: US2 - Filter Ingredients by Hierarchy Level
 
 ### Included Subtasks
@@ -82,7 +82,7 @@
 
 **Goal**: Replace category dropdown with cascading L0/L1 dropdowns in ingredient edit form.
 **Independent Test**: Create a new L2 ingredient by selecting L0, then L1, then entering name; verify it saves correctly.
-**Prompt**: `tasks/planned/WP03-ingredient-edit-form.md`
+**Prompt**: `tasks/WP03-ingredient-edit-form.md`
 **User Story**: US3 - Create/Edit Ingredients with Hierarchy Position
 
 ### Included Subtasks
@@ -117,7 +117,7 @@
 
 **Goal**: Add hierarchy path display and cascading hierarchy filters to Products tab.
 **Independent Test**: Select L0 filter "Chocolate", verify all chocolate-derived products appear with full hierarchy path.
-**Prompt**: `tasks/planned/WP04-products-tab-hierarchy.md`
+**Prompt**: `tasks/WP04-products-tab-hierarchy.md`
 **User Story**: US4 - Filter Products by Ingredient Hierarchy
 
 ### Included Subtasks
@@ -149,7 +149,7 @@
 
 **Goal**: Replace category column with hierarchy columns in Inventory tab grid.
 **Independent Test**: View inventory items and verify hierarchy columns display correctly.
-**Prompt**: `tasks/planned/WP05-inventory-grid-hierarchy.md`
+**Prompt**: `tasks/WP05-inventory-grid-hierarchy.md`
 **User Story**: US5 - View Inventory with Hierarchy Information
 
 ### Included Subtasks
@@ -180,7 +180,7 @@
 
 **Goal**: Display read-only hierarchy information in inventory add/edit forms.
 **Independent Test**: Open inventory edit form, verify L0/L1/L2 labels display correctly for the item's ingredient.
-**Prompt**: `tasks/planned/WP06-inventory-form-hierarchy.md`
+**Prompt**: `tasks/WP06-inventory-form-hierarchy.md`
 **User Story**: US5 - View Inventory with Hierarchy Information
 
 ### Included Subtasks
@@ -209,7 +209,7 @@
 
 **Goal**: Prevent products and recipes from being assigned to non-leaf (L0/L1) ingredients.
 **Independent Test**: Attempt to assign a product to an L0 ingredient; verify error is displayed and save is blocked.
-**Prompt**: `tasks/planned/WP07-leaf-only-validation.md`
+**Prompt**: `tasks/WP07-leaf-only-validation.md`
 **User Story**: US6 - Prevent Invalid Hierarchy Assignments
 
 ### Included Subtasks
@@ -239,7 +239,7 @@
 
 **Goal**: Execute all test cases from bug specification and verify no deprecated UI elements remain.
 **Independent Test**: All 10 test cases from BUG_F031 spec pass.
-**Prompt**: `tasks/planned/WP08-manual-testing-cleanup.md`
+**Prompt**: `tasks/WP08-manual-testing-cleanup.md`
 **User Story**: All user stories (validation phase)
 
 ### Included Subtasks
@@ -339,3 +339,15 @@ WP03 (Edit Form) ────┴────────────────
 | T041-T050 | Manual test cases | WP08 | P3 | Yes |
 | T051 | Code review cleanup | WP08 | P3 | No |
 | T052 | User acceptance testing | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

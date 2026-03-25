@@ -66,3 +66,8 @@
 | T002       | FGSelectionFrame.render_saved_selections() | WP01 | P1 | Yes |
 | T003       | PlanningTab conditional render triggers | WP01 | P1 | No |
 | T004       | Regression tests for selection display | WP01 | P1 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+<!-- status-model:end -->

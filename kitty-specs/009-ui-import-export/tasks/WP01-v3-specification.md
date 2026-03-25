@@ -2,24 +2,25 @@
 work_package_id: WP01
 title: v3.0 Specification Document
 lane: done
-history:
-- timestamp: '2025-12-04T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '84858'
+dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 - T004
 - T005
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '84858'
+review_status: approved
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-04T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - v3.0 Specification Document

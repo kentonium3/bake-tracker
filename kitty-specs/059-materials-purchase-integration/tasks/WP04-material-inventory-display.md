@@ -1,29 +1,29 @@
 ---
-work_package_id: "WP04"
-subtasks:
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-title: "Material Inventory Display"
-phase: "Wave 1 - Core UI"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "83783"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP04
+title: Material Inventory Display
+lane: done
 dependencies:
-  - "WP02"
+- WP02
+subtasks:
+- T018
+- T019
+- T020
+- T021
+- T022
+- T023
+- T024
+phase: Wave 1 - Core UI
+assignee: ''
+agent: claude-opus
+shell_pid: '83783'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Material Inventory Display

@@ -2,20 +2,21 @@
 work_package_id: WP07
 title: Data Migration & Documentation
 lane: done
+dependencies: []
+subtasks:
+- T042
+- T043
+- T044
+phase: Phase 7 - Migration
+assignee: claude
+agent: claude-reviewer
+shell_pid: '75646'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 7 - Migration
-shell_pid: '75646'
-subtasks:
-- T042
-- T043
-- T044
 ---
 
 # Work Package Prompt: WP07 - Data Migration & Documentation

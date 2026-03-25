@@ -2,23 +2,24 @@
 work_package_id: WP05
 title: UI - Density Input
 lane: done
+dependencies: []
+subtasks:
+- T022
+- T023
+- T024
+- T025
+phase: Phase 4 - UI Layer
+assignee: claude
+agent: claude-reviewer
+shell_pid: '14079'
+review_status: approved
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 4 - UI Layer
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '14079'
-subtasks:
-- T022
-- T023
-- T024
-- T025
 ---
 
 # Work Package Prompt: WP05 - UI - Density Input

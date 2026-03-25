@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Transaction Patterns Guide
-lane: "done"
+lane: done
 dependencies: [WP09]
 base_branch: 091-transaction-boundary-documentation-WP09
 base_commit: 67d28002b977b447089b6f9dd881bf2ddb4b9264
@@ -15,10 +15,10 @@ subtasks:
 - T046
 phase: Phase 3 - Guide
 assignee: ''
-agent: "claude-review"
-shell_pid: "75883"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-review
+shell_pid: '75883'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned

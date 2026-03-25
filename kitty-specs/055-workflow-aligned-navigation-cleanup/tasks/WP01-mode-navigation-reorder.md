@@ -1,10 +1,11 @@
 ---
-id: WP01
 title: Mode Navigation Reorder
-lane: "done"
-agent: null
-review_status: null
+lane: done
+dependencies: []
 created_at: 2026-01-15
+agent:
+review_status:
+id: WP01
 ---
 
 # WP01: Mode Navigation Reorder

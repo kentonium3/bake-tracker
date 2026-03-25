@@ -15,11 +15,12 @@
   "accepted_from_commit": "a3f24a8e78abfadd0c6872939184cfb3f9867ad2",
   "created_at": "2026-01-27T23:15:00Z",
   "feature_number": "075",
+  "feature_slug": "075-inventory-gap-analysis",
   "friendly_name": "Inventory Gap Analysis",
   "mission": "software-dev",
   "slug": "075-inventory-gap-analysis",
   "source_description": "see docs/func-spec/F075_inventory_gap_analysis.md for the feature's inputs",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T21:23:55.007179+00:00",
-  "target_branch": "main"
+  "vcs_locked_at": "2026-01-27T21:23:55.007179+00:00"
 }

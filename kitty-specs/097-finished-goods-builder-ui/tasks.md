@@ -303,3 +303,14 @@
 ---
 
 > All subtasks assigned to exactly one work package. 36 subtasks across 7 WPs. Average 5.1 subtasks per WP (within ideal 3-7 range).
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

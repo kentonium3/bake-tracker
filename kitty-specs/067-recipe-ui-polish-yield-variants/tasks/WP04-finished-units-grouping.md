@@ -1,23 +1,23 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Finished Units Grid Variant Grouping
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T011"
-  - "T012"
-title: "Finished Units Grid Variant Grouping"
-phase: "Phase 2 - Grid Grouping"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "52282"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T011
+- T012
+phase: Phase 2 - Grid Grouping
+assignee: ''
+agent: claude-opus
+shell_pid: '52282'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-25T18:09:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-25T18:09:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Finished Units Grid Variant Grouping

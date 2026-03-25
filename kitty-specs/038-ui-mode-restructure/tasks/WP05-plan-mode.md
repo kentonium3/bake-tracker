@@ -2,23 +2,24 @@
 work_package_id: WP05
 title: PLAN Mode
 lane: done
+dependencies: []
+subtasks:
+- T027
+- T028
+- T029
+- T030
+phase: Phase 2 - Mode Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '41347'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Mode Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '41347'
-subtasks:
-- T027
-- T028
-- T029
-- T030
 ---
 
 # Work Package Prompt: WP05 - PLAN Mode

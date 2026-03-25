@@ -208,3 +208,11 @@ WP01 (Bundle Decomposition)
 | T024 | Implement _on_fg_selection_cancel() | WP04 | P2 | No |
 | T025 | Show auto-removal notification | WP04 | P2 | No |
 | T026 | Write integration tests | WP04 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

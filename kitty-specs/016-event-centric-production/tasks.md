@@ -19,7 +19,7 @@
 
 **Goal**: Add all schema changes for event-centric production: new models, FK additions, and relationships.
 **Independent Test**: Models can be imported without error; database creates successfully with new tables.
-**Prompt**: `tasks/planned/WP01-model-layer-schema-changes.md`
+**Prompt**: `tasks/WP01-model-layer-schema-changes.md`
 
 ### Included Subtasks
 - [X] T001 Add `FulfillmentStatus` enum to `src/models/event.py`
@@ -56,7 +56,7 @@
 
 **Goal**: Update BatchProductionService and AssemblyService to accept and store event_id.
 **Independent Test**: Record production/assembly with event_id; verify it persists correctly.
-**Prompt**: `tasks/planned/WP02-service-layer-event-id-params.md`
+**Prompt**: `tasks/WP02-service-layer-event-id-params.md`
 
 ### Included Subtasks
 - [X] T010 Update `BatchProductionService.record_batch_production()` to accept optional `event_id` parameter
@@ -86,7 +86,7 @@
 
 **Goal**: Implement EventService methods for creating, reading, updating, and deleting production/assembly targets.
 **Independent Test**: Create targets via service; verify they persist with correct constraints.
-**Prompt**: `tasks/planned/WP03-service-layer-target-crud.md`
+**Prompt**: `tasks/WP03-service-layer-target-crud.md`
 
 ### Included Subtasks
 - [X] T014 Implement `EventService.set_production_target()` with create/update logic
@@ -119,7 +119,7 @@
 
 **Goal**: Implement EventService methods for calculating production and assembly progress.
 **Independent Test**: Set targets, record attributed production, verify progress percentages.
-**Prompt**: `tasks/planned/WP04-service-layer-progress-calculation.md`
+**Prompt**: `tasks/WP04-service-layer-progress-calculation.md`
 
 ### Included Subtasks
 - [X] T021 Implement `EventService.get_production_progress()` with aggregate query
@@ -150,7 +150,7 @@
 
 **Goal**: Implement fulfillment status update and query methods with sequential workflow enforcement.
 **Independent Test**: Update status pending→ready→delivered; verify invalid transitions rejected.
-**Prompt**: `tasks/planned/WP05-service-layer-fulfillment-status.md`
+**Prompt**: `tasks/WP05-service-layer-fulfillment-status.md`
 
 ### Included Subtasks
 - [X] T025 Implement `EventService.update_fulfillment_status()` with transition validation
@@ -179,7 +179,7 @@
 
 **Goal**: Extend import/export to handle new entities and modified fields.
 **Independent Test**: Export database, recreate, import; verify all event-production data preserved.
-**Prompt**: `tasks/planned/WP06-import-export.md`
+**Prompt**: `tasks/WP06-import-export.md`
 
 ### Included Subtasks
 - [X] T028 Add `EventProductionTarget` to export in `src/services/import_export_service.py`
@@ -213,7 +213,7 @@
 
 **Goal**: Add event selector dropdowns to Record Production and Record Assembly dialogs.
 **Independent Test**: Open dialog, select event, confirm production; verify event_id saved.
-**Prompt**: `tasks/planned/WP07-ui-event-selectors.md`
+**Prompt**: `tasks/WP07-ui-event-selectors.md`
 
 ### Included Subtasks
 - [X] T036 Add event selector dropdown to `src/ui/forms/record_production_dialog.py`
@@ -244,7 +244,7 @@
 
 **Goal**: Add Targets tab to Event Detail window with production/assembly progress display.
 **Independent Test**: Open event, view Targets tab, add target, see progress bar update.
-**Prompt**: `tasks/planned/WP08-ui-targets-tab.md`
+**Prompt**: `tasks/WP08-ui-targets-tab.md`
 
 ### Included Subtasks
 - [X] T041 Add "Targets" tab to `src/ui/event_detail_window.py` (after Assignments)
@@ -281,7 +281,7 @@
 
 **Goal**: Add fulfillment status column to package assignments view with sequential workflow.
 **Independent Test**: View assignments, change status pending→ready; verify persists and dropdown updates.
-**Prompt**: `tasks/planned/WP09-ui-fulfillment-status.md`
+**Prompt**: `tasks/WP09-ui-fulfillment-status.md`
 
 ### Included Subtasks
 - [X] T050 Add fulfillment status column to package assignments in `src/ui/event_detail_window.py`
@@ -312,7 +312,7 @@
 
 **Goal**: Update documentation and verify all acceptance criteria met.
 **Independent Test**: Run full test suite; verify all spec acceptance scenarios pass.
-**Prompt**: `tasks/planned/WP10-documentation-validation.md`
+**Prompt**: `tasks/WP10-documentation-validation.md`
 
 ### Included Subtasks
 - [X] T054 Update CLAUDE.md with event-centric model description
@@ -431,3 +431,17 @@ WP10 (Docs & Validation)
 | T056 | Migration dry-run | WP10 | P3 | No |
 | T057 | Acceptance criteria verification | WP10 | P3 | No |
 | T058 | Final testing walkthrough | WP10 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+- WP10: done
+<!-- status-model:end -->

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Service Slug Generation
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 080-recipe-slug-support-WP01
 base_commit: 66d36d44d002cb8ddd617bb2075cb49b881ea664
@@ -16,10 +16,10 @@ subtasks:
 - T012
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-code"
-shell_pid: "57085"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-code
+shell_pid: '57085'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned

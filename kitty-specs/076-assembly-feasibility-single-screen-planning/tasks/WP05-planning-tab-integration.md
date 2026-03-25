@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Planning Tab Integration
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 076-assembly-feasibility-single-screen-planning-WP04
@@ -14,10 +14,10 @@ subtasks:
 - T021
 phase: Phase 3 - Integration
 assignee: ''
-agent: "claude"
-shell_pid: "51577"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '51577'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T15:30:00Z'
   lane: planned

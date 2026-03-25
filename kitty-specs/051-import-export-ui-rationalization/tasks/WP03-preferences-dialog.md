@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Preferences Dialog
+lane: done
+dependencies: []
 subtasks:
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "Preferences Dialog"
-phase: "Phase 1 - Dependent Services"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T015
+- T016
+- T017
+- T018
+- T019
+- T020
+- T021
+phase: Phase 1 - Dependent Services
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Preferences Dialog

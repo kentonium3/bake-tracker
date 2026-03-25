@@ -178,3 +178,11 @@
 | T020 | Create import_recipe_categories() | WP04 | P2 | No |
 | T021 | Wire import into orchestration | WP04 | P2 | No |
 | T022 | Add round-trip test | WP04 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

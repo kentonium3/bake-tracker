@@ -2,24 +2,25 @@
 work_package_id: WP05
 title: Assembly Service - Core
 lane: done
-history:
-- timestamp: '2025-12-09T17:30:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Assembly
-review_status: ''
-reviewed_by: ''
-shell_pid: '17214'
+dependencies: []
 subtasks:
 - T023
 - T024
 - T025
 - T026
 - T027
+phase: Phase 3 - Assembly
+assignee: claude
+agent: claude-reviewer
+shell_pid: '17214'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T17:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Assembly Service - Core

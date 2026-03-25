@@ -18,7 +18,9 @@
   "accepted_from_commit": "847856579913188a0dbfe3c62ddd0ce6e2f28558",
   "created_at": "2026-01-06T22:33:03Z",
   "feature_number": "040",
+  "feature_slug": "040-import-export-v4",
   "friendly_name": "Import/Export v4.0 Upgrade",
+  "mission": "research",
   "slug": "040-import-export-v4",
   "source_description": "Upgrade import/export to v4.0 schema supporting F037 recipe structure, F039 event output_mode, BT Mobile purchase imports, and percentage-based inventory updates",
   "target_branch": "main"

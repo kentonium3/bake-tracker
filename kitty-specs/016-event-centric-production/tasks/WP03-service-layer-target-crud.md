@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Service Layer - Target CRUD
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Service Layer
-review_status: ''
-reviewed_by: ''
-shell_pid: '84929'
+dependencies: []
 subtasks:
 - T014
 - T015
@@ -22,6 +11,18 @@ subtasks:
 - T018
 - T019
 - T020
+phase: Phase 2 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: '84929'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Service Layer - Target CRUD

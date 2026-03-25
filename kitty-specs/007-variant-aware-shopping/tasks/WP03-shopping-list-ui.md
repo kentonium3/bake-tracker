@@ -2,24 +2,25 @@
 work_package_id: WP03
 title: Shopping List UI Enhancement
 lane: done
-history:
-- timestamp: '2025-12-04'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - UI Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '37274'
+dependencies: []
 subtasks:
 - T008
 - T009
 - T010
 - T011
 - T012
+phase: Phase 3 - UI Layer
+assignee: claude
+agent: claude
+shell_pid: '37274'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-04'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Shopping List UI Enhancement

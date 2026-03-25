@@ -58,3 +58,9 @@
 - CLAUDE.md contains Pagination Pattern section
 - Examples for desktop (pagination=None) and web (PaginationParams) usage
 - References web-prep/F003 for future full adoption
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+<!-- status-model:end -->

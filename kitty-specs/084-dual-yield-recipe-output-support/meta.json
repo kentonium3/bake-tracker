@@ -1,11 +1,12 @@
 {
+  "created_at": "2026-01-29T00:00:00Z",
   "feature_number": "084",
-  "slug": "084-dual-yield-recipe-output-support",
+  "feature_slug": "084-dual-yield-recipe-output-support",
   "friendly_name": "Dual-Yield Recipe Output Support",
   "mission": "software-dev",
+  "slug": "084-dual-yield-recipe-output-support",
   "source_description": "F084 Dual-Yield Support - Enable recipes to define both EA (whole unit) and SERVING yields",
-  "created_at": "2026-01-29T00:00:00Z",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-29T17:08:13.002714+00:00",
-  "target_branch": "main"
+  "vcs_locked_at": "2026-01-29T17:08:13.002714+00:00"
 }

@@ -1,0 +1,67 @@
+{
+  "event_count": 7,
+  "feature_slug": "012-nested-recipes",
+  "last_event_id": "01KMKK28NBFHWZXF5MGNMYSPKV",
+  "materialized_at": "2026-03-25T22:50:29.026320+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 7,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28MM70VSJ0KFRKKP6NSX",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28MR2S1KZB912KGADMW8",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28MWXMEGNGHG7AVJ9QHV",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28MZR8VFKBK2N7A4NG82",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28N35Y1QV6AJV3RTAYCJ",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    },
+    "WP06": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28N7P0JXJ4JTT5CDSH0S",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    },
+    "WP07": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28NBFHWZXF5MGNMYSPKV",
+      "last_transition_at": "2025-12-09T00:00:00Z"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Migration – Transform Existing Data
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 084-dual-yield-recipe-output-support-WP01
@@ -14,10 +14,10 @@ subtasks:
 - T024
 phase: Phase 3 - Deployment
 assignee: ''
-agent: "claude-opus"
-shell_pid: "79235"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '79235'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned

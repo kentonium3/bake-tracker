@@ -1,11 +1,12 @@
 {
+  "created_at": "2026-01-27T17:45:00Z",
   "feature_number": "073",
-  "slug": "073-batch-calculation-user-decisions",
+  "feature_slug": "073-batch-calculation-user-decisions",
   "friendly_name": "Batch Calculation & User Decisions",
   "mission": "software-dev",
+  "slug": "073-batch-calculation-user-decisions",
   "source_description": "see docs/func-spec/F073_batch_calculation_user_decisions.md for the feature's inputs",
-  "created_at": "2026-01-27T17:45:00Z",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T19:19:17.105776+00:00",
-  "target_branch": "main"
+  "vcs_locked_at": "2026-01-27T19:19:17.105776+00:00"
 }

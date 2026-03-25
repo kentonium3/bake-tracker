@@ -2,19 +2,7 @@
 work_package_id: WP06
 title: Dashboard & Shopping List
 lane: done
-history:
-- timestamp: '2025-12-21T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-gemini_candidate: true
-phase: Phase 5 - UI Dashboard
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
+dependencies: []
 subtasks:
 - T030
 - T031
@@ -23,6 +11,19 @@ subtasks:
 - T034
 - T035
 - T036
+phase: Phase 5 - UI Dashboard
+assignee: claude
+agent: claude
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-21T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+gemini_candidate: true
 ---
 
 # Work Package Prompt: WP06 - Dashboard & Shopping List

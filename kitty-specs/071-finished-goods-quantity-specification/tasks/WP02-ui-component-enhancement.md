@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: UI Component Enhancement
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 071-finished-goods-quantity-specification-WP01
 base_commit: 69a9ebc983d54438bb3354bc30afc1bfd78c1397
@@ -13,10 +13,10 @@ subtasks:
 - T008
 phase: Phase 2 - UI Layer
 assignee: ''
-agent: "claude-opus"
-shell_pid: "80114"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '80114'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T12:00:00Z'
   lane: planned

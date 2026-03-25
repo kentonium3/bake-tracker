@@ -19,7 +19,7 @@
 
 **Goal**: Add CSV export and cost analysis service methods that UI components will depend on.
 **Independent Test**: New service methods pass unit tests; existing 680+ tests continue passing.
-**Prompt**: `tasks/planned/WP01-service-layer-foundation.md`
+**Prompt**: `tasks/WP01-service-layer-foundation.md`
 
 ### Included Subtasks
 - [x] T001 Add `export_shopping_list_csv(event_id, file_path)` to `src/services/event_service.py`
@@ -51,7 +51,7 @@
 
 **Goal**: Make Production Dashboard the default view; rename old Dashboard to "Summary".
 **Independent Test**: Launch app, verify Production tab is selected by default and Summary tab shows old Dashboard content.
-**Prompt**: `tasks/planned/WP02-dashboard-restructuring.md`
+**Prompt**: `tasks/WP02-dashboard-restructuring.md`
 
 ### Included Subtasks
 - [x] T007 Reorder tabs in `src/ui/main_window.py` (Production first)
@@ -80,7 +80,7 @@
 
 **Goal**: Add event selector and progress tracking to Production Dashboard (User Stories 1 & 2).
 **Independent Test**: Select event from dropdown, see production/assembly progress bars with accurate percentages.
-**Prompt**: `tasks/planned/WP03-production-dashboard-progress.md`
+**Prompt**: `tasks/WP03-production-dashboard-progress.md`
 
 ### Included Subtasks
 - [x] T011 Add event selector dropdown to `src/ui/production_dashboard_tab.py`
@@ -112,7 +112,7 @@
 
 **Goal**: Enable CSV export of shopping list from Event Detail window (User Story 3).
 **Independent Test**: Click "Export CSV" on event shopping list, verify file created with correct columns.
-**Prompt**: `tasks/planned/WP04-csv-export.md`
+**Prompt**: `tasks/WP04-csv-export.md`
 
 ### Included Subtasks
 - [x] T016 Add "Export CSV" button to Shopping tab in `src/ui/event_detail_window.py`
@@ -142,7 +142,7 @@
 
 **Goal**: Add planned vs actual reporting to Event Detail summary (User Story 4).
 **Independent Test**: View event summary, see production/assembly/package counts and cost variance.
-**Prompt**: `tasks/planned/WP05-event-summary-enhancement.md`
+**Prompt**: `tasks/WP05-event-summary-enhancement.md`
 
 ### Included Subtasks
 - [x] T020 Add planned vs actual production section to Summary tab in `src/ui/event_detail_window.py`
@@ -172,7 +172,7 @@
 
 **Goal**: Add package history to recipient detail view (User Story 6).
 **Independent Test**: View recipient detail, see all packages received across events with fulfillment status.
-**Prompt**: `tasks/planned/WP06-recipient-history.md`
+**Prompt**: `tasks/WP06-recipient-history.md`
 
 ### Included Subtasks
 - [x] T024 Add history section to recipient detail view in `src/ui/recipients_tab.py`
@@ -250,3 +250,13 @@ WP02 (Dashboard Restructure) ──┬──→ WP03 (Progress) ──→ WP05 (
 | T024 | Add history section to recipient detail | WP06 | P3 | No |
 | T025 | Display history table columns | WP06 | P3 | No |
 | T026 | Sort by event date descending | WP06 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

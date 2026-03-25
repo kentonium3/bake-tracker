@@ -2,20 +2,21 @@
 work_package_id: WP01
 title: Service Layer - Suggestion Formatting
 lane: done
+dependencies: []
+subtasks:
+- T001
+phase: Phase 1 - Service Layer Enhancement
+assignee: claude
+agent: claude-reviewer
+shell_pid: '77654'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Service Layer Enhancement
-review_status: ''
-reviewed_by: ''
-shell_pid: '77654'
-subtasks:
-- T001
 ---
 
 # Work Package Prompt: WP01 - Service Layer - Suggestion Formatting

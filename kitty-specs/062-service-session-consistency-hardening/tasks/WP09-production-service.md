@@ -1,28 +1,28 @@
 ---
-work_package_id: "WP09"
+work_package_id: WP09
+title: Production Service Session Hardening
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-  - "T046"
-  - "T047"
-  - "T048"
-title: "Production Service Session Hardening"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "codex"
-agent: "codex"
-shell_pid: "65344"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T042
+- T043
+- T044
+- T045
+- T046
+- T047
+- T048
+phase: Phase 1 - Service Hardening
+assignee: codex
+agent: codex
+shell_pid: '65344'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 – Production Service Session Hardening

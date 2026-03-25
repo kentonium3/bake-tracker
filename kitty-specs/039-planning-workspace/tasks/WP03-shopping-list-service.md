@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Shopping List Service
 lane: done
-history:
-- timestamp: '2026-01-06T03:09:20Z'
-  lane: planned
-  agent: claude
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Services
-review_status: ''
-reviewed_by: ''
-shell_pid: '67066'
+dependencies: []
 subtasks:
 - T013
 - T014
@@ -21,6 +10,18 @@ subtasks:
 - T016
 - T017
 - T018
+phase: Phase 2 - Services
+assignee: claude
+agent: claude-reviewer
+shell_pid: '67066'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T03:09:20Z'
+  lane: planned
+  agent: claude
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Shopping List Service

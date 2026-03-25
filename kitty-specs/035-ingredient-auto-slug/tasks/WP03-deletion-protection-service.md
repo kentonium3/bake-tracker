@@ -2,24 +2,25 @@
 work_package_id: WP03
 title: Deletion Protection Service
 lane: done
-history:
-- timestamp: '2026-01-02T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Core Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '26243'
+dependencies: []
 subtasks:
 - T011
 - T012
 - T013
 - T014
 - T015
+phase: Phase 2 - Core Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '26243'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Deletion Protection Service

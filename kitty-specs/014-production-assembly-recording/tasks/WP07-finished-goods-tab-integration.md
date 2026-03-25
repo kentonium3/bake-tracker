@@ -2,24 +2,25 @@
 work_package_id: WP07
 title: FinishedGoods Tab Integration
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: ''
-phase: Phase 3 - Assembly Recording
-review_status: ''
-reviewed_by: ''
-shell_pid: ''
+dependencies: []
 subtasks:
 - T037
 - T038
 - T039
 - T040
 - T041
+phase: Phase 3 - Assembly Recording
+assignee: ''
+agent: system
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - FinishedGoods Tab Integration

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Amendment Production Validation
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 079-production-aware-planning-calculations-WP01
@@ -15,10 +15,10 @@ subtasks:
 - T017
 phase: Phase 2 - Core Features
 assignee: ''
-agent: "claude-lead"
-shell_pid: "28112"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-lead
+shell_pid: '28112'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned

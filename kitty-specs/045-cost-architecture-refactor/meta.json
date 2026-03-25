@@ -18,6 +18,7 @@
   "accepted_from_commit": "314e68924e2a8a8867607469a8c92bcf4e51538e",
   "created_at": "2026-01-09T00:00:00Z",
   "feature_number": "045",
+  "feature_slug": "045-cost-architecture-refactor",
   "friendly_name": "Cost Architecture Refactor",
   "mission": "software-dev",
   "slug": "045-cost-architecture-refactor",

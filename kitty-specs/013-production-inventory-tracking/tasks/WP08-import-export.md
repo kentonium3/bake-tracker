@@ -2,24 +2,25 @@
 work_package_id: WP08
 title: Import/Export
 lane: done
-history:
-- timestamp: '2025-12-09T17:30:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 4 - History
-review_status: ''
-reviewed_by: ''
-shell_pid: '17214'
+dependencies: []
 subtasks:
 - T041
 - T042
 - T043
 - T044
 - T045
+phase: Phase 4 - History
+assignee: claude
+agent: claude-reviewer
+shell_pid: '17214'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T17:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Import/Export

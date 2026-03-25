@@ -2,24 +2,25 @@
 work_package_id: WP04
 title: Migration and Validation Scripts
 lane: done
-history:
-- timestamp: '2025-12-22T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - Migration
-review_status: ''
-reviewed_by: ''
-shell_pid: reconciled
+dependencies: []
 subtasks:
 - T015
 - T016
 - T017
 - T018
 - T019
+phase: Phase 3 - Migration
+assignee: claude
+agent: claude
+shell_pid: reconciled
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Migration and Validation Scripts

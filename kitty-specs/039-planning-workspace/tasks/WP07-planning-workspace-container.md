@@ -2,18 +2,7 @@
 work_package_id: WP07
 title: Planning Workspace Container
 lane: done
-history:
-- timestamp: '2026-01-06T03:09:20Z'
-  lane: planned
-  agent: claude
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI
-review_status: ''
-reviewed_by: ''
-shell_pid: '71837'
+dependencies: []
 subtasks:
 - T042
 - T043
@@ -22,6 +11,18 @@ subtasks:
 - T046
 - T047
 - T048
+phase: Phase 3 - UI
+assignee: claude
+agent: claude-reviewer
+shell_pid: '71837'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T03:09:20Z'
+  lane: planned
+  agent: claude
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Planning Workspace Container

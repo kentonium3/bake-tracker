@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Assignment Dialog
 lane: done
-history:
-- timestamp: '2025-12-21T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 4 - UI Assignment
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
+dependencies: []
 subtasks:
 - T024
 - T025
@@ -21,6 +10,18 @@ subtasks:
 - T027
 - T028
 - T029
+phase: Phase 4 - UI Assignment
+assignee: claude
+agent: claude
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-21T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Assignment Dialog

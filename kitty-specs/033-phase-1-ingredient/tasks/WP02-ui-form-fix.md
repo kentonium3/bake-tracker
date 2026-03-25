@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: UI Form Fix - Remove Level Selector
 lane: done
-history:
-- timestamp: '2026-01-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - User Story 1 (P1)
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '81353'
+dependencies: []
 subtasks:
 - T005
 - T006
@@ -21,6 +10,18 @@ subtasks:
 - T008
 - T009
 - T010
+phase: Phase 2 - User Story 1 (P1)
+assignee: claude
+agent: claude-reviewer
+shell_pid: '81353'
+review_status: approved without changes
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2026-01-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - UI Form Fix - Remove Level Selector

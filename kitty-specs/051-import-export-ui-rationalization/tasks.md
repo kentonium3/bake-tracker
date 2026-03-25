@@ -375,3 +375,15 @@ Phase 3 (Cleanup):
 | T056 | Multi-entity dependency order | WP08 | P2 | No |
 | T057 | Hide entity checkboxes for Catalog | WP08 | P2 | No |
 | T058 | Regression verification | WP08 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

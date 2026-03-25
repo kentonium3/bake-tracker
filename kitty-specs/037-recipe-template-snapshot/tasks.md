@@ -34,7 +34,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Create RecipeSnapshot model and update Recipe/ProductionRun models with new fields.
 **Independent Test**: All models import without errors; CHECK constraints prevent invalid data.
-**Prompt**: `tasks/planned/WP01-models-layer.md`
+**Prompt**: `tasks/WP01-models-layer.md`
 
 ### Included Subtasks
 - [x] T001 [P] Create RecipeSnapshot model in `src/models/recipe_snapshot.py`
@@ -66,7 +66,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Create snapshot service with CRUD operations following session management patterns.
 **Independent Test**: Can create snapshot, retrieve by recipe_id, immutability enforced.
-**Prompt**: `tasks/planned/WP02-snapshot-service.md`
+**Prompt**: `tasks/WP02-snapshot-service.md`
 
 ### Included Subtasks
 - [x] T006 Create `src/services/recipe_snapshot_service.py` with create_recipe_snapshot()
@@ -96,7 +96,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Modify batch_production_service to create snapshot before production.
 **Independent Test**: Production run creates snapshot; costs calculated from snapshot data.
-**Prompt**: `tasks/planned/WP03-production-integration.md`
+**Prompt**: `tasks/WP03-production-integration.md`
 
 ### Included Subtasks
 - [x] T010 Modify `record_batch_production()` to create snapshot FIRST
@@ -126,7 +126,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Backfill snapshots for existing ProductionRuns with is_backfilled flag.
 **Independent Test**: All existing production runs have snapshots; is_backfilled=True for migrated data.
-**Prompt**: `tasks/planned/WP04-migration-script.md`
+**Prompt**: `tasks/WP04-migration-script.md`
 
 ### Included Subtasks
 - [x] T014 Create migration script in `scripts/migrate_production_snapshots.py`
@@ -156,7 +156,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Add scale_factor input to production dialog with calculated yield display.
 **Independent Test**: User can enter scale_factor; expected yield updates correctly.
-**Prompt**: `tasks/planned/WP05-scale-factor-ui.md`
+**Prompt**: `tasks/WP05-scale-factor-ui.md`
 
 ### Included Subtasks
 - [x] T018 Add scale_factor entry to `src/ui/forms/record_production_dialog.py`
@@ -185,7 +185,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Enable recipe variants with base_recipe relationship and grouped display.
 **Independent Test**: Create variant, verify linked to base; recipe list shows indentation.
-**Prompt**: `tasks/planned/WP06-variant-service-ui.md`
+**Prompt**: `tasks/WP06-variant-service-ui.md`
 
 ### Included Subtasks
 - [x] T022 [P] Add get_recipe_variants(base_recipe_id) to `src/services/recipe_service.py`
@@ -219,7 +219,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Add is_production_ready flag with toggle and filter support.
 **Independent Test**: Toggle readiness; filter shows only ready recipes.
-**Prompt**: `tasks/planned/WP07-production-readiness.md`
+**Prompt**: `tasks/WP07-production-readiness.md`
 
 ### Included Subtasks
 - [x] T030 [P] Add is_production_ready checkbox to `src/ui/forms/recipe_form.py`
@@ -248,7 +248,7 @@ WP01 (Models) ──────────────────────
 
 **Goal**: Display snapshot history for a recipe with restore capability.
 **Independent Test**: View history, see snapshots with dates; restore creates new recipe.
-**Prompt**: `tasks/planned/WP08-recipe-history-view.md`
+**Prompt**: `tasks/WP08-recipe-history-view.md`
 
 ### Included Subtasks
 - [x] T034 Create `src/ui/views/recipe_history_view.py` dialog
@@ -327,3 +327,15 @@ WP01 (Models) ──────────────────────
 | T036 | Add View Details functionality | WP08 | P3 | No |
 | T037 | Add Restore as New Recipe | WP08 | P3 | No |
 | T038 | Add create_recipe_from_snapshot() | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

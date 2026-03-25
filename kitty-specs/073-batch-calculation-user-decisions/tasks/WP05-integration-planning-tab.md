@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration with Planning Tab
-lane: "done"
+lane: done
 dependencies:
 - WP03
 - WP04
@@ -18,10 +18,10 @@ subtasks:
 - T036
 phase: Phase 3 - Integration
 assignee: ''
-agent: "claude"
-shell_pid: "25855"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '25855'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned

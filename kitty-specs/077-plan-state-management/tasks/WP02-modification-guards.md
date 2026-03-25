@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Modification Guards
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 077-plan-state-management-WP01
@@ -15,10 +15,10 @@ subtasks:
 - T010
 phase: Phase 2 - Service Layer Guards
 assignee: ''
-agent: "gemini"
-shell_pid: "56450"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini
+shell_pid: '56450'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T00:00:00Z'
   lane: planned

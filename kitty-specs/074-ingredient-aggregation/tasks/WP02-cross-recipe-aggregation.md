@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Cross-Recipe Aggregation & Edge Cases
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 074-ingredient-aggregation-WP01
 base_commit: 79825eb63cd316e3fe05f288872cc53055b14f1d
@@ -13,11 +13,11 @@ subtasks:
 - T009
 - T010
 phase: Phase 1 - Complete Feature
-assignee: 'claude'
-agent: "gemini"
-shell_pid: "33821"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+assignee: claude
+agent: gemini
+shell_pid: '33821'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T20:19:43Z'
   lane: planned

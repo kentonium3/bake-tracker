@@ -2,16 +2,7 @@
 work_package_id: WP06
 title: Unit Tests
 lane: done
-history:
-- timestamp: '2025-12-21T16:55:08Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 6 - Testing
-shell_pid: '75205'
+dependencies: []
 subtasks:
 - T034
 - T035
@@ -21,6 +12,16 @@ subtasks:
 - T039
 - T040
 - T041
+phase: Phase 6 - Testing
+assignee: claude
+agent: claude-reviewer
+shell_pid: '75205'
+history:
+- timestamp: '2025-12-21T16:55:08Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Unit Tests

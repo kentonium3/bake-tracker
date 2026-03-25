@@ -1,0 +1,74 @@
+{
+  "event_count": 8,
+  "feature_slug": "052-ingredient-material-hierarchy-admin",
+  "last_event_id": "01KMKK29PJW5611VFAWR36JFE6",
+  "materialized_at": "2026-03-25T22:50:34.827150+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 8,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29NJ9X2E32XB1EZJ6EAB",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29NPQTG063RC13ZKEND9",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29NVCHMM716K1T1W6VJP",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29P181EV940XWM55B7F9",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29P6V9NTTQRFJ061ASBT",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP06": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29PAXK2CHW58RHZTWZ4W",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP07": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29PERWVEB54HXFTRSE0B",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    },
+    "WP08": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29PJW5611VFAWR36JFE6",
+      "last_transition_at": "2026-01-14T15:00:00Z"
+    }
+  }
+}

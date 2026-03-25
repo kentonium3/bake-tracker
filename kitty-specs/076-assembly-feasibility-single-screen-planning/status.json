@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "076-assembly-feasibility-single-screen-planning",
+  "last_event_id": "01KMKK2AAB0H97B90A4664S5KV",
+  "materialized_at": "2026-03-25T22:50:38.258734+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A9TM99VEV69H4VC2RAD",
+      "last_transition_at": "2026-01-27T15:30:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A9YHR36KPJEHB6W1K4N",
+      "last_transition_at": "2026-01-27T15:30:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AA3ZPJAKMVNBSTZ1FTW",
+      "last_transition_at": "2026-01-27T15:30:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AA7H49HZM6KBZ3V8GZK",
+      "last_transition_at": "2026-01-27T15:30:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AAB0H97B90A4664S5KV",
+      "last_transition_at": "2026-01-27T15:30:00Z"
+    }
+  }
+}

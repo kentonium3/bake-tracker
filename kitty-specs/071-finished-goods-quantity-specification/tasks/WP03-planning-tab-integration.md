@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Planning Tab Integration
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 071-finished-goods-quantity-specification-WP02
@@ -14,10 +14,10 @@ subtasks:
 - T012
 phase: Phase 3 - Integration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "81837"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '81837'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T12:00:00Z'
   lane: planned

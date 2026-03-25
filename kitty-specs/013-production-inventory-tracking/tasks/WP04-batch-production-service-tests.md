@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Batch Production Service - Tests
 lane: done
-history:
-- timestamp: '2025-12-09T17:30:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Core Services
-review_status: ''
-reviewed_by: ''
-shell_pid: '17130'
+dependencies: []
 subtasks:
 - T014
 - T015
@@ -24,6 +13,18 @@ subtasks:
 - T020
 - T021
 - T022
+phase: Phase 2 - Core Services
+assignee: claude
+agent: claude-reviewer
+shell_pid: '17130'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T17:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Batch Production Service - Tests

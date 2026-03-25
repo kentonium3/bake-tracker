@@ -1,24 +1,25 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Model & Validation Foundation
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Model & Validation Foundation"
-phase: "Phase 1 - Data Model & Validation"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "N/A"
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Data Model & Validation
+assignee: claude
+agent: claude
+shell_pid: N/A
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-16T22:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-16T22:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Model & Validation Foundation

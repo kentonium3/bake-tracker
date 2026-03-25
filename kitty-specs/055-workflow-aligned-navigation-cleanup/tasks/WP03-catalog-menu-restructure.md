@@ -1,10 +1,11 @@
 ---
-id: WP03
 title: Catalog Menu Restructure
-lane: "done"
-agent: null
-review_status: null
+lane: done
+dependencies: []
 created_at: 2026-01-15
+agent:
+review_status:
+id: WP03
 ---
 
 # WP03: Catalog Menu Restructure

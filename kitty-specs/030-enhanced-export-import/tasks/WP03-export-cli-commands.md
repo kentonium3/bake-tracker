@@ -2,23 +2,24 @@
 work_package_id: WP03
 title: Export CLI Commands
 lane: done
+dependencies: []
+subtasks:
+- T012
+- T013
+- T014
+- T015
+phase: Phase 1 - Export Services
+assignee: gemini
+agent: gemini
+shell_pid: retroactive
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: gemini
-assignee: gemini
-phase: Phase 1 - Export Services
-review_status: ''
-reviewed_by: ''
-shell_pid: retroactive
-subtasks:
-- T012
-- T013
-- T014
-- T015
 ---
 
 # Work Package Prompt: WP03 - Export CLI Commands

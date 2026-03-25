@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Import/Export Support
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -14,10 +14,10 @@ subtasks:
 - T022
 phase: Phase 3 - User Story 4 (Data Portability)
 assignee: ''
-agent: "gemini-wp04"
-shell_pid: "96752"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini-wp04
+shell_pid: '96752'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned

@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Supplier Service Slug Integration
+lane: done
+dependencies: []
 subtasks:
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-title: "Supplier Service Slug Integration"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "59105"
-review_status: "approved"
-reviewed_by: "claude"
+- T007
+- T008
+- T009
+- T010
+- T011
+- T012
+phase: Phase 0 - Foundation
+assignee: claude
+agent: claude
+shell_pid: '59105'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T23:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T23:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Supplier Service Slug Integration

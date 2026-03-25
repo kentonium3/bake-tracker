@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Edit Protection for Atomic FGs
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 7923c0cac7a0bde71b2793aaf29e645557c9ba42
@@ -12,10 +12,10 @@ subtasks:
 - T009
 phase: Phase 1 - Edit Protection
 assignee: ''
-agent: "gemini"
-shell_pid: "82712"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini
+shell_pid: '82712'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T23:13:33Z'
   lane: planned

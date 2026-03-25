@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Edit Purchase Dialog
+lane: done
+dependencies: []
 subtasks:
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-title: "Edit Purchase Dialog"
-phase: "Phase 3 - Secondary Features"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T027
+- T028
+- T029
+- T030
+- T031
+- T032
+- T033
+phase: Phase 3 - Secondary Features
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-08T22:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-08T22:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Edit Purchase Dialog

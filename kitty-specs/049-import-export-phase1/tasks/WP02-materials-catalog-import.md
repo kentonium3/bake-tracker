@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Materials Catalog Import
+lane: done
+dependencies: []
 subtasks:
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-title: "Materials Catalog Import"
-phase: "Phase 2 - Wave 1"
-lane: "done"
-assignee: "gemini"
-agent: "gemini"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T013
+- T014
+- T015
+- T016
+- T017
+- T018
+- T019
+phase: Phase 2 - Wave 1
+assignee: gemini
+agent: gemini
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Materials Catalog Import

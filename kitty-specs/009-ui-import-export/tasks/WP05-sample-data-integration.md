@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Sample Data & Integration Testing
 lane: done
-history:
-- timestamp: '2025-12-04T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 4 - Testing & Polish
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '85685'
+dependencies: []
 subtasks:
 - T033
 - T034
@@ -21,6 +10,18 @@ subtasks:
 - T036
 - T037
 - T038
+phase: Phase 4 - Testing & Polish
+assignee: claude
+agent: claude-reviewer
+shell_pid: '85685'
+review_status: approved
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-04T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Sample Data & Integration Testing

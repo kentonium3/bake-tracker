@@ -1,11 +1,14 @@
 ---
 title: Migration Execution & Wizard
 lane: done
-priority: P5
-tags:
-- migration
-- wizard
-- data
+dependencies:
+- WP01
+- WP02
+- WP03
+- WP04
+assignee: Claude Code
+agent: Claude Code
+shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,17 +20,14 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - migration wizard with dry-run, execution, and results display implemented
-agent: Claude Code
-assignee: Claude Code
-dependencies:
-- WP01
-- WP02
-- WP03
-- WP04
 estimate: 10-12 hours
 feature: 003-phase4-ui-completion
 id: WP05
-shell_pid: '1'
+priority: P5
+tags:
+- migration
+- wizard
+- data
 ---
 
 # WP05: Migration Execution & Wizard

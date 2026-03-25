@@ -29,7 +29,7 @@
 **Priority**: HIGH
 **Phase**: Implementation
 **Estimated Lines**: ~155
-**Prompt**: [WP01-service-boundary-compliance.md](tasks/WP01-service-boundary-compliance.md)
+**Prompt**: [WP01-service-boundary-compliance.md](tasks/WP01-service-boundary-compliance.md
 
 **Subtasks**:
 - [x] T001: Add session param to product_service.get_product()
@@ -76,3 +76,8 @@ Single work package - all subtasks completed sequentially except T004 and T006 w
 ```bash
 spec-kitty implement WP01
 ```
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+<!-- status-model:end -->

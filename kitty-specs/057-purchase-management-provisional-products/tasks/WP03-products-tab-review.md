@@ -1,13 +1,13 @@
 ---
 work_package_id: WP03
 title: Products Tab Review Queue
-lane: "done"
+lane: done
 dependencies: []
 subtasks: [T013, T014, T015, T016, T017]
-agent: "claude"
-shell_pid: "29127"
-reviewed_by: "Kent Gale"
-review_status: "approved"
+agent: claude
+shell_pid: '29127'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - date: '2026-01-17'
   action: created

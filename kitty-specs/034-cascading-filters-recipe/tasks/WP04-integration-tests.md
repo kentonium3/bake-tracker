@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Integration Tests
 lane: done
-history:
-- timestamp: '2026-01-02T10:45:22Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase C - Validation
-review_status: ''
-reviewed_by: ''
-shell_pid: '3311'
+dependencies: []
 subtasks:
 - T023
 - T024
@@ -22,6 +11,18 @@ subtasks:
 - T027
 - T028
 - T029
+phase: Phase C - Validation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '3311'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T10:45:22Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Integration Tests

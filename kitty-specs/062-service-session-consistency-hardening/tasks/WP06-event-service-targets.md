@@ -1,31 +1,31 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Event Service Target & Status Operations
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-title: "Event Service Target & Status Operations"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "42843"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T026
+- T027
+- T028
+- T029
+- T030
+phase: Phase 1 - Service Hardening
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '42843'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T20:00:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "42843"
-    action: "Review passed, moved to done"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T20:00:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '42843'
+  action: Review passed, moved to done
 ---
 
 # Work Package Prompt: WP06 – Event Service Target & Status Operations

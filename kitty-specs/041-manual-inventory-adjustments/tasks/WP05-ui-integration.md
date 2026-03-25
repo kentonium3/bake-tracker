@@ -2,16 +2,7 @@
 work_package_id: WP05
 title: UI Integration & Wiring
 lane: done
-history:
-- timestamp: '2026-01-07T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - UI Layer (Gemini)
-shell_pid: '50469'
+dependencies: []
 subtasks:
 - T024
 - T025
@@ -19,6 +10,16 @@ subtasks:
 - T027
 - T028
 - T029
+phase: Phase 2 - UI Layer (Gemini)
+assignee: claude
+agent: claude-reviewer
+shell_pid: '50469'
+history:
+- timestamp: '2026-01-07T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - UI Integration & Wiring

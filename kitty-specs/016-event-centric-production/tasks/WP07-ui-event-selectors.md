@@ -2,24 +2,25 @@
 work_package_id: WP07
 title: UI - Event Selectors
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 5 - UI Event Selectors
-review_status: ''
-reviewed_by: ''
-shell_pid: '94501'
+dependencies: []
 subtasks:
 - T036
 - T037
 - T038
 - T039
 - T040
+phase: Phase 5 - UI Event Selectors
+assignee: claude
+agent: claude
+shell_pid: '94501'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - UI - Event Selectors

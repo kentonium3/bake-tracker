@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Integration & Data Migration
+lane: done
+dependencies: []
 subtasks:
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-title: "Integration & Data Migration"
-phase: "Phase 5 - Integration & Cleanup"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "N/A"
-review_status: ""
-reviewed_by: ""
+- T021
+- T022
+- T023
+- T024
+- T025
+phase: Phase 5 - Integration & Cleanup
+assignee: claude
+agent: claude
+shell_pid: N/A
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-16T22:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-16T22:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – Integration & Data Migration

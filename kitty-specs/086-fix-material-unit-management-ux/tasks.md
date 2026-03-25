@@ -157,3 +157,11 @@ WP03 ─┘
 | T010 | Add unit dropdown | WP04 | P2 | No |
 | T011 | Implement conversion on save | WP04 | P2 | No |
 | T012 | Update placeholder and hints | WP04 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

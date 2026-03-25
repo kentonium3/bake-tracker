@@ -2,18 +2,7 @@
 work_package_id: WP08
 title: Phase View Components
 lane: done
-history:
-- timestamp: '2026-01-06T03:09:20Z'
-  lane: planned
-  agent: claude
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI
-review_status: ''
-reviewed_by: ''
-shell_pid: '71965'
+dependencies: []
 subtasks:
 - T049
 - T050
@@ -24,6 +13,18 @@ subtasks:
 - T055
 - T056
 - T057
+phase: Phase 3 - UI
+assignee: claude
+agent: claude-reviewer
+shell_pid: '71965'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T03:09:20Z'
+  lane: planned
+  agent: claude
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Phase View Components

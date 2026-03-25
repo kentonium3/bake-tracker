@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Dry-Run, Test Data & Polish
+lane: done
+dependencies: []
 subtasks:
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-title: "Dry-Run, Test Data & Polish"
-phase: "Phase 3 - Polish"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "59105"
-review_status: "approved"
-reviewed_by: "claude"
+- T032
+- T033
+- T034
+- T035
+- T036
+- T037
+- T038
+phase: Phase 3 - Polish
+assignee: claude
+agent: claude
+shell_pid: '59105'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T23:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T23:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Dry-Run, Test Data & Polish

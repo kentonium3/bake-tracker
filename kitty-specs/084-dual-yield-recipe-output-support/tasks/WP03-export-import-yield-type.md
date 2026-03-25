@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Export/Import – yield_type Field
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 084-dual-yield-recipe-output-support-WP02
 base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
@@ -14,10 +14,10 @@ subtasks:
 - T014
 phase: Phase 2 - Integration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "73707"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '73707'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned

@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Material Display Changes
+lane: done
+dependencies: []
 subtasks:
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-title: "Material Display Changes"
-phase: "Phase 1 - MVP Display"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T007
+- T008
+- T009
+- T010
+- T011
+phase: Phase 1 - MVP Display
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Material Display Changes

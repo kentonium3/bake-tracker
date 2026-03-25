@@ -248,3 +248,11 @@ WP02 (FinishedGood) ──┘
 | WP02 | Gemini | Parallel execution on FinishedGood |
 | WP03 | Claude | Service layer requires understanding of both models |
 | WP04 | Claude | Test updates and validation require full context |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

@@ -41,7 +41,7 @@ WP01 (foundation)
 
 **Priority**: P1 (foundation for all CLI commands)
 
-**Prompt**: [WP01-service-layer-extension.md](tasks/WP01-service-layer-extension.md)
+**Prompt**: [WP01-service-layer-extension.md](tasks/WP01-service-layer-extension.md
 
 **Subtasks**:
 - [x] T001: Add `strict_mode` parameter to `import_purchases()` [P]
@@ -67,7 +67,7 @@ WP01 (foundation)
 
 **Priority**: P1 (User Story 1 - core capability)
 
-**Prompt**: [WP02-purchase-import-cli.md](tasks/WP02-purchase-import-cli.md)
+**Prompt**: [WP02-purchase-import-cli.md](tasks/WP02-purchase-import-cli.md
 
 **Subtasks**:
 - [x] T004: Add `import-purchases` CLI parser
@@ -91,7 +91,7 @@ WP01 (foundation)
 
 **Priority**: P1 (User Stories 2 & 3)
 
-**Prompt**: [WP03-adjustment-validate-cli.md](tasks/WP03-adjustment-validate-cli.md)
+**Prompt**: [WP03-adjustment-validate-cli.md](tasks/WP03-adjustment-validate-cli.md
 
 **Subtasks**:
 - [x] T007: Add `import-adjustments` CLI parser
@@ -117,7 +117,7 @@ WP01 (foundation)
 
 **Priority**: P2 (quality assurance)
 
-**Prompt**: [WP04-cli-tests.md](tasks/WP04-cli-tests.md)
+**Prompt**: [WP04-cli-tests.md](tasks/WP04-cli-tests.md
 
 **Subtasks**:
 - [x] T011: Add tests for import-purchases command
@@ -160,3 +160,11 @@ WP01 (foundation)
 1. Run `/spec-kitty.implement WP01` to start service layer extension
 2. After WP01, run WP02 and WP03 in parallel (different agents)
 3. After WP02+WP03, run WP04 for tests
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

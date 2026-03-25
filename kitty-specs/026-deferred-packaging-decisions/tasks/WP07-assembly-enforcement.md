@@ -2,23 +2,24 @@
 work_package_id: WP07
 title: Assembly Enforcement
 lane: done
+dependencies: []
+subtasks:
+- T037
+- T038
+- T039
+- T040
+phase: Phase 7 - Assembly Flow
+assignee: claude
+agent: claude
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 7 - Assembly Flow
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
-subtasks:
-- T037
-- T038
-- T039
-- T040
 ---
 
 # Work Package Prompt: WP07 - Assembly Enforcement

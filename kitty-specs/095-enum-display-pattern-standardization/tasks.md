@@ -126,3 +126,10 @@
 | T011 | Add enum code review checklist to CLAUDE.md | WP03 | P2 | Yes |
 | T012 | Audit all enums for display method compliance | WP03 | P2 | Yes |
 | T013 | Document audit findings | WP03 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+<!-- status-model:end -->

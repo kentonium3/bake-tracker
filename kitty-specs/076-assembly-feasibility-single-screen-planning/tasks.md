@@ -207,3 +207,12 @@ WP01 (Service) ─────────────────────�
 | T019       | Add AssemblyStatusFrame to planning_tab | WP05 | P1 | No |
 | T020       | Implement update callback methods | WP05 | P1 | No |
 | T021       | Wire callbacks to save operations | WP05 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

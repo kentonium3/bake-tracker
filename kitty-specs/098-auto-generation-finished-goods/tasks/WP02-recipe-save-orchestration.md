@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Recipe Save Orchestration
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 098-auto-generation-finished-goods-WP01
 base_commit: 5c7a242e9c98aa9dc3bfb31df13eeacbf7a5a6b9
@@ -15,10 +15,10 @@ subtasks:
 - T012
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "42991"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '42991'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned

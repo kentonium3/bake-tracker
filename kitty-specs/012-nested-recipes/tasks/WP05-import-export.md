@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Import/Export Support
 lane: done
-history:
-- timestamp: '2025-12-09T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Core Features
-review_status: ''
-reviewed_by: ''
-shell_pid: '99106'
+dependencies: []
 subtasks:
 - T028
 - T029
@@ -21,6 +10,18 @@ subtasks:
 - T031
 - T032
 - T033
+phase: Phase 2 - Core Features
+assignee: claude
+agent: claude-reviewer
+shell_pid: '99106'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Import/Export Support

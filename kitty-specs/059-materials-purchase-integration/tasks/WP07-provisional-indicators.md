@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP07"
-subtasks:
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-title: "Provisional Product UI Indicators"
-phase: "Wave 2 - Extended Features"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "13641"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP07
+title: Provisional Product UI Indicators
+lane: done
 dependencies:
-  - "WP01"
+- WP01
+subtasks:
+- T037
+- T038
+- T039
+- T040
+phase: Wave 2 - Extended Features
+assignee: ''
+agent: claude-opus
+shell_pid: '13641'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Provisional Product UI Indicators

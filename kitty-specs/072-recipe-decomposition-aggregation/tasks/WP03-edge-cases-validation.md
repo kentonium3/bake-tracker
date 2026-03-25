@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Edge Cases & Validation
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 072-recipe-decomposition-aggregation-WP01
 base_commit: f0556ed2280479fb06fd6f005a5cde6bd1642677
@@ -13,10 +13,10 @@ subtasks:
 - T014
 phase: Phase 2 - Edge Cases
 assignee: ''
-agent: "claude-wp03"
-shell_pid: "3561"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-wp03
+shell_pid: '3561'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T16:30:47Z'
   lane: planned

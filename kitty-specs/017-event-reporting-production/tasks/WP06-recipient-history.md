@@ -2,22 +2,23 @@
 work_package_id: WP06
 title: Recipient History
 lane: done
+dependencies: []
+subtasks:
+- T024
+- T025
+- T026
+phase: Phase 6 - Recipient History
+assignee: claude
+agent: claude
+shell_pid: '30686'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-11T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 6 - Recipient History
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '30686'
-subtasks:
-- T024
-- T025
-- T026
 ---
 
 # Work Package Prompt: WP06 - Recipient History

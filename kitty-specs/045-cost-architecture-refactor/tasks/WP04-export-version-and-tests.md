@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Export Version Bump and Test Updates
+lane: done
+dependencies: []
 subtasks:
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "Export Version Bump and Test Updates"
-phase: "Phase 3 - Polish"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "29997"
-review_status: "approved"
-reviewed_by: "claude"
+- T017
+- T018
+- T019
+- T020
+- T021
+phase: Phase 3 - Polish
+assignee: claude
+agent: claude
+shell_pid: '29997'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-09T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Export Version Bump and Test Updates

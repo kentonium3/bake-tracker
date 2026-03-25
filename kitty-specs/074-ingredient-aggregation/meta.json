@@ -15,11 +15,12 @@
   "accepted_from_commit": "f00365a3e1a3f3bca37a15d04e791c3c19548ac4",
   "created_at": "2026-01-27T20:30:00Z",
   "feature_number": "074",
+  "feature_slug": "074-ingredient-aggregation",
   "friendly_name": "Ingredient Aggregation for Batch Decisions",
   "mission": "software-dev",
   "slug": "074-ingredient-aggregation",
   "source_description": "see docs/func-spec/F074_ingredient_aggregation.md for the feature's inputs",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T20:40:28.969190+00:00",
-  "target_branch": "main"
+  "vcs_locked_at": "2026-01-27T20:40:28.969190+00:00"
 }

@@ -2,18 +2,7 @@
 work_package_id: WP07
 title: PRODUCE Mode
 lane: done
-history:
-- timestamp: '2026-01-05'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Mode Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '41347'
+dependencies: []
 subtasks:
 - T036
 - T037
@@ -21,6 +10,18 @@ subtasks:
 - T039
 - T040
 - T041
+phase: Phase 2 - Mode Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '41347'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-05'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - PRODUCE Mode

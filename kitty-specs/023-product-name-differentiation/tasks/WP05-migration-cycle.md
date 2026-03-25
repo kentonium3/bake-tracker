@@ -2,6 +2,18 @@
 work_package_id: WP05
 title: Migration - Export/Reset/Import Cycle
 lane: done
+dependencies: []
+subtasks:
+- T014
+- T015
+- T016
+- T017
+phase: Phase 4 - Migration
+assignee: user
+agent: claude
+shell_pid: deferred
+review_status: deferred - post-merge
+reviewed_by: claude
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
@@ -13,17 +25,6 @@ history:
   agent: claude
   shell_pid: deferred
   action: Deferred to post-merge per user decision - migration will be performed after feature merge
-agent: claude
-assignee: user
-phase: Phase 4 - Migration
-review_status: deferred - post-merge
-reviewed_by: claude
-shell_pid: deferred
-subtasks:
-- T014
-- T015
-- T016
-- T017
 ---
 
 # Work Package Prompt: WP05 - Migration - Export/Reset/Import Cycle

@@ -1,32 +1,32 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Planning Snapshot Aggregated Ingredients
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "Planning Snapshot Aggregated Ingredients"
-phase: "Phase 2 - Parallel Track"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "8216"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T016
+- T017
+- T018
+- T019
+- T020
+- T021
+phase: Phase 2 - Parallel Track
+assignee: ''
+agent: claude-opus
+shell_pid: '8216'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-20T20:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-21T03:38:39Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "8216"
-    action: "Review passed - Snapshot ingredients implemented"
+- timestamp: '2026-01-20T20:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-21T03:38:39Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '8216'
+  action: Review passed - Snapshot ingredients implemented
 ---
 
 # Work Package Prompt: WP04 – Planning Snapshot Aggregated Ingredients

@@ -231,3 +231,12 @@
 | T038 | Add catalog operation examples | WP05 | P3 | Yes |
 | T039 | Verify help strings | WP05 | P3 | Yes |
 | T040 | Update CLI epilog | WP05 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

@@ -108,3 +108,9 @@
 | T009 | Update main.py to use Config | WP02 | P1 | Yes |
 | T010 | Update health_service.py to use Config | WP02 | P1 | Yes |
 | T011 | Add unit tests for Config properties | WP02 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+<!-- status-model:end -->

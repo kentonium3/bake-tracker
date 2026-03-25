@@ -2,22 +2,23 @@
 work_package_id: WP10
 title: Sample Data & Documentation
 lane: done
+dependencies: []
+subtasks:
+- T042
+- T043
+- T044
+phase: Phase 3 - Integration & Documentation
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '11228'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 3 - Integration & Documentation
-review_status: ''
-reviewed_by: ''
-shell_pid: '11228'
-subtasks:
-- T042
-- T043
-- T044
 ---
 
 # Work Package Prompt: WP10 - Sample Data & Documentation

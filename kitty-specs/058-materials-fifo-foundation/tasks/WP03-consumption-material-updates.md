@@ -1,29 +1,29 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Schema Changes - MaterialConsumption & Material Updates
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-title: "Schema Changes - MaterialConsumption & Material Updates"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "27637"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T009
+- T010
+- T011
+phase: Phase 1 - Foundation
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '27637'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: FIFO traceability added to MaterialConsumption"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: FIFO traceability added to MaterialConsumption'
 ---
 
 # Work Package Prompt: WP03 – Schema Changes - MaterialConsumption & Material Updates

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Filter-First Builder Dialog
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 847afa7bf6ac7099bb461302afd2ce53a409309f
@@ -15,10 +15,10 @@ subtasks:
 - T006
 phase: Phase 1 - Core UI Changes
 assignee: ''
-agent: "gemini-reviewer"
-shell_pid: "85620"
-review_status: "has_feedback"
-reviewed_by: "Kent Gale"
+agent: gemini-reviewer
+shell_pid: '85620'
+review_status: has_feedback
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T23:13:33Z'
   lane: planned

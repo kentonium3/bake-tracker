@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP06"
-subtasks:
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-title: "Tuple Return Elimination"
-phase: "Phase 3 - Tuple Elimination"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: "51023"
-review_status: "has_feedback"
-reviewed_by: "Kent Gale"
+work_package_id: WP06
+title: Tuple Return Elimination
+lane: done
 dependencies: []
+subtasks:
+- T033
+- T034
+- T035
+- T036
+- T037
+phase: Phase 3 - Tuple Elimination
+assignee: ''
+agent: claude
+shell_pid: '51023'
+review_status: has_feedback
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-02-03T16:10:45Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T16:10:45Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Tuple Return Elimination

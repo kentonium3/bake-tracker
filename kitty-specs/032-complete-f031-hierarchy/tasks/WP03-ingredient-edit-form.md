@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Ingredient Edit Form Hierarchy
 lane: done
-history:
-- timestamp: '2025-12-31T23:59:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Ingredients Tab
-review_status: ''
-reviewed_by: ''
-shell_pid: '35513'
+dependencies: []
 subtasks:
 - T012
 - T013
@@ -23,6 +12,18 @@ subtasks:
 - T017
 - T018
 - T019
+phase: Phase 1 - Ingredients Tab
+assignee: claude
+agent: claude
+shell_pid: '35513'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-31T23:59:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Ingredient Edit Form Hierarchy

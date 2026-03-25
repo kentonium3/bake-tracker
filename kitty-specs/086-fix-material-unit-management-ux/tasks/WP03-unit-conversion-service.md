@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Create Unit Conversion Service
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 527cc40cbd4164ef113901a1abb11301bc54c24a
@@ -12,10 +12,10 @@ subtasks:
 - T008
 phase: Phase 2 - Enhancement
 assignee: ''
-agent: "claude-opus"
-shell_pid: "79454"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '79454'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T22:39:29Z'
   lane: planned

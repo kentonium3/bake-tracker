@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Auto-Create Bare FinishedGood on FU Creation
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 098-auto-generation-finished-goods-WP02
 base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
@@ -15,10 +15,10 @@ subtasks:
 - T018
 phase: Phase 1 - Core Feature
 assignee: ''
-agent: "claude-opus"
-shell_pid: "45414"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '45414'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned

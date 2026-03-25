@@ -2,16 +2,7 @@
 work_package_id: WP03
 title: UI - Record Production Dialog
 lane: done
-history:
-- timestamp: '2025-12-21T16:55:08Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI Record Dialog
-shell_pid: '74330'
+dependencies: []
 subtasks:
 - T016
 - T017
@@ -23,6 +14,16 @@ subtasks:
 - T023
 - T024
 - T025
+phase: Phase 3 - UI Record Dialog
+assignee: claude
+agent: claude-reviewer
+shell_pid: '74330'
+history:
+- timestamp: '2025-12-21T16:55:08Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - UI - Record Production Dialog

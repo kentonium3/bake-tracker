@@ -19,7 +19,7 @@
 
 **Goal**: Execute all ingredient hierarchy automated tests and verify 100% pass rate.
 **Independent Test**: Run `PYTHONPATH=. pytest src/tests -v -k ingredient --tb=short` and confirm zero failures.
-**Prompt**: `tasks/planned/WP01-run-automated-tests.md`
+**Prompt**: `tasks/WP01-run-automated-tests.md`
 
 ### Included Subtasks
 - [x] T001 Run ingredient hierarchy service tests (`src/tests/services/test_ingredient_hierarchy_service.py`)
@@ -51,7 +51,7 @@
 
 **Goal**: Manually verify cascading selector behavior in all 4 UI locations.
 **Independent Test**: Start app with `python src/main.py` and test each location per checklist.
-**Prompt**: `tasks/planned/WP02-manual-ui-validation.md`
+**Prompt**: `tasks/WP02-manual-ui-validation.md`
 
 ### Included Subtasks
 - [x] T007 Test Product edit form cascading selector (L0 -> L1 -> L2)
@@ -86,7 +86,7 @@
 
 **Goal**: Verify deletion protection blocks correctly in all scenarios with proper error messages.
 **Independent Test**: Attempt to delete ingredients with various references and confirm blocking.
-**Prompt**: `tasks/planned/WP03-deletion-protection-validation.md`
+**Prompt**: `tasks/WP03-deletion-protection-validation.md`
 
 ### Included Subtasks
 - [x] T013 Test deletion blocked when Products reference ingredient
@@ -119,7 +119,7 @@
 
 **Goal**: Update all documentation to reflect Phase 4 completion and close out ingredient hierarchy implementation.
 **Independent Test**: All documentation reflects current state and no gaps remain.
-**Prompt**: `tasks/planned/WP04-final-documentation.md`
+**Prompt**: `tasks/WP04-final-documentation.md`
 
 ### Included Subtasks
 - [x] T019 Update `docs/design/_F033-F036_ingredient_hierarchy_gap_analysis.md` - mark Phase 4 complete
@@ -184,3 +184,11 @@
 ---
 
 > Total: 4 work packages, 23 subtasks
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

@@ -28,6 +28,7 @@
   "accepted_from_commit": "10255a671369a4f7e72d150b4349e01b253cdd1e",
   "created_at": "2026-01-03T04:05:18Z",
   "feature_number": "037",
+  "feature_slug": "037-recipe-template-snapshot",
   "friendly_name": "Recipe Template & Snapshot System",
   "merge_history": [
     {
@@ -45,6 +46,7 @@
   "merged_into": "main",
   "merged_push": true,
   "merged_strategy": "merge",
+  "mission": "research",
   "slug": "037-recipe-template-snapshot",
   "source_description": "Recipe redesign implementing template/snapshot architecture for versioning, base/variant relationships, batch scaling, and production readiness flags",
   "target_branch": "main"

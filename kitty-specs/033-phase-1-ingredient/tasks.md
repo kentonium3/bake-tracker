@@ -19,7 +19,7 @@
 
 **Goal**: Add three validation/counting convenience functions to `ingredient_hierarchy_service.py` with full test coverage.
 **Independent Test**: All new functions return expected results for L0/L1/L2 ingredients; tests pass.
-**Prompt**: `tasks/planned/WP01-service-layer-functions.md`
+**Prompt**: `tasks/WP01-service-layer-functions.md`
 
 ### Included Subtasks
 - [X] T001 [P] Implement `get_child_count(ingredient_id, session=None) -> int` in `src/services/ingredient_hierarchy_service.py`
@@ -51,7 +51,7 @@
 
 **Goal**: Fix the conceptual model issue by removing the explicit level dropdown and displaying computed level based on parent selection.
 **Independent Test**: Open Add/Edit ingredient form, verify level displays correctly based on parent selection, no level dropdown exists.
-**Prompt**: `tasks/planned/WP02-ui-form-fix.md`
+**Prompt**: `tasks/WP02-ui-form-fix.md`
 
 ### Included Subtasks
 - [X] T005 Remove `ingredient_level_dropdown` and `ingredient_level_var` from `src/ui/ingredients_tab.py` (lines ~866-879)
@@ -86,7 +86,7 @@
 
 **Goal**: Add hierarchy path column to ingredients tab list view showing full path like "Baking > Flour > All-Purpose Flour".
 **Independent Test**: View ingredients list, verify each ingredient shows correct hierarchy path in new column.
-**Prompt**: `tasks/planned/WP03-hierarchy-path-display.md`
+**Prompt**: `tasks/WP03-hierarchy-path-display.md`
 
 ### Included Subtasks
 - [X] T011 Add `hierarchy_path` column to treeview definition in `src/ui/ingredients_tab.py`
@@ -117,7 +117,7 @@
 
 **Goal**: Mark `ingredient_form.py` legacy dialog as deprecated to prevent future use.
 **Independent Test**: Open legacy form (if accessible), verify deprecation warning appears.
-**Prompt**: `tasks/planned/WP04-legacy-form-deprecation.md`
+**Prompt**: `tasks/WP04-legacy-form-deprecation.md`
 
 ### Included Subtasks
 - [X] T014 Add deprecation docstring and comment to `src/ui/forms/ingredient_form.py`
@@ -178,3 +178,11 @@ WP04 (Legacy Deprecation) ← Can run in parallel with WP02/WP03
 | T013 | Display paths in list view | WP03 | P3 | No |
 | T014 | Add deprecation docstring | WP04 | P4 | Yes |
 | T015 | Add runtime deprecation warning | WP04 | P4 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

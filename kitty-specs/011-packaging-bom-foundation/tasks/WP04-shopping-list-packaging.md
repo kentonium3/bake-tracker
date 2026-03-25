@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Event Service Shopping List Extensions
 lane: done
-history:
-- timestamp: '2025-12-08T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-opus-4-5
-assignee: claude
-phase: Phase 2 - User Stories
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
-shell_pid: review
+dependencies: []
 subtasks:
 - T030
 - T031
@@ -24,6 +13,18 @@ subtasks:
 - T036
 - T037
 - T038
+phase: Phase 2 - User Stories
+assignee: claude
+agent: claude-opus-4-5
+shell_pid: review
+review_status: approved without changes
+reviewed_by: claude-opus-4-5
+history:
+- timestamp: '2025-12-08T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Event Service Shopping List Extensions

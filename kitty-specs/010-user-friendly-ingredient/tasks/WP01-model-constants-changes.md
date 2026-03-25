@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Model & Constants Changes
 lane: done
-history:
-- timestamp: '2025-12-04T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '13066'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -22,6 +11,18 @@ subtasks:
 - T005
 - T006
 - T007
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '13066'
+review_status: approved
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-04T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Model & Constants Changes

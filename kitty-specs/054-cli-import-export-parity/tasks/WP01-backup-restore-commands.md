@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Backup/Restore Commands
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-title: "Backup/Restore Commands"
-phase: "Phase 1 - Backup/Restore Commands (P1)"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T007
+- T008
+- T009
+phase: Phase 1 - Backup/Restore Commands (P1)
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Backup/Restore Commands

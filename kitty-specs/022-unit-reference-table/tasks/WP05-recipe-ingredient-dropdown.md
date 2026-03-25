@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Recipe Ingredient Dropdown
 lane: done
-history:
-- timestamp: '2025-12-16T16:56:32Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - UI Integration
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: claude-session
+dependencies: []
 subtasks:
 - T024
 - T025
@@ -21,6 +10,18 @@ subtasks:
 - T027
 - T028
 - T029
+phase: Phase 2 - UI Integration
+assignee: claude
+agent: claude
+shell_pid: claude-session
+review_status: approved without changes
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-16T16:56:32Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Recipe Ingredient Dropdown

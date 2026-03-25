@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Integration & Import/Export
-lane: "done"
+lane: done
 dependencies:
 - WP03
 base_branch: 068-event-management-planning-data-model-WP03
@@ -15,10 +15,10 @@ subtasks:
 - T031
 phase: Phase 3 - Integration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "4029"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '4029'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned

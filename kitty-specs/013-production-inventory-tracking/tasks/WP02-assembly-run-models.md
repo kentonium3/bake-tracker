@@ -2,23 +2,24 @@
 work_package_id: WP02
 title: Assembly Run Models
 lane: done
+dependencies: []
+subtasks:
+- T005
+- T006
+- T007
+- T008
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '17130'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-09T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '17130'
-subtasks:
-- T005
-- T006
-- T007
-- T008
 ---
 
 # Work Package Prompt: WP02 - Assembly Run Models

@@ -2,24 +2,25 @@
 work_package_id: WP07
 title: Inventory Update Service
 lane: done
-history:
-- timestamp: '2026-01-06T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 2 - BT Mobile Workflows
-review_status: ''
-reviewed_by: ''
-shell_pid: '11228'
+dependencies: []
 subtasks:
 - T029
 - T030
 - T031
 - T032
 - T033
+phase: Phase 2 - BT Mobile Workflows
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '11228'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Inventory Update Service

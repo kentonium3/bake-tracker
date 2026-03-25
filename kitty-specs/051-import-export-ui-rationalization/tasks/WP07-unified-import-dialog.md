@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Unified Import Dialog with Context-Rich Purpose
+lane: done
+dependencies: []
 subtasks:
-  - "T043"
-  - "T044"
-  - "T045"
-  - "T046"
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-  - "T051"
-title: "Unified Import Dialog with Context-Rich Purpose"
-phase: "Phase 2 - Integration"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T043
+- T044
+- T045
+- T046
+- T047
+- T048
+- T049
+- T050
+- T051
+phase: Phase 2 - Integration
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Unified Import Dialog with Context-Rich Purpose

@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Integration & Validation
 lane: done
-history:
-- timestamp: '2025-12-12T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Validation
-review_status: ''
-reviewed_by: ''
-shell_pid: '64910'
+dependencies: []
 subtasks:
 - T017
 - T018
@@ -21,6 +10,18 @@ subtasks:
 - T020
 - T021
 - T022
+phase: Phase 3 - Validation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '64910'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-12T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Integration & Validation

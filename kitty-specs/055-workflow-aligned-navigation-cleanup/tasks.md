@@ -153,3 +153,12 @@
 1. **Batch 1 (parallel)**: WP01 + WP02 + WP04
 2. **Batch 2 (sequential)**: WP03
 3. **Batch 3 (verification)**: WP05
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

@@ -2,22 +2,23 @@
 work_package_id: WP03
 title: Hierarchy Path Display
 lane: done
+dependencies: []
+subtasks:
+- T011
+- T012
+- T013
+phase: Phase 3 - User Story 3 (P3)
+assignee: claude
+agent: claude-reviewer
+shell_pid: '81550'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - User Story 3 (P3)
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '81550'
-subtasks:
-- T011
-- T012
-- T013
 ---
 
 # Work Package Prompt: WP03 - Hierarchy Path Display

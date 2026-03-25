@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Event Service Calculation Operations
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T016"
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-title: "Event Service Calculation Operations"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "29403"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T016
+- T017
+- T018
+- T019
+- T020
+phase: Phase 1 - Service Hardening
+assignee: claude
+agent: claude
+shell_pid: '29403'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Event Service Calculation Operations

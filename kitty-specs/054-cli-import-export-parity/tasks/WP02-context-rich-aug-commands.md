@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Context-Rich Aug Commands
+lane: done
+dependencies: []
 subtasks:
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-title: "Context-Rich Aug Commands"
-phase: "Phase 2 - Context-Rich Aug Commands (P1)"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+- T016
+- T017
+- T018
+phase: Phase 2 - Context-Rich Aug Commands (P1)
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Context-Rich Aug Commands

@@ -23,7 +23,7 @@
 
 **Goal**: Create the Unit model and seed all 27 units on database initialization.
 **Independent Test**: Fresh database startup creates units table with exactly 27 units across 4 categories.
-**Prompt**: `tasks/done/WP01-unit-model-and-seeding.md`
+**Prompt**: `tasks/WP01-unit-model-and-seeding.md`
 **User Story**: US4 - Reference Table Seeded on First Launch
 
 ### Included Subtasks
@@ -56,7 +56,7 @@
 
 **Goal**: Create helper functions for querying units by category and formatting for dropdowns.
 **Independent Test**: Service functions return correct units filtered by category with proper formatting.
-**Prompt**: `tasks/done/WP02-unit-service-layer.md`
+**Prompt**: `tasks/WP02-unit-service-layer.md`
 
 ### Included Subtasks
 - [x] T007 Create `src/services/unit_service.py` with query functions
@@ -85,7 +85,7 @@
 
 **Goal**: Replace free-form package_unit entry with dropdown selection showing all units grouped by category.
 **Independent Test**: Add Product form shows unit dropdown; selected unit is saved correctly.
-**Prompt**: `tasks/done/WP03-product-form-dropdown.md`
+**Prompt**: `tasks/WP03-product-form-dropdown.md`
 **User Story**: US1 - Select Unit from Dropdown When Adding Product
 
 ### Included Subtasks
@@ -119,7 +119,7 @@
 
 **Goal**: Replace density_volume_unit and density_weight_unit text entries with filtered dropdowns.
 **Independent Test**: Ingredient form shows volume-only dropdown for density_volume_unit and weight-only for density_weight_unit.
-**Prompt**: `tasks/done/WP04-ingredient-form-dropdowns.md`
+**Prompt**: `tasks/WP04-ingredient-form-dropdowns.md`
 **User Story**: US2 - Select Density Units When Defining Ingredient
 
 ### Included Subtasks
@@ -152,7 +152,7 @@
 
 **Goal**: Replace unit text entry with dropdown showing weight, volume, and count units (no package units).
 **Independent Test**: Add recipe ingredient shows appropriate unit dropdown; selected unit is saved correctly.
-**Prompt**: `tasks/done/WP05-recipe-ingredient-dropdown.md`
+**Prompt**: `tasks/WP05-recipe-ingredient-dropdown.md`
 **User Story**: US3 - Select Unit When Adding Recipe Ingredient
 
 ### Included Subtasks
@@ -233,3 +233,12 @@ WP03 [P]   WP04 [P]   WP05 [P]
 | T027 | Populate with measurement units | WP05 | P2 | No |
 | T028 | Ensure unit stored on save | WP05 | P2 | No |
 | T029 | Verify recipe ingredient edit pre-selection | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

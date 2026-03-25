@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Products Tab Cascading Fix
 lane: done
-history:
-- timestamp: '2026-01-02T10:45:22Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase A - Sequential Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '3311'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -23,6 +12,18 @@ subtasks:
 - T006
 - T007
 - T008
+phase: Phase A - Sequential Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '3311'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T10:45:22Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Products Tab Cascading Fix

@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Dropdown Builder Functions
 lane: done
-history:
-- timestamp: '2025-12-24T23:15:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Widgets
-review_status: ''
-reviewed_by: ''
-shell_pid: '33920'
+dependencies: []
 subtasks:
 - T027
 - T028
@@ -22,6 +11,18 @@ subtasks:
 - T031
 - T032
 - T033
+phase: Phase 1 - Widgets
+assignee: claude
+agent: claude
+shell_pid: '33920'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-24T23:15:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Dropdown Builder Functions

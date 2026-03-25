@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Comparison View & Integration
-lane: "done"
+lane: done
 dependencies: [WP02, WP03, WP04]
 base_branch: 078-plan-snapshots-amendments-WP04
 base_commit: 0474335093934e3aef6864ac6b3f0ec45d45f65b
@@ -15,10 +15,10 @@ subtasks:
 - T026
 phase: Phase 2 - Polish
 assignee: ''
-agent: "gemini"
-shell_pid: "86660"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini
+shell_pid: '86660'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned

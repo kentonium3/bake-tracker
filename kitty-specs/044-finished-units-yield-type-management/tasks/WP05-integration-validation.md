@@ -1,23 +1,24 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Integration & Acceptance Validation
+lane: done
+dependencies: []
 subtasks:
-  - "T016"
-  - "T017"
-  - "T018"
-title: "Integration & Acceptance Validation"
-phase: "Phase 3 - Validation"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T016
+- T017
+- T018
+phase: Phase 3 - Validation
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-09T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Integration & Acceptance Validation

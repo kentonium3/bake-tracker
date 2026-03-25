@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Service Layer - Export Functions
 lane: done
-history:
-- timestamp: '2025-12-04T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Service Layer
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '85066'
+dependencies: []
 subtasks:
 - T006
 - T007
@@ -22,6 +11,18 @@ subtasks:
 - T010
 - T011
 - T012
+phase: Phase 2 - Service Layer
+assignee: claude
+agent: claude-reviewer
+shell_pid: '85066'
+review_status: approved
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-04T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Service Layer - Export Functions

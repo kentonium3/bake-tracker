@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Single-Recipe Aggregation
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 8657d3be86f0ed213c9002069fa57a2a2c98c32f
@@ -13,11 +13,11 @@ subtasks:
 - T004
 - T005
 phase: Phase 0 - Foundation
-assignee: 'claude'
-agent: "gemini"
-shell_pid: "32718"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+assignee: claude
+agent: gemini
+shell_pid: '32718'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T20:19:43Z'
   lane: planned

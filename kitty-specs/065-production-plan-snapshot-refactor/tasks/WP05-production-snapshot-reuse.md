@@ -1,25 +1,25 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Production Service Snapshot Reuse
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-title: "Production Service Snapshot Reuse"
-phase: "Phase 3 - Service Layer - Snapshot Reuse"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "87525"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T021
+- T022
+- T023
+- T024
+phase: Phase 3 - Service Layer - Snapshot Reuse
+assignee: ''
+agent: claude-opus
+shell_pid: '87525'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-24T19:47:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-24T19:47:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Production Service Snapshot Reuse

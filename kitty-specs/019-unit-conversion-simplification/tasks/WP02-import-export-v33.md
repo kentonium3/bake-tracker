@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Import/Export v3.3 Update
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Service Updates
-review_status: ''
-reviewed_by: ''
-shell_pid: '22254'
+dependencies: []
 subtasks:
 - T005
 - T006
@@ -21,6 +10,18 @@ subtasks:
 - T008
 - T009
 - T010
+phase: Phase 2 - Service Updates
+assignee: claude
+agent: claude
+shell_pid: '22254'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Import/Export v3.3 Update

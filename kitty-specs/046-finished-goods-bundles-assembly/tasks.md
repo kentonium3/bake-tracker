@@ -204,3 +204,11 @@ WP04 (UI Verification) - P2
 | US3: Event Planning | WP01, WP02 (T005-T007), WP04 (T014) |
 | US4: Edit/Delete FG | WP04 (T011) - verification only |
 | US5: View Assembly History | WP04 (T012) |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

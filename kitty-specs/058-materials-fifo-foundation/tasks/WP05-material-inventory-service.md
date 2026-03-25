@@ -1,31 +1,31 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: MaterialInventoryService Core
+lane: done
+dependencies: [WP01, WP04]
 subtasks:
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-title: "MaterialInventoryService Core"
-phase: "Phase 2 - Services"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "28309"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01", "WP04"]
+- T017
+- T018
+- T019
+- T020
+- T021
+phase: Phase 2 - Services
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '28309'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: MaterialInventoryService with FIFO consumption operations"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: MaterialInventoryService with FIFO consumption operations'
 ---
 
 # Work Package Prompt: WP05 – MaterialInventoryService Core

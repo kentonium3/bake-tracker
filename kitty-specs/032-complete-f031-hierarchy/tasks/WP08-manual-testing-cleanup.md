@@ -2,18 +2,7 @@
 work_package_id: WP08
 title: Manual Testing & Cleanup
 lane: done
-history:
-- timestamp: '2025-12-31T23:59:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 4 - Validation & Testing
-review_status: ''
-reviewed_by: ''
-shell_pid: '35513'
+dependencies: []
 subtasks:
 - T041
 - T042
@@ -27,6 +16,18 @@ subtasks:
 - T050
 - T051
 - T052
+phase: Phase 4 - Validation & Testing
+assignee: claude
+agent: claude
+shell_pid: '35513'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-31T23:59:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Manual Testing & Cleanup

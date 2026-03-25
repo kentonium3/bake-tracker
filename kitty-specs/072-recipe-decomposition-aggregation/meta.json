@@ -1,11 +1,12 @@
 {
+  "created_at": "2026-01-27T18:45:00Z",
   "feature_number": "072",
-  "slug": "072-recipe-decomposition-aggregation",
+  "feature_slug": "072-recipe-decomposition-aggregation",
   "friendly_name": "Recipe Decomposition & Aggregation",
   "mission": "software-dev",
+  "slug": "072-recipe-decomposition-aggregation",
   "source_description": "see docs/func-spec/F072_recipe_decomposition_aggregation.md for feature inputs.",
-  "created_at": "2026-01-27T18:45:00Z",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T16:49:50.651146+00:00",
-  "target_branch": "main"
+  "vcs_locked_at": "2026-01-27T16:49:50.651146+00:00"
 }

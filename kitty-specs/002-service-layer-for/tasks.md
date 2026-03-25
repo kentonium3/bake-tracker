@@ -29,7 +29,7 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 
 **Goal**: Establish shared utilities, exceptions, and database infrastructure required by all services.
 **Independent Test**: Infrastructure modules importable; session_scope() can execute basic queries; slug generation produces correct output.
-**Prompt**: `/tasks/planned/WP01-foundational-infrastructure.md`
+**Prompt**: `/tasks/WP01-foundational-infrastructure.md`
 
 ### Included Subtasks
 - [x] T001 Create service exceptions module in `src/services/exceptions.py`
@@ -60,7 +60,7 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 
 **Goal**: Deliver complete IngredientService with 7 functions for managing ingredient catalog.
 **Independent Test**: All IngredientService functions pass unit tests; CRUD operations work end-to-end.
-**Prompt**: `/tasks/planned/WP02-ingredient-service.md`
+**Prompt**: `/tasks/WP02-ingredient-service.md`
 
 ### Included Subtasks
 - [x] T006 [P] Write tests for create_ingredient() in `src/tests/test_ingredient_service.py`
@@ -101,7 +101,7 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 
 **Goal**: Deliver complete VariantService with 9 functions for managing product variants.
 **Independent Test**: All VariantService functions pass unit tests; preferred variant toggle works atomically.
-**Prompt**: `/tasks/planned/WP03-variant-service.md`
+**Prompt**: `/tasks/WP03-variant-service.md`
 
 ### Included Subtasks
 - [x] T020 [P] Write tests for create_variant() in `src/tests/test_variant_service.py`
@@ -145,7 +145,7 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 
 **Goal**: Deliver complete PantryService with 8 functions including critical FIFO consumption algorithm.
 **Independent Test**: All PantryService functions pass unit tests; FIFO correctly consumes oldest lots first.
-**Prompt**: `/tasks/planned/WP04-pantry-service.md`
+**Prompt**: `/tasks/WP04-pantry-service.md`
 
 ### Included Subtasks
 - [x] T038 [P] Write tests for add_to_pantry() in `src/tests/test_pantry_service.py`
@@ -189,7 +189,7 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 
 **Goal**: Deliver complete PurchaseService with 8 functions including price trend analysis.
 **Independent Test**: All PurchaseService functions pass unit tests; price alerts trigger correctly.
-**Prompt**: `/tasks/planned/WP05-purchase-service.md`
+**Prompt**: `/tasks/WP05-purchase-service.md`
 
 ### Included Subtasks
 - [x] T054 [P] Write tests for record_purchase() in `src/tests/test_purchase_service.py`
@@ -233,7 +233,7 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 
 **Goal**: Validate cross-service workflows and ensure comprehensive documentation.
 **Independent Test**: Integration tests pass; all spec.md success criteria validated; documentation complete.
-**Prompt**: `/tasks/planned/WP06-integration-testing.md`
+**Prompt**: `/tasks/WP06-integration-testing.md`
 
 ### Included Subtasks
 - [x] T070 [P] Write integration test: ingredient → variant → pantry flow in `src/tests/integration/test_inventory_flow.py`
@@ -288,3 +288,13 @@ description: "Work package task list for Feature 002: Service Layer Implementati
 | T070-T075 | Integration & docs | WP06 | P2 | Yes |
 
 **Total**: 75 subtasks across 6 work packages
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

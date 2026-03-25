@@ -2,24 +2,25 @@
 work_package_id: WP08
 title: Recipe History View
 lane: done
-history:
-- timestamp: '2026-01-03T06:30:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Production Readiness & History
-review_status: ''
-reviewed_by: ''
-shell_pid: '97164'
+dependencies: []
 subtasks:
 - T034
 - T035
 - T036
 - T037
 - T038
+phase: Phase 3 - Production Readiness & History
+assignee: claude
+agent: claude-reviewer
+shell_pid: '97164'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-03T06:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Recipe History View

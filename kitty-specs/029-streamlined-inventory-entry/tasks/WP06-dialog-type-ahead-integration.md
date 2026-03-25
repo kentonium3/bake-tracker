@@ -2,18 +2,7 @@
 work_package_id: WP06
 title: AddInventoryDialog - Type-Ahead Integration
 lane: done
-history:
-- timestamp: '2025-12-24T23:15:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Core Integration
-review_status: ''
-reviewed_by: ''
-shell_pid: '33920'
+dependencies: []
 subtasks:
 - T034
 - T035
@@ -22,6 +11,18 @@ subtasks:
 - T038
 - T039
 - T040
+phase: Phase 2 - Core Integration
+assignee: claude
+agent: claude
+shell_pid: '33920'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-24T23:15:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – AddInventoryDialog Type-Ahead Integration

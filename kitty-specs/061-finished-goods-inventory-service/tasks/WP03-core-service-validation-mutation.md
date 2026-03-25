@@ -1,39 +1,39 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Core Service - Validation and Mutation
+lane: done
+dependencies: [WP01, WP02]
 subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-title: "Core Service - Validation and Mutation"
-phase: "Phase 2 - Core Service"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "12436"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01", "WP02"]
+- T009
+- T010
+- T011
+phase: Phase 2 - Core Service
+assignee: ''
+agent: claude-opus
+shell_pid: '12436'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-21T19:33:38Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T02:16:09Z"
-    lane: "doing"
-    agent: "claude-opus"
-    shell_pid: "7745"
-    action: "Started implementation"
-  - timestamp: "2026-01-22T02:23:30Z"
-    lane: "for_review"
-    agent: "claude-opus"
-    shell_pid: "7745"
-    action: "Ready for review"
-  - timestamp: "2026-01-22T02:40:14Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "12436"
-    action: "Review passed"
+- timestamp: '2026-01-21T19:33:38Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T02:16:09Z'
+  lane: doing
+  agent: claude-opus
+  shell_pid: '7745'
+  action: Started implementation
+- timestamp: '2026-01-22T02:23:30Z'
+  lane: for_review
+  agent: claude-opus
+  shell_pid: '7745'
+  action: Ready for review
+- timestamp: '2026-01-22T02:40:14Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '12436'
+  action: Review passed
 ---
 
 # Work Package Prompt: WP03 - Core Service - Validation and Mutation

@@ -1,0 +1,67 @@
+{
+  "event_count": 7,
+  "feature_slug": "060-architecture-hardening-service-boundaries",
+  "last_event_id": "01KMKK29XN2657C2C7EJ1M1THZ",
+  "materialized_at": "2026-03-25T22:50:36.046963+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 7,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29WRZ6QB8YS3BXXB20XA",
+      "last_transition_at": "2026-01-20T22:22:20Z"
+    },
+    "WP02": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29WX2P67K3HDJQT86CKB",
+      "last_transition_at": "2026-01-20T22:42:10Z"
+    },
+    "WP03": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29X2R6JFCY13CGZ4QMQM",
+      "last_transition_at": "2026-01-21T02:46:55Z"
+    },
+    "WP04": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29X74Y51SVCY7GHBHN02",
+      "last_transition_at": "2026-01-21T03:38:39Z"
+    },
+    "WP05": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29XC2Q87HC2QAEZPQ50Z",
+      "last_transition_at": "2026-01-21T04:03:20Z"
+    },
+    "WP06": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29XHX7XS698TRK8156YM",
+      "last_transition_at": "2026-01-21T04:20:31Z"
+    },
+    "WP07": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29XN2657C2C7EJ1M1THZ",
+      "last_transition_at": "2026-01-21T04:53:30Z"
+    }
+  }
+}

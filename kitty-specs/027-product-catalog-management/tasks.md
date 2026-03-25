@@ -17,7 +17,7 @@
 
 **Goal**: Create Supplier SQLAlchemy model with all attributes, constraints, and indexes.
 **Independent Test**: Model imports correctly; can create/query suppliers in test database.
-**Prompt**: `tasks/planned/WP01-supplier-model.md`
+**Prompt**: `tasks/WP01-supplier-model.md`
 
 #### Included Subtasks
 - [X] T001 Create `src/models/supplier.py` with Supplier class inheriting BaseModel
@@ -44,7 +44,7 @@
 
 **Goal**: Create Purchase model and add new columns to Product and InventoryAddition.
 **Independent Test**: All models import correctly; relationships validate; existing tests pass.
-**Prompt**: `tasks/planned/WP02-purchase-model-and-product-updates.md`
+**Prompt**: `tasks/WP02-purchase-model-and-product-updates.md`
 
 #### Included Subtasks
 - [X] T007 Create `src/models/purchase.py` with Purchase class
@@ -81,7 +81,7 @@
 
 **Goal**: Implement supplier_service.py with full CRUD and soft delete operations.
 **Independent Test**: All supplier service tests pass with >70% coverage.
-**Prompt**: `tasks/planned/WP03-supplier-service.md`
+**Prompt**: `tasks/WP03-supplier-service.md`
 
 #### Included Subtasks
 - [X] T016 Create `src/services/supplier_service.py` with session pattern
@@ -114,7 +114,7 @@
 
 **Goal**: Implement product_catalog_service.py with CRUD, filtering, purchase history.
 **Independent Test**: All product service tests pass with >70% coverage.
-**Prompt**: `tasks/planned/WP04-product-catalog-service.md`
+**Prompt**: `tasks/WP04-product-catalog-service.md`
 
 #### Included Subtasks
 - [X] T028 Create `src/services/product_catalog_service.py` with session pattern
@@ -153,7 +153,7 @@
 
 **Goal**: Create main Products tab with grid, filters, and search.
 **Independent Test**: Tab renders; grid displays products; filters work.
-**Prompt**: `tasks/planned/WP05-products-tab-frame.md`
+**Prompt**: `tasks/WP05-products-tab-frame.md`
 
 #### Included Subtasks
 - [X] T039 Create `src/ui/products_tab.py` extending CTkFrame
@@ -185,7 +185,7 @@
 
 **Goal**: Create dialog for adding and editing products.
 **Independent Test**: Dialog opens; can create new product; validation works.
-**Prompt**: `tasks/planned/WP06-add-product-dialog.md`
+**Prompt**: `tasks/WP06-add-product-dialog.md`
 
 #### Included Subtasks
 - [X] T049 Create `src/ui/forms/add_product_dialog.py` extending CTkToplevel
@@ -218,7 +218,7 @@
 
 **Goal**: Create dialog showing product details and purchase history.
 **Independent Test**: Dialog opens from grid; shows product info; displays purchase history.
-**Prompt**: `tasks/planned/WP07-product-detail-dialog.md`
+**Prompt**: `tasks/WP07-product-detail-dialog.md`
 
 #### Included Subtasks
 - [X] T057 Create `src/ui/forms/product_detail_dialog.py` extending CTkToplevel
@@ -252,7 +252,7 @@
 
 **Goal**: Update import_export_service to handle Supplier and Purchase entities.
 **Independent Test**: Export includes new entities; import restores them correctly.
-**Prompt**: `tasks/planned/WP08-import-export-updates.md`
+**Prompt**: `tasks/WP08-import-export-updates.md`
 
 #### Included Subtasks
 - [X] T065 Update `export_all_to_json_v3()` to include suppliers
@@ -282,7 +282,7 @@
 
 **Goal**: Create migration script to transform existing data for new schema.
 **Independent Test**: Migration preserves all data; creates Unknown supplier; links purchases.
-**Prompt**: `tasks/planned/WP09-migration-transformation.md`
+**Prompt**: `tasks/WP09-migration-transformation.md`
 
 #### Included Subtasks
 - [X] T074 Create migration script `scripts/migrate_f027.py`
@@ -350,3 +350,16 @@ Phase 4 (Sequential):
 | T074-T082 | Migration transformation | WP09 | 4 | No |
 
 **Total**: 82 subtasks across 9 work packages in 4 phases
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+<!-- status-model:end -->

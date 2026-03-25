@@ -2,24 +2,25 @@
 work_package_id: WP01
 title: Recipe Export v4.0
 lane: done
-history:
-- timestamp: '2026-01-06T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Core Schema Upgrade
-review_status: ''
-reviewed_by: ''
-shell_pid: '89028'
+dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 - T004
 - T005
+phase: Phase 1 - Core Schema Upgrade
+assignee: claude
+agent: claude-reviewer
+shell_pid: '89028'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Recipe Export v4.0

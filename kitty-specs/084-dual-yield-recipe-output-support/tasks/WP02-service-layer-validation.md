@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Service Layer – yield_type Validation
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 084-dual-yield-recipe-output-support-WP01
 base_commit: ab69e594ec263da2dfdb1bfb5a310aebe407727f
@@ -13,10 +13,10 @@ subtasks:
 - T009
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "71152"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '71152'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned

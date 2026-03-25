@@ -347,3 +347,15 @@ WP01 (session param) ──→ WP02 (orchestration) ──→ WP03 (auto-create)
 | T044 | Handle duplicate names in bulk | WP08 | P3 | No |
 | T045 | Tests: bulk import with auto-generation | WP08 | P3 | No |
 | T046 | Tests: rollback and duplicate handling | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

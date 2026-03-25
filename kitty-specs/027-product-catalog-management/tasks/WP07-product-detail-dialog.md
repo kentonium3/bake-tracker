@@ -2,18 +2,7 @@
 work_package_id: WP07
 title: Product Detail Dialog
 lane: done
-history:
-- timestamp: '2025-12-22T14:35:00Z'
-  lane: planned
-  agent: system
-  shell_pid: '50566'
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: claude
-phase: Phase 3 - UI Layer
-review_status: ''
-reviewed_by: ''
-shell_pid: '50566'
+dependencies: []
 subtasks:
 - T057
 - T058
@@ -23,6 +12,18 @@ subtasks:
 - T062
 - T063
 - T064
+phase: Phase 3 - UI Layer
+assignee: claude
+agent: system
+shell_pid: '50566'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T14:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: '50566'
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – Product Detail Dialog

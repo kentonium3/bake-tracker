@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Reparent Operations
+lane: done
+dependencies: []
 subtasks:
-  - "T044"
-  - "T045"
-  - "T046"
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-  - "T051"
-title: "Reparent Operations"
-phase: "Phase 4 - Operations"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T044
+- T045
+- T046
+- T047
+- T048
+- T049
+- T050
+- T051
+phase: Phase 4 - Operations
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – Reparent Operations

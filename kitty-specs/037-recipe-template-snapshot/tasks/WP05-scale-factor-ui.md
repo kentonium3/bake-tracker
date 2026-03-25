@@ -2,23 +2,24 @@
 work_package_id: WP05
 title: Scale Factor UI
 lane: done
+dependencies: []
+subtasks:
+- T018
+- T019
+- T020
+- T021
+phase: Phase 2 - Scaling & Variants
+assignee: claude
+agent: claude-reviewer
+shell_pid: '97164'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Scaling & Variants
-review_status: ''
-reviewed_by: ''
-shell_pid: '97164'
-subtasks:
-- T018
-- T019
-- T020
-- T021
 ---
 
 # Work Package Prompt: WP05 - Scale Factor UI

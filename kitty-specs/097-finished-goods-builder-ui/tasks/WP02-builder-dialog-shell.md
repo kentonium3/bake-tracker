@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Builder Dialog Shell & Navigation
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 097-finished-goods-builder-ui-WP01
 base_commit: ced1f690e9cc5fc09d210bb528d1f81fdc5736ba
@@ -14,10 +14,10 @@ subtasks:
 - T009
 phase: Phase A - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "26279"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '26279'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned

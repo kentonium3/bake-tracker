@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Schema Validation Service
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T007"
-title: "Schema Validation Service"
-phase: "Phase 0 - Foundational"
-lane: "done"
-assignee: ""
-agent: "codex"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T007
+phase: Phase 0 - Foundational
+assignee: ''
+agent: codex
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Schema Validation Service

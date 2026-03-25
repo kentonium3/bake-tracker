@@ -1,22 +1,23 @@
 ---
-work_package_id: "WP01"
+work_package_id: WP01
+title: Dynamic Cost Calculation Methods
+lane: done
+dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-title: "Dynamic Cost Calculation Methods"
-phase: "Phase 1 - Model Layer Fixes"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T001
+- T002
+phase: Phase 1 - Model Layer Fixes
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T07:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T07:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Dynamic Cost Calculation Methods

@@ -25,7 +25,7 @@
 
 **Goal**: Export all 16 entity types with manifest for complete system backup/restore.
 **Independent Test**: Export full backup, verify 16 entity files + manifest.json with accurate counts.
-**Prompt**: `tasks/planned/WP01-complete-system-backup.md`
+**Prompt**: `tasks/WP01-complete-system-backup.md`
 **Agent**: Claude
 
 ### Included Subtasks
@@ -61,7 +61,7 @@
 
 **Goal**: Import materials and material_products from JSON, matching ingredient import pattern.
 **Independent Test**: Import materials JSON, verify records visible in Materials tab.
-**Prompt**: `tasks/planned/WP02-materials-catalog-import.md`
+**Prompt**: `tasks/WP02-materials-catalog-import.md`
 **Agent**: Gemini
 
 ### Included Subtasks
@@ -96,7 +96,7 @@
 
 **Goal**: Export ingredients, materials, recipes with hierarchy paths and computed values.
 **Independent Test**: Export ingredients context-rich, verify hierarchy paths and inventory totals.
-**Prompt**: `tasks/planned/WP03-context-rich-export.md`
+**Prompt**: `tasks/WP03-context-rich-export.md`
 **Agent**: Gemini
 
 ### Included Subtasks
@@ -132,7 +132,7 @@
 
 **Goal**: Import purchase transactions, create Purchase + InventoryItem records, update costs.
 **Independent Test**: Import purchases JSON, verify inventory quantities increased.
-**Prompt**: `tasks/planned/WP04-purchase-transaction-import.md`
+**Prompt**: `tasks/WP04-purchase-transaction-import.md`
 **Agent**: Gemini
 
 ### Included Subtasks
@@ -169,7 +169,7 @@
 
 **Goal**: Import inventory adjustments (spoilage, waste, corrections), decrease inventory.
 **Independent Test**: Import adjustments JSON with negative quantities, verify inventory decreased.
-**Prompt**: `tasks/planned/WP05-inventory-adjustment-import.md`
+**Prompt**: `tasks/WP05-inventory-adjustment-import.md`
 **Agent**: Gemini
 
 ### Included Subtasks
@@ -205,7 +205,7 @@
 
 **Goal**: Auto-detect format, extract editable fields from context-rich imports, ignore computed.
 **Independent Test**: Import context-rich file, verify editable fields updated, computed ignored.
-**Prompt**: `tasks/planned/WP06-context-rich-import.md`
+**Prompt**: `tasks/WP06-context-rich-import.md`
 **Agent**: Claude
 
 ### Included Subtasks
@@ -240,7 +240,7 @@
 
 **Goal**: Clear UI distinguishing 3 export types and 4 import purposes with auto-detection.
 **Independent Test**: Navigate dialogs, verify clear labels and appropriate options per type.
-**Prompt**: `tasks/planned/WP07-redesigned-ui.md`
+**Prompt**: `tasks/WP07-redesigned-ui.md`
 **Agent**: Gemini
 
 ### Included Subtasks
@@ -280,7 +280,7 @@
 
 **Goal**: Comprehensive integration tests validating all workflows end-to-end.
 **Independent Test**: All integration tests pass, >70% service coverage.
-**Prompt**: `tasks/planned/WP08-integration-testing.md`
+**Prompt**: `tasks/WP08-integration-testing.md`
 **Agent**: Claude
 
 ### Included Subtasks
@@ -316,7 +316,7 @@
 
 **Goal**: Update spec_import_export.md with all new capabilities for AI system reference.
 **Independent Test**: Documentation accurately describes all new schemas and workflows.
-**Prompt**: `tasks/planned/WP09-documentation-update.md`
+**Prompt**: `tasks/WP09-documentation-update.md`
 **Agent**: Gemini
 
 ### Included Subtasks
@@ -394,3 +394,16 @@
 **Total**: 9 work packages, 85 subtasks
 **Claude**: 3 WPs (WP01, WP06, WP08)
 **Gemini**: 6 WPs (WP02, WP03, WP04, WP05, WP07, WP09)
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+<!-- status-model:end -->

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Edit Recipe Yield Section Polish
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: fb81dfdc215cc23237d5441a4b7c843294ee85d8
@@ -12,10 +12,10 @@ subtasks:
 - T003
 phase: Phase 1 - UI Polish
 assignee: ''
-agent: "claude-opus"
-shell_pid: "51754"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '51754'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned

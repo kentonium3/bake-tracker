@@ -1,25 +1,25 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Assembly Service Snapshot Reuse
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-title: "Assembly Service Snapshot Reuse"
-phase: "Phase 3 - Service Layer - Snapshot Reuse"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "90522"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T025
+- T026
+- T027
+- T028
+phase: Phase 3 - Service Layer - Snapshot Reuse
+assignee: ''
+agent: claude-opus
+shell_pid: '90522'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-24T19:47:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-24T19:47:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – Assembly Service Snapshot Reuse

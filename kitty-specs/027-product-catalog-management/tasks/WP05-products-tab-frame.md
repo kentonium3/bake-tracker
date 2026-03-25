@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Products Tab Frame
 lane: done
-history:
-- timestamp: '2025-12-22T14:35:00Z'
-  lane: planned
-  agent: system
-  shell_pid: '50566'
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: claude
-phase: Phase 3 - UI Layer
-review_status: ''
-reviewed_by: ''
-shell_pid: '50566'
+dependencies: []
 subtasks:
 - T039
 - T040
@@ -25,6 +14,18 @@ subtasks:
 - T046
 - T047
 - T048
+phase: Phase 3 - UI Layer
+assignee: claude
+agent: system
+shell_pid: '50566'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T14:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: '50566'
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Products Tab Frame

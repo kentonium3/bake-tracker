@@ -22,7 +22,7 @@
 
 **Goal**: Add OutputMode enum to Event and create ProductionPlanSnapshot model.
 **Independent Test**: Models import correctly; new tables created; Event.output_mode field accessible.
-**Prompt**: `tasks/planned/WP01-model-foundation.md`
+**Prompt**: `tasks/WP01-model-foundation.md`
 
 ### Included Subtasks
 - [x] T001 Add OutputMode enum to `src/models/event.py`
@@ -52,7 +52,7 @@
 
 **Goal**: Implement batch count calculation logic that always rounds up (never short).
 **Independent Test**: Unit tests pass for calculate_batches, waste calculation, and multi-recipe aggregation.
-**Prompt**: `tasks/planned/WP02-batch-calculation-service.md`
+**Prompt**: `tasks/WP02-batch-calculation-service.md`
 
 ### Included Subtasks
 - [x] T007 [P] Create `src/services/planning/__init__.py` with module exports
@@ -82,7 +82,7 @@
 
 **Goal**: Generate aggregated shopping list with inventory gap analysis.
 **Independent Test**: Unit tests pass for ingredient aggregation and gap calculation.
-**Prompt**: `tasks/planned/WP03-shopping-list-service.md`
+**Prompt**: `tasks/WP03-shopping-list-service.md`
 
 ### Included Subtasks
 - [x] T013 [P] Create `src/services/planning/shopping_list.py`
@@ -112,7 +112,7 @@
 
 **Goal**: Check production and assembly feasibility.
 **Independent Test**: Unit tests pass for feasibility checks with various inventory states.
-**Prompt**: `tasks/planned/WP04-feasibility-service.md`
+**Prompt**: `tasks/WP04-feasibility-service.md`
 
 ### Included Subtasks
 - [x] T019 [P] Create `src/services/planning/feasibility.py`
@@ -142,7 +142,7 @@
 
 **Goal**: Track production and assembly progress.
 **Independent Test**: Unit tests pass for progress calculation and status updates.
-**Prompt**: `tasks/planned/WP05-progress-service.md`
+**Prompt**: `tasks/WP05-progress-service.md`
 
 ### Included Subtasks
 - [x] T025 [P] Create `src/services/planning/progress.py`
@@ -172,7 +172,7 @@
 
 **Goal**: Create PlanningService facade that orchestrates all modules.
 **Independent Test**: Integration tests pass for calculate_plan, check_staleness, get_plan_summary.
-**Prompt**: `tasks/planned/WP06-planning-service-facade.md`
+**Prompt**: `tasks/WP06-planning-service-facade.md`
 
 ### Included Subtasks
 - [x] T031 Create `src/services/planning/planning_service.py` facade
@@ -207,7 +207,7 @@
 
 **Goal**: Create main wizard container with phase navigation sidebar.
 **Independent Test**: UI renders with sidebar; phase navigation works; status indicators display.
-**Prompt**: `tasks/planned/WP07-planning-workspace-container.md`
+**Prompt**: `tasks/WP07-planning-workspace-container.md`
 
 ### Included Subtasks
 - [x] T042 Create `src/ui/planning/__init__.py` with module exports
@@ -238,7 +238,7 @@
 
 **Goal**: Create the four phase view components (Calculate, Shop, Produce, Assemble).
 **Independent Test**: Each view renders correctly and interacts with PlanningService.
-**Prompt**: `tasks/planned/WP08-phase-view-components.md`
+**Prompt**: `tasks/WP08-phase-view-components.md`
 
 ### Included Subtasks
 - [x] T049 [P] Create `src/ui/planning/calculate_view.py` - batch calculation display (US1)
@@ -271,7 +271,7 @@
 
 **Goal**: Final integration, edge case handling, and validation.
 **Independent Test**: Full workflow test; all acceptance scenarios pass; >70% service coverage.
-**Prompt**: `tasks/planned/WP09-polish-and-integration.md`
+**Prompt**: `tasks/WP09-polish-and-integration.md`
 
 ### Included Subtasks
 - [x] T058 Validate full workflow: Event -> Calculate -> Shop -> Produce -> Assemble
@@ -388,3 +388,16 @@ WP01 (Models)
 | T063 | Performance verification | WP09 | P4 | No |
 | T064 | Coverage verification | WP09 | P4 | No |
 | T065 | Update quickstart checklist | WP09 | P4 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+<!-- status-model:end -->

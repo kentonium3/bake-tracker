@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Edit Mode
-lane: "done"
+lane: done
 dependencies: [WP05]
 base_branch: 097-finished-goods-builder-ui-WP05
 base_commit: 0995392f6b9db5523c2fc8732fa0100c560713fb
@@ -14,10 +14,10 @@ subtasks:
 - T031
 phase: Phase C - Integration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "33322"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '33322'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned

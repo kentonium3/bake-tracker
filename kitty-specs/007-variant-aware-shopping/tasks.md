@@ -19,7 +19,7 @@
 
 **Goal**: Implement the core variant recommendation logic in VariantService that calculates cost-per-unit, minimum packages, and total cost for ingredient shortfalls.
 **Independent Test**: Unit tests pass for `get_variant_recommendation()` with preferred, multiple, and no-variant scenarios.
-**Prompt**: `tasks/done/WP01-variant-service-recommendations.md`
+**Prompt**: `tasks/WP01-variant-service-recommendations.md`
 
 ### Included Subtasks
 - [x] T001 Implement `_calculate_variant_cost()` helper in `src/services/variant_service.py`
@@ -57,7 +57,7 @@
 
 **Goal**: Extend `get_shopping_list()` to include variant recommendations and calculate total estimated cost.
 **Independent Test**: Integration test verifies shopping list returns variant data and correct total cost.
-**Prompt**: `tasks/done/WP02-event-service-integration.md`
+**Prompt**: `tasks/WP02-event-service-integration.md`
 
 ### Included Subtasks
 - [x] T005 Modify `get_shopping_list()` in `src/services/event_service.py` to call VariantService
@@ -89,7 +89,7 @@
 
 **Goal**: Add variant recommendation columns to the shopping list table and handle multiple variant display.
 **Independent Test**: Visual verification shows variant columns, preferred indicators, and stacked rows for multiple variants.
-**Prompt**: `tasks/done/WP03-shopping-list-ui.md`
+**Prompt**: `tasks/WP03-shopping-list-ui.md`
 
 ### Included Subtasks
 - [x] T008 Add columns to shopping list table: Variant, Package Size, Cost/Unit, Est. Cost
@@ -126,7 +126,7 @@
 
 **Goal**: End-to-end validation against all acceptance criteria and polish.
 **Independent Test**: All acceptance scenarios from spec.md pass manual testing.
-**Prompt**: `tasks/done/WP04-validation-polish.md`
+**Prompt**: `tasks/WP04-validation-polish.md`
 
 ### Included Subtasks
 - [x] T013 Validate all acceptance scenarios from User Stories 1-4
@@ -189,3 +189,11 @@ WP01 (VariantService) ─────► WP02 (EventService) ─────► 
 | T014 | Verify edge cases | WP04 | P3 | Yes |
 | T015 | Run full test suite, verify coverage | WP04 | P3 | Yes |
 | T016 | Code formatting and linting | WP04 | P3 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

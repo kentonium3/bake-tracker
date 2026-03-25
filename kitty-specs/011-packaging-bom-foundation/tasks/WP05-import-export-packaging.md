@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Import/Export Service Updates
 lane: done
-history:
-- timestamp: '2025-12-08T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-opus-4-5
-assignee: claude
-phase: Phase 2 - User Stories
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
-shell_pid: review
+dependencies: []
 subtasks:
 - T039
 - T040
@@ -23,6 +12,18 @@ subtasks:
 - T044
 - T045
 - T046
+phase: Phase 2 - User Stories
+assignee: claude
+agent: claude-opus-4-5
+shell_pid: review
+review_status: approved without changes
+reviewed_by: claude-opus-4-5
+history:
+- timestamp: '2025-12-08T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Import/Export Service Updates

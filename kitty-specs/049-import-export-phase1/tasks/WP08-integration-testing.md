@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Integration Testing
+lane: done
+dependencies: []
 subtasks:
-  - "T067"
-  - "T068"
-  - "T069"
-  - "T070"
-  - "T071"
-  - "T072"
-  - "T073"
-  - "T074"
-  - "T075"
-title: "Integration Testing"
-phase: "Phase 4 - Final"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T067
+- T068
+- T069
+- T070
+- T071
+- T072
+- T073
+- T074
+- T075
+phase: Phase 4 - Final
+assignee: claude
+agent: claude
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Integration Testing

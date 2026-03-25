@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-title: "Recipe Model Schema Changes"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-code"
-shell_pid: "56589"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Recipe Model Schema Changes
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 0 - Foundation
+assignee: ''
+agent: claude-code
+shell_pid: '56589'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-28T07:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T07:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Recipe Model Schema Changes

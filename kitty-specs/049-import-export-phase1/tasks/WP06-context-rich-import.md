@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Context-Rich Import with Auto-Detection
+lane: done
+dependencies: []
 subtasks:
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-  - "T051"
-  - "T052"
-  - "T053"
-  - "T054"
-title: "Context-Rich Import with Auto-Detection"
-phase: "Phase 3 - Wave 2"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T047
+- T048
+- T049
+- T050
+- T051
+- T052
+- T053
+- T054
+phase: Phase 3 - Wave 2
+assignee: claude
+agent: claude
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Context-Rich Import with Auto-Detection

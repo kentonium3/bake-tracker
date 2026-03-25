@@ -1,0 +1,74 @@
+{
+  "event_count": 8,
+  "feature_slug": "030-enhanced-export-import",
+  "last_event_id": "01KMKK2953T72ZNYKWXAS187XZ",
+  "materialized_at": "2026-03-25T22:50:31.667873+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 8,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2949JS9PK9BR11NBH7MC",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK294CMEWRRMA4NT7BAQ80",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK294F71NA8PN16VP78RRC",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK294KBCT6G4KM0GEX9F4G",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK294Q5B63PZS58N59XFY0",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP06": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK294T0BXPWFC515WEB82J",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP07": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK294ZSK1Y5E64NPZ78W7K",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    },
+    "WP08": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2953T72ZNYKWXAS187XZ",
+      "last_transition_at": "2025-12-25T14:00:00Z"
+    }
+  }
+}

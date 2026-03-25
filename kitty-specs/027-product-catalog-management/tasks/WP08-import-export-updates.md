@@ -2,18 +2,7 @@
 work_package_id: WP08
 title: Import/Export Updates
 lane: done
-history:
-- timestamp: '2025-12-22T14:35:00Z'
-  lane: planned
-  agent: system
-  shell_pid: '50566'
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: claude
-phase: Phase 4 - Integration & Migration
-review_status: ''
-reviewed_by: ''
-shell_pid: '50566'
+dependencies: []
 subtasks:
 - T065
 - T066
@@ -24,6 +13,18 @@ subtasks:
 - T071
 - T072
 - T073
+phase: Phase 4 - Integration & Migration
+assignee: claude
+agent: system
+shell_pid: '50566'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T14:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: '50566'
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 – Import/Export Updates

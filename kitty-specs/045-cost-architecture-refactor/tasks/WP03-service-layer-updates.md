@@ -1,23 +1,24 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Service Layer Cost Reference Updates
+lane: done
+dependencies: []
 subtasks:
-  - "T014"
-  - "T015"
-  - "T016"
-title: "Service Layer Cost Reference Updates"
-phase: "Phase 2 - Service Layer"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "29997"
-review_status: "approved"
-reviewed_by: "claude"
+- T014
+- T015
+- T016
+phase: Phase 2 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: '29997'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-09T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Service Layer Cost Reference Updates

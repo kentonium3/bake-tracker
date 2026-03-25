@@ -1,24 +1,25 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Import Service Updates
+lane: done
+dependencies: []
 subtasks:
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Import Service Updates"
-phase: "Phase 3 - Import/Export Service Updates"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "N/A"
-review_status: ""
-reviewed_by: ""
+- T012
+- T013
+- T014
+- T015
+phase: Phase 3 - Import/Export Service Updates
+assignee: claude
+agent: claude
+shell_pid: N/A
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-16T22:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-16T22:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Import Service Updates

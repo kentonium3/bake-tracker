@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Centralized Error Handler
-lane: "done"
+lane: done
 dependencies: [WP01, WP02]
 base_branch: 089-error-handling-foundation-WP02
 base_commit: 482779c0655df9df1b3be0466d69bb983d32d5ee
@@ -15,9 +15,9 @@ subtasks:
 phase: Phase 1 - Foundation
 assignee: ''
 agent: ''
-shell_pid: "59805"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+shell_pid: '59805'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned

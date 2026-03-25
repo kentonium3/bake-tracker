@@ -19,7 +19,7 @@
 
 **Goal**: Create foundational base classes (BaseMode, StandardTabLayout, BaseDashboard) that all modes depend on.
 **Independent Test**: Base classes import successfully; directory structure exists.
-**Prompt**: `tasks/planned/WP01-base-classes.md`
+**Prompt**: `tasks/WP01-base-classes.md`
 
 ### Included Subtasks
 - [x] T001 Create directory structure: `src/ui/base/`, `src/ui/modes/`, `src/ui/dashboards/`, `src/ui/tabs/`
@@ -50,7 +50,7 @@
 
 **Goal**: Implement mode bar, ModeManager, and keyboard shortcuts in main_window.py.
 **Independent Test**: Application launches with mode bar; clicking modes switches content; Ctrl+1-5 shortcuts work.
-**Prompt**: `tasks/planned/WP02-main-window-navigation.md`
+**Prompt**: `tasks/WP02-main-window-navigation.md`
 
 ### Included Subtasks
 - [x] T007 Create `ModeManager` class in `src/ui/main_window.py` or separate file
@@ -82,7 +82,7 @@
 
 **Goal**: Implement CATALOG mode with dashboard and 6 existing tabs migrated.
 **Independent Test**: CATALOG mode shows dashboard with entity counts; all 6 tabs accessible and functional.
-**Prompt**: `tasks/planned/WP03-catalog-mode.md`
+**Prompt**: `tasks/WP03-catalog-mode.md`
 
 ### Included Subtasks
 - [x] T014 Create `CatalogDashboard` in `src/ui/dashboards/catalog_dashboard.py`
@@ -116,7 +116,7 @@
 
 **Goal**: Implement OBSERVE mode with enhanced dashboard, Event Status tab, and Reports placeholder.
 **Independent Test**: OBSERVE mode shows event readiness progress; Event Status tab shows per-event details.
-**Prompt**: `tasks/planned/WP04-observe-mode.md`
+**Prompt**: `tasks/WP04-observe-mode.md`
 
 ### Included Subtasks
 - [x] T022 Create `ObserveDashboard` in `src/ui/dashboards/observe_dashboard.py`
@@ -147,7 +147,7 @@
 
 **Goal**: Implement PLAN mode with Events tab migration and new Planning Workspace tab.
 **Independent Test**: PLAN mode shows upcoming events; Planning Workspace shows batch calculations.
-**Prompt**: `tasks/planned/WP05-plan-mode.md`
+**Prompt**: `tasks/WP05-plan-mode.md`
 
 ### Included Subtasks
 - [x] T027 Create `PlanDashboard` in `src/ui/dashboards/plan_dashboard.py`
@@ -175,7 +175,7 @@
 
 **Goal**: Implement SHOP mode with Shopping Lists, Purchases (new tabs), and Inventory migration.
 **Independent Test**: SHOP mode shows shopping lists by store; Purchases tab records purchases; Inventory works.
-**Prompt**: `tasks/planned/WP06-shop-mode.md`
+**Prompt**: `tasks/WP06-shop-mode.md`
 
 ### Included Subtasks
 - [x] T031 Create `ShopDashboard` in `src/ui/dashboards/shop_dashboard.py`
@@ -205,7 +205,7 @@
 
 **Goal**: Implement PRODUCE mode with Production (merged), Assembly, Packaging (new), and Recipients tabs.
 **Independent Test**: PRODUCE mode shows pending production; Assembly/Packaging checklists work.
-**Prompt**: `tasks/planned/WP07-produce-mode.md`
+**Prompt**: `tasks/WP07-produce-mode.md`
 
 ### Included Subtasks
 - [x] T036 Create `ProduceDashboard` in `src/ui/dashboards/produce_dashboard.py`
@@ -236,7 +236,7 @@
 
 **Goal**: Final integration, remove old navigation, test full workflow, handle edge cases.
 **Independent Test**: Full workflow works end-to-end; no regressions; edge cases handled.
-**Prompt**: `tasks/planned/WP08-integration-polish.md`
+**Prompt**: `tasks/WP08-integration-polish.md`
 
 ### Included Subtasks
 - [x] T042 Remove old flat tab navigation from `main_window.py`
@@ -345,3 +345,15 @@ WP08 (Integration & Polish)
 | T045 | Empty state handling | WP08 | P3 | Yes |
 | T046 | Verify dashboard performance | WP08 | P3 | No |
 | T047 | Final cleanup | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

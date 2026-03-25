@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: UI Progress Display
-lane: "done"
+lane: done
 dependencies: [WP01, WP04]
 base_branch: 079-production-aware-planning-calculations-WP04
 base_commit: 3902ad097d18b29209277e63cc2860b183755479
@@ -13,10 +13,10 @@ subtasks:
 - T021
 phase: Phase 3 - Polish
 assignee: ''
-agent: "claude-lead"
-shell_pid: "28507"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-lead
+shell_pid: '28507'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned

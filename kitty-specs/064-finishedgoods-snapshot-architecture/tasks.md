@@ -206,3 +206,11 @@
 | T023 | get_planning_snapshot() aggregation | WP04 | P0 | No |
 | T024 | delete_planning_snapshot() | WP04 | P0 | Yes |
 | T025 | Unit tests | WP04 | P0 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

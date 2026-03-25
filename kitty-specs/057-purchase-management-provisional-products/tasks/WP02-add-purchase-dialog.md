@@ -1,13 +1,13 @@
 ---
 work_package_id: WP02
 title: Add Purchase Dialog Enhancement
-lane: "done"
+lane: done
 dependencies: []
 subtasks: [T007, T008, T009, T010, T011, T012]
-agent: "claude"
-shell_pid: "28735"
-reviewed_by: "Kent Gale"
-review_status: "approved"
+agent: claude
+shell_pid: '28735'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - date: '2026-01-17'
   action: created

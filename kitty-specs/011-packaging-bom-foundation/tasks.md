@@ -16,7 +16,7 @@
 
 **Goal**: Update Ingredient and Composition models with packaging support; ensure database auto-creates correctly.
 **Independent Test**: Models can be imported; new columns exist; XOR constraints work.
-**Prompt**: `tasks/planned/WP01-schema-model-updates.md`
+**Prompt**: `tasks/WP01-schema-model-updates.md`
 
 ### Included Subtasks
 - [x] T001 Add `is_packaging` boolean column to Ingredient model in `src/models/ingredient.py`
@@ -52,7 +52,7 @@
 
 **Goal**: Extend ingredient_service to support packaging flag and filtering.
 **Independent Test**: Can create packaging ingredient; can filter packaging vs food ingredients.
-**Prompt**: `tasks/planned/WP02-ingredient-service.md`
+**Prompt**: `tasks/WP02-ingredient-service.md`
 
 ### Included Subtasks
 - [x] T012 Add `PACKAGING_CATEGORIES` constant list to `src/services/ingredient_service.py`
@@ -84,7 +84,7 @@
 
 **Goal**: Extend composition_service to support packaging compositions for both FinishedGood and Package.
 **Independent Test**: Can add/remove/update packaging on FinishedGood; can add packaging on Package.
-**Prompt**: `tasks/planned/WP03-composition-service.md`
+**Prompt**: `tasks/WP03-composition-service.md`
 
 ### Included Subtasks
 - [x] T020 Update `create_composition()` to accept `package_id` and `packaging_product_id` parameters
@@ -119,7 +119,7 @@
 
 **Goal**: Extend event_service to aggregate and display packaging needs on shopping lists.
 **Independent Test**: Event with packaging definitions shows packaging section in shopping list.
-**Prompt**: `tasks/planned/WP04-shopping-list-packaging.md`
+**Prompt**: `tasks/WP04-shopping-list-packaging.md`
 
 ### Included Subtasks
 - [x] T030 Add `PackagingNeed` dataclass to `src/services/event_service.py`
@@ -153,7 +153,7 @@
 
 **Goal**: Update import/export to preserve all packaging data through export/import cycle.
 **Independent Test**: Export with packaging; import to fresh DB; all data restored correctly.
-**Prompt**: `tasks/planned/WP05-import-export-packaging.md`
+**Prompt**: `tasks/WP05-import-export-packaging.md`
 
 ### Included Subtasks
 - [x] T039 Update ingredient export to include `is_packaging` field
@@ -185,7 +185,7 @@
 
 **Goal**: Add packaging sections to existing dialogs for FinishedGood and Package editing.
 **Independent Test**: User can add/view/edit packaging on FinishedGood; same for Package.
-**Prompt**: `tasks/planned/WP06-ui-integration.md`
+**Prompt**: `tasks/WP06-ui-integration.md`
 
 ### Included Subtasks
 - [x] T047 Update Ingredients tab to show is_packaging indicator/column
@@ -219,7 +219,7 @@
 
 **Goal**: Handle edge cases and ensure referential integrity works correctly.
 **Independent Test**: Deletion blocked when product referenced; empty states handled.
-**Prompt**: `tasks/planned/WP07-validation-edge-cases.md`
+**Prompt**: `tasks/WP07-validation-edge-cases.md`
 
 ### Included Subtasks
 - [x] T056 Implement user-friendly error when trying to delete packaging product in use
@@ -334,3 +334,14 @@ WP01 (Schema) ──┬──> WP02 (Ingredient Service) ──┬──> WP06 (
 | T061 | Test: Package cascade delete | WP07 | P3 | Yes |
 | T062 | Test: FG cascade delete | WP07 | P3 | Yes |
 | T063 | Verify SQLite RESTRICT behavior | WP07 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Composition Integration - User Stories 4 & 5
+lane: done
+dependencies: []
 subtasks:
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-title: "Composition Integration - User Stories 4 & 5"
-phase: "Phase 2 - Integration"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T030
+- T031
+- T032
+- T033
+- T034
+- T035
+- T036
+- T037
+phase: Phase 2 - Integration
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Composition Integration - User Stories 4 & 5

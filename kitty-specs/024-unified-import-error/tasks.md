@@ -19,7 +19,7 @@
 
 **Goal**: Update `CatalogImportResult.get_detailed_report()` to include suggestion text in error output.
 **Independent Test**: Call `get_detailed_report()` on a result with errors that have suggestions; verify suggestions appear in output with "Suggestion:" prefix.
-**Prompt**: `kitty-specs/024-unified-import-error/tasks/planned/WP01-service-suggestion-formatting.md`
+**Prompt**: `kitty-specs/024-unified-import-error/tasks/WP01-service-suggestion-formatting.md`
 **User Stories**: US4 (Display Error Suggestions)
 
 ### Included Subtasks
@@ -50,7 +50,7 @@
 
 **Goal**: Update `_write_import_log()` to return relative paths for UI display and work with both result types.
 **Independent Test**: Call `_write_import_log()` and verify returned path is relative (e.g., `docs/user_testing/import_...`), not absolute.
-**Prompt**: `kitty-specs/024-unified-import-error/tasks/planned/WP02-log-writing-relative-paths.md`
+**Prompt**: `kitty-specs/024-unified-import-error/tasks/WP02-log-writing-relative-paths.md`
 **User Stories**: US3 (Log Catalog Import Results)
 
 ### Included Subtasks
@@ -84,7 +84,7 @@
 
 **Goal**: Replace messageboxes in `CatalogImportDialog` with `ImportResultsDialog` for scrollable, copyable error display with log writing.
 **Independent Test**: Import a catalog file with 10+ errors; verify all errors visible in scrollable dialog, copy works, log file written, relative path displayed.
-**Prompt**: `kitty-specs/024-unified-import-error/tasks/planned/WP03-catalog-dialog-integration.md`
+**Prompt**: `kitty-specs/024-unified-import-error/tasks/WP03-catalog-dialog-integration.md`
 **User Stories**: US1 (View All Errors), US2 (Copy Errors), US3 (Log Results), US5 (Maintain Compatibility)
 
 ### Included Subtasks
@@ -124,7 +124,7 @@
 
 **Goal**: Verify unified import still works, run manual test scenarios, ensure no regressions.
 **Independent Test**: Perform unified import via File > Import Data; verify behavior identical to before.
-**Prompt**: `kitty-specs/024-unified-import-error/tasks/planned/WP04-verification-and-polish.md`
+**Prompt**: `kitty-specs/024-unified-import-error/tasks/WP04-verification-and-polish.md`
 **User Stories**: US5 (Maintain Unified Import Compatibility)
 
 ### Included Subtasks
@@ -202,3 +202,11 @@ WP02 (Logging) ──┘
 | SC-007: Unified import unchanged | WP04 | T008 |
 | SC-008: ADD_ONLY/AUGMENT work | WP04 | T009 |
 | SC-009: Dry-run works | WP03 | T007 |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

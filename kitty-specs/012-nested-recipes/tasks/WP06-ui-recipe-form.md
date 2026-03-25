@@ -2,18 +2,7 @@
 work_package_id: WP06
 title: UI - Recipe Form
 lane: done
-history:
-- timestamp: '2025-12-09T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI Integration
-review_status: ''
-reviewed_by: ''
-shell_pid: '99211'
+dependencies: []
 subtasks:
 - T034
 - T035
@@ -24,6 +13,18 @@ subtasks:
 - T040
 - T041
 - T042
+phase: Phase 3 - UI Integration
+assignee: claude
+agent: claude-reviewer
+shell_pid: '99211'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – UI - Recipe Form

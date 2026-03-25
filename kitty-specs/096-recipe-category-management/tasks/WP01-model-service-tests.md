@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: RecipeCategory Model + Service + Tests
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: a8ebe8b9e4b4d52e88ff0925deebde70244ae7d2
@@ -15,10 +15,10 @@ subtasks:
 - T006
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "gemini-review"
-shell_pid: "96223"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini-review
+shell_pid: '96223'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned

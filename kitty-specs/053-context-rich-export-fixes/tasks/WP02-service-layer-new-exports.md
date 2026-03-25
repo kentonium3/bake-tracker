@@ -1,24 +1,25 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Service Layer New Exports
+lane: done
+dependencies: []
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Service Layer New Exports"
-phase: "Phase 1 - Service Layer"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T005
+- T006
+- T007
+- T008
+phase: Phase 1 - Service Layer
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T13:35:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T13:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Service Layer New Exports

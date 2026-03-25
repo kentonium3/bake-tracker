@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Snapshot Model FK Updates
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: a100054ece374c409b16aba986384df8ba57c755
@@ -14,10 +14,10 @@ subtasks:
 - T009
 phase: Phase 1 - Model Changes (Foundation)
 assignee: ''
-agent: "claude-opus"
-shell_pid: "79377"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '79377'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned

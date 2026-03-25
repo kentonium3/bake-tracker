@@ -242,3 +242,13 @@ WP01 ─────┬───────────────────
 | T016 | Integration test for planning service | WP06 | P2 | Yes |
 | T017 | Integration test for batch calculation | WP06 | P2 | Yes |
 | T018 | Verify existing tests pass | WP06 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

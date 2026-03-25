@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: CATALOG Mode
 lane: done
-history:
-- timestamp: '2026-01-05'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Mode Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '41347'
+dependencies: []
 subtasks:
 - T014
 - T015
@@ -23,6 +12,18 @@ subtasks:
 - T019
 - T020
 - T021
+phase: Phase 1 - Mode Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '41347'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-05'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - CATALOG Mode

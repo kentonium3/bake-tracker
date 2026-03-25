@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Add Operations
+lane: done
+dependencies: []
 subtasks:
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-title: "Add Operations"
-phase: "Phase 4 - Operations"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T029
+- T030
+- T031
+- T032
+- T033
+- T034
+- T035
+phase: Phase 4 - Operations
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 – Add Operations

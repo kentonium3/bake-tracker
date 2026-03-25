@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Tab Integration and CRUD Wiring
-lane: "done"
+lane: done
 dependencies:
 - WP01
 - WP02
@@ -9,8 +9,8 @@ dependencies:
 - WP04
 - WP05
 subtasks: [T043, T044, T045, T046, T047, T048, T049, T050, T051]
-reviewed_by: "Kent Gale"
-review_status: "approved"
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created

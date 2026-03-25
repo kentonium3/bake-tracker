@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Integration & Polish
+lane: done
+dependencies: []
 subtasks:
-  - "T052"
-  - "T053"
-  - "T054"
-  - "T055"
-  - "T056"
-  - "T057"
-title: "Integration & Polish"
-phase: "Phase 5 - Polish"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T052
+- T053
+- T054
+- T055
+- T056
+- T057
+phase: Phase 5 - Polish
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-14T15:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-14T15:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 – Integration & Polish

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Event CRUD Dialogs
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 068-event-management-planning-data-model-WP02
 base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
@@ -15,10 +15,10 @@ subtasks:
 - T026
 phase: Phase 2 - UI Layer
 assignee: ''
-agent: "claude-opus"
-shell_pid: "99189"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '99189'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned

@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: FinishedUnit Detail Dialog
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: ''
-phase: Phase 2 - Production Recording
-review_status: ''
-reviewed_by: ''
-shell_pid: '45064'
+dependencies: []
 subtasks:
 - T011
 - T012
@@ -22,6 +11,18 @@ subtasks:
 - T015
 - T016
 - T017
+phase: Phase 2 - Production Recording
+assignee: ''
+agent: claude
+shell_pid: '45064'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - FinishedUnit Detail Dialog

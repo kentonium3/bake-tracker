@@ -1,30 +1,30 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "UI Session Infrastructure"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "74681"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: UI Session Infrastructure
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 0 - Foundation
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '74681'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T18:00:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "74681"
-    action: "Review passed, moved to done"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T18:00:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '74681'
+  action: Review passed, moved to done
 ---
 
 # Work Package Prompt: WP01 – UI Session Infrastructure

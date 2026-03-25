@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: On-Demand Calculation
-lane: "done"
+lane: done
 dependencies:
 - WP01
 subtasks:
@@ -13,10 +13,10 @@ subtasks:
 - T034
 phase: Phase 4 - On-Demand Calculation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "98086"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '98086'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned

@@ -1,32 +1,32 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Staleness Detection Enhancements
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-title: "Staleness Detection Enhancements"
-phase: "Phase 2 - Parallel Track"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "16433"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T022
+- T023
+- T024
+- T025
+- T026
+- T027
+phase: Phase 2 - Parallel Track
+assignee: ''
+agent: claude-opus
+shell_pid: '16433'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-20T20:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-21T04:03:20Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "16433"
-    action: "Review passed - Staleness detection enhanced"
+- timestamp: '2026-01-20T20:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-21T04:03:20Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '16433'
+  action: Review passed - Staleness detection enhanced
 ---
 
 # Work Package Prompt: WP05 – Staleness Detection Enhancements

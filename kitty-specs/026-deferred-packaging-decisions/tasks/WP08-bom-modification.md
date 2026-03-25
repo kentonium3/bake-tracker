@@ -2,23 +2,24 @@
 work_package_id: WP08
 title: BOM Modification
 lane: done
+dependencies: []
+subtasks:
+- T041
+- T042
+- T043
+- T044
+phase: Phase 8 - BOM Changes
+assignee: claude
+agent: claude
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 8 - BOM Changes
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
-subtasks:
-- T041
-- T042
-- T043
-- T044
 ---
 
 # Work Package Prompt: WP08 - BOM Modification

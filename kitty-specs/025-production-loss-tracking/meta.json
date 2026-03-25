@@ -18,6 +18,7 @@
   "accepted_from_commit": "e315c52e6124f55a1b2b21b9988dfc72b243eb92",
   "created_at": "2025-12-21T15:43:53Z",
   "feature_number": "025",
+  "feature_slug": "025-production-loss-tracking",
   "friendly_name": "Production Loss Tracking",
   "merge_history": [
     {
@@ -35,6 +36,7 @@
   "merged_into": "main",
   "merged_push": true,
   "merged_strategy": "squash",
+  "mission": "research",
   "slug": "025-production-loss-tracking",
   "source_description": "Track production losses (burnt, broken, contaminated) with cost accounting and reporting",
   "target_branch": "main"

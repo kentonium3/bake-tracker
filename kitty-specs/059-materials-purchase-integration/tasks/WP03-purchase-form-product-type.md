@@ -1,28 +1,28 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Purchase Form - Product Type Selector
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-title: "Purchase Form - Product Type Selector"
-phase: "Phase 1 - Wave 1"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "70998"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+- T014
+- T015
+- T016
+- T017
+phase: Phase 1 - Wave 1
+assignee: ''
+agent: claude-opus
+shell_pid: '70998'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Purchase Form - Product Type Selector

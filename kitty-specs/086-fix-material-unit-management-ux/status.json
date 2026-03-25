@@ -1,0 +1,46 @@
+{
+  "event_count": 4,
+  "feature_slug": "086-fix-material-unit-management-ux",
+  "last_event_id": "01KMKK2AHFY67EVXDH991QYWXD",
+  "materialized_at": "2026-03-25T22:50:39.572226+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 4,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AH1MAQG1PMJ2CRTBYGJ",
+      "last_transition_at": "2026-01-30T22:39:29Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AH568FA2E6WQNKGN2VQ",
+      "last_transition_at": "2026-01-30T22:39:29Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AH975YBD7WCV06V5PS3",
+      "last_transition_at": "2026-01-30T22:39:29Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AHFY67EVXDH991QYWXD",
+      "last_transition_at": "2026-01-30T22:39:29Z"
+    }
+  }
+}

@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Import/Export & Historical - User Stories 7 & 8
+lane: done
+dependencies: []
 subtasks:
-  - "T055"
-  - "T056"
-  - "T057"
-  - "T058"
-  - "T059"
-  - "T060"
-  - "T061"
-title: "Import/Export & Historical - User Stories 7 & 8"
-phase: "Phase 3 - Polish"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T055
+- T056
+- T057
+- T058
+- T059
+- T060
+- T061
+phase: Phase 3 - Polish
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Import/Export & Historical - User Stories 7 & 8

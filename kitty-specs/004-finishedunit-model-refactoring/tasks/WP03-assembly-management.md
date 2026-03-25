@@ -2,6 +2,16 @@
 work_package_id: WP03
 title: Assembly Management Services
 lane: planned
+dependencies: []
+subtasks:
+- T011
+- T012
+- T013
+- T014
+phase: Phase 3 - User Story 2 Implementation
+assignee: ''
+agent: claude
+shell_pid: '46783'
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: for_review
@@ -18,15 +28,6 @@ history:
   agent: claude
   shell_pid: '26869'
   action: Implementation verification complete - all T011-T014 already implemented with comprehensive assembly management, composition relationships, assembly types, and unit tests
-agent: claude
-assignee: ''
-phase: Phase 3 - User Story 2 Implementation
-shell_pid: '46783'
-subtasks:
-- T011
-- T012
-- T013
-- T014
 ---
 
 # Work Package Prompt: WP03 – Assembly Management Services

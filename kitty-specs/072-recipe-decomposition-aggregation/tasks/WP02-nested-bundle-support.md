@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Nested Bundle Support
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 072-recipe-decomposition-aggregation-WP01
 base_commit: f0556ed2280479fb06fd6f005a5cde6bd1642677
@@ -13,10 +13,10 @@ subtasks:
 - T010
 phase: Phase 2 - Nested Bundles
 assignee: ''
-agent: "claude"
-shell_pid: "157"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '157'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T16:30:47Z'
   lane: planned

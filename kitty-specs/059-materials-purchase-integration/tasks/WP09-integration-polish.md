@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Integration & Polish
-lane: "done"
+lane: done
 dependencies: []
 subtasks:
 - T046
@@ -11,10 +11,10 @@ subtasks:
 - T050
 phase: Final
 assignee: ''
-agent: "claude-opus"
-shell_pid: "25407"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '25407'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned

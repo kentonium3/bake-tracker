@@ -2,23 +2,24 @@
 work_package_id: WP05
 title: Event Summary Enhancement
 lane: done
+dependencies: []
+subtasks:
+- T020
+- T021
+- T022
+- T023
+phase: Phase 5 - Event Summary Enhancement
+assignee: claude
+agent: claude
+shell_pid: '30686'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-11T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 5 - Event Summary Enhancement
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '30686'
-subtasks:
-- T020
-- T021
-- T022
-- T023
 ---
 
 # Work Package Prompt: WP05 - Event Summary Enhancement

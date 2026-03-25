@@ -1,0 +1,39 @@
+{
+  "event_count": 3,
+  "feature_slug": "069-recipe-selection-for-event-planning",
+  "last_event_id": "01KMKK2A6AJA6P0EPGPRS1272N",
+  "materialized_at": "2026-03-25T22:50:37.507638+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 3,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A5Z1WRR8AZJ5TCM0FGJ",
+      "last_transition_at": "2026-01-26T22:57:43Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A64JWYG00K35N2F0X7W",
+      "last_transition_at": "2026-01-26T22:57:43Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A6AJA6P0EPGPRS1272N",
+      "last_transition_at": "2026-01-26T22:57:43Z"
+    }
+  }
+}

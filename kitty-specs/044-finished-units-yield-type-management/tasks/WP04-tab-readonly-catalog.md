@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Finished Units Tab - Read-Only Catalog
+lane: done
+dependencies: []
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Finished Units Tab - Read-Only Catalog"
-phase: "Phase 1 - Parallel Foundation"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 1 - Parallel Foundation
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-09T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Finished Units Tab - Read-Only Catalog

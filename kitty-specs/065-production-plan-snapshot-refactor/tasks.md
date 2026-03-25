@@ -372,3 +372,16 @@ Sequence:
 | T042 | Backward compatibility test | WP09 | P3 | Yes |
 | T043 | Code cleanup | WP09 | P3 | No |
 | T044 | Coverage verification | WP09 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+<!-- status-model:end -->

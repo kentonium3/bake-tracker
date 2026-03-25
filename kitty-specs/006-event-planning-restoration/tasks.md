@@ -17,7 +17,7 @@
 
 **Goal**: Create PackageFinishedGood junction model and update Package model to use new relationship.
 **Independent Test**: Package model can be imported, PackageFinishedGood table created, relationship works.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP01-models-package-junction.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP01-models-package-junction.md`
 
 ### Included Subtasks
 - [x] T001 Create PackageFinishedGood model in `src/models/package.py`
@@ -50,7 +50,7 @@
 
 **Goal**: Re-enable Event, EventRecipientPackage, and verify Recipient models.
 **Independent Test**: All models import successfully, relationships work, cost calculations chain.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP02-models-event-recipient.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP02-models-event-recipient.md`
 
 ### Included Subtasks
 - [x] T006 Review and verify `src/models/event.py` Event model works with current schema
@@ -83,7 +83,7 @@
 
 **Goal**: Implement PackageService with full CRUD, content management, and cost calculation.
 **Independent Test**: Create package, add FinishedGoods, calculate cost, verify FIFO chain.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP03-package-service.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP03-package-service.md`
 
 ### Included Subtasks
 - [x] T012 Create `src/services/package_service.py` with basic structure
@@ -121,7 +121,7 @@
 
 **Goal**: Implement EventService with event CRUD, assignments, and aggregation calculations.
 **Independent Test**: Create event, assign packages to recipients, calculate totals.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP04-event-service.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP04-event-service.md`
 
 ### Included Subtasks
 - [x] T023 Create `src/services/event_service.py` with basic structure
@@ -160,7 +160,7 @@
 
 **Goal**: Verify RecipientService is functional or implement missing methods.
 **Independent Test**: CRUD operations work, dependency checking for deletion works.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP05-recipient-service.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP05-recipient-service.md`
 
 ### Included Subtasks
 - [x] T035 Review existing `src/services/recipient_service.py` for functionality
@@ -191,7 +191,7 @@
 
 **Goal**: Restore/update Packages tab UI using PackageService.
 **Independent Test**: User can create, edit, delete packages; add/remove FinishedGoods; see costs.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP06-ui-packages-tab.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP06-ui-packages-tab.md`
 
 ### Included Subtasks
 - [x] T042 Review existing `src/ui/packages_tab.py` for reusable patterns
@@ -222,7 +222,7 @@
 
 **Goal**: Verify/update Recipients tab UI using RecipientService.
 **Independent Test**: User can create, edit, delete recipients with dependency warnings.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP07-ui-recipients-tab.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP07-ui-recipients-tab.md`
 
 ### Included Subtasks
 - [x] T049 Review existing `src/ui/recipients_tab.py` for functionality
@@ -250,7 +250,7 @@
 
 **Goal**: Restore/update Events tab UI with year filtering.
 **Independent Test**: User can create, filter by year, edit, delete events; opens EventDetailWindow.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP08-ui-events-tab.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP08-ui-events-tab.md`
 
 ### Included Subtasks
 - [x] T054 Review existing `src/ui/events_tab.py` for reusable patterns
@@ -280,7 +280,7 @@
 
 **Goal**: Restore EventDetailWindow with 4 tabs: Assignments, Recipe Needs, Shopping List, Summary.
 **Independent Test**: All 4 tabs load and display data correctly for an event with assignments.
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP09-ui-event-detail-window.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP09-ui-event-detail-window.md`
 
 ### Included Subtasks
 - [x] T060 Create EventDetailWindow base frame with tab container
@@ -314,7 +314,7 @@
 
 **Goal**: Integration testing, FIFO accuracy verification, and polish.
 **Independent Test**: Full workflow completes in <5 minutes (SC-001), costs match manual verification (SC-002).
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP10-integration-polish.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/WP10-integration-polish.md`
 
 ### Included Subtasks
 - [x] T067 Write integration test for full workflow in `src/tests/test_event_planning_workflow.py`
@@ -431,3 +431,17 @@
 | T071 | Edge case testing | WP10 | P3 | Yes |
 | T072 | Update sample_data.json | WP10 | P3 | Yes |
 | T073 | Final cleanup | WP10 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+- WP10: done
+<!-- status-model:end -->

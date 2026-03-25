@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Assembly Feasibility Service Foundation
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: a2808d4a47415faba26a82a211274ae75d229146
@@ -14,10 +14,10 @@ subtasks:
 - T005
 phase: Phase 1 - Service Layer
 assignee: ''
-agent: "claude"
-shell_pid: "44439"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '44439'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T15:30:00Z'
   lane: planned

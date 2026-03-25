@@ -1,25 +1,25 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Service Layer Methods"
-phase: "Phase 1 - Service Layer"
-lane: "done"
-assignee: ""
-agent: "claude-opus-4-5"
-shell_pid: "14143"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Service Layer Methods
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Service Layer
+assignee: ''
+agent: claude-opus-4-5
+shell_pid: '14143'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-26T22:57:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-26T22:57:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Service Layer Methods

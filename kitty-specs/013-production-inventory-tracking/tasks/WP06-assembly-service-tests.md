@@ -2,18 +2,7 @@
 work_package_id: WP06
 title: Assembly Service - Tests
 lane: done
-history:
-- timestamp: '2025-12-09T17:30:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Assembly
-review_status: ''
-reviewed_by: ''
-shell_pid: '17214'
+dependencies: []
 subtasks:
 - T028
 - T029
@@ -23,6 +12,18 @@ subtasks:
 - T033
 - T034
 - T035
+phase: Phase 3 - Assembly
+assignee: claude
+agent: claude-reviewer
+shell_pid: '17214'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T17:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Assembly Service - Tests

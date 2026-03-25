@@ -1,24 +1,25 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Transformation Script
+lane: done
+dependencies: []
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Transformation Script"
-phase: "Phase 2 - Transformation Script"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "N/A"
-review_status: ""
-reviewed_by: ""
+- T005
+- T006
+- T007
+- T008
+phase: Phase 2 - Transformation Script
+assignee: claude
+agent: claude
+shell_pid: N/A
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-16T22:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-16T22:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Transformation Script

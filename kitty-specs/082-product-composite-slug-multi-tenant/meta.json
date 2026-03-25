@@ -1,12 +1,14 @@
 {
+  "created_at": "2026-01-30T00:00:00Z",
   "feature_number": "082",
-  "slug": "082-product-composite-slug-multi-tenant",
+  "feature_slug": "082-product-composite-slug-multi-tenant",
   "friendly_name": "Product Composite Slug Multi-Tenant Readiness",
   "mission": "software-dev",
+  "notes": "Kitty-spec artifacts lost due to accidental deletion and failed merge. Placeholder to preserve numbering.",
+  "slug": "082-product-composite-slug-multi-tenant",
   "source_description": "F082 - Reserved placeholder. See docs/func-spec/F082_product_composite_slug_multi_tenant_readiness.md",
-  "created_at": "2026-01-30T00:00:00Z",
   "status": "skipped",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-30T00:00:00Z",
-  "notes": "Kitty-spec artifacts lost due to accidental deletion and failed merge. Placeholder to preserve numbering."
+  "vcs_locked_at": "2026-01-30T00:00:00Z"
 }

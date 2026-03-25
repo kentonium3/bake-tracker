@@ -2,21 +2,22 @@
 work_package_id: WP04
 title: UI - Production History
 lane: done
+dependencies: []
+subtasks:
+- T026
+- T027
+- T028
+- T029
+phase: Phase 4 - UI History
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '74560'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 4 - UI History
-shell_pid: '74560'
-subtasks:
-- T026
-- T027
-- T028
-- T029
 ---
 
 # Work Package Prompt: WP04 - UI - Production History

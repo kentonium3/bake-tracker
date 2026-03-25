@@ -225,3 +225,12 @@ WP04 can run parallel with WP02/WP03 (no dependency on WP01)
 | T019 | Add overage indicator | WP05 | P4 | Yes |
 | T020 | Add lock icon for recipes with production | WP05 | P4 | No |
 | T021 | Disable amendment controls for locked recipes | WP05 | P4 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

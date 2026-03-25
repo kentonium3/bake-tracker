@@ -1,35 +1,35 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: MaterialInventoryService Tests
+lane: done
+dependencies: [WP05]
 subtasks:
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T044"
-  - "T045"
-title: "MaterialInventoryService Tests"
-phase: "Phase 2 - Services"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "28682"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP05"]
+- T022
+- T023
+- T024
+- T025
+- T026
+- T027
+- T028
+- T044
+- T045
+phase: Phase 2 - Services
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '28682'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: Comprehensive MaterialInventoryService tests"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: Comprehensive MaterialInventoryService tests'
 ---
 
 # Work Package Prompt: WP06 – MaterialInventoryService Tests

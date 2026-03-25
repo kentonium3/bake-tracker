@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Production Recording Dialog
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: ''
-phase: Phase 2 - Production Recording
-review_status: ''
-reviewed_by: ''
-shell_pid: '45064'
+dependencies: []
 subtasks:
 - T005
 - T006
@@ -21,6 +10,18 @@ subtasks:
 - T008
 - T009
 - T010
+phase: Phase 2 - Production Recording
+assignee: ''
+agent: claude
+shell_pid: '45064'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Production Recording Dialog

@@ -1,0 +1,74 @@
+{
+  "event_count": 8,
+  "feature_slug": "014-production-assembly-recording",
+  "last_event_id": "01KMKK28QF4RCHV1W4P6MWJSTR",
+  "materialized_at": "2026-03-25T22:50:29.352300+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 8,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28PKRWHCZS8QHBXZBNN9",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28PQ7W8G3ED8JGPYTGX0",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28PTV0AC7A228SHMC53F",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28PZGQD26JHFS6XHESAQ",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28Q3A6QGFR4WJ0C9MG7E",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP06": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28Q7VE8FDEBHAQ0VKBRF",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP07": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28QAS324B3X4634T7H1C",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    },
+    "WP08": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28QF4RCHV1W4P6MWJSTR",
+      "last_transition_at": "2025-12-10T00:00:00Z"
+    }
+  }
+}

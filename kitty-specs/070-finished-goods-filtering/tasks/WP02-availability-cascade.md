@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Availability Checking + Cascade Removal
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 070-finished-goods-filtering-WP01
 base_commit: 95b1d964956e408331a6b3c63d533cf0c63fbe3e
@@ -16,10 +16,10 @@ subtasks:
 - T012
 phase: Phase 1 - Service Layer
 assignee: ''
-agent: "claude"
-shell_pid: "30418"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '30418'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned

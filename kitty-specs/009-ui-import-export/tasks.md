@@ -19,7 +19,7 @@
 
 **Goal**: Create the authoritative v3.0 import/export specification document and archive v2.0.
 **Independent Test**: Specification document exists at `docs/design/import_export_specification.md`, covers all 16 entities with examples, and documents dependency order.
-**Prompt**: `/tasks/planned/WP01-v3-specification.md`
+**Prompt**: `/tasks/WP01-v3-specification.md`
 
 ### Included Subtasks
 - [x] T001 Archive v2.0 specification to `docs/archive/import_export_specification_v2.md`
@@ -48,7 +48,7 @@
 
 **Goal**: Extend `import_export_service.py` with export functions for all v3.0 entities.
 **Independent Test**: `export_all_to_json()` produces valid v3.0 JSON with all 16 entity types populated.
-**Prompt**: `/tasks/planned/WP02-export-functions.md`
+**Prompt**: `/tasks/WP02-export-functions.md`
 
 ### Included Subtasks
 - [x] T006 Add `ExportResult` class enhancements (record counts per entity)
@@ -79,7 +79,7 @@
 
 **Goal**: Extend `import_export_service.py` with import functions supporting Merge and Replace modes.
 **Independent Test**: Import with both modes works; Merge skips duplicates, Replace clears then imports; v3.0 version validation enforced.
-**Prompt**: `/tasks/planned/WP03-import-functions.md`
+**Prompt**: `/tasks/WP03-import-functions.md`
 
 ### Included Subtasks
 - [x] T013 Add `mode` parameter to `import_all_from_json()` ("merge" or "replace")
@@ -115,7 +115,7 @@
 
 **Goal**: Add File menu with Import/Export dialogs to the main window.
 **Independent Test**: User can access File menu, trigger export to save JSON file, trigger import with mode selection.
-**Prompt**: `/tasks/planned/WP04-ui-menu-dialogs.md`
+**Prompt**: `/tasks/WP04-ui-menu-dialogs.md`
 
 ### Included Subtasks
 - [x] T023 Add menu bar to `src/ui/main_window.py` with File menu
@@ -151,7 +151,7 @@
 
 **Goal**: Update sample data to v3.0 format and verify round-trip integrity.
 **Independent Test**: `test_data/sample_data.json` imports with zero errors; round-trip test achieves 100% data integrity.
-**Prompt**: `/tasks/planned/WP05-sample-data-integration.md`
+**Prompt**: `/tasks/WP05-sample-data-integration.md`
 
 ### Included Subtasks
 - [x] T033 Update `test_data/sample_data.json` to v3.0 format
@@ -227,3 +227,12 @@
 | T036 | Round-trip integrity test | WP05 | P2 | No |
 | T037 | Performance test | WP05 | P2 | No |
 | T038 | Validate success criteria | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

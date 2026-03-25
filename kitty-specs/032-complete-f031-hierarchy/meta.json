@@ -18,7 +18,9 @@
   "accepted_from_commit": "6ebadc41b51926a37d1600c09366147553582fc2",
   "created_at": "2026-01-01T17:35:53Z",
   "feature_number": "032",
+  "feature_slug": "032-complete-f031-hierarchy",
   "friendly_name": "Complete F031 Hierarchy UI Implementation",
+  "mission": "research",
   "slug": "032-complete-f031-hierarchy",
   "source_description": "Complete the UI implementation for F031 Ingredient Hierarchy. Update Ingredients Tab, Ingredient Edit Form, Products Tab, Inventory Tab, and Inventory Edit Form to use three-tier hierarchy instead of deprecated category field.",
   "target_branch": "main"

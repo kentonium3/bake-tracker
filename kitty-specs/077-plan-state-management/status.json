@@ -1,0 +1,39 @@
+{
+  "event_count": 3,
+  "feature_slug": "077-plan-state-management",
+  "last_event_id": "01KMKK2AAVQR2F0A9A8YV82FVX",
+  "materialized_at": "2026-03-25T22:50:38.368024+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 3,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AAK57CPVPANNCMZQB24",
+      "last_transition_at": "2026-01-28T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AAQ75CYNBAF630MK2R9",
+      "last_transition_at": "2026-01-28T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AAVQR2F0A9A8YV82FVX",
+      "last_transition_at": "2026-01-28T00:00:00Z"
+    }
+  }
+}

@@ -15,7 +15,7 @@
 
 **Goal**: Create `CatalogImportResult` class and implement `import_ingredients()` with ADD_ONLY mode. This is the foundation all other work packages build upon.
 **Independent Test**: Run ingredient import via direct function call; verify ingredients created, existing skipped, result counts accurate.
-**Prompt**: `tasks/planned/WP01-service-foundation-ingredient-import.md`
+**Prompt**: `tasks/WP01-service-foundation-ingredient-import.md`
 
 ### Included Subtasks
 - [X] T001 Create `src/services/catalog_import_service.py` with module docstring and imports
@@ -47,7 +47,7 @@
 
 **Goal**: Implement `import_products()` with FK validation for ingredient references.
 **Independent Test**: Import products with valid/invalid ingredient_slug; verify FK errors reported, valid products created.
-**Prompt**: `tasks/planned/WP02-product-import.md`
+**Prompt**: `tasks/WP02-product-import.md`
 
 ### Included Subtasks
 - [X] T008 Implement `import_products()` function with ADD_ONLY mode
@@ -76,7 +76,7 @@
 
 **Goal**: Implement `import_recipes()` with FK validation for ingredients and component recipes, plus circular reference detection.
 **Independent Test**: Import recipes with valid/invalid refs; verify FK errors and collision errors reported with full detail.
-**Prompt**: `tasks/planned/WP03-recipe-import.md`
+**Prompt**: `tasks/WP03-recipe-import.md`
 
 ### Included Subtasks
 - [X] T013 Implement `import_recipes()` function with ADD_ONLY mode
@@ -110,7 +110,7 @@
 
 **Goal**: Add AUGMENT mode to ingredient and product import; reject AUGMENT for recipes.
 **Independent Test**: Augment existing ingredient with null density; verify only null fields updated, non-null preserved.
-**Prompt**: `tasks/planned/WP04-augment-mode.md`
+**Prompt**: `tasks/WP04-augment-mode.md`
 
 ### Included Subtasks
 - [X] T022 Add mode parameter to `import_ingredients()` with AUGMENT logic
@@ -145,7 +145,7 @@
 
 **Goal**: Implement `import_catalog()` coordinator, `validate_catalog_file()`, and dry-run mode.
 **Independent Test**: Run dry-run on catalog file; verify no database changes but accurate preview returned.
-**Prompt**: `tasks/planned/WP05-coordinator-and-dry-run.md`
+**Prompt**: `tasks/WP05-coordinator-and-dry-run.md`
 
 ### Included Subtasks
 - [X] T031 Implement `validate_catalog_file()` with format detection
@@ -179,7 +179,7 @@
 
 **Goal**: Create CLI entry point with all required flags: --mode, --entity, --dry-run, --verbose.
 **Independent Test**: Run `python -m src.utils.import_catalog --help`; verify all options documented. Import test file via CLI.
-**Prompt**: `tasks/planned/WP06-cli-implementation.md`
+**Prompt**: `tasks/WP06-cli-implementation.md`
 
 ### Included Subtasks
 - [X] T040 Create `src/utils/import_catalog.py` with argparse setup
@@ -214,7 +214,7 @@
 
 **Goal**: Create CatalogImportDialog and wire to File menu with all UI behaviors.
 **Independent Test**: Open app, File > Import Catalog..., complete import workflow via UI.
-**Prompt**: `tasks/planned/WP07-ui-dialog.md`
+**Prompt**: `tasks/WP07-ui-dialog.md`
 
 ### Included Subtasks
 - [X] T050 Create `src/ui/catalog_import_dialog.py` based on ImportDialog pattern
@@ -251,7 +251,7 @@
 
 **Goal**: End-to-end validation, error message refinement, documentation updates.
 **Independent Test**: Import the 160-ingredient catalog file successfully; verify all success criteria met.
-**Prompt**: `tasks/planned/WP08-integration-and-polish.md`
+**Prompt**: `tasks/WP08-integration-and-polish.md`
 
 ### Included Subtasks
 - [X] T062 End-to-end test: Import 160-ingredient catalog via CLI
@@ -375,3 +375,15 @@ WP06 + WP07 ──────────────────────�
 | T066 | Verify unified import unchanged | WP08 | P3 | No |
 | T067 | Update quickstart.md | WP08 | P3 | Yes |
 | T068 | Coverage report | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

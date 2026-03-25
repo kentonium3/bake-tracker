@@ -1,0 +1,74 @@
+{
+  "event_count": 9,
+  "feature_slug": "037-recipe-template-snapshot",
+  "last_event_id": "01KMKK299PD8KQS8JN08V9NFWY",
+  "materialized_at": "2026-03-25T22:50:32.662933+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 8,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 2,
+      "lane": "done",
+      "last_event_id": "01KMKK299PD8KQS8JN08V9NFWY",
+      "last_transition_at": "2026-01-04T21:45:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK299TBSPR0PGARNKSQV05",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK299XRK5B7VS363353QXE",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29A1XGQ9CYZQTK1S4PVP",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29A5CZHGNVY775A1BMRE",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    },
+    "WP06": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29AA93NN2RRZDPX6FPS1",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    },
+    "WP07": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29AD1WVJ1QCGE3THQ7GF",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    },
+    "WP08": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29AHFDM5GW91E94868FJ",
+      "last_transition_at": "2026-01-03T06:30:00Z"
+    }
+  }
+}

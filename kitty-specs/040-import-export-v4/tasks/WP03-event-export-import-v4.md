@@ -2,23 +2,24 @@
 work_package_id: WP03
 title: Event Export/Import v4.0
 lane: done
+dependencies: []
+subtasks:
+- T012
+- T013
+- T014
+- T015
+phase: Phase 1 - Core Schema Upgrade
+assignee: claude
+agent: claude-reviewer
+shell_pid: '11228'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Core Schema Upgrade
-review_status: ''
-reviewed_by: ''
-shell_pid: '11228'
-subtasks:
-- T012
-- T013
-- T014
-- T015
 ---
 
 # Work Package Prompt: WP03 - Event Export/Import v4.0

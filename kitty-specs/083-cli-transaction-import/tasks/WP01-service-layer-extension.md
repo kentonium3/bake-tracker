@@ -1,24 +1,24 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-title: "Service Layer Extension"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: "30076"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Service Layer Extension
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+phase: Phase 1 - Foundation
+assignee: ''
+agent: claude
+shell_pid: '30076'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-29T04:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-29T04:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Service Layer Extension

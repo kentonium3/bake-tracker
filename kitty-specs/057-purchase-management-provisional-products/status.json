@@ -1,0 +1,46 @@
+{
+  "event_count": 4,
+  "feature_slug": "057-purchase-management-provisional-products",
+  "last_event_id": "01KMKK29SK0H190AXHBS3SP5KC",
+  "materialized_at": "2026-03-25T22:50:35.481301+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 4,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29S409Y7M4RPDD2F3DYD",
+      "last_transition_at": "2026-03-25T22:50:25.956450+00:00"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29S8SWJZ4Z42MT78DWZV",
+      "last_transition_at": "2026-03-25T22:50:25.960402+00:00"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29SDREZX56N6M13ZRVPJ",
+      "last_transition_at": "2026-03-25T22:50:25.965190+00:00"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29SK0H190AXHBS3SP5KC",
+      "last_transition_at": "2026-03-25T22:50:25.971536+00:00"
+    }
+  }
+}

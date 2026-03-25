@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Materials Tab UI
+lane: done
+dependencies: []
 subtasks:
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-  - "T051"
-  - "T052"
-  - "T053"
-  - "T054"
-title: "Materials Tab UI"
-phase: "Phase 2 - UI"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T047
+- T048
+- T049
+- T050
+- T051
+- T052
+- T053
+- T054
+phase: Phase 2 - UI
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Materials Tab UI

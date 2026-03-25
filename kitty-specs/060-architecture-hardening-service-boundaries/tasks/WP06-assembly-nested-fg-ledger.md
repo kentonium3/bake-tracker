@@ -1,31 +1,31 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Assembly Nested Finished Goods Ledger
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-title: "Assembly Nested Finished Goods Ledger"
-phase: "Phase 2 - Parallel Track"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "21904"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T028
+- T029
+- T030
+- T031
+- T032
+phase: Phase 2 - Parallel Track
+assignee: ''
+agent: claude-opus
+shell_pid: '21904'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-20T20:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-21T04:20:31Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "21904"
-    action: "Review passed - Nested FG consumption ledger added"
+- timestamp: '2026-01-20T20:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-21T04:20:31Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '21904'
+  action: Review passed - Nested FG consumption ledger added
 ---
 
 # Work Package Prompt: WP06 – Assembly Nested Finished Goods Ledger

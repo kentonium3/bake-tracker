@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Planning Tab Integration
-lane: "done"
+lane: done
 dependencies: [WP01, WP02]
 base_branch: 069-recipe-selection-for-event-planning-WP02
 base_commit: 49d3dc12c87a5b392c48f27e69bda3334cc50258
@@ -15,10 +15,10 @@ subtasks:
 - T016
 phase: Phase 3 - Integration
 assignee: ''
-agent: "claude-opus-4-5"
-shell_pid: "18836"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus-4-5
+shell_pid: '18836'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T22:57:43Z'
   lane: planned

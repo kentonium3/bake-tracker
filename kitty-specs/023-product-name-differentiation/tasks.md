@@ -20,7 +20,7 @@
 
 **Goal**: Add `product_name` column to Product model with unique constraint and display_name update.
 **Independent Test**: Create Product with product_name, verify it saves and displays correctly in display_name property.
-**Prompt**: `tasks/planned/WP01-model-product-name-column.md`
+**Prompt**: `tasks/WP01-model-product-name-column.md`
 
 ### Included Subtasks
 - [x] T001 Add `product_name` column (VARCHAR 200, nullable) to `src/models/product.py` after `brand`
@@ -50,7 +50,7 @@
 
 **Goal**: Update product_service create/update methods to accept and handle product_name parameter.
 **Independent Test**: Call `create_product()` with product_name, verify it persists correctly.
-**Prompt**: `tasks/planned/WP02-service-product-updates.md`
+**Prompt**: `tasks/WP02-service-product-updates.md`
 
 ### Included Subtasks
 - [x] T005 Update `create_product()` in `src/services/product_service.py` to accept `product_name` parameter
@@ -77,7 +77,7 @@
 
 **Goal**: Add product_name to export output and import handling with backward compatibility.
 **Independent Test**: Export products with product_name, verify JSON includes field; import old JSON without product_name, verify NULL default.
-**Prompt**: `tasks/planned/WP03-service-import-export.md`
+**Prompt**: `tasks/WP03-service-import-export.md`
 
 ### Included Subtasks
 - [x] T007 Add `product_name` to product export in `src/services/import_export_service.py` (around line 1148)
@@ -105,7 +105,7 @@
 
 **Goal**: Add Product Name field to the Add/Edit Product form in the UI.
 **Independent Test**: Open Add Product dialog, verify Product Name field appears after Brand, can be filled or left blank.
-**Prompt**: `tasks/planned/WP04-ui-product-form.md`
+**Prompt**: `tasks/WP04-ui-product-form.md`
 
 ### Included Subtasks
 - [x] T010 Add "Product Name" entry field after Brand field in `ProductFormDialog._create_form()` at `src/ui/ingredients_tab.py`
@@ -135,7 +135,7 @@
 
 **Goal**: Execute Constitution VI migration cycle to apply schema changes to existing database.
 **Independent Test**: Count products before migration, run cycle, verify same count after with all product_name=NULL.
-**Prompt**: `tasks/planned/WP05-migration-cycle.md`
+**Prompt**: `tasks/WP05-migration-cycle.md`
 
 ### Included Subtasks
 - [x] T014 Export current database to JSON using File > Export Data menu *(deferred to post-merge)*
@@ -205,3 +205,12 @@ WP01 (Model) ─────┬──> WP02 (Service CRUD) ──> WP04 (UI) ─
 | T015 | Delete and recreate database | WP05 | P1 | No |
 | T016 | Import data | WP05 | P1 | No |
 | T017 | Verify migration success | WP05 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

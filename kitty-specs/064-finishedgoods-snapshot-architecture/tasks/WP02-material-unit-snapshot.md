@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP02"
-title: "MaterialUnitSnapshot Model + Service"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "codex"
-shell_pid: "49307"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP02
+title: MaterialUnitSnapshot Model + Service
+lane: done
 dependencies: []
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 1 - Foundation
+assignee: ''
+agent: codex
+shell_pid: '49307'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2025-01-24T05:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2025-01-24T05:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – MaterialUnitSnapshot Model + Service

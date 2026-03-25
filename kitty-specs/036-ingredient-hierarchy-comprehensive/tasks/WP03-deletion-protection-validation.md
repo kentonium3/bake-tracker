@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Deletion Protection Validation
 lane: done
-history:
-- timestamp: '2026-01-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Manual Testing
-review_status: ''
-reviewed_by: ''
-shell_pid: '35839'
+dependencies: []
 subtasks:
 - T013
 - T014
@@ -21,6 +10,18 @@ subtasks:
 - T016
 - T017
 - T018
+phase: Phase 2 - Manual Testing
+assignee: claude
+agent: claude
+shell_pid: '35839'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Deletion Protection Validation

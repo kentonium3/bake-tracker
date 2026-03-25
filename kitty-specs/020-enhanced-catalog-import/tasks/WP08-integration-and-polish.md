@@ -2,18 +2,7 @@
 work_package_id: WP08
 title: Integration and Polish
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Interface
-review_status: ''
-reviewed_by: ''
-shell_pid: '63528'
+dependencies: []
 subtasks:
 - T062
 - T063
@@ -22,6 +11,18 @@ subtasks:
 - T066
 - T067
 - T068
+phase: Phase 3 - Interface
+assignee: claude
+agent: claude-reviewer
+shell_pid: '63528'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Integration and Polish

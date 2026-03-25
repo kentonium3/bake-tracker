@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Export/Import Updates
-lane: "done"
+lane: done
 dependencies: [WP03]
 base_branch: 085-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -14,10 +14,10 @@ subtasks:
 - T031
 phase: Wave 3 - Export/Import & UI
 assignee: ''
-agent: "claude-opus"
-shell_pid: "44477"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '44477'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned

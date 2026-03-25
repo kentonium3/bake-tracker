@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Schema Updates & Model Changes
 lane: done
-history:
-- timestamp: '2025-12-08T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '44283'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -26,6 +15,18 @@ subtasks:
 - T009
 - T010
 - T011
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude
+shell_pid: '44283'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-08T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Schema Updates & Model Changes

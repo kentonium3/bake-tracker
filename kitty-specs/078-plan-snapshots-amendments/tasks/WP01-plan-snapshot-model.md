@@ -1,25 +1,25 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "PlanSnapshot Model Foundation"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: ""
-agent: "gemini"
-shell_pid: "86129"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: PlanSnapshot Model Foundation
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 0 - Foundation
+assignee: ''
+agent: gemini
+shell_pid: '86129'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-28T03:25:47Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-28T03:25:47Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – PlanSnapshot Model Foundation

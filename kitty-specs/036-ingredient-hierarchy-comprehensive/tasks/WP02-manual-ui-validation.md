@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Manual UI Validation - Cascading Selectors
 lane: done
-history:
-- timestamp: '2026-01-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Manual Testing
-review_status: ''
-reviewed_by: ''
-shell_pid: '35839'
+dependencies: []
 subtasks:
 - T007
 - T008
@@ -21,6 +10,18 @@ subtasks:
 - T010
 - T011
 - T012
+phase: Phase 2 - Manual Testing
+assignee: claude
+agent: claude
+shell_pid: '35839'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Manual UI Validation - Cascading Selectors

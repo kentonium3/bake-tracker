@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Recency Query Service Methods
 lane: done
-history:
-- timestamp: '2025-12-24T23:15:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 0 - Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '33920'
+dependencies: []
 subtasks:
 - T012
 - T013
@@ -22,6 +11,18 @@ subtasks:
 - T016
 - T017
 - T018
+phase: Phase 0 - Foundation
+assignee: claude
+agent: claude
+shell_pid: '33920'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-24T23:15:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Recency Query Service Methods

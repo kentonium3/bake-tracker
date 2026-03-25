@@ -1,30 +1,30 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Schema Changes - MaterialProduct Cleanup
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Schema Changes - MaterialProduct Cleanup"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "26146"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+phase: Phase 1 - Foundation
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '26146'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: Deprecated fields removed from MaterialProduct"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: Deprecated fields removed from MaterialProduct'
 ---
 
 # Work Package Prompt: WP02 – Schema Changes - MaterialProduct Cleanup

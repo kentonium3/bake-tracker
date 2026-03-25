@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FinishedGoodSnapshot Model + Service
-lane: "done"
+lane: done
 dependencies:
 - WP01
 subtasks:
@@ -15,10 +15,10 @@ subtasks:
 - T018
 phase: Phase 2 - Core Logic
 assignee: ''
-agent: "claude-opus"
-shell_pid: "58308"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '58308'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T05:30:00Z'
   lane: planned

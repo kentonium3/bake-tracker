@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Preferences Service
+lane: done
+dependencies: []
 subtasks:
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-title: "Preferences Service"
-phase: "Phase 0 - Foundational"
-lane: "done"
-assignee: ""
-agent: "codex"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T008
+- T009
+- T010
+- T011
+- T012
+- T013
+- T014
+phase: Phase 0 - Foundational
+assignee: ''
+agent: codex
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Preferences Service

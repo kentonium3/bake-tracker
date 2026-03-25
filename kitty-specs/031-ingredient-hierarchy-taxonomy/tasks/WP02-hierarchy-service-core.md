@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Hierarchy Service - Core Functions
 lane: done
-history:
-- timestamp: '2025-12-30T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Services
-review_status: ''
-reviewed_by: ''
-shell_pid: '3515'
+dependencies: []
 subtasks:
 - T007
 - T008
@@ -23,6 +12,18 @@ subtasks:
 - T012
 - T013
 - T014
+phase: Phase 2 - Services
+assignee: claude
+agent: claude-reviewer
+shell_pid: '3515'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-30T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Hierarchy Service - Core Functions

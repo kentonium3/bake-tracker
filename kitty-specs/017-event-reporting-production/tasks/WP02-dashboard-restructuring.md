@@ -2,23 +2,24 @@
 work_package_id: WP02
 title: Dashboard Restructuring
 lane: done
+dependencies: []
+subtasks:
+- T007
+- T008
+- T009
+- T010
+phase: Phase 2 - Dashboard Restructuring
+assignee: claude
+agent: claude
+shell_pid: '30686'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-11T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Dashboard Restructuring
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '30686'
-subtasks:
-- T007
-- T008
-- T009
-- T010
 ---
 
 # Work Package Prompt: WP02 - Dashboard Restructuring

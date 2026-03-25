@@ -1,11 +1,11 @@
 ---
 title: My Ingredients Tab - Variant Management
 lane: done
-priority: P2
-tags:
-- ui
-- variants
-- customtkinter
+dependencies:
+- WP01
+assignee: Claude Code
+agent: Claude Code
+shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,14 +17,14 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - all variant management features implemented and committed
-agent: Claude Code
-assignee: Claude Code
-dependencies:
-- WP01
 estimate: 10-12 hours
 feature: 003-phase4-ui-completion
 id: WP02
-shell_pid: '1'
+priority: P2
+tags:
+- ui
+- variants
+- customtkinter
 ---
 
 # WP02: My Ingredients Tab - Variant Management

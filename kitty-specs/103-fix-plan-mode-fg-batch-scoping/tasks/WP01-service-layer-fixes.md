@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Layer Fixes
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 745d7a2241df121c90969d93eeb48b50c255311e
@@ -14,10 +14,10 @@ subtasks:
 - T005
 phase: Phase 1 - Service Layer
 assignee: ''
-agent: "claude-opus"
-shell_pid: "30811"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '30811'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-03-15T04:45:47Z'
   lane: planned

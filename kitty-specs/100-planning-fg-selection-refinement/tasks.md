@@ -210,3 +210,12 @@ WP02 (Recipe Filter) ───────────┘                       
 | T019 | Quantity persistence integration | WP05 | P2 | No |
 | T020 | Save button → set_event_fg_quantities() | WP05 | P2 | No |
 | T021 | Save button disabled on validation errors | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

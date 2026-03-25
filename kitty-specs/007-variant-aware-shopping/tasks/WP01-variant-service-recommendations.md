@@ -2,23 +2,24 @@
 work_package_id: WP01
 title: VariantService Recommendation Engine
 lane: done
+dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: '33737'
+review_status: approved
+reviewed_by: claude
 history:
 - timestamp: '2025-12-04'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Service Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '33737'
-subtasks:
-- T001
-- T002
-- T003
-- T004
 ---
 
 # Work Package Prompt: WP01 - VariantService Recommendation Engine

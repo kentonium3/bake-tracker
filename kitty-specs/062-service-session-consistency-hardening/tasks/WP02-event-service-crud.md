@@ -1,32 +1,32 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Event Service CRUD Operations
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-title: "Event Service CRUD Operations"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "83271"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T005
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 1 - Service Hardening
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '83271'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T19:00:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "83271"
-    action: "Review passed, moved to done"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T19:00:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '83271'
+  action: Review passed, moved to done
 ---
 
 # Work Package Prompt: WP02 – Event Service CRUD Operations

@@ -15,6 +15,7 @@
   "accepted_from_commit": "9427c065ebfec75d0c8e87224fb539f199c9e1f2",
   "created_at": "2025-12-21T21:02:07Z",
   "feature_number": "026",
+  "feature_slug": "026-deferred-packaging-decisions",
   "friendly_name": "Deferred Packaging Decisions",
   "merge_history": [
     {
@@ -32,6 +33,7 @@
   "merged_into": "main",
   "merged_push": true,
   "merged_strategy": "merge",
+  "mission": "software-dev",
   "slug": "026-deferred-packaging-decisions",
   "source_description": "Enable bakers to plan events with generic packaging requirements, deferring specific design selection until assembly time while maintaining cost estimates and inventory awareness.",
   "target_branch": "main"

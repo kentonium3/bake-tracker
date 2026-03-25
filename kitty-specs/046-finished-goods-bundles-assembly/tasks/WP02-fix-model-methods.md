@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Fix Composition & Package Models
+lane: done
+dependencies: []
 subtasks:
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T007"
-title: "Fix Composition & Package Models"
-phase: "Phase 1 - Model Layer Fixes"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T003
+- T004
+- T005
+- T006
+- T007
+phase: Phase 1 - Model Layer Fixes
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T07:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T07:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Fix Composition & Package Models

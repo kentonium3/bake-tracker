@@ -1,25 +1,25 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Service Layer Foundation"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "77827"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Service Layer Foundation
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '77827'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-27T12:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-27T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Service Layer Foundation

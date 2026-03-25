@@ -1,23 +1,24 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Service - Name Uniqueness Validation
+lane: done
+dependencies: []
 subtasks:
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Service - Name Uniqueness Validation"
-phase: "Phase 1 - Parallel Foundation"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T002
+- T003
+- T004
+phase: Phase 1 - Parallel Foundation
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-09T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Service - Name Uniqueness Validation

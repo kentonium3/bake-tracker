@@ -2,24 +2,25 @@
 work_package_id: WP06
 title: UI Integration
 lane: done
-history:
-- timestamp: '2025-12-30T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI
-review_status: ''
-reviewed_by: ''
-shell_pid: '4513'
+dependencies: []
 subtasks:
 - T032
 - T033
 - T034
 - T035
 - T036
+phase: Phase 3 - UI
+assignee: claude
+agent: claude-reviewer
+shell_pid: '4513'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-30T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 – UI Integration

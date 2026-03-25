@@ -1,30 +1,30 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Purchase Integration
+lane: done
+dependencies: [WP01, WP04]
 subtasks:
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-title: "Purchase Integration"
-phase: "Phase 3 - Integration"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "29058"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01", "WP04"]
+- T029
+- T030
+- T031
+- T032
+phase: Phase 3 - Integration
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '29058'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: MaterialPurchaseService integration with FIFO inventory"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: MaterialPurchaseService integration with FIFO inventory'
 ---
 
 # Work Package Prompt: WP07 – Purchase Integration

@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Recipient Service Verification
 lane: done
-history:
-- timestamp: '2025-12-03'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Services Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '9077'
+dependencies: []
 subtasks:
 - T035
 - T036
@@ -22,6 +11,18 @@ subtasks:
 - T039
 - T040
 - T041
+phase: Phase 2 - Services Layer
+assignee: claude
+agent: claude
+shell_pid: '9077'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-03'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Recipient Service Verification

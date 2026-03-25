@@ -1,11 +1,12 @@
 {
+  "created_at": "2025-01-24T00:00:00Z",
   "feature_number": "065",
-  "slug": "065-production-plan-snapshot-refactor",
+  "feature_slug": "065-production-plan-snapshot-refactor",
   "friendly_name": "Production Plan Snapshot Refactor",
   "mission": "software-dev",
+  "slug": "065-production-plan-snapshot-refactor",
   "source_description": "see docs/func-spec/F065_production_plan_snapshot_refactor.md for this feature's inputs.",
-  "created_at": "2025-01-24T00:00:00Z",
+  "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-24T20:00:31.083242+00:00",
-  "target_branch": "main"
+  "vcs_locked_at": "2026-01-24T20:00:31.083242+00:00"
 }

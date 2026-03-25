@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Catalog Commands
+lane: done
+dependencies: []
 subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-title: "Catalog Commands"
-phase: "Phase 3 - Catalog Commands (P2)"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T019
+- T020
+- T021
+- T022
+- T023
+- T024
+- T025
+- T026
+phase: Phase 3 - Catalog Commands (P2)
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Catalog Commands

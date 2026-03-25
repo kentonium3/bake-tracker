@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Recipe & FinishedGood Snapshot Import
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 081-snapshot-export-coverage-WP01
 base_commit: 58d09833a9ae87691cf419f8adfaeca5c2ed1ed1
@@ -13,10 +13,10 @@ subtasks:
 - T014
 phase: Phase 2 - Import Functions
 assignee: ''
-agent: "claude"
-shell_pid: "77815"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '77815'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned

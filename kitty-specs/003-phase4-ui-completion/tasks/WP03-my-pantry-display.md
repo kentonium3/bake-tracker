@@ -1,11 +1,11 @@
 ---
 title: My Pantry Tab - Inventory Display & Management
 lane: done
-priority: P3
-tags:
-- ui
-- pantry
-- customtkinter
+dependencies:
+- WP02
+assignee: Claude Code
+agent: Claude Code
+shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,14 +17,14 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - all pantry display and management features implemented
-agent: Claude Code
-assignee: Claude Code
-dependencies:
-- WP02
 estimate: 12-15 hours
 feature: 003-phase4-ui-completion
 id: WP03
-shell_pid: '1'
+priority: P3
+tags:
+- ui
+- pantry
+- customtkinter
 ---
 
 # WP03: My Pantry Tab - Inventory Display & Management

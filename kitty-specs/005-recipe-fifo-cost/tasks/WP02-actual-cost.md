@@ -2,19 +2,7 @@
 work_package_id: WP02
 title: User Story 1 - Calculate Actual Recipe Cost
 lane: done
-history:
-- timestamp: '2025-12-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Core Feature
-review_status: approved
-reviewed_by: claude
-reviewer_shell_pid: '80943'
-shell_pid: '76189'
+dependencies: []
 subtasks:
 - T006
 - T007
@@ -23,6 +11,19 @@ subtasks:
 - T010
 - T011
 - T012
+phase: Phase 1 - Core Feature
+assignee: claude
+agent: claude
+shell_pid: '76189'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+reviewer_shell_pid: '80943'
 ---
 
 # Work Package Prompt: WP02 – User Story 1 - Calculate Actual Recipe Cost

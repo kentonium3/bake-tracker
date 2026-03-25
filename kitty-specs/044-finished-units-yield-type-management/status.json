@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "044-finished-units-yield-type-management",
+  "last_event_id": "01KMKK29G3Y2PV4JJN3PMG0PEG",
+  "materialized_at": "2026-03-25T22:50:33.733449+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29FKTW9WRZKPTF4F08T2",
+      "last_transition_at": "2026-01-09T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29FQEYX7WN6A61W4C646",
+      "last_transition_at": "2026-01-09T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29FWJ056N269Q9F7H1Y6",
+      "last_transition_at": "2026-01-09T00:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29G01T7163N1VJ76ANMM",
+      "last_transition_at": "2026-01-09T00:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29G3Y2PV4JJN3PMG0PEG",
+      "last_transition_at": "2026-01-09T00:00:00Z"
+    }
+  }
+}

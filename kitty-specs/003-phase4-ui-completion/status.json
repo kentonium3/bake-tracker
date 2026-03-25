@@ -1,0 +1,60 @@
+{
+  "event_count": 6,
+  "feature_slug": "003-phase4-ui-completion",
+  "last_event_id": "01KMKK28D5YAXH3VFYHDY2F4PX",
+  "materialized_at": "2026-03-25T22:50:27.689778+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 6,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "Claude Code",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28D5YAXH3VFYHDY2F4PX",
+      "last_transition_at": "2025-11-13T20:00:00Z"
+    },
+    "WP02": {
+      "actor": "Claude Code",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28DCT3J0RYKJTJ65TR86",
+      "last_transition_at": "2025-11-10T17:51:41Z"
+    },
+    "WP03": {
+      "actor": "Claude Code",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28DHPE7FK06D1247962J",
+      "last_transition_at": "2025-11-10T19:41:03Z"
+    },
+    "WP04": {
+      "actor": "Claude Code",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28DNQQ9XCWGJK2MRXZMV",
+      "last_transition_at": "2025-11-10T20:07:20Z"
+    },
+    "WP05": {
+      "actor": "Claude Code",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28DVDCA1MK95PVJVPY81",
+      "last_transition_at": "2025-11-10T20:14:10Z"
+    },
+    "WP06": {
+      "actor": "Claude Code",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28DZB1T2MQMKD69DB19J",
+      "last_transition_at": "2025-11-10T19:30:00Z"
+    }
+  }
+}

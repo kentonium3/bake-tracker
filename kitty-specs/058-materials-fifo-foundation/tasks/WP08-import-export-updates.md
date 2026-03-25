@@ -1,29 +1,29 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Import/Export Schema Handling
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T033"
-  - "T034"
-  - "T035"
-title: "Import/Export Schema Handling"
-phase: "Phase 4 - Polish"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "29350"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T033
+- T034
+- T035
+phase: Phase 4 - Polish
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '29350'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: Import/export updated for deprecated field removal"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: Import/export updated for deprecated field removal'
 ---
 
 # Work Package Prompt: WP08 – Import/Export Schema Handling

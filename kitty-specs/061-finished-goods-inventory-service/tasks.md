@@ -325,3 +325,15 @@ WP01 (Foundation)
 | T030 | Session atomicity tests | WP08 | P2 | No |
 | T031 | Verify export includes inventory | WP08 | P2 | Yes |
 | T032 | Verify import restores inventory | WP08 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

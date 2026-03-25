@@ -1,0 +1,25 @@
+{
+  "event_count": 1,
+  "feature_slug": "082-product-composite-slug-multi-tenant",
+  "last_event_id": "01KMKK2AE4VCQND9M9VQ4QRVSZ",
+  "materialized_at": "2026-03-25T22:50:39.030318+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 1,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AE4VCQND9M9VQ4QRVSZ",
+      "last_transition_at": "2026-03-25T22:50:26.628487+00:00"
+    }
+  }
+}

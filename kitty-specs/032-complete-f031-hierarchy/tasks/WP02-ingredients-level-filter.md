@@ -2,24 +2,25 @@
 work_package_id: WP02
 title: Ingredients Level Filter
 lane: done
-history:
-- timestamp: '2025-12-31T23:59:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Ingredients Tab
-review_status: ''
-reviewed_by: ''
-shell_pid: '35513'
+dependencies: []
 subtasks:
 - T007
 - T008
 - T009
 - T010
 - T011
+phase: Phase 1 - Ingredients Tab
+assignee: claude
+agent: claude
+shell_pid: '35513'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-31T23:59:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Ingredients Level Filter

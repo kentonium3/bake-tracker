@@ -19,7 +19,7 @@
 
 **Goal**: Create the foundational widgets needed by all dialogs - availability display and history tables.
 **Independent Test**: Widgets can be instantiated with mock data and render correctly.
-**Prompt**: `tasks/planned/WP01-core-reusable-widgets.md`
+**Prompt**: `tasks/WP01-core-reusable-widgets.md`
 
 ### Included Subtasks
 - [x] T001 Create AvailabilityDisplay widget in `src/ui/widgets/availability_display.py`
@@ -49,7 +49,7 @@
 
 **Goal**: Implement the Record Production dialog with availability check and batch input.
 **Independent Test**: Dialog opens, shows availability, accepts input, and returns result dict.
-**Prompt**: `tasks/planned/WP02-production-recording-dialog.md`
+**Prompt**: `tasks/WP02-production-recording-dialog.md`
 
 ### Included Subtasks
 - [x] T005 Create RecordProductionDialog in `src/ui/forms/record_production_dialog.py`
@@ -82,7 +82,7 @@
 
 **Goal**: Create the FinishedUnit detail modal with production history and Record Production button.
 **Independent Test**: Dialog displays FinishedUnit info, shows history, Record Production opens sub-dialog.
-**Prompt**: `tasks/planned/WP03-finished-unit-detail-dialog.md`
+**Prompt**: `tasks/WP03-finished-unit-detail-dialog.md`
 
 ### Included Subtasks
 - [x] T011 Create FinishedUnitDetailDialog in `src/ui/forms/finished_unit_detail.py`
@@ -116,7 +116,7 @@
 
 **Goal**: Wire FinishedUnitsTab to open detail dialog on row selection/double-click.
 **Independent Test**: Double-clicking a FinishedUnit in the list opens detail dialog.
-**Prompt**: `tasks/planned/WP04-finished-units-tab-integration.md`
+**Prompt**: `tasks/WP04-finished-units-tab-integration.md`
 
 ### Included Subtasks
 - [x] T018 Add "View Details" button to FinishedUnitsTab action bar
@@ -146,7 +146,7 @@
 
 **Goal**: Implement the Record Assembly dialog with component availability check.
 **Independent Test**: Dialog opens, shows component availability, accepts quantity, returns result.
-**Prompt**: `tasks/planned/WP05-assembly-recording-dialog.md`
+**Prompt**: `tasks/WP05-assembly-recording-dialog.md`
 
 ### Included Subtasks
 - [x] T023 Create RecordAssemblyDialog in `src/ui/forms/record_assembly_dialog.py`
@@ -176,7 +176,7 @@
 
 **Goal**: Create the FinishedGood detail modal with composition, assembly history, and Record Assembly button.
 **Independent Test**: Dialog displays FinishedGood info, shows composition and history, Record Assembly works.
-**Prompt**: `tasks/planned/WP06-finished-good-detail-dialog.md`
+**Prompt**: `tasks/WP06-finished-good-detail-dialog.md`
 
 ### Included Subtasks
 - [x] T029 Create FinishedGoodDetailDialog in `src/ui/forms/finished_good_detail.py`
@@ -209,7 +209,7 @@
 
 **Goal**: Wire FinishedGoodsTab to open detail dialog on row selection/double-click.
 **Independent Test**: Double-clicking a FinishedGood in the list opens detail dialog.
-**Prompt**: `tasks/planned/WP07-finished-goods-tab-integration.md`
+**Prompt**: `tasks/WP07-finished-goods-tab-integration.md`
 
 ### Included Subtasks
 - [x] T037 Add "View Details" button to FinishedGoodsTab action bar
@@ -237,7 +237,7 @@
 
 **Goal**: Create the new Production Dashboard tab replacing old production_tab.py.
 **Independent Test**: Tab displays recent production and assembly runs, navigation links work.
-**Prompt**: `tasks/planned/WP08-production-dashboard-tab.md`
+**Prompt**: `tasks/WP08-production-dashboard-tab.md`
 
 ### Included Subtasks
 - [x] T042 Create ProductionDashboardTab in `src/ui/production_dashboard_tab.py`
@@ -344,3 +344,15 @@ WP01 (Widgets) ──────┬──────────────�
 | T046 | Dashboard navigation links | WP08 | P3 | No |
 | T047 | main_window.py update | WP08 | P3 | No |
 | T048 | Deprecate old production_tab | WP08 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

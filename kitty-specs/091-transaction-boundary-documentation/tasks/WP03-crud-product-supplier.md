@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Core CRUD Services - Product & Supplier
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -12,10 +12,10 @@ subtasks:
 - T010
 phase: Phase 2 - Documentation
 assignee: ''
-agent: "codex-wp03"
-shell_pid: "44227"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: codex-wp03
+shell_pid: '44227'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned

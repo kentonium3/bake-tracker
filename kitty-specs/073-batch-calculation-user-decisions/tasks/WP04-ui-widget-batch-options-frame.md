@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: UI Widget - BatchOptionsFrame
-lane: "done"
+lane: done
 dependencies:
 - WP02
 base_branch: 073-batch-calculation-user-decisions-WP02
@@ -18,10 +18,10 @@ subtasks:
 - T029
 phase: Phase 2 - UI Layer
 assignee: ''
-agent: "claude"
-shell_pid: "24108"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '24108'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned

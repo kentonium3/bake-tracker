@@ -19,7 +19,7 @@
 
 **Goal**: Create ProductionRecord model, PackageStatus enum, add status fields to EventRecipientPackage, and run database migration.
 **Independent Test**: Models import successfully, database tables exist with correct schema.
-**Prompt**: `tasks/done/WP01-models-and-migration.md`
+**Prompt**: `tasks/WP01-models-and-migration.md`
 
 ### Included Subtasks
 - [x] T001 [P] Create PackageStatus enum in `src/models/package_status.py`
@@ -53,7 +53,7 @@
 
 **Goal**: Implement `record_production()` - the core function that records batches, consumes pantry via FIFO, and captures actual costs.
 **Independent Test**: Can record production for a recipe, verify pantry depleted, actual cost captured.
-**Prompt**: `tasks/done/WP02-core-production-service.md`
+**Prompt**: `tasks/WP02-core-production-service.md`
 
 ### Included Subtasks
 - [x] T007 Create custom exceptions (InsufficientInventoryError, etc.) in `src/services/production_service.py`
@@ -87,7 +87,7 @@
 
 **Goal**: Implement package status transitions (pending -> assembled -> delivered) with validation.
 **Independent Test**: Can update package status, invalid transitions are blocked.
-**Prompt**: `tasks/done/WP03-package-status-management.md`
+**Prompt**: `tasks/WP03-package-status-management.md`
 
 ### Included Subtasks
 - [x] T011 Implement `update_package_status()` with transition validation in `src/services/production_service.py`
@@ -117,7 +117,7 @@
 
 **Goal**: Implement progress tracking and dashboard summary functions for cost comparison.
 **Independent Test**: Can get production progress for event, dashboard shows all active events.
-**Prompt**: `tasks/done/WP04-progress-and-dashboard.md`
+**Prompt**: `tasks/WP04-progress-and-dashboard.md`
 
 ### Included Subtasks
 - [x] T015 [P] Implement `get_production_progress()` in `src/services/production_service.py`
@@ -154,7 +154,7 @@
 
 **Goal**: Create ProductionTab with event list and recipe production recording form.
 **Independent Test**: Production tab visible in main window, can see events, can record production.
-**Prompt**: `tasks/done/WP05-production-tab-core.md`
+**Prompt**: `tasks/WP05-production-tab-core.md`
 
 ### Included Subtasks
 - [x] T019 Create ProductionTab frame structure in `src/ui/production_tab.py`
@@ -185,7 +185,7 @@
 
 **Goal**: Add package status controls and cost comparison display to Production tab.
 **Independent Test**: Can change package status via UI, see actual vs planned costs.
-**Prompt**: `tasks/done/WP06-status-and-costs-ui.md`
+**Prompt**: `tasks/WP06-status-and-costs-ui.md`
 
 ### Included Subtasks
 - [x] T024 Implement package status display with toggle buttons (pending/assembled/delivered)
@@ -223,7 +223,7 @@
 
 **Goal**: Edge case handling, error messages, confirmation dialogs, code quality.
 **Independent Test**: All edge cases handled gracefully, code passes quality checks.
-**Prompt**: `tasks/done/WP07-validation-and-polish.md`
+**Prompt**: `tasks/WP07-validation-and-polish.md`
 
 ### Included Subtasks
 - [x] T028 Add confirmation dialog before destructive FIFO consumption
@@ -320,3 +320,14 @@ WP02 (Core Production) --> MVP MILESTONE
 | T032 | Mark event Complete when delivered | WP07 | P4 | Yes |
 | T033 | Run code quality checks | WP07 | P4 | Yes |
 | T034 | End-to-end manual validation | WP07 | P4 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

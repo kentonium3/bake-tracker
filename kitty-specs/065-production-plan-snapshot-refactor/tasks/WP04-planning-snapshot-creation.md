@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Planning Service Snapshot Creation
-lane: "done"
+lane: done
 dependencies:
 - WP02
 base_branch: 065-production-plan-snapshot-refactor-WP03
@@ -17,10 +17,10 @@ subtasks:
 - T020
 phase: Phase 2 - Service Layer - Snapshot Creation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "85459"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '85459'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned

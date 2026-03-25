@@ -1,25 +1,25 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Service Inventory & Templates"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "codex-wp01"
-shell_pid: "44126"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Service Inventory & Templates
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Foundation
+assignee: ''
+agent: codex-wp01
+shell_pid: '44126'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-02-03T04:37:19Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-03T04:37:19Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Service Inventory & Templates

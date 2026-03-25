@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Inventory Adjustment Import
+lane: done
+dependencies: []
 subtasks:
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-  - "T046"
-title: "Inventory Adjustment Import"
-phase: "Phase 3 - Wave 2"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T038
+- T039
+- T040
+- T041
+- T042
+- T043
+- T044
+- T045
+- T046
+phase: Phase 3 - Wave 2
+assignee: claude
+agent: claude
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Inventory Adjustment Import

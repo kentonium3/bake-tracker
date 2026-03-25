@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Gap Calculation
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: d79ee82fbc98842196707709c9112e4be7cd209d
@@ -16,10 +16,10 @@ subtasks:
 - T007
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "gemini"
-shell_pid: "39276"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini
+shell_pid: '39276'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T23:30:00Z'
   lane: planned

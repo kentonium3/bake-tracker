@@ -16,7 +16,7 @@
 
 **Goal**: Create RecipeComponent model with database constraints and Recipe relationship extensions.
 **Independent Test**: Model can be instantiated, schema creates successfully, constraints enforce validation rules.
-**Prompt**: `tasks/planned/WP01-schema-model.md`
+**Prompt**: `tasks/WP01-schema-model.md`
 
 ### Included Subtasks
 - [X] T001 Create RecipeComponent class in `src/models/recipe.py`
@@ -49,7 +49,7 @@
 
 **Goal**: Implement add, remove, update, get operations for recipe components in recipe_service.py.
 **Independent Test**: Can add/remove/update components via service functions; operations persist correctly.
-**Prompt**: `tasks/planned/WP02-service-crud.md`
+**Prompt**: `tasks/WP02-service-crud.md`
 
 ### Included Subtasks
 - [X] T008 Implement `add_recipe_component()` function
@@ -81,7 +81,7 @@
 
 **Goal**: Implement circular reference detection and depth limit enforcement.
 **Independent Test**: Circular references blocked at all depths; depth > 3 rejected; clear error messages.
-**Prompt**: `tasks/planned/WP03-service-validation.md`
+**Prompt**: `tasks/WP03-service-validation.md`
 
 ### Included Subtasks
 - [X] T014 Implement `_would_create_cycle()` helper function
@@ -115,7 +115,7 @@
 
 **Goal**: Implement recursive cost calculation and ingredient aggregation for shopping lists.
 **Independent Test**: Cost includes sub-recipe costs × quantities; aggregated ingredients sum correctly across hierarchy.
-**Prompt**: `tasks/planned/WP04-service-cost-aggregation.md`
+**Prompt**: `tasks/WP04-service-cost-aggregation.md`
 
 ### Included Subtasks
 - [X] T022 Implement `get_aggregated_ingredients()` function
@@ -147,7 +147,7 @@
 
 **Goal**: Extend import_export_service to handle recipe components.
 **Independent Test**: Export recipe with components produces correct JSON; import restores relationships.
-**Prompt**: `tasks/planned/WP05-import-export.md`
+**Prompt**: `tasks/WP05-import-export.md`
 
 ### Included Subtasks
 - [X] T028 Modify `export_recipes_to_json()` to include components array
@@ -179,7 +179,7 @@
 
 **Goal**: Add sub-recipes section to recipe form with add/remove/edit functionality.
 **Independent Test**: User can add, view, edit, remove sub-recipes in recipe form; changes persist.
-**Prompt**: `tasks/planned/WP06-ui-recipe-form.md`
+**Prompt**: `tasks/WP06-ui-recipe-form.md`
 
 ### Included Subtasks
 - [X] T034 Add "Sub-Recipes" section label and frame in recipe form
@@ -216,7 +216,7 @@
 
 **Goal**: End-to-end validation, edge case handling, and documentation updates.
 **Independent Test**: All quickstart.md scenarios pass; no regressions in existing tests.
-**Prompt**: `tasks/planned/WP07-integration-polish.md`
+**Prompt**: `tasks/WP07-integration-polish.md`
 
 ### Included Subtasks
 - [X] T043 Run full test suite, fix any regressions
@@ -324,3 +324,14 @@ WP07 (Integration & Polish)
 | T046 | Test import/export round-trip | WP07 | P2 | No |
 | T047 | Verify backward compatibility | WP07 | P2 | No |
 | T048 | Update documentation | WP07 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

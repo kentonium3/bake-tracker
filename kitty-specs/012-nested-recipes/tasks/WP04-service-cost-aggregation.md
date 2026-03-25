@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Service Layer - Cost & Aggregation
 lane: done
-history:
-- timestamp: '2025-12-09T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Core Features
-review_status: ''
-reviewed_by: ''
-shell_pid: '98957'
+dependencies: []
 subtasks:
 - T022
 - T023
@@ -21,6 +10,18 @@ subtasks:
 - T025
 - T026
 - T027
+phase: Phase 2 - Core Features
+assignee: claude
+agent: claude-reviewer
+shell_pid: '98957'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Service Layer - Cost & Aggregation

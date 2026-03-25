@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Batch Decision CRUD Service
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -17,10 +17,10 @@ subtasks:
 - T021
 phase: Phase 1 - Core Service
 assignee: ''
-agent: "claude"
-shell_pid: "22322"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '22322'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned

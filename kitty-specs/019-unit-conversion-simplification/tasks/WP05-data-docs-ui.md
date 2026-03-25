@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Data Files, Documentation & UI Cleanup
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-opus-4-5-20251101
-assignee: claude
-phase: Phase 4 - Finalization
-review_status: has_feedback
-reviewed_by: claude-opus-4-5-20251101
-shell_pid: '25000'
+dependencies: []
 subtasks:
 - T024
 - T025
@@ -23,6 +12,18 @@ subtasks:
 - T029
 - T030
 - T031
+phase: Phase 4 - Finalization
+assignee: claude
+agent: claude-opus-4-5-20251101
+shell_pid: '25000'
+review_status: has_feedback
+reviewed_by: claude-opus-4-5-20251101
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 ## Review Feedback

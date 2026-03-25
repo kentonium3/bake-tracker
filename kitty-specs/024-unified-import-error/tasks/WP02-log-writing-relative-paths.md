@@ -2,21 +2,22 @@
 work_package_id: WP02
 title: Log Writing - Relative Path Support
 lane: done
+dependencies: []
+subtasks:
+- T002
+- T003
+phase: Phase 2 - Log Writing Generalization
+assignee: claude
+agent: claude-reviewer
+shell_pid: '77765'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Log Writing Generalization
-review_status: ''
-reviewed_by: ''
-shell_pid: '77765'
-subtasks:
-- T002
-- T003
 ---
 
 # Work Package Prompt: WP02 - Log Writing - Relative Path Support

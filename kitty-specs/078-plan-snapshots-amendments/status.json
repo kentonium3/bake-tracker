@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "078-plan-snapshots-amendments",
+  "last_event_id": "01KMKK2ABNJK54HTD8F8ZSYQJS",
+  "materialized_at": "2026-03-25T22:50:38.493205+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AB0SBVMN6MPTSF9HVRB",
+      "last_transition_at": "2026-01-28T03:25:47Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AB6Y92CPVVY3TZ8KFMD",
+      "last_transition_at": "2026-01-28T03:25:47Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ABBZNAQT9X388QJ041F",
+      "last_transition_at": "2026-01-28T03:25:47Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ABFW5VF4RRG0HPH14W9",
+      "last_transition_at": "2026-01-28T03:25:47Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2ABNJK54HTD8F8ZSYQJS",
+      "last_transition_at": "2026-01-28T03:25:47Z"
+    }
+  }
+}

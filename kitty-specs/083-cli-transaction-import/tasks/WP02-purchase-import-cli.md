@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Purchase Import CLI
-lane: "done"
+lane: done
 dependencies: []
 base_branch: 083-cli-transaction-import-WP01
 base_commit: 459e9ec305c9dc420b06961dd93a05dcb7a75d5e
@@ -12,10 +12,10 @@ subtasks:
 - T006
 phase: Phase 2 - CLI Commands
 assignee: ''
-agent: "claude"
-shell_pid: "30729"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '30729'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T04:45:00Z'
   lane: planned

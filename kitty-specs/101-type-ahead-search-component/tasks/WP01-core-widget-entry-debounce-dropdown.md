@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Core Widget - Entry, Debounce & Dropdown
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 7c1185effbe3a7e9a6245997e8d5e67f1e4e6f8b
@@ -14,10 +14,10 @@ subtasks:
 - T005
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "86815"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '86815'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-10T21:59:40Z'
   lane: planned

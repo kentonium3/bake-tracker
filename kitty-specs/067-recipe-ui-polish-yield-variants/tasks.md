@@ -176,3 +176,11 @@ Time N: All complete, merge branches
 | T010 | Default production_ready=True | WP02 | P2 | Yes |
 | T011 | Finished units variant sorting | WP04 | P3 | Yes |
 | T012 | Add "↳" indicator for variant FUs | WP04 | P3 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

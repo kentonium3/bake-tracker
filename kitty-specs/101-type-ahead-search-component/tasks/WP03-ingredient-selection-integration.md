@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Ingredient Selection Integration
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 101-type-ahead-search-component-WP02
 base_commit: fdf836dbc1a3c8d4e65269c62a74115e9d7555b6
@@ -14,10 +14,10 @@ subtasks:
 - T017
 phase: Phase 1 - US1 Ingredient Search
 assignee: ''
-agent: "claude-opus"
-shell_pid: "90348"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '90348'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-10T21:59:40Z'
   lane: planned

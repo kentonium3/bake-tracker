@@ -1,27 +1,28 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Integration & Polish
+lane: done
+dependencies: []
 subtasks:
-  - "T046"
-  - "T047"
-  - "T048"
-  - "T049"
-  - "T050"
-  - "T051"
-  - "T052"
-title: "Integration & Polish"
-phase: "Phase 4 - Finalization"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T046
+- T047
+- T048
+- T049
+- T050
+- T051
+- T052
+phase: Phase 4 - Finalization
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-08T22:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-08T22:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Integration & Polish

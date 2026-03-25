@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Remaining Models & Service Layer Extension
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 068-event-management-planning-data-model-WP01
 base_commit: 62c6ed55d13273268c70271235c41bb8fbd63f08
@@ -16,10 +16,10 @@ subtasks:
 - T014
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "96307"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '96307'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned

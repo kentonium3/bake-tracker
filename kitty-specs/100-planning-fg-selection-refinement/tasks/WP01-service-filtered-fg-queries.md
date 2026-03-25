@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Service Layer - Filtered FG Queries
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 999b93111f5aba3ee46c2e633469cd4c0d06fa18
@@ -13,10 +13,10 @@ subtasks:
 - T004
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "22118"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '22118'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-09T21:25:52Z'
   lane: planned

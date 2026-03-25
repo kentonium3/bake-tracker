@@ -171,3 +171,11 @@
 **Parallelization**: WP01 is foundation. After WP01: WP02 and WP04 can run in parallel. WP03 depends on WP02.
 
 **MVP Scope**: WP01 + WP02 delivers core service functionality. WP03 required for user workflow. WP04 is polish.
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

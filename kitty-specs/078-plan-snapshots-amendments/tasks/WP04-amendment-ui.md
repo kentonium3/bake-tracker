@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Amendment UI Controls
-lane: "done"
+lane: done
 dependencies:
 - WP02
 - WP03
@@ -16,10 +16,10 @@ subtasks:
 - T020
 phase: Phase 1 - Core Implementation
 assignee: ''
-agent: "gemini"
-shell_pid: "86568"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini
+shell_pid: '86568'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned

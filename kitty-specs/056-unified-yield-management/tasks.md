@@ -241,3 +241,13 @@ WP02 (Transform) ───────┼───► WP04 (Import) ────
 | T023 | Test creating new recipe | WP06 | P2 | Yes |
 | T024 | Test editing existing recipe | WP06 | P2 | Yes |
 | T025 | Verify batch calculation | WP06 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

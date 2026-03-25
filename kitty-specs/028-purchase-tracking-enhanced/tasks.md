@@ -25,7 +25,7 @@
 
 **Goal**: Add price suggestion query functions to purchase_service.py enabling price hints in UI.
 **Independent Test**: Unit tests pass for both functions with various scenarios (history exists, no history, supplier-specific vs any supplier).
-**Prompt**: `tasks/planned/WP01-price-suggestion-functions.md`
+**Prompt**: `tasks/WP01-price-suggestion-functions.md`
 **User Stories**: US2 (Price Suggestion) - Foundation
 
 ### Included Subtasks
@@ -54,7 +54,7 @@
 
 **Goal**: Update inventory_item_service.add_to_inventory() to create Purchase records atomically.
 **Independent Test**: Adding inventory creates both InventoryItem and Purchase records with correct linkage.
-**Prompt**: `tasks/planned/WP02-inventory-purchase-integration.md`
+**Prompt**: `tasks/WP02-inventory-purchase-integration.md`
 **User Stories**: US1 (Add Inventory with Supplier Selection) - Foundation
 
 ### Included Subtasks
@@ -84,7 +84,7 @@
 
 **Goal**: Modify InventoryItemFormDialog with supplier dropdown, price field, and price hints.
 **Independent Test**: User can select supplier, see price suggestion, enter price, and successfully add inventory.
-**Prompt**: `tasks/planned/WP03-ui-supplier-price-entry.md`
+**Prompt**: `tasks/WP03-ui-supplier-price-entry.md`
 **User Stories**: US1 (Add Inventory with Supplier Selection), US2 (Price Suggestion from Purchase History)
 
 ### Included Subtasks
@@ -119,7 +119,7 @@
 
 **Goal**: Create migration script to link existing InventoryItems to Purchase records.
 **Independent Test**: Migration runs successfully on test database; validation confirms all items linked.
-**Prompt**: `tasks/planned/WP04-migration-validation.md`
+**Prompt**: `tasks/WP04-migration-validation.md`
 **User Stories**: US5 (Data Migration from Existing Inventory)
 
 ### Included Subtasks
@@ -156,7 +156,7 @@
 
 **Goal**: Verify FIFO calculations use Purchase.unit_price and run full test suite.
 **Independent Test**: FIFO cost calculation produces correct results using purchase prices; all tests pass.
-**Prompt**: `tasks/planned/WP05-fifo-verification-testing.md`
+**Prompt**: `tasks/WP05-fifo-verification-testing.md`
 **User Stories**: US3 (Accurate FIFO Cost Calculation), US4 (Purchase History Query)
 
 ### Included Subtasks
@@ -227,3 +227,12 @@ WP02 (Service Integration)──┘             │
 | T022 | Verify purchase history queries | WP05 | P2 | Yes |
 | T023 | Run full test suite | WP05 | P2 | No |
 | T024 | Fix broken tests | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

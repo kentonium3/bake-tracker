@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: AccordionStep Widget
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: e16f536c3b9ac0cbab64ca424daa36776536ed63
@@ -13,10 +13,10 @@ subtasks:
 - T004
 phase: Phase A - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "23922"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '23922'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned

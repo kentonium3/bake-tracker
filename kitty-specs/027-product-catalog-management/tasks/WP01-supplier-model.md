@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Supplier Model
 lane: done
-history:
-- timestamp: '2025-12-22T14:35:00Z'
-  lane: planned
-  agent: system
-  shell_pid: '50566'
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Schema & Models
-review_status: ''
-reviewed_by: ''
-shell_pid: '50566'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -21,6 +10,18 @@ subtasks:
 - T004
 - T005
 - T006
+phase: Phase 1 - Schema & Models
+assignee: claude
+agent: claude
+shell_pid: '50566'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T14:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: '50566'
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Supplier Model

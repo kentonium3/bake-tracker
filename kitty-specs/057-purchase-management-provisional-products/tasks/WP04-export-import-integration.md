@@ -1,13 +1,13 @@
 ---
 work_package_id: WP04
 title: Export/Import Integration
-lane: "done"
+lane: done
 dependencies: []
 subtasks: [T018, T019, T020, T021, T022]
-agent: "claude"
-shell_pid: "29466"
-reviewed_by: "Kent Gale"
-review_status: "approved"
+agent: claude
+shell_pid: '29466'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - date: '2026-01-17'
   action: created

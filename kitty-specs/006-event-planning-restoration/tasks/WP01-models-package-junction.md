@@ -2,24 +2,25 @@
 work_package_id: WP01
 title: Models Layer - Package & Junction
 lane: done
-history:
-- timestamp: '2025-12-03'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Models Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '7079'
+dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 - T004
 - T005
+phase: Phase 1 - Models Layer
+assignee: claude
+agent: claude
+shell_pid: '7079'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-03'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Models Layer - Package & Junction

@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: View Details Dialog
+lane: done
+dependencies: []
 subtasks:
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-title: "View Details Dialog"
-phase: "Phase 3 - Secondary Features"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T040
+- T041
+- T042
+- T043
+- T044
+- T045
+phase: Phase 3 - Secondary Features
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-08T22:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-08T22:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - View Details Dialog

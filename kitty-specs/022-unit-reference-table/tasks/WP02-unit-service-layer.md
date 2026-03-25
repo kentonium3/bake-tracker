@@ -2,24 +2,25 @@
 work_package_id: WP02
 title: Unit Service Layer
 lane: done
-history:
-- timestamp: '2025-12-16T16:56:32Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: claude-session
+dependencies: []
 subtasks:
 - T007
 - T008
 - T009
 - T010
 - T011
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude
+shell_pid: claude-session
+review_status: approved without changes
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-16T16:56:32Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Unit Service Layer

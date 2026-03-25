@@ -140,3 +140,10 @@
 | T014       | Cancel handler | WP03 | P1 | No |
 | T015       | Edge case handling | WP03 | P1 | No |
 | T016       | Integration tests | WP03 | P1 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+<!-- status-model:end -->

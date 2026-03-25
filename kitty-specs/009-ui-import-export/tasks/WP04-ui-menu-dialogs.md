@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: UI - Menu Bar and Dialogs
 lane: done
-history:
-- timestamp: '2025-12-04T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI Layer
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '85463'
+dependencies: []
 subtasks:
 - T023
 - T024
@@ -25,6 +14,18 @@ subtasks:
 - T030
 - T031
 - T032
+phase: Phase 3 - UI Layer
+assignee: claude
+agent: claude-reviewer
+shell_pid: '85463'
+review_status: approved
+reviewed_by: claude-reviewer
+history:
+- timestamp: '2025-12-04T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - UI - Menu Bar and Dialogs

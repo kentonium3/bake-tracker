@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Finished Goods Service Updates
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -15,10 +15,10 @@ subtasks:
 - T025
 phase: Phase 2 - Core Services
 assignee: ''
-agent: "claude"
-shell_pid: "47845"
-review_status: "has_feedback"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '47845'
+review_status: has_feedback
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned

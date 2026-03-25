@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Products Tab Hierarchy
 lane: done
-history:
-- timestamp: '2025-12-31T23:59:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Products Tab
-review_status: ''
-reviewed_by: ''
-shell_pid: '35513'
+dependencies: []
 subtasks:
 - T020
 - T021
@@ -21,6 +10,18 @@ subtasks:
 - T023
 - T024
 - T025
+phase: Phase 2 - Products Tab
+assignee: claude
+agent: claude
+shell_pid: '35513'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-31T23:59:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Products Tab Hierarchy

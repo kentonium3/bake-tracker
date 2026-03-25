@@ -1,7 +1,7 @@
 ---
 work_package_id: WP09
 title: Migration Transformation Script
-lane: "done"
+lane: done
 dependencies: [WP06]
 base_branch: 085-material-unit-schema-refactor-WP06
 base_commit: d9c2ca251e85fea7ce79202b8f26d1eacdec9076
@@ -14,10 +14,10 @@ subtasks:
 - T045
 phase: Wave 4 - Migration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "45575"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '45575'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned

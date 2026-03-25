@@ -1,23 +1,24 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Fix Assembly Service Cost Capture
+lane: done
+dependencies: []
 subtasks:
-  - "T008"
-  - "T009"
-  - "T010"
-title: "Fix Assembly Service Cost Capture"
-phase: "Phase 2 - Service Layer Fixes"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T008
+- T009
+- T010
+phase: Phase 2 - Service Layer Fixes
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-10T07:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-10T07:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Fix Assembly Service Cost Capture

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Batch Calculation Service
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -16,10 +16,10 @@ subtasks:
 - T014
 phase: Phase 1 - Core Service
 assignee: ''
-agent: "claude"
-shell_pid: "21934"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '21934'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned

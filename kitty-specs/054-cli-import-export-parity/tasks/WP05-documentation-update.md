@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Documentation Update
+lane: done
+dependencies: []
 subtasks:
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-title: "Documentation Update"
-phase: "Phase 5 - Documentation Update (P3)"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T035
+- T036
+- T037
+- T038
+- T039
+- T040
+phase: Phase 5 - Documentation Update (P3)
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Documentation Update

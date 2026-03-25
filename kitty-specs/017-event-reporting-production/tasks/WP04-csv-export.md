@@ -2,23 +2,24 @@
 work_package_id: WP04
 title: Shopping List CSV Export
 lane: done
+dependencies: []
+subtasks:
+- T016
+- T017
+- T018
+- T019
+phase: Phase 4 - CSV Export
+assignee: claude
+agent: claude
+shell_pid: '30686'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-11T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 4 - CSV Export
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '30686'
-subtasks:
-- T016
-- T017
-- T018
-- T019
 ---
 
 # Work Package Prompt: WP04 - Shopping List CSV Export

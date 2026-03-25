@@ -1,19 +1,19 @@
 ---
-work_package_id: "WP01"
-title: "Model & Service Foundation"
-lane: "done"
+work_package_id: WP01
+title: Model & Service Foundation
+lane: done
 dependencies: []
-subtasks: ["T001", "T002", "T003", "T004", "T005", "T006"]
-priority: "P0"
-estimated_lines: 350
-agent: "claude"
-shell_pid: "25909"
-reviewed_by: "Kent Gale"
-review_status: "approved"
+subtasks: [T001, T002, T003, T004, T005, T006]
+agent: claude
+shell_pid: '25909'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - date: "2026-01-17"
-    action: "created"
-    agent: "claude"
+- date: '2026-01-17'
+  action: created
+  agent: claude
+estimated_lines: 350
+priority: P0
 ---
 
 # WP01: Model & Service Foundation

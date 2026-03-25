@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Dashboard Tab Enhancement
 lane: done
-history:
-- timestamp: '2025-12-12T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - UI Integration
-review_status: ''
-reviewed_by: ''
-shell_pid: '64498'
+dependencies: []
 subtasks:
 - T010
 - T011
@@ -22,6 +11,18 @@ subtasks:
 - T014
 - T015
 - T016
+phase: Phase 2 - UI Integration
+assignee: claude
+agent: claude-reviewer
+shell_pid: '64498'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-12T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Dashboard Tab Enhancement

@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: UI Integration
-lane: "done"
+lane: done
 dependencies:
 - WP01
 - WP02
@@ -16,10 +16,10 @@ subtasks:
 - T015
 phase: Phase 3 - UI Integration
 assignee: ''
-agent: "claude"
-shell_pid: "56995"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '56995'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T00:00:00Z'
   lane: planned

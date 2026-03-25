@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Foundation Fixes
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 1826555fcc5313254f73ce3d3eb79c1f2734b750
@@ -17,10 +17,10 @@ subtasks:
 - T008
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude"
-shell_pid: "18855"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '18855'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned

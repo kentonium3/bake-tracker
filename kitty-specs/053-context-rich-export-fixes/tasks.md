@@ -143,3 +143,10 @@
 | T014 | Update export handler | WP03 | P1 | No |
 | T015 | Add validation | WP03 | P1 | No |
 | T016 | Fix button text | WP03 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+<!-- status-model:end -->

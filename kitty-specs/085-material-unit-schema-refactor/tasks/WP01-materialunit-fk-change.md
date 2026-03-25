@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-title: "MaterialUnit FK Change"
-phase: "Wave 1 - Schema Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "42490"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: MaterialUnit FK Change
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Wave 1 - Schema Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '42490'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-30T17:11:03Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T17:11:03Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – MaterialUnit FK Change

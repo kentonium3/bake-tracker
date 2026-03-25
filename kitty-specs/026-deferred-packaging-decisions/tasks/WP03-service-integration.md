@@ -2,24 +2,25 @@
 work_package_id: WP03
 title: Service Integration
 lane: done
+dependencies: []
+subtasks:
+- T014
+- T015
+- T016
+- T017
+phase: Phase 2 - Service Layer
+assignee: gemini
+agent: gemini
+shell_pid: '94728'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: gemini
-assignee: gemini
 gemini_candidate: true
-phase: Phase 2 - Service Layer
-review_status: ''
-reviewed_by: ''
-shell_pid: '94728'
-subtasks:
-- T014
-- T015
-- T016
-- T017
 ---
 
 # Work Package Prompt: WP03 - Service Integration

@@ -2,24 +2,25 @@
 work_package_id: WP04
 title: Test Updates & Validation
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - Testing
-review_status: ''
-reviewed_by: ''
-shell_pid: '24271'
+dependencies: []
 subtasks:
 - T019
 - T020
 - T021
 - T022
 - T023
+phase: Phase 3 - Testing
+assignee: claude
+agent: claude
+shell_pid: '24271'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 – Test Updates & Validation

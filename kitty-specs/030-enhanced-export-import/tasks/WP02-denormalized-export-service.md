@@ -2,24 +2,25 @@
 work_package_id: WP02
 title: Denormalized Export Service
 lane: done
-history:
-- timestamp: '2025-12-25T14:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: gemini
-assignee: gemini
-phase: Phase 1 - Export Services
-review_status: ''
-reviewed_by: ''
-shell_pid: retroactive
+dependencies: []
 subtasks:
 - T007
 - T008
 - T009
 - T010
 - T011
+phase: Phase 1 - Export Services
+assignee: gemini
+agent: gemini
+shell_pid: retroactive
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-25T14:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Denormalized Export Service

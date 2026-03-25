@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: UI Supplier Dropdown and Price Entry
 lane: done
-history:
-- timestamp: '2025-12-22T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - UI Updates
-review_status: ''
-reviewed_by: ''
-shell_pid: reconciled
+dependencies: []
 subtasks:
 - T008
 - T009
@@ -22,6 +11,18 @@ subtasks:
 - T012
 - T013
 - T014
+phase: Phase 2 - UI Updates
+assignee: claude
+agent: claude
+shell_pid: reconciled
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - UI Supplier Dropdown and Price Entry

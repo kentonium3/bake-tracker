@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Composition Service Packaging Extensions
 lane: done
-history:
-- timestamp: '2025-12-08T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-opus-4-5
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
-shell_pid: review
+dependencies: []
 subtasks:
 - T020
 - T021
@@ -25,6 +14,18 @@ subtasks:
 - T027
 - T028
 - T029
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-opus-4-5
+shell_pid: review
+review_status: approved without changes
+reviewed_by: claude-opus-4-5
+history:
+- timestamp: '2025-12-08T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Composition Service Packaging Extensions

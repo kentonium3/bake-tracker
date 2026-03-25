@@ -19,7 +19,7 @@
 
 **Goal**: Database schema changes and model definitions.
 **Independent Test**: Models import without errors; schema migrations apply cleanly.
-**Prompt**: `/tasks/planned/WP01-schema-and-models.md`
+**Prompt**: `/tasks/WP01-schema-and-models.md`
 
 ### Included Subtasks
 - [X] T001 Add `is_generic` column to Composition model in `src/models/composition.py`
@@ -48,7 +48,7 @@
 
 **Goal**: Core business logic for generic packaging operations.
 **Independent Test**: All service methods pass unit tests with mock data.
-**Prompt**: `/tasks/planned/WP02-packaging-service-core.md`
+**Prompt**: `/tasks/WP02-packaging-service-core.md`
 
 ### Included Subtasks
 - [X] T005 Create `src/services/packaging_service.py` with base structure
@@ -82,7 +82,7 @@
 
 **Goal**: Update existing services to support generic packaging.
 **Independent Test**: Existing service tests continue to pass; new generic-aware methods work.
-**Prompt**: `/tasks/planned/WP03-service-integration.md`
+**Prompt**: `/tasks/WP03-service-integration.md`
 
 ### Included Subtasks
 - [X] T014 [P] Update `src/services/composition_service.py` - support `is_generic` flag in create/update
@@ -112,7 +112,7 @@
 
 **Goal**: Enable generic packaging selection during event planning.
 **Independent Test**: User can create composition with `is_generic=True` via UI.
-**Prompt**: `/tasks/planned/WP04-planning-ui.md`
+**Prompt**: `/tasks/WP04-planning-ui.md`
 
 ### Included Subtasks
 - [X] T018 Add radio button toggle in composition editor: "Specific material" / "Generic product"
@@ -143,7 +143,7 @@
 
 **Goal**: Material assignment interface for generic requirements.
 **Independent Test**: User can assign specific inventory items to fulfill generic requirement.
-**Prompt**: `/tasks/planned/WP05-assignment-dialog.md`
+**Prompt**: `/tasks/WP05-assignment-dialog.md`
 
 ### Included Subtasks
 - [X] T024 Create `src/ui/packaging_assignment_dialog.py` - new dialog class
@@ -174,7 +174,7 @@
 
 **Goal**: Visual indicators for pending decisions and shopping list integration.
 **Independent Test**: Dashboard shows pending indicators; shopping list groups generics correctly.
-**Prompt**: `/tasks/planned/WP06-dashboard-and-shopping-list.md`
+**Prompt**: `/tasks/WP06-dashboard-and-shopping-list.md`
 
 ### Included Subtasks
 - [X] T030 [P] Add pending indicator icon to dashboard items with unassigned generic packaging
@@ -207,7 +207,7 @@
 
 **Goal**: Prompt about unassigned packaging at assembly completion.
 **Independent Test**: Completing assembly with unassigned packaging shows prompt; bypass works.
-**Prompt**: `/tasks/planned/WP07-assembly-enforcement.md`
+**Prompt**: `/tasks/WP07-assembly-enforcement.md`
 
 ### Included Subtasks
 - [X] T037 Add check in assembly completion flow for unassigned generic packaging
@@ -239,7 +239,7 @@
 
 **Goal**: Allow packaging changes during assembly.
 **Independent Test**: User can add/remove packaging from assembly definition; costs recalculate.
-**Prompt**: `/tasks/planned/WP08-bom-modification.md`
+**Prompt**: `/tasks/WP08-bom-modification.md`
 
 ### Included Subtasks
 - [X] T041 Enable add/remove of packaging components in assembly definition
@@ -268,7 +268,7 @@
 
 **Goal**: Comprehensive testing and refinement.
 **Independent Test**: All tests pass; user acceptance complete.
-**Prompt**: `/tasks/planned/WP09-testing-and-polish.md`
+**Prompt**: `/tasks/WP09-testing-and-polish.md`
 
 ### Included Subtasks
 - [X] T045 [P] Unit test coverage >80% for packaging_service
@@ -391,3 +391,16 @@ WP02 (Service Core)
 | T049 | User acceptance testing | WP09 | P2 | No |
 | T050 | Update CLAUDE.md | WP09 | P2 | No |
 | T051 | Validate quickstart.md | WP09 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+<!-- status-model:end -->

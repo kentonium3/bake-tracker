@@ -1,0 +1,46 @@
+{
+  "event_count": 4,
+  "feature_slug": "018-event-production-dashboard",
+  "last_event_id": "01KMKK28T2TJDQPNAWZV2CG9VR",
+  "materialized_at": "2026-03-25T22:50:29.796383+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 4,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28SQ4N2V3AVDD3YWJSPH",
+      "last_transition_at": "2025-12-12T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28SVRRY40HVXEV2S0Y2G",
+      "last_transition_at": "2025-12-12T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28SZ2R5QJ4W29SF0TWPT",
+      "last_transition_at": "2025-12-12T00:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28T2TJDQPNAWZV2CG9VR",
+      "last_transition_at": "2025-12-12T00:00:00Z"
+    }
+  }
+}

@@ -2,18 +2,7 @@
 work_package_id: WP06
 title: Planning Service Facade
 lane: done
-history:
-- timestamp: '2026-01-06T03:09:20Z'
-  lane: planned
-  agent: claude
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Services
-review_status: ''
-reviewed_by: ''
-shell_pid: '67385'
+dependencies: []
 subtasks:
 - T031
 - T032
@@ -26,6 +15,18 @@ subtasks:
 - T039
 - T040
 - T041
+phase: Phase 2 - Services
+assignee: claude
+agent: claude-reviewer
+shell_pid: '67385'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T03:09:20Z'
+  lane: planned
+  agent: claude
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Planning Service Facade

@@ -1,29 +1,30 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Context-Rich Export
+lane: done
+dependencies: []
 subtasks:
-  - "T020"
-  - "T021"
-  - "T022"
-  - "T023"
-  - "T024"
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-title: "Context-Rich Export"
-phase: "Phase 2 - Wave 1"
-lane: "done"
-assignee: "gemini"
-agent: "gemini"
-shell_pid: "13882"
-review_status: "approved"
-reviewed_by: "claude"
+- T020
+- T021
+- T022
+- T023
+- T024
+- T025
+- T026
+- T027
+- T028
+phase: Phase 2 - Wave 1
+assignee: gemini
+agent: gemini
+shell_pid: '13882'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T16:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T16:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Context-Rich Export

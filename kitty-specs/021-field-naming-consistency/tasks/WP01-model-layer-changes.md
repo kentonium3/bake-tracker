@@ -2,22 +2,23 @@
 work_package_id: WP01
 title: Model Layer Changes
 lane: done
+dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude
+shell_pid: '83880'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '83880'
-subtasks:
-- T001
-- T002
-- T003
 ---
 
 # Work Package Prompt: WP01 - Model Layer Changes

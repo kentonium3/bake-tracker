@@ -1,10 +1,11 @@
 ---
-id: WP04
 title: Tree View Removal
-lane: "done"
-agent: null
-review_status: null
+lane: done
+dependencies: []
 created_at: 2026-01-15
+agent:
+review_status:
+id: WP04
 ---
 
 # WP04: Tree View Removal

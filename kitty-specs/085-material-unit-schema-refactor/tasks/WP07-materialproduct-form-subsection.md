@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: MaterialProduct Form Sub-Section UI
-lane: "done"
+lane: done
 dependencies: [WP03, WP04]
 base_branch: 085-material-unit-schema-refactor-WP04
 base_commit: 631b3b57cd9633165fb85cf9c6cd26afb95ad74b
@@ -14,10 +14,10 @@ subtasks:
 - T036
 phase: Wave 3 - Export/Import & UI
 assignee: ''
-agent: "claude-opus"
-shell_pid: "45019"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '45019'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned

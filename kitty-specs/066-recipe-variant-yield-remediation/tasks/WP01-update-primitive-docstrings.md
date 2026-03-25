@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Update Service Primitive Docstrings
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: d49816264f27079bf14bbc4b21446590cc2045ac
@@ -11,10 +11,10 @@ subtasks:
 - T002
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "24370"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '24370'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned

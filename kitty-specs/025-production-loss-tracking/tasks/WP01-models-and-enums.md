@@ -2,16 +2,7 @@
 work_package_id: WP01
 title: Models & Enums
 lane: done
-history:
-- timestamp: '2025-12-21T16:55:08Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-shell_pid: '73162'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -21,6 +12,16 @@ subtasks:
 - T006
 - T007
 - T008
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '73162'
+history:
+- timestamp: '2025-12-21T16:55:08Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Models & Enums

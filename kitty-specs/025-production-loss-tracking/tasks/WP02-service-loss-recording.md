@@ -2,16 +2,7 @@
 work_package_id: WP02
 title: Service Layer - Core Loss Recording
 lane: done
-history:
-- timestamp: '2025-12-21T16:55:08Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Service Layer
-shell_pid: '74118'
+dependencies: []
 subtasks:
 - T009
 - T010
@@ -20,6 +11,16 @@ subtasks:
 - T013
 - T014
 - T015
+phase: Phase 2 - Service Layer
+assignee: claude
+agent: claude-reviewer
+shell_pid: '74118'
+history:
+- timestamp: '2025-12-21T16:55:08Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Service Layer - Core Loss Recording

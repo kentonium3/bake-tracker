@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Planning & Event Services
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -14,10 +14,10 @@ subtasks:
 - T023
 phase: Phase 2 - Documentation
 assignee: ''
-agent: "codex-wp06"
-shell_pid: "44371"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: codex-wp06
+shell_pid: '44371'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned

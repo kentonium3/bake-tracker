@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Update RecipeFormDialog
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -14,10 +14,10 @@ subtasks:
 - T015
 phase: Phase 3 - UI Polish
 assignee: ''
-agent: "claude-opus"
-shell_pid: "30283"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '30283'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned

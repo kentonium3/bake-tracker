@@ -2,18 +2,7 @@
 work_package_id: WP09
 title: UI - EventDetailWindow
 lane: done
-history:
-- timestamp: '2025-12-03'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - UI Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '9077'
+dependencies: []
 subtasks:
 - T060
 - T061
@@ -22,6 +11,18 @@ subtasks:
 - T064
 - T065
 - T066
+phase: Phase 3 - UI Layer
+assignee: claude
+agent: claude
+shell_pid: '9077'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-03'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 - UI - EventDetailWindow

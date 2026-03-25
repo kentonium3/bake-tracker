@@ -2,23 +2,24 @@
 work_package_id: WP03
 title: Production Integration
 lane: done
+dependencies: []
+subtasks:
+- T010
+- T011
+- T012
+- T013
+phase: Phase 1 - Core Snapshot System
+assignee: claude
+agent: claude-reviewer
+shell_pid: '97164'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Core Snapshot System
-review_status: ''
-reviewed_by: ''
-shell_pid: '97164'
-subtasks:
-- T010
-- T011
-- T012
-- T013
 ---
 
 # Work Package Prompt: WP03 - Production Integration

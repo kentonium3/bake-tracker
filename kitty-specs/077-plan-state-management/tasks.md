@@ -137,3 +137,10 @@
 | T013 | Wire button handlers | WP03 | P2 | No |
 | T014 | Button enable/disable logic | WP03 | P2 | No |
 | T015 | Show/hide on event selection | WP03 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+<!-- status-model:end -->

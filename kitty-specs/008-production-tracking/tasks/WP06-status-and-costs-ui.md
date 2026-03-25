@@ -2,23 +2,24 @@
 work_package_id: WP06
 title: Production Tab UI - Status & Costs
 lane: done
+dependencies: []
+subtasks:
+- T024
+- T025
+- T026
+- T027
+phase: Phase 3 - UI Layer
+assignee: claude
+agent: claude
+shell_pid: '62373'
+review_status: approved
+reviewed_by: claude
 history:
 - timestamp: '2025-12-04T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - UI Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '62373'
-subtasks:
-- T024
-- T025
-- T026
-- T027
 ---
 
 # Work Package Prompt: WP06 - Production Tab UI - Status & Costs

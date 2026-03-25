@@ -1,30 +1,30 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Session Ownership Foundation"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "79653"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Session Ownership Foundation
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 0 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '79653'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-20T20:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-20T22:22:20Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "79653"
-    action: "Review passed - All 4 subtasks complete"
+- timestamp: '2026-01-20T20:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-20T22:22:20Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '79653'
+  action: Review passed - All 4 subtasks complete
 ---
 
 # Work Package Prompt: WP01 – Session Ownership Foundation

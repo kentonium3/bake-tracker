@@ -2,23 +2,24 @@
 work_package_id: WP08
 title: Inventory Update Tests
 lane: done
+dependencies: []
+subtasks:
+- T034
+- T035
+- T036
+- T037
+phase: Phase 2 - BT Mobile Workflows
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '11228'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 2 - BT Mobile Workflows
-review_status: ''
-reviewed_by: ''
-shell_pid: '11228'
-subtasks:
-- T034
-- T035
-- T036
-- T037
 ---
 
 # Work Package Prompt: WP08 - Inventory Update Tests

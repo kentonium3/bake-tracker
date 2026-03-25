@@ -2,24 +2,25 @@
 work_package_id: WP05
 title: UI Delete Handler Integration
 lane: done
-history:
-- timestamp: '2026-01-02T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - UI Integration
-review_status: ''
-reviewed_by: ''
-shell_pid: '26418'
+dependencies: []
 subtasks:
 - T019
 - T020
 - T021
 - T022
 - T023
+phase: Phase 3 - UI Integration
+assignee: claude
+agent: claude-reviewer
+shell_pid: '26418'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - UI Delete Handler Integration

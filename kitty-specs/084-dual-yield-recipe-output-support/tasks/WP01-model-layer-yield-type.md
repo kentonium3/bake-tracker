@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-title: "Model Layer – Add yield_type Field"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "68199"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Model Layer – Add yield_type Field
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '68199'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-29T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-29T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Model Layer – Add yield_type Field

@@ -384,3 +384,15 @@ The following work packages are **safe to delegate to Gemini CLI** via `gemini-p
 **Claude should lead:**
 - WP05 (Composition Integration) - Complex constraint changes
 - WP06 (Assembly Consumption) - Integration with existing assembly workflow
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

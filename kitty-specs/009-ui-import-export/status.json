@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "009-ui-import-export",
+  "last_event_id": "01KMKK28JWH6V2159DX6JMJQG2",
+  "materialized_at": "2026-03-25T22:50:28.576695+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28JBBVA1VGFQZT0VAS3W",
+      "last_transition_at": "2025-12-04T00:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28JFZNZWA1MNC67YXDM7",
+      "last_transition_at": "2025-12-04T00:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28JMVA11Z9X294T9AA8C",
+      "last_transition_at": "2025-12-04T00:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28JSRC4D3SHM3K2QB6FT",
+      "last_transition_at": "2025-12-04T00:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28JWH6V2159DX6JMJQG2",
+      "last_transition_at": "2025-12-04T00:00:00Z"
+    }
+  }
+}

@@ -20,7 +20,7 @@
 
 **Goal**: Add three denormalization fields to SnapshotIngredient model and update FK constraint to allow nullification.
 **Independent Test**: Model changes compile, database schema recreates successfully with new fields.
-**Prompt**: `tasks/planned/WP01-schema-denormalization-fields.md`
+**Prompt**: `tasks/WP01-schema-denormalization-fields.md`
 **Assignee**: Claude or Gemini
 
 ### Included Subtasks
@@ -54,7 +54,7 @@
 
 **Goal**: Verify and configure cascade delete for IngredientAlias and IngredientCrosswalk models.
 **Independent Test**: Delete an ingredient with aliases/crosswalks - they should auto-delete.
-**Prompt**: `tasks/planned/WP02-cascade-delete-config.md`
+**Prompt**: `tasks/WP02-cascade-delete-config.md`
 **Assignee**: Gemini (parallel with WP01)
 
 ### Included Subtasks
@@ -85,7 +85,7 @@
 
 **Goal**: Implement comprehensive deletion protection with validation and denormalization.
 **Independent Test**: Call `can_delete_ingredient()` with various scenarios, verify correct blocking behavior.
-**Prompt**: `tasks/planned/WP03-deletion-protection-service.md`
+**Prompt**: `tasks/WP03-deletion-protection-service.md`
 **Assignee**: Claude (main implementation)
 
 ### Included Subtasks
@@ -134,7 +134,7 @@
 
 **Goal**: Fix field name mapping so UI "name" field maps to service "display_name".
 **Independent Test**: Create ingredient via UI with just "name" field - slug auto-generates correctly.
-**Prompt**: `tasks/planned/WP04-slug-field-mapping.md`
+**Prompt**: `tasks/WP04-slug-field-mapping.md`
 **Assignee**: Gemini (parallel with WP03)
 
 ### Included Subtasks
@@ -168,7 +168,7 @@
 
 **Goal**: Update UI to use new deletion protection service and display detailed error messages.
 **Independent Test**: Attempt delete via UI - see proper blocking messages with counts.
-**Prompt**: `tasks/planned/WP05-ui-delete-integration.md`
+**Prompt**: `tasks/WP05-ui-delete-integration.md`
 **Assignee**: Claude (after WP03)
 
 ### Included Subtasks
@@ -200,7 +200,7 @@
 
 **Goal**: Comprehensive test coverage for deletion protection and slug generation.
 **Independent Test**: All new tests pass, existing tests still pass.
-**Prompt**: `tasks/planned/WP06-deletion-slug-tests.md`
+**Prompt**: `tasks/WP06-deletion-slug-tests.md`
 **Assignee**: Gemini (parallel test writing)
 
 ### Included Subtasks
@@ -286,3 +286,13 @@ WP02 (Cascade) ─────┘        WP04 (Slug Fix) ───────�
 | T030 | Test slug auto-generation | WP06 | P2 | Yes |
 | T031 | Test slug conflict resolution | WP06 | P2 | Yes |
 | T032 | Test field name normalization | WP06 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

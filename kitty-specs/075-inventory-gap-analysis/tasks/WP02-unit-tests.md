@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Unit Tests
-lane: "done"
+lane: done
 dependencies: []
 base_branch: 075-inventory-gap-analysis-WP01
 base_commit: 9c0f60588e0d360d00f6370886cb7a8c3047efd5
@@ -16,9 +16,9 @@ subtasks:
 phase: Phase 1 - Quality
 assignee: ''
 agent: ''
-shell_pid: "39077"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+shell_pid: '39077'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T23:30:00Z'
   lane: planned

@@ -13,5 +13,11 @@
   "accepted_at": "2026-01-13T06:34:41Z",
   "accepted_by": "kentgale",
   "accepted_from_commit": "f622d59069ec6033f3a4db4fdc186bbc38b91581",
+  "created_at": "2026-01-13T06:38:55.213250+00:00",
+  "feature_number": "050",
+  "feature_slug": "050-supplier-slug-support",
+  "friendly_name": "supplier slug support",
+  "mission": "research",
+  "slug": "050-supplier-slug-support",
   "target_branch": "main"
 }

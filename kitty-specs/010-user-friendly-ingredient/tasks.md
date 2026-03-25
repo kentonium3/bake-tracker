@@ -19,7 +19,7 @@
 
 **Goal**: Replace `density_g_per_ml` with 4-field density model and remove hardcoded fallback.
 **Independent Test**: Ingredient model can calculate density from 4 fields; constants no longer contain density data.
-**Prompt**: `tasks/for_review/WP01-model-constants-changes.md`
+**Prompt**: `tasks/WP01-model-constants-changes.md`
 
 ### Included Subtasks
 - [x] T001 Remove `density_g_per_ml` field from `src/models/ingredient.py`
@@ -53,7 +53,7 @@
 
 **Goal**: Update unit converter to use Ingredient object instead of hardcoded density lookup.
 **Independent Test**: Conversion functions accept Ingredient parameter and calculate correctly.
-**Prompt**: `tasks/for_review/WP02-unit-converter-updates.md`
+**Prompt**: `tasks/WP02-unit-converter-updates.md`
 
 ### Included Subtasks
 - [x] T008 Update `convert_volume_to_weight()` to accept `ingredient` parameter in `src/services/unit_converter.py`
@@ -85,7 +85,7 @@
 
 **Goal**: Add density validation and update CRUD operations for 4-field density.
 **Independent Test**: Can create/update ingredients with density; validation rejects partial input.
-**Prompt**: `tasks/for_review/WP03-ingredient-service-updates.md`
+**Prompt**: `tasks/WP03-ingredient-service-updates.md`
 
 ### Included Subtasks
 - [x] T013 Add `validate_density_fields()` function to `src/services/ingredient_service.py`
@@ -116,7 +116,7 @@
 
 **Goal**: Handle 4 density fields in JSON import/export; ignore legacy field.
 **Independent Test**: Export includes 4 density fields; import reads them correctly.
-**Prompt**: `tasks/for_review/WP04-import-export-updates.md`
+**Prompt**: `tasks/WP04-import-export-updates.md`
 
 ### Included Subtasks
 - [x] T018 Update `export_ingredients_to_json()` to include 4 density fields in `src/services/import_export_service.py`
@@ -148,7 +148,7 @@
 
 **Goal**: Add 4-field density input to ingredients tab and warning when conversion unavailable.
 **Independent Test**: Can enter density via UI; warning shown when recipe needs conversion but density missing.
-**Prompt**: `tasks/for_review/WP05-ui-density-input.md`
+**Prompt**: `tasks/WP05-ui-density-input.md`
 
 ### Included Subtasks
 - [x] T022 Create density input frame in `src/ui/ingredients_tab.py`
@@ -224,3 +224,12 @@ WP04 (Import/Export) ← depends only on WP01
 | T023 | Wire density fields to service | WP05 | P2 | ✅ |
 | T024 | Add UI validation display | WP05 | P2 | ✅ |
 | T025 | Add "Edit Ingredient" warning | WP05 | P2 | DEFERRED |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

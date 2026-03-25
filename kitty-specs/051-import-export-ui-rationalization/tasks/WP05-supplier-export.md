@@ -1,25 +1,26 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Supplier Export
+lane: done
+dependencies: []
 subtasks:
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-title: "Supplier Export"
-phase: "Phase 0 - Foundational"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T032
+- T033
+- T034
+- T035
+- T036
+phase: Phase 0 - Foundational
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Supplier Export

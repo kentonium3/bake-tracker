@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Quantity Persistence and Atomic Save
-lane: "done"
+lane: done
 dependencies:
 - WP01
 - WP02
@@ -15,8 +15,8 @@ subtasks:
 - T021
 phase: Phase 4 - Save Integration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "34708"
+agent: claude-opus
+shell_pid: '34708'
 review_status: ''
 reviewed_by: ''
 history:

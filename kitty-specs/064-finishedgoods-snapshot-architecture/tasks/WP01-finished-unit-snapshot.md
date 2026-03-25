@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP01"
-title: "FinishedUnitSnapshot Model + Service"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "51239"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: FinishedUnitSnapshot Model + Service
+lane: done
 dependencies: []
 subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '51239'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2025-01-24T05:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2025-01-24T05:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – FinishedUnitSnapshot Model + Service

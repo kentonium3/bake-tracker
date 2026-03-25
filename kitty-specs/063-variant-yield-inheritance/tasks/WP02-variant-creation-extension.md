@@ -1,27 +1,27 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Variant Creation Extension
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-  - "T011"
-title: "Variant Creation Extension"
-phase: "Phase 1 - Core"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "27415"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+- T009
+- T010
+- T011
+phase: Phase 1 - Core
+assignee: ''
+agent: claude-opus
+shell_pid: '27415'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2025-01-24T07:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2025-01-24T07:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – Variant Creation Extension

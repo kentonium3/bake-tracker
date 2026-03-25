@@ -1,32 +1,32 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Planning Orchestration Session Discipline
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Planning Orchestration Session Discipline"
-phase: "Phase 1 - Critical Path"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "94225"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 1 - Critical Path
+assignee: ''
+agent: claude-opus
+shell_pid: '94225'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-20T20:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-21T02:46:55Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "94225"
-    action: "Review passed - Planning orchestration hardened"
+- timestamp: '2026-01-20T20:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-21T02:46:55Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '94225'
+  action: Review passed - Planning orchestration hardened
 ---
 
 # Work Package Prompt: WP03 – Planning Orchestration Session Discipline

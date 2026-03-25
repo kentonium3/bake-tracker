@@ -2,18 +2,7 @@
 work_package_id: WP06
 title: Deletion & Slug Tests
 lane: done
-history:
-- timestamp: '2026-01-02T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 4 - Testing
-review_status: ''
-reviewed_by: ''
-shell_pid: '26513'
+dependencies: []
 subtasks:
 - T024
 - T025
@@ -24,6 +13,18 @@ subtasks:
 - T030
 - T031
 - T032
+phase: Phase 4 - Testing
+assignee: claude
+agent: claude-reviewer
+shell_pid: '26513'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Deletion & Slug Tests

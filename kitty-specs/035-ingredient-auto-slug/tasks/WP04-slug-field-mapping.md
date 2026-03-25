@@ -2,22 +2,23 @@
 work_package_id: WP04
 title: Slug Field Mapping Fix
 lane: done
+dependencies: []
+subtasks:
+- T016
+- T017
+- T018
+phase: Phase 2 - Core Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '26327'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-02T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - Core Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '26327'
-subtasks:
-- T016
-- T017
-- T018
 ---
 
 # Work Package Prompt: WP04 - Slug Field Mapping Fix

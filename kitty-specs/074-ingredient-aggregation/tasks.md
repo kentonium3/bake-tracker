@@ -102,3 +102,9 @@
 | T008 | Implement precision rounding | WP02 | P1 | No |
 | T009 | Write cross-recipe unit tests | WP02 | P1 | Yes |
 | T010 | Write edge case unit tests | WP02 | P1 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+<!-- status-model:end -->

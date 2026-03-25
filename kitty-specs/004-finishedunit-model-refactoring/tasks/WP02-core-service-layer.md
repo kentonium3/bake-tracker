@@ -2,6 +2,16 @@
 work_package_id: WP02
 title: Core Service Layer Implementation
 lane: planned
+dependencies: []
+subtasks:
+- T007
+- T008
+- T009
+- T010
+phase: Phase 2 - User Story 1 Foundation
+assignee: ''
+agent: system
+shell_pid: ''
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: planned
@@ -18,15 +28,6 @@ history:
   agent: claude
   shell_pid: '25985'
   action: Implementation verification complete - all T007-T010 already implemented with comprehensive service, indexes, tests, and migration validation
-agent: system
-assignee: ''
-phase: Phase 2 - User Story 1 Foundation
-shell_pid: ''
-subtasks:
-- T007
-- T008
-- T009
-- T010
 ---
 
 # Work Package Prompt: WP02 – Core Service Layer Implementation

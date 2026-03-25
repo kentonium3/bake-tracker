@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Tab Integration & Polish
-lane: "done"
+lane: done
 dependencies: [WP06]
 base_branch: 097-finished-goods-builder-ui-WP06
 base_commit: 8a0fc0ded00f910027a9383b5efc42c56cef54ab
@@ -14,10 +14,10 @@ subtasks:
 - T036
 phase: Phase D - Polish
 assignee: ''
-agent: "claude-opus"
-shell_pid: "34512"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '34512'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned

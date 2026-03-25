@@ -2,18 +2,7 @@
 work_package_id: WP01
 title: Run Automated Test Suite
 lane: done
-history:
-- timestamp: '2026-01-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Automated Testing
-review_status: ''
-reviewed_by: ''
-shell_pid: '35720'
+dependencies: []
 subtasks:
 - T001
 - T002
@@ -21,6 +10,18 @@ subtasks:
 - T004
 - T005
 - T006
+phase: Phase 1 - Automated Testing
+assignee: claude
+agent: claude
+shell_pid: '35720'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Run Automated Test Suite

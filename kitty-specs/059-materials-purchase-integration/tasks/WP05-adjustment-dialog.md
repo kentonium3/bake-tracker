@@ -1,29 +1,29 @@
 ---
-work_package_id: "WP05"
-subtasks:
-  - "T025"
-  - "T026"
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-title: "Manual Adjustment Dialog"
-phase: "Wave 1 - Core UI"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "89938"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP05
+title: Manual Adjustment Dialog
+lane: done
 dependencies:
-  - "WP02"
+- WP02
+subtasks:
+- T025
+- T026
+- T027
+- T028
+- T029
+- T030
+- T031
+phase: Wave 1 - Core UI
+assignee: ''
+agent: claude-opus
+shell_pid: '89938'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Manual Adjustment Dialog

@@ -2,18 +2,7 @@
 work_package_id: WP09
 title: Migration Transformation
 lane: done
-history:
-- timestamp: '2025-12-22T14:35:00Z'
-  lane: planned
-  agent: system
-  shell_pid: '50566'
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 4 - Integration & Migration
-review_status: ''
-reviewed_by: ''
-shell_pid: '61416'
+dependencies: []
 subtasks:
 - T074
 - T075
@@ -24,6 +13,18 @@ subtasks:
 - T080
 - T081
 - T082
+phase: Phase 4 - Integration & Migration
+assignee: claude
+agent: claude
+shell_pid: '61416'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-22T14:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: '50566'
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 – Migration Transformation

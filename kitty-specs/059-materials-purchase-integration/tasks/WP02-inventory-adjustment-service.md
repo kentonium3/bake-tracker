@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-title: "Service Layer - Inventory Adjustment"
-phase: "Phase 0 - Foundation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "78512"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP02
+title: Service Layer - Inventory Adjustment
+lane: done
 dependencies: []
+subtasks:
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 0 - Foundation
+assignee: ''
+agent: claude-opus
+shell_pid: '78512'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Service Layer - Inventory Adjustment

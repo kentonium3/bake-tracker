@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Food Selection Step
-lane: "done"
+lane: done
 dependencies: [WP02]
 base_branch: 097-finished-goods-builder-ui-WP02
 base_commit: 2ee0f735330f610e0e5a20f50351289422a882a6
@@ -15,10 +15,10 @@ subtasks:
 - T015
 phase: Phase B - Step Implementation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "27248"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '27248'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned

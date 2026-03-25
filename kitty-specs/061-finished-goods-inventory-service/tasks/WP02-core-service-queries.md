@@ -1,39 +1,39 @@
 ---
-work_package_id: "WP02"
+work_package_id: WP02
+title: Core Service - Query Functions
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Core Service - Query Functions"
-phase: "Phase 2 - Core Service"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "3063"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T006
+- T007
+- T008
+phase: Phase 2 - Core Service
+assignee: ''
+agent: claude-opus
+shell_pid: '3063'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-21T19:33:38Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T01:26:13Z"
-    lane: "doing"
-    agent: "claude-opus"
-    shell_pid: "97684"
-    action: "Started implementation"
-  - timestamp: "2026-01-22T01:41:33Z"
-    lane: "for_review"
-    agent: "claude-opus"
-    shell_pid: "97684"
-    action: "Ready for review"
-  - timestamp: "2026-01-22T01:53:06Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "3063"
-    action: "Review passed"
+- timestamp: '2026-01-21T19:33:38Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T01:26:13Z'
+  lane: doing
+  agent: claude-opus
+  shell_pid: '97684'
+  action: Started implementation
+- timestamp: '2026-01-22T01:41:33Z'
+  lane: for_review
+  agent: claude-opus
+  shell_pid: '97684'
+  action: Ready for review
+- timestamp: '2026-01-22T01:53:06Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '3063'
+  action: Review passed
 ---
 
 # Work Package Prompt: WP02 - Core Service - Query Functions

@@ -1,19 +1,19 @@
 ---
-work_package_id: "WP04"
-title: "Form Dialog - Basic Structure"
-lane: "done"
+work_package_id: WP04
+title: Form Dialog - Basic Structure
+lane: done
 dependencies: []
-subtasks: ["T021", "T022", "T023", "T024", "T025", "T026", "T027"]
-priority: "P1"
-estimated_lines: 380
-agent: "gemini-wp04"
-shell_pid: "21873"
-reviewed_by: "Kent Gale"
-review_status: "approved"
+subtasks: [T021, T022, T023, T024, T025, T026, T027]
+agent: gemini-wp04
+shell_pid: '21873'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - date: "2026-01-30"
-    action: "created"
-    agent: "claude"
+- date: '2026-01-30'
+  action: created
+  agent: claude
+estimated_lines: 380
+priority: P1
 ---
 
 # WP04: Form Dialog - Basic Structure

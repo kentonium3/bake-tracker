@@ -212,3 +212,12 @@ WP02 (MU/FU Export) ──────┤                              ├──
 | T021 | Write import unit tests | WP05 | P1 | Yes |
 | T022 | Write round-trip integration test | WP05 | P1 | No |
 | T023 | Write edge case tests | WP05 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

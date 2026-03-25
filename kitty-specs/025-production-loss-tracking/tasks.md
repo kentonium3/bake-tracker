@@ -19,7 +19,7 @@
 
 **Goal**: Create ProductionStatus/LossCategory enums and ProductionLoss entity with all relationships.
 **Independent Test**: Models can be imported and instantiated; database creates tables without errors.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP01-models-and-enums.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP01-models-and-enums.md`
 
 ### Included Subtasks
 - [x] T001 [P] Create ProductionStatus enum in `src/models/enums.py`
@@ -55,7 +55,7 @@
 
 **Goal**: Enhance `record_batch_production()` with loss validation, status calculation, and ProductionLoss creation.
 **Independent Test**: Service function accepts loss parameters, validates actual <= expected, creates ProductionLoss records, returns loss data.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP02-service-loss-recording.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP02-service-loss-recording.md`
 
 ### Included Subtasks
 - [x] T009 Add loss_category and loss_notes parameters to `record_batch_production()`
@@ -89,7 +89,7 @@
 
 **Goal**: Enhance RecordProductionDialog with loss detection, expandable details section, and cost breakdown display.
 **Independent Test**: Dialog shows loss quantity auto-calculated, loss section expands on loss detection, cost breakdown updates in real-time.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP03-ui-record-production.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP03-ui-record-production.md`
 
 ### Included Subtasks
 - [x] T016 Add loss_quantity calculation on actual_yield entry change
@@ -128,7 +128,7 @@
 
 **Goal**: Add loss visibility to production history table with status indicators.
 **Independent Test**: History table shows loss quantity and status columns with visual differentiation.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP04-ui-production-history.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP04-ui-production-history.md`
 
 ### Included Subtasks
 - [x] T026 Add "Loss" column to production history table
@@ -158,7 +158,7 @@
 
 **Goal**: Update export/import for v1.1 schema with loss data and backward compatibility.
 **Independent Test**: Export includes loss fields; import handles both v1.0 and v1.1 data correctly.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP05-service-export-import.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP05-service-export-import.md`
 
 ### Included Subtasks
 - [x] T030 Update `export_production_history()` for v1.1 schema with loss fields
@@ -189,7 +189,7 @@
 
 **Goal**: Comprehensive unit tests for loss recording functionality per Constitution TDD principle.
 **Independent Test**: All tests pass with >70% coverage on modified service functions.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP06-unit-tests.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP06-unit-tests.md`
 
 ### Included Subtasks
 - [x] T034 Test complete production (no loss) - verify status=COMPLETE, no ProductionLoss
@@ -223,7 +223,7 @@
 
 **Goal**: Enable migration of existing data to new schema and document procedure.
 **Independent Test**: Export/transform/import cycle preserves all existing data with new defaults.
-**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/planned/WP07-data-migration.md`
+**Prompt**: `kitty-specs/025-production-loss-tracking/tasks/WP07-data-migration.md`
 
 ### Included Subtasks
 - [x] T042 Create migration transform script for existing exported data
@@ -316,3 +316,14 @@ WP02 (Service Core) -----> WP06 (Tests) [can start after WP02]
 | T042 | Create migration transform script | WP07 | P2 | Yes |
 | T043 | Test export/transform/import cycle | WP07 | P2 | No |
 | T044 | Document migration procedure | WP07 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+<!-- status-model:end -->

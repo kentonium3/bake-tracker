@@ -1,0 +1,88 @@
+{
+  "event_count": 10,
+  "feature_slug": "058-materials-fifo-foundation",
+  "last_event_id": "01KMKK29V57CB3634R3R921QPW",
+  "materialized_at": "2026-03-25T22:50:35.651288+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 10,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29STCK6RHSM9WSZ7TX6J",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP02": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29T0ARB381JZVGSXBH49",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP03": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29T4TZ8ABDZZNH1WA6MK",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP04": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29T9BBJ0WTTM58ETZ9NW",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP05": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29TDJ2J6MTY1S2QB1RCS",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP06": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29TJC1M6P1FY54JDM218",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP07": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29TQZ4F945BK5ZH73YH7",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP08": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29TWWVVJCTTHWN9G6W36",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP09": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29V1NN51BMHAV1BZ32P7",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    },
+    "WP10": {
+      "actor": "claude-opus",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK29V57CB3634R3R921QPW",
+      "last_transition_at": "2026-01-18T21:30:00Z"
+    }
+  }
+}

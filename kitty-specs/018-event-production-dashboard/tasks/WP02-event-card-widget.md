@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: EventCard Widget
 lane: done
-history:
-- timestamp: '2025-12-12T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 2 - UI Components
-review_status: ''
-reviewed_by: ''
-shell_pid: '64318'
+dependencies: []
 subtasks:
 - T004
 - T005
@@ -21,6 +10,18 @@ subtasks:
 - T007
 - T008
 - T009
+phase: Phase 2 - UI Components
+assignee: claude
+agent: claude-reviewer
+shell_pid: '64318'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-12T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 – EventCard Widget

@@ -1,28 +1,28 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-  - "T006"
-  - "T007"
-title: "RecipesTab ttk.Treeview Conversion"
-phase: "Phase 1 - Core Pattern Validation"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "5999"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: RecipesTab ttk.Treeview Conversion
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T007
+phase: Phase 1 - Core Pattern Validation
+assignee: ''
+agent: claude-opus
+shell_pid: '5999'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-31T02:38:50Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-31T02:38:50Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – RecipesTab ttk.Treeview Conversion

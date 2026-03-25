@@ -175,3 +175,11 @@
 | T020 | Apply pattern to MaterialProductsTab | WP04 | P2 | Yes |
 | T021 | Apply pattern to MaterialUnitsTab | WP04 | P2 | Yes |
 | T022 | Verify grid weight=1 in sub-tabs | WP04 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+<!-- status-model:end -->

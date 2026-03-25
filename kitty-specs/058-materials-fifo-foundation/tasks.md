@@ -395,3 +395,17 @@ WP04 (Unit Converter) ─┴──► WP05 (Inventory Service) ──► WP06 (S
 | T043 | Test pattern consistency | WP10 | P2 | Yes |
 | T044 | Test quantity_purchased immutability (FR-015) | WP06 | P1 | Yes |
 | T045 | Test cost_per_unit immutability (FR-016) | WP06 | P1 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+- WP10: done
+<!-- status-model:end -->

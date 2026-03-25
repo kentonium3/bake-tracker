@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Replace Hardcoded Maps in UI Files
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 095-enum-display-pattern-standardization-WP01
 base_commit: 6814dab1ef120b73fd6b06f594ae6a6c63744dd2
@@ -15,10 +15,10 @@ subtasks:
 - T009
 phase: Phase 2 - Core Fix
 assignee: ''
-agent: "claude-opus"
-shell_pid: "82479"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '82479'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T01:55:28Z'
   lane: planned

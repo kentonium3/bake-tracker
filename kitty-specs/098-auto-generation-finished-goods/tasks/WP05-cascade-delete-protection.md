@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Cascade Delete with Assembly Protection
-lane: "done"
+lane: done
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -16,9 +16,9 @@ subtasks:
 phase: Phase 2 - User Stories
 assignee: ''
 agent: ''
-shell_pid: "51195"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+shell_pid: '51195'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned

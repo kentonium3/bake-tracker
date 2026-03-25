@@ -78,3 +78,9 @@ This feature creates an inventory gap analysis service that compares F074's aggr
 WP01 delivers the core service. WP02 adds test coverage for quality assurance.
 
 Both WPs are required for feature completion.
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+<!-- status-model:end -->

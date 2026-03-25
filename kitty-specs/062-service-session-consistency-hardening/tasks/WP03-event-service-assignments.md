@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Event Service Assignment Operations
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-title: "Event Service Assignment Operations"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "14709"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T011
+- T012
+- T013
+- T014
+- T015
+phase: Phase 1 - Service Hardening
+assignee: claude
+agent: claude
+shell_pid: '14709'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Event Service Assignment Operations

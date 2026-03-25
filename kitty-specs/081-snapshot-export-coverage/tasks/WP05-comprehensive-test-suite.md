@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Comprehensive Test Suite
-lane: "done"
+lane: done
 dependencies: [WP04]
 base_branch: 081-snapshot-export-coverage-WP04
 base_commit: ffbf0281621a8afb571af77dde5b724de7999feb
@@ -14,10 +14,10 @@ subtasks:
 - T023
 phase: Phase 3 - Testing
 assignee: ''
-agent: "claude"
-shell_pid: "80642"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '80642'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned

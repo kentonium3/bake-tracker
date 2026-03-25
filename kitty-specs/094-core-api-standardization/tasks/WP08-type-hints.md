@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Type Hints Completion
-lane: "done"
+lane: done
 dependencies: []
 subtasks:
 - T042
@@ -11,10 +11,10 @@ subtasks:
 - T046
 phase: Phase 4 - Type Hints
 assignee: ''
-agent: "claude"
-shell_pid: "51371"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '51371'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned

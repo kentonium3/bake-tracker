@@ -1,31 +1,31 @@
 ---
-work_package_id: "WP04"
-subtasks:
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-title: "Material Unit Converter"
-phase: "Phase 2 - Services"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "27987"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP04
+title: Material Unit Converter
+lane: done
 dependencies: []
+subtasks:
+- T012
+- T013
+- T014
+- T015
+- T016
+phase: Phase 2 - Services
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '27987'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: material_unit_converter service with metric base units"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: material_unit_converter service with metric base units'
 ---
 
 # Work Package Prompt: WP04 – Material Unit Converter

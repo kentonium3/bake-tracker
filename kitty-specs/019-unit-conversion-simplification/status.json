@@ -1,0 +1,53 @@
+{
+  "event_count": 5,
+  "feature_slug": "019-unit-conversion-simplification",
+  "last_event_id": "01KMKK28TTRZSME1EADXM65E9M",
+  "materialized_at": "2026-03-25T22:50:29.938911+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 5,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28T73W1NWC1C6ZDFW1VS",
+      "last_transition_at": "2025-12-14T12:00:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28TCWNWCS0BXNV1WC0KN",
+      "last_transition_at": "2025-12-14T12:00:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28TFK2TYHZDD9KT31970",
+      "last_transition_at": "2025-12-14T12:00:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28TN2JFYWBH9JJV97E2T",
+      "last_transition_at": "2025-12-14T12:00:00Z"
+    },
+    "WP05": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK28TTRZSME1EADXM65E9M",
+      "last_transition_at": "2025-12-14T12:00:00Z"
+    }
+  }
+}

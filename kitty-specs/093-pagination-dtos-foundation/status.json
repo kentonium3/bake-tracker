@@ -1,0 +1,32 @@
+{
+  "event_count": 2,
+  "feature_slug": "093-pagination-dtos-foundation",
+  "last_event_id": "01KMKK2AR4GB1463GFFND3NK2Q",
+  "materialized_at": "2026-03-25T22:50:40.644659+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 2,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AR056ZGB4AFVXW6SQ0Q",
+      "last_transition_at": "2026-02-03T12:45:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2AR4GB1463GFFND3NK2Q",
+      "last_transition_at": "2026-02-03T12:45:00Z"
+    }
+  }
+}

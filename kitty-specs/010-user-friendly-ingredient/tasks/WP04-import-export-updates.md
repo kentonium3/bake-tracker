@@ -2,23 +2,24 @@
 work_package_id: WP04
 title: Import/Export Updates
 lane: done
+dependencies: []
+subtasks:
+- T018
+- T019
+- T020
+- T021
+phase: Phase 3 - Import/Export
+assignee: claude
+agent: claude-reviewer
+shell_pid: '13874'
+review_status: approved
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Import/Export
-review_status: approved
-reviewed_by: claude-reviewer
-shell_pid: '13874'
-subtasks:
-- T018
-- T019
-- T020
-- T021
 ---
 
 # Work Package Prompt: WP04 - Import/Export Updates

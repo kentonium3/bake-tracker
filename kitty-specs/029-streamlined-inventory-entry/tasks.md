@@ -19,7 +19,7 @@
 
 **Goal**: Implement SessionState singleton for supplier/category persistence across inventory entries.
 **Independent Test**: SessionState singleton works correctly with reset() for test isolation.
-**Prompt**: `tasks/planned/WP01-session-state-foundation.md`
+**Prompt**: `tasks/WP01-session-state-foundation.md`
 
 ### Included Subtasks
 - [x] T001 Create `src/ui/session_state.py` with SessionState singleton class
@@ -50,7 +50,7 @@
 
 **Goal**: Implement category-to-unit default mapping for smart pre-filling.
 **Independent Test**: `get_default_unit_for_category('Baking')` returns `'lb'`.
-**Prompt**: `tasks/planned/WP02-category-defaults-utility.md`
+**Prompt**: `tasks/WP02-category-defaults-utility.md`
 
 ### Included Subtasks
 - [x] T007 Create `src/utils/category_defaults.py`
@@ -80,7 +80,7 @@
 
 **Goal**: Add recency intelligence queries to inventory_item_service for identifying recently-used products/ingredients.
 **Independent Test**: `get_recent_products(ingredient_id)` returns list of product IDs sorted by most recent.
-**Prompt**: `tasks/planned/WP03-recency-query-service.md`
+**Prompt**: `tasks/WP03-recency-query-service.md`
 
 ### Included Subtasks
 - [x] T012 Add `get_recent_products()` method to `src/services/inventory_item_service.py`
@@ -116,7 +116,7 @@
 
 **Goal**: Create reusable type-ahead filtering widget for Category/Ingredient/Product dropdowns.
 **Independent Test**: Typing "bak" filters dropdown to show only items containing "bak", prioritizing word boundaries.
-**Prompt**: `tasks/planned/WP04-type-ahead-combobox-widget.md`
+**Prompt**: `tasks/WP04-type-ahead-combobox-widget.md`
 
 ### Included Subtasks
 - [x] T019 Create `src/ui/widgets/__init__.py` if not exists
@@ -151,7 +151,7 @@
 
 **Goal**: Create recency-aware dropdown builders that integrate recency markers and sorting.
 **Independent Test**: `build_product_dropdown_values()` returns list with starred recent items first.
-**Prompt**: `tasks/planned/WP05-dropdown-builder-functions.md`
+**Prompt**: `tasks/WP05-dropdown-builder-functions.md`
 
 ### Included Subtasks
 - [x] T027 Create `src/ui/widgets/dropdown_builders.py`
@@ -185,7 +185,7 @@
 
 **Goal**: Refactor AddInventoryDialog to use TypeAheadComboBox for Category/Ingredient/Product dropdowns.
 **Independent Test**: Typing in Category dropdown filters options in real-time.
-**Prompt**: `tasks/planned/WP06-dialog-type-ahead-integration.md`
+**Prompt**: `tasks/WP06-dialog-type-ahead-integration.md`
 
 ### Included Subtasks
 - [x] T034 Replace Category CTkComboBox with TypeAheadComboBox (min_chars=1)
@@ -220,7 +220,7 @@
 
 **Goal**: Integrate session memory for supplier/category pre-selection with visual indicators.
 **Independent Test**: After adding item with Costco supplier, next dialog open shows Costco pre-selected with star.
-**Prompt**: `tasks/planned/WP07-dialog-session-memory.md`
+**Prompt**: `tasks/WP07-dialog-session-memory.md`
 
 ### Included Subtasks
 - [x] T041 Import and use SessionState singleton in dialog
@@ -255,7 +255,7 @@
 
 **Goal**: Add collapsible accordion form for creating new products without leaving the dialog.
 **Independent Test**: Click [+ New], fill form, create product, see it selected in dropdown.
-**Prompt**: `tasks/planned/WP08-inline-product-creation.md`
+**Prompt**: `tasks/WP08-inline-product-creation.md`
 
 ### Included Subtasks
 - [x] T048 Create inline product creation frame (CTkFrame) within dialog
@@ -296,7 +296,7 @@
 
 **Goal**: Auto-fill price field with last purchase price and display informative hints.
 **Independent Test**: Select product with purchase history, price pre-fills with "(last paid: $X.XX on MM/DD)" hint.
-**Prompt**: `tasks/planned/WP09-price-suggestions.md`
+**Prompt**: `tasks/WP09-price-suggestions.md`
 
 ### Included Subtasks
 - [x] T060 Add price hint label below price entry field
@@ -333,7 +333,7 @@
 
 **Goal**: Add validation warnings for high prices and decimal quantities.
 **Independent Test**: Enter $150 price, see confirmation dialog asking to verify.
-**Prompt**: `tasks/planned/WP10-validation-warnings.md`
+**Prompt**: `tasks/WP10-validation-warnings.md`
 
 ### Included Subtasks
 - [x] T068 Add price validation on FocusOut event
@@ -367,7 +367,7 @@
 
 **Goal**: Comprehensive integration testing and final polish.
 **Independent Test**: Complete 10-item entry workflow in under 5 minutes.
-**Prompt**: `tasks/planned/WP11-integration-testing-polish.md`
+**Prompt**: `tasks/WP11-integration-testing-polish.md`
 
 ### Included Subtasks
 - [x] T075 Create `src/tests/integration/test_add_inventory_dialog.py`
@@ -515,3 +515,18 @@ WP03 (Recency) ─────────┘                                   
 | T081 | Regression check | WP11 | P3 | No |
 | T082 | Performance validation | WP11 | P3 | No |
 | T083 | User acceptance testing | WP11 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+- WP10: done
+- WP11: done
+<!-- status-model:end -->

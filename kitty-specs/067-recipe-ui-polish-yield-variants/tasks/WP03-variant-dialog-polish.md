@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Create Variant Dialog Polish
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 560e62fea4b7ea44de2dd05d0c9a31b2eddd2567
@@ -13,10 +13,10 @@ subtasks:
 - T009
 phase: Phase 1 - UI Polish
 assignee: ''
-agent: "claude-opus"
-shell_pid: "52140"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '52140'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned

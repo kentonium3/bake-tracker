@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Admin UI Dialog + Menu Integration
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -15,10 +15,10 @@ subtasks:
 - T012
 phase: Phase 2 - User Story 1 (Admin Management)
 assignee: ''
-agent: "gemini-review"
-shell_pid: "99983"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: gemini-review
+shell_pid: '99983'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned

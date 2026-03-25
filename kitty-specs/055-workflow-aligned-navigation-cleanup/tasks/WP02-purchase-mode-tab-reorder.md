@@ -1,10 +1,11 @@
 ---
-id: WP02
 title: Purchase Mode Tab Reorder
-lane: "done"
-agent: null
-review_status: null
+lane: done
+dependencies: []
 created_at: 2026-01-15
+agent:
+review_status:
+id: WP02
 ---
 
 # WP02: Purchase Mode Tab Reorder

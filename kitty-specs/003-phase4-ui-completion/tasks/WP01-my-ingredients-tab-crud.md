@@ -1,11 +1,10 @@
 ---
 title: My Ingredients Tab - Ingredient Catalog CRUD
 lane: done
-priority: P1
-tags:
-- ui
-- ingredients
-- customtkinter
+dependencies: []
+assignee: Claude Code
+agent: Claude Code
+shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,13 +16,14 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - ingredients tab fully implemented with CRUD functionality
-agent: Claude Code
-assignee: Claude Code
-dependencies: []
 estimate: 12-15 hours
 feature: 003-phase4-ui-completion
 id: WP01
-shell_pid: '1'
+priority: P1
+tags:
+- ui
+- ingredients
+- customtkinter
 ---
 
 # WP01: My Ingredients Tab - Ingredient Catalog CRUD

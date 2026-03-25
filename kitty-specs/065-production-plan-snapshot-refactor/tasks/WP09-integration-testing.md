@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP09"
+work_package_id: WP09
+title: Integration Testing & Cleanup
+lane: done
+dependencies: [WP05, WP06, WP08]
 subtasks:
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-title: "Integration Testing & Cleanup"
-phase: "Phase 6 - Cleanup & Testing"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "6732"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP05", "WP06", "WP08"]
+- T040
+- T041
+- T042
+- T043
+- T044
+phase: Phase 6 - Cleanup & Testing
+assignee: ''
+agent: claude-opus
+shell_pid: '6732'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-24T19:47:15Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-24T19:47:15Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP09 – Integration Testing & Cleanup

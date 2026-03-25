@@ -2,16 +2,7 @@
 work_package_id: WP04
 title: UI Adjustment Dialog
 lane: done
-history:
-- timestamp: '2026-01-07T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 2 - UI Layer (Gemini)
-shell_pid: '49926'
+dependencies: []
 subtasks:
 - T017
 - T018
@@ -20,6 +11,16 @@ subtasks:
 - T021
 - T022
 - T023
+phase: Phase 2 - UI Layer (Gemini)
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '49926'
+history:
+- timestamp: '2026-01-07T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - UI Adjustment Dialog

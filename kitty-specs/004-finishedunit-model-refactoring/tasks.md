@@ -23,7 +23,7 @@
 
 **Goal**: Create database models and migration infrastructure for two-tier hierarchical system.
 **Independent Test**: Models can be created and migrated with full data preservation validation.
-**Prompt**: `/tasks/planned/WP01-database-foundation.md`
+**Prompt**: `/tasks/WP01-database-foundation.md`
 
 ### Included Subtasks
 - [X] T001: Create database backup and validation utilities
@@ -55,7 +55,7 @@
 
 **Goal**: Implement service layer for User Story 1 (Track Individual Consumable Items).
 **Independent Test**: Complete CRUD operations for FinishedUnit with inventory management.
-**Prompt**: `/tasks/planned/WP02-core-service-layer.md`
+**Prompt**: `/tasks/WP02-core-service-layer.md`
 
 ### Included Subtasks
 - [ ] T007: Implement FinishedUnit service with CRUD operations and inventory management
@@ -83,7 +83,7 @@
 
 **Goal**: Implement service layer for User Story 2 (Create Simple Package Assemblies).
 **Independent Test**: Create and manage FinishedGood assemblies with component tracking.
-**Prompt**: `/tasks/for_review/WP03-assembly-management.md`
+**Prompt**: `/tasks/WP03-assembly-management.md`
 
 ### Included Subtasks
 - [ ] T011: Implement FinishedGood service with assembly creation and management
@@ -111,7 +111,7 @@
 
 **Goal**: Implement service layer for User Story 3 (Create Nested Package Hierarchies).
 **Independent Test**: Create and manage complex nested assemblies with multi-level component tracking.
-**Prompt**: `/tasks/planned/WP04-hierarchical-composition.md`
+**Prompt**: `/tasks/WP04-hierarchical-composition.md`
 
 ### Included Subtasks
 - [ ] T015: Implement circular reference prevention with breadth-first validation
@@ -139,7 +139,7 @@
 
 **Goal**: Comprehensive testing and integration validation for all hierarchical features.
 **Independent Test**: Full test suite passes with >70% service layer coverage and performance benchmarks met.
-**Prompt**: `/tasks/planned/WP05-integration-testing.md`
+**Prompt**: `/tasks/WP05-integration-testing.md`
 
 ### Included Subtasks
 - [ ] T019: Create integration tests for cross-service operations
@@ -167,7 +167,7 @@
 
 **Goal**: Update UI layer to use new service interfaces and maintain feature compatibility.
 **Independent Test**: All existing UI functionality works with new model structure, no user workflow disruption.
-**Prompt**: `/tasks/planned/WP06-ui-integration.md`
+**Prompt**: `/tasks/WP06-ui-integration.md`
 
 ### Included Subtasks
 - [ ] T023: Update existing UI components to use FinishedUnit service
@@ -223,3 +223,13 @@ WP05 and WP06 can overlap with later stages of core development
 - **Hierarchy traversal**: <500ms for 5-level depth
 - **Test coverage**: 70%+ service layer coverage
 - **Migration**: Zero data loss with integrity validation
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: planned
+- WP03: planned
+- WP04: for_review
+- WP05: for_review
+- WP06: in_progress
+<!-- status-model:end -->

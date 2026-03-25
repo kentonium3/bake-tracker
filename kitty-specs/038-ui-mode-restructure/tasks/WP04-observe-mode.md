@@ -2,24 +2,25 @@
 work_package_id: WP04
 title: OBSERVE Mode
 lane: done
-history:
-- timestamp: '2026-01-05'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Mode Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '41347'
+dependencies: []
 subtasks:
 - T022
 - T023
 - T024
 - T025
 - T026
+phase: Phase 1 - Mode Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '41347'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-05'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - OBSERVE Mode

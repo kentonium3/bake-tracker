@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Production-Aware Shopping List
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 079-production-aware-planning-calculations-WP01
 base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
@@ -13,10 +13,10 @@ subtasks:
 - T012
 phase: Phase 2 - Core Features
 assignee: ''
-agent: "claude-lead"
-shell_pid: "27841"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-lead
+shell_pid: '27841'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned

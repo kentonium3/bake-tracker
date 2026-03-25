@@ -92,3 +92,9 @@
 | T006       | Update `fg_selection_frame.py` service call | WP02 | P1 | No |
 | T007       | Verify filter dropdowns with new service | WP02 | P1 | No |
 | T008       | Manual verification checklist | WP02 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+<!-- status-model:end -->

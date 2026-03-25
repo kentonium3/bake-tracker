@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Production Display Integration
-lane: "done"
+lane: done
 dependencies:
 - WP01
 - WP02
@@ -12,10 +12,10 @@ subtasks:
 - T021
 phase: Phase 2 - Polish
 assignee: ''
-agent: "claude-opus"
-shell_pid: "33368"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '33368'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T07:30:00Z'
   lane: planned

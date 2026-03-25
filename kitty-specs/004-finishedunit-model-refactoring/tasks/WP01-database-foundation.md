@@ -2,6 +2,18 @@
 work_package_id: WP01
 title: Database Foundation & Migration Infrastructure
 lane: done
+dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+phase: Phase 1 - Foundation
+assignee: Claude
+agent: claude
+shell_pid: '36008'
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: planned
@@ -13,19 +25,8 @@ history:
   agent: claude
   shell_pid: '19144'
   action: Started implementation
-agent: claude
-assignee: Claude
-phase: Phase 1 - Foundation
 reviewer: claude
 reviewer_shell_pid: '36008'
-shell_pid: '36008'
-subtasks:
-- T001
-- T002
-- T003
-- T004
-- T005
-- T006
 ---
 
 # Work Package Prompt: WP01 – Database Foundation & Migration Infrastructure

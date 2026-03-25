@@ -19,7 +19,7 @@
 **Goal**: Export complete database to individual entity files with manifest, checksums, and dependency ordering.
 **Owner**: Gemini (Track A)
 **Independent Test**: Export database, verify manifest.json contains correct checksums and import order.
-**Prompt**: `tasks/planned/WP01-coordinated-export-service.md`
+**Prompt**: `tasks/WP01-coordinated-export-service.md`
 
 ### Included Subtasks
 - [x] T001 Create ExportManifest and FileEntry dataclasses in `src/services/coordinated_export_service.py`
@@ -51,7 +51,7 @@
 **Goal**: Export AI-friendly views with context (view_products.json, view_inventory.json, view_purchases.json).
 **Owner**: Gemini (Track A)
 **Independent Test**: Export products view, verify it includes ingredient name, supplier name, and editable field metadata.
-**Prompt**: `tasks/planned/WP02-denormalized-export-service.md`
+**Prompt**: `tasks/WP02-denormalized-export-service.md`
 
 ### Included Subtasks
 - [x] T007 [P] Implement `export_products_view()` with ingredient/supplier context in `src/services/denormalized_export_service.py`
@@ -81,7 +81,7 @@
 **Goal**: Add CLI commands for export operations: export-complete, export-view, validate-export.
 **Owner**: Gemini (Track A)
 **Independent Test**: Run `python -m src.utils.import_export_cli export-complete test_export/` and verify output.
-**Prompt**: `tasks/planned/WP03-export-cli-commands.md`
+**Prompt**: `tasks/WP03-export-cli-commands.md`
 
 ### Included Subtasks
 - [x] T012 Add `export-complete` command with --output and --zip flags to `src/utils/import_export_cli.py`
@@ -110,7 +110,7 @@
 **Goal**: Create shared FK resolution logic for CLI and UI with create/map/skip options.
 **Owner**: Claude (Track B)
 **Independent Test**: Call resolver with missing supplier, verify all three resolution paths work.
-**Prompt**: `tasks/planned/WP04-fk-resolver-service.md`
+**Prompt**: `tasks/WP04-fk-resolver-service.md`
 
 ### Included Subtasks
 - [x] T016 Create ResolutionChoice enum and MissingFK/Resolution dataclasses in `src/services/fk_resolver_service.py`
@@ -142,7 +142,7 @@
 **Goal**: Import denormalized views with FK resolution, merge/skip modes, dry-run, and skip-on-error.
 **Owner**: Claude (Track B)
 **Independent Test**: Import modified products view, verify only editable fields updated via merge mode.
-**Prompt**: `tasks/planned/WP05-enhanced-import-service.md`
+**Prompt**: `tasks/WP05-enhanced-import-service.md`
 
 ### Included Subtasks
 - [x] T022 Create EnhancedImportResult extending ImportResult in `src/services/enhanced_import_service.py`
@@ -176,7 +176,7 @@
 **Goal**: Add CLI commands for import operations with interactive FK resolution support.
 **Owner**: Claude (Track B)
 **Independent Test**: Run import-view with --dry-run flag, verify no DB changes.
-**Prompt**: `tasks/planned/WP06-import-cli-commands.md`
+**Prompt**: `tasks/WP06-import-cli-commands.md`
 
 ### Included Subtasks
 - [x] T030 Add `import-view` command with --mode, --interactive, --skip-on-error, --dry-run flags to `src/utils/import_export_cli.py`
@@ -204,7 +204,7 @@
 **Goal**: Create UI dialog for interactive FK resolution during import.
 **Owner**: Claude (Track B)
 **Independent Test**: Trigger missing FK during UI import, verify dialog appears with all options.
-**Prompt**: `tasks/planned/WP07-fk-resolution-dialog.md`
+**Prompt**: `tasks/WP07-fk-resolution-dialog.md`
 
 ### Included Subtasks
 - [x] T033 Create FKResolutionDialog with create/map/skip options in `src/ui/fk_resolution_dialog.py`
@@ -233,7 +233,7 @@
 **Goal**: Integrate import view functionality into main application UI.
 **Owner**: Claude (Track B)
 **Independent Test**: Use File > Import > Import View menu, complete full import flow.
-**Prompt**: `tasks/planned/WP08-ui-integration.md`
+**Prompt**: `tasks/WP08-ui-integration.md`
 
 ### Included Subtasks
 - [x] T037 Add File > Import > Import View menu item in `src/ui/main_window.py`
@@ -317,3 +317,15 @@ Track B (Claude - Import):     WP04 ──→ WP05 ──→ WP06 ──→ WP07
 | T039 | FK wizard integration | WP08 | P2 | No |
 | T040 | Results summary dialog | WP08 | P2 | No |
 | T041 | Manual UI testing | WP08 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

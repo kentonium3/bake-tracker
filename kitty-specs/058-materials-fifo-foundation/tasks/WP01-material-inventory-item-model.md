@@ -1,30 +1,30 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Schema Changes - MaterialInventoryItem Model"
-phase: "Phase 1 - Foundation"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "25073"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Schema Changes - MaterialInventoryItem Model
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Foundation
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '25073'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: MaterialInventoryItem model complete"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: MaterialInventoryItem model complete'
 ---
 
 # Work Package Prompt: WP01 – Schema Changes - MaterialInventoryItem Model

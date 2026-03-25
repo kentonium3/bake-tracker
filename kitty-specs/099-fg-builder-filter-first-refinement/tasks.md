@@ -97,3 +97,9 @@
 | T007 | Add edit guard in _edit_finished_good() | WP02 | P2 | Yes |
 | T008 | Add info message for blocked edits | WP02 | P2 | Yes |
 | T009 | Add double-click edit protection | WP02 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+<!-- status-model:end -->

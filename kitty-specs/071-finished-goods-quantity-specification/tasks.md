@@ -142,3 +142,10 @@ WP01 (Service) ──┬──► WP02 (UI) ──┬──► WP03 (Integration
 | T010 | Update _on_fg_selection_save() | WP03 | P1 | Yes |
 | T011 | Add status bar feedback | WP03 | P1 | Yes |
 | T012 | End-to-end validation | WP03 | P1 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+<!-- status-model:end -->

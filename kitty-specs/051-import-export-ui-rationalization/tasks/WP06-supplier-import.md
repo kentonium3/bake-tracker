@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP06"
+work_package_id: WP06
+title: Supplier Import
+lane: done
+dependencies: []
 subtasks:
-  - "T037"
-  - "T038"
-  - "T039"
-  - "T040"
-  - "T041"
-  - "T042"
-title: "Supplier Import"
-phase: "Phase 1 - Dependent Services"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T037
+- T038
+- T039
+- T040
+- T041
+- T042
+phase: Phase 1 - Dependent Services
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-13T12:55:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-13T12:55:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Supplier Import

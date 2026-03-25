@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Recipe & FinishedGood Snapshot Export
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 2ad59dfb928e8e8071e55871259216e9f5ff27a4
@@ -14,10 +14,10 @@ subtasks:
 - T005
 phase: Phase 1 - Export Functions
 assignee: ''
-agent: "claude-lead"
-shell_pid: "76197"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-lead
+shell_pid: '76197'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned

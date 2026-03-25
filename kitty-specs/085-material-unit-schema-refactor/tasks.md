@@ -392,3 +392,16 @@ Wave 4 (Sequential, after Wave 3):
 | T043 | Orphan detection | WP09 | P3 | Yes |
 | T044 | Composition skip logging | WP09 | P3 | Yes |
 | T045 | Migration script tests | WP09 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+<!-- status-model:end -->

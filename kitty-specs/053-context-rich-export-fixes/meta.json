@@ -19,6 +19,7 @@
   "accepted_from_commit": "7a5f51648709216b9517b0ef184a3de81e4229e9",
   "created_at": "2026-01-15T13:00:00Z",
   "feature_number": "053",
+  "feature_slug": "053-context-rich-export-fixes",
   "friendly_name": "Context-Rich Export Fixes",
   "mission": "software-dev",
   "slug": "053-context-rich-export-fixes",

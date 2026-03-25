@@ -1,24 +1,24 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-title: "Fix Material Units Tab Query"
-phase: "Phase 1 - Bug Fixes"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "74395"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP01
+title: Fix Material Units Tab Query
+lane: done
 dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+phase: Phase 1 - Bug Fixes
+assignee: ''
+agent: claude-opus
+shell_pid: '74395'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-30T22:39:29Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-30T22:39:29Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 – Fix Material Units Tab Query

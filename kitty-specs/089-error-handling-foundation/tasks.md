@@ -580,3 +580,21 @@ WP04      WP05      WP06      WP07      WP08      WP09      WP10  WP11  WP12
 | T077 | Test http_status_code attributes | WP14 | P3 | Yes |
 | T078 | Validate no unlogged generic catches | WP14 | P3 | Yes |
 | T079 | Run full test suite | WP14 | P3 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+- WP09: done
+- WP10: done
+- WP11: done
+- WP12: done
+- WP13: done
+- WP14: done
+<!-- status-model:end -->

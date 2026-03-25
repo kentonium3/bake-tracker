@@ -2,25 +2,26 @@
 work_package_id: WP03
 title: User Story 2 - Calculate Estimated Recipe Cost
 lane: done
-history:
-- timestamp: '2025-12-02T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 1 - Core Feature
-review_status: approved
-reviewed_by: claude
-reviewer_shell_pid: '84323'
-shell_pid: '82419'
+dependencies: []
 subtasks:
 - T013
 - T014
 - T015
 - T016
 - T017
+phase: Phase 1 - Core Feature
+assignee: claude
+agent: claude
+shell_pid: '82419'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-02T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+reviewer_shell_pid: '84323'
 ---
 
 # Work Package Prompt: WP03 – User Story 2 - Calculate Estimated Recipe Cost

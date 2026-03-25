@@ -1,0 +1,46 @@
+{
+  "event_count": 4,
+  "feature_slug": "063-variant-yield-inheritance",
+  "last_event_id": "01KMKK2A1N0YND4XHHKVVTENR0",
+  "materialized_at": "2026-03-25T22:50:36.690938+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 4,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A18TYYK7W3VC8YDRTBA",
+      "last_transition_at": "2025-01-24T07:30:00Z"
+    },
+    "WP02": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A1BFF57A4GYY1D177MZ",
+      "last_transition_at": "2025-01-24T07:30:00Z"
+    },
+    "WP03": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A1FJHRZERAHPA164264",
+      "last_transition_at": "2025-01-24T07:30:00Z"
+    },
+    "WP04": {
+      "actor": "migration",
+      "force_count": 1,
+      "lane": "done",
+      "last_event_id": "01KMKK2A1N0YND4XHHKVVTENR0",
+      "last_transition_at": "2025-01-24T07:30:00Z"
+    }
+  }
+}

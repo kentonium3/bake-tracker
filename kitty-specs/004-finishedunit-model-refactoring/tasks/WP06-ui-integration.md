@@ -1,7 +1,17 @@
 ---
 work_package_id: WP06
 title: UI Integration & Compatibility
-lane: doing
+lane: in_progress
+dependencies: []
+subtasks:
+- T023
+- T024
+- T025
+- T026
+phase: Phase 6 - User Interface Integration
+assignee: ''
+agent: claude
+shell_pid: '27379'
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: planned
@@ -13,15 +23,6 @@ history:
   agent: claude
   shell_pid: '27379'
   action: Started implementation
-agent: claude
-assignee: ''
-phase: Phase 6 - User Interface Integration
-shell_pid: '27379'
-subtasks:
-- T023
-- T024
-- T025
-- T026
 ---
 
 # Work Package Prompt: WP06 – UI Integration & Compatibility

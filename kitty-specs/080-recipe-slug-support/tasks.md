@@ -235,3 +235,12 @@ WP03: Export Updates                   WP04: Import Updates
 | T027 | Legacy import test (name fallback) | WP05 | P2 | Yes |
 | T028 | Previous_slug fallback test | WP05 | P2 | Yes |
 | T029 | FK entity resolution test | WP05 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

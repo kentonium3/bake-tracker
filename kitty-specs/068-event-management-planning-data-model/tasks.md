@@ -247,3 +247,12 @@ WP03 (Tab)     WP04 (Dialogs)     ← PARALLEL (Gemini/Codex)│
 | T029 | Integration test CRUD flow | WP05 | P2 | No |
 | T030 | Validate import/export | WP05 | P2 | No |
 | T031 | Final UI polish | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

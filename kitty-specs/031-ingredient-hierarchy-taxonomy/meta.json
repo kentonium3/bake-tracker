@@ -20,6 +20,7 @@
   "accepted_from_commit": "2e5609aca5b43e2714d850a3c4a8190972bebf76",
   "created_at": "2025-12-31T03:24:44Z",
   "feature_number": "031",
+  "feature_slug": "031-ingredient-hierarchy-taxonomy",
   "friendly_name": "Ingredient Hierarchy Taxonomy",
   "merge_history": [
     {
@@ -37,6 +38,7 @@
   "merged_into": "main",
   "merged_push": false,
   "merged_strategy": "merge",
+  "mission": "research",
   "slug": "031-ingredient-hierarchy-taxonomy",
   "source_description": "Three-tier hierarchical ingredient taxonomy (Root/Mid/Leaf) with self-referential schema, tree traversal services, UI tree widget, and AI-assisted migration of 500+ ingredients. See docs/design/F031_ingredient_hierarchy.md for full design.",
   "target_branch": "main"

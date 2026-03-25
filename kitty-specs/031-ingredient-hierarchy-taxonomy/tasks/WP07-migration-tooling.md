@@ -2,24 +2,25 @@
 work_package_id: WP07
 title: Migration Tooling
 lane: done
-history:
-- timestamp: '2025-12-30T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 4 - Migration
-review_status: ''
-reviewed_by: ''
-shell_pid: '4712'
+dependencies: []
 subtasks:
 - T037
 - T038
 - T039
 - T040
 - T041
+phase: Phase 4 - Migration
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '4712'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-30T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – Migration Tooling

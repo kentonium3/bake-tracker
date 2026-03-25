@@ -23,7 +23,7 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 
 **Goal**: Rename database columns and SQLAlchemy attributes in the Product model.
 **Independent Test**: `grep -n "package_unit\|package_unit_quantity" src/models/product.py` returns column definitions.
-**Prompt**: `tasks/planned/WP01-model-layer-changes.md`
+**Prompt**: `tasks/WP01-model-layer-changes.md`
 
 ### Included Subtasks
 - [x] T001 Rename `purchase_unit` column to `package_unit` in `src/models/product.py`
@@ -52,7 +52,7 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 
 **Goal**: Update all service files that reference the old field names.
 **Independent Test**: `grep -rn "purchase_unit\|purchase_quantity" src/services/` returns zero matches.
-**Prompt**: `tasks/planned/WP02-service-layer-changes.md`
+**Prompt**: `tasks/WP02-service-layer-changes.md`
 
 ### Included Subtasks
 - [x] T004 [P] Update `src/services/product_service.py` field references
@@ -86,7 +86,7 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 
 **Goal**: Update UI code variable names (not user-facing labels).
 **Independent Test**: `grep -rn "purchase_unit\|purchase_quantity" src/ui/` returns zero matches.
-**Prompt**: `tasks/planned/WP03-ui-layer-changes.md`
+**Prompt**: `tasks/WP03-ui-layer-changes.md`
 
 ### Included Subtasks
 - [x] T013 [P] Update `src/ui/inventory_tab.py` variable names
@@ -123,7 +123,7 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 - `grep -rn "purchase_unit\|purchase_quantity" src/tests/` returns zero matches
 - `grep -rni "pantry" src/tests/` returns only acceptable matches (skip reasons with historical context)
 
-**Prompt**: `tasks/planned/WP04-test-updates.md`
+**Prompt**: `tasks/WP04-test-updates.md`
 
 ### Included Subtasks
 
@@ -184,7 +184,7 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 
 **Goal**: Update import/export specification and all sample JSON files.
 **Independent Test**: `grep -rn "purchase_unit\|purchase_quantity" docs/ examples/ test_data/` returns zero matches (excluding archive).
-**Prompt**: `tasks/planned/WP05-documentation-and-sample-data.md`
+**Prompt**: `tasks/WP05-documentation-and-sample-data.md`
 
 ### Included Subtasks
 - [x] T037 Update `docs/design/import_export_specification.md` to v3.4 with changelog entry
@@ -221,7 +221,7 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 
 **Goal**: Verify all changes are complete and data integrity is preserved.
 **Independent Test**: All success criteria from spec.md are met.
-**Prompt**: `tasks/planned/WP06-verification-and-validation.md`
+**Prompt**: `tasks/WP06-verification-and-validation.md`
 
 ### Included Subtasks
 - [x] T049 Run full test suite (`pytest src/tests -v`) and verify 100% pass rate
@@ -327,3 +327,13 @@ WP01 (Model) ─┬─> WP02 (Services) ─┬─> WP04 (Tests) ─┬─> WP06 
 | T055 | Rename pantry->inventory in test_validators.py | WP04 | P1 | Yes |
 | T056 | Rename pantry->inventory in test_services.py | WP04 | P1 | Yes |
 | T057 | Run grep validation (pantry) | WP06 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+<!-- status-model:end -->

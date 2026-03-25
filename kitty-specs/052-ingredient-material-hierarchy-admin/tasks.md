@@ -362,3 +362,15 @@ Phase 5 (Polish):
 | T055 | Verify acceptance criteria SC-001-008 | WP08 | P3 | Yes |
 | T056 | Verify historical snapshots unchanged | WP08 | P3 | Yes |
 | T057 | Final cleanup and docstrings | WP08 | P3 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

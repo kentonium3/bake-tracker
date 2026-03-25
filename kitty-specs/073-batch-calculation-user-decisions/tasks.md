@@ -250,3 +250,12 @@ WP01 (Foundation) ──┬──→ WP02 (Batch Calc) ──┐
 | T034 | Implement load existing decisions | WP05 | P2 | No |
 | T035 | Wire up modification flow | WP05 | P2 | No |
 | T036 | End-to-end testing | WP05 | P2 | No |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+<!-- status-model:end -->

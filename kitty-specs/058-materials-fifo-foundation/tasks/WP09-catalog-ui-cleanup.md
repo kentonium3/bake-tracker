@@ -1,29 +1,29 @@
 ---
-work_package_id: "WP09"
+work_package_id: WP09
+title: Catalog UI Cleanup
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T036"
-  - "T037"
-  - "T038"
-title: "Catalog UI Cleanup"
-phase: "Phase 4 - Polish"
-lane: "done"
-assignee: "claude-opus"
-agent: "claude-opus"
-shell_pid: "29661"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T036
+- T037
+- T038
+phase: Phase 4 - Polish
+assignee: claude-opus
+agent: claude-opus
+shell_pid: '29661'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T18:06:18Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-18T21:30:00Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: ""
-    action: "Review passed: UI updated to remove deprecated inventory fields"
+- timestamp: '2026-01-18T18:06:18Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-18T21:30:00Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: ''
+  action: 'Review passed: UI updated to remove deprecated inventory fields'
 ---
 
 # Work Package Prompt: WP09 – Catalog UI Cleanup

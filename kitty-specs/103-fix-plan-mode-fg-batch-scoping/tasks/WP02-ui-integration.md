@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: UI Integration
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 103-fix-plan-mode-fg-batch-scoping-WP01
 base_commit: f8eb27c4e90fcf5073e82aca88610f9e25e44a88
@@ -12,10 +12,10 @@ subtasks:
 - T008
 phase: Phase 2 - UI Integration
 assignee: ''
-agent: "claude-opus"
-shell_pid: "30464"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '30464'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-03-15T04:45:47Z'
   lane: planned

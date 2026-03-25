@@ -19,6 +19,7 @@
   "accepted_from_commit": "2f1acfd291f110f9cae2dda2bfc22a914a608800",
   "created_at": "2026-01-15T20:30:00-05:00",
   "feature_number": "055",
+  "feature_slug": "055-workflow-aligned-navigation-cleanup",
   "friendly_name": "Workflow-Aligned Navigation Cleanup",
   "mission": "software-dev",
   "slug": "055-workflow-aligned-navigation-cleanup",

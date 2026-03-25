@@ -2,23 +2,24 @@
 work_package_id: WP03
 title: Catalog Dialog - ImportResultsDialog Integration
 lane: done
+dependencies: []
+subtasks:
+- T004
+- T005
+- T006
+- T007
+phase: Phase 3 - Catalog Import Dialog Refactoring
+assignee: claude
+agent: claude-reviewer
+shell_pid: '77979'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 3 - Catalog Import Dialog Refactoring
-review_status: ''
-reviewed_by: ''
-shell_pid: '77979'
-subtasks:
-- T004
-- T005
-- T006
-- T007
 ---
 
 # Work Package Prompt: WP03 - Catalog Dialog - ImportResultsDialog Integration

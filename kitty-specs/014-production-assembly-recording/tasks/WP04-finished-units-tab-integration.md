@@ -2,24 +2,25 @@
 work_package_id: WP04
 title: FinishedUnits Tab Integration
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: ''
-phase: Phase 2 - Production Recording
-review_status: ''
-reviewed_by: ''
-shell_pid: '45064'
+dependencies: []
 subtasks:
 - T018
 - T019
 - T020
 - T021
 - T022
+phase: Phase 2 - Production Recording
+assignee: ''
+agent: claude
+shell_pid: '45064'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - FinishedUnits Tab Integration

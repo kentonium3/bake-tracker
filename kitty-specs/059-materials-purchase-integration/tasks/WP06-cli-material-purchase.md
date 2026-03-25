@@ -1,27 +1,27 @@
 ---
-work_package_id: "WP06"
-subtasks:
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-  - "T036"
-title: "CLI Material Purchase Extension"
-phase: "Wave 2 - Extended Features"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "97888"
-review_status: "has_feedback"
-reviewed_by: "Kent Gale"
+work_package_id: WP06
+title: CLI Material Purchase Extension
+lane: done
 dependencies:
-  - "WP01"
+- WP01
+subtasks:
+- T032
+- T033
+- T034
+- T035
+- T036
+phase: Wave 2 - Extended Features
+assignee: ''
+agent: claude-opus
+shell_pid: '97888'
+review_status: has_feedback
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - CLI Material Purchase Extension

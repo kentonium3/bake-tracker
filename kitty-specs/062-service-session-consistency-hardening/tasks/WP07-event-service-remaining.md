@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP07"
+work_package_id: WP07
+title: Event Service Remaining Operations
+lane: done
+dependencies: [WP01]
 subtasks:
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-  - "T035"
-title: "Event Service Remaining Operations"
-phase: "Phase 1 - Service Hardening"
-lane: "done"
-assignee: "codex"
-agent: "codex"
-shell_pid: "65344"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP01"]
+- T031
+- T032
+- T033
+- T034
+- T035
+phase: Phase 1 - Service Hardening
+assignee: codex
+agent: codex
+shell_pid: '65344'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-22T15:30:43Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-22T15:30:43Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 – Event Service Remaining Operations

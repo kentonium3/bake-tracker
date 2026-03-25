@@ -2,23 +2,24 @@
 work_package_id: WP04
 title: Service Layer - Progress Calculation
 lane: done
+dependencies: []
+subtasks:
+- T021
+- T022
+- T023
+- T024
+phase: Phase 3 - Progress & Fulfillment
+assignee: claude
+agent: claude
+shell_pid: '85015'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 3 - Progress & Fulfillment
-review_status: ''
-reviewed_by: ''
-shell_pid: '85015'
-subtasks:
-- T021
-- T022
-- T023
-- T024
 ---
 
 # Work Package Prompt: WP04 - Service Layer - Progress Calculation

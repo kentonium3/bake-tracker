@@ -2,6 +2,19 @@
 work_package_id: WP01
 title: Models Layer
 lane: done
+dependencies: []
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Core Snapshot System
+assignee: claude
+agent: claude-reviewer
+shell_pid: '96741'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
@@ -13,18 +26,6 @@ history:
   agent: claude
   shell_pid: '67067'
   action: Started implementation
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Core Snapshot System
-review_status: ''
-reviewed_by: ''
-shell_pid: '96741'
-subtasks:
-- T001
-- T002
-- T003
-- T004
-- T005
 ---
 
 # Work Package Prompt: WP01 - Models Layer

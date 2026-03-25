@@ -2,23 +2,24 @@
 work_package_id: WP02
 title: Service Layer - Event ID Parameters
 lane: done
+dependencies: []
+subtasks:
+- T010
+- T011
+- T012
+- T013
+phase: Phase 2 - Service Layer
+assignee: claude
+agent: claude
+shell_pid: '83960'
+review_status: ''
+reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Service Layer
-review_status: ''
-reviewed_by: ''
-shell_pid: '83960'
-subtasks:
-- T010
-- T011
-- T012
-- T013
 ---
 
 # Work Package Prompt: WP02 - Service Layer - Event ID Parameters

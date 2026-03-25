@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Planning Tab Integration + Notifications
-lane: "done"
+lane: done
 dependencies:
 - WP01
 - WP03
@@ -19,10 +19,10 @@ subtasks:
 - T026
 phase: Phase 2 - UI Layer
 assignee: ''
-agent: "claude"
-shell_pid: "35025"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '35025'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned

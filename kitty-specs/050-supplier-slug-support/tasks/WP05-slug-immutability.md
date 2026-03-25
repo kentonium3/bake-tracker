@@ -1,24 +1,25 @@
 ---
-work_package_id: "WP05"
+work_package_id: WP05
+title: Slug Immutability & Validation
+lane: done
+dependencies: []
 subtasks:
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-title: "Slug Immutability & Validation"
-phase: "Phase 2 - Data Integrity"
-lane: "done"
-assignee: "claude"
-agent: "claude"
-shell_pid: "59105"
-review_status: "approved"
-reviewed_by: "claude"
+- T028
+- T029
+- T030
+- T031
+phase: Phase 2 - Data Integrity
+assignee: claude
+agent: claude
+shell_pid: '59105'
+review_status: approved
+reviewed_by: claude
 history:
-  - timestamp: "2026-01-12T23:45:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-12T23:45:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Slug Immutability & Validation

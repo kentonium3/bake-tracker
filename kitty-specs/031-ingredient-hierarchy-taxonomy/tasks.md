@@ -15,7 +15,7 @@
 
 **Goal**: Add hierarchy fields to Ingredient model (parent_ingredient_id, hierarchy_level, self-referential relationship).
 **Independent Test**: Ingredient model accepts hierarchy fields; database creates with new columns and indexes.
-**Prompt**: `tasks/planned/WP01-schema-model-foundation.md`
+**Prompt**: `tasks/WP01-schema-model-foundation.md`
 **Assignee**: Claude (foundation layer)
 
 ### Included Subtasks
@@ -46,7 +46,7 @@
 
 **Goal**: Implement tree traversal service methods for navigation.
 **Independent Test**: Service methods return correct tree data from test database.
-**Prompt**: `tasks/planned/WP02-hierarchy-service-core.md`
+**Prompt**: `tasks/WP02-hierarchy-service-core.md`
 **Assignee**: Claude or Gemini
 
 ### Included Subtasks
@@ -79,7 +79,7 @@
 
 **Goal**: Implement validation and hierarchy management operations.
 **Independent Test**: Validation prevents invalid operations; move_ingredient correctly updates hierarchy.
-**Prompt**: `tasks/planned/WP03-hierarchy-service-validation.md`
+**Prompt**: `tasks/WP03-hierarchy-service-validation.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -110,7 +110,7 @@
 
 **Goal**: Enforce leaf-only constraints in existing services.
 **Independent Test**: Recipe and product services reject non-leaf ingredients with helpful errors.
-**Prompt**: `tasks/planned/WP04-service-validation-updates.md`
+**Prompt**: `tasks/WP04-service-validation-updates.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -140,7 +140,7 @@
 
 **Goal**: Create reusable tree selection widget for ingredient hierarchy.
 **Independent Test**: Widget displays tree, supports expand/collapse, search works with auto-expand.
-**Prompt**: `tasks/planned/WP05-tree-widget-component.md`
+**Prompt**: `tasks/WP05-tree-widget-component.md`
 **Assignee**: Gemini (parallel safe)
 
 ### Included Subtasks
@@ -173,7 +173,7 @@
 
 **Goal**: Integrate tree widget into existing UI components.
 **Independent Test**: Users can select ingredients via tree in Ingredients tab and recipe dialogs.
-**Prompt**: `tasks/planned/WP06-ui-integration.md`
+**Prompt**: `tasks/WP06-ui-integration.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -203,7 +203,7 @@
 
 **Goal**: Create scripts to migrate existing 487 ingredients to hierarchical structure.
 **Independent Test**: Export → Transform → Validate → Import cycle works with sample data.
-**Prompt**: `tasks/planned/WP07-migration-tooling.md`
+**Prompt**: `tasks/WP07-migration-tooling.md`
 **Assignee**: Gemini (parallel safe)
 
 ### Included Subtasks
@@ -234,7 +234,7 @@
 
 **Goal**: End-to-end testing, production migration, and final polish.
 **Independent Test**: All 487 ingredients migrated; user acceptance test passes.
-**Prompt**: `tasks/planned/WP08-integration-polish.md`
+**Prompt**: `tasks/WP08-integration-polish.md`
 **Assignee**: Claude
 
 ### Included Subtasks
@@ -348,3 +348,15 @@ WP01 (Schema) ──────────────────────
 | T046 | User acceptance testing | WP08 | P2 | No |
 | T047 | Bug fixes from testing | WP08 | P2 | No |
 | T048 | Update CHANGELOG and docs | WP08 | P2 | Yes |
+
+<!-- status-model:start -->
+## Canonical Status (Generated)
+- WP01: done
+- WP02: done
+- WP03: done
+- WP04: done
+- WP05: done
+- WP06: done
+- WP07: done
+- WP08: done
+<!-- status-model:end -->

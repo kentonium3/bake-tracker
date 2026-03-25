@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Service Layer Cleanup
 lane: done
-history:
-- timestamp: '2025-12-14T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Service Updates
-review_status: ''
-reviewed_by: ''
-shell_pid: '23019'
+dependencies: []
 subtasks:
 - T011
 - T012
@@ -23,6 +12,18 @@ subtasks:
 - T016
 - T017
 - T018
+phase: Phase 2 - Service Updates
+assignee: claude
+agent: claude
+shell_pid: '23019'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-14T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Service Layer Cleanup

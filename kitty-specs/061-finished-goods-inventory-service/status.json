@@ -1,0 +1,74 @@
+{
+  "event_count": 24,
+  "feature_slug": "061-finished-goods-inventory-service",
+  "last_event_id": "01KMKK29ZCKKB91AD988NS7MY9",
+  "materialized_at": "2026-03-25T22:50:36.283892+00:00",
+  "summary": {
+    "approved": 0,
+    "blocked": 0,
+    "canceled": 0,
+    "claimed": 0,
+    "done": 8,
+    "for_review": 0,
+    "in_progress": 0,
+    "planned": 0
+  },
+  "work_packages": {
+    "WP01": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29XX0DKV2D3T6CAZESSR",
+      "last_transition_at": "2026-01-21T20:07:48Z"
+    },
+    "WP02": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29Y44A2EHQMVQW8A1G84",
+      "last_transition_at": "2026-01-22T01:53:06Z"
+    },
+    "WP03": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29YB078VWD0APH8P3EP6",
+      "last_transition_at": "2026-01-22T02:40:14Z"
+    },
+    "WP04": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29YJEJFXD3ES65MBZ7FR",
+      "last_transition_at": "2026-01-22T02:57:03Z"
+    },
+    "WP05": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29YRBR933G91XHA3QWAB",
+      "last_transition_at": "2026-01-22T03:13:15Z"
+    },
+    "WP06": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29YZ2DQX4CSB5T54HHBX",
+      "last_transition_at": "2026-01-22T03:34:45Z"
+    },
+    "WP07": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29Z6V7GR9A9MXD33B3QH",
+      "last_transition_at": "2026-01-22T03:52:03Z"
+    },
+    "WP08": {
+      "actor": "claude-opus",
+      "force_count": 3,
+      "lane": "done",
+      "last_event_id": "01KMKK29ZCKKB91AD988NS7MY9",
+      "last_transition_at": "2026-01-22T04:15:46Z"
+    }
+  }
+}

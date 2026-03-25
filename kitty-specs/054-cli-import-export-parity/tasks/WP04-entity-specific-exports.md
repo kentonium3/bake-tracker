@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP04"
+work_package_id: WP04
+title: Entity-Specific Export Commands
+lane: done
+dependencies: []
 subtasks:
-  - "T027"
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-  - "T034"
-title: "Entity-Specific Export Commands"
-phase: "Phase 4 - Entity-Specific Export Commands (P2-P3)"
-lane: "done"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T027
+- T028
+- T029
+- T030
+- T031
+- T032
+- T033
+- T034
+phase: Phase 4 - Entity-Specific Export Commands (P2-P3)
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T18:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T18:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Entity-Specific Export Commands

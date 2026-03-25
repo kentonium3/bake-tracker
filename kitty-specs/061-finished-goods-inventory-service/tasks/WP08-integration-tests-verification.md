@@ -1,41 +1,41 @@
 ---
-work_package_id: "WP08"
+work_package_id: WP08
+title: Integration Tests and Verification
+lane: done
+dependencies: [WP04, WP05, WP06, WP07]
 subtasks:
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-title: "Integration Tests and Verification"
-phase: "Phase 5 - Testing"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "40128"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP04", "WP05", "WP06", "WP07"]
+- T028
+- T029
+- T030
+- T031
+- T032
+phase: Phase 5 - Testing
+assignee: ''
+agent: claude-opus
+shell_pid: '40128'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-21T19:33:38Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
-  - timestamp: "2026-01-22T03:53:00Z"
-    lane: "doing"
-    agent: "claude-opus"
-    shell_pid: "33384"
-    action: "Started implementation"
-  - timestamp: "2026-01-22T04:08:56Z"
-    lane: "for_review"
-    agent: "claude-opus"
-    shell_pid: "33384"
-    action: "Ready for review"
-  - timestamp: "2026-01-22T04:15:46Z"
-    lane: "done"
-    agent: "claude-opus"
-    shell_pid: "40128"
-    action: "Review passed"
+- timestamp: '2026-01-21T19:33:38Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+- timestamp: '2026-01-22T03:53:00Z'
+  lane: doing
+  agent: claude-opus
+  shell_pid: '33384'
+  action: Started implementation
+- timestamp: '2026-01-22T04:08:56Z'
+  lane: for_review
+  agent: claude-opus
+  shell_pid: '33384'
+  action: Ready for review
+- timestamp: '2026-01-22T04:15:46Z'
+  lane: done
+  agent: claude-opus
+  shell_pid: '40128'
+  action: Review passed
 ---
 
 # Work Package Prompt: WP08 - Integration Tests and Verification

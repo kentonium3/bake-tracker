@@ -2,18 +2,7 @@
 work_package_id: WP05
 title: Assembly Recording Dialog
 lane: done
-history:
-- timestamp: '2025-12-10T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: system
-assignee: ''
-phase: Phase 3 - Assembly Recording
-review_status: ''
-reviewed_by: ''
-shell_pid: ''
+dependencies: []
 subtasks:
 - T023
 - T024
@@ -21,6 +10,18 @@ subtasks:
 - T026
 - T027
 - T028
+phase: Phase 3 - Assembly Recording
+assignee: ''
+agent: system
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-10T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Assembly Recording Dialog

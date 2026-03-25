@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Service Layer - Validation
 lane: done
-history:
-- timestamp: '2025-12-09T00:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Foundation
-review_status: ''
-reviewed_by: ''
-shell_pid: '98861'
+dependencies: []
 subtasks:
 - T014
 - T015
@@ -23,6 +12,18 @@ subtasks:
 - T019
 - T020
 - T021
+phase: Phase 1 - Foundation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '98861'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2025-12-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Service Layer - Validation

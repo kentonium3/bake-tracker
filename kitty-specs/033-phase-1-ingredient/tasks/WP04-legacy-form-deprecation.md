@@ -2,21 +2,22 @@
 work_package_id: WP04
 title: Legacy Form Deprecation
 lane: done
+dependencies: []
+subtasks:
+- T014
+- T015
+phase: Phase 4 - Cleanup
+assignee: gemini
+agent: claude-reviewer
+shell_pid: '82876'
+review_status: approved without changes
+reviewed_by: claude-reviewer
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: gemini
-phase: Phase 4 - Cleanup
-review_status: approved without changes
-reviewed_by: claude-reviewer
-shell_pid: '82876'
-subtasks:
-- T014
-- T015
 ---
 
 # Work Package Prompt: WP04 - Legacy Form Deprecation

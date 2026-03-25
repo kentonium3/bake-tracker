@@ -2,16 +2,7 @@
 work_package_id: WP03
 title: Service Layer Tests
 lane: done
-history:
-- timestamp: '2026-01-07T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Service Layer (Claude)
-shell_pid: '49789'
+dependencies: []
 subtasks:
 - T010
 - T011
@@ -20,6 +11,16 @@ subtasks:
 - T014
 - T015
 - T016
+phase: Phase 1 - Service Layer (Claude)
+assignee: claude
+agent: claude-reviewer
+shell_pid: '49789'
+history:
+- timestamp: '2026-01-07T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Service Layer Tests

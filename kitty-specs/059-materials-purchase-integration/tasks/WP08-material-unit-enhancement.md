@@ -1,26 +1,26 @@
 ---
-work_package_id: "WP08"
-subtasks:
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-  - "T045"
-title: "MaterialUnit UI Enhancement"
-phase: "Wave 2 - Extended Features"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "13142"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+work_package_id: WP08
+title: MaterialUnit UI Enhancement
+lane: done
 dependencies: []
+subtasks:
+- T041
+- T042
+- T043
+- T044
+- T045
+phase: Wave 2 - Extended Features
+assignee: ''
+agent: claude-opus
+shell_pid: '13142'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2026-01-18T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-18T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - MaterialUnit UI Enhancement

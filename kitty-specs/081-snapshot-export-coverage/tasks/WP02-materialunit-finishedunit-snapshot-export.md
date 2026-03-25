@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: MaterialUnit & FinishedUnit Snapshot Export
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: 14b21af6aec34176a033e5281672c3e9f43e6b31
@@ -14,10 +14,10 @@ subtasks:
 - T010
 phase: Phase 1 - Export Functions
 assignee: ''
-agent: "claude-lead"
-shell_pid: "76436"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-lead
+shell_pid: '76436'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned

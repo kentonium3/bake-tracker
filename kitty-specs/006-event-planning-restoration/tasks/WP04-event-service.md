@@ -2,18 +2,7 @@
 work_package_id: WP04
 title: Event Service Implementation
 lane: done
-history:
-- timestamp: '2025-12-03'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 2 - Services Layer
-review_status: approved
-reviewed_by: claude
-shell_pid: '8953'
+dependencies: []
 subtasks:
 - T023
 - T024
@@ -27,6 +16,18 @@ subtasks:
 - T032
 - T033
 - T034
+phase: Phase 2 - Services Layer
+assignee: claude
+agent: claude
+shell_pid: '8953'
+review_status: approved
+reviewed_by: claude
+history:
+- timestamp: '2025-12-03'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Event Service Implementation

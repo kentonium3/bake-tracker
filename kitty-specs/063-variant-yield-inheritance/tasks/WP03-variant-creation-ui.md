@@ -1,27 +1,27 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Variant Creation UI
+lane: done
+dependencies: [WP02]
 subtasks:
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-title: "Variant Creation UI"
-phase: "Phase 1 - Core"
-lane: "done"
-assignee: ""
-agent: "claude-opus"
-shell_pid: "30126"
-review_status: "approved"
-reviewed_by: "Kent Gale"
-dependencies: ["WP02"]
+- T012
+- T013
+- T014
+- T015
+- T016
+- T017
+phase: Phase 1 - Core
+assignee: ''
+agent: claude-opus
+shell_pid: '30126'
+review_status: approved
+reviewed_by: Kent Gale
 history:
-  - timestamp: "2025-01-24T07:30:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2025-01-24T07:30:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 – Variant Creation UI

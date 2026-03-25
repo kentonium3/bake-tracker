@@ -1,26 +1,27 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: Recipe Edit Form - Yield Types Section
+lane: done
+dependencies: []
 subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-  - "T009"
-  - "T010"
-title: "Recipe Edit Form - Yield Types Section"
-phase: "Phase 2 - Core UI"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T005
+- T006
+- T007
+- T008
+- T009
+- T010
+phase: Phase 2 - Core UI
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-09T00:00:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-09T00:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Recipe Edit Form - Yield Types Section

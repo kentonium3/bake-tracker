@@ -2,18 +2,7 @@
 work_package_id: WP02
 title: Recipe Import v4.0
 lane: done
-history:
-- timestamp: '2026-01-06T12:00:00Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 1 - Core Schema Upgrade
-review_status: ''
-reviewed_by: ''
-shell_pid: '89028'
+dependencies: []
 subtasks:
 - T006
 - T007
@@ -21,6 +10,18 @@ subtasks:
 - T009
 - T010
 - T011
+phase: Phase 1 - Core Schema Upgrade
+assignee: claude
+agent: claude-reviewer
+shell_pid: '89028'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-06T12:00:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Recipe Import v4.0

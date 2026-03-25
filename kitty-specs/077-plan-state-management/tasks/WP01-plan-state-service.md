@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Plan State Service
-lane: "done"
+lane: done
 dependencies: []
 base_branch: main
 base_commit: f0f24b3db80ed1137d9ce8145585210bbd07667b
@@ -14,10 +14,10 @@ subtasks:
 - T005
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "claude"
-shell_pid: "56673"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude
+shell_pid: '56673'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T00:00:00Z'
   lane: planned

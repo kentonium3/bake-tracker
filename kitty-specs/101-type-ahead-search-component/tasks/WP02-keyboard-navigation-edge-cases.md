@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Keyboard Navigation & Edge Cases
-lane: "done"
+lane: done
 dependencies: [WP01]
 base_branch: 101-type-ahead-search-component-WP01
 base_commit: 0e019b4b9408cb10a77bbdfd504c4ad55fe90cfb
@@ -16,10 +16,10 @@ subtasks:
 - T012
 phase: Phase 0 - Foundation
 assignee: ''
-agent: "claude-opus"
-shell_pid: "88543"
-review_status: "approved"
-reviewed_by: "Kent Gale"
+agent: claude-opus
+shell_pid: '88543'
+review_status: approved
+reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-10T21:59:40Z'
   lane: planned

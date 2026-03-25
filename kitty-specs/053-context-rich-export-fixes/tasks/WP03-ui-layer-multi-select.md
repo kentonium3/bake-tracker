@@ -1,28 +1,29 @@
 ---
-work_package_id: "WP03"
+work_package_id: WP03
+title: UI Layer Multi-Select
+lane: done
+dependencies: []
 subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-  - "T014"
-  - "T015"
-  - "T016"
-title: "UI Layer Multi-Select"
-phase: "Phase 2 - UI Layer"
-lane: "done"
-assignee: ""
-agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- T009
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+- T016
+phase: Phase 2 - UI Layer
+assignee: ''
+agent: claude
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-01-15T13:35:00Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-01-15T13:35:00Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - UI Layer Multi-Select

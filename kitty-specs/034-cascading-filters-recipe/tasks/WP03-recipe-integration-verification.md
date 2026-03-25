@@ -2,18 +2,7 @@
 work_package_id: WP03
 title: Recipe Integration Verification
 lane: done
-history:
-- timestamp: '2026-01-02T10:45:22Z'
-  lane: planned
-  agent: system
-  shell_pid: ''
-  action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase B - Parallel Implementation
-review_status: ''
-reviewed_by: ''
-shell_pid: '3311'
+dependencies: []
 subtasks:
 - T016
 - T017
@@ -22,6 +11,18 @@ subtasks:
 - T020
 - T021
 - T022
+phase: Phase B - Parallel Implementation
+assignee: claude
+agent: claude-reviewer
+shell_pid: '3311'
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-02T10:45:22Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Recipe Integration Verification

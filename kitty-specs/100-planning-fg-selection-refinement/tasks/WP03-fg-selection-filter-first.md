@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: FG Selection Filter-First with Persistence
-lane: "done"
+lane: done
 dependencies:
 - WP01
 base_branch: 100-planning-fg-selection-refinement-WP01
@@ -15,8 +15,8 @@ subtasks:
 - T012
 phase: Phase 2 - FG Filtered Selection
 assignee: ''
-agent: "gemini"
-shell_pid: "26148"
+agent: gemini
+shell_pid: '26148'
 review_status: ''
 reviewed_by: ''
 history:

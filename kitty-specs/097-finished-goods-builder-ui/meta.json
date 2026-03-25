@@ -1,10 +1,12 @@
 {
+  "created_at": "2026-02-06T00:00:00Z",
   "feature_number": "097",
-  "slug": "097-finished-goods-builder-ui",
+  "feature_slug": "097-finished-goods-builder-ui",
   "friendly_name": "Finished Goods Builder UI",
   "mission": "software-dev",
+  "slug": "097-finished-goods-builder-ui",
   "source_description": "See docs/func-spec/F097_finished_goods_builder_ui.md for feature inputs. See docs/func-spec/claude-pre-implementation-prompt.md for direction.",
-  "created_at": "2026-02-06T00:00:00Z",
+  "target_branch": "main",
   "vcs": "git",
   "vcs_locked_at": "2026-02-07T00:00:04.192769+00:00"
 }
