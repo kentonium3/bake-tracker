@@ -1,7 +1,6 @@
 ---
 work_package_id: WP10
 title: UI Migration - Dashboard & Remaining Tabs
-lane: done
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -17,17 +16,26 @@ subtasks:
 - T054
 - T055
 phase: Phase 2 - UI Migration
-assignee: ''
-agent: ''
-shell_pid: '73572'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- src/ui/dashboard_tab.py
+- src/ui/dashboards/base_dashboard.py
+- src/ui/dashboards/catalog_dashboard.py
+- src/ui/dashboards/make_dashboard.py
+- src/ui/dashboards/observe_dashboard.py
+- src/ui/dashboards/plan_dashboard.py
+- src/ui/dashboards/purchase_dashboard.py
+- src/ui/ingredients_tab.py
+- src/ui/packages_tab.py
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 – UI Migration - Dashboard & Remaining Tabs

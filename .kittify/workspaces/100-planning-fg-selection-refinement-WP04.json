@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP04",
+  "feature_slug": "100-planning-fg-selection-refinement",
+  "worktree_path": ".worktrees/100-planning-fg-selection-refinement-WP04",
+  "branch_name": "100-planning-fg-selection-refinement-WP04",
+  "base_branch": "100-planning-fg-selection-refinement-WP02",
+  "base_commit": "edb0cb78f8dfec56da3b6d6d55f98924929028e0",
+  "dependencies": [
+    "WP02"
+  ],
+  "created_at": "2026-02-09T22:41:31.159132+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

@@ -46,10 +46,10 @@ kitty-specs/044-finished-units-yield-type-management/research.md
 
 Cursor's sandbox cannot activate virtual environments. All verification commands must be run in the terminal outside the sandbox to avoid activation failures.
 
-Run from worktree: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/044-finished-units-yield-type-management`
+Run from worktree: `/Users/kentgale/repos/bake-tracker/.worktrees/044-finished-units-yield-type-management`
 
 ```bash
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify imports
 PYTHONPATH=. python3 -c "
@@ -98,9 +98,9 @@ PYTHONPATH=. python3 -m pytest src/tests -v --tb=short 2>&1 | tail -30
 
 ## Report Template
 
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
-Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F044-review.md`
+Write your report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F044-review.md`
 
 **Important**: Write to `docs/code-reviews/` directory in the main repo, NOT in the worktree.
 

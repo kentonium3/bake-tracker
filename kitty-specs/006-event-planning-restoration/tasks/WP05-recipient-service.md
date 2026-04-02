@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Recipient Service Verification
-lane: done
 dependencies: []
 subtasks:
 - T035
@@ -12,17 +11,21 @@ subtasks:
 - T040
 - T041
 phase: Phase 2 - Services Layer
-assignee: claude
-agent: claude
-shell_pid: '9077'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-03'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125K
+owned_files:
+- kitty-specs/006-event-planning-restoration/contracts/recipient_service.md
+- kitty-specs/006-event-planning-restoration/data-model.md
+- src/services/recipient_service.py
+- src/tests/test_recipient_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Recipient Service Verification

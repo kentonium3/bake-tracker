@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI - Menu Bar and Dialogs
-lane: done
 dependencies: []
 subtasks:
 - T023
@@ -15,17 +14,24 @@ subtasks:
 - T031
 - T032
 phase: Phase 3 - UI Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '85463'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2S
+owned_files:
+- kitty-specs/009-ui-import-export/quickstart.md
+- kitty-specs/009-ui-import-export/research.md
+- kitty-specs/009-ui-import-export/spec.md
+- src/services/import_export_service.py
+- src/ui/import_export_dialog.py
+- src/ui/main_window.py
+- src/ui/migration_wizard_dialog.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - UI - Menu Bar and Dialogs

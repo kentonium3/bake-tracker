@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Event Service Implementation
-lane: done
 dependencies: []
 subtasks:
 - T023
@@ -17,17 +16,23 @@ subtasks:
 - T033
 - T034
 phase: Phase 2 - Services Layer
-assignee: claude
-agent: claude
-shell_pid: '8953'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-03'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125K
+owned_files:
+- kitty-specs/006-event-planning-restoration/contracts/event_service.md
+- kitty-specs/006-event-planning-restoration/data-model.md
+- kitty-specs/006-event-planning-restoration/quickstart.md
+- src/services/event_service.py
+- src/services/exceptions.py
+- src/tests/test_event_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Event Service Implementation

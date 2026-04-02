@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Recipe & FinishedGood Snapshot Export
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 2ad59dfb928e8e8071e55871259216e9f5ff27a4
@@ -13,17 +12,22 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Export Functions
-assignee: ''
-agent: claude-lead
-shell_pid: '76197'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEYGTB43187DGEXEGG1
+owned_files:
+- kitty-specs/081-snapshot-export-coverage/data-model.md
+- kitty-specs/081-snapshot-export-coverage/plan.md
+- kitty-specs/081-snapshot-export-coverage/research.md
+- kitty-specs/081-snapshot-export-coverage/spec.md
+- src/services/coordinated_export_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Recipe & FinishedGood Snapshot Export

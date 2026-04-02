@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Scale Factor UI
-lane: done
 dependencies: []
 subtasks:
 - T018
@@ -9,17 +8,20 @@ subtasks:
 - T020
 - T021
 phase: Phase 2 - Scaling & Variants
-assignee: claude
-agent: claude-reviewer
-shell_pid: '97164'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/research.md
+- kitty-specs/037-recipe-template-snapshot/spec.md
+- src/ui/forms/record_production_dialog.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Scale Factor UI

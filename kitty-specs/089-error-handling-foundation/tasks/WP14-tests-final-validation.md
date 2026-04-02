@@ -1,7 +1,6 @@
 ---
 work_package_id: WP14
 title: Tests & Final Validation
-lane: done
 dependencies:
 - WP01
 base_branch: 089-error-handling-foundation-WP03
@@ -14,17 +13,19 @@ subtasks:
 - T078
 - T079
 phase: Phase 3 - Validation
-assignee: ''
-agent: ''
-shell_pid: '82043'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- src/tests/unit/test_exceptions.py
+- src/ui/**
+wp_code: WP14
 ---
 
 # Work Package Prompt: WP14 – Tests & Final Validation

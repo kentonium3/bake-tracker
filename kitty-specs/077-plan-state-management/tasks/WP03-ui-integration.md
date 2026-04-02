@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: UI Integration
-lane: done
 dependencies:
 - WP01
 - WP02
@@ -15,17 +14,20 @@ subtasks:
 - T014
 - T015
 phase: Phase 3 - UI Integration
-assignee: ''
-agent: claude
-shell_pid: '56995'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XETP17RS5A3PZGQ33G2
+owned_files:
+- kitty-specs/077-plan-state-management/plan.md
+- kitty-specs/077-plan-state-management/spec.md
+- src/ui/planning_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – UI Integration

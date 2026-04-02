@@ -1,7 +1,6 @@
 ---
 work_package_id: WP11
 title: Structured Logging
-lane: done
 dependencies: [WP08, WP09]
 subtasks:
 - T055
@@ -10,11 +9,6 @@ subtasks:
 - T058
 - T059
 phase: Phase 2 - Polish
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '93136'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
@@ -26,6 +20,16 @@ history:
   agent: claude-opus
   shell_pid: '93136'
   action: 'Review passed: Structured logging implementation complete'
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/services/__init__.py
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+- src/services/logging_utils.py
+- src/tests/test_service_logging.py
+wp_code: WP11
 ---
 
 # Work Package Prompt: WP11 – Structured Logging

@@ -25,28 +25,28 @@ You are a senior software engineer performing an independent code review of Feat
 ## Files to Review
 
 ### Model Layer (WP01)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/src/models/product.py` - Product model with new column, constraint, property, validator
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/src/models/product.py` - Product model with new column, constraint, property, validator
 
 ### Service Layer (WP02)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/src/services/product_service.py` - `create_product()` and `update_product()` methods
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/src/services/product_service.py` - `create_product()` and `update_product()` methods
 
 ### Import/Export Layer (WP03)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/src/services/import_export_service.py` - Export (~line 1149) and import (~line 2359) handling
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/src/services/import_export_service.py` - Export (~line 1149) and import (~line 2359) handling
 
 ### UI Layer (WP04)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/src/ui/ingredients_tab.py` - ProductFormDialog class (~line 1448)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/src/ui/ingredients_tab.py` - ProductFormDialog class (~line 1448)
   - `_create_form()` (~line 1499) - new field
   - `_populate_form()` (~line 1648) - load existing value
   - `_save()` (~line 1675) - validation and result dict
 
 ### Specification Documents
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/research.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/kitty-specs/023-product-name-differentiation/research.md`
 
 ### Session Management Reference
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation/docs/design/session_management_remediation_spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation/docs/design/session_management_remediation_spec.md`
 
 ## Review Checklist
 
@@ -104,7 +104,7 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/023-product-name-differentiation
+cd /Users/kentgale/repos/bake-tracker/.worktrees/023-product-name-differentiation
 
 # Verify model imports correctly
 python3 -c "
@@ -208,7 +208,7 @@ result = {
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F023-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F023-review.md`
 
 Use this format:
 

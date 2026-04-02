@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Add Product Dialog
-lane: done
 dependencies: []
 subtasks:
 - T049
@@ -13,17 +12,20 @@ subtasks:
 - T055
 - T056
 phase: Phase 3 - UI Layer
-assignee: claude
-agent: system
-shell_pid: '50566'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- kitty-specs/027-product-catalog-management/spec.md
+- src/ui/forms/add_inventory_dialog.py
+- src/ui/forms/add_product_dialog.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – Add Product Dialog

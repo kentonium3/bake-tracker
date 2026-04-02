@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Recipe Snapshot Service Planning Context
-lane: done
 dependencies: [WP02]
 base_branch: 065-production-plan-snapshot-refactor-WP02
 base_commit: 77ba3b57119846919c8e1e7a55fa3c38ee273971
@@ -12,17 +11,21 @@ subtasks:
 - T012
 - T013
 phase: Phase 2 - Service Layer - Snapshot Creation
-assignee: ''
-agent: claude-opus
-shell_pid: '82445'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNJ
+owned_files:
+- kitty-specs/065-production-plan-snapshot-refactor/research.md
+- src/services/recipe_snapshot_service/**
+- src/services/recipe_snapshot_service.py
+- src/tests/unit/test_recipe_snapshot_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Recipe Snapshot Service Planning Context

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: UI Integration
-lane: done
 dependencies: []
 subtasks:
 - T032
@@ -10,17 +9,24 @@ subtasks:
 - T035
 - T036
 phase: Phase 3 - UI
-assignee: claude
-agent: claude-reviewer
-shell_pid: '4513'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-30T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW0
+owned_files:
+- kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/quickstart.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/spec.md
+- src/main.py
+- src/ui/forms/ingredient_dialog.py
+- src/ui/forms/recipe_ingredient_dialog.py
+- src/ui/ingredients_tab.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – UI Integration

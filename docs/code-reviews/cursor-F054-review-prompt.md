@@ -16,25 +16,25 @@ You are a senior software engineer performing an independent code review. You ar
 5. Update CLI documentation and help strings
 
 ## Specification File
-Full spec at: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/spec.md`
+Full spec at: `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/spec.md`
 
 Work packages:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP01-backup-restore-commands.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP02-context-rich-aug-commands.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP03-catalog-commands.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP04-entity-specific-exports.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP05-documentation-update.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP01-backup-restore-commands.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP02-context-rich-aug-commands.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP03-catalog-commands.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP04-entity-specific-exports.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/tasks/WP05-documentation-update.md`
 
 ## Primary Files Modified
 
 **CLI Implementation:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/utils/import_export_cli.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/utils/import_export_cli.py`
 
 **Service Layer (called by CLI, not modified but important context):**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/coordinated_export_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/denormalized_export_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/enhanced_import_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/catalog_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/coordinated_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/denormalized_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/enhanced_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/src/services/catalog_import_service.py`
 
 **Note:** These are the primary changes. Review should extend to any related code, dependencies, or callers as needed.
 
@@ -44,13 +44,13 @@ Work packages:
 
 ```bash
 # Navigate to worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity
+cd /Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity
 
 # Verify CLI runs and shows all new commands
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python src/utils/import_export_cli.py --help 2>&1 | grep -E "backup|restore|aug-|catalog-"
+/Users/kentgale/repos/bake-tracker/venv/bin/python src/utils/import_export_cli.py --help 2>&1 | grep -E "backup|restore|aug-|catalog-"
 
 # Verify imports work (use main repo's venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.utils.import_export_cli import (
     backup_cmd,
     restore_cmd,
@@ -67,7 +67,7 @@ print('All CLI function imports successful')
 "
 
 # Verify service imports used by CLI
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.services.coordinated_export_service import export_complete, import_complete, validate_export
 from src.services.denormalized_export_service import export_products_context_rich
 from src.services.enhanced_import_service import import_context_rich_export, detect_format
@@ -90,10 +90,10 @@ print('All service imports successful')
 8. **Write report** - Use template format and write to specified location
 
 ## Report Template
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 ## Report Output Location
-Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F054-review.md`
+Write your report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F054-review.md`
 
 **Important:** Write to `docs/code-reviews/` directory in the MAIN repo, NOT in the worktree.
 

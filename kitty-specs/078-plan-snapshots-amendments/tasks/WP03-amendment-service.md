@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Amendment Service
-lane: done
 dependencies: [WP02]
 base_branch: 078-plan-snapshots-amendments-WP02
 base_commit: c82b5959071139d7eb17fea97e57800eb2961e33
@@ -14,17 +13,22 @@ subtasks:
 - T014
 - T015
 phase: Phase 1 - Core Implementation
-assignee: ''
-agent: gemini
-shell_pid: '86470'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEVD4P2GRENSDCXQ38D
+owned_files:
+- kitty-specs/078-plan-snapshots-amendments/plan.md
+- kitty-specs/078-plan-snapshots-amendments/spec.md
+- src/models/plan_amendment.py
+- src/services/plan_amendment_service.py
+- src/tests/test_plan_amendment_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Amendment Service

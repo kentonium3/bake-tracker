@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Add Session Parameter to finished_unit_service
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 76e546c87bd9242af1b5f6190504ce51d009b99a
@@ -14,17 +13,22 @@ subtasks:
 - T005
 - T006
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '40598'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E5
+owned_files:
+- docs/design/transaction_patterns_guide.md
+- kitty-specs/098-auto-generation-finished-goods/plan.md
+- kitty-specs/098-auto-generation-finished-goods/research.md
+- src/services/finished_unit_service.py
+- src/tests/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Add Session Parameter to finished_unit_service

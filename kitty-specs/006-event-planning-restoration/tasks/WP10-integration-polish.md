@@ -1,7 +1,6 @@
 ---
 work_package_id: WP10
 title: Integration & Polish
-lane: done
 dependencies: []
 subtasks:
 - T067
@@ -12,17 +11,20 @@ subtasks:
 - T072
 - T073
 phase: Phase 4 - Integration
-assignee: claude
-agent: claude
-shell_pid: '20407'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-03'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125K
+owned_files:
+- kitty-specs/006-event-planning-restoration/quickstart.md
+- kitty-specs/006-event-planning-restoration/spec.md
+- src/tests/test_event_planning_workflow.py
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 - Integration & Polish

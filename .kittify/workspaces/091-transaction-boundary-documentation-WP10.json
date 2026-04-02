@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP10",
+  "feature_slug": "091-transaction-boundary-documentation",
+  "worktree_path": ".worktrees/091-transaction-boundary-documentation-WP10",
+  "branch_name": "091-transaction-boundary-documentation-WP10",
+  "base_branch": "091-transaction-boundary-documentation-WP09",
+  "base_commit": "67d28002b977b447089b6f9dd881bf2ddb4b9264",
+  "dependencies": [
+    "WP09"
+  ],
+  "created_at": "2026-02-03T07:06:09.532366+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

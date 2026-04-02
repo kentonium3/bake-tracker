@@ -24,5 +24,6 @@
   "mission": "software-dev",
   "slug": "055-workflow-aligned-navigation-cleanup",
   "source_description": "See docs/design/F055_ui_navigation_cleanup.md for the functional spec.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XE7PP9DJV34XG3E2SBM"
 }

@@ -8,7 +8,7 @@
 Assembly feasibility is computed against batch decisions with component-level shortfall detail, and planning UI now surfaces shopping summary and assembly status. Tests for feasibility calculations all pass. The UI wiring appears aligned, but a small robustness gap remains: feasibility queries rely on available FG computation and batch decisions; error handling in the UI could surface more explicit messages when upstream data is missing.
 
 ## Verification Results
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_assembly_feasibility_service.py -v --tb=short`: **PASS** (17 tests; known teardown SAWarnings)
+- `/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_assembly_feasibility_service.py -v --tb=short`: **PASS** (17 tests; known teardown SAWarnings)
 
 ## Findings
 

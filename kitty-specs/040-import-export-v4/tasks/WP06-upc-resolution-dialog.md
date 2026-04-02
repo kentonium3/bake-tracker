@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: UPC Resolution Dialog
-lane: done
 dependencies: []
 subtasks:
 - T025
@@ -9,17 +8,22 @@ subtasks:
 - T027
 - T028
 phase: Phase 2 - BT Mobile Workflows
-assignee: claude
-agent: claude-reviewer
-shell_pid: '11228'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDSX1JRPNAECZJXZPK3
+owned_files:
+- kitty-specs/040-import-export-v4/data-model.md
+- kitty-specs/040-import-export-v4/research.md
+- kitty-specs/040-import-export-v4/spec.md
+- src/tests/ui/dialogs/test_upc_resolution_dialog.py
+- src/ui/dialogs/upc_resolution_dialog.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - UPC Resolution Dialog

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: FinishedGood Model + UI Cost Removal
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -12,17 +11,22 @@ subtasks:
 - T012
 - T013
 phase: Phase 1 - Model Layer
-assignee: claude
-agent: claude
-shell_pid: '29997'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-09T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDXQ9ZQXF1P3GAKWE02
+owned_files:
+- kitty-specs/045-cost-architecture-refactor/plan.md
+- kitty-specs/045-cost-architecture-refactor/research.md
+- kitty-specs/045-cost-architecture-refactor/spec.md
+- src/models/finished_good.py
+- src/ui/forms/finished_good_detail.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - FinishedGood Model + UI Cost Removal

@@ -1,18 +1,12 @@
 ---
 work_package_id: WP05
 title: Integration - Production and Other Callers
-lane: done
 dependencies: [WP03]
 subtasks:
 - T016
 - T017
 - T018
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '21479'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-21T19:33:38Z'
   lane: planned
@@ -34,6 +28,18 @@ history:
   agent: claude-opus
   shell_pid: '21479'
   action: Review passed
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEC5876GT8F9D6YC8BF
+owned_files:
+- kitty-specs/061-finished-goods-inventory-service/plan.md
+- kitty-specs/061-finished-goods-inventory-service/research.md
+- src/models/finished_good.py
+- src/models/finished_unit.py
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+- src/tests/*/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Integration - Production and Other Callers

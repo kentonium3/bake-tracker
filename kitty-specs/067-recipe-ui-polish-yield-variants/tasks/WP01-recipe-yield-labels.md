@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Edit Recipe Yield Section Polish
-lane: done
 dependencies: []
 base_branch: main
 base_commit: fb81dfdc215cc23237d5441a4b7c843294ee85d8
@@ -11,17 +10,20 @@ subtasks:
 - T002
 - T003
 phase: Phase 1 - UI Polish
-assignee: ''
-agent: claude-opus
-shell_pid: '51754'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEG6XYFXF7NX79WPZDY
+owned_files:
+- kitty-specs/067-recipe-ui-polish-yield-variants/plan.md
+- kitty-specs/067-recipe-ui-polish-yield-variants/spec.md
+- src/ui/forms/recipe_form.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Edit Recipe Yield Section Polish

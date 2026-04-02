@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Batch Decision CRUD Service
-lane: done
 dependencies:
 - WP01
 base_branch: 073-batch-calculation-user-decisions-WP01
@@ -16,17 +15,21 @@ subtasks:
 - T020
 - T021
 phase: Phase 1 - Core Service
-assignee: ''
-agent: claude
-shell_pid: '22322'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEQM23DZ45N6YV55ZM3
+owned_files:
+- kitty-specs/073-batch-calculation-user-decisions/data-model.md
+- src/services/batch_decision_service.py
+- src/services/event_service.py
+- src/tests/test_batch_decision_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Batch Decision CRUD Service

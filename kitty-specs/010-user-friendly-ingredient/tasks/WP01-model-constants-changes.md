@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model & Constants Changes
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -12,17 +11,26 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '13066'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2T
+owned_files:
+- kitty-specs/010-user-friendly-ingredient/data-model.md
+- kitty-specs/010-user-friendly-ingredient/quickstart.md
+- kitty-specs/010-user-friendly-ingredient/spec.md
+- src/models/ingredient.py
+- src/models/ingredient.py:70
+- src/tests/models/test_ingredient.py
+- src/utils/constants.py
+- src/utils/constants.py:370-476
+- tests/code/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Model & Constants Changes

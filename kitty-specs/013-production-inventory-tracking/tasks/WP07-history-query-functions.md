@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: History & Query Functions
-lane: done
 dependencies: []
 subtasks:
 - T036
@@ -10,17 +9,22 @@ subtasks:
 - T039
 - T040
 phase: Phase 4 - History
-assignee: claude
-agent: claude-reviewer
-shell_pid: '17214'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXB
+owned_files:
+- kitty-specs/013-production-inventory-tracking/contracts/assembly_service.py
+- kitty-specs/013-production-inventory-tracking/contracts/batch_production_service.py
+- kitty-specs/013-production-inventory-tracking/spec.md
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - History & Query Functions

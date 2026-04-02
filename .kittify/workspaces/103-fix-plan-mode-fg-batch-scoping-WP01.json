@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "103-fix-plan-mode-fg-batch-scoping",
+  "worktree_path": ".worktrees/103-fix-plan-mode-fg-batch-scoping-WP01",
+  "branch_name": "103-fix-plan-mode-fg-batch-scoping-WP01",
+  "base_branch": "main",
+  "base_commit": "745d7a2241df121c90969d93eeb48b50c255311e",
+  "dependencies": [],
+  "created_at": "2026-03-15T04:48:49.787341+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

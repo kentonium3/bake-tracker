@@ -10,5 +10,6 @@
   "status": "skipped",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-30T00:00:00Z"
+  "vcs_locked_at": "2026-01-30T00:00:00Z",
+  "mission_id": "01KN5R6XEYGTB43187DGEXEGG2"
 }

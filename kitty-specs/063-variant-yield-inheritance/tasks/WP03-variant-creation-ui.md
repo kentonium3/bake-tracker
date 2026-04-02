@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Variant Creation UI
-lane: done
 dependencies: [WP02]
 subtasks:
 - T012
@@ -11,17 +10,20 @@ subtasks:
 - T016
 - T017
 phase: Phase 1 - Core
-assignee: ''
-agent: claude-opus
-shell_pid: '30126'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T07:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQE
+owned_files:
+- kitty-specs/063-variant-yield-inheritance/plan.md
+- kitty-specs/063-variant-yield-inheritance/spec.md
+- src/ui/forms/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Variant Creation UI

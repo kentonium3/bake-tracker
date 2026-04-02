@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Event CRUD Dialogs
-lane: done
 dependencies: [WP02]
 base_branch: 068-event-management-planning-data-model-WP02
 base_commit: 73589fea0d3b81e174fd1e517a791c76bcf877d1
@@ -14,17 +13,22 @@ subtasks:
 - T025
 - T026
 phase: Phase 2 - UI Layer
-assignee: ''
-agent: claude-opus
-shell_pid: '99189'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEH7HGBK3RMJMMG5SC5
+owned_files:
+- kitty-specs/068-event-management-planning-data-model/tasks.md
+- kitty-specs/068-event-management-planning-data-model/tasks/WP02-service-layer-extension.md
+- kitty-specs/068-event-management-planning-data-model/tasks/WP03-planning-tab-ui.md
+- kitty-specs/068-event-management-planning-data-model/tasks/WP04-event-crud-dialogs.md
+- src/ui/forms/event_planning_form.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Event CRUD Dialogs

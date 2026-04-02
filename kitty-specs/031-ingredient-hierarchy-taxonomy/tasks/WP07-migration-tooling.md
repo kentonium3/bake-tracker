@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Migration Tooling
-lane: done
 dependencies: []
 subtasks:
 - T037
@@ -10,17 +9,19 @@ subtasks:
 - T040
 - T041
 phase: Phase 4 - Migration
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '4712'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-30T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/031-ingredient-hierarchy-taxonomy/
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW0
+owned_files:
+- kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/research.md
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – Migration Tooling

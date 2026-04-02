@@ -1,11 +1,15 @@
 ---
+work_package_id: 01KN5R70B6QYTD0JB5BZ70HK0E
 title: Purchase Mode Tab Reorder
-lane: done
 dependencies: []
 created_at: 2026-01-15
-agent:
-review_status:
+authoritative_surface: src/ui/modes/purchase_mode.py/
+execution_mode: code_change
 id: WP02
+mission_id: 01KN5R6XE7PP9DJV34XG3E2SBM
+owned_files:
+- src/ui/modes/purchase_mode.py
+wp_code: WP02
 ---
 
 # WP02: Purchase Mode Tab Reorder

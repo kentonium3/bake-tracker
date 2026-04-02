@@ -1,21 +1,26 @@
 ---
 work_package_id: WP03
 title: Service Layer - Update and Validation
-lane: done
 dependencies: [WP02]
 base_branch: 088-finished-goods-catalog-ui-WP02
 base_commit: 8bdd6490de7fdc390af16873f9e19f46b067fef5
 created_at: '2026-01-31T04:45:27.350747+00:00'
 subtasks: [T014, T015, T016, T017, T018, T019, T020]
-shell_pid: '26038'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 450
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/models/composition.py
+- src/models/finished_good.py
+- src/services/finished_good_service.py
+- src/tests/test_finished_good_service.py
 priority: P0
+wp_code: WP03
 ---
 
 # WP03: Service Layer - Update and Validation

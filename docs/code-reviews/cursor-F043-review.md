@@ -27,9 +27,9 @@ This feature implements a real Purchases tab UI (filters/sorting/context menu) a
 
 ## Environment Verification
 
-**Setup Process (OUTSIDE sandbox, from worktree `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/042-purchases-tab-crud-operations`):**
+**Setup Process (OUTSIDE sandbox, from worktree `/Users/kentgale/repos/bake-tracker/.worktrees/042-purchases-tab-crud-operations`):**
 ```bash
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify imports
 PYTHONPATH=. python3 -c "

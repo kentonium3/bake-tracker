@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Planning Tab Integration
-lane: done
 dependencies:
 - WP01
 base_branch: 076-assembly-feasibility-single-screen-planning-WP04
@@ -13,17 +12,20 @@ subtasks:
 - T020
 - T021
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude
-shell_pid: '51577'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T15:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XESM2KFBBZH2E4YJGJP
+owned_files:
+- kitty-specs/076-assembly-feasibility-single-screen-planning/plan.md
+- src/main.py
+- src/ui/planning_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Planning Tab Integration

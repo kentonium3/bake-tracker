@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: UI - Targets Tab
-lane: done
 dependencies: []
 subtasks:
 - T041
@@ -14,17 +13,20 @@ subtasks:
 - T048
 - T049
 phase: Phase 6 - UI Targets Tab
-assignee: claude
-agent: claude
-shell_pid: '94501'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/quickstart.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/ui/event_detail_window.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - UI - Targets Tab

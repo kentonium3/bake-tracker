@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Variant Service & UI
-lane: done
 dependencies: []
 subtasks:
 - T022
@@ -13,17 +12,22 @@ subtasks:
 - T028
 - T029
 phase: Phase 2 - Scaling & Variants
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '97164'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/spec.md
+- src/services/recipe_service.py
+- src/tests/services/test_recipe_service.py
+- src/ui/forms/recipe_form.py
+- src/ui/recipes_tab.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Variant Service & UI

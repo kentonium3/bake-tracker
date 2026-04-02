@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: UI Migration - Events & Recipients
-lane: done
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -13,17 +12,22 @@ subtasks:
 - T033
 - T034
 phase: Phase 2 - UI Migration
-assignee: ''
-agent: ''
-shell_pid: '67118'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- src/ui/event_detail_window.py
+- src/ui/events_tab.py
+- src/ui/forms/event_planning_form.py
+- src/ui/recipients_tab.py
+- src/ui/tabs/event_status_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – UI Migration - Events & Recipients

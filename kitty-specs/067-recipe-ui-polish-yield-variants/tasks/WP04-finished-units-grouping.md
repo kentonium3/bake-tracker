@@ -1,23 +1,25 @@
 ---
 work_package_id: WP04
 title: Finished Units Grid Variant Grouping
-lane: done
 dependencies: [WP02]
 subtasks:
 - T011
 - T012
 phase: Phase 2 - Grid Grouping
-assignee: ''
-agent: claude-opus
-shell_pid: '52282'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEG6XYFXF7NX79WPZDY
+owned_files:
+- kitty-specs/067-recipe-ui-polish-yield-variants/research.md
+- kitty-specs/067-recipe-ui-polish-yield-variants/spec.md
+- src/ui/widgets/data_table.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Finished Units Grid Variant Grouping

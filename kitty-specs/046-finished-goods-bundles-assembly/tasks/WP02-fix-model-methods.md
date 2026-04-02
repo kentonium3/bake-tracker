@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Fix Composition & Package Models
-lane: done
 dependencies: []
 subtasks:
 - T003
@@ -10,17 +9,22 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Model Layer Fixes
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T07:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDYYXDTKQHMHQQT0T86
+owned_files:
+- kitty-specs/046-finished-goods-bundles-assembly/research/data-model.md
+- kitty-specs/046-finished-goods-bundles-assembly/research/research.md
+- src/models/composition.py
+- src/models/package.py
+- src/tests/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Fix Composition & Package Models

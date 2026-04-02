@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Builder Dialog Shell & Navigation
-lane: done
 dependencies: [WP01]
 base_branch: 097-finished-goods-builder-ui-WP01
 base_commit: ced1f690e9cc5fc09d210bb528d1f81fdc5736ba
@@ -13,17 +12,22 @@ subtasks:
 - T008
 - T009
 phase: Phase A - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '26279'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E4
+owned_files:
+- src/tests/test_finished_good_builder.py
+- src/ui/builders/**
+- src/ui/forms/finished_good_form.py
+- src/ui/widgets/accordion_step.py
+- src/ui/widgets/dialogs.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 -- Builder Dialog Shell & Navigation

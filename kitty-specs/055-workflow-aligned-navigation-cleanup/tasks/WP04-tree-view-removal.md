@@ -1,11 +1,16 @@
 ---
+work_package_id: 01KN5R70BFH242AN5T5XTXTY3C
 title: Tree View Removal
-lane: done
 dependencies: []
 created_at: 2026-01-15
-agent:
-review_status:
+authoritative_surface: src/ui/
+execution_mode: code_change
 id: WP04
+mission_id: 01KN5R6XE7PP9DJV34XG3E2SBM
+owned_files:
+- src/ui/ingredients_tab.py
+- src/ui/widgets/ingredient_tree_widget.py
+wp_code: WP04
 ---
 
 # WP04: Tree View Removal

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Recipe Integration Verification
-lane: done
 dependencies: []
 subtasks:
 - T016
@@ -12,17 +11,25 @@ subtasks:
 - T021
 - T022
 phase: Phase B - Parallel Implementation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '3311'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T10:45:22Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDMDGJ10P97EJFGY9T7
+owned_files:
+- docs/bugs/**
+- kitty-specs/034-cascading-filters-recipe/plan.md
+- kitty-specs/034-cascading-filters-recipe/research.md
+- kitty-specs/034-cascading-filters-recipe/spec.md
+- src/ui/forms/recipe_form.py
+- src/ui/forms/recipe_form.py:32-166
+- src/ui/forms/recipe_form.py:92-99
+- src/ui/widgets/ingredient_tree_widget.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Recipe Integration Verification

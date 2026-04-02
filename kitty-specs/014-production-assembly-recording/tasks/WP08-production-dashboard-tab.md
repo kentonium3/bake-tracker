@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Production Dashboard Tab
-lane: done
 dependencies: []
 subtasks:
 - T042
@@ -12,17 +11,20 @@ subtasks:
 - T047
 - T048
 phase: Phase 4 - Dashboard
-assignee: ''
-agent: system
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- src/ui/main_window.py
+- src/ui/production_dashboard_tab.py
+- src/ui/production_tab.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Production Dashboard Tab

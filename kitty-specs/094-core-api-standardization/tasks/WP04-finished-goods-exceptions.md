@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Finished Goods Service Updates
-lane: done
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -14,17 +13,24 @@ subtasks:
 - T024
 - T025
 phase: Phase 2 - Core Services
-assignee: ''
-agent: claude
-shell_pid: '47845'
-review_status: has_feedback
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFAY2QEH2GNRHDR7982
+owned_files:
+- src/services/assembly_service.py
+- src/services/composition_service.py
+- src/services/finished_good_service.py
+- src/services/finished_unit_service.py
+- src/tests/services/test_finished_good_service.py
+- src/tests/services/test_finished_unit_service.py
+- src/ui/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Finished Goods Service Updates

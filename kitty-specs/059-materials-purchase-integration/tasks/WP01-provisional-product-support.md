@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer - Provisional Product Support
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,24 @@ subtasks:
 - T004
 - T005
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '77394'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/data-model.md
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/models/material_product.py
+- src/services/material_catalog_service/**
+- src/services/material_catalog_service.py
+- src/tests/services/test_material_catalog_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Service Layer - Provisional Product Support

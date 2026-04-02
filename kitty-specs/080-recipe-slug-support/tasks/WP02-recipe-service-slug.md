@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Recipe Service Slug Generation
-lane: done
 dependencies: [WP01]
 base_branch: 080-recipe-slug-support-WP01
 base_commit: 66d36d44d002cb8ddd617bb2075cb49b881ea664
@@ -15,17 +14,23 @@ subtasks:
 - T011
 - T012
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-code
-shell_pid: '57085'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEXQQKHVK36YVCMT3H2
+owned_files:
+- kitty-specs/080-recipe-slug-support/plan.md
+- kitty-specs/080-recipe-slug-support/research.md
+- src/services/finished_unit_service.py:629-652
+- src/services/finished_unit_service.py:655-679
+- src/services/recipe_service.py
+- src/tests/test_recipe_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Recipe Service Slug Generation

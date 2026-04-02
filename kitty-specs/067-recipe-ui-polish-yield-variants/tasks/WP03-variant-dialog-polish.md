@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Create Variant Dialog Polish
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 560e62fea4b7ea44de2dd05d0c9a31b2eddd2567
@@ -12,17 +11,20 @@ subtasks:
 - T008
 - T009
 phase: Phase 1 - UI Polish
-assignee: ''
-agent: claude-opus
-shell_pid: '52140'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEG6XYFXF7NX79WPZDY
+owned_files:
+- kitty-specs/067-recipe-ui-polish-yield-variants/research.md
+- kitty-specs/067-recipe-ui-polish-yield-variants/spec.md
+- src/ui/forms/variant_creation_dialog.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Create Variant Dialog Polish

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Decouple Planning Service
-lane: done
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -11,17 +10,22 @@ subtasks:
 - T004
 - T005
 phase: Phase 2 - Service Decoupling
-assignee: ''
-agent: claude-opus
-shell_pid: '25768'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNK
+owned_files:
+- kitty-specs/066-recipe-variant-yield-remediation/plan.md
+- kitty-specs/066-recipe-variant-yield-remediation/research.md
+- kitty-specs/066-recipe-variant-yield-remediation/spec.md
+- src/services/planning/planning_service.py
+- src/tests/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Decouple Planning Service

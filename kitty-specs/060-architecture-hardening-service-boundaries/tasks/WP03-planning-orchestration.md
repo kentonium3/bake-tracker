@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Planning Orchestration Session Discipline
-lane: done
 dependencies: [WP02]
 subtasks:
 - T010
@@ -11,11 +10,6 @@ subtasks:
 - T014
 - T015
 phase: Phase 1 - Critical Path
-assignee: ''
-agent: claude-opus
-shell_pid: '94225'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-20T20:00:00Z'
   lane: planned
@@ -27,6 +21,15 @@ history:
   agent: claude-opus
   shell_pid: '94225'
   action: Review passed - Planning orchestration hardened
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEBZD5RXB89VEJXAQEV
+owned_files:
+- kitty-specs/060-architecture-hardening-service-boundaries/plan.md
+- kitty-specs/060-architecture-hardening-service-boundaries/research.md
+- src/services/planning/**
+- src/tests/services/planning/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Planning Orchestration Session Discipline

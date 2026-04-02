@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service Layer Changes
-lane: done
 dependencies: []
 subtasks:
 - T004
@@ -14,17 +13,20 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - Core Logic
-assignee: claude
-agent: claude
-shell_pid: '83880'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDB2RJJX6XP78WRMVYE
+owned_files:
+- kitty-specs/021-field-naming-consistency/research.md
+- kitty-specs/021-field-naming-consistency/spec.md
+- src/services/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Service Layer Changes

@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "040-import-export-v4",
   "source_description": "Upgrade import/export to v4.0 schema supporting F037 recipe structure, F039 event output_mode, BT Mobile purchase imports, and percentage-based inventory updates",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDSX1JRPNAECZJXZPK3"
 }

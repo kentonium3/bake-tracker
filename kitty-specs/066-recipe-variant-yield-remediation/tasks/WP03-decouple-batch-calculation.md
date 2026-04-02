@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Decouple Batch Calculation
-lane: done
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP02
 base_commit: 28cd0870a1811b7da946a57f976a8cd47feaf102
@@ -10,17 +9,21 @@ subtasks:
 - T006
 - T007
 phase: Phase 2 - Service Decoupling
-assignee: ''
-agent: claude-opus
-shell_pid: '27060'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNK
+owned_files:
+- kitty-specs/066-recipe-variant-yield-remediation/plan.md
+- kitty-specs/066-recipe-variant-yield-remediation/spec.md
+- src/services/planning/batch_calculation.py
+- src/tests/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Decouple Batch Calculation

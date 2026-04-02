@@ -1,22 +1,25 @@
 ---
 work_package_id: WP01
 title: Service Layer - Suggestion Formatting
-lane: done
 dependencies: []
 subtasks:
 - T001
 phase: Phase 1 - Service Layer Enhancement
-assignee: claude
-agent: claude-reviewer
-shell_pid: '77654'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDDYBXQPG4X5S4Y21TD
+owned_files:
+- kitty-specs/024-unified-import-error/data-model.md
+- kitty-specs/024-unified-import-error/plan.md
+- kitty-specs/024-unified-import-error/spec.md
+- src/services/catalog_import_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Service Layer - Suggestion Formatting

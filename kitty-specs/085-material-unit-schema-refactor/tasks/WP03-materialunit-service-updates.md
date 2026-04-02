@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: MaterialUnit Service Updates
-lane: done
 dependencies: [WP01, WP02]
 base_branch: 085-material-unit-schema-refactor-WP03-merge-base
 base_commit: 0fca8101b8fcd2f23ecc38a2e0b83bfeced97b75
@@ -13,17 +12,23 @@ subtasks:
 - T016
 - T017
 phase: Wave 2 - Service Layer
-assignee: ''
-agent: claude-opus
-shell_pid: '43729'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SW
+owned_files:
+- kitty-specs/085-material-unit-schema-refactor/data-model.md
+- kitty-specs/085-material-unit-schema-refactor/plan.md
+- kitty-specs/085-material-unit-schema-refactor/research.md
+- src/services/material_unit_service/**
+- src/services/material_unit_service.py
+- src/tests/test_material_unit_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – MaterialUnit Service Updates

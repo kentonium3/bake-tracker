@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Assignment Dialog
-lane: done
 dependencies: []
 subtasks:
 - T024
@@ -11,17 +10,21 @@ subtasks:
 - T028
 - T029
 phase: Phase 4 - UI Assignment
-assignee: claude
-agent: claude
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/data-model.md
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/spec.md
+- src/ui/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Assignment Dialog

@@ -1,24 +1,30 @@
 ---
 work_package_id: WP03
 title: Export Service Updates
-lane: done
 dependencies: []
 subtasks:
 - T009
 - T010
 - T011
 phase: Phase 3 - Import/Export Service Updates
-assignee: claude
-agent: claude
-shell_pid: N/A
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-16T22:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE8YEKG0JWZFEPTN6JW
+owned_files:
+- kitty-specs/056-unified-yield-management/data-model.md
+- kitty-specs/056-unified-yield-management/plan.md
+- kitty-specs/056-unified-yield-management/research.md
+- kitty-specs/056-unified-yield-management/spec.md
+- src/services/coordinated_export_service/**
+- src/services/coordinated_export_service.py
+- src/tests/services/test_coordinated_export.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Export Service Updates

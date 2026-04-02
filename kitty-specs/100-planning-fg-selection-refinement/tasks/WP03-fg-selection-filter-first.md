@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: FG Selection Filter-First with Persistence
-lane: done
 dependencies:
 - WP01
 base_branch: 100-planning-fg-selection-refinement-WP01
@@ -14,17 +13,19 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - FG Filtered Selection
-assignee: ''
-agent: gemini
-shell_pid: '26148'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-02-09T21:25:52Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XFFGK25P26CHK2622DE
+owned_files:
+- src/ui/components/fg_selection_frame.py
+- src/ui/planning_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 -- FG Selection Filter-First with Persistence

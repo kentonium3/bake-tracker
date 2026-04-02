@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Schema & Denormalization Fields
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,21 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '25817'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSE
+owned_files:
+- kitty-specs/035-ingredient-auto-slug/data-model.md
+- kitty-specs/035-ingredient-auto-slug/plan.md
+- kitty-specs/035-ingredient-auto-slug/spec.md
+- src/models/inventory_snapshot.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Schema & Denormalization Fields

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Config Class Extension
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 6f1def0ba0a8662ee167d9031b07e806e4bc9778
@@ -15,17 +14,20 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude
-shell_pid: '9583'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T02:58:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF7M2WKV1HXTK6TVV5Y
+owned_files:
+- kitty-specs/090-configuration-management-enhancement/plan.md
+- kitty-specs/090-configuration-management-enhancement/spec.md
+- src/utils/config.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Config Class Extension

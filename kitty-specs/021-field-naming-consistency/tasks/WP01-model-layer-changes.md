@@ -1,24 +1,27 @@
 ---
 work_package_id: WP01
 title: Model Layer Changes
-lane: done
 dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '83880'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDB2RJJX6XP78WRMVYE
+owned_files:
+- kitty-specs/021-field-naming-consistency/data-model.md
+- kitty-specs/021-field-naming-consistency/plan.md
+- kitty-specs/021-field-naming-consistency/spec.md
+- src/models/product.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Model Layer Changes

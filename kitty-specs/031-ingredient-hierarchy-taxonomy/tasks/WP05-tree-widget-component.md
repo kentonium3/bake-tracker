@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Tree Widget Component
-lane: done
 dependencies: []
 subtasks:
 - T026
@@ -11,17 +10,23 @@ subtasks:
 - T030
 - T031
 phase: Phase 3 - UI
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '4378'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-30T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW0
+owned_files:
+- kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/quickstart.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/research.md
+- src/main.py
+- src/tests/ui/test_ingredient_tree_widget.py
+- src/ui/widgets/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Tree Widget Component

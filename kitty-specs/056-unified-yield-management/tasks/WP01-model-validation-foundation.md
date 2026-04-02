@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model & Validation Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,26 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Data Model & Validation
-assignee: claude
-agent: claude
-shell_pid: N/A
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-16T22:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE8YEKG0JWZFEPTN6JW
+owned_files:
+- kitty-specs/056-unified-yield-management/data-model.md
+- kitty-specs/056-unified-yield-management/plan.md
+- kitty-specs/056-unified-yield-management/research.md
+- kitty-specs/056-unified-yield-management/spec.md
+- src/models/finished_unit.py
+- src/models/recipe.py
+- src/services/recipe_service/**
+- src/services/recipe_service.py
+- src/tests/test_recipe_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Model & Validation Foundation

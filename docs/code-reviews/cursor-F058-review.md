@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-18
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/058-materials-fifo-foundation/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/kitty-specs/058-materials-fifo-foundation/spec.md`
 
 ## Executive Summary
 Materials FIFO plumbing largely mirrors the ingredient pattern, but several regressions block core workflows: metric base units are rejected by the UI, FIFO consumption only works for linear units, coordinated exports omit material inventory and even crash on material purchases, and the Materials UI still calls removed inventory adjustment APIs. These issues risk user-facing failures, data loss in backups, and unusable flows; fixes are required before release.
@@ -37,8 +37,8 @@ Materials FIFO plumbing largely mirrors the ingredient pattern, but several regr
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/058-materials-fifo-foundation-WP01
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_material_fifo_integration.py -v --tb=short
+cd /Users/kentgale/repos/bake-tracker/.worktrees/058-materials-fifo-foundation-WP01
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_material_fifo_integration.py -v --tb=short
 ```
 
 **Results:**

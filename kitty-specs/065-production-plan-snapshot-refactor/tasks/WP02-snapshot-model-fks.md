@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Snapshot Model FK Updates
-lane: done
 dependencies: []
 base_branch: main
 base_commit: a100054ece374c409b16aba986384df8ba57c755
@@ -13,17 +12,22 @@ subtasks:
 - T008
 - T009
 phase: Phase 1 - Model Changes (Foundation)
-assignee: ''
-agent: claude-opus
-shell_pid: '79377'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNJ
+owned_files:
+- kitty-specs/065-production-plan-snapshot-refactor/data-model.md
+- kitty-specs/065-production-plan-snapshot-refactor/research.md
+- src/models/event.py
+- src/models/finished_good_snapshot.py
+- src/models/recipe_snapshot.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Snapshot Model FK Updates

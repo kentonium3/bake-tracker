@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Filter-First Builder Dialog
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 847afa7bf6ac7099bb461302afd2ce53a409309f
@@ -14,17 +13,22 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Core UI Changes
-assignee: ''
-agent: gemini-reviewer
-shell_pid: '85620'
-review_status: has_feedback
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T23:13:33Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFEXHW1PDACCS60QEER
+owned_files:
+- kitty-specs/099-fg-builder-filter-first-refinement/plan.md
+- kitty-specs/099-fg-builder-filter-first-refinement/research.md
+- kitty-specs/099-fg-builder-filter-first-refinement/spec.md
+- src/tests/test_finished_good_builder.py
+- src/ui/builders/finished_good_builder.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- Filter-First Builder Dialog

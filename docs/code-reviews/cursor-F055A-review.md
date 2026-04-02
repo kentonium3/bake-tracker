@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (independent)
 **Date:** 2026-01-15
-**Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/spec.md`
+**Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/spec.md`
 
 ## Verification
 - Imports: `ModeManager`, `DeliverMode` ✅

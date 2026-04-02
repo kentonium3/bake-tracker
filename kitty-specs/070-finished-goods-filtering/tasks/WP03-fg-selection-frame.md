@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: FG Selection Frame UI Component
-lane: done
 dependencies:
 - WP01
 base_branch: 070-finished-goods-filtering-WP02
@@ -15,17 +14,23 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - UI Layer
-assignee: ''
-agent: claude
-shell_pid: '31999'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEK3YBGBCM1KMCD8JWZ
+owned_files:
+- kitty-specs/070-finished-goods-filtering/plan.md
+- kitty-specs/070-finished-goods-filtering/spec.md
+- src/tests/test_fg_selection_frame.py
+- src/ui/components/__init__.py
+- src/ui/components/fg_selection_frame.py
+- src/ui/components/recipe_selection_frame.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – FG Selection Frame UI Component

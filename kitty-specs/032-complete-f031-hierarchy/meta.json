@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "032-complete-f031-hierarchy",
   "source_description": "Complete the UI implementation for F031 Ingredient Hierarchy. Update Ingredients Tab, Ingredient Edit Form, Products Tab, Inventory Tab, and Inventory Edit Form to use three-tier hierarchy instead of deprecated category field.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDKD9M8CSSJ5AMD2HW1"
 }

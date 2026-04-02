@@ -22,5 +22,6 @@
   "source_description": "docs/func-spec/F102_planning_selection_persistence_display.md",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-03-01T14:29:03.110051+00:00"
+  "vcs_locked_at": "2026-03-01T14:29:03.110051+00:00",
+  "mission_id": "01KN5R6XFJMVD1ZKGZCRT2X0F3"
 }

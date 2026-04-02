@@ -138,7 +138,7 @@ To verify the fix works as expected:
 
 ### 1. Launch Application
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 source venv/bin/activate
 python src/main.py
 ```

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP10
 title: Documentation & Validation
-lane: done
 dependencies: []
 subtasks:
 - T054
@@ -10,17 +9,21 @@ subtasks:
 - T057
 - T058
 phase: Phase 8 - Documentation & Final
-assignee: claude
-agent: claude
-shell_pid: '94644'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- docs/design/schema_v0.6_design.md
+- docs/feature_roadmap.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/tests/**
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 - Documentation & Validation

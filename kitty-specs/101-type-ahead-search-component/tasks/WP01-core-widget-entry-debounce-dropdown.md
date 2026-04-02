@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Core Widget - Entry, Debounce & Dropdown
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 7c1185effbe3a7e9a6245997e8d5e67f1e4e6f8b
@@ -13,17 +12,23 @@ subtasks:
 - T004
 - T005
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '86815'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-10T21:59:40Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFGMGBK9NWQ66WHS23V
+owned_files:
+- kitty-specs/101-type-ahead-search-component/contracts/type_ahead_entry_contract.md
+- kitty-specs/101-type-ahead-search-component/data-model.md
+- kitty-specs/101-type-ahead-search-component/plan.md
+- kitty-specs/101-type-ahead-search-component/research.md
+- kitty-specs/101-type-ahead-search-component/spec.md
+- src/ui/widgets/type_ahead_entry.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- Core Widget - Entry, Debounce & Dropdown

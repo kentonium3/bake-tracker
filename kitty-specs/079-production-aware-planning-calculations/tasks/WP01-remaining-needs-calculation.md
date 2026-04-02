@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Remaining Needs Calculation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,23 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude-lead
-shell_pid: '26843'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEWR0TPS4CA4V1SQ62K
+owned_files:
+- kitty-specs/079-production-aware-planning-calculations/data-model.md
+- kitty-specs/079-production-aware-planning-calculations/plan.md
+- kitty-specs/079-production-aware-planning-calculations/spec.md
+- src/services/planning/progress/**
+- src/services/planning/progress.py
+- src/tests/planning/test_progress.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Remaining Needs Calculation

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Dashboard & Shopping List
-lane: done
 dependencies: []
 subtasks:
 - T030
@@ -12,18 +11,23 @@ subtasks:
 - T035
 - T036
 phase: Phase 5 - UI Dashboard
-assignee: claude
-agent: claude
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
 gemini_candidate: true
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/spec.md
+- src/services/shopping_list_service.py
+- src/ui/dashboard.py
+- src/ui/shopping_list.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Dashboard & Shopping List

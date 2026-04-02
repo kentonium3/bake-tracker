@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Hierarchy Service - Validation & Management
-lane: done
 dependencies: []
 subtasks:
 - T015
@@ -11,17 +10,24 @@ subtasks:
 - T019
 - T020
 phase: Phase 2 - Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '3694'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-30T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW0
+owned_files:
+- kitty-specs/031-ingredient-hierarchy-taxonomy/contracts/ingredient_hierarchy_service.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/data-model.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md
+- src/services/exceptions.py
+- src/services/ingredient_hierarchy_service/**
+- src/services/ingredient_hierarchy_service.py
+- src/tests/services/test_ingredient_hierarchy_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Hierarchy Service - Validation & Management

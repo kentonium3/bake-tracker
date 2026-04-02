@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Materials Tab UI
-lane: done
 dependencies: []
 subtasks:
 - T047
@@ -13,17 +12,19 @@ subtasks:
 - T053
 - T054
 phase: Phase 2 - UI
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDZK1N509JXJDJWTA46
+owned_files:
+- kitty-specs/047-materials-management-system/spec.md
+- src/ui/**
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Materials Tab UI

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Catalog Commands
-lane: done
 dependencies: []
 subtasks:
 - T019
@@ -13,17 +12,20 @@ subtasks:
 - T025
 - T026
 phase: Phase 3 - Catalog Commands (P2)
-assignee: ''
-agent: ''
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-15T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE533SSPWWZSQVVRXRA
+owned_files:
+- kitty-specs/054-cli-import-export-parity/plan.md
+- kitty-specs/054-cli-import-export-parity/research.md
+- src/utils/import_export_cli.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Catalog Commands

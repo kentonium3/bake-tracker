@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Assembly Service - Tests
-lane: done
 dependencies: []
 subtasks:
 - T028
@@ -13,17 +12,20 @@ subtasks:
 - T034
 - T035
 phase: Phase 3 - Assembly
-assignee: claude
-agent: claude-reviewer
-shell_pid: '17214'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXB
+owned_files:
+- kitty-specs/013-production-inventory-tracking/spec.md
+- src/models/composition.py
+- src/tests/test_assembly_service.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Assembly Service - Tests

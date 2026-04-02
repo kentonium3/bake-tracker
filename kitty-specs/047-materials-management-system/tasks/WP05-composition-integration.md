@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Composition Integration - User Stories 4 & 5
-lane: done
 dependencies: []
 subtasks:
 - T030
@@ -13,17 +12,22 @@ subtasks:
 - T036
 - T037
 phase: Phase 2 - Integration
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDZK1N509JXJDJWTA46
+owned_files:
+- kitty-specs/047-materials-management-system/data-model.md
+- kitty-specs/047-materials-management-system/spec.md
+- src/models/composition.py
+- src/services/composition_service.py
+- src/tests/test_composition.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Composition Integration - User Stories 4 & 5

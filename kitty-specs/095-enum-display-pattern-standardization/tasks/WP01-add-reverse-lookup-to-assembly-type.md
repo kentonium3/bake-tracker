@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Add Reverse Lookup to AssemblyType Enum
-lane: done
 dependencies: []
 base_branch: main
 base_commit: ab3c7d40279d723b9dd2e5751340625bd2511d20
@@ -11,17 +10,20 @@ subtasks:
 - T002
 - T003
 phase: Phase 1 - Foundation
-assignee: ''
-agent: gemini
-shell_pid: '82417'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T01:55:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFBPCCR9G8DRXN60JZ7
+owned_files:
+- kitty-specs/095-enum-display-pattern-standardization/plan.md
+- kitty-specs/095-enum-display-pattern-standardization/spec.md
+- src/models/assembly_type.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- Add Reverse Lookup to AssemblyType Enum

@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-15
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/kitty-specs/052-ingredient-material-hierarchy-admin/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/kitty-specs/052-ingredient-material-hierarchy-admin/spec.md`
 
 ## Executive Summary
 Feature delivers leaf-only listings for Ingredients and Materials with hierarchy context and adds a unified Hierarchy Admin UI for add/rename/reparent operations. Core tests pass after fixing a missing import. Biggest gap: Hierarchy Admin shows usage counts only for leaf items, so selecting L0/L1/category/subcategory provides no usage visibility, missing spec acceptance for aggregated counts. Also, the “optimized” leaf retrieval still performs N+1 ancestor lookups.
@@ -27,9 +27,9 @@ Feature delivers leaf-only listings for Ingredients and Materials with hierarchy
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.ingredient_hierarchy_service import get_ingredient_tree; print('Imports OK')"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py src/tests/services/test_material_hierarchy_service.py -v --tb=short 2>&1 | tail -20
+cd /Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.ingredient_hierarchy_service import get_ingredient_tree; print('Imports OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py src/tests/services/test_material_hierarchy_service.py -v --tb=short 2>&1 | tail -20
 ```
 
 **Results:**

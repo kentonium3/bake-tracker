@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Event Summary Enhancement
-lane: done
 dependencies: []
 subtasks:
 - T020
@@ -9,17 +8,21 @@ subtasks:
 - T022
 - T023
 phase: Phase 5 - Event Summary Enhancement
-assignee: claude
-agent: claude
-shell_pid: '30686'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-11T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD9ESY7QPGZ1DJEM2MP
+owned_files:
+- kitty-specs/017-event-reporting-production/data-model.md
+- kitty-specs/017-event-reporting-production/plan.md
+- kitty-specs/017-event-reporting-production/spec.md
+- src/ui/event_detail_window.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Event Summary Enhancement

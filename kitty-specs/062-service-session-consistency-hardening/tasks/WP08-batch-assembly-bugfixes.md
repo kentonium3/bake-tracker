@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Batch & Assembly Service Bug Fixes
-lane: done
 dependencies: [WP01]
 subtasks:
 - T036
@@ -11,11 +10,6 @@ subtasks:
 - T040
 - T041
 phase: Phase 1 - Service Hardening
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '55981'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
@@ -27,6 +21,14 @@ history:
   agent: claude-opus
   shell_pid: '55981'
   action: Review passed, moved to done
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+- src/tests/**
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 – Batch & Assembly Service Bug Fixes

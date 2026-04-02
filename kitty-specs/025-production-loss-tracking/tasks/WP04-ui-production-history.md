@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI - Production History
-lane: done
 dependencies: []
 subtasks:
 - T026
@@ -9,15 +8,20 @@ subtasks:
 - T028
 - T029
 phase: Phase 4 - UI History
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '74560'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQW
+owned_files:
+- kitty-specs/025-production-loss-tracking/plan.md
+- kitty-specs/025-production-loss-tracking/spec.md
+- src/ui/production_dashboard_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - UI - Production History

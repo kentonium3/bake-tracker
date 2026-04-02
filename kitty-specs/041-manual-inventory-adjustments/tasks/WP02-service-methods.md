@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service Methods Implementation
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -10,15 +9,19 @@ subtasks:
 - T008
 - T009
 phase: Phase 1 - Service Layer (Claude)
-assignee: claude
-agent: claude-reviewer
-shell_pid: '49624'
 history:
 - timestamp: '2026-01-07T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDT9VHN4V8WF9AVEAW7
+owned_files:
+- kitty-specs/041-manual-inventory-adjustments/contracts/inventory_adjustment_service.py
+- src/services/inventory_item_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Service Methods Implementation

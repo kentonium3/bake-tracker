@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Render Saved Selections on Planning Tab Load
-lane: done
 dependencies: []
 base_branch: main
 base_commit: a47eaf74994131dc3d0b24c50e1e183c00a51e73
@@ -12,17 +11,24 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Core Implementation
-assignee: ''
-agent: claude-opus
-shell_pid: '88222'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-03-01T14:25:50Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFJMVD1ZKGZCRT2X0F3
+owned_files:
+- kitty-specs/102-planning-selection-persistence-display/plan.md
+- kitty-specs/102-planning-selection-persistence-display/research.md
+- kitty-specs/102-planning-selection-persistence-display/spec.md
+- src/tests/test_planning_selection_display.py
+- src/ui/components/fg_selection_frame.py
+- src/ui/components/recipe_selection_frame.py
+- src/ui/planning_tab.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Render Saved Selections on Planning Tab Load

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI Verification & Polish
-lane: done
 dependencies: []
 subtasks:
 - T011
@@ -10,17 +9,26 @@ subtasks:
 - T014
 - T015
 phase: Phase 3 - UI Verification
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T07:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XDYYXDTKQHMHQQT0T86
+owned_files:
+- src/main.py
+- src/models/**
+- src/services/**
+- src/tests/**
+- src/ui/finished_goods_tab.py
+- src/ui/forms/record_assembly_dialog.py
+- src/ui/planning/**
+- src/ui/tabs/assembly_tab.py
+- src/ui/tabs/event_status_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - UI Verification & Polish

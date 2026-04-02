@@ -6,5 +6,6 @@
   "mission": "software-dev",
   "slug": "058-materials-fifo-foundation",
   "source_description": "See docs/design/F058_materials_fifo_foundation.md for inputs on this feature.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XEA6531ADFQMPBBHDJZ"
 }

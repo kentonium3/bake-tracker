@@ -8,7 +8,7 @@
 Inventory gap analysis converts aggregated ingredient needs into purchase vs sufficient lists using exact-unit matching and missing-inventory-as-zero handling. Tests cover shortfall, sufficiency, unit mismatch, empty events, and categorization; all pass. Implementation matches the spec and integrates with F074 aggregation and inventory totals.
 
 ## Verification Results
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_inventory_gap_service.py -v --tb=short`: **PASS** (6 tests; known teardown SAWarnings)
+- `/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_inventory_gap_service.py -v --tb=short`: **PASS** (6 tests; known teardown SAWarnings)
 
 ## Findings
 

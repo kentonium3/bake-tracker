@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Batch Calculation Service
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -11,17 +10,22 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '66971'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T03:09:20Z'
   lane: planned
   agent: claude
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDRS2KVV6QTFHHXTDFZ
+owned_files:
+- kitty-specs/039-planning-workspace/contracts/planning_service.py
+- kitty-specs/039-planning-workspace/quickstart.md
+- kitty-specs/039-planning-workspace/research.md
+- src/services/planning/**
+- src/tests/services/planning/test_batch_calculation.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Batch Calculation Service

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: UI Session Infrastructure
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,11 +8,6 @@ subtasks:
 - T003
 - T004
 phase: Phase 0 - Foundation
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '74681'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
@@ -25,6 +19,15 @@ history:
   agent: claude-opus
   shell_pid: '74681'
   action: Review passed, moved to done
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- kitty-specs/062-service-session-consistency-hardening/plan.md
+- kitty-specs/062-service-session-consistency-hardening/research.md
+- src/tests/test_ui_session_utils.py
+- src/ui/utils/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – UI Session Infrastructure

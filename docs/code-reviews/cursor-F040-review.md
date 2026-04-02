@@ -24,8 +24,8 @@ This feature upgrades Bake Tracker’s import/export pipeline to a v4.0 schema, 
 ## Environment Verification
 **Commands Run:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/040-import-export-v4
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+cd /Users/kentgale/repos/bake-tracker/.worktrees/040-import-export-v4
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Imports
 PYTHONPATH=. python3 -c "

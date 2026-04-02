@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Assembly Consumption - User Story 6
-lane: done
 dependencies: []
 subtasks:
 - T038
@@ -14,17 +13,24 @@ subtasks:
 - T045
 - T046
 phase: Phase 2 - Integration
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDZK1N509JXJDJWTA46
+owned_files:
+- kitty-specs/047-materials-management-system/contracts/material_consumption_service.md
+- kitty-specs/047-materials-management-system/spec.md
+- src/models/production_consumption.py
+- src/services/__init__.py
+- src/services/assembly_service.py
+- src/services/material_consumption_service.py
+- src/tests/test_material_consumption_service.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Assembly Consumption - User Story 6

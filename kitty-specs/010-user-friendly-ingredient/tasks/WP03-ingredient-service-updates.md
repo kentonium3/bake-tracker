@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Ingredient Service Updates
-lane: done
 dependencies: []
 subtasks:
 - T013
@@ -10,17 +9,21 @@ subtasks:
 - T016
 - T017
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '13715'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2T
+owned_files:
+- kitty-specs/010-user-friendly-ingredient/data-model.md
+- kitty-specs/010-user-friendly-ingredient/spec.md
+- src/services/ingredient_service.py
+- src/tests/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Ingredient Service Updates

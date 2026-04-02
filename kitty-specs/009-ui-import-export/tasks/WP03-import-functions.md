@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Service Layer - Import Functions with Mode Support
-lane: done
 dependencies: []
 subtasks:
 - T013
@@ -15,17 +14,24 @@ subtasks:
 - T021
 - T022
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '85228'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2S
+owned_files:
+- docs/design/import_export_specification.md
+- kitty-specs/009-ui-import-export/data-model.md
+- kitty-specs/009-ui-import-export/spec.md
+- src/models/**
+- src/services/import_export_service.py
+- src/services/import_export_service.py:1796-1960
+- src/tests/services/test_import_export_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Service Layer - Import Functions with Mode Support

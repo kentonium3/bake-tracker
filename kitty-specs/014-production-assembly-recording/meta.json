@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "014-production-assembly-recording",
   "source_description": "Add UI components for recording batch production and assembly operations, including FinishedUnit detail view updates, new FinishedGood detail view, recording dialogs with availability checks, and a Production Dashboard tab",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD7MH4KJTJ5QZB34CXC"
 }

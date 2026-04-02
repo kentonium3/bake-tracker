@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Batch Production Service - Core
-lane: done
 dependencies: []
 subtasks:
 - T009
@@ -10,17 +9,24 @@ subtasks:
 - T012
 - T013
 phase: Phase 2 - Core Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '17130'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXB
+owned_files:
+- kitty-specs/013-production-inventory-tracking/contracts/batch_production_service.py
+- kitty-specs/013-production-inventory-tracking/data-model.md
+- kitty-specs/013-production-inventory-tracking/quickstart.md
+- src/services/__init__.py
+- src/services/batch_production_service.py
+- src/services/inventory_item_service.py:225
+- src/services/recipe_service.py:1426
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Batch Production Service - Core

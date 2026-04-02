@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Service Integration
-lane: done
 dependencies: []
 subtasks:
 - T014
@@ -9,18 +8,27 @@ subtasks:
 - T016
 - T017
 phase: Phase 2 - Service Layer
-assignee: gemini
-agent: gemini
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
 gemini_candidate: true
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/research.md
+- src/models/assembly_run.py
+- src/services/assembly_service.py
+- src/services/composition_service.py
+- src/services/shopping_list_service.py
+- src/tests/services/test_assembly_service.py
+- src/tests/services/test_composition_service.py
+- src/tests/services/test_shopping_list_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Service Integration

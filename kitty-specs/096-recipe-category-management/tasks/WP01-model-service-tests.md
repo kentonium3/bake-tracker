@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: RecipeCategory Model + Service + Tests
-lane: done
 dependencies: []
 base_branch: main
 base_commit: a8ebe8b9e4b4d52e88ff0925deebde70244ae7d2
@@ -14,17 +13,25 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: ''
-agent: gemini-review
-shell_pid: '96223'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFCQ7XH14582WR2W2FF
+owned_files:
+- kitty-specs/096-recipe-category-management/plan.md
+- kitty-specs/096-recipe-category-management/spec.md
+- src/models/base.py
+- src/models/material_category.py
+- src/models/recipe_category.py
+- src/services/**
+- src/tests/**
+- src/utils/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- RecipeCategory Model + Service + Tests

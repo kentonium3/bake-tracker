@@ -1,6 +1,6 @@
 ## Code Review: Feature 020 - Enhanced Catalog Import
 
-**Worktree reviewed**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/020-enhanced-catalog-import/`
+**Worktree reviewed**: `/Users/kentgale/repos/bake-tracker/.worktrees/020-enhanced-catalog-import/`
 
 ### Feature intent (from spec.md)
 Add a **separate** catalog import pathway (distinct from the unified v3.x import/export) for **Ingredients, Products, and Recipes**, supporting **ADD_ONLY** and **AUGMENT** modes, **dry-run previews**, **partial success with actionable errors**, and both **CLI + UI** entry points.

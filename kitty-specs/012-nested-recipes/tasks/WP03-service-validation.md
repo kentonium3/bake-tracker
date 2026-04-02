@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Service Layer - Validation
-lane: done
 dependencies: []
 subtasks:
 - T014
@@ -13,17 +12,22 @@ subtasks:
 - T020
 - T021
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '98861'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YD
+owned_files:
+- kitty-specs/012-nested-recipes/contracts/recipe_service.md
+- kitty-specs/012-nested-recipes/data-model.md
+- kitty-specs/012-nested-recipes/spec.md
+- src/services/recipe_service.py
+- src/tests/services/test_recipe_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Service Layer - Validation

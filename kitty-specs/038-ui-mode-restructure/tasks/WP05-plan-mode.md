@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: PLAN Mode
-lane: done
 dependencies: []
 subtasks:
 - T027
@@ -9,17 +8,23 @@ subtasks:
 - T029
 - T030
 phase: Phase 2 - Mode Implementation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41347'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/data-model.md
+- kitty-specs/038-ui-mode-restructure/spec.md
+- src/ui/dashboards/plan_dashboard.py
+- src/ui/events_tab.py
+- src/ui/modes/plan_mode.py
+- src/ui/tabs/planning_workspace_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - PLAN Mode

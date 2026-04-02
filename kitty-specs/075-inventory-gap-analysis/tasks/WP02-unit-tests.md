@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Unit Tests
-lane: done
 dependencies: []
 base_branch: 075-inventory-gap-analysis-WP01
 base_commit: 9c0f60588e0d360d00f6370886cb7a8c3047efd5
@@ -14,17 +13,21 @@ subtasks:
 - T012
 - T013
 phase: Phase 1 - Quality
-assignee: ''
-agent: ''
-shell_pid: '39077'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T23:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XESM2KFBBZH2E4YJGJN
+owned_files:
+- kitty-specs/075-inventory-gap-analysis/plan.md
+- kitty-specs/075-inventory-gap-analysis/spec.md
+- src/tests/test_ingredient_aggregation_service.py
+- src/tests/test_inventory_gap_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Unit Tests

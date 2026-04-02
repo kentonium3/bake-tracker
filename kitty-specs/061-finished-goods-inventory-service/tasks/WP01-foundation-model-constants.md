@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Foundation - Model and Constants
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,11 +9,6 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '91740'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-21T19:33:38Z'
   lane: planned
@@ -36,6 +30,19 @@ history:
   agent: claude-opus
   shell_pid: '91740'
   action: Review passed
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEC5876GT8F9D6YC8BF
+owned_files:
+- kitty-specs/061-finished-goods-inventory-service/data-model.md
+- kitty-specs/061-finished-goods-inventory-service/plan.md
+- kitty-specs/061-finished-goods-inventory-service/research.md
+- src/models/finished_good.py
+- src/models/finished_goods_adjustment.py
+- src/models/finished_unit.py
+- src/services/finished_goods_inventory_service.py
+- src/utils/constants.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Foundation - Model and Constants

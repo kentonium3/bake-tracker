@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "022-unit-reference-table",
   "source_description": "Create database-backed unit reference table to replace free-form unit entry with searchable dropdowns in UI",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDC9ESBEDJZ4RZ8SJW9"
 }

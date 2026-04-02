@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Secondary Service Updates
-lane: done
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -15,17 +14,28 @@ subtasks:
 - T031
 - T032
 phase: Phase 2 - Core Services
-assignee: ''
-agent: claude
-shell_pid: '50657'
-review_status: has_feedback
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFAY2QEH2GNRHDR7982
+owned_files:
+- src/services/composition_service.py
+- src/services/exceptions.py
+- src/services/material_catalog_service.py
+- src/services/recipient_service.py
+- src/services/supplier_service.py
+- src/services/unit_service.py
+- src/tests/services/test_composition_service.py
+- src/tests/services/test_material_catalog_service.py
+- src/tests/services/test_recipient_service.py
+- src/tests/services/test_supplier_service.py
+- src/tests/services/test_unit_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Secondary Service Updates

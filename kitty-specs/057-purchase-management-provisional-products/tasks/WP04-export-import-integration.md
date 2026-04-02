@@ -1,19 +1,22 @@
 ---
 work_package_id: WP04
 title: Export/Import Integration
-lane: done
 dependencies: []
 subtasks: [T018, T019, T020, T021, T022]
-agent: claude
-shell_pid: '29466'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-17'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 400
+execution_mode: code_change
+mission_id: 01KN5R6XE9BA9X7KYETPX1SM23
+owned_files:
+- src/services/coordinated_export_service.py
+- src/services/transaction_import_service.py
+- src/ui/import_export_dialog.py
 priority: P3
+wp_code: WP04
 ---
 
 # WP04: Export/Import Integration

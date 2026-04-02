@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service Layer New Exports
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -9,17 +8,24 @@ subtasks:
 - T007
 - T008
 phase: Phase 1 - Service Layer
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-15T13:35:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE4HH17MDJTHTD283A8
+owned_files:
+- kitty-specs/053-context-rich-export-fixes/plan.md
+- kitty-specs/053-context-rich-export-fixes/research.md
+- src/models/finished_good.py
+- src/models/finished_unit.py
+- src/models/material_product.py
+- src/models/product.py
+- src/services/denormalized_export_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Service Layer New Exports

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Update Service Primitive Docstrings
-lane: done
 dependencies: []
 base_branch: main
 base_commit: d49816264f27079bf14bbc4b21446590cc2045ac
@@ -10,17 +9,22 @@ subtasks:
 - T001
 - T002
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '24370'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNK
+owned_files:
+- kitty-specs/066-recipe-variant-yield-remediation/plan.md
+- kitty-specs/066-recipe-variant-yield-remediation/research.md
+- kitty-specs/066-recipe-variant-yield-remediation/spec.md
+- src/services/recipe_service.py
+- src/tests/test_recipe_yield_primitives.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Update Service Primitive Docstrings

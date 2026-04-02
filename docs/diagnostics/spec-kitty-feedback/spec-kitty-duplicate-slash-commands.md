@@ -15,7 +15,7 @@ Slash commands appeared twice in the command palette when using spec-kitty in a 
 
 Both the main repo AND the worktree had their own `.claude/commands/` directories with full copies of all 13 command files:
 
-- **Main repo**: `/Users/kentgale/Vaults-repos/bake-tracker/.claude/commands/` (13 files, dated Jan 9)
+- **Main repo**: `/Users/kentgale/repos/bake-tracker/.claude/commands/` (13 files, dated Jan 9)
 - **Worktree**: `.worktrees/047-materials-management-system/.claude/commands/` (13 files, dated Jan 10)
 
 **Critical observation:** This worktree was created TODAY with v0.10.12 already installed. This is NOT an upgrade gap from old worktrees - this is an active bug.

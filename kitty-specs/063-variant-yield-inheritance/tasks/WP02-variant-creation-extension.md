@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Variant Creation Extension
-lane: done
 dependencies: [WP01]
 subtasks:
 - T006
@@ -11,17 +10,23 @@ subtasks:
 - T010
 - T011
 phase: Phase 1 - Core
-assignee: ''
-agent: claude-opus
-shell_pid: '27415'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T07:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQE
+owned_files:
+- kitty-specs/063-variant-yield-inheritance/data-model.md
+- kitty-specs/063-variant-yield-inheritance/plan.md
+- kitty-specs/063-variant-yield-inheritance/spec.md
+- src/services/recipe_service.py
+- src/tests/test_recipe_service.py
+- src/utils/slug_utils.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Variant Creation Extension

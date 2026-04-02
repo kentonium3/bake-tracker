@@ -20,5 +20,6 @@
   "mission": "research",
   "slug": "013-production-inventory-tracking",
   "source_description": "Add production tracking entities and services to record batch production and assembly runs with FIFO consumption, yield-based costing, and full audit trail",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD7MH4KJTJ5QZB34CXB"
 }

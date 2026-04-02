@@ -6,5 +6,6 @@
   "mission": "software-dev",
   "slug": "093-pagination-dtos-foundation",
   "source_description": "See docs/func-spec/F093_pagination_dtos_foundation.md for feature inputs. See docs/func-spec/claude-pre-implementation-prompt.md for direction.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XF91C13CTH1K1B97BDS"
 }

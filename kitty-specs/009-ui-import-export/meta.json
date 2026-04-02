@@ -23,5 +23,6 @@
   "mission": "software-dev",
   "slug": "009-ui-import-export",
   "source_description": "Add File menu with Import/Export UI backed by v3.0 specification reflecting current schema",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD5VPYBB6ESP5AZZG2S"
 }

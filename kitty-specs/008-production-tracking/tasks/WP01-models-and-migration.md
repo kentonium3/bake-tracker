@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Models & Database Migration
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,23 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '58999'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-04T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2R
+owned_files:
+- kitty-specs/008-production-tracking/data-model.md
+- kitty-specs/008-production-tracking/plan.md
+- kitty-specs/008-production-tracking/spec.md
+- src/models/base.py
+- src/models/event.py
+- src/models/finished_good.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Models & Database Migration

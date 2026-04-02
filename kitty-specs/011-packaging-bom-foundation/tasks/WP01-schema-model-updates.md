@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Schema Updates & Model Changes
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -16,17 +15,25 @@ subtasks:
 - T010
 - T011
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '44283'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-08T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YC
+owned_files:
+- kitty-specs/011-packaging-bom-foundation/data-model.md
+- kitty-specs/011-packaging-bom-foundation/research.md
+- kitty-specs/011-packaging-bom-foundation/spec.md
+- src/models/__init__.py
+- src/models/composition.py
+- src/models/ingredient.py
+- src/models/package.py
+- src/tests/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Schema Updates & Model Changes

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Unit Converter Updates
-lane: done
 dependencies: []
 subtasks:
 - T008
@@ -10,17 +9,25 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '13503'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2T
+owned_files:
+- kitty-specs/010-user-friendly-ingredient/quickstart.md
+- kitty-specs/010-user-friendly-ingredient/spec.md
+- src/services/unit_converter.py
+- src/services/unit_converter.py:17
+- src/services/unit_converter.py:201-250
+- src/services/unit_converter.py:252-301
+- src/services/unit_converter.py:303-356
+- src/tests/services/test_unit_converter.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Unit Converter Updates

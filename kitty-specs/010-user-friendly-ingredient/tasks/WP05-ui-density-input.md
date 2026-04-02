@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: UI - Density Input
-lane: done
 dependencies: []
 subtasks:
 - T022
@@ -9,17 +8,22 @@ subtasks:
 - T024
 - T025
 phase: Phase 4 - UI Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '14079'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2T
+owned_files:
+- kitty-specs/010-user-friendly-ingredient/quickstart.md
+- kitty-specs/010-user-friendly-ingredient/spec.md
+- src/ui/ingredients_tab.py
+- src/ui/recipes_tab.py
+- src/utils/constants.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - UI - Density Input

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Hierarchy Admin Services
-lane: done
 dependencies: []
 subtasks:
 - T012
@@ -15,17 +14,27 @@ subtasks:
 - T020
 - T021
 phase: Phase 2 - Services
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-14T15:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE32877ZGV9DHF65Z1R
+owned_files:
+- kitty-specs/052-ingredient-material-hierarchy-admin/data-model.md
+- kitty-specs/052-ingredient-material-hierarchy-admin/research.md
+- src/models/ingredient.py
+- src/models/material.py
+- src/services/hierarchy_admin_service.py
+- src/services/ingredient_hierarchy_service.py
+- src/services/material_hierarchy_service.py
+- src/tests/services/test_hierarchy_admin_service.py
+- src/tests/services/test_ingredient_hierarchy_service.py
+- src/tests/services/test_material_hierarchy_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Hierarchy Admin Services

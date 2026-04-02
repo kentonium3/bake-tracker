@@ -33,28 +33,28 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Model Layer (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/recipe_snapshot.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/recipe_snapshot.py`
   - **WP01**: New RecipeSnapshot model with recipe_id, production_run_id, scale_factor, snapshot_date
   - **WP01**: recipe_data (Text/JSON), ingredients_data (Text/JSON), is_backfilled (Boolean)
   - **WP01**: get_recipe_data(), get_ingredients_data() helper methods for JSON parsing
   - **WP01**: Relationships to Recipe and ProductionRun
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/recipe.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/recipe.py`
   - **WP06**: base_recipe_id (nullable, self-referential FK with SET NULL)
   - **WP06**: variant_name (String, nullable)
   - **WP07**: is_production_ready (Boolean, default False)
   - **WP06**: CHECK constraint preventing self-reference
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/production_run.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/production_run.py`
   - **WP01**: recipe_snapshot_id (FK to recipe_snapshots.id, nullable for migration)
   - **WP01**: Relationship to RecipeSnapshot
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/models/__init__.py`
   - **WP01**: RecipeSnapshot exported
 
 ### Snapshot Service (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/services/recipe_snapshot_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/services/recipe_snapshot_service.py`
   - **WP02**: create_recipe_snapshot(recipe_id, scale_factor, production_run_id, session=None)
   - **WP02**: get_recipe_snapshots(recipe_id, session=None) - ordered by date DESC
   - **WP02**: get_snapshot_by_production_run(production_run_id, session=None)
@@ -65,7 +65,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Production Integration (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/services/batch_production_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/services/batch_production_service.py`
   - **WP03**: record_batch_production() modified to accept scale_factor parameter
   - **WP03**: Snapshot created FIRST before any FIFO consumption
   - **WP03**: Costs calculated from snapshot ingredients_data
@@ -74,7 +74,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Migration Script (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/scripts/migrate_production_snapshots.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/scripts/migrate_production_snapshots.py`
   - **WP04**: migrate_production_snapshots(dry_run=True) - main migration function
   - **WP04**: _create_backfill_snapshot() - creates snapshot with is_backfilled=True
   - **WP04**: verify_migration() - reports migration status
@@ -85,7 +85,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Scale Factor UI (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/forms/record_production_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/forms/record_production_dialog.py`
   - **WP05**: scale_factor entry field added
   - **WP05**: Validation for scale_factor > 0
   - **WP05**: Ingredient requirements display
@@ -93,63 +93,63 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Variant Service & UI (WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/services/recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/services/recipe_service.py`
   - **WP06**: create_variant_from_recipe(recipe_id, variant_name, session=None)
   - **WP06**: get_recipe_variants(recipe_id, session=None)
   - **WP06**: Variant creation copies recipe data with base_recipe_id link
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/recipes_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/recipes_tab.py`
   - **WP06**: Variant creation UI
   - **WP06**: Variant display grouping under base recipes
 
 ### Production Readiness (WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/forms/recipe_form_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/forms/recipe_form_dialog.py`
   - **WP07**: is_production_ready checkbox/toggle
   - **WP07**: Default to False for new recipes
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/recipes_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/recipes_tab.py`
   - **WP07**: Production readiness filter dropdown
   - **WP07**: Filter recipes by is_production_ready state
 
 ### Recipe History View (WP08)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/views/recipe_history_view.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/views/recipe_history_view.py`
   - **WP08**: RecipeHistoryView modal dialog
   - **WP08**: Displays snapshot history for recipe
   - **WP08**: "View Details" for each snapshot
   - **WP08**: "Create Recipe from Snapshot" button
   - **WP08**: "(approximated)" badge for backfilled snapshots
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/views/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/ui/views/__init__.py`
   - **WP08**: Package init with RecipeHistoryView export
 
 ### Tests
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/tests/services/test_recipe_snapshot_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/tests/services/test_recipe_snapshot_service.py`
   - **WP02**: Tests for create, get, immutability enforcement
   - **WP08**: Tests for create_recipe_from_snapshot
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/tests/scripts/test_migrate_production_snapshots.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/src/tests/scripts/test_migrate_production_snapshots.py`
   - **WP04**: Tests for migration script functionality
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/research.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/research.md`
 
 ### Work Package Prompts (for context)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP01-models-layer.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP02-snapshot-service.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP03-production-integration.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP04-migration-script.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP05-scale-factor-ui.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP06-variant-service-ui.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP07-production-readiness.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP08-recipe-history-view.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP01-models-layer.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP02-snapshot-service.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP03-production-integration.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP04-migration-script.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP05-scale-factor-ui.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP06-variant-service-ui.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP07-production-readiness.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot/kitty-specs/037-recipe-template-snapshot/tasks/for_review/WP08-recipe-history-view.md`
 
 ## Review Checklist
 
@@ -251,7 +251,7 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/037-recipe-template-snapshot
+cd /Users/kentgale/repos/bake-tracker/.worktrees/037-recipe-template-snapshot
 
 # Activate virtual environment
 source venv/bin/activate
@@ -486,7 +486,7 @@ def create_recipe_from_snapshot(snapshot_id: int, session=None) -> dict:
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F037-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F037-review.md`
 
 Use this format:
 

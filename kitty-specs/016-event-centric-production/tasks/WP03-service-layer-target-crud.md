@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Service Layer - Target CRUD
-lane: done
 dependencies: []
 subtasks:
 - T014
@@ -12,17 +11,22 @@ subtasks:
 - T019
 - T020
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '84929'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/contracts/event-service-contracts.md
+- kitty-specs/016-event-centric-production/data-model.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/services/event_service.py
+- src/tests/services/test_event_service_targets.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Service Layer - Target CRUD

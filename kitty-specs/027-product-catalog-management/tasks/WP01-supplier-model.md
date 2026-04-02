@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Supplier Model
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,20 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Schema & Models
-assignee: claude
-agent: claude
-shell_pid: '50566'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- kitty-specs/027-product-catalog-management/data-model.md
+- src/models/**
+- src/tests/models/test_supplier_model.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Supplier Model

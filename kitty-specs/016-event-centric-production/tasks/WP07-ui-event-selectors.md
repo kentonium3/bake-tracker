@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: UI - Event Selectors
-lane: done
 dependencies: []
 subtasks:
 - T036
@@ -10,17 +9,21 @@ subtasks:
 - T039
 - T040
 phase: Phase 5 - UI Event Selectors
-assignee: claude
-agent: claude
-shell_pid: '94501'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/quickstart.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/ui/forms/record_assembly_dialog.py
+- src/ui/forms/record_production_dialog.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - UI - Event Selectors

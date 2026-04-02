@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Plan State Service
-lane: done
 dependencies: []
 base_branch: main
 base_commit: f0f24b3db80ed1137d9ce8145585210bbd07667b
@@ -13,17 +12,24 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude
-shell_pid: '56673'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XETP17RS5A3PZGQ33G2
+owned_files:
+- kitty-specs/077-plan-state-management/plan.md
+- kitty-specs/077-plan-state-management/spec.md
+- src/models/event.py
+- src/services/batch_decision_service.py
+- src/services/exceptions.py
+- src/services/plan_state_service.py
+- src/tests/test_plan_state_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Plan State Service

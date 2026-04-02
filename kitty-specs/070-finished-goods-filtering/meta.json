@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F070_finished_goods_filtering.md for the feature inputs.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T01:21:01.443952+00:00"
+  "vcs_locked_at": "2026-01-27T01:21:01.443952+00:00",
+  "mission_id": "01KN5R6XEK3YBGBCM1KMCD8JWZ"
 }

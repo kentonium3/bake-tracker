@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Modification Guards
-lane: done
 dependencies:
 - WP01
 base_branch: 077-plan-state-management-WP01
@@ -14,17 +13,23 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - Service Layer Guards
-assignee: ''
-agent: gemini
-shell_pid: '56450'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XETP17RS5A3PZGQ33G2
+owned_files:
+- kitty-specs/077-plan-state-management/plan.md
+- kitty-specs/077-plan-state-management/spec.md
+- src/services/batch_decision_service.py
+- src/services/event_service.py
+- src/tests/integration/test_plan_state_guards.py
+- src/ui/planning_tab.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Modification Guards

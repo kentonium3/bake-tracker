@@ -35,10 +35,10 @@ docs/design/_F041_manual_inventory_adjust.md
 ## Verification Commands
 Cursor's sandbox cannot activate virtual environments. All verification commands must be run in the terminal outside the sandbox to avoid activation failures.
 
-Run from worktree: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/041-manual-inventory-adjustments`
+Run from worktree: `/Users/kentgale/repos/bake-tracker/.worktrees/041-manual-inventory-adjustments`
 
 ```bash
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Imports
 PYTHONPATH=. python3 -c "
@@ -74,7 +74,7 @@ Focus on:
 
 ## Report Template
 
-Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F041-review.md`
+Write your report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F041-review.md`
 
 ```markdown
 # Code Review Report: F041 - Manual Inventory Adjustments

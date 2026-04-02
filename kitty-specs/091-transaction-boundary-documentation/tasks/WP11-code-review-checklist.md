@@ -1,7 +1,6 @@
 ---
 work_package_id: WP11
 title: Code Review Checklist Update
-lane: done
 dependencies: [WP10]
 base_branch: 091-transaction-boundary-documentation-WP10
 base_commit: 2b91a9b0ea0c9480ac9544d0ce2933e6ff17413a
@@ -12,17 +11,18 @@ subtasks:
 - T049
 - T050
 phase: Phase 4 - Finalization
-assignee: ''
-agent: claude-review
-shell_pid: '78435'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: docs/design/transaction_patterns_guide.md/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XF7M2WKV1HXTK6TVV5Z
+owned_files:
+- docs/design/transaction_patterns_guide.md
+wp_code: WP11
 ---
 
 # Work Package Prompt: WP11 – Code Review Checklist Update

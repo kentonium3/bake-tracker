@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Update VariantCreationDialog
-lane: done
 dependencies: [WP01]
 base_branch: 066-recipe-variant-yield-remediation-WP01
 base_commit: 0f8146edc950f76b75603199edc4f1f08a1fe498
@@ -11,17 +10,20 @@ subtasks:
 - T009
 - T010
 phase: Phase 3 - UI Polish
-assignee: ''
-agent: claude-opus
-shell_pid: '28303'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNK
+owned_files:
+- kitty-specs/066-recipe-variant-yield-remediation/plan.md
+- kitty-specs/066-recipe-variant-yield-remediation/spec.md
+- src/ui/forms/variant_creation_dialog.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Update VariantCreationDialog

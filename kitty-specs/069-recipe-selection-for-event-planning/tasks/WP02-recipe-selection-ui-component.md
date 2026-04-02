@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Recipe Selection UI Component
-lane: done
 dependencies: [WP01]
 base_branch: 069-recipe-selection-for-event-planning-WP01
 base_commit: 1bc0971b0175cde1d2bdc47e5bb8abaece08886c
@@ -14,17 +13,21 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - UI Component
-assignee: ''
-agent: claude-opus-4-5
-shell_pid: '15784'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T22:57:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEJQNGT3GJBX2HEJXVH
+owned_files:
+- kitty-specs/069-recipe-selection-for-event-planning/plan.md
+- kitty-specs/069-recipe-selection-for-event-planning/research.md
+- src/main.py
+- src/ui/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Recipe Selection UI Component

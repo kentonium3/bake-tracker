@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Single-Recipe Aggregation
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 8657d3be86f0ed213c9002069fa57a2a2c98c32f
@@ -13,17 +12,22 @@ subtasks:
 - T004
 - T005
 phase: Phase 0 - Foundation
-assignee: claude
-agent: gemini
-shell_pid: '32718'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T20:19:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XERQHARD08GEJJWVQ3Y
+owned_files:
+- kitty-specs/074-ingredient-aggregation/plan.md
+- kitty-specs/074-ingredient-aggregation/spec.md
+- src/services/ingredient_aggregation_service.py
+- src/services/planning_service.py
+- src/tests/test_ingredient_aggregation_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Service Foundation & Single-Recipe Aggregation

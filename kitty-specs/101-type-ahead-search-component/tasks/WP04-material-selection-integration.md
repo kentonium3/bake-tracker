@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Material Selection Integration
-lane: done
 dependencies: [WP02]
 base_branch: 101-type-ahead-search-component-WP02
 base_commit: fdf836dbc1a3c8d4e65269c62a74115e9d7555b6
@@ -12,17 +11,23 @@ subtasks:
 - T020
 - T021
 phase: Phase 2 - US3 Material Reuse
-assignee: ''
-agent: claude-opus
-shell_pid: '92063'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-10T21:59:40Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFGMGBK9NWQ66WHS23V
+owned_files:
+- kitty-specs/101-type-ahead-search-component/plan.md
+- kitty-specs/101-type-ahead-search-component/research.md
+- kitty-specs/101-type-ahead-search-component/spec.md
+- src/models/**
+- src/services/material_catalog_service.py
+- src/ui/builders/finished_good_builder.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 -- Material Selection Integration

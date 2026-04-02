@@ -21,5 +21,6 @@
   "source_description": "Foundation feature for event-based planning: data model extensions for recipe selection, quantity specification, and batch decisions",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-26T19:52:05.860671+00:00"
+  "vcs_locked_at": "2026-01-26T19:52:05.860671+00:00",
+  "mission_id": "01KN5R6XEH7HGBK3RMJMMG5SC5"
 }

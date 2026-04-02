@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: FinishedUnitSnapshot Model + Service
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,26 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '51239'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T05:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEEPFC5M6QMSET5MDCK
+owned_files:
+- kitty-specs/064-finishedgoods-snapshot-architecture/data-model.md
+- kitty-specs/064-finishedgoods-snapshot-architecture/research.md
+- src/models/__init__.py
+- src/models/finished_unit.py
+- src/models/finished_unit_snapshot.py
+- src/models/recipe_snapshot.py
+- src/services/finished_unit_service.py
+- src/services/recipe_snapshot_service.py
+- src/tests/test_finished_unit_snapshot.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – FinishedUnitSnapshot Model + Service

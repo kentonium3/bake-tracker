@@ -7,5 +7,6 @@
   "slug": "066-recipe-variant-yield-remediation",
   "source_description": "See docs/func-spec/F066_recipe_variant_yield_remediation.md for inputs on this feature.",
   "target_branch": "main",
-  "vcs": "git"
+  "vcs": "git",
+  "mission_id": "01KN5R6XEFQP1EJ6XE805WDQNK"
 }

@@ -8,5 +8,6 @@
   "source_description": "F083 CLI Transaction Import Parity - Add CLI commands for transaction import (purchases, adjustments) with schema validation and FK resolution modes to enable mobile AI workflows. Wraps existing transaction_import_service.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-29T05:07:10.901699+00:00"
+  "vcs_locked_at": "2026-01-29T05:07:10.901699+00:00",
+  "mission_id": "01KN5R6XEZAS2ZKEFHJ7EBB45J"
 }

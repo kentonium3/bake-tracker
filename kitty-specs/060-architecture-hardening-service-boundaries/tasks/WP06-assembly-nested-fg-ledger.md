@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Assembly Nested Finished Goods Ledger
-lane: done
 dependencies: [WP01]
 subtasks:
 - T028
@@ -10,11 +9,6 @@ subtasks:
 - T031
 - T032
 phase: Phase 2 - Parallel Track
-assignee: ''
-agent: claude-opus
-shell_pid: '21904'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-20T20:00:00Z'
   lane: planned
@@ -26,6 +20,19 @@ history:
   agent: claude-opus
   shell_pid: '21904'
   action: Review passed - Nested FG consumption ledger added
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEBZD5RXB89VEJXAQEV
+owned_files:
+- kitty-specs/060-architecture-hardening-service-boundaries/data-model.md
+- kitty-specs/060-architecture-hardening-service-boundaries/plan.md
+- kitty-specs/060-architecture-hardening-service-boundaries/research.md
+- src/models/**
+- src/services/assembly_service.py
+- src/services/import_export_service.py
+- src/tests/services/test_assembly_service.py
+- src/tests/services/test_import_export_service.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – Assembly Nested Finished Goods Ledger

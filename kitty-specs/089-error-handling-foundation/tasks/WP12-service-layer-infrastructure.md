@@ -1,7 +1,6 @@
 ---
 work_package_id: WP12
 title: Service Layer & Infrastructure
-lane: done
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -15,17 +14,25 @@ subtasks:
 - T068
 - T069
 phase: Phase 2 - UI Migration
-assignee: ''
-agent: ''
-shell_pid: '77222'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- src/main.py
+- src/migrations/migration_orchestrator.py
+- src/services/database.py
+- src/services/import_export_service.py
+- src/ui/catalog_import_dialog.py
+- src/ui/import_export_dialog.py
+- src/utils/backup_validator.py
+- src/utils/import_export_cli.py
+wp_code: WP12
 ---
 
 # Work Package Prompt: WP12 – Service Layer & Infrastructure

@@ -1,24 +1,26 @@
 ---
 work_package_id: WP10
 title: Sample Data & Documentation
-lane: done
 dependencies: []
 subtasks:
 - T042
 - T043
 - T044
 phase: Phase 3 - Integration & Documentation
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '11228'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDSX1JRPNAECZJXZPK3
+owned_files:
+- docs/design/spec_import_export.md
+- kitty-specs/040-import-export-v4/data-model.md
+- src/tests/services/test_import_export_service.py
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 - Sample Data & Documentation

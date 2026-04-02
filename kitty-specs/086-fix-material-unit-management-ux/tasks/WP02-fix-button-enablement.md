@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Fix Edit/Delete Button Enablement
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 9d1d78d6fdf94f828079a4fe6874f921a3b1a70f
@@ -10,17 +9,21 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Bug Fixes
-assignee: ''
-agent: claude-opus
-shell_pid: '77879'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T22:39:29Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF1VZYTBSEQ40NRP719
+owned_files:
+- kitty-specs/086-fix-material-unit-management-ux/plan.md
+- kitty-specs/086-fix-material-unit-management-ux/spec.md
+- src/ui/materials_tab.py
+- src/ui/materials_tab.py:794-804
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Fix Edit/Delete Button Enablement

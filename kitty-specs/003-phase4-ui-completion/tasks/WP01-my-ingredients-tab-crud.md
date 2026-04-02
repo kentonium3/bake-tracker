@@ -1,10 +1,7 @@
 ---
+work_package_id: 01KN5R6XJFRYN9B2XRA5FP2H06
 title: My Ingredients Tab - Ingredient Catalog CRUD
-lane: done
 dependencies: []
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -16,14 +13,22 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - ingredients tab fully implemented with CRUD functionality
+authoritative_surface: src/ui/
 estimate: 12-15 hours
+execution_mode: code_change
 feature: 003-phase4-ui-completion
 id: WP01
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PN
+owned_files:
+- src/ui/ingredients_tab.py
+- src/ui/main_window.py
+- src/ui/widgets/**
 priority: P1
 tags:
 - ui
 - ingredients
 - customtkinter
+wp_code: WP01
 ---
 
 # WP01: My Ingredients Tab - Ingredient Catalog CRUD

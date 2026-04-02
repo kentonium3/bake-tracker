@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: MaterialUnit FK Change
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,22 @@ subtasks:
 - T004
 - T005
 phase: Wave 1 - Schema Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '42490'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SW
+owned_files:
+- kitty-specs/085-material-unit-schema-refactor/data-model.md
+- kitty-specs/085-material-unit-schema-refactor/plan.md
+- kitty-specs/085-material-unit-schema-refactor/spec.md
+- src/models/**
+- src/tests/test_material_unit.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – MaterialUnit FK Change

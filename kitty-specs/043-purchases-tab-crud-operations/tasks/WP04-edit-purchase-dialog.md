@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Edit Purchase Dialog
-lane: done
 dependencies: []
 subtasks:
 - T027
@@ -12,17 +11,21 @@ subtasks:
 - T032
 - T033
 phase: Phase 3 - Secondary Features
-assignee: ''
-agent: ''
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-08T22:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDWDSX5EHMS3WBKAK2M
+owned_files:
+- kitty-specs/043-purchases-tab-crud-operations/data-model.md
+- src/ui/dialogs/add_purchase_dialog.py
+- src/ui/dialogs/edit_purchase_dialog.py
+- src/ui/tabs/purchases_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Edit Purchase Dialog

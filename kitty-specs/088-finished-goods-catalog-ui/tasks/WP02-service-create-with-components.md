@@ -1,19 +1,24 @@
 ---
 work_package_id: WP02
 title: Service Layer - Create with Components
-lane: done
 dependencies: []
 subtasks: [T008, T009, T010, T011, T012, T013]
-agent: gemini-wp02
-shell_pid: '21725'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 400
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/models/composition.py
+- src/models/finished_good.py
+- src/services/finished_good_service.py
+- src/tests/test_finished_good_service.py
+- src/utils/session_scope.py
 priority: P0
+wp_code: WP02
 ---
 
 # WP02: Service Layer - Create with Components

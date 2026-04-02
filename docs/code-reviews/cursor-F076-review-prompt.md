@@ -9,8 +9,8 @@
 ## Specification
 
 Read the feature specification first to understand intended behavior:
-- `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/076-assembly-feasibility-single-screen-planning/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/076-assembly-feasibility-single-screen-planning/plan.md`
+- `/Users/kentgale/repos/bake-tracker/kitty-specs/076-assembly-feasibility-single-screen-planning/spec.md`
+- `/Users/kentgale/repos/bake-tracker/kitty-specs/076-assembly-feasibility-single-screen-planning/plan.md`
 
 ## Code Changes
 
@@ -49,10 +49,10 @@ The following files were modified or created for this feature. Review should ext
 
 ```bash
 # Verify environment is functional
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 
 # Run assembly feasibility tests to confirm environment works
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_assembly_feasibility_service.py -v --tb=short
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_assembly_feasibility_service.py -v --tb=short
 
 # If the above command fails, STOP and report blocker before proceeding
 ```
@@ -71,11 +71,11 @@ cd /Users/kentgale/Vaults-repos/bake-tracker
 ## Report Template
 
 Use the template at:
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+- `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 ## Report Output
 
 Write your review report to:
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F076-review.md`
+- `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F076-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in any worktree.

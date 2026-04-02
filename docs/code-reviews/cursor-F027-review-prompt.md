@@ -29,31 +29,31 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Model Layer (WP01-WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/supplier.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/supplier.py`
   - New model with `name`, `city`, `state`, `zip_code`, `street_address`, `notes`, `is_active`
   - `display_name` property returning "Name (City, ST)"
   - `purchases` relationship to Purchase model
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/purchase.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/purchase.py`
   - New model with `product_id`, `supplier_id`, `purchase_date`, `unit_price`, `quantity_purchased`, `notes`
   - FKs with ON DELETE RESTRICT for both product and supplier
   - Relationships to Product and Supplier
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/product.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/product.py`
   - New `is_hidden` column (Boolean, default False)
   - New `preferred_supplier_id` FK with ON DELETE SET NULL
   - `preferred_supplier` relationship to Supplier
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/inventory_item.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/inventory_item.py`
   - New `purchase_id` FK with ON DELETE RESTRICT (nullable for migration)
   - `purchase` relationship to Purchase
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/models/__init__.py`
   - Verify `Supplier` and `Purchase` are exported
 
 ### Service Layer (WP03-WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/supplier_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/supplier_service.py`
   - `create_supplier(name, city, state, zip_code, ...)` - create new supplier
   - `get_supplier(supplier_id)` - get by ID
   - `get_all_suppliers()` - list all suppliers
@@ -64,7 +64,7 @@ You are a senior software engineer performing an independent code review of Feat
   - `delete_supplier(supplier_id)` - permanent delete (raises if has purchases)
   - `has_purchases(supplier_id)` - check for dependencies
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/product_catalog_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/product_catalog_service.py`
   - `create_product(...)` - create new product
   - `get_product(product_id)` - get by ID
   - `get_product_with_last_price(product_id)` - get with latest purchase price
@@ -78,22 +78,22 @@ You are a senior software engineer performing an independent code review of Feat
   - `get_purchase_history(product_id)` - list purchases sorted by date DESC
   - `record_purchase(product_id, supplier_id, ...)` - create Purchase record
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/import_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/import_export_service.py`
   - `export_suppliers_to_json()` - export Supplier records
   - `import_suppliers_from_json(data)` - import Supplier records
   - `export_purchases_to_json()` - export Purchase records with supplier_id FK
   - `import_purchases_from_json(data)` - import Purchase records
   - Version bumped to 3.5 with suppliers/purchases support
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/__init__.py`
   - Verify `supplier_service` and `product_catalog_service` are exported
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/exceptions.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/services/exceptions.py`
   - Check for any new exception classes
 
 ### UI Layer (WP05-WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/products_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/products_tab.py`
   - Products grid with columns: Name, Brand, Ingredient, Category, Preferred Supplier, Last Price
   - Search box (by product name)
   - Filter by Category dropdown
@@ -103,14 +103,14 @@ You are a senior software engineer performing an independent code review of Feat
   - Double-click opens ProductDetailDialog
   - Grid refresh on product changes
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/forms/add_product_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/forms/add_product_dialog.py`
   - Add/Edit mode based on `product_id` parameter
   - Fields: Product Name, Brand (optional), Package Unit, Package Quantity, Ingredient dropdown, Preferred Supplier dropdown
   - Category auto-populated from Ingredient selection
   - Validation for required fields
   - Save creates/updates product
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/forms/product_detail_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/forms/product_detail_dialog.py`
   - Display product information (name, brand, ingredient, category, package, supplier, last price)
   - Edit button opens AddProductDialog in edit mode
   - Hide/Unhide button toggles is_hidden
@@ -118,12 +118,12 @@ You are a senior software engineer performing an independent code review of Feat
   - Purchase history grid sorted by date (newest first)
   - Empty state message when no purchases
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/main_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/ui/main_window.py`
   - Verify Products tab is added to main window
 
 ### Migration Script (WP09)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/scripts/migrate_f027.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/scripts/migrate_f027.py`
   - `--dry-run` mode for safe preview
   - `backup_current_data()` - exports to JSON before changes
   - `create_unknown_supplier()` - creates Unknown supplier (ID=1, state="XX")
@@ -136,34 +136,34 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Test Files
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/models/test_supplier_model.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/models/test_supplier_model.py`
   - Model tests for Supplier
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/models/test_purchase_model.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/models/test_purchase_model.py`
   - Model tests for Purchase
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/services/test_supplier_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/services/test_supplier_service.py`
   - Unit tests for supplier_service
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/services/test_product_catalog_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/services/test_product_catalog_service.py`
   - Unit tests for product_catalog_service
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/services/test_import_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/services/test_import_export_service.py`
   - Tests for import/export with new entities
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/integration/test_import_export_027.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/integration/test_import_export_027.py`
   - Integration tests for F027 import/export
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/migration/__init__.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/migration/test_f027_migration.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/migration/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/src/tests/migration/test_f027_migration.py`
   - 27 unit tests for migration transformation functions
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/quickstart.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management/kitty-specs/027-product-catalog-management/quickstart.md`
 
 ## Review Checklist
 
@@ -290,10 +290,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/027-product-catalog-management
+cd /Users/kentgale/repos/bake-tracker/.worktrees/027-product-catalog-management
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify modules import correctly
 python3 -c "
@@ -417,7 +417,7 @@ unknown_supplier = {
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F027-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F027-review.md`
 
 Use this format:
 

@@ -21,50 +21,50 @@ You are a senior software engineer performing an independent code review of Feat
 ## Files to Review
 
 ### Model Layer (WP01)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/models/product.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/models/recipe.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/models/product.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/models/recipe.py`
 
 ### Service Layer (WP02)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/product_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/import_export_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/recipe_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/inventory_item_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/finished_unit_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/event_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/catalog_import_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/assembly_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/product_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/import_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/inventory_item_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/finished_unit_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/event_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/catalog_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/services/assembly_service.py`
 
 ### UI Layer (WP03)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/inventory_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/ingredients_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/forms/recipe_form.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/forms/ingredient_form.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/widgets/data_table.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/utils/validators.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/inventory_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/forms/recipe_form.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/forms/ingredient_form.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/ui/widgets/data_table.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/utils/validators.py`
 
 ### Test Layer (WP04) - Key Files
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/conftest.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/test_models.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/test_validators.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/test_services.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/services/test_recipe_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/services/test_production_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/services/test_inventory_item_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/conftest.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/test_models.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/test_validators.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/test_services.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/services/test_recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/services/test_production_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/src/tests/services/test_inventory_item_service.py`
 
 ### Documentation (WP05)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/docs/design/import_export_specification.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/docs/design/import_export_specification.md`
 
 ### Sample Data Files (WP05)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/import/README.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/import/ai_generated_sample.json`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/import/combined_import.json`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/test_data.json`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/test_data/sample_catalog.json`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/test_data/sample_data.json`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/import/README.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/import/ai_generated_sample.json`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/import/combined_import.json`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/examples/test_data.json`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/test_data/sample_catalog.json`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/test_data/sample_data.json`
 
 ### Specification Documents
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/kitty-specs/021-field-naming-consistency/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/kitty-specs/021-field-naming-consistency/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/kitty-specs/021-field-naming-consistency/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/kitty-specs/021-field-naming-consistency/plan.md`
 
 ## Review Checklist
 
@@ -100,14 +100,14 @@ grep -rn "purchase_unit\|purchase_quantity" examples/ test_data/
 grep -rni "pantry" src/ --include="*.py"
 
 # All tests should pass
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency
+cd /Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency
 python3 -m pytest src/tests -v
 ```
 
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/021-field-naming-consistency/docs/code-reviews/cursor-F021-review.md`
+`/Users/kentgale/repos/bake-tracker/.worktrees/021-field-naming-consistency/docs/code-reviews/cursor-F021-review.md`
 
 Use this format:
 

@@ -1,24 +1,24 @@
 ---
 work_package_id: WP04
 title: CLI Tests
-lane: done
 dependencies: []
 subtasks:
 - T011
 - T012
 - T013
 phase: Phase 3 - Testing
-assignee: ''
-agent: claude
-shell_pid: '48820'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T04:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/tests/services/test_transaction_import_cli.py/
+execution_mode: code_change
+mission_id: 01KN5R6XEZAS2ZKEFHJ7EBB45J
+owned_files:
+- src/tests/services/test_transaction_import_cli.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – CLI Tests

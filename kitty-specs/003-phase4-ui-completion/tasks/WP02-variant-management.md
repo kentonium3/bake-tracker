@@ -1,11 +1,8 @@
 ---
+work_package_id: 01KN5R6XJV7W3S4G1GBDJAN5S8
 title: My Ingredients Tab - Variant Management
-lane: done
 dependencies:
 - WP01
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,14 +14,20 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - all variant management features implemented and committed
+authoritative_surface: src/ui/ingredients_tab.py/
 estimate: 10-12 hours
+execution_mode: code_change
 feature: 003-phase4-ui-completion
 id: WP02
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PN
+owned_files:
+- src/ui/ingredients_tab.py
 priority: P2
 tags:
 - ui
 - variants
 - customtkinter
+wp_code: WP02
 ---
 
 # WP02: My Ingredients Tab - Variant Management

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Purchase Form - Product Type Selector
-lane: done
 dependencies: [WP01]
 subtasks:
 - T011
@@ -12,17 +11,21 @@ subtasks:
 - T016
 - T017
 phase: Phase 1 - Wave 1
-assignee: ''
-agent: claude-opus
-shell_pid: '70998'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/research.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/ui/dialogs/add_purchase_dialog.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Purchase Form - Product Type Selector

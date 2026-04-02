@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Models Layer - Package & Junction
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,22 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Models Layer
-assignee: claude
-agent: claude
-shell_pid: '7079'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-03'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125K
+owned_files:
+- kitty-specs/006-event-planning-restoration/contracts/package_service.md
+- kitty-specs/006-event-planning-restoration/data-model.md
+- kitty-specs/006-event-planning-restoration/plan.md
+- src/models/__init__.py
+- src/models/package.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Models Layer - Package & Junction

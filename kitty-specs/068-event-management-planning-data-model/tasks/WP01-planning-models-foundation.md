@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Planning Models Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -12,17 +11,23 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude
-shell_pid: '92876'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEH7HGBK3RMJMMG5SC5
+owned_files:
+- kitty-specs/068-event-management-planning-data-model/data-model.md
+- kitty-specs/068-event-management-planning-data-model/research.md
+- src/models/batch_decision.py
+- src/models/event.py
+- src/models/event_finished_good.py
+- src/models/event_recipe.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Planning Models Foundation

@@ -8,5 +8,6 @@
   "source_description": "See docs/func-spec/F097_finished_goods_builder_ui.md for feature inputs. See docs/func-spec/claude-pre-implementation-prompt.md for direction.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-07T00:00:04.192769+00:00"
+  "vcs_locked_at": "2026-02-07T00:00:04.192769+00:00",
+  "mission_id": "01KN5R6XFDQ23AZF443ND9T0E4"
 }

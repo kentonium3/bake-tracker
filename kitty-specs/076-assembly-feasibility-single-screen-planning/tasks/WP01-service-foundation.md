@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Assembly Feasibility Service Foundation
-lane: done
 dependencies: []
 base_branch: main
 base_commit: a2808d4a47415faba26a82a211274ae75d229146
@@ -13,17 +12,23 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Service Layer
-assignee: ''
-agent: claude
-shell_pid: '44439'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T15:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XESM2KFBBZH2E4YJGJP
+owned_files:
+- kitty-specs/076-assembly-feasibility-single-screen-planning/plan.md
+- kitty-specs/076-assembly-feasibility-single-screen-planning/spec.md
+- src/models/finished_unit.py
+- src/services/assembly_feasibility_service.py
+- src/services/batch_decision_service.py
+- src/services/planning_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Assembly Feasibility Service Foundation

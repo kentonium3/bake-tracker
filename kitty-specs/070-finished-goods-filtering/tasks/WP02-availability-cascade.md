@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Availability Checking + Cascade Removal
-lane: done
 dependencies: [WP01]
 base_branch: 070-finished-goods-filtering-WP01
 base_commit: 95b1d964956e408331a6b3c63d533cf0c63fbe3e
@@ -15,17 +14,22 @@ subtasks:
 - T011
 - T012
 phase: Phase 1 - Service Layer
-assignee: ''
-agent: claude
-shell_pid: '30418'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEK3YBGBCM1KMCD8JWZ
+owned_files:
+- kitty-specs/070-finished-goods-filtering/data-model.md
+- kitty-specs/070-finished-goods-filtering/research.md
+- kitty-specs/070-finished-goods-filtering/spec.md
+- src/services/event_service.py
+- src/tests/test_fg_availability.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Availability Checking + Cascade Removal

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: MaterialUnitSnapshot Model + Service
-lane: done
 dependencies: []
 subtasks:
 - T006
@@ -10,17 +9,25 @@ subtasks:
 - T009
 - T010
 phase: Phase 1 - Foundation
-assignee: ''
-agent: codex
-shell_pid: '49307'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T05:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEEPFC5M6QMSET5MDCK
+owned_files:
+- kitty-specs/064-finishedgoods-snapshot-architecture/data-model.md
+- kitty-specs/064-finishedgoods-snapshot-architecture/research.md
+- src/models/__init__.py
+- src/models/material_unit.py
+- src/models/material_unit_snapshot.py
+- src/models/recipe_snapshot.py
+- src/services/material_unit_service.py
+- src/tests/test_material_unit_snapshot.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – MaterialUnitSnapshot Model + Service

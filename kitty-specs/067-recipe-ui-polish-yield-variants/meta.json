@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F067_recipe_ui_polish_yield_and_variants.md for feature inputs",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-25T18:19:23.039547+00:00"
+  "vcs_locked_at": "2026-01-25T18:19:23.039547+00:00",
+  "mission_id": "01KN5R6XEG6XYFXF7NX79WPZDY"
 }

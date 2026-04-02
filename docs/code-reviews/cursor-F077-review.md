@@ -8,7 +8,7 @@
 Plan state transitions are enforced via a dedicated service with clear guards on recipe/FG and batch decision mutations. UI surfaces state and transition controls. Tests cover valid/invalid transitions, guard behavior, and full lifecycle; all pass. Implementation matches the spec: DRAFT→LOCKED→IN_PRODUCTION→COMPLETED with appropriate modification blocking.
 
 ## Verification Results
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_plan_state_service.py -v --tb=short`: **PASS** (25 tests; known teardown SAWarnings)
+- `/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_plan_state_service.py -v --tb=short`: **PASS** (25 tests; known teardown SAWarnings)
 
 ## Findings
 

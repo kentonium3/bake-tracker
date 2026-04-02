@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Adjustment & Validate CLI
-lane: done
 dependencies: []
 base_branch: 083-cli-transaction-import-WP01
 base_commit: 459e9ec305c9dc420b06961dd93a05dcb7a75d5e
@@ -12,17 +11,18 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - CLI Commands
-assignee: ''
-agent: claude
-shell_pid: '30993'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T04:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/utils/import_export_cli.py/
+execution_mode: code_change
+mission_id: 01KN5R6XEZAS2ZKEFHJ7EBB45J
+owned_files:
+- src/utils/import_export_cli.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Adjustment & Validate CLI

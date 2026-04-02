@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Schema & Models
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,24 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/data-model.md
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/quickstart.md
+- kitty-specs/026-deferred-packaging-decisions/research.md
+- src/models/__init__.py
+- src/models/composition.py
+- src/models/composition_assignment.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Schema & Models

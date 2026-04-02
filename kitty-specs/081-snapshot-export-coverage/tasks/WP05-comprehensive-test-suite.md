@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Comprehensive Test Suite
-lane: done
 dependencies: [WP04]
 base_branch: 081-snapshot-export-coverage-WP04
 base_commit: ffbf0281621a8afb571af77dde5b724de7999feb
@@ -13,17 +12,21 @@ subtasks:
 - T022
 - T023
 phase: Phase 3 - Testing
-assignee: ''
-agent: claude
-shell_pid: '80642'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEYGTB43187DGEXEGG1
+owned_files:
+- kitty-specs/081-snapshot-export-coverage/research.md
+- kitty-specs/081-snapshot-export-coverage/spec.md
+- src/tests/test_export_recipe_slug.py
+- src/tests/test_snapshot_export_import.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Comprehensive Test Suite

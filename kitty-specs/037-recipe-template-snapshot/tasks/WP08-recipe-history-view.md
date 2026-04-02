@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Recipe History View
-lane: done
 dependencies: []
 subtasks:
 - T034
@@ -10,17 +9,21 @@ subtasks:
 - T037
 - T038
 phase: Phase 3 - Production Readiness & History
-assignee: claude
-agent: claude-reviewer
-shell_pid: '97164'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/spec.md
+- src/services/recipe_snapshot_service.py
+- src/ui/views/__init__.py
+- src/ui/views/recipe_history_view.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Recipe History View

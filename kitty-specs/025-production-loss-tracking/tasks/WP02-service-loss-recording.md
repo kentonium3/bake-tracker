@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service Layer - Core Loss Recording
-lane: done
 dependencies: []
 subtasks:
 - T009
@@ -12,15 +11,22 @@ subtasks:
 - T014
 - T015
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '74118'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQW
+owned_files:
+- kitty-specs/025-production-loss-tracking/data-model.md
+- kitty-specs/025-production-loss-tracking/plan.md
+- kitty-specs/025-production-loss-tracking/spec.md
+- src/services/batch_production_service.py
+- src/tests/services/test_batch_production_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Service Layer - Core Loss Recording

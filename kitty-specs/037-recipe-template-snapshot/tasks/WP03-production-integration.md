@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Production Integration
-lane: done
 dependencies: []
 subtasks:
 - T010
@@ -9,17 +8,20 @@ subtasks:
 - T012
 - T013
 phase: Phase 1 - Core Snapshot System
-assignee: claude
-agent: claude-reviewer
-shell_pid: '97164'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/research.md
+- src/services/batch_production_service.py
+- src/tests/services/test_batch_production_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Production Integration

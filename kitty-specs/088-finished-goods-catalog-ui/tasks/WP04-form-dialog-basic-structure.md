@@ -1,19 +1,23 @@
 ---
 work_package_id: WP04
 title: Form Dialog - Basic Structure
-lane: done
 dependencies: []
 subtasks: [T021, T022, T023, T024, T025, T026, T027]
-agent: gemini-wp04
-shell_pid: '21873'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 380
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/models/assembly_type.py
+- src/models/finished_good.py
+- src/ui/forms/finished_good_form.py
+- src/ui/forms/recipe_form.py
 priority: P1
+wp_code: WP04
 ---
 
 # WP04: Form Dialog - Basic Structure

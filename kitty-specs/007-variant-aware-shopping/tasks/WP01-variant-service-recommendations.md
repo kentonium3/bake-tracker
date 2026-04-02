@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: VariantService Recommendation Engine
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,21 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '33737'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-04'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125M
+owned_files:
+- src/models/variant.py
+- src/services/unit_converter.py
+- src/services/variant_service.py
+- src/tests/test_variant_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - VariantService Recommendation Engine

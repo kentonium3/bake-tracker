@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Export Service Updates
-lane: done
 dependencies: [WP02]
 base_branch: 080-recipe-slug-support-WP02
 base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
@@ -14,17 +13,24 @@ subtasks:
 - T017
 - T018
 phase: Phase 1 - Export/Import
-assignee: ''
-agent: claude-code
-shell_pid: '60257'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEXQQKHVK36YVCMT3H2
+owned_files:
+- kitty-specs/080-recipe-slug-support/data-model.md
+- kitty-specs/080-recipe-slug-support/plan.md
+- src/services/coordinated_export_service.py
+- src/tests/test_coordinated_export*.py
+- src/tests/test_export*.py
+- src/tests/test_export_recipe_slug.py
+- src/tests/test_import_export.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Export Service Updates

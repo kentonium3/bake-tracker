@@ -8,5 +8,6 @@
   "source_description": "docs/func-spec/F096_recipe_category_management_v2.md",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-06T04:21:47.513269+00:00"
+  "vcs_locked_at": "2026-02-06T04:21:47.513269+00:00",
+  "mission_id": "01KN5R6XFCQ7XH14582WR2W2FF"
 }

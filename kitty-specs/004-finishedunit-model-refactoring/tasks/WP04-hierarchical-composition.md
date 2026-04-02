@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Hierarchical Composition Features
-lane: for_review
 dependencies: []
 subtasks:
 - T015
@@ -9,15 +8,22 @@ subtasks:
 - T017
 - T018
 phase: Phase 4 - User Story 3 Implementation
-assignee: ''
-agent: claude
-shell_pid: '24513'
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PP
+owned_files:
+- src/services/composition_service.py
+- src/services/finished_good_service.py
+- tests/fixtures/hierarchy_fixtures.py
+- tests/integration/test_hierarchy_operations.py
+- tests/performance/test_hierarchy_benchmarks.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Hierarchical Composition Features

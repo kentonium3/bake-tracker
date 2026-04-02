@@ -21,28 +21,28 @@ You are a senior software engineer performing an independent code review of Feat
 ## Files to Review
 
 ### Service Layer (WP01)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/src/services/catalog_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error/src/services/catalog_import_service.py`
   - `get_summary()` (~line 284-292) - conditional suggestion display
   - `get_detailed_report()` (~line 307-335) - conditional suggestion display
 
 ### UI Layer - Log Writing (WP02)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/src/ui/import_export_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error/src/ui/import_export_dialog.py`
   - `_write_import_log()` (~line 29-58) - relative path return with fallback
 
 ### UI Layer - Catalog Dialog (WP03)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/src/ui/catalog_import_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error/src/ui/catalog_import_dialog.py`
   - Import statement (~line 17) - `ImportResultsDialog`, `_write_import_log`
   - `_show_results()` (~line 279-306) - new implementation using ImportResultsDialog
   - Verify `_show_errors()` method is REMOVED
 
 ### Specification Documents
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error/kitty-specs/024-unified-import-error/data-model.md`
 
 ### Architecture Reference
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F024_unified_import_error_handling.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/research/import_error_handling_architecture.md`
+- `/Users/kentgale/repos/bake-tracker/docs/func-spec/F024_unified_import_error_handling.md`
+- `/Users/kentgale/repos/bake-tracker/docs/research/import_error_handling_architecture.md`
 
 ## Review Checklist
 
@@ -97,7 +97,7 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error
+cd /Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error
 
 # Verify modules import correctly
 python3 -c "
@@ -215,7 +215,7 @@ def _show_results(self, result: CatalogImportResult):
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F024-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F024-review.md`
 
 Use this format:
 

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,25 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '66740'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T03:09:20Z'
   lane: planned
   agent: claude
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDRS2KVV6QTFHHXTDFZ
+owned_files:
+- kitty-specs/039-planning-workspace/data-model.md
+- kitty-specs/039-planning-workspace/plan.md
+- kitty-specs/039-planning-workspace/research.md
+- src/models/__init__.py
+- src/models/base/**
+- src/models/event.py
+- src/models/production_plan_snapshot.py
+- src/tests/models/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Model Foundation

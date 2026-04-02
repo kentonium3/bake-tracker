@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Category Defaults Utility
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -10,17 +9,22 @@ subtasks:
 - T010
 - T011
 phase: Phase 0 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- docs/design/F029_streamlined_inventory_entry.md
+- kitty-specs/029-streamlined-inventory-entry/plan.md
+- kitty-specs/029-streamlined-inventory-entry/research.md
+- src/tests/utils/test_category_defaults.py
+- src/utils/category_defaults.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Category Defaults Utility

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Edit Protection for Atomic FGs
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 7923c0cac7a0bde71b2793aaf29e645557c9ba42
@@ -11,17 +10,21 @@ subtasks:
 - T008
 - T009
 phase: Phase 1 - Edit Protection
-assignee: ''
-agent: gemini
-shell_pid: '82712'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T23:13:33Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFEXHW1PDACCS60QEER
+owned_files:
+- kitty-specs/099-fg-builder-filter-first-refinement/plan.md
+- kitty-specs/099-fg-builder-filter-first-refinement/research.md
+- kitty-specs/099-fg-builder-filter-first-refinement/spec.md
+- src/ui/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 -- Edit Protection for Atomic FGs

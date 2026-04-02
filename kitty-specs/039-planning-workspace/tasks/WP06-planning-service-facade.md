@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Planning Service Facade
-lane: done
 dependencies: []
 subtasks:
 - T031
@@ -16,17 +15,23 @@ subtasks:
 - T040
 - T041
 phase: Phase 2 - Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '67385'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T03:09:20Z'
   lane: planned
   agent: claude
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDRS2KVV6QTFHHXTDFZ
+owned_files:
+- kitty-specs/039-planning-workspace/contracts/planning_service.py
+- kitty-specs/039-planning-workspace/data-model.md
+- kitty-specs/039-planning-workspace/quickstart.md
+- src/services/planning/exceptions.py
+- src/services/planning/planning_service.py
+- src/tests/services/planning/test_planning_service.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Planning Service Facade

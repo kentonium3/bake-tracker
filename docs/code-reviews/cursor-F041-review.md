@@ -27,7 +27,7 @@ The implementation of Feature F041, Manual Inventory Adjustments, is well-execut
 ## Environment Verification
 **Commands Run:**
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python3 -c "
+/Users/kentgale/repos/bake-tracker/venv/bin/python3 -c "
 from src.models.enums import DepletionReason
 from src.models.inventory_depletion import InventoryDepletion
 from src.services.inventory_item_service import manual_adjustment, get_depletion_history
@@ -35,9 +35,9 @@ from src.ui.dialogs.adjustment_dialog import AdjustmentDialog
 print('All imports successful')
 "
 
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python3 -m pytest src/tests/services/test_inventory_adjustment.py -v --tb=short
+/Users/kentgale/repos/bake-tracker/venv/bin/python3 -m pytest src/tests/services/test_inventory_adjustment.py -v --tb=short
 
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python3 -m pytest src/tests -v --tb=short
+/Users/kentgale/repos/bake-tracker/venv/bin/python3 -m pytest src/tests -v --tb=short
 ```
 
 **Results:**

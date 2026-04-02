@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Composition Service Packaging Extensions
-lane: done
 dependencies: []
 subtasks:
 - T020
@@ -15,17 +14,23 @@ subtasks:
 - T028
 - T029
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-opus-4-5
-shell_pid: review
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
 history:
 - timestamp: '2025-12-08T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YC
+owned_files:
+- kitty-specs/011-packaging-bom-foundation/contracts/composition_service.md
+- kitty-specs/011-packaging-bom-foundation/data-model.md
+- src/services/composition_service/**
+- src/services/composition_service.py
+- src/services/product_service.py
+- src/tests/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Composition Service Packaging Extensions

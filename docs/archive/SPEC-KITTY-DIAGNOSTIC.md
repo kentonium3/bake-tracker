@@ -17,7 +17,7 @@ The symlink `.kittify/memory -> ../../../.kittify/memory` works from worktrees b
 
 ```
 Project: bake-tracker
-Location: /Users/kentgale/Vaults-repos/bake-tracker
+Location: /Users/kentgale/repos/bake-tracker
 Spec-kitty version: 0.10.13
 Active worktree: .worktrees/054-cli-import-export-parity
 ```
@@ -125,20 +125,20 @@ file /tmp/spec-kitty-test-*/.worktrees/*/.kittify/memory 2>/dev/null
 echo ""
 echo "=== COMPARISON: Bake-Tracker Project ==="
 echo "Main repo .kittify/memory:"
-ls -la /Users/kentgale/Vaults-repos/bake-tracker/.kittify/memory/
-file /Users/kentgale/Vaults-repos/bake-tracker/.kittify/memory
+ls -la /Users/kentgale/repos/bake-tracker/.kittify/memory/
+file /Users/kentgale/repos/bake-tracker/.kittify/memory
 
 echo ""
 echo "Worktree .kittify/memory:"
-ls -la /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/.kittify/memory/
-file /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/.kittify/memory
+ls -la /Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/.kittify/memory/
+file /Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/.kittify/memory
 ```
 
 ### Phase 5: Check Git History for Symlink Introduction
 
 ```bash
 # In bake-tracker, find when symlinks were introduced
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 git log --all --oneline -- ".kittify/memory" | head -10
 
 # Check the diff that introduced the symlink

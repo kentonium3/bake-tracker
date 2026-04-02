@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Production Service Session Hardening
-lane: done
 dependencies: [WP01]
 subtasks:
 - T042
@@ -12,17 +11,20 @@ subtasks:
 - T047
 - T048
 phase: Phase 1 - Service Hardening
-assignee: codex
-agent: codex
-shell_pid: '65344'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/services/production_service.py
+- src/tests/**
+- src/ui/**
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 – Production Service Session Hardening

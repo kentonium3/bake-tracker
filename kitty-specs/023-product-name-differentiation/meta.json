@@ -20,5 +20,6 @@
   "mission": "research",
   "slug": "023-product-name-differentiation",
   "source_description": "Add product_name field to Product table to distinguish variants with identical packaging (e.g., 'Lindt 70% Cacao' vs 'Lindt 85% Cacao' both 3.5oz bars). Includes schema migration, UI updates, and import/export handling.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDC9ESBEDJZ4RZ8SJWA"
 }

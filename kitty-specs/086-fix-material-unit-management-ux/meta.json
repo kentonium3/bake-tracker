@@ -8,5 +8,6 @@
   "source_description": "Fix MaterialUnit management for linear products and improve unit creation UX - Edit/Delete buttons disabled for linear units, Material Units tab shows no units, Add Unit dialog requires manual cm conversion",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-30T22:51:20.352159+00:00"
+  "vcs_locked_at": "2026-01-30T22:51:20.352159+00:00",
+  "mission_id": "01KN5R6XF1VZYTBSEQ40NRP719"
 }

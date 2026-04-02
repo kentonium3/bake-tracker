@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Dry-Run, Test Data & Polish
-lane: done
 dependencies: []
 subtasks:
 - T032
@@ -12,17 +11,20 @@ subtasks:
 - T037
 - T038
 phase: Phase 3 - Polish
-assignee: claude
-agent: claude
-shell_pid: '59105'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-12T23:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XE13JKYW144TE3PXKKF
+owned_files:
+- src/services/enhanced_import_service.py
+- src/services/import_export_service.py
+- src/tests/test_import_export.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Dry-Run, Test Data & Polish

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Import/Export & Historical - User Stories 7 & 8
-lane: done
 dependencies: []
 subtasks:
 - T055
@@ -12,17 +11,24 @@ subtasks:
 - T060
 - T061
 phase: Phase 3 - Polish
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDZK1N509JXJDJWTA46
+owned_files:
+- docs/import_export_format.md
+- kitty-specs/047-materials-management-system/spec.md
+- src/services/catalog_import_service.py
+- src/services/coordinated_export_service.py
+- src/services/material_consumption_service.py
+- src/tests/test_import_export_materials.py
+- src/tests/test_material_consumption_history.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Import/Export & Historical - User Stories 7 & 8

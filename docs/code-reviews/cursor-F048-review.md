@@ -3,7 +3,7 @@
 **Reviewer:** Cursor
 **Date:** 2026-01-11
 **Commit Range:** main..048-materials-ui-rebuild
-**Feature Spec:** /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/048-materials-ui-rebuild/kitty-specs/048-materials-ui-rebuild/spec.md
+**Feature Spec:** /Users/kentgale/repos/bake-tracker/.worktrees/048-materials-ui-rebuild/kitty-specs/048-materials-ui-rebuild/spec.md
 
 ## Executive Summary
 The new three-tab Materials UI largely mirrors the Ingredients pattern (tabview, sortable `Treeview` grids, cascading L0/L1 filters, modal CRUD dialogs) and passed all verification commands. However, key spec requirements for the catalog filter set and edit dialogs are missing: the Level filter is not implemented, and both material and product edit dialogs render the name field read-only (and the material base unit selector is ignored on save), blocking required edit flows.
@@ -52,9 +52,9 @@ The new three-tab Materials UI largely mirrors the Ingredients pattern (tabview,
 - Should material `base_unit_type` be immutable after creation (as the service currently enforces)? If so, can we hide/disable that field in edit mode to avoid implying it will change?
 
 ## Verification Results
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.ui.materials_tab import MaterialsTab, MaterialFormDialog, MaterialProductFormDialog, RecordPurchaseDialog, AdjustInventoryDialog, MaterialUnitFormDialog; print('Materials UI imports OK')"` → Materials UI imports OK
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, supplier_service; print('Material services import OK')"` → Material services import OK
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests -v --tb=short -q | tail -10` → 1958 passed, 14 skipped (TD-001 skips), 0 failures
+- `/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.ui.materials_tab import MaterialsTab, MaterialFormDialog, MaterialProductFormDialog, RecordPurchaseDialog, AdjustInventoryDialog, MaterialUnitFormDialog; print('Materials UI imports OK')"` → Materials UI imports OK
+- `/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, supplier_service; print('Material services import OK')"` → Material services import OK
+- `/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests -v --tb=short -q | tail -10` → 1958 passed, 14 skipped (TD-001 skips), 0 failures
 
 ## Files Reviewed
 - `src/ui/materials_tab.py` — New 3-tab UI, dialogs, grids, filtering/sorting, status bars.

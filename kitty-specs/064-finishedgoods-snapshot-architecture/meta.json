@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F064_finished_goods_snapshot_implementation.md for inputs on this feature.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-24T18:19:30.464581+00:00"
+  "vcs_locked_at": "2026-01-24T18:19:30.464581+00:00",
+  "mission_id": "01KN5R6XEEPFC5M6QMSET5MDCK"
 }

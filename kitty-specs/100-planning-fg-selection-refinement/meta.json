@@ -8,5 +8,6 @@
   "source_description": "See docs/func-spec/F100_planning_fg_selection_refinement.md for feature inputs. Follow docs/func-spec/claude-pre-implementation-prompt.md for instructions.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-09T21:32:10.004984+00:00"
+  "vcs_locked_at": "2026-02-09T21:32:10.004984+00:00",
+  "mission_id": "01KN5R6XFFGK25P26CHK2622DE"
 }

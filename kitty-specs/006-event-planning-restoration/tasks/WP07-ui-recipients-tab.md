@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: UI - Recipients Tab
-lane: done
 dependencies: []
 subtasks:
 - T049
@@ -10,17 +9,20 @@ subtasks:
 - T052
 - T053
 phase: Phase 3 - UI Layer
-assignee: claude
-agent: claude
-shell_pid: '9077'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-03'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125K
+owned_files:
+- kitty-specs/006-event-planning-restoration/contracts/recipient_service.md
+- kitty-specs/006-event-planning-restoration/spec.md
+- src/ui/recipients_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - UI - Recipients Tab

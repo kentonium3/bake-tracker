@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Quantity Persistence and Atomic Save
-lane: done
 dependencies:
 - WP01
 - WP02
@@ -14,17 +13,20 @@ subtasks:
 - T020
 - T021
 phase: Phase 4 - Save Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '34708'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-02-09T21:25:52Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFFGK25P26CHK2622DE
+owned_files:
+- src/services/event_service.py:3439
+- src/ui/components/fg_selection_frame.py
+- src/ui/planning_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 -- Quantity Persistence and Atomic Save

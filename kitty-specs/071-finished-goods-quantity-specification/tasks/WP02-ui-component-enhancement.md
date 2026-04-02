@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: UI Component Enhancement
-lane: done
 dependencies: [WP01]
 base_branch: 071-finished-goods-quantity-specification-WP01
 base_commit: 69a9ebc983d54438bb3354bc30afc1bfd78c1397
@@ -12,17 +11,22 @@ subtasks:
 - T007
 - T008
 phase: Phase 2 - UI Layer
-assignee: ''
-agent: claude-opus
-shell_pid: '80114'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XENYD8GA71M78PNF1QP
+owned_files:
+- kitty-specs/071-finished-goods-quantity-specification/plan.md
+- kitty-specs/071-finished-goods-quantity-specification/research.md
+- src/ui/components/fg_selection_frame.py
+- src/ui/dialogs/adjustment_dialog.py:258-306
+- src/ui/forms/package_form.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – UI Component Enhancement

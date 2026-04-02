@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: FinishedUnit Detail Dialog
-lane: done
 dependencies: []
 subtasks:
 - T011
@@ -12,17 +11,20 @@ subtasks:
 - T016
 - T017
 phase: Phase 2 - Production Recording
-assignee: ''
-agent: claude
-shell_pid: '45064'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- kitty-specs/014-production-assembly-recording/contracts/ui-components.md
+- kitty-specs/014-production-assembly-recording/data-model.md
+- src/ui/forms/finished_unit_detail.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - FinishedUnit Detail Dialog

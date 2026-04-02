@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP05",
+  "feature_slug": "080-recipe-slug-support",
+  "worktree_path": ".worktrees/080-recipe-slug-support-WP05",
+  "branch_name": "080-recipe-slug-support-WP05",
+  "base_branch": "080-recipe-slug-support-WP04",
+  "base_commit": "e0b74ad8525ccbbc3834826e3a032f9915f90a56",
+  "dependencies": [
+    "WP03"
+  ],
+  "created_at": "2026-01-28T17:49:52.672379+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

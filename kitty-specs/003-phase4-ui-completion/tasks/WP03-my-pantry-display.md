@@ -1,11 +1,8 @@
 ---
+work_package_id: 01KN5R6XK1HHTNGV94TB84V23Y
 title: My Pantry Tab - Inventory Display & Management
-lane: done
 dependencies:
 - WP02
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,14 +14,20 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - all pantry display and management features implemented
+authoritative_surface: src/ui/pantry_tab.py/
 estimate: 12-15 hours
+execution_mode: code_change
 feature: 003-phase4-ui-completion
 id: WP03
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PN
+owned_files:
+- src/ui/pantry_tab.py
 priority: P3
 tags:
 - ui
 - pantry
 - customtkinter
+wp_code: WP03
 ---
 
 # WP03: My Pantry Tab - Inventory Display & Management

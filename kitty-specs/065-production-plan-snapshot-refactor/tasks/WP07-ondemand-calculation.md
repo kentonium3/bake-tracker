@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: On-Demand Calculation
-lane: done
 dependencies:
 - WP01
 subtasks:
@@ -12,17 +11,22 @@ subtasks:
 - T033
 - T034
 phase: Phase 4 - On-Demand Calculation
-assignee: ''
-agent: claude-opus
-shell_pid: '98086'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNJ
+owned_files:
+- kitty-specs/065-production-plan-snapshot-refactor/plan.md
+- kitty-specs/065-production-plan-snapshot-refactor/research.md
+- kitty-specs/065-production-plan-snapshot-refactor/spec.md
+- src/services/planning/**
+- src/tests/unit/test_planning_service.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – On-Demand Calculation

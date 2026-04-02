@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "017-event-reporting-production",
   "source_description": "Feature 017: Reporting & Event Planning - Shopping list CSV export, event summary reports (planned vs actual), cost analysis views, recipient history, and production dashboard as default view",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD9ESY7QPGZ1DJEM2MP"
 }

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Schema & Model Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,22 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '2807'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-30T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW0
+owned_files:
+- kitty-specs/031-ingredient-hierarchy-taxonomy/data-model.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/research.md
+- src/models/ingredient.py
+- src/tests/models/test_ingredient.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Schema & Model Foundation

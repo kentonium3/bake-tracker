@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "076-assembly-feasibility-single-screen-planning",
+  "worktree_path": ".worktrees/076-assembly-feasibility-single-screen-planning-WP01",
+  "branch_name": "076-assembly-feasibility-single-screen-planning-WP01",
+  "base_branch": "main",
+  "base_commit": "a2808d4a47415faba26a82a211274ae75d229146",
+  "dependencies": [],
+  "created_at": "2026-01-27T22:01:15.561775+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

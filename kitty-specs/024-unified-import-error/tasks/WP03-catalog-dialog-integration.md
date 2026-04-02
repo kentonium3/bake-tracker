@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Catalog Dialog - ImportResultsDialog Integration
-lane: done
 dependencies: []
 subtasks:
 - T004
@@ -9,17 +8,22 @@ subtasks:
 - T006
 - T007
 phase: Phase 3 - Catalog Import Dialog Refactoring
-assignee: claude
-agent: claude-reviewer
-shell_pid: '77979'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDDYBXQPG4X5S4Y21TD
+owned_files:
+- docs/user_testing/**
+- kitty-specs/024-unified-import-error/data-model.md
+- kitty-specs/024-unified-import-error/plan.md
+- kitty-specs/024-unified-import-error/spec.md
+- src/ui/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Catalog Dialog - ImportResultsDialog Integration

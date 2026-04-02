@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Integration with Planning Tab
-lane: done
 dependencies:
 - WP03
 - WP04
@@ -17,17 +16,21 @@ subtasks:
 - T035
 - T036
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude
-shell_pid: '25855'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEQM23DZ45N6YV55ZM3
+owned_files:
+- kitty-specs/073-batch-calculation-user-decisions/plan.md
+- src/main.py
+- src/ui/planning_tab.py
+- src/ui/widgets/dialogs.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Integration with Planning Tab

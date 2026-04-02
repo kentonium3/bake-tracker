@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI Migration - Core Tabs
-lane: done
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -11,17 +10,20 @@ subtasks:
 - T020
 - T021
 phase: Phase 2 - UI Migration
-assignee: ''
-agent: ''
-shell_pid: '62222'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- src/ui/inventory_tab.py
+- src/ui/materials_tab.py
+- src/ui/planning_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – UI Migration - Core Tabs

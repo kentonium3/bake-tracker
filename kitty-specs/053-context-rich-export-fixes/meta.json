@@ -24,5 +24,6 @@
   "mission": "software-dev",
   "slug": "053-context-rich-export-fixes",
   "source_description": "See docs/design/F053_context_rich_export_fixes.md for this feature's input.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XE4HH17MDJTHTD283A8"
 }

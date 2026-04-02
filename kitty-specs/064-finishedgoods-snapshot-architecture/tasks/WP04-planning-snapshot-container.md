@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: PlanningSnapshot Container
-lane: done
 dependencies: [WP01, WP02, WP03]
 base_branch: 064-finishedgoods-snapshot-architecture-WP03
 base_commit: 98fadf2cddb70706811c213f524311e10316dad5
@@ -15,17 +14,23 @@ subtasks:
 - T024
 - T025
 phase: Phase 3 - Container
-assignee: ''
-agent: claude-opus
-shell_pid: '62838'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2025-01-24T05:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEEPFC5M6QMSET5MDCK
+owned_files:
+- kitty-specs/064-finishedgoods-snapshot-architecture/data-model.md
+- src/models/__init__.py
+- src/models/event.py
+- src/models/planning_snapshot.py
+- src/services/planning_snapshot_service.py
+- src/tests/test_planning_snapshot.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – PlanningSnapshot Container

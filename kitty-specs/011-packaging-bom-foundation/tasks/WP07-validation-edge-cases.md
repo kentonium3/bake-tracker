@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Validation & Edge Cases
-lane: done
 dependencies: []
 subtasks:
 - T056
@@ -13,17 +12,19 @@ subtasks:
 - T062
 - T063
 phase: Phase 3 - Polish
-assignee: claude
-agent: claude-opus-4-5
-shell_pid: review
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
 history:
 - timestamp: '2025-12-08T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YC
+owned_files:
+- src/services/product_service.py
+- src/tests/**
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Validation & Edge Cases

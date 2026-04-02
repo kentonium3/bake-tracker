@@ -2,7 +2,7 @@
 
 **Reviewer**: Cursor (acting as Senior Software Engineer)
 **Feature**: 020-enhanced-catalog-import
-**Worktree**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/020-enhanced-catalog-import/`
+**Worktree**: `/Users/kentgale/repos/bake-tracker/.worktrees/020-enhanced-catalog-import/`
 
 ---
 
@@ -147,7 +147,7 @@ Execute these from the worktree root:
 
 ```bash
 # Navigate to worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/020-enhanced-catalog-import/
+cd /Users/kentgale/repos/bake-tracker/.worktrees/020-enhanced-catalog-import/
 
 # Run catalog import tests
 pytest src/tests/test_catalog_import_service.py -v
@@ -179,7 +179,7 @@ Use this structure (following the pattern from `docs/code-reviews/cursor-F019-re
 ```markdown
 ## Code Review: Feature 020 - Enhanced Catalog Import
 
-**Worktree reviewed**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/020-enhanced-catalog-import/`
+**Worktree reviewed**: `/Users/kentgale/repos/bake-tracker/.worktrees/020-enhanced-catalog-import/`
 
 ### Feature intent (from spec.md)
 [Brief summary of what the feature is supposed to do]

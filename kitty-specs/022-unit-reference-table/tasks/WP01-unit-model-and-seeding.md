@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Unit Model & Seeding
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,26 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '23336'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-16T16:56:32Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDC9ESBEDJZ4RZ8SJW9
+owned_files:
+- kitty-specs/022-unit-reference-table/data-model.md
+- kitty-specs/022-unit-reference-table/plan.md
+- kitty-specs/022-unit-reference-table/spec.md
+- src/models/__init__.py
+- src/models/base.py
+- src/models/unit.py
+- src/services/database.py
+- src/tests/**
+- src/utils/constants.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Unit Model & Seeding

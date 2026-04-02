@@ -36,5 +36,6 @@
   "mission": "software-dev",
   "slug": "026-deferred-packaging-decisions",
   "source_description": "Enable bakers to plan events with generic packaging requirements, deferring specific design selection until assembly time while maintaining cost estimates and inventory awareness.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDEF705BE8ZVRB3GSQX"
 }

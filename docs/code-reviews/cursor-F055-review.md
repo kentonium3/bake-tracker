@@ -2,14 +2,14 @@
 
 **Reviewer:** Cursor (independent review)
 **Date:** 2026-01-15
-**Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/spec.md`
+**Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/spec.md`
 
 ## Summary
 Navigation reordering and new Deliver placeholder are present, and purchase tabs were reordered. However, the app will crash when building the Catalog mode because `MainWindow` still expects the old flat tab attributes that were removed by the new grouped Catalog mode. Catalog packaging fails the spec’s “Food Only vs Bundles” split. Several refresh/navigation helpers still reference missing tabs, so even if creation were fixed, backward-compatibility helpers would break. These must be resolved before release.
 
 ## Verification
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.ui.mode_manager import ModeManager; from src.ui.modes.deliver_mode import DeliverMode; print('Imports OK')"` ✅
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_service.py -v --ignore=src/tests/migration -x` ✅ (captured via head, pytest exit code 0)
+- `/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.ui.mode_manager import ModeManager; from src.ui.modes.deliver_mode import DeliverMode; print('Imports OK')"` ✅
+- `/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_service.py -v --ignore=src/tests/migration -x` ✅ (captured via head, pytest exit code 0)
 
 ## Findings
 

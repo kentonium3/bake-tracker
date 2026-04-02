@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: EventCard Widget
-lane: done
 dependencies: []
 subtasks:
 - T004
@@ -11,17 +10,22 @@ subtasks:
 - T008
 - T009
 phase: Phase 2 - UI Components
-assignee: claude
-agent: claude-reviewer
-shell_pid: '64318'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-12T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD9ESY7QPGZ1DJEM2MQ
+owned_files:
+- kitty-specs/018-event-production-dashboard/plan.md
+- kitty-specs/018-event-production-dashboard/spec.md
+- src/tests/manual/test_event_card.py
+- src/ui/widgets/**
+- src/utils/constants.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – EventCard Widget

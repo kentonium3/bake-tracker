@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Recipe Catalog Variant Grouping + Production Ready Default
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 328768f4daee82a997d39359558c3f7d6a9c9f78
@@ -11,17 +10,21 @@ subtasks:
 - T005
 - T010
 phase: Phase 1 - UI Polish
-assignee: ''
-agent: claude-opus
-shell_pid: '51931'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T18:09:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEG6XYFXF7NX79WPZDY
+owned_files:
+- kitty-specs/067-recipe-ui-polish-yield-variants/research.md
+- kitty-specs/067-recipe-ui-polish-yield-variants/spec.md
+- src/ui/forms/recipe_form.py
+- src/ui/widgets/data_table.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Recipe Catalog Variant Grouping + Production Ready Default

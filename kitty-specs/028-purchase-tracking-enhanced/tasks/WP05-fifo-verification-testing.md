@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: FIFO Verification and Final Testing
-lane: done
 dependencies: []
 subtasks:
 - T020
@@ -10,17 +9,21 @@ subtasks:
 - T023
 - T024
 phase: Phase 4 - Testing
-assignee: claude
-agent: claude
-shell_pid: reconciled
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDGV3D1KMCMMEA4MAM6
+owned_files:
+- kitty-specs/028-purchase-tracking-enhanced/plan.md
+- kitty-specs/028-purchase-tracking-enhanced/spec.md
+- src/services/**
+- src/tests/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - FIFO Verification and Final Testing

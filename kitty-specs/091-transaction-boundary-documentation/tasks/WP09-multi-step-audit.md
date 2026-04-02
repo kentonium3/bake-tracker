@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Multi-Step Operation Audit
-lane: done
 dependencies:
 - WP02
 base_branch: 091-transaction-boundary-documentation-WP02
@@ -15,17 +14,22 @@ subtasks:
 - T039
 - T040
 phase: Phase 3 - Audit
-assignee: ''
-agent: claude-review
-shell_pid: '59253'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/091-transaction-boundary-documentation/
+execution_mode: code_change
+mission_id: 01KN5R6XF7M2WKV1HXTK6TVV5Z
+owned_files:
+- kitty-specs/091-transaction-boundary-documentation/research/atomicity_audit.md
+- kitty-specs/091-transaction-boundary-documentation/tasks.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP02-crud-ingredient-recipe.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP09-multi-step-audit.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP12-verification-consistency.md
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 – Multi-Step Operation Audit

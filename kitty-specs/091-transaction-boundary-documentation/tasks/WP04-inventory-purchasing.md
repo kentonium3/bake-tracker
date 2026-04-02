@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Inventory & Purchasing Services
-lane: done
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -12,17 +11,20 @@ subtasks:
 - T013
 - T014
 phase: Phase 2 - Documentation
-assignee: ''
-agent: codex-wp04
-shell_pid: '44282'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF7M2WKV1HXTK6TVV5Z
+owned_files:
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP01-service-inventory-templates.md
+- src/services/inventory_item_service.py
+- src/services/purchase_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Inventory & Purchasing Services

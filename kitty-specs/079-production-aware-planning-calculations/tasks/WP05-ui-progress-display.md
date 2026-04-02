@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: UI Progress Display
-lane: done
 dependencies: [WP01, WP04]
 base_branch: 079-production-aware-planning-calculations-WP04
 base_commit: 3902ad097d18b29209277e63cc2860b183755479
@@ -12,17 +11,21 @@ subtasks:
 - T020
 - T021
 phase: Phase 3 - Polish
-assignee: ''
-agent: claude-lead
-shell_pid: '28507'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEWR0TPS4CA4V1SQ62K
+owned_files:
+- kitty-specs/079-production-aware-planning-calculations/plan.md
+- kitty-specs/079-production-aware-planning-calculations/spec.md
+- src/main.py
+- src/ui/planning_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – UI Progress Display

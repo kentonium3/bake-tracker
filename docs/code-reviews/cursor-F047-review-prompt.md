@@ -16,7 +16,7 @@
 7. Full import/export support with slug-based FK resolution
 
 **Specification Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/047-materials-management-system/kitty-specs/047-materials-management-system/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/047-materials-management-system/kitty-specs/047-materials-management-system/spec.md`
 
 ## Code Changes
 
@@ -64,16 +64,16 @@ The following files were modified as part of this feature. These are the primary
 
 ```bash
 # Navigate to the worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/047-materials-management-system
+cd /Users/kentgale/repos/bake-tracker/.worktrees/047-materials-management-system
 
 # Verify Python environment (use main repo's venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import MaterialCategory, MaterialSubcategory, Material, MaterialProduct, MaterialUnit, MaterialPurchase, MaterialConsumption; print('Material models import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import MaterialCategory, MaterialSubcategory, Material, MaterialProduct, MaterialUnit, MaterialPurchase, MaterialConsumption; print('Material models import OK')"
 
 # Verify services import
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, material_consumption_service; print('Material services import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, material_consumption_service; print('Material services import OK')"
 
 # Verify tests run (quick sanity check)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_catalog_service.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_catalog_service.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 If ANY verification command fails, STOP immediately and report the failure as a blocker before attempting any fixes.
@@ -92,14 +92,14 @@ If ANY verification command fails, STOP immediately and report the failure as a 
 ## Report Output
 
 Write your review report to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F047-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F047-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.
 
 ## Report Template
 
 Use the template at:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 Basic structure:
 

@@ -1,21 +1,25 @@
 ---
 work_package_id: WP05
 title: Form Dialog - Foods Component Section
-lane: done
 dependencies: [WP04]
 base_branch: 088-finished-goods-catalog-ui-WP04
 base_commit: 40e715ff668323f3a6f8de2b53a59e9afa66139b
 created_at: '2026-01-31T04:45:34.386818+00:00'
 subtasks: [T028, T029, T030, T031, T032, T033, T034]
-shell_pid: '26193'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 480
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/models/finished_unit.py
+- src/services/finished_unit_service.py
+- src/ui/forms/finished_good_form.py
 priority: P1
+wp_code: WP05
 ---
 
 # WP05: Form Dialog - Foods Component Section

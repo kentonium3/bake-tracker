@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: UI Dialog
-lane: done
 dependencies: []
 subtasks:
 - T050
@@ -17,17 +16,21 @@ subtasks:
 - T060
 - T061
 phase: Phase 3 - Interface
-assignee: claude
-agent: claude-reviewer
-shell_pid: '63528'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3M
+owned_files:
+- kitty-specs/020-enhanced-catalog-import/spec.md
+- src/ui/catalog_import_dialog.py
+- src/ui/import_export_dialog.py
+- src/ui/main_window.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - UI Dialog

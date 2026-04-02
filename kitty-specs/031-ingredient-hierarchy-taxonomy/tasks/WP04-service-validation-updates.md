@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Service Layer Validation Updates
-lane: done
 dependencies: []
 subtasks:
 - T021
@@ -10,17 +9,24 @@ subtasks:
 - T024
 - T025
 phase: Phase 2 - Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '4288'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-30T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW0
+owned_files:
+- kitty-specs/031-ingredient-hierarchy-taxonomy/data-model.md
+- kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md
+- src/services/ingredient_service.py
+- src/services/product_catalog_service.py
+- src/services/product_service.py
+- src/services/recipe_service.py
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Service Layer Validation Updates

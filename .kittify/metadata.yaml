@@ -5,7 +5,14 @@
 spec_kitty:
   version: 2.1.2
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-03-25T18:50:42.487349'
+  last_upgraded_at: '2026-04-02T00:07:03.310388+00:00'
+  project_uuid: 01KN5R6XBRXTR5HERF89NJ4PMC
+  schema_version: 3
+  schema_capabilities:
+  - canonical_context
+  - event_log_authority
+  - ownership_manifest
+  - thin_shims
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -15,12 +22,7 @@ migrations:
   - id: 0.11.1_improved_workflow_templates
     applied_at: '2026-01-24T04:31:44.126601'
     result: success
-    notes: 'Updated mission template: software-dev/implement.md; Updated mission template:
-      software-dev/review.md; Updated 2 templates for claude; Updated 2 templates
-      for gemini; Updated 2 templates for cursor; Updated 2 templates for codex; Total:
-      Updated 8 slash command templates across all agents; Templates now warn agents
-      to scroll to bottom of long output; Templates emphasize automated file updates
-      (no manual editing); Prevents state corruption from incomplete workflows'
+    notes: 'Updated mission template: software-dev/implement.md; Updated mission template: software-dev/review.md; Updated 2 templates for claude; Updated 2 templates for gemini; Updated 2 templates for cursor; Updated 2 templates for codex; Total: Updated 8 slash command templates across all agents; Templates now warn agents to scroll to bottom of long output; Templates emphasize automated file updates (no manual editing); Prevents state corruption from incomplete workflows'
   - id: 0.11.1_update_implement_slash_command
     applied_at: '2026-01-24T04:31:44.130278'
     result: success
@@ -28,12 +30,7 @@ migrations:
   - id: 0.11.2_improved_workflow_templates
     applied_at: '2026-01-24T04:31:44.194901'
     result: success
-    notes: 'Updated mission template: software-dev/implement.md; Updated mission template:
-      software-dev/review.md; Updated 2 templates for claude; Updated 2 templates
-      for gemini; Updated 2 templates for cursor; Updated 2 templates for codex; Total:
-      Updated 8 slash command templates across all agents; Templates now warn agents
-      to scroll to bottom of long output; Templates emphasize automated file updates
-      (no manual editing); Prevents state corruption from incomplete workflows'
+    notes: 'Updated mission template: software-dev/implement.md; Updated mission template: software-dev/review.md; Updated 2 templates for claude; Updated 2 templates for gemini; Updated 2 templates for cursor; Updated 2 templates for codex; Total: Updated 8 slash command templates across all agents; Templates now warn agents to scroll to bottom of long output; Templates emphasize automated file updates (no manual editing); Prevents state corruption from incomplete workflows'
   - id: 0.11.3_workflow_agent_flag
     applied_at: '2026-01-24T04:31:44.196266'
     result: skipped
@@ -69,14 +66,11 @@ migrations:
   - id: 0.13.5_fix_clarify_template
     applied_at: '2026-01-27T10:27:02.036807'
     result: success
-    notes: 'Updated: .claude/commands/spec-kitty.clarify.md; Updated: .cursor/commands/spec-kitty.clarify.md;
-      Updated: .codex/prompts/spec-kitty.clarify.md; Updated 3 agent clarify templates'
+    notes: 'Updated: .claude/commands/spec-kitty.clarify.md; Updated: .cursor/commands/spec-kitty.clarify.md; Updated: .codex/prompts/spec-kitty.clarify.md; Updated 3 agent clarify templates'
   - id: 0.13.5_add_commit_workflow_to_templates
     applied_at: '2026-01-27T10:27:02.045029'
     result: success
-    notes: 'Updated: .claude/commands/spec-kitty.implement.md; Updated: .gemini/commands/spec-kitty.implement.md;
-      Updated: .cursor/commands/spec-kitty.implement.md; Updated: .codex/prompts/spec-kitty.implement.md;
-      Updated 4 agent implement templates (software-dev)'
+    notes: 'Updated: .claude/commands/spec-kitty.implement.md; Updated: .gemini/commands/spec-kitty.implement.md; Updated: .cursor/commands/spec-kitty.implement.md; Updated: .codex/prompts/spec-kitty.implement.md; Updated 4 agent implement templates (software-dev)'
   - id: 0.13.8_target_branch
     applied_at: '2026-01-30T11:09:08.536477'
     result: success
@@ -92,283 +86,27 @@ migrations:
   - id: 2.0.0_constitution_directory
     applied_at: '2026-03-25T18:50:24.498769'
     result: success
-    notes: 'Moved .kittify/memory/constitution.md -> .kittify/constitution/constitution.md;
-      Initial extraction: 3 YAML files created'
+    notes: 'Moved .kittify/memory/constitution.md -> .kittify/constitution/constitution.md; Initial extraction: 3 YAML files created'
   - id: 2.0.0_historical_status_migration
     applied_at: '2026-03-25T18:50:27.248680'
     result: success
-    notes: '002-service-layer-for: migrated (6 WPs, 6 events); 003-phase4-ui-completion:
-      migrated (6 WPs, 6 events); 004-finishedunit-model-refactoring: migrated (6
-      WPs, 10 events); 005-recipe-fifo-cost: migrated (5 WPs, 5 events); 006-event-planning-restoration:
-      migrated (10 WPs, 10 events); 007-variant-aware-shopping: migrated (4 WPs, 4
-      events); 008-production-tracking: migrated (7 WPs, 7 events); 009-ui-import-export:
-      migrated (5 WPs, 5 events); 010-user-friendly-ingredient: migrated (5 WPs, 5
-      events); 011-packaging-bom-foundation: migrated (7 WPs, 7 events); 012-nested-recipes:
-      migrated (7 WPs, 7 events); 013-production-inventory-tracking: migrated (8 WPs,
-      8 events); 014-production-assembly-recording: migrated (8 WPs, 8 events); 016-event-centric-production:
-      migrated (10 WPs, 10 events); 017-event-reporting-production: migrated (6 WPs,
-      6 events); 018-event-production-dashboard: migrated (4 WPs, 4 events); 019-unit-conversion-simplification:
-      migrated (5 WPs, 5 events); 020-enhanced-catalog-import: migrated (8 WPs, 8
-      events); 021-field-naming-consistency: migrated (6 WPs, 6 events); 022-unit-reference-table:
-      migrated (5 WPs, 5 events); 023-product-name-differentiation: migrated (5 WPs,
-      5 events); 024-unified-import-error: migrated (4 WPs, 4 events); 025-production-loss-tracking:
-      migrated (7 WPs, 7 events); 026-deferred-packaging-decisions: migrated (9 WPs,
-      9 events); 027-product-catalog-management: migrated (9 WPs, 9 events); 028-purchase-tracking-enhanced:
-      migrated (5 WPs, 5 events); 029-streamlined-inventory-entry: migrated (11 WPs,
-      11 events); 030-enhanced-export-import: migrated (8 WPs, 8 events); 031-ingredient-hierarchy-taxonomy:
-      migrated (8 WPs, 8 events); 032-complete-f031-hierarchy: migrated (8 WPs, 8
-      events); 033-phase-1-ingredient: migrated (4 WPs, 4 events); 034-cascading-filters-recipe:
-      migrated (4 WPs, 4 events); 035-ingredient-auto-slug: migrated (6 WPs, 6 events);
-      036-ingredient-hierarchy-comprehensive: migrated (4 WPs, 4 events); 037-recipe-template-snapshot:
-      migrated (8 WPs, 9 events); 038-ui-mode-restructure: migrated (8 WPs, 8 events);
-      039-planning-workspace: migrated (9 WPs, 9 events); 040-import-export-v4: migrated
-      (10 WPs, 10 events); 041-manual-inventory-adjustments: migrated (5 WPs, 5 events);
-      043-purchases-tab-crud-operations: migrated (7 WPs, 7 events); 044-finished-units-yield-type-management:
-      migrated (5 WPs, 5 events); 045-cost-architecture-refactor: migrated (4 WPs,
-      4 events); 046-finished-goods-bundles-assembly: migrated (4 WPs, 4 events);
-      047-materials-management-system: migrated (8 WPs, 8 events); 049-import-export-phase1:
-      migrated (9 WPs, 9 events); 050-supplier-slug-support: migrated (6 WPs, 6 events);
-      051-import-export-ui-rationalization: migrated (8 WPs, 8 events); 052-ingredient-material-hierarchy-admin:
-      migrated (8 WPs, 8 events); 053-context-rich-export-fixes: migrated (3 WPs,
-      3 events); 054-cli-import-export-parity: migrated (5 WPs, 5 events); 055-workflow-aligned-navigation-cleanup:
-      migrated (5 WPs, 5 events); 056-unified-yield-management: migrated (6 WPs, 6
-      events); 057-purchase-management-provisional-products: migrated (4 WPs, 4 events);
-      058-materials-fifo-foundation: migrated (10 WPs, 10 events); 059-materials-purchase-integration:
-      migrated (9 WPs, 9 events); 060-architecture-hardening-service-boundaries: migrated
-      (7 WPs, 7 events); 061-finished-goods-inventory-service: migrated (8 WPs, 24
-      events); 062-service-session-consistency-hardening: migrated (11 WPs, 11 events);
-      063-variant-yield-inheritance: migrated (4 WPs, 4 events); 064-finishedgoods-snapshot-architecture:
-      migrated (4 WPs, 4 events); 065-production-plan-snapshot-refactor: migrated
-      (9 WPs, 9 events); 066-recipe-variant-yield-remediation: migrated (6 WPs, 6
-      events); 067-recipe-ui-polish-yield-variants: migrated (4 WPs, 4 events); 068-event-management-planning-data-model:
-      migrated (5 WPs, 5 events); 069-recipe-selection-for-event-planning: migrated
-      (3 WPs, 3 events); 070-finished-goods-filtering: migrated (4 WPs, 4 events);
-      071-finished-goods-quantity-specification: migrated (3 WPs, 3 events); 072-recipe-decomposition-aggregation:
-      migrated (3 WPs, 3 events); 073-batch-calculation-user-decisions: migrated (5
-      WPs, 5 events); 074-ingredient-aggregation: migrated (2 WPs, 2 events); 075-inventory-gap-analysis:
-      migrated (2 WPs, 2 events); 076-assembly-feasibility-single-screen-planning:
-      migrated (5 WPs, 5 events); 077-plan-state-management: migrated (3 WPs, 3 events);
-      078-plan-snapshots-amendments: migrated (5 WPs, 5 events); 079-production-aware-planning-calculations:
-      migrated (5 WPs, 5 events); 080-recipe-slug-support: migrated (5 WPs, 5 events);
-      081-snapshot-export-coverage: migrated (5 WPs, 5 events); 082-product-composite-slug-multi-tenant:
-      migrated (1 WPs, 1 events); 083-cli-transaction-import: migrated (4 WPs, 4 events);
-      084-dual-yield-recipe-output-support: migrated (5 WPs, 5 events); 085-material-unit-schema-refactor:
-      migrated (9 WPs, 9 events); 086-fix-material-unit-management-ux: migrated (4
-      WPs, 4 events); 087-catalog-tab-layout-standardization: migrated (4 WPs, 4 events);
-      088-finished-goods-catalog-ui: migrated (7 WPs, 7 events); 089-error-handling-foundation:
-      migrated (14 WPs, 14 events); 090-configuration-management-enhancement: migrated
-      (2 WPs, 2 events); 091-transaction-boundary-documentation: migrated (12 WPs,
-      12 events); 092-service-boundary-compliance: migrated (1 WPs, 1 events); 093-pagination-dtos-foundation:
-      migrated (2 WPs, 2 events); 094-core-api-standardization: migrated (9 WPs, 9
-      events); 095-enum-display-pattern-standardization: migrated (3 WPs, 3 events);
-      096-recipe-category-management: migrated (4 WPs, 4 events); 097-finished-goods-builder-ui:
-      migrated (7 WPs, 7 events); 098-auto-generation-finished-goods: migrated (8
-      WPs, 8 events); 099-fg-builder-filter-first-refinement: migrated (2 WPs, 2 events);
-      100-planning-fg-selection-refinement: migrated (5 WPs, 5 events); 101-type-ahead-search-component:
-      migrated (4 WPs, 4 events); 102-planning-selection-persistence-display: migrated
-      (1 WPs, 1 events); 103-fix-plan-mode-fg-batch-scoping: migrated (2 WPs, 2 events)'
+    notes: '002-service-layer-for: migrated (6 WPs, 6 events); 003-phase4-ui-completion: migrated (6 WPs, 6 events); 004-finishedunit-model-refactoring: migrated (6 WPs, 10 events); 005-recipe-fifo-cost: migrated (5 WPs, 5 events); 006-event-planning-restoration: migrated (10 WPs, 10 events); 007-variant-aware-shopping: migrated (4 WPs, 4 events); 008-production-tracking: migrated (7 WPs, 7 events); 009-ui-import-export: migrated (5 WPs, 5 events); 010-user-friendly-ingredient: migrated (5 WPs, 5 events); 011-packaging-bom-foundation: migrated (7 WPs, 7 events); 012-nested-recipes: migrated (7 WPs, 7 events); 013-production-inventory-tracking: migrated (8 WPs, 8 events); 014-production-assembly-recording: migrated (8 WPs, 8 events); 016-event-centric-production: migrated (10 WPs, 10 events); 017-event-reporting-production: migrated (6 WPs, 6 events); 018-event-production-dashboard: migrated (4 WPs, 4 events); 019-unit-conversion-simplification: migrated (5 WPs, 5 events); 020-enhanced-catalog-import: migrated (8 WPs, 8 events); 021-field-naming-consistency: migrated (6 WPs, 6 events); 022-unit-reference-table: migrated (5 WPs, 5 events); 023-product-name-differentiation: migrated (5 WPs, 5 events); 024-unified-import-error: migrated (4 WPs, 4 events); 025-production-loss-tracking: migrated (7 WPs, 7 events); 026-deferred-packaging-decisions: migrated (9 WPs, 9 events); 027-product-catalog-management: migrated (9 WPs, 9 events); 028-purchase-tracking-enhanced: migrated (5 WPs, 5 events); 029-streamlined-inventory-entry: migrated (11 WPs, 11 events); 030-enhanced-export-import: migrated (8 WPs, 8 events); 031-ingredient-hierarchy-taxonomy: migrated (8 WPs, 8 events); 032-complete-f031-hierarchy: migrated (8 WPs, 8 events); 033-phase-1-ingredient: migrated (4 WPs, 4 events); 034-cascading-filters-recipe: migrated (4 WPs, 4 events); 035-ingredient-auto-slug: migrated (6 WPs, 6 events); 036-ingredient-hierarchy-comprehensive: migrated (4 WPs, 4 events); 037-recipe-template-snapshot: migrated (8 WPs, 9 events); 038-ui-mode-restructure: migrated (8 WPs, 8 events); 039-planning-workspace: migrated (9 WPs, 9 events); 040-import-export-v4: migrated (10 WPs, 10 events); 041-manual-inventory-adjustments: migrated (5 WPs, 5 events); 043-purchases-tab-crud-operations: migrated (7 WPs, 7 events); 044-finished-units-yield-type-management: migrated (5 WPs, 5 events); 045-cost-architecture-refactor: migrated (4 WPs, 4 events); 046-finished-goods-bundles-assembly: migrated (4 WPs, 4 events); 047-materials-management-system: migrated (8 WPs, 8 events); 049-import-export-phase1: migrated (9 WPs, 9 events); 050-supplier-slug-support: migrated (6 WPs, 6 events); 051-import-export-ui-rationalization: migrated (8 WPs, 8 events); 052-ingredient-material-hierarchy-admin: migrated (8 WPs, 8 events); 053-context-rich-export-fixes: migrated (3 WPs, 3 events); 054-cli-import-export-parity: migrated (5 WPs, 5 events); 055-workflow-aligned-navigation-cleanup: migrated (5 WPs, 5 events); 056-unified-yield-management: migrated (6 WPs, 6 events); 057-purchase-management-provisional-products: migrated (4 WPs, 4 events); 058-materials-fifo-foundation: migrated (10 WPs, 10 events); 059-materials-purchase-integration: migrated (9 WPs, 9 events); 060-architecture-hardening-service-boundaries: migrated (7 WPs, 7 events); 061-finished-goods-inventory-service: migrated (8 WPs, 24 events); 062-service-session-consistency-hardening: migrated (11 WPs, 11 events); 063-variant-yield-inheritance: migrated (4 WPs, 4 events); 064-finishedgoods-snapshot-architecture: migrated (4 WPs, 4 events); 065-production-plan-snapshot-refactor: migrated (9 WPs, 9 events); 066-recipe-variant-yield-remediation: migrated (6 WPs, 6 events); 067-recipe-ui-polish-yield-variants: migrated (4 WPs, 4 events); 068-event-management-planning-data-model: migrated (5 WPs, 5 events); 069-recipe-selection-for-event-planning: migrated (3 WPs, 3 events); 070-finished-goods-filtering: migrated (4 WPs, 4 events); 071-finished-goods-quantity-specification: migrated (3 WPs, 3 events); 072-recipe-decomposition-aggregation:
+      migrated (3 WPs, 3 events); 073-batch-calculation-user-decisions: migrated (5 WPs, 5 events); 074-ingredient-aggregation: migrated (2 WPs, 2 events); 075-inventory-gap-analysis: migrated (2 WPs, 2 events); 076-assembly-feasibility-single-screen-planning: migrated (5 WPs, 5 events); 077-plan-state-management: migrated (3 WPs, 3 events); 078-plan-snapshots-amendments: migrated (5 WPs, 5 events); 079-production-aware-planning-calculations: migrated (5 WPs, 5 events); 080-recipe-slug-support: migrated (5 WPs, 5 events); 081-snapshot-export-coverage: migrated (5 WPs, 5 events); 082-product-composite-slug-multi-tenant: migrated (1 WPs, 1 events); 083-cli-transaction-import: migrated (4 WPs, 4 events); 084-dual-yield-recipe-output-support: migrated (5 WPs, 5 events); 085-material-unit-schema-refactor: migrated (9 WPs, 9 events); 086-fix-material-unit-management-ux: migrated (4 WPs, 4 events); 087-catalog-tab-layout-standardization: migrated (4 WPs, 4 events); 088-finished-goods-catalog-ui: migrated (7 WPs, 7 events); 089-error-handling-foundation: migrated (14 WPs, 14 events); 090-configuration-management-enhancement: migrated (2 WPs, 2 events); 091-transaction-boundary-documentation: migrated (12 WPs, 12 events); 092-service-boundary-compliance: migrated (1 WPs, 1 events); 093-pagination-dtos-foundation: migrated (2 WPs, 2 events); 094-core-api-standardization: migrated (9 WPs, 9 events); 095-enum-display-pattern-standardization: migrated (3 WPs, 3 events); 096-recipe-category-management: migrated (4 WPs, 4 events); 097-finished-goods-builder-ui: migrated (7 WPs, 7 events); 098-auto-generation-finished-goods: migrated (8 WPs, 8 events); 099-fg-builder-filter-first-refinement: migrated (2 WPs, 2 events); 100-planning-fg-selection-refinement: migrated (5 WPs, 5 events); 101-type-ahead-search-component: migrated (4 WPs, 4 events); 102-planning-selection-persistence-display: migrated (1 WPs, 1 events); 103-fix-plan-mode-fg-batch-scoping: migrated (2 WPs, 2 events)'
   - id: 2.0.0_retire_git_hooks
     applied_at: '2026-03-25T18:50:27.268352'
     result: success
-    notes: 'Removed 3 managed git hook(s); Removed managed hook: pre-commit; Removed
-      managed hook: pre-commit-agent-check; Removed managed hook: pre-commit-encoding-check'
+    notes: 'Removed 3 managed git hook(s); Removed managed hook: pre-commit; Removed managed hook: pre-commit-agent-check; Removed managed hook: pre-commit-encoding-check'
   - id: 2.0.1_fix_generated_command_templates
     applied_at: '2026-03-25T18:50:27.351599'
     result: success
-    notes: 'Updated: .claude/commands/spec-kitty.accept.md; Updated: .claude/commands/spec-kitty.merge.md;
-      Updated: .claude/commands/spec-kitty.plan.md; Updated: .claude/commands/spec-kitty.tasks.md;
-      Updated: .gemini/commands/spec-kitty.accept.md; Updated: .gemini/commands/spec-kitty.merge.md;
-      Updated: .gemini/commands/spec-kitty.plan.md; Updated: .gemini/commands/spec-kitty.tasks.md;
-      Updated: .gemini/commands/spec-kitty.accept.toml; Updated: .gemini/commands/spec-kitty.analyze.toml;
-      Updated: .gemini/commands/spec-kitty.checklist.toml; Updated: .gemini/commands/spec-kitty.clarify.toml;
-      Updated: .gemini/commands/spec-kitty.merge.toml; Updated: .gemini/commands/spec-kitty.plan.toml;
-      Updated: .gemini/commands/spec-kitty.tasks.toml; Updated: .cursor/commands/spec-kitty.accept.md;
-      Updated: .cursor/commands/spec-kitty.merge.md; Updated: .cursor/commands/spec-kitty.plan.md;
-      Updated: .cursor/commands/spec-kitty.tasks.md; Updated: .codex/prompts/spec-kitty.accept.md;
-      Updated: .codex/prompts/spec-kitty.merge.md; Updated: .codex/prompts/spec-kitty.plan.md;
-      Updated: .codex/prompts/spec-kitty.tasks.md'
+    notes: 'Updated: .claude/commands/spec-kitty.accept.md; Updated: .claude/commands/spec-kitty.merge.md; Updated: .claude/commands/spec-kitty.plan.md; Updated: .claude/commands/spec-kitty.tasks.md; Updated: .gemini/commands/spec-kitty.accept.md; Updated: .gemini/commands/spec-kitty.merge.md; Updated: .gemini/commands/spec-kitty.plan.md; Updated: .gemini/commands/spec-kitty.tasks.md; Updated: .gemini/commands/spec-kitty.accept.toml; Updated: .gemini/commands/spec-kitty.analyze.toml; Updated: .gemini/commands/spec-kitty.checklist.toml; Updated: .gemini/commands/spec-kitty.clarify.toml; Updated: .gemini/commands/spec-kitty.merge.toml; Updated: .gemini/commands/spec-kitty.plan.toml; Updated: .gemini/commands/spec-kitty.tasks.toml; Updated: .cursor/commands/spec-kitty.accept.md; Updated: .cursor/commands/spec-kitty.merge.md; Updated: .cursor/commands/spec-kitty.plan.md; Updated: .cursor/commands/spec-kitty.tasks.md; Updated: .codex/prompts/spec-kitty.accept.md; Updated: .codex/prompts/spec-kitty.merge.md; Updated: .codex/prompts/spec-kitty.plan.md; Updated: .codex/prompts/spec-kitty.tasks.md'
   - id: 2.0.6_consistency_sweep
     applied_at: '2026-03-25T18:50:42.040578'
     result: success
-    notes: 'migrated 0 identical and 54 customized legacy runtime asset(s); 002-service-layer-for:
-      wrote baseline meta.json; 002-service-layer-for: normalized 6 work package files;
-      002-service-layer-for: rewrote 6 legacy prompt reference(s); 003-phase4-ui-completion:
-      wrote baseline meta.json; 003-phase4-ui-completion: normalized 6 work package
-      files; 004-finishedunit-model-refactoring: wrote baseline meta.json; 004-finishedunit-model-refactoring:
-      normalized 6 work package files; 004-finishedunit-model-refactoring: rewrote
-      6 legacy prompt reference(s); 005-recipe-fifo-cost: wrote baseline meta.json;
-      005-recipe-fifo-cost: normalized 5 work package files; 005-recipe-fifo-cost:
-      rewrote 5 legacy prompt reference(s); 006-event-planning-restoration: wrote
-      baseline meta.json; 006-event-planning-restoration: normalized 10 work package
-      files; 006-event-planning-restoration: rewrote 10 legacy prompt reference(s);
-      007-variant-aware-shopping: wrote baseline meta.json; 007-variant-aware-shopping:
-      normalized 4 work package files; 007-variant-aware-shopping: rewrote 4 legacy
-      prompt reference(s); 008-production-tracking: wrote baseline meta.json; 008-production-tracking:
-      normalized 7 work package files; 008-production-tracking: rewrote 7 legacy prompt
-      reference(s); 009-ui-import-export: wrote baseline meta.json; 009-ui-import-export:
-      normalized 5 work package files; 009-ui-import-export: rewrote 5 legacy prompt
-      reference(s); 010-user-friendly-ingredient: wrote baseline meta.json; 010-user-friendly-ingredient:
-      normalized 5 work package files; 010-user-friendly-ingredient: rewrote 5 legacy
-      prompt reference(s); 011-packaging-bom-foundation: wrote baseline meta.json;
-      011-packaging-bom-foundation: normalized 7 work package files; 011-packaging-bom-foundation:
-      rewrote 7 legacy prompt reference(s); 012-nested-recipes: wrote baseline meta.json;
-      012-nested-recipes: normalized 7 work package files; 012-nested-recipes: rewrote
-      7 legacy prompt reference(s); 013-production-inventory-tracking: wrote baseline
-      meta.json; 013-production-inventory-tracking: normalized 8 work package files;
-      013-production-inventory-tracking: rewrote 8 legacy prompt reference(s); 014-production-assembly-recording:
-      wrote baseline meta.json; 014-production-assembly-recording: normalized 8 work
-      package files; 014-production-assembly-recording: rewrote 8 legacy prompt reference(s);
-      016-event-centric-production: wrote baseline meta.json; 016-event-centric-production:
-      normalized 10 work package files; 016-event-centric-production: rewrote 10 legacy
-      prompt reference(s); 017-event-reporting-production: wrote baseline meta.json;
-      017-event-reporting-production: normalized 6 work package files; 017-event-reporting-production:
-      rewrote 6 legacy prompt reference(s); 018-event-production-dashboard: wrote
-      baseline meta.json; 018-event-production-dashboard: normalized 4 work package
-      files; 018-event-production-dashboard: rewrote 4 legacy prompt reference(s);
-      019-unit-conversion-simplification: wrote baseline meta.json; 019-unit-conversion-simplification:
-      normalized 5 work package files; 019-unit-conversion-simplification: rewrote
-      5 legacy prompt reference(s); 020-enhanced-catalog-import: wrote baseline meta.json;
-      020-enhanced-catalog-import: normalized 8 work package files; 020-enhanced-catalog-import:
-      rewrote 8 legacy prompt reference(s); 021-field-naming-consistency: wrote baseline
-      meta.json; 021-field-naming-consistency: normalized 6 work package files; 021-field-naming-consistency:
-      rewrote 6 legacy prompt reference(s); 022-unit-reference-table: wrote baseline
-      meta.json; 022-unit-reference-table: normalized 5 work package files; 022-unit-reference-table:
-      rewrote 5 legacy prompt reference(s); 023-product-name-differentiation: wrote
-      baseline meta.json; 023-product-name-differentiation: normalized 5 work package
-      files; 023-product-name-differentiation: rewrote 5 legacy prompt reference(s);
-      024-unified-import-error: wrote baseline meta.json; 024-unified-import-error:
-      normalized 4 work package files; 024-unified-import-error: rewrote 4 legacy
-      prompt reference(s); 025-production-loss-tracking: wrote baseline meta.json;
-      025-production-loss-tracking: normalized 7 work package files; 025-production-loss-tracking:
-      rewrote 7 legacy prompt reference(s); 026-deferred-packaging-decisions: wrote
-      baseline meta.json; 026-deferred-packaging-decisions: normalized 9 work package
-      files; 026-deferred-packaging-decisions: rewrote 9 legacy prompt reference(s);
-      027-product-catalog-management: wrote baseline meta.json; 027-product-catalog-management:
-      normalized 9 work package files; 027-product-catalog-management: rewrote 9 legacy
-      prompt reference(s); 028-purchase-tracking-enhanced: wrote baseline meta.json;
-      028-purchase-tracking-enhanced: normalized 5 work package files; 028-purchase-tracking-enhanced:
-      rewrote 5 legacy prompt reference(s); 029-streamlined-inventory-entry: wrote
-      baseline meta.json; 029-streamlined-inventory-entry: normalized 11 work package
-      files; 029-streamlined-inventory-entry: rewrote 11 legacy prompt reference(s);
-      030-enhanced-export-import: wrote baseline meta.json; 030-enhanced-export-import:
-      normalized 8 work package files; 030-enhanced-export-import: rewrote 8 legacy
-      prompt reference(s); 031-ingredient-hierarchy-taxonomy: wrote baseline meta.json;
-      031-ingredient-hierarchy-taxonomy: normalized 8 work package files; 031-ingredient-hierarchy-taxonomy:
-      rewrote 8 legacy prompt reference(s); 032-complete-f031-hierarchy: wrote baseline
-      meta.json; 032-complete-f031-hierarchy: normalized 8 work package files; 032-complete-f031-hierarchy:
-      rewrote 8 legacy prompt reference(s); 033-phase-1-ingredient: wrote baseline
-      meta.json; 033-phase-1-ingredient: normalized 4 work package files; 033-phase-1-ingredient:
-      rewrote 4 legacy prompt reference(s); 034-cascading-filters-recipe: wrote baseline
-      meta.json; 034-cascading-filters-recipe: normalized 4 work package files; 034-cascading-filters-recipe:
-      rewrote 4 legacy prompt reference(s); 035-ingredient-auto-slug: wrote baseline
-      meta.json; 035-ingredient-auto-slug: normalized 6 work package files; 035-ingredient-auto-slug:
-      rewrote 6 legacy prompt reference(s); 036-ingredient-hierarchy-comprehensive:
-      wrote baseline meta.json; 036-ingredient-hierarchy-comprehensive: normalized
-      4 work package files; 036-ingredient-hierarchy-comprehensive: rewrote 4 legacy
-      prompt reference(s); 037-recipe-template-snapshot: wrote baseline meta.json;
-      037-recipe-template-snapshot: normalized 8 work package files; 037-recipe-template-snapshot:
-      rewrote 8 legacy prompt reference(s); 038-ui-mode-restructure: wrote baseline
-      meta.json; 038-ui-mode-restructure: normalized 8 work package files; 038-ui-mode-restructure:
-      rewrote 8 legacy prompt reference(s); 039-planning-workspace: wrote baseline
-      meta.json; 039-planning-workspace: normalized 9 work package files; 039-planning-workspace:
-      rewrote 9 legacy prompt reference(s); 040-import-export-v4: wrote baseline meta.json;
-      040-import-export-v4: normalized 10 work package files; 040-import-export-v4:
-      rewrote 10 legacy prompt reference(s); 041-manual-inventory-adjustments: wrote
-      baseline meta.json; 041-manual-inventory-adjustments: normalized 5 work package
-      files; 041-manual-inventory-adjustments: rewrote 5 legacy prompt reference(s);
-      042-ui-polish-layout: wrote baseline meta.json; 043-purchases-tab-crud-operations:
-      wrote baseline meta.json; 043-purchases-tab-crud-operations: normalized 7 work
-      package files; 044-finished-units-yield-type-management: wrote baseline meta.json;
-      044-finished-units-yield-type-management: normalized 5 work package files; 045-cost-architecture-refactor:
-      wrote baseline meta.json; 045-cost-architecture-refactor: normalized 4 work
-      package files; 046-finished-goods-bundles-assembly: wrote baseline meta.json;
-      046-finished-goods-bundles-assembly: normalized 4 work package files; 047-materials-management-system:
-      wrote baseline meta.json; 047-materials-management-system: normalized 8 work
-      package files; 048-materials-ui-rebuild: wrote baseline meta.json; 049-import-export-phase1:
-      wrote baseline meta.json; 049-import-export-phase1: normalized 9 work package
-      files; 049-import-export-phase1: rewrote 9 legacy prompt reference(s); 050-supplier-slug-support:
-      wrote baseline meta.json; 050-supplier-slug-support: normalized 6 work package
-      files; 051-import-export-ui-rationalization: wrote baseline meta.json; 051-import-export-ui-rationalization:
-      normalized 8 work package files; 052-ingredient-material-hierarchy-admin: wrote
-      baseline meta.json; 052-ingredient-material-hierarchy-admin: normalized 8 work
-      package files; 053-context-rich-export-fixes: wrote baseline meta.json; 053-context-rich-export-fixes:
-      normalized 3 work package files; 054-cli-import-export-parity: wrote baseline
-      meta.json; 054-cli-import-export-parity: normalized 5 work package files; 055-workflow-aligned-navigation-cleanup:
-      wrote baseline meta.json; 055-workflow-aligned-navigation-cleanup: normalized
-      5 work package files; 056-unified-yield-management: wrote baseline meta.json;
-      056-unified-yield-management: normalized 6 work package files; 057-purchase-management-provisional-products:
-      wrote baseline meta.json; 057-purchase-management-provisional-products: normalized
-      4 work package files; 058-materials-fifo-foundation: wrote baseline meta.json;
-      058-materials-fifo-foundation: normalized 10 work package files; 059-materials-purchase-integration:
-      wrote baseline meta.json; 059-materials-purchase-integration: normalized 9 work
-      package files; 060-architecture-hardening-service-boundaries: wrote baseline
-      meta.json; 060-architecture-hardening-service-boundaries: normalized 7 work
-      package files; 061-finished-goods-inventory-service: wrote baseline meta.json;
-      061-finished-goods-inventory-service: normalized 8 work package files; 062-service-session-consistency-hardening:
-      wrote baseline meta.json; 062-service-session-consistency-hardening: normalized
-      11 work package files; 063-variant-yield-inheritance: wrote baseline meta.json;
-      063-variant-yield-inheritance: normalized 4 work package files; 064-finishedgoods-snapshot-architecture:
-      wrote baseline meta.json; 064-finishedgoods-snapshot-architecture: normalized
-      4 work package files; 065-production-plan-snapshot-refactor: wrote baseline
-      meta.json; 065-production-plan-snapshot-refactor: normalized 9 work package
-      files; 066-recipe-variant-yield-remediation: wrote baseline meta.json; 066-recipe-variant-yield-remediation:
-      normalized 6 work package files; 067-recipe-ui-polish-yield-variants: wrote
-      baseline meta.json; 067-recipe-ui-polish-yield-variants: normalized 4 work package
-      files; 068-event-management-planning-data-model: wrote baseline meta.json; 068-event-management-planning-data-model:
-      normalized 5 work package files; 069-recipe-selection-for-event-planning: wrote
-      baseline meta.json; 069-recipe-selection-for-event-planning: normalized 3 work
-      package files; 070-finished-goods-filtering: wrote baseline meta.json; 070-finished-goods-filtering:
-      normalized 4 work package files; 071-finished-goods-quantity-specification:
-      wrote baseline meta.json; 071-finished-goods-quantity-specification: normalized
-      3 work package files; 072-recipe-decomposition-aggregation: wrote baseline meta.json;
-      072-recipe-decomposition-aggregation: normalized 3 work package files; 073-batch-calculation-user-decisions:
-      wrote baseline meta.json; 073-batch-calculation-user-decisions: normalized 5
-      work package files; 074-ingredient-aggregation: wrote baseline meta.json; 074-ingredient-aggregation:
-      normalized 2 work package files; 075-inventory-gap-analysis: wrote baseline
-      meta.json; 075-inventory-gap-analysis: normalized 2 work package files; 076-assembly-feasibility-single-screen-planning:
-      wrote baseline meta.json; 076-assembly-feasibility-single-screen-planning: normalized
-      5 work package files; 077-plan-state-management: wrote baseline meta.json; 077-plan-state-management:
-      normalized 3 work package files; 078-plan-snapshots-amendments: wrote baseline
-      meta.json; 078-plan-snapshots-amendments: normalized 5 work package files; 079-production-aware-planning-calculations:
-      wrote baseline meta.json; 079-production-aware-planning-calculations: normalized
-      5 work package files; 080-recipe-slug-support: wrote baseline meta.json; 080-recipe-slug-support:
-      normalized 5 work package files; 081-snapshot-export-coverage: wrote baseline
-      meta.json; 081-snapshot-export-coverage: normalized 5 work package files; 082-product-composite-slug-multi-tenant:
-      wrote baseline meta.json; 082-product-composite-slug-multi-tenant: normalized
-      1 work package files; 083-cli-transaction-import: wrote baseline meta.json;
-      083-cli-transaction-import: normalized 4 work package files; 083-cli-transaction-import:
-      rewrote 4 legacy prompt reference(s); 084-dual-yield-recipe-output-support:
-      wrote baseline meta.json; 084-dual-yield-recipe-output-support: normalized 5
-      work package files; 085-material-unit-schema-refactor: wrote baseline meta.json;
-      085-material-unit-schema-refactor: normalized 9 work package files; 086-fix-material-unit-management-ux:
-      wrote baseline meta.json; 086-fix-material-unit-management-ux: normalized 4
-      work package files; 087-catalog-tab-layout-standardization: wrote baseline meta.json;
-      087-catalog-tab-layout-standardization: normalized 4 work package files; 088-finished-goods-catalog-ui:
-      wrote baseline meta.json; 088-finished-goods-catalog-ui: normalized 7 work package
-      files; 089-error-handling-foundation: wrote baseline meta.json; 089-error-handling-foundation:
-      normalized 14 work package files; 090-configuration-management-enhancement:
-      wrote baseline meta.json; 090-configuration-management-enhancement: normalized
-      2 work package files; 091-transaction-boundary-documentation: wrote baseline
-      meta.json; 091-transaction-boundary-documentation: normalized 12 work package
-      files; 092-service-boundary-compliance: wrote baseline meta.json; 092-service-boundary-compliance:
-      normalized 1 work package files; 092-service-boundary-compliance: rewrote 1
-      legacy prompt reference(s); 093-pagination-dtos-foundation: wrote baseline meta.json;
-      093-pagination-dtos-foundation: normalized 2 work package files; 094-core-api-standardization:
-      wrote baseline meta.json; 094-core-api-standardization: normalized 9 work package
-      files; 095-enum-display-pattern-standardization: wrote baseline meta.json; 095-enum-display-pattern-standardization:
-      normalized 3 work package files; 096-recipe-category-management: wrote baseline
-      meta.json; 096-recipe-category-management: normalized 4 work package files;
-      097-finished-goods-builder-ui: wrote baseline meta.json; 097-finished-goods-builder-ui:
-      normalized 7 work package files; 098-auto-generation-finished-goods: wrote baseline
-      meta.json; 098-auto-generation-finished-goods: normalized 8 work package files;
-      099-fg-builder-filter-first-refinement: wrote baseline meta.json; 099-fg-builder-filter-first-refinement:
-      normalized 2 work package files; 100-planning-fg-selection-refinement: wrote
-      baseline meta.json; 100-planning-fg-selection-refinement: normalized 5 work
-      package files; 101-type-ahead-search-component: wrote baseline meta.json; 101-type-ahead-search-component:
-      normalized 4 work package files; 102-planning-selection-persistence-display:
-      normalized 1 work package files; 103-fix-plan-mode-fg-batch-scoping: normalized
-      2 work package files; WEB-000-web-migration: wrote baseline meta.json; WEB-001-web-foundation:
-      wrote baseline meta.json; main: wrote baseline meta.json'
+    notes: 'migrated 0 identical and 54 customized legacy runtime asset(s); 002-service-layer-for: wrote baseline meta.json; 002-service-layer-for: normalized 6 work package files; 002-service-layer-for: rewrote 6 legacy prompt reference(s); 003-phase4-ui-completion: wrote baseline meta.json; 003-phase4-ui-completion: normalized 6 work package files; 004-finishedunit-model-refactoring: wrote baseline meta.json; 004-finishedunit-model-refactoring: normalized 6 work package files; 004-finishedunit-model-refactoring: rewrote 6 legacy prompt reference(s); 005-recipe-fifo-cost: wrote baseline meta.json; 005-recipe-fifo-cost: normalized 5 work package files; 005-recipe-fifo-cost: rewrote 5 legacy prompt reference(s); 006-event-planning-restoration: wrote baseline meta.json; 006-event-planning-restoration: normalized 10 work package files; 006-event-planning-restoration: rewrote 10 legacy prompt reference(s); 007-variant-aware-shopping: wrote baseline meta.json; 007-variant-aware-shopping: normalized 4 work package files; 007-variant-aware-shopping: rewrote 4 legacy prompt reference(s); 008-production-tracking: wrote baseline meta.json; 008-production-tracking: normalized 7 work package files; 008-production-tracking: rewrote 7 legacy prompt reference(s); 009-ui-import-export: wrote baseline meta.json; 009-ui-import-export: normalized 5 work package files; 009-ui-import-export: rewrote 5 legacy prompt reference(s); 010-user-friendly-ingredient: wrote baseline meta.json; 010-user-friendly-ingredient: normalized 5 work package files; 010-user-friendly-ingredient: rewrote 5 legacy prompt reference(s); 011-packaging-bom-foundation: wrote baseline meta.json; 011-packaging-bom-foundation: normalized 7 work package files; 011-packaging-bom-foundation: rewrote 7 legacy prompt reference(s); 012-nested-recipes: wrote baseline meta.json; 012-nested-recipes: normalized 7 work package files; 012-nested-recipes: rewrote 7 legacy prompt reference(s); 013-production-inventory-tracking: wrote baseline meta.json; 013-production-inventory-tracking: normalized 8 work package files; 013-production-inventory-tracking: rewrote 8 legacy prompt reference(s); 014-production-assembly-recording: wrote baseline meta.json; 014-production-assembly-recording: normalized 8 work package files; 014-production-assembly-recording: rewrote 8 legacy prompt reference(s); 016-event-centric-production: wrote baseline meta.json; 016-event-centric-production: normalized 10 work package files; 016-event-centric-production: rewrote 10 legacy prompt reference(s); 017-event-reporting-production: wrote baseline meta.json; 017-event-reporting-production: normalized 6 work package files; 017-event-reporting-production: rewrote 6 legacy prompt reference(s); 018-event-production-dashboard: wrote baseline meta.json; 018-event-production-dashboard: normalized 4 work package files; 018-event-production-dashboard: rewrote 4 legacy prompt reference(s); 019-unit-conversion-simplification: wrote baseline meta.json; 019-unit-conversion-simplification: normalized 5 work package files; 019-unit-conversion-simplification: rewrote 5 legacy prompt reference(s); 020-enhanced-catalog-import: wrote baseline meta.json; 020-enhanced-catalog-import: normalized 8 work package files; 020-enhanced-catalog-import: rewrote 8 legacy prompt reference(s); 021-field-naming-consistency: wrote baseline meta.json; 021-field-naming-consistency: normalized 6 work package files; 021-field-naming-consistency: rewrote 6 legacy prompt reference(s); 022-unit-reference-table: wrote baseline meta.json; 022-unit-reference-table: normalized 5 work package files; 022-unit-reference-table: rewrote 5 legacy prompt reference(s); 023-product-name-differentiation: wrote baseline meta.json; 023-product-name-differentiation: normalized 5 work package files; 023-product-name-differentiation: rewrote 5 legacy prompt reference(s); 024-unified-import-error: wrote baseline meta.json; 024-unified-import-error: normalized 4 work package files; 024-unified-import-error: rewrote 4 legacy prompt reference(s); 025-production-loss-tracking: wrote
+      baseline meta.json; 025-production-loss-tracking: normalized 7 work package files; 025-production-loss-tracking: rewrote 7 legacy prompt reference(s); 026-deferred-packaging-decisions: wrote baseline meta.json; 026-deferred-packaging-decisions: normalized 9 work package files; 026-deferred-packaging-decisions: rewrote 9 legacy prompt reference(s); 027-product-catalog-management: wrote baseline meta.json; 027-product-catalog-management: normalized 9 work package files; 027-product-catalog-management: rewrote 9 legacy prompt reference(s); 028-purchase-tracking-enhanced: wrote baseline meta.json; 028-purchase-tracking-enhanced: normalized 5 work package files; 028-purchase-tracking-enhanced: rewrote 5 legacy prompt reference(s); 029-streamlined-inventory-entry: wrote baseline meta.json; 029-streamlined-inventory-entry: normalized 11 work package files; 029-streamlined-inventory-entry: rewrote 11 legacy prompt reference(s); 030-enhanced-export-import: wrote baseline meta.json; 030-enhanced-export-import: normalized 8 work package files; 030-enhanced-export-import: rewrote 8 legacy prompt reference(s); 031-ingredient-hierarchy-taxonomy: wrote baseline meta.json; 031-ingredient-hierarchy-taxonomy: normalized 8 work package files; 031-ingredient-hierarchy-taxonomy: rewrote 8 legacy prompt reference(s); 032-complete-f031-hierarchy: wrote baseline meta.json; 032-complete-f031-hierarchy: normalized 8 work package files; 032-complete-f031-hierarchy: rewrote 8 legacy prompt reference(s); 033-phase-1-ingredient: wrote baseline meta.json; 033-phase-1-ingredient: normalized 4 work package files; 033-phase-1-ingredient: rewrote 4 legacy prompt reference(s); 034-cascading-filters-recipe: wrote baseline meta.json; 034-cascading-filters-recipe: normalized 4 work package files; 034-cascading-filters-recipe: rewrote 4 legacy prompt reference(s); 035-ingredient-auto-slug: wrote baseline meta.json; 035-ingredient-auto-slug: normalized 6 work package files; 035-ingredient-auto-slug: rewrote 6 legacy prompt reference(s); 036-ingredient-hierarchy-comprehensive: wrote baseline meta.json; 036-ingredient-hierarchy-comprehensive: normalized 4 work package files; 036-ingredient-hierarchy-comprehensive: rewrote 4 legacy prompt reference(s); 037-recipe-template-snapshot: wrote baseline meta.json; 037-recipe-template-snapshot: normalized 8 work package files; 037-recipe-template-snapshot: rewrote 8 legacy prompt reference(s); 038-ui-mode-restructure: wrote baseline meta.json; 038-ui-mode-restructure: normalized 8 work package files; 038-ui-mode-restructure: rewrote 8 legacy prompt reference(s); 039-planning-workspace: wrote baseline meta.json; 039-planning-workspace: normalized 9 work package files; 039-planning-workspace: rewrote 9 legacy prompt reference(s); 040-import-export-v4: wrote baseline meta.json; 040-import-export-v4: normalized 10 work package files; 040-import-export-v4: rewrote 10 legacy prompt reference(s); 041-manual-inventory-adjustments: wrote baseline meta.json; 041-manual-inventory-adjustments: normalized 5 work package files; 041-manual-inventory-adjustments: rewrote 5 legacy prompt reference(s); 042-ui-polish-layout: wrote baseline meta.json; 043-purchases-tab-crud-operations: wrote baseline meta.json; 043-purchases-tab-crud-operations: normalized 7 work package files; 044-finished-units-yield-type-management: wrote baseline meta.json; 044-finished-units-yield-type-management: normalized 5 work package files; 045-cost-architecture-refactor: wrote baseline meta.json; 045-cost-architecture-refactor: normalized 4 work package files; 046-finished-goods-bundles-assembly: wrote baseline meta.json; 046-finished-goods-bundles-assembly: normalized 4 work package files; 047-materials-management-system: wrote baseline meta.json; 047-materials-management-system: normalized 8 work package files; 048-materials-ui-rebuild: wrote baseline meta.json; 049-import-export-phase1: wrote baseline meta.json; 049-import-export-phase1: normalized 9 work package files; 049-import-export-phase1: rewrote 9 legacy prompt reference(s); 050-supplier-slug-support:
+      wrote baseline meta.json; 050-supplier-slug-support: normalized 6 work package files; 051-import-export-ui-rationalization: wrote baseline meta.json; 051-import-export-ui-rationalization: normalized 8 work package files; 052-ingredient-material-hierarchy-admin: wrote baseline meta.json; 052-ingredient-material-hierarchy-admin: normalized 8 work package files; 053-context-rich-export-fixes: wrote baseline meta.json; 053-context-rich-export-fixes: normalized 3 work package files; 054-cli-import-export-parity: wrote baseline meta.json; 054-cli-import-export-parity: normalized 5 work package files; 055-workflow-aligned-navigation-cleanup: wrote baseline meta.json; 055-workflow-aligned-navigation-cleanup: normalized 5 work package files; 056-unified-yield-management: wrote baseline meta.json; 056-unified-yield-management: normalized 6 work package files; 057-purchase-management-provisional-products: wrote baseline meta.json; 057-purchase-management-provisional-products: normalized 4 work package files; 058-materials-fifo-foundation: wrote baseline meta.json; 058-materials-fifo-foundation: normalized 10 work package files; 059-materials-purchase-integration: wrote baseline meta.json; 059-materials-purchase-integration: normalized 9 work package files; 060-architecture-hardening-service-boundaries: wrote baseline meta.json; 060-architecture-hardening-service-boundaries: normalized 7 work package files; 061-finished-goods-inventory-service: wrote baseline meta.json; 061-finished-goods-inventory-service: normalized 8 work package files; 062-service-session-consistency-hardening: wrote baseline meta.json; 062-service-session-consistency-hardening: normalized 11 work package files; 063-variant-yield-inheritance: wrote baseline meta.json; 063-variant-yield-inheritance: normalized 4 work package files; 064-finishedgoods-snapshot-architecture: wrote baseline meta.json; 064-finishedgoods-snapshot-architecture: normalized 4 work package files; 065-production-plan-snapshot-refactor: wrote baseline meta.json; 065-production-plan-snapshot-refactor: normalized 9 work package files; 066-recipe-variant-yield-remediation: wrote baseline meta.json; 066-recipe-variant-yield-remediation: normalized 6 work package files; 067-recipe-ui-polish-yield-variants: wrote baseline meta.json; 067-recipe-ui-polish-yield-variants: normalized 4 work package files; 068-event-management-planning-data-model: wrote baseline meta.json; 068-event-management-planning-data-model: normalized 5 work package files; 069-recipe-selection-for-event-planning: wrote baseline meta.json; 069-recipe-selection-for-event-planning: normalized 3 work package files; 070-finished-goods-filtering: wrote baseline meta.json; 070-finished-goods-filtering: normalized 4 work package files; 071-finished-goods-quantity-specification: wrote baseline meta.json; 071-finished-goods-quantity-specification: normalized 3 work package files; 072-recipe-decomposition-aggregation: wrote baseline meta.json; 072-recipe-decomposition-aggregation: normalized 3 work package files; 073-batch-calculation-user-decisions: wrote baseline meta.json; 073-batch-calculation-user-decisions: normalized 5 work package files; 074-ingredient-aggregation: wrote baseline meta.json; 074-ingredient-aggregation: normalized 2 work package files; 075-inventory-gap-analysis: wrote baseline meta.json; 075-inventory-gap-analysis: normalized 2 work package files; 076-assembly-feasibility-single-screen-planning: wrote baseline meta.json; 076-assembly-feasibility-single-screen-planning: normalized 5 work package files; 077-plan-state-management: wrote baseline meta.json; 077-plan-state-management: normalized 3 work package files; 078-plan-snapshots-amendments: wrote baseline meta.json; 078-plan-snapshots-amendments: normalized 5 work package files; 079-production-aware-planning-calculations: wrote baseline meta.json; 079-production-aware-planning-calculations: normalized 5 work package files; 080-recipe-slug-support: wrote baseline meta.json; 080-recipe-slug-support: normalized 5 work package files; 081-snapshot-export-coverage:
+      wrote baseline meta.json; 081-snapshot-export-coverage: normalized 5 work package files; 082-product-composite-slug-multi-tenant: wrote baseline meta.json; 082-product-composite-slug-multi-tenant: normalized 1 work package files; 083-cli-transaction-import: wrote baseline meta.json; 083-cli-transaction-import: normalized 4 work package files; 083-cli-transaction-import: rewrote 4 legacy prompt reference(s); 084-dual-yield-recipe-output-support: wrote baseline meta.json; 084-dual-yield-recipe-output-support: normalized 5 work package files; 085-material-unit-schema-refactor: wrote baseline meta.json; 085-material-unit-schema-refactor: normalized 9 work package files; 086-fix-material-unit-management-ux: wrote baseline meta.json; 086-fix-material-unit-management-ux: normalized 4 work package files; 087-catalog-tab-layout-standardization: wrote baseline meta.json; 087-catalog-tab-layout-standardization: normalized 4 work package files; 088-finished-goods-catalog-ui: wrote baseline meta.json; 088-finished-goods-catalog-ui: normalized 7 work package files; 089-error-handling-foundation: wrote baseline meta.json; 089-error-handling-foundation: normalized 14 work package files; 090-configuration-management-enhancement: wrote baseline meta.json; 090-configuration-management-enhancement: normalized 2 work package files; 091-transaction-boundary-documentation: wrote baseline meta.json; 091-transaction-boundary-documentation: normalized 12 work package files; 092-service-boundary-compliance: wrote baseline meta.json; 092-service-boundary-compliance: normalized 1 work package files; 092-service-boundary-compliance: rewrote 1 legacy prompt reference(s); 093-pagination-dtos-foundation: wrote baseline meta.json; 093-pagination-dtos-foundation: normalized 2 work package files; 094-core-api-standardization: wrote baseline meta.json; 094-core-api-standardization: normalized 9 work package files; 095-enum-display-pattern-standardization: wrote baseline meta.json; 095-enum-display-pattern-standardization: normalized 3 work package files; 096-recipe-category-management: wrote baseline meta.json; 096-recipe-category-management: normalized 4 work package files; 097-finished-goods-builder-ui: wrote baseline meta.json; 097-finished-goods-builder-ui: normalized 7 work package files; 098-auto-generation-finished-goods: wrote baseline meta.json; 098-auto-generation-finished-goods: normalized 8 work package files; 099-fg-builder-filter-first-refinement: wrote baseline meta.json; 099-fg-builder-filter-first-refinement: normalized 2 work package files; 100-planning-fg-selection-refinement: wrote baseline meta.json; 100-planning-fg-selection-refinement: normalized 5 work package files; 101-type-ahead-search-component: wrote baseline meta.json; 101-type-ahead-search-component: normalized 4 work package files; 102-planning-selection-persistence-display: normalized 1 work package files; 103-fix-plan-mode-fg-batch-scoping: normalized 2 work package files; WEB-000-web-migration: wrote baseline meta.json; WEB-001-web-foundation: wrote baseline meta.json; main: wrote baseline meta.json'
   - id: 2.0.7_fix_stale_overrides
     applied_at: '2026-03-25T18:50:42.070501'
     result: skipped
@@ -376,8 +114,7 @@ migrations:
   - id: 2.0.9_state_gitignore
     applied_at: '2026-03-25T18:50:42.096083'
     result: success
-    notes: 'Added runtime state entries to .gitignore: .kittify/runtime/, .kittify/merge-state.json,
-      .kittify/events/, .kittify/dossiers/, kitty-specs/**/.kittify/dossiers/'
+    notes: 'Added runtime state entries to .gitignore: .kittify/runtime/, .kittify/merge-state.json, .kittify/events/, .kittify/dossiers/, kitty-specs/**/.kittify/dossiers/'
   - id: 2.0.11_install_skills
     applied_at: '2026-03-25T18:50:42.188110'
     result: success
@@ -385,10 +122,7 @@ migrations:
   - id: 2.0.11_remove_clarify_command
     applied_at: '2026-03-25T18:50:42.219242'
     result: success
-    notes: 'Removed: .claude/commands/spec-kitty.clarify.md; Removed: .codex/prompts/spec-kitty.clarify.md;
-      Removed: .cursor/commands/spec-kitty.clarify.md; Removed: .gemini/commands/spec-kitty.clarify.md;
-      Removed: .gemini/commands/spec-kitty.clarify.toml; Removed 5 clarify command
-      artifacts'
+    notes: 'Removed: .claude/commands/spec-kitty.clarify.md; Removed: .codex/prompts/spec-kitty.clarify.md; Removed: .cursor/commands/spec-kitty.clarify.md; Removed: .gemini/commands/spec-kitty.clarify.md; Removed: .gemini/commands/spec-kitty.clarify.toml; Removed 5 clarify command artifacts'
   - id: 2.1.1_repair_skill_pack
     applied_at: '2026-03-25T18:50:42.271907'
     result: skipped
@@ -400,13 +134,11 @@ migrations:
   - id: 2.1.2_fix_glossary_context_skill
     applied_at: '2026-03-25T18:50:42.326006'
     result: success
-    notes: Replaced .claude/skills/spec-kitty-glossary-context/SKILL.md; Replaced
-      .agents/skills/spec-kitty-glossary-context/SKILL.md
+    notes: Replaced .claude/skills/spec-kitty-glossary-context/SKILL.md; Replaced .agents/skills/spec-kitty-glossary-context/SKILL.md
   - id: 2.1.2_fix_orchestrator_api_skill
     applied_at: '2026-03-25T18:50:42.353240'
     result: success
-    notes: Replaced .claude/skills/spec-kitty-orchestrator-api-operator/SKILL.md;
-      Replaced .agents/skills/spec-kitty-orchestrator-api-operator/SKILL.md
+    notes: Replaced .claude/skills/spec-kitty-orchestrator-api-operator/SKILL.md; Replaced .agents/skills/spec-kitty-orchestrator-api-operator/SKILL.md
   - id: 2.1.2_fix_runtime_next_skill
     applied_at: '2026-03-25T18:50:42.381153'
     result: success
@@ -423,3 +155,15 @@ migrations:
     applied_at: '2026-03-25T18:50:42.460766'
     result: skipped
     notes: Not applicable
+  - id: 2.1.3_fix_planning_repository_terminology
+    applied_at: '2026-04-01T20:06:37.705724'
+    result: skipped
+    notes: Not applicable
+  - id: 2.1.3_restore_prompt_commands
+    applied_at: '2026-04-01T20:06:37.740417'
+    result: skipped
+    notes: Not applicable
+  - id: 2.1.4_enforce_command_file_state
+    applied_at: '2026-04-01T20:06:37.976817'
+    result: success
+    notes: 'Wrote prompt: .claude/commands/spec-kitty.analyze.md; Wrote prompt: .claude/commands/spec-kitty.checklist.md; Wrote prompt: .claude/commands/spec-kitty.constitution.md; Wrote prompt: .claude/commands/spec-kitty.plan.md; Wrote prompt: .claude/commands/spec-kitty.research.md; Wrote prompt: .claude/commands/spec-kitty.specify.md; Wrote prompt: .claude/commands/spec-kitty.tasks.md; Wrote prompt: .claude/commands/spec-kitty.tasks-outline.md; Wrote prompt: .claude/commands/spec-kitty.tasks-packages.md; Wrote shim: .claude/commands/spec-kitty.accept.md; Wrote shim: .claude/commands/spec-kitty.dashboard.md; Wrote shim: .claude/commands/spec-kitty.implement.md; Wrote shim: .claude/commands/spec-kitty.merge.md; Wrote shim: .claude/commands/spec-kitty.review.md; Wrote shim: .claude/commands/spec-kitty.status.md; Wrote shim: .claude/commands/spec-kitty.tasks-finalize.md; Wrote prompt: .gemini/commands/spec-kitty.analyze.toml; Wrote prompt: .gemini/commands/spec-kitty.checklist.toml; Wrote prompt: .gemini/commands/spec-kitty.constitution.toml; Wrote prompt: .gemini/commands/spec-kitty.plan.toml; Wrote prompt: .gemini/commands/spec-kitty.research.toml; Wrote prompt: .gemini/commands/spec-kitty.specify.toml; Wrote prompt: .gemini/commands/spec-kitty.tasks.toml; Wrote prompt: .gemini/commands/spec-kitty.tasks-outline.toml; Wrote prompt: .gemini/commands/spec-kitty.tasks-packages.toml; Wrote shim: .gemini/commands/spec-kitty.accept.toml; Wrote shim: .gemini/commands/spec-kitty.dashboard.toml; Wrote shim: .gemini/commands/spec-kitty.implement.toml; Wrote shim: .gemini/commands/spec-kitty.merge.toml; Wrote shim: .gemini/commands/spec-kitty.review.toml; Wrote shim: .gemini/commands/spec-kitty.status.toml; Wrote shim: .gemini/commands/spec-kitty.tasks-finalize.toml; Wrote prompt: .cursor/commands/spec-kitty.analyze.md; Wrote prompt: .cursor/commands/spec-kitty.checklist.md; Wrote prompt: .cursor/commands/spec-kitty.constitution.md; Wrote prompt: .cursor/commands/spec-kitty.plan.md; Wrote prompt: .cursor/commands/spec-kitty.research.md; Wrote prompt: .cursor/commands/spec-kitty.specify.md; Wrote prompt: .cursor/commands/spec-kitty.tasks.md; Wrote prompt: .cursor/commands/spec-kitty.tasks-outline.md; Wrote prompt: .cursor/commands/spec-kitty.tasks-packages.md; Wrote shim: .cursor/commands/spec-kitty.accept.md; Wrote shim: .cursor/commands/spec-kitty.dashboard.md; Wrote shim: .cursor/commands/spec-kitty.implement.md; Wrote shim: .cursor/commands/spec-kitty.merge.md; Wrote shim: .cursor/commands/spec-kitty.review.md; Wrote shim: .cursor/commands/spec-kitty.status.md; Wrote shim: .cursor/commands/spec-kitty.tasks-finalize.md; Wrote prompt: .codex/prompts/spec-kitty.analyze.md; Wrote prompt: .codex/prompts/spec-kitty.checklist.md; Wrote prompt: .codex/prompts/spec-kitty.constitution.md; Wrote prompt: .codex/prompts/spec-kitty.plan.md; Wrote prompt: .codex/prompts/spec-kitty.research.md; Wrote prompt: .codex/prompts/spec-kitty.specify.md; Wrote prompt: .codex/prompts/spec-kitty.tasks.md; Wrote prompt: .codex/prompts/spec-kitty.tasks_outline.md; Wrote prompt: .codex/prompts/spec-kitty.tasks_packages.md; Wrote shim: .codex/prompts/spec-kitty.accept.md; Wrote shim: .codex/prompts/spec-kitty.dashboard.md; Wrote shim: .codex/prompts/spec-kitty.implement.md; Wrote shim: .codex/prompts/spec-kitty.merge.md; Wrote shim: .codex/prompts/spec-kitty.review.md; Wrote shim: .codex/prompts/spec-kitty.status.md; Wrote shim: .codex/prompts/spec-kitty.tasks_finalize.md'

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Event Service CRUD Operations
-lane: done
 dependencies: [WP01]
 subtasks:
 - T005
@@ -11,11 +10,6 @@ subtasks:
 - T009
 - T010
 phase: Phase 1 - Service Hardening
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '83271'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
@@ -27,6 +21,17 @@ history:
   agent: claude-opus
   shell_pid: '83271'
   action: Review passed, moved to done
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- kitty-specs/062-service-session-consistency-hardening/plan.md
+- kitty-specs/062-service-session-consistency-hardening/research.md
+- src/main.py
+- src/services/event_service.py
+- src/tests/test_services.py
+- src/ui/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Event Service CRUD Operations

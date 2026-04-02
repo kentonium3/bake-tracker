@@ -1,22 +1,27 @@
 ---
 work_package_id: WP07
 title: Data Migration & Documentation
-lane: done
 dependencies: []
 subtasks:
 - T042
 - T043
 - T044
 phase: Phase 7 - Migration
-assignee: claude
-agent: claude-reviewer
-shell_pid: '75646'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQW
+owned_files:
+- docs/migrations/v0.6_to_v0.7_production_loss.md
+- kitty-specs/025-production-loss-tracking/data-model.md
+- kitty-specs/025-production-loss-tracking/plan.md
+- kitty-specs/025-production-loss-tracking/spec.md
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Data Migration & Documentation

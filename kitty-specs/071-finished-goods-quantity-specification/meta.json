@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F071_quantity_specification.md for feature inputs",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T14:23:46.931102+00:00"
+  "vcs_locked_at": "2026-01-27T14:23:46.931102+00:00",
+  "mission_id": "01KN5R6XENYD8GA71M78PNF1QP"
 }

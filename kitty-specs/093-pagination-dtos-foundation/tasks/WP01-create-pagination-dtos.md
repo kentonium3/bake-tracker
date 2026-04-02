@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Create Pagination DTOs and Tests
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,22 @@ subtasks:
 - T004
 - T005
 phase: Phase 1-2 - Implementation
-assignee: ''
-agent: claude
-shell_pid: '96214'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T12:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF91C13CTH1K1B97BDS
+owned_files:
+- docs/func-spec/F093_pagination_dtos_foundation.md
+- kitty-specs/093-pagination-dtos-foundation/plan.md
+- kitty-specs/093-pagination-dtos-foundation/spec.md
+- src/services/dto.py
+- src/tests/services/test_dto.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Create Pagination DTOs and Tests

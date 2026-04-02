@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: FK Resolver Service
-lane: done
 dependencies: []
 subtasks:
 - T016
@@ -11,17 +10,22 @@ subtasks:
 - T020
 - T021
 phase: Phase 2 - Import Services
-assignee: claude
-agent: claude
-shell_pid: reviewed
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDJXE26E9VEQ9EQSX8Y
+owned_files:
+- kitty-specs/030-enhanced-export-import/data-model.md
+- kitty-specs/030-enhanced-export-import/spec.md
+- src/services/catalog_import_service.py
+- src/services/fk_resolver_service.py
+- src/tests/services/test_fk_resolver.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - FK Resolver Service

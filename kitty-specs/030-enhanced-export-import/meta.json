@@ -39,5 +39,6 @@
   "mission": "research",
   "slug": "030-enhanced-export-import",
   "source_description": "See docs/design/F030_enhanced_export_import.md for the feature specification.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDJXE26E9VEQ9EQSX8Y"
 }

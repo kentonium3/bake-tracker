@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Entity-Specific Export Commands
-lane: done
 dependencies: []
 subtasks:
 - T027
@@ -13,17 +12,20 @@ subtasks:
 - T033
 - T034
 phase: Phase 4 - Entity-Specific Export Commands (P2-P3)
-assignee: ''
-agent: ''
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-15T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE533SSPWWZSQVVRXRA
+owned_files:
+- kitty-specs/054-cli-import-export-parity/plan.md
+- src/services/import_export_service.py
+- src/utils/import_export_cli.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Entity-Specific Export Commands

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Migration Transformation
-lane: done
 dependencies: []
 subtasks:
 - T074
@@ -14,17 +13,20 @@ subtasks:
 - T081
 - T082
 phase: Phase 4 - Integration & Migration
-assignee: claude
-agent: claude
-shell_pid: '61416'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- docs/constitution.md
+- kitty-specs/027-product-catalog-management/data-model.md
+- src/tests/migration/test_f027_migration.py
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 – Migration Transformation

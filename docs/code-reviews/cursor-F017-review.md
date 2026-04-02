@@ -1,6 +1,6 @@
 ## Code Review: Feature 017 — Event Reporting & Production Dashboard
 
-**Worktree reviewed**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/017-event-reporting-production/`
+**Worktree reviewed**: `/Users/kentgale/repos/bake-tracker/.worktrees/017-event-reporting-production/`
 
 ### Scope / Files Reviewed
 

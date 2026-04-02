@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model Layer – Add yield_type Field
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,21 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '68199'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SV
+owned_files:
+- kitty-specs/084-dual-yield-recipe-output-support/data-model.md
+- kitty-specs/084-dual-yield-recipe-output-support/research.md
+- src/models/finished_unit.py
+- src/tests/models/test_finished_unit_yield_type.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Model Layer – Add yield_type Field

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Database Foundation & Migration Infrastructure
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,9 +10,6 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Foundation
-assignee: Claude
-agent: claude
-shell_pid: '36008'
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: planned
@@ -25,8 +21,27 @@ history:
   agent: claude
   shell_pid: '19144'
   action: Started implementation
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PP
+owned_files:
+- src/migrations/__init__.py
+- src/migrations/migration_orchestrator.py
+- src/models/__init__.py
+- src/models/composition.py
+- src/models/finished_good.py
+- src/models/finished_unit.py
+- src/services/__init__.py
+- src/services/migration_service.py
+- src/utils/__init__.py
+- src/utils/backup_validator.py
+- tests/fixtures/migration_test_data.py
+- tests/integration/test_migration_workflow.py
+- tests/unit/models/**
+- tests/unit/test_migration_service.py
 reviewer: claude
 reviewer_shell_pid: '36008'
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Database Foundation & Migration Infrastructure

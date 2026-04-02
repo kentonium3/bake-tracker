@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: UI Integration & Wiring
-lane: done
 dependencies: []
 subtasks:
 - T024
@@ -11,15 +10,20 @@ subtasks:
 - T028
 - T029
 phase: Phase 2 - UI Layer (Gemini)
-assignee: claude
-agent: claude-reviewer
-shell_pid: '50469'
 history:
 - timestamp: '2026-01-07T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDT9VHN4V8WF9AVEAW7
+owned_files:
+- kitty-specs/041-manual-inventory-adjustments/contracts/inventory_adjustment_service.py
+- kitty-specs/041-manual-inventory-adjustments/spec.md
+- src/ui/inventory_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - UI Integration & Wiring

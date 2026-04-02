@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Edge Cases and Validation
-lane: done
 dependencies: []
 subtasks:
 - T021
@@ -9,18 +8,22 @@ subtasks:
 - T023
 - T024
 phase: Phase 3 - Polish
-assignee: claude
-agent: claude
-shell_pid: '83866'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PQ
+owned_files:
+- kitty-specs/005-recipe-fifo-cost/quickstart.md
+- kitty-specs/005-recipe-fifo-cost/spec.md
+- src/services/**
+- src/tests/**
 reviewer_shell_pid: '84323'
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Edge Cases and Validation

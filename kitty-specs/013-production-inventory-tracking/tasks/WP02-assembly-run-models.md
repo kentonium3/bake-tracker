@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Assembly Run Models
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -9,17 +8,27 @@ subtasks:
 - T007
 - T008
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '17130'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXB
+owned_files:
+- kitty-specs/013-production-inventory-tracking/data-model.md
+- kitty-specs/013-production-inventory-tracking/plan.md
+- src/models/__init__.py
+- src/models/assembly_finished_unit_consumption.py
+- src/models/assembly_packaging_consumption.py
+- src/models/assembly_run.py
+- src/models/base.py
+- src/models/finished_good.py
+- src/models/finished_unit.py
+- src/models/product.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Assembly Run Models

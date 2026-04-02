@@ -9,7 +9,7 @@
 ## Specification
 
 Read the full specification before examining implementation:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/050-supplier-slug-support/kitty-specs/050-supplier-slug-support/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/050-supplier-slug-support/kitty-specs/050-supplier-slug-support/spec.md`
 
 ## Code Changes
 
@@ -42,13 +42,13 @@ These are the primary changes, but review should extend to any related code, dep
 
 ```bash
 # Navigate to the worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/050-supplier-slug-support
+cd /Users/kentgale/repos/bake-tracker/.worktrees/050-supplier-slug-support
 
 # Verify imports work (uses main repo venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.supplier_service import generate_supplier_slug; print('Import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.supplier_service import generate_supplier_slug; print('Import OK')"
 
 # Run a quick test to verify environment
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_supplier_service.py::TestSupplierSlugGeneration::test_physical_supplier_slug -v
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_supplier_service.py::TestSupplierSlugGeneration::test_physical_supplier_slug -v
 ```
 
 If ANY command fails, STOP immediately and report blocker before attempting fixes.
@@ -66,10 +66,10 @@ If ANY command fails, STOP immediately and report blocker before attempting fixe
 
 ## Report Template
 
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output
 
-Write your review report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F050-review.md`
+Write your review report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F050-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.

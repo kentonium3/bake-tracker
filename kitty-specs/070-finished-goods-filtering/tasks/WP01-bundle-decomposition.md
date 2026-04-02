@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Bundle Decomposition Algorithm
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,23 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Service Layer
-assignee: ''
-agent: claude
-shell_pid: '28478'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEK3YBGBCM1KMCD8JWZ
+owned_files:
+- kitty-specs/070-finished-goods-filtering/data-model.md
+- kitty-specs/070-finished-goods-filtering/research.md
+- kitty-specs/070-finished-goods-filtering/spec.md
+- src/services/event_service.py
+- src/services/planning/batch_calculation.py:149-234
+- src/tests/test_fg_availability.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Bundle Decomposition Algorithm

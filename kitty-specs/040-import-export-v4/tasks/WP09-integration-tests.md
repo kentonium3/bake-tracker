@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Integration Tests
-lane: done
 dependencies: []
 subtasks:
 - T038
@@ -9,17 +8,20 @@ subtasks:
 - T040
 - T041
 phase: Phase 3 - Integration & Documentation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '11228'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDSX1JRPNAECZJXZPK3
+owned_files:
+- kitty-specs/040-import-export-v4/data-model.md
+- kitty-specs/040-import-export-v4/spec.md
+- src/tests/integration/test_import_export_v4.py
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 - Integration Tests

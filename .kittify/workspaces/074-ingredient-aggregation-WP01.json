@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "074-ingredient-aggregation",
+  "worktree_path": ".worktrees/074-ingredient-aggregation-WP01",
+  "branch_name": "074-ingredient-aggregation-WP01",
+  "base_branch": "main",
+  "base_commit": "8657d3be86f0ed213c9002069fa57a2a2c98c32f",
+  "dependencies": [],
+  "created_at": "2026-01-27T20:40:31.287123+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

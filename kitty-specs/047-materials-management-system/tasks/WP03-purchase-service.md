@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Purchase Service - User Story 2
-lane: done
 dependencies: []
 subtasks:
 - T017
@@ -12,17 +11,25 @@ subtasks:
 - T022
 - T023
 phase: Phase 1 - Core Services
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDZK1N509JXJDJWTA46
+owned_files:
+- kitty-specs/047-materials-management-system/contracts/material_purchase_service.md
+- kitty-specs/047-materials-management-system/spec.md
+- src/models/purchase.py
+- src/services/__init__.py
+- src/services/material_purchase_service.py
+- src/services/purchase_service.py
+- src/services/unit_converter.py
+- src/tests/test_material_purchase_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Purchase Service - User Story 2

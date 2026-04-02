@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Sample Data & Integration Testing
-lane: done
 dependencies: []
 subtasks:
 - T033
@@ -11,17 +10,21 @@ subtasks:
 - T037
 - T038
 phase: Phase 4 - Testing & Polish
-assignee: claude
-agent: claude-reviewer
-shell_pid: '85685'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2S
+owned_files:
+- docs/design/import_export_specification.md
+- kitty-specs/009-ui-import-export/data-model.md
+- kitty-specs/009-ui-import-export/spec.md
+- src/tests/services/test_import_export_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Sample Data & Integration Testing

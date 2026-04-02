@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: PlanSnapshot Model Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,26 @@ subtasks:
 - T003
 - T004
 phase: Phase 0 - Foundation
-assignee: ''
-agent: gemini
-shell_pid: '86129'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEVD4P2GRENSDCXQ38D
+owned_files:
+- kitty-specs/078-plan-snapshots-amendments/data-model.md
+- kitty-specs/078-plan-snapshots-amendments/plan.md
+- kitty-specs/078-plan-snapshots-amendments/spec.md
+- src/models/__init__.py
+- src/models/event.py
+- src/models/plan_amendment.py
+- src/models/plan_snapshot.py
+- src/models/production_plan_snapshot.py
+- src/tests/test_plan_snapshot_model.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – PlanSnapshot Model Foundation

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Products Tab Frame
-lane: done
 dependencies: []
 subtasks:
 - T039
@@ -15,17 +14,22 @@ subtasks:
 - T047
 - T048
 phase: Phase 3 - UI Layer
-assignee: claude
-agent: system
-shell_pid: '50566'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- kitty-specs/027-product-catalog-management/spec.md
+- src/ui/inventory_tab.py
+- src/ui/main_window.py
+- src/ui/products_tab.py
+- src/ui/recipes_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Products Tab Frame

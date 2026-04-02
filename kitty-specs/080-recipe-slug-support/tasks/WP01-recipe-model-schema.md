@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Recipe Model Schema Changes
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,27 @@ subtasks:
 - T004
 - T005
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-code
-shell_pid: '56589'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEXQQKHVK36YVCMT3H2
+owned_files:
+- kitty-specs/080-recipe-slug-support/data-model.md
+- kitty-specs/080-recipe-slug-support/plan.md
+- kitty-specs/080-recipe-slug-support/research.md
+- kitty-specs/080-recipe-slug-support/spec.md
+- src/models/recipe.py
+- src/models/supplier.py
+- src/models/supplier.py:183-189
+- src/models/supplier.py:82-83
+- src/services/finished_unit_service.py:629-652
+- src/tests/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Recipe Model Schema Changes

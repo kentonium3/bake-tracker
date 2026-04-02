@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: MaterialInventoryService Tests
-lane: done
 dependencies: [WP05]
 subtasks:
 - T022
@@ -14,11 +13,6 @@ subtasks:
 - T044
 - T045
 phase: Phase 2 - Services
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '28682'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -30,6 +24,14 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: Comprehensive MaterialInventoryService tests'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/spec.md
+- src/services/material_inventory_service/**
+- src/tests/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – MaterialInventoryService Tests

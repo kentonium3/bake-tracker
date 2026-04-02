@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Denormalized Export Service
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -10,17 +9,22 @@ subtasks:
 - T010
 - T011
 phase: Phase 1 - Export Services
-assignee: gemini
-agent: gemini
-shell_pid: retroactive
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDJXE26E9VEQ9EQSX8Y
+owned_files:
+- kitty-specs/030-enhanced-export-import/data-model.md
+- kitty-specs/030-enhanced-export-import/spec.md
+- src/services/denormalized_export_service.py
+- src/services/import_export_service.py
+- src/tests/services/test_denormalized_export.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Denormalized Export Service

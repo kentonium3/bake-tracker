@@ -65,10 +65,10 @@ Read these BEFORE looking at the implementation:
 Run these commands from the worktree. If ANY fail, STOP and report as a blocker before continuing.
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/040-import-export-v4
+cd /Users/kentgale/repos/bake-tracker/.worktrees/040-import-export-v4
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all modified modules import correctly
 PYTHONPATH=. python3 -c "
@@ -137,7 +137,7 @@ Based on the spec (which you should read first), form your own assessment of:
 ## Output Format
 
 Write your review to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F040-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F040-review.md`
 
 Use this format:
 

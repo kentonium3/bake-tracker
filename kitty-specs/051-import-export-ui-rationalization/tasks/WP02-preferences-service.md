@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Preferences Service
-lane: done
 dependencies: []
 subtasks:
 - T008
@@ -12,17 +11,25 @@ subtasks:
 - T013
 - T014
 phase: Phase 0 - Foundational
-assignee: ''
-agent: codex
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-13T12:55:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE2J37BC1QGRYHHKE8N
+owned_files:
+- kitty-specs/051-import-export-ui-rationalization/data-model.md
+- kitty-specs/051-import-export-ui-rationalization/plan.md
+- kitty-specs/051-import-export-ui-rationalization/spec.md
+- src/models/app_config.py
+- src/services/database/**
+- src/services/database.py
+- src/services/preferences_service.py
+- src/tests/test_preferences_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Preferences Service

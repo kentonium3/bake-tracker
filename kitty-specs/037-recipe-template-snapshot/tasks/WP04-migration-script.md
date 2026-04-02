@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Migration Script
-lane: done
 dependencies: []
 subtasks:
 - T014
@@ -9,17 +8,18 @@ subtasks:
 - T016
 - T017
 phase: Phase 1 - Core Snapshot System
-assignee: claude
-agent: claude-reviewer
-shell_pid: '97164'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/tests/test_migration.py/
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- src/tests/test_migration.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Migration Script

@@ -1,11 +1,8 @@
 ---
+work_package_id: 01KN5R6XK9TN251JBCPA8SE1FG
 title: My Pantry Tab - FIFO Consumption Interface
-lane: done
 dependencies:
 - WP03
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -17,14 +14,20 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - FIFO consumption interface with preview and execution implemented
+authoritative_surface: src/
 estimate: 8-10 hours
+execution_mode: code_change
 feature: 003-phase4-ui-completion
 id: WP04
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PN
+owned_files:
+- src/**
 priority: P4
 tags:
 - ui
 - fifo
 - consumption
+wp_code: WP04
 ---
 
 # WP04: My Pantry Tab - FIFO Consumption Interface

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model Layer - Schema Changes
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -14,17 +13,25 @@ subtasks:
 - T008
 - T009
 phase: Phase 1 - Model Layer
-assignee: claude
-agent: claude-reviewer
-shell_pid: '83064'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/data-model.md
+- kitty-specs/016-event-centric-production/research.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/models/__init__.py
+- src/models/assembly_run.py
+- src/models/event.py
+- src/models/production_run.py
+- src/tests/models/test_event_models.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Model Layer - Schema Changes

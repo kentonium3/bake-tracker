@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Production-Aware Shopping List
-lane: done
 dependencies: [WP01]
 base_branch: 079-production-aware-planning-calculations-WP01
 base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
@@ -12,17 +11,22 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - Core Features
-assignee: ''
-agent: claude-lead
-shell_pid: '27841'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEWR0TPS4CA4V1SQ62K
+owned_files:
+- kitty-specs/079-production-aware-planning-calculations/plan.md
+- kitty-specs/079-production-aware-planning-calculations/spec.md
+- src/services/planning/shopping_list/**
+- src/services/planning/shopping_list.py
+- src/tests/planning/test_shopping_list.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Production-Aware Shopping List

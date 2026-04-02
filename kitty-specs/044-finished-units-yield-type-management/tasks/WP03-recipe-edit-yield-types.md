@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Recipe Edit Form - Yield Types Section
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -11,17 +10,18 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - Core UI
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-09T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/forms/recipe_form.py/
+execution_mode: code_change
+mission_id: 01KN5R6XDXQ9ZQXF1P3GAKWE01
+owned_files:
+- src/ui/forms/recipe_form.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Recipe Edit Form - Yield Types Section

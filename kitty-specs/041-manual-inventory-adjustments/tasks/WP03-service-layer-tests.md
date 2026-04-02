@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Service Layer Tests
-lane: done
 dependencies: []
 subtasks:
 - T010
@@ -12,15 +11,20 @@ subtasks:
 - T015
 - T016
 phase: Phase 1 - Service Layer (Claude)
-assignee: claude
-agent: claude-reviewer
-shell_pid: '49789'
 history:
 - timestamp: '2026-01-07T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDT9VHN4V8WF9AVEAW7
+owned_files:
+- kitty-specs/041-manual-inventory-adjustments/spec.md
+- src/services/inventory_item_service/**
+- src/tests/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Service Layer Tests

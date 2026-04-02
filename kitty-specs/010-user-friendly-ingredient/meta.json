@@ -23,5 +23,6 @@
   "mission": "software-dev",
   "slug": "010-user-friendly-ingredient",
   "source_description": "Replace density_g_per_ml with 4-field density model for natural baker input",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD5VPYBB6ESP5AZZG2T"
 }

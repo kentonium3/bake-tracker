@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Snapshot Service & Production Hook
-lane: done
 dependencies: [WP01]
 base_branch: 078-plan-snapshots-amendments-WP01
 base_commit: d2f8686ceba5c554cd7771fbb22fd17de0e66172
@@ -13,17 +12,24 @@ subtasks:
 - T008
 - T009
 phase: Phase 0 - Foundation
-assignee: ''
-agent: gemini
-shell_pid: '86354'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEVD4P2GRENSDCXQ38D
+owned_files:
+- kitty-specs/078-plan-snapshots-amendments/plan.md
+- kitty-specs/078-plan-snapshots-amendments/spec.md
+- src/services/batch_decision_service.py
+- src/services/event_service.py
+- src/services/plan_snapshot_service.py
+- src/services/plan_state_service.py
+- src/tests/test_plan_snapshot_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Snapshot Service & Production Hook

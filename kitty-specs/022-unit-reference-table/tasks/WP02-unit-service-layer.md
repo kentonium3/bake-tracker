@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Unit Service Layer
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -10,17 +9,20 @@ subtasks:
 - T010
 - T011
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude
-shell_pid: claude-session
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-16T16:56:32Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDC9ESBEDJZ4RZ8SJW9
+owned_files:
+- kitty-specs/022-unit-reference-table/plan.md
+- src/services/**
+- src/tests/test_unit_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Unit Service Layer

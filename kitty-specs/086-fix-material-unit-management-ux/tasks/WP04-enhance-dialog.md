@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Enhance MaterialUnit Dialog
-lane: done
 dependencies: [WP03]
 base_branch: 086-fix-material-unit-management-ux-WP03
 base_commit: 4e723dcba6e32c83f9e9300bfff6a577715837d0
@@ -12,17 +11,23 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - Enhancement
-assignee: ''
-agent: claude-opus
-shell_pid: '80903'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T22:39:29Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF1VZYTBSEQ40NRP719
+owned_files:
+- kitty-specs/086-fix-material-unit-management-ux/plan.md
+- kitty-specs/086-fix-material-unit-management-ux/spec.md
+- src/models/material.py
+- src/models/material_product.py
+- src/services/unit_conversion_service.py
+- src/ui/dialogs/material_unit_dialog.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Enhance MaterialUnit Dialog

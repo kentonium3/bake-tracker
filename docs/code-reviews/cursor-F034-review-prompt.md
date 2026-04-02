@@ -25,7 +25,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Products Tab (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/products_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/products_tab.py`
   - **WP01**: `self._updating_filters = False` added to `__init__` (around line 54-55)
   - **WP01**: Clear Filters button added to filter_frame (around line 194-201)
   - **WP01**: `_on_l0_filter_change()` wrapped with re-entry guard (around line 490-525)
@@ -34,7 +34,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Inventory Tab (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/inventory_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/inventory_tab.py`
   - **WP02**: `self._updating_filters = False` added to `__init__` (around line 84-85)
   - **WP02**: Clear Filters button added to controls_frame (around line 189-196)
   - **WP02**: Grid column indices shifted to accommodate new button (columns 7-11)
@@ -44,28 +44,28 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Recipe Form (WP03 - Verification Only)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/forms/recipe_form.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/forms/recipe_form.py`
   - **WP03**: Verify `IngredientSelectionDialog` uses `IngredientTreeWidget` with `leaf_only=True` (line 92-98)
   - **WP03**: Verify `_on_tree_select()` callback checks `is_leaf` before enabling Select button (line 137-144)
   - **NO CODE CHANGES** - This is verification only
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/widgets/ingredient_tree_widget.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/src/ui/widgets/ingredient_tree_widget.py`
   - **WP03**: Verify `leaf_only` parameter is properly used (line 64)
   - **WP03**: Verify `_on_item_select()` blocks non-leaf selection when `leaf_only=True` (lines 329-335)
   - **NO CODE CHANGES** - This is verification only
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/research.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/research.md`
 
 ### Work Package Prompts (for context)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks/for_review/WP01-products-tab-cascading-fix.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks/for_review/WP02-inventory-tab-cascading-fix.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks/for_review/WP03-recipe-integration-verification.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks/for_review/WP01-products-tab-cascading-fix.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks/for_review/WP02-inventory-tab-cascading-fix.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe/kitty-specs/034-cascading-filters-recipe/tasks/for_review/WP03-recipe-integration-verification.md`
 
 ## Review Checklist
 
@@ -138,10 +138,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/034-cascading-filters-recipe
+cd /Users/kentgale/repos/bake-tracker/.worktrees/034-cascading-filters-recipe
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all modified modules import correctly
 PYTHONPATH=. python3 -c "
@@ -181,7 +181,7 @@ grep -n "is_leaf" src/ui/forms/recipe_form.py
 grep -n "leaf_only" src/ui/widgets/ingredient_tree_widget.py | head -10
 
 # Run ALL tests to verify no regressions
-PYTHONPATH=. /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests -v --tb=short 2>&1 | tail -50
+PYTHONPATH=. /Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests -v --tb=short 2>&1 | tail -50
 
 # Check git diff for products_tab.py
 git diff HEAD~3 src/ui/products_tab.py | head -100
@@ -259,7 +259,7 @@ def _on_tree_select(self, ingredient_data: Optional[Dict[str, Any]]):
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F034-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F034-review.md`
 
 Use this format:
 

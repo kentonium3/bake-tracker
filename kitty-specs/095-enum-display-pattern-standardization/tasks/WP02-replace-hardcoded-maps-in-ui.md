@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Replace Hardcoded Maps in UI Files
-lane: done
 dependencies: [WP01]
 base_branch: 095-enum-display-pattern-standardization-WP01
 base_commit: 6814dab1ef120b73fd6b06f594ae6a6c63744dd2
@@ -14,17 +13,20 @@ subtasks:
 - T008
 - T009
 phase: Phase 2 - Core Fix
-assignee: ''
-agent: claude-opus
-shell_pid: '82479'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T01:55:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFBPCCR9G8DRXN60JZ7
+owned_files:
+- kitty-specs/095-enum-display-pattern-standardization/plan.md
+- kitty-specs/095-enum-display-pattern-standardization/spec.md
+- src/ui/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 -- Replace Hardcoded Maps in UI Files

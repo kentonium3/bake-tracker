@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Import/Export
-lane: done
 dependencies: []
 subtasks:
 - T028
@@ -13,17 +12,21 @@ subtasks:
 - T034
 - T035
 phase: Phase 4 - Import/Export
-assignee: claude
-agent: claude
-shell_pid: '85015'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/data-model.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/services/import_export_service.py
+- src/tests/integration/test_import_export_016.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Import/Export

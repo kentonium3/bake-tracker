@@ -23,9 +23,9 @@ This feature moves yield type (FinishedUnit) authoring into the Recipe Edit form
 
 ## Environment Verification
 
-**Setup Process (OUTSIDE sandbox, from worktree `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/044-finished-units-yield-type-management`):**
+**Setup Process (OUTSIDE sandbox, from worktree `/Users/kentgale/repos/bake-tracker/.worktrees/044-finished-units-yield-type-management`):**
 ```bash
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify imports
 PYTHONPATH=. python3 -c "

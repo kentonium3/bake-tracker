@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Documentation Update
-lane: done
 dependencies: []
 subtasks:
 - T076
@@ -15,17 +14,21 @@ subtasks:
 - T084
 - T085
 phase: Phase 3 - Wave 2
-assignee: claude
-agent: claude
-shell_pid: '13882'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-12T16:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE13JKYW144TE3PXKKE
+owned_files:
+- docs/design/spec_import_export.md
+- kitty-specs/049-import-export-phase1/plan.md
+- kitty-specs/049-import-export-phase1/spec.md
+- src/tests/fixtures/import_export/sample_backup/**
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 - Documentation Update

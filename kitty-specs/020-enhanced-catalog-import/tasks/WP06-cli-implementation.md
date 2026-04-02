@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: CLI Implementation
-lane: done
 dependencies: []
 subtasks:
 - T040
@@ -15,17 +14,23 @@ subtasks:
 - T048
 - T049
 phase: Phase 3 - Interface
-assignee: claude
-agent: claude-reviewer
-shell_pid: '63528'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3M
+owned_files:
+- kitty-specs/020-enhanced-catalog-import/quickstart.md
+- kitty-specs/020-enhanced-catalog-import/spec.md
+- src/services/catalog_import_service.py
+- src/tests/test_catalog_import_service.py
+- src/utils/import_catalog.py
+- src/utils/import_export_cli.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - CLI Implementation

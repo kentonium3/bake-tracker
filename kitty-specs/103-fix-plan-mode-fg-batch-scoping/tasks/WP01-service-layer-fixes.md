@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer Fixes
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 745d7a2241df121c90969d93eeb48b50c255311e
@@ -13,17 +12,25 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Service Layer
-assignee: ''
-agent: claude-opus
-shell_pid: '30811'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-03-15T04:45:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFK0J69FPFVFD440R49
+owned_files:
+- kitty-specs/103-fix-plan-mode-fg-batch-scoping/plan.md
+- kitty-specs/103-fix-plan-mode-fg-batch-scoping/research.md
+- kitty-specs/103-fix-plan-mode-fg-batch-scoping/spec.md
+- src/models/**
+- src/services/event_service.py
+- src/services/planning_service.py
+- src/tests/services/test_event_service.py
+- src/tests/services/test_planning_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- Service Layer Fixes

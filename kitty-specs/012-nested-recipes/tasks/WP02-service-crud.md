@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service Layer - Component CRUD
-lane: done
 dependencies: []
 subtasks:
 - T008
@@ -11,17 +10,21 @@ subtasks:
 - T012
 - T013
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '98749'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YD
+owned_files:
+- kitty-specs/012-nested-recipes/contracts/recipe_service.md
+- src/models/recipe.py
+- src/services/recipe_service.py
+- src/tests/services/test_recipe_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Service Layer - Component CRUD

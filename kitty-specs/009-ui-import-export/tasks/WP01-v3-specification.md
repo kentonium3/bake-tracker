@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: v3.0 Specification Document
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,17 +9,24 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '84858'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2S
+owned_files:
+- docs/archive/**
+- docs/design/import_export_specification.md
+- docs/import_export_specification.md
+- kitty-specs/009-ui-import-export/data-model.md
+- kitty-specs/009-ui-import-export/research.md
+- kitty-specs/009-ui-import-export/spec.md
+- src/models/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - v3.0 Specification Document

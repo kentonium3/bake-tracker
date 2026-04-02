@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Integration & Validation
-lane: done
 dependencies: []
 subtasks:
 - T017
@@ -11,17 +10,23 @@ subtasks:
 - T021
 - T022
 phase: Phase 3 - Validation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '64910'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-12T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD9ESY7QPGZ1DJEM2MQ
+owned_files:
+- kitty-specs/018-event-production-dashboard/quickstart.md
+- kitty-specs/018-event-production-dashboard/spec.md
+- src/main.py
+- src/tests/**
+- src/ui/widgets/event_card.py
+- src/utils/constants.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Integration & Validation

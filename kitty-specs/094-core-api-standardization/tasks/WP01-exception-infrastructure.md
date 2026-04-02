@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Exception Infrastructure
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -13,17 +12,19 @@ subtasks:
 - T007
 - T008
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude
-shell_pid: '98965'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFAY2QEH2GNRHDR7982
+owned_files:
+- src/services/exceptions.py
+- src/tests/services/test_exceptions_comprehensive.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Exception Infrastructure

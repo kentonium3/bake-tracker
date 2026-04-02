@@ -13,9 +13,9 @@ You are a senior software engineer performing an independent code review. You ar
 ## Specification
 
 Read the full requirements here before examining any code:
-- **Spec file**: `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/068-event-management-planning-data-model/spec.md`
-- **Func spec**: `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F068_event_management_planning_data_model.md`
-- **Data model**: `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/068-event-management-planning-data-model/data-model.md`
+- **Spec file**: `/Users/kentgale/repos/bake-tracker/kitty-specs/068-event-management-planning-data-model/spec.md`
+- **Func spec**: `/Users/kentgale/repos/bake-tracker/docs/func-spec/F068_event_management_planning_data_model.md`
+- **Data model**: `/Users/kentgale/repos/bake-tracker/kitty-specs/068-event-management-planning-data-model/data-model.md`
 
 ## Files Modified
 
@@ -53,7 +53,7 @@ These are the primary changes. Your review should extend to any related code, de
 
 ```bash
 # Navigate to project root
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 
 # Verify imports work (tests that models load)
 ./run-tests.sh -v -k "test_event_exports_expected_attendees" 2>&1 | tail -20
@@ -78,7 +78,7 @@ If ANY verification command fails, STOP immediately and report as a blocker befo
 ## Report Output
 
 Write your review report to:
-**`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F068-review.md`**
+**`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F068-review.md`**
 
 Important: Write to the `docs/code-reviews/` directory in the main repo, NOT in any worktree.
 

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Finished Units Tab - Read-Only Catalog
-lane: done
 dependencies: []
 subtasks:
 - T011
@@ -10,17 +9,18 @@ subtasks:
 - T014
 - T015
 phase: Phase 1 - Parallel Foundation
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-09T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/finished_units_tab.py/
+execution_mode: code_change
+mission_id: 01KN5R6XDXQ9ZQXF1P3GAKWE01
+owned_files:
+- src/ui/finished_units_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Finished Units Tab - Read-Only Catalog

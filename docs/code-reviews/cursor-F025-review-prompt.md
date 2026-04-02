@@ -30,29 +30,29 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Models Layer (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/enums.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/enums.py`
   - `ProductionStatus` enum with COMPLETE, PARTIAL_LOSS, TOTAL_LOSS values
   - `LossCategory` enum with BURNT, BROKEN, CONTAMINATED, DROPPED, WRONG_INGREDIENTS, OTHER values
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/production_loss.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/production_loss.py`
   - `ProductionLoss` model inherits from BaseModel
   - FK to `production_runs` with `ondelete="SET NULL"` (preserves audit trail)
   - FK to `finished_units` with `ondelete="RESTRICT"` (prevents orphaned losses)
   - Columns: loss_category, loss_quantity, per_unit_cost, total_loss_cost, notes
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/production_run.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/production_run.py`
   - New column: `production_status = Column(String(20), nullable=False, default="complete")`
   - New column: `loss_quantity = Column(Integer, nullable=False, default=0)`
   - New relationship: `losses = relationship("ProductionLoss", ...)`
   - Index on production_status for efficient queries
   - Check constraint: `loss_quantity >= 0`
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/models/__init__.py`
   - Exports for ProductionLoss, ProductionStatus, LossCategory
 
 ### Service Layer - Loss Recording (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/services/batch_production_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/services/batch_production_service.py`
   - `ActualYieldExceedsExpectedError` exception class (~line 94-106)
   - `record_batch_production()` updated with:
     - `loss_category` and `loss_notes` parameters
@@ -66,7 +66,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Export/Import (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/services/batch_production_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/services/batch_production_service.py`
   - `export_production_history()` updated to v1.1:
     - Version bumped to "1.1" (~line 702)
     - Calls `get_production_history()` with `include_losses=True` (~line 656)
@@ -80,7 +80,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Record Production Dialog (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/ui/forms/record_production_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/ui/forms/record_production_dialog.py`
   - Import: `LossCategory` from src.models
   - Loss tracking state variables
   - `_create_loss_details_frame()` with category dropdown and notes textbox
@@ -92,7 +92,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Production History Table (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/ui/widgets/production_history_table.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/ui/widgets/production_history_table.py`
   - `STATUS_DISPLAY` mapping with accessibility prefixes (!, !!)
   - `STATUS_COLORS` for visual indicators (green, amber, red)
   - `COLUMNS` updated to include Loss (width 60) and Status (width 110)
@@ -103,7 +103,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Unit Tests (WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/src/tests/test_batch_production_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/src/tests/test_batch_production_service.py`
   - Imports: `ProductionLoss`, `LossCategory`, `ActualYieldExceedsExpectedError`
   - `TestProductionLossTracking` class with tests for:
     - Complete production (no loss)
@@ -122,7 +122,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Migration Script (WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/scripts/migrate_v1_0_to_v1_1.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/scripts/migrate_v1_0_to_v1_1.py`
   - `transform_v1_0_to_v1_1()` function
   - Idempotent: detects v1.1 data and skips transform
   - Adds defaults: production_status="complete", loss_quantity=0, losses=[]
@@ -131,16 +131,16 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Migration Documentation (WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/docs/migrations/v0.6_to_v0.7_production_loss.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/docs/migrations/v0.6_to_v0.7_production_loss.md`
   - Step-by-step migration instructions
   - Rollback procedure documented
   - Verification checklist
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/kitty-specs/025-production-loss-tracking/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/kitty-specs/025-production-loss-tracking/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking/kitty-specs/025-production-loss-tracking/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/kitty-specs/025-production-loss-tracking/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/kitty-specs/025-production-loss-tracking/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking/kitty-specs/025-production-loss-tracking/data-model.md`
 
 ## Review Checklist
 
@@ -262,7 +262,7 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/025-production-loss-tracking
+cd /Users/kentgale/repos/bake-tracker/.worktrees/025-production-loss-tracking
 
 # Verify modules import correctly
 python3 -c "
@@ -417,7 +417,7 @@ if version == "1.0":
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F025-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F025-review.md`
 
 Use this format:
 

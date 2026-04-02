@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: CATALOG Mode
-lane: done
 dependencies: []
 subtasks:
 - T014
@@ -13,17 +12,20 @@ subtasks:
 - T020
 - T021
 phase: Phase 1 - Mode Implementation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41347'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/data-model.md
+- kitty-specs/038-ui-mode-restructure/spec.md
+- src/ui/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - CATALOG Mode

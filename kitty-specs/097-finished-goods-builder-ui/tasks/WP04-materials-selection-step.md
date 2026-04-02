@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Materials Selection Step
-lane: done
 dependencies: [WP03]
 base_branch: 097-finished-goods-builder-ui-WP03
 base_commit: dc88d9df821188a2edab7ff87369ebf920e30f67
@@ -13,17 +12,21 @@ subtasks:
 - T019
 - T020
 phase: Phase B - Step Implementation
-assignee: ''
-agent: claude-opus
-shell_pid: '29671'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E4
+owned_files:
+- src/models/material_unit.py
+- src/services/material_catalog_service.py
+- src/tests/test_finished_good_builder.py
+- src/ui/builders/finished_good_builder.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 -- Materials Selection Step

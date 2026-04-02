@@ -32,7 +32,7 @@ The F031 Ingredient Hierarchy feature is partially implemented:
 - Show three hierarchy columns: "Root Category (L0)", "Subcategory (L1)", "Ingredient (L2)"
 - Replace category filter with hierarchy navigation/filter
 
-**Location:** `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/ingredients_tab.py`
+**Location:** `/Users/kentgale/repos/bake-tracker/src/ui/ingredients_tab.py`
 
 ---
 
@@ -62,7 +62,7 @@ The F031 Ingredient Hierarchy feature is partially implemented:
 - Hierarchical ingredient filter with three levels
 - Show full ingredient path in product list (e.g., "Chocolate → Dark Chocolate → Semi-Sweet Chips")
 
-**Location:** `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/products_tab.py`
+**Location:** `/Users/kentgale/repos/bake-tracker/src/ui/products_tab.py`
 
 ---
 
@@ -77,7 +77,7 @@ The F031 Ingredient Hierarchy feature is partially implemented:
 - Display full ingredient hierarchy path in grid
 - Remove deprecated category column
 
-**Location:** `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/inventory_tab.py`
+**Location:** `/Users/kentgale/repos/bake-tracker/src/ui/inventory_tab.py`
 
 ---
 
@@ -419,8 +419,8 @@ l1_ingredients = get_children(selected_l0_id) if selected_l0_id else []
 
 ## Related Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F031_ingredient_hierarchy.md` - Original feature spec
-- `/Users/kentgale/Vaults-repos/bake-tracker/.kittify/memory/constitution.md` - Architectural principles
+- `/Users/kentgale/repos/bake-tracker/docs/func-spec/F031_ingredient_hierarchy.md` - Original feature spec
+- `/Users/kentgale/repos/bake-tracker/.kittify/memory/constitution.md` - Architectural principles
 
 ---
 

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,15 +8,23 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Service Layer (Claude)
-assignee: claude
-agent: claude-reviewer
-shell_pid: '49117'
 history:
 - timestamp: '2026-01-07T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDT9VHN4V8WF9AVEAW7
+owned_files:
+- kitty-specs/041-manual-inventory-adjustments/data-model.md
+- kitty-specs/041-manual-inventory-adjustments/plan.md
+- src/models/__init__.py
+- src/models/enums.py
+- src/models/inventory_depletion.py
+- src/models/inventory_item.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Service Layer Foundation

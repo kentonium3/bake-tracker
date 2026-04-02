@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Admin UI Dialog + Menu Integration
-lane: done
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -14,17 +13,22 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - User Story 1 (Admin Management)
-assignee: ''
-agent: gemini-review
-shell_pid: '99983'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFCQ7XH14582WR2W2FF
+owned_files:
+- kitty-specs/096-recipe-category-management/plan.md
+- kitty-specs/096-recipe-category-management/spec.md
+- src/ui/catalog/**
+- src/ui/hierarchy_admin_window.py
+- src/ui/main_window.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 -- Admin UI Dialog + Menu Integration

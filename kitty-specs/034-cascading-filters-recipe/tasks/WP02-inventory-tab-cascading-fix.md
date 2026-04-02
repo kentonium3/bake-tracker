@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Inventory Tab Cascading Fix
-lane: done
 dependencies: []
 subtasks:
 - T009
@@ -12,17 +11,23 @@ subtasks:
 - T014
 - T015
 phase: Phase B - Parallel Implementation
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '3311'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T10:45:22Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDMDGJ10P97EJFGY9T7
+owned_files:
+- kitty-specs/034-cascading-filters-recipe/plan.md
+- kitty-specs/034-cascading-filters-recipe/spec.md
+- kitty-specs/034-cascading-filters-recipe/tasks/done/WP01-products-tab-cascading-fix.md
+- src/ui/inventory_tab.py
+- src/ui/inventory_tab.py:426-500
+- src/ui/products_tab.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Inventory Tab Cascading Fix

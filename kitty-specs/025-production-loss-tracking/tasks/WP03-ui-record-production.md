@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: UI - Record Production Dialog
-lane: done
 dependencies: []
 subtasks:
 - T016
@@ -15,15 +14,20 @@ subtasks:
 - T024
 - T025
 phase: Phase 3 - UI Record Dialog
-assignee: claude
-agent: claude-reviewer
-shell_pid: '74330'
 history:
 - timestamp: '2025-12-21T16:55:08Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQW
+owned_files:
+- kitty-specs/025-production-loss-tracking/plan.md
+- kitty-specs/025-production-loss-tracking/spec.md
+- src/ui/forms/record_production_dialog.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - UI - Record Production Dialog

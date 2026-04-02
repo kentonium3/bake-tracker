@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Foundation & Gap Calculation
-lane: done
 dependencies: []
 base_branch: main
 base_commit: d79ee82fbc98842196707709c9112e4be7cd209d
@@ -15,17 +14,22 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Foundation
-assignee: ''
-agent: gemini
-shell_pid: '39276'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T23:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XESM2KFBBZH2E4YJGJN
+owned_files:
+- kitty-specs/075-inventory-gap-analysis/plan.md
+- kitty-specs/075-inventory-gap-analysis/spec.md
+- src/services/ingredient_aggregation_service.py
+- src/services/inventory_gap_service.py
+- src/tests/test_inventory_gap_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Service Foundation & Gap Calculation

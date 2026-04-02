@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: UI Migration - Dialogs
-lane: done
 dependencies: [WP03]
 base_branch: 089-error-handling-foundation-WP03
 base_commit: 845ab60ddd7c9705f76124df0d925332fc6b41b8
@@ -15,17 +14,24 @@ subtasks:
 - T045
 - T046
 phase: Phase 2 - UI Migration
-assignee: ''
-agent: ''
-shell_pid: '70349'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/dialogs/
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- src/ui/dialogs/add_purchase_dialog.py
+- src/ui/dialogs/edit_purchase_dialog.py
+- src/ui/dialogs/material_adjustment_dialog.py
+- src/ui/dialogs/material_product_popup.py
+- src/ui/dialogs/material_unit_dialog.py
+- src/ui/dialogs/purchase_details_dialog.py
+- src/ui/dialogs/upc_resolution_dialog.py
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 – UI Migration - Dialogs

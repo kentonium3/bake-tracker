@@ -23,5 +23,6 @@
   "mission": "software-dev",
   "slug": "044-finished-units-yield-type-management",
   "source_description": "See docs/design/F044_finished_units_functionality_ui.md for the feature spec inputs.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDXQ9ZQXF1P3GAKWE01"
 }

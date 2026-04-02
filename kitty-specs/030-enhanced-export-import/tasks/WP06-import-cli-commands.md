@@ -1,24 +1,26 @@
 ---
 work_package_id: WP06
 title: Import CLI Commands
-lane: done
 dependencies: []
 subtasks:
 - T030
 - T031
 - T032
 phase: Phase 2 - Import Services
-assignee: claude
-agent: claude
-shell_pid: reviewed
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDJXE26E9VEQ9EQSX8Y
+owned_files:
+- kitty-specs/030-enhanced-export-import/spec.md
+- src/tests/utils/test_import_export_cli.py
+- src/utils/import_export_cli.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Import CLI Commands

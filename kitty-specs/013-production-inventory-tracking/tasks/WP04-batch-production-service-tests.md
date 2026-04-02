@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Batch Production Service - Tests
-lane: done
 dependencies: []
 subtasks:
 - T014
@@ -14,17 +13,21 @@ subtasks:
 - T021
 - T022
 phase: Phase 2 - Core Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '17130'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-09T17:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXB
+owned_files:
+- kitty-specs/013-production-inventory-tracking/quickstart.md
+- kitty-specs/013-production-inventory-tracking/spec.md
+- src/services/batch_production_service/**
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Batch Production Service - Tests

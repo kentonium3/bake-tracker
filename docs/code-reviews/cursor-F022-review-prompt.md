@@ -21,32 +21,32 @@ You are a senior software engineer performing an independent code review of Feat
 ## Files to Review
 
 ### Model Layer (WP01)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/models/unit.py` - New Unit model
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/models/__init__.py` - Unit export added
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/models/unit.py` - New Unit model
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/models/__init__.py` - Unit export added
 
 ### Database Layer (WP01)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/services/database.py` - `seed_units()` function added
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/services/database.py` - `seed_units()` function added
 
 ### Service Layer (WP02)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/services/unit_service.py` - New service with query functions
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/services/unit_service.py` - New service with query functions
 
 ### UI Layer (WP03, WP04, WP05)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/ui/ingredients_tab.py` - Product form package_unit dropdown (WP03)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/ui/forms/ingredient_form.py` - Density unit dropdowns (WP04)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/ui/forms/recipe_form.py` - Recipe ingredient unit dropdown (WP05)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/ui/ingredients_tab.py` - Product form package_unit dropdown (WP03)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/ui/forms/ingredient_form.py` - Density unit dropdowns (WP04)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/ui/forms/recipe_form.py` - Recipe ingredient unit dropdown (WP05)
 
 ### Test Layer
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/tests/test_unit_model.py` - 11 tests for Unit model
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/tests/test_unit_seeding.py` - 10 tests for seeding
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/tests/test_unit_service.py` - 28 tests for service
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/tests/test_unit_model.py` - 11 tests for Unit model
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/tests/test_unit_seeding.py` - 10 tests for seeding
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/tests/test_unit_service.py` - 28 tests for service
 
 ### Specification Documents
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/kitty-specs/022-unit-reference-table/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/kitty-specs/022-unit-reference-table/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/kitty-specs/022-unit-reference-table/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/kitty-specs/022-unit-reference-table/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/kitty-specs/022-unit-reference-table/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/kitty-specs/022-unit-reference-table/data-model.md`
 
 ### Existing Constants (Reference - should still exist for backward compat)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table/src/utils/constants.py` - Original hardcoded units
+- `/Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table/src/utils/constants.py` - Original hardcoded units
 
 ## Review Checklist
 
@@ -97,7 +97,7 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/022-unit-reference-table
+cd /Users/kentgale/repos/bake-tracker/.worktrees/022-unit-reference-table
 
 # Verify unit counts
 python3 -c "
@@ -149,7 +149,7 @@ def get_units_by_category(category: str, session: Optional[Session] = None) -> L
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F022-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F022-review.md`
 
 Use this format:
 

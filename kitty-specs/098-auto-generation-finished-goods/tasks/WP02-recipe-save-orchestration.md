@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Recipe Save Orchestration
-lane: done
 dependencies: [WP01]
 base_branch: 098-auto-generation-finished-goods-WP01
 base_commit: 5c7a242e9c98aa9dc3bfb31df13eeacbf7a5a6b9
@@ -14,17 +13,23 @@ subtasks:
 - T011
 - T012
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '42991'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E5
+owned_files:
+- kitty-specs/098-auto-generation-finished-goods/data-model.md
+- kitty-specs/098-auto-generation-finished-goods/plan.md
+- kitty-specs/098-auto-generation-finished-goods/research.md
+- src/services/recipe_service.py
+- src/tests/test_recipe_service.py
+- src/ui/recipes_tab.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Recipe Save Orchestration

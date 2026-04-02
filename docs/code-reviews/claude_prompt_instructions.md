@@ -4,7 +4,7 @@
 Create a prompt that enables Cursor to perform an independent code review as a senior software engineer discovering this feature for the first time. The goal is to leverage Cursor's fresh perspective to find issues that might be missed when the implementer reviews their own work.
 
 ## Output Location
-Write the prompt to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F[FEATURE_NUMBER]-review-prompt.md`
+Write the prompt to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F[FEATURE_NUMBER]-review-prompt.md`
 
 Example: For F040, write to `cursor-F040-review-prompt.md`
 
@@ -25,10 +25,10 @@ Example: For F040, write to `cursor-F040-review-prompt.md`
 - Keep commands minimal - just enough to verify setup, NOT feature-specific test scenarios
 
 **Report Template:**
-- Direct Cursor to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+- Direct Cursor to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 **Report Output Location:**
-- Instruct Cursor to write report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F[FEATURE_NUMBER]-review.md`
+- Instruct Cursor to write report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F[FEATURE_NUMBER]-review.md`
 - Example: For F040, write to `cursor-F040-review.md`
 - Emphasize: Write to docs/code-reviews/ directory, NOT in worktree
 

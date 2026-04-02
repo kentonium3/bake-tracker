@@ -1,24 +1,30 @@
 ---
 work_package_id: WP01
 title: Price Suggestion Service Functions
-lane: done
 dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 phase: Phase 1 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: reconciled
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDGV3D1KMCMMEA4MAM6
+owned_files:
+- kitty-specs/028-purchase-tracking-enhanced/data-model.md
+- kitty-specs/028-purchase-tracking-enhanced/plan.md
+- kitty-specs/028-purchase-tracking-enhanced/spec.md
+- src/models/purchase.py
+- src/services/purchase_service/**
+- src/services/purchase_service.py
+- src/tests/services/test_purchase_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Price Suggestion Service Functions

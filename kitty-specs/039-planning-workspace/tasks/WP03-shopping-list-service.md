@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Shopping List Service
-lane: done
 dependencies: []
 subtasks:
 - T013
@@ -11,17 +10,22 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - Services
-assignee: claude
-agent: claude-reviewer
-shell_pid: '67066'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T03:09:20Z'
   lane: planned
   agent: claude
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDRS2KVV6QTFHHXTDFZ
+owned_files:
+- kitty-specs/039-planning-workspace/contracts/planning_service.py
+- kitty-specs/039-planning-workspace/quickstart.md
+- kitty-specs/039-planning-workspace/research.md
+- src/services/planning/shopping_list.py
+- src/tests/services/planning/test_shopping_list.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Shopping List Service

@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP02",
+  "feature_slug": "069-recipe-selection-for-event-planning",
+  "worktree_path": ".worktrees/069-recipe-selection-for-event-planning-WP02",
+  "branch_name": "069-recipe-selection-for-event-planning-WP02",
+  "base_branch": "069-recipe-selection-for-event-planning-WP01",
+  "base_commit": "1bc0971b0175cde1d2bdc47e5bb8abaece08886c",
+  "dependencies": [
+    "WP01"
+  ],
+  "created_at": "2026-01-26T23:23:33.160562+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

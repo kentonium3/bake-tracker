@@ -1,24 +1,27 @@
 ---
 work_package_id: WP04
 title: Version Bump and Function Rename
-lane: done
 dependencies: []
 subtasks:
 - T016
 - T017
 - T018
 phase: Phase 1 - Core Schema Upgrade
-assignee: claude
-agent: claude-reviewer
-shell_pid: '11228'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDSX1JRPNAECZJXZPK3
+owned_files:
+- docs/design/spec_import_export.md
+- kitty-specs/040-import-export-v4/spec.md
+- src/services/import_export_service.py
+- src/tests/services/test_import_export_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Version Bump and Function Rename

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: FK Resolution Dialog
-lane: done
 dependencies: []
 subtasks:
 - T033
@@ -9,17 +8,21 @@ subtasks:
 - T035
 - T036
 phase: Phase 3 - UI Integration
-assignee: claude
-agent: claude
-shell_pid: reviewed
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDJXE26E9VEQ9EQSX8Y
+owned_files:
+- kitty-specs/030-enhanced-export-import/spec.md
+- src/ui/catalog_import_dialog.py
+- src/ui/fk_resolution_dialog.py
+- src/ui/import_export_dialog.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - FK Resolution Dialog

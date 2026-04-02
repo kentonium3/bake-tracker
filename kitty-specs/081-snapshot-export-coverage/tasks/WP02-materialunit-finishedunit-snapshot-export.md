@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: MaterialUnit & FinishedUnit Snapshot Export
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 14b21af6aec34176a033e5281672c3e9f43e6b31
@@ -13,17 +12,20 @@ subtasks:
 - T009
 - T010
 phase: Phase 1 - Export Functions
-assignee: ''
-agent: claude-lead
-shell_pid: '76436'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEYGTB43187DGEXEGG1
+owned_files:
+- kitty-specs/081-snapshot-export-coverage/data-model.md
+- kitty-specs/081-snapshot-export-coverage/spec.md
+- src/services/coordinated_export_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – MaterialUnit & FinishedUnit Snapshot Export

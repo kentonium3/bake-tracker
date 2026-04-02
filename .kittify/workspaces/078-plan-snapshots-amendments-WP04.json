@@ -1,0 +1,15 @@
+{
+  "wp_id": "WP04",
+  "feature_slug": "078-plan-snapshots-amendments",
+  "worktree_path": ".worktrees/078-plan-snapshots-amendments-WP04",
+  "branch_name": "078-plan-snapshots-amendments-WP04",
+  "base_branch": "078-plan-snapshots-amendments-WP03",
+  "base_commit": "72e4d69c1103a2a81579acab0503751940d337c3",
+  "dependencies": [
+    "WP02",
+    "WP03"
+  ],
+  "created_at": "2026-01-28T03:59:21.139147+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

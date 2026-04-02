@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: MaterialInventoryService Core
-lane: done
 dependencies: [WP01, WP04]
 subtasks:
 - T017
@@ -10,11 +9,6 @@ subtasks:
 - T020
 - T021
 phase: Phase 2 - Services
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '28309'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -26,6 +20,15 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: MaterialInventoryService with FIFO consumption operations'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/plan.md
+- kitty-specs/058-materials-fifo-foundation/research.md
+- src/services/inventory_item_service.py
+- src/services/material_inventory_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – MaterialInventoryService Core

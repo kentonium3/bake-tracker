@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Production Readiness
-lane: done
 dependencies: []
 subtasks:
 - T030
@@ -9,17 +8,22 @@ subtasks:
 - T032
 - T033
 phase: Phase 3 - Production Readiness & History
-assignee: claude
-agent: claude-reviewer
-shell_pid: '97164'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/spec.md
+- src/services/recipe_service.py
+- src/ui/forms/recipe_form.py
+- src/ui/forms/record_production_dialog.py
+- src/ui/recipes_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Production Readiness

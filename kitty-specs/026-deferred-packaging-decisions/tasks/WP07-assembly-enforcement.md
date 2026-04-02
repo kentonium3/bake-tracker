@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Assembly Enforcement
-lane: done
 dependencies: []
 subtasks:
 - T037
@@ -9,17 +8,22 @@ subtasks:
 - T039
 - T040
 phase: Phase 7 - Assembly Flow
-assignee: claude
-agent: claude
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/spec.md
+- src/services/assembly_service.py
+- src/ui/assembly_screen.py
+- src/ui/dashboard.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Assembly Enforcement

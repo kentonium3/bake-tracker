@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Planning Tab Integration + Notifications
-lane: done
 dependencies:
 - WP01
 - WP03
@@ -18,17 +17,22 @@ subtasks:
 - T025
 - T026
 phase: Phase 2 - UI Layer
-assignee: ''
-agent: claude
-shell_pid: '35025'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEK3YBGBCM1KMCD8JWZ
+owned_files:
+- kitty-specs/070-finished-goods-filtering/plan.md
+- kitty-specs/070-finished-goods-filtering/spec.md
+- src/services/event_service.py
+- src/tests/**
+- src/ui/planning_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Planning Tab Integration + Notifications

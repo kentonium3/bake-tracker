@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Propagate FU Updates to Bare FG
-lane: done
 dependencies: [WP03]
 base_branch: 098-auto-generation-finished-goods-WP03
 base_commit: 6d8a6a7b0683eea30bb7e04824fc42ad02af0655
@@ -14,17 +13,23 @@ subtasks:
 - T023
 - T024
 phase: Phase 2 - User Stories
-assignee: ''
-agent: claude-opus
-shell_pid: '53922'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E5
+owned_files:
+- kitty-specs/098-auto-generation-finished-goods/research.md
+- kitty-specs/098-auto-generation-finished-goods/spec.md
+- src/models/finished_good.py
+- src/services/finished_good_service.py
+- src/services/recipe_service.py
+- src/tests/test_finished_good_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Propagate FU Updates to Bare FG

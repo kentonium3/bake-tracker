@@ -1,24 +1,27 @@
 ---
 work_package_id: WP03
 title: Hierarchy Path Display
-lane: done
 dependencies: []
 subtasks:
 - T011
 - T012
 - T013
 phase: Phase 3 - User Story 3 (P3)
-assignee: claude
-agent: claude-reviewer
-shell_pid: '81550'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDMDGJ10P97EJFGY9T6
+owned_files:
+- kitty-specs/033-phase-1-ingredient/plan.md
+- kitty-specs/033-phase-1-ingredient/spec.md
+- src/ui/ingredients_tab.py
+- src/ui/inventory_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Hierarchy Path Display

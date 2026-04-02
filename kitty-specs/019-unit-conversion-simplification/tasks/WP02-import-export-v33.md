@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Import/Export v3.3 Update
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -11,17 +10,20 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - Service Updates
-assignee: claude
-agent: claude
-shell_pid: '22254'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3K
+owned_files:
+- kitty-specs/019-unit-conversion-simplification/plan.md
+- kitty-specs/019-unit-conversion-simplification/spec.md
+- src/services/import_export_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Import/Export v3.3 Update

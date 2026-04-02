@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Amendment Production Validation
-lane: done
 dependencies:
 - WP01
 base_branch: 079-production-aware-planning-calculations-WP01
@@ -14,17 +13,22 @@ subtasks:
 - T016
 - T017
 phase: Phase 2 - Core Features
-assignee: ''
-agent: claude-lead
-shell_pid: '28112'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEWR0TPS4CA4V1SQ62K
+owned_files:
+- kitty-specs/079-production-aware-planning-calculations/plan.md
+- kitty-specs/079-production-aware-planning-calculations/spec.md
+- src/services/plan_amendment_service/**
+- src/services/plan_amendment_service.py
+- src/tests/test_plan_amendment_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Amendment Production Validation

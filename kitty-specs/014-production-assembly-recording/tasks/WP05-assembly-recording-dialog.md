@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Assembly Recording Dialog
-lane: done
 dependencies: []
 subtasks:
 - T023
@@ -11,17 +10,18 @@ subtasks:
 - T027
 - T028
 phase: Phase 3 - Assembly Recording
-assignee: ''
-agent: system
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/forms/record_assembly_dialog.py/
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- src/ui/forms/record_assembly_dialog.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Assembly Recording Dialog

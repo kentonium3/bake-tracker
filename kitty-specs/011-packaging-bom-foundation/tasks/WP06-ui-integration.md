@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: UI Integration
-lane: done
 dependencies: []
 subtasks:
 - T047
@@ -14,17 +13,19 @@ subtasks:
 - T054
 - T055
 phase: Phase 2 - User Stories
-assignee: claude
-agent: claude-opus-4-5
-shell_pid: review
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
 history:
 - timestamp: '2025-12-08T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YC
+owned_files:
+- kitty-specs/011-packaging-bom-foundation/plan.md
+- src/ui/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - UI Integration

@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP05",
+  "feature_slug": "084-material-unit-schema-refactor",
+  "worktree_path": ".worktrees/084-material-unit-schema-refactor-WP05",
+  "branch_name": "084-material-unit-schema-refactor-WP05",
+  "base_branch": "084-material-unit-schema-refactor-WP02",
+  "base_commit": "96b9a8deef6854c3ee7f4cee16b0c7bc0d577e6d",
+  "dependencies": [
+    "WP02"
+  ],
+  "created_at": "2026-01-30T17:59:19.271836+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

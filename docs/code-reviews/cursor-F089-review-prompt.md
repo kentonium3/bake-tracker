@@ -6,7 +6,7 @@
 **Title:** Error Handling Foundation
 **High-Level User Goal:** Establish a consistent exception hierarchy and centralized error handling pattern across the application, converting generic exception catches to specific domain exceptions with user-friendly error messages.
 
-**Spec File:** `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F089_error_handling_foundation.md`
+**Spec File:** `/Users/kentgale/repos/bake-tracker/docs/func-spec/F089_error_handling_foundation.md`
 
 ## Code Changes
 
@@ -63,7 +63,7 @@ Cursor's sandbox cannot activate virtual environments. All verification commands
 
 ```bash
 # Navigate to project root
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 
 # Activate virtual environment
 source venv/bin/activate
@@ -91,10 +91,10 @@ If ANY command fails, STOP immediately and report as a blocker before attempting
 
 ## Report Template
 
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output Location
 
-Write your review report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F089-review.md`
+Write your review report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F089-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory, NOT in any worktree.

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: RecipesTab ttk.Treeview Conversion
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -12,17 +11,21 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Core Pattern Validation
-assignee: ''
-agent: claude-opus
-shell_pid: '5999'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-31T02:38:50Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF21455ETT5S84K6F7T
+owned_files:
+- kitty-specs/087-catalog-tab-layout-standardization/research.md
+- src/ui/ingredients_tab.py:215-296
+- src/ui/recipes_tab.py
+- src/ui/widgets/data_table.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – RecipesTab ttk.Treeview Conversion

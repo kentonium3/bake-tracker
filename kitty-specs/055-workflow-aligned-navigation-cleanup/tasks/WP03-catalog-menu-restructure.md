@@ -1,11 +1,21 @@
 ---
+work_package_id: 01KN5R70BB9QA078FFQ9MHP7K7
 title: Catalog Menu Restructure
-lane: done
 dependencies: []
 created_at: 2026-01-15
-agent:
-review_status:
+authoritative_surface: src/
+execution_mode: code_change
 id: WP03
+mission_id: 01KN5R6XE7PP9DJV34XG3E2SBM
+owned_files:
+- src/models/finished_good.py
+- src/ui/finished_goods_tab.py
+- src/ui/materials_tab.py
+- src/ui/modes/catalog_mode.py
+- src/ui/tabs/ingredients_group_tab.py
+- src/ui/tabs/packaging_group_tab.py
+- src/ui/tabs/recipes_group_tab.py
+wp_code: WP03
 ---
 
 # WP03: Catalog Menu Restructure

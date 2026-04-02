@@ -1,18 +1,12 @@
 ---
 work_package_id: WP08
 title: Import/Export Schema Handling
-lane: done
 dependencies: [WP02]
 subtasks:
 - T033
 - T034
 - T035
 phase: Phase 4 - Polish
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '29350'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -24,6 +18,15 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: Import/export updated for deprecated field removal'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/research.md
+- kitty-specs/058-materials-fifo-foundation/spec.md
+- src/services/import_export_service.py
+- src/tests/test_material_import_export.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 – Import/Export Schema Handling

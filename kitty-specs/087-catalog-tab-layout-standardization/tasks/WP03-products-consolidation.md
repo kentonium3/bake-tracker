@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: ProductsTab Row Consolidation
-lane: done
 dependencies: [WP01]
 base_branch: 087-catalog-tab-layout-standardization-WP01
 base_commit: 3fa9a8a9fe5337dea329dbf424521b0b5b73b4bd
@@ -13,17 +12,19 @@ subtasks:
 - T015
 - T016
 phase: Phase 2 - Layout Standardization
-assignee: ''
-agent: ''
-shell_pid: '7638'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-31T02:38:50Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF21455ETT5S84K6F7T
+owned_files:
+- kitty-specs/087-catalog-tab-layout-standardization/research.md
+- src/ui/products_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – ProductsTab Row Consolidation

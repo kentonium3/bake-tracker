@@ -1,18 +1,12 @@
 ---
 work_package_id: WP09
 title: Catalog UI Cleanup
-lane: done
 dependencies: [WP02]
 subtasks:
 - T036
 - T037
 - T038
 phase: Phase 4 - Polish
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '29661'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -24,6 +18,16 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: UI updated to remove deprecated inventory fields'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/spec.md
+- src/main.py
+- src/services/*/**
+- src/services/denormalized_export_service.py
+- src/ui/materials_tab.py
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 – Catalog UI Cleanup

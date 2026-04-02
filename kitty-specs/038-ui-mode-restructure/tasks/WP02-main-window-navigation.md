@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Main Window & Mode Navigation
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -12,17 +11,21 @@ subtasks:
 - T012
 - T013
 phase: Phase 0 - Setup
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41347'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/research.md
+- kitty-specs/038-ui-mode-restructure/spec.md
+- src/ui/main_window.py
+- src/ui/mode_manager.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Main Window & Mode Navigation

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Supplier Export
-lane: done
 dependencies: []
 subtasks:
 - T032
@@ -10,17 +9,23 @@ subtasks:
 - T035
 - T036
 phase: Phase 0 - Foundational
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-13T12:55:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE2J37BC1QGRYHHKE8N
+owned_files:
+- kitty-specs/051-import-export-ui-rationalization/plan.md
+- kitty-specs/051-import-export-ui-rationalization/spec.md
+- src/services/import_export_service.py
+- src/services/supplier_service.py
+- src/ui/import_export_dialog.py
+- src/ui/import_export_dialog.py:849-896
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Supplier Export

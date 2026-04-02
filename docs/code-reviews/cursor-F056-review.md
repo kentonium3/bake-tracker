@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (independent)
 **Date:** 2026-01-16
-**Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/spec.md`
+**Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/spec.md`
 
 ## Verification
 - Imports: `FinishedUnit`, `YieldMode` ✅

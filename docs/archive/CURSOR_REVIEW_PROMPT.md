@@ -82,7 +82,7 @@ git diff main..HEAD -- src/services/inventory_item_service.py
 git diff main..HEAD -- src/services/import_export_service.py
 
 # Run all tests
-cd /Users/kentgale/Vaults-repos/bake-tracker && source venv/bin/activate && cd .worktrees/019-unit-conversion-simplification && pytest src/tests -v
+cd /Users/kentgale/repos/bake-tracker && source venv/bin/activate && cd .worktrees/019-unit-conversion-simplification && pytest src/tests -v
 
 # Search for any remaining references
 grep -rn "recipe_unit" src/ --include="*.py" | grep -v "test"

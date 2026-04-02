@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Unit Tests
-lane: done
 dependencies: [WP03]
 subtasks:
 - T024
@@ -9,11 +8,6 @@ subtasks:
 - T026
 - T027
 phase: Phase 5 - Testing
-assignee: ''
-agent: claude-opus
-shell_pid: '32657'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-21T19:33:38Z'
   lane: planned
@@ -35,6 +29,16 @@ history:
   agent: claude-opus
   shell_pid: '32657'
   action: Review passed
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEC5876GT8F9D6YC8BF
+owned_files:
+- kitty-specs/061-finished-goods-inventory-service/plan.md
+- src/services/finished_goods_inventory_service/**
+- src/tests/conftest.py
+- src/tests/services/test_assembly_service.py
+- src/tests/services/test_finished_goods_inventory_service.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Unit Tests

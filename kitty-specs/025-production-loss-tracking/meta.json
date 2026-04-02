@@ -39,5 +39,6 @@
   "mission": "research",
   "slug": "025-production-loss-tracking",
   "source_description": "Track production losses (burnt, broken, contaminated) with cost accounting and reporting",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDEF705BE8ZVRB3GSQW"
 }

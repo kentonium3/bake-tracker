@@ -13,9 +13,9 @@ You are a senior software engineer performing an independent code review. You ar
 ## Specification
 
 Read the full requirements here before examining any code:
-- **Spec file**: `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/069-recipe-selection-for-event-planning/spec.md`
-- **Func spec**: `/Users/kentgale/Vaults-repos/bake-tracker/docs/func-spec/F069_recipe_selection_ui.md`
-- **Plan file**: `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/069-recipe-selection-for-event-planning/plan.md`
+- **Spec file**: `/Users/kentgale/repos/bake-tracker/kitty-specs/069-recipe-selection-for-event-planning/spec.md`
+- **Func spec**: `/Users/kentgale/repos/bake-tracker/docs/func-spec/F069_recipe_selection_ui.md`
+- **Plan file**: `/Users/kentgale/repos/bake-tracker/kitty-specs/069-recipe-selection-for-event-planning/plan.md`
 
 ## Files Modified
 
@@ -39,7 +39,7 @@ These are the primary changes. Your review should extend to any related code, de
 
 ```bash
 # Navigate to project root
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 
 # Verify imports work (tests that models and services load)
 ./run-tests.sh -v -k "test_returns_empty_list_when_no_selections" 2>&1 | tail -20
@@ -64,7 +64,7 @@ If ANY verification command fails, STOP immediately and report as a blocker befo
 ## Report Output
 
 Write your review report to:
-**`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F069-review.md`**
+**`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F069-review.md`**
 
 Important: Write to the `docs/code-reviews/` directory in the main repo, NOT in any worktree.
 

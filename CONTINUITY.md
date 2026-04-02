@@ -1,7 +1,7 @@
 # Context Continuity
 
 Created: 2026-01-21
-Repo: /Users/kentgale/Vaults-repos/bake-tracker
+Repo: /Users/kentgale/repos/bake-tracker
 
 ## Why
 We are diagnosing why Codex custom "/" commands are not appearing in the command list. Built-in
@@ -44,7 +44,7 @@ Codex commands do appear.
 - `/hello` still does not appear after restart, even with `~/.codex/commands/hello.md`.
 - `~/.codex/log/codex-tui.log` has no custom command discovery or parse error entries.
 - `~/.codex/config.toml` only contains project trust config:
-  - `[projects."/Users/kentgale/Vaults-repos/bake-tracker"]`
+  - `[projects."/Users/kentgale/repos/bake-tracker"]`
   - `trust_level = "trusted"`
 - CLI binary strings include a reference to custom slash commands and
   `https://developers.openai.com/codex/guides/slash-commands#create-your-own-slash-commands-with-custom-prompts`.

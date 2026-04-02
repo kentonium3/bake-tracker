@@ -18,8 +18,8 @@
 9. Inventory formatted as "4,724.5 inches", cost formatted as "$0.0016"
 
 **Specification Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/048-materials-ui-rebuild/kitty-specs/048-materials-ui-rebuild/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/048-materials-ui-rebuild/kitty-specs/048-materials-ui-rebuild/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/048-materials-ui-rebuild/kitty-specs/048-materials-ui-rebuild/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/048-materials-ui-rebuild/kitty-specs/048-materials-ui-rebuild/plan.md`
 
 ## Code Changes
 
@@ -54,16 +54,16 @@ The following files were modified as part of this feature. These are the primary
 
 ```bash
 # Navigate to the worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/048-materials-ui-rebuild
+cd /Users/kentgale/repos/bake-tracker/.worktrees/048-materials-ui-rebuild
 
 # Verify Python environment (use main repo's venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.ui.materials_tab import MaterialsTab, MaterialFormDialog, MaterialProductFormDialog, RecordPurchaseDialog, AdjustInventoryDialog, MaterialUnitFormDialog; print('Materials UI imports OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.ui.materials_tab import MaterialsTab, MaterialFormDialog, MaterialProductFormDialog, RecordPurchaseDialog, AdjustInventoryDialog, MaterialUnitFormDialog; print('Materials UI imports OK')"
 
 # Verify services import
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, supplier_service; print('Material services import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, supplier_service; print('Material services import OK')"
 
 # Verify tests run (quick sanity check)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests -v --tb=short -q 2>&1 | tail -10
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests -v --tb=short -q 2>&1 | tail -10
 ```
 
 If ANY verification command fails, STOP immediately and report the failure as a blocker before attempting any fixes.
@@ -83,14 +83,14 @@ If ANY verification command fails, STOP immediately and report the failure as a 
 ## Report Output
 
 Write your review report to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F048-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F048-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.
 
 ## Report Template
 
 Use the template at:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 Basic structure:
 

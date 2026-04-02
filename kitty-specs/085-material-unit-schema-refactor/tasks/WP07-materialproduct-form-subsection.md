@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: MaterialProduct Form Sub-Section UI
-lane: done
 dependencies: [WP03, WP04]
 base_branch: 085-material-unit-schema-refactor-WP04
 base_commit: 631b3b57cd9633165fb85cf9c6cd26afb95ad74b
@@ -13,17 +12,23 @@ subtasks:
 - T035
 - T036
 phase: Wave 3 - Export/Import & UI
-assignee: ''
-agent: claude-opus
-shell_pid: '45019'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SW
+owned_files:
+- kitty-specs/085-material-unit-schema-refactor/plan.md
+- kitty-specs/085-material-unit-schema-refactor/spec.md
+- src/main.py
+- src/ui/dialogs/material_unit_dialog.py
+- src/ui/tabs/materials_tab.py
+- src/ui/tabs/recipes_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – MaterialProduct Form Sub-Section UI

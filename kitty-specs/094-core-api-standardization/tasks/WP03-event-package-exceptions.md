@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Event & Package Service Updates
-lane: done
 dependencies: [WP01]
 base_branch: 094-core-api-standardization-WP01
 base_commit: 4f0333494559e2a44d97431f1ae745eda905680c
@@ -14,17 +13,21 @@ subtasks:
 - T018
 - T019
 phase: Phase 2 - Core Services
-assignee: ''
-agent: codex
-shell_pid: '51956'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFAY2QEH2GNRHDR7982
+owned_files:
+- src/services/**
+- src/tests/services/test_event_service.py
+- src/tests/services/test_package_service.py
+- src/ui/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Event & Package Service Updates

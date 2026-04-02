@@ -3,7 +3,7 @@
 **Reviewer:** Cursor
 **Date:** 2026-01-11
 **Commit Range:** main..047-materials-management-system
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/047-materials-management-system/kitty-specs/047-materials-management-system/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/047-materials-management-system/kitty-specs/047-materials-management-system/spec.md`
 
 ## Executive Summary
 Re-review of F047 after fixes landed in response to my prior review (`cursor-F047-review.md`). The previously reported **blockers and critical issue are resolved**: generic materials now support split allocation across multiple products, material purchases are included in coordinated export, and `MaterialConsumption.to_dict(include_relationships=True)` no longer references a non-existent `run_date`.
@@ -55,24 +55,24 @@ Re-review of F047 after fixes landed in response to my prior review (`cursor-F04
 
 ## Verification Results
 
-Ran outside sandbox from `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/047-materials-management-system`:
+Ran outside sandbox from `/Users/kentgale/repos/bake-tracker/.worktrees/047-materials-management-system`:
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import MaterialCategory, MaterialSubcategory, Material, MaterialProduct, MaterialUnit, MaterialPurchase, MaterialConsumption; print('Material models import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import MaterialCategory, MaterialSubcategory, Material, MaterialProduct, MaterialUnit, MaterialPurchase, MaterialConsumption; print('Material models import OK')"
 ```
 
 Output:
 - `Material models import OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, material_consumption_service; print('Material services import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, material_consumption_service; print('Material services import OK')"
 ```
 
 Output:
 - `Material services import OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_catalog_service.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_catalog_service.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 Output:
@@ -81,14 +81,14 @@ Output:
 Additional (not required by prompt, but run for confidence):
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_consumption_service.py -q --tb=short
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_consumption_service.py -q --tb=short
 ```
 
 Output:
 - `23 passed`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_coordinated_export.py -q --tb=short
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_coordinated_export.py -q --tb=short
 ```
 
 Output:

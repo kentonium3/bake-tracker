@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP03",
+  "feature_slug": "071-finished-goods-quantity-specification",
+  "worktree_path": ".worktrees/071-finished-goods-quantity-specification-WP03",
+  "branch_name": "071-finished-goods-quantity-specification-WP03",
+  "base_branch": "071-finished-goods-quantity-specification-WP02",
+  "base_commit": "0244f2cd4e749e76f8098dd94849525c13bf0dd7",
+  "dependencies": [
+    "WP01"
+  ],
+  "created_at": "2026-01-27T14:37:59.378395+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

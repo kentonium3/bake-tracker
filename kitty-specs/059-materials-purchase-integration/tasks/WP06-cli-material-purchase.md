@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: CLI Material Purchase Extension
-lane: done
 dependencies:
 - WP01
 subtasks:
@@ -11,17 +10,25 @@ subtasks:
 - T035
 - T036
 phase: Wave 2 - Extended Features
-assignee: ''
-agent: claude-opus
-shell_pid: '97888'
-review_status: has_feedback
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/research.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/models/material_product.py
+- src/services/material_catalog_service.py
+- src/services/material_purchase_service.py
+- src/tests/utils/test_import_export_cli.py
+- src/utils/import_export_cli.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - CLI Material Purchase Extension

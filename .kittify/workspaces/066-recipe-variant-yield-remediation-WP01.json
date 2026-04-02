@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "066-recipe-variant-yield-remediation",
+  "worktree_path": ".worktrees/066-recipe-variant-yield-remediation-WP01",
+  "branch_name": "066-recipe-variant-yield-remediation-WP01",
+  "base_branch": "main",
+  "base_commit": "d49816264f27079bf14bbc4b21446590cc2045ac",
+  "dependencies": [],
+  "created_at": "2026-01-25T03:38:48.935272+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

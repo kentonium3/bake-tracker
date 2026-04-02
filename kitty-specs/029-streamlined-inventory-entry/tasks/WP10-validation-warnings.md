@@ -1,7 +1,6 @@
 ---
 work_package_id: WP10
 title: Validation Warnings
-lane: done
 dependencies: []
 subtasks:
 - T068
@@ -12,17 +11,18 @@ subtasks:
 - T073
 - T074
 phase: Phase 4 - Polish
-assignee: claude
-agent: gemini
-shell_pid: gemini
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/029-streamlined-inventory-entry/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- kitty-specs/029-streamlined-inventory-entry/**
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 – Validation Warnings

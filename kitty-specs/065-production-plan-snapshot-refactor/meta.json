@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F065_production_plan_snapshot_refactor.md for this feature's inputs.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-24T20:00:31.083242+00:00"
+  "vcs_locked_at": "2026-01-24T20:00:31.083242+00:00",
+  "mission_id": "01KN5R6XEFQP1EJ6XE805WDQNJ"
 }

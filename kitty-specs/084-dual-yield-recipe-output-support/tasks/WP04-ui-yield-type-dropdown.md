@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI – yield_type Dropdown
-lane: done
 dependencies: [WP02]
 base_branch: 084-dual-yield-recipe-output-support-WP02
 base_commit: 9fbd6fa7c444ee009fa1e3a150e27f381f400fa2
@@ -14,17 +13,21 @@ subtasks:
 - T019
 - T020
 phase: Phase 2 - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '76751'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SV
+owned_files:
+- kitty-specs/084-dual-yield-recipe-output-support/research.md
+- src/ui/forms/recipe_form.py
+- src/ui/recipes_tab.py
+- src/ui/widgets/data_table.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – UI – yield_type Dropdown

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Review & Save (Create Mode)
-lane: done
 dependencies: [WP04]
 base_branch: 097-finished-goods-builder-ui-WP04
 base_commit: f8941c4e075f34fceb85767f384ed7789063c40a
@@ -14,17 +13,19 @@ subtasks:
 - T025
 - T026
 phase: Phase C - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '31568'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E4
+owned_files:
+- src/tests/test_finished_good_builder.py
+- src/ui/builders/finished_good_builder.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 -- Review & Save (Create Mode)

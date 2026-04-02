@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Recipe Selection Filter-First
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 25479c9caf608df6fc4f8a2c1cd76a6c8df5ee38
@@ -11,17 +10,19 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Recipe Selection Enhancement
-assignee: ''
-agent: gemini
-shell_pid: '22294'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-09T21:25:52Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XFFGK25P26CHK2622DE
+owned_files:
+- src/ui/components/recipe_selection_frame.py
+- src/ui/planning_tab.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 -- Recipe Selection Filter-First

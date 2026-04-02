@@ -21,7 +21,7 @@ The full test suite remains green (`1443 passed, 13 skipped`). The main issue fo
 
 ### Test Results
 - Full test suite: **1443 passed, 13 skipped**
-  Evidence: `PYTHONPATH=. /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests -q`
+  Evidence: `PYTHONPATH=. /Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests -q`
 
 ### Code Pattern Validation
 - Re-entry guard pattern (products_tab): **issues found** (refresh called inside `try:`)

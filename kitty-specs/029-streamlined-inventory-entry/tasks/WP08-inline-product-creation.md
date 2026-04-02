@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Inline Product Creation
-lane: done
 dependencies: []
 subtasks:
 - T048
@@ -17,17 +16,18 @@ subtasks:
 - T058
 - T059
 phase: Phase 3 - Advanced Features
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/029-streamlined-inventory-entry/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- kitty-specs/029-streamlined-inventory-entry/**
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 – Inline Product Creation

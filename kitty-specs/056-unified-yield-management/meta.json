@@ -23,5 +23,6 @@
   "mission": "software-dev",
   "slug": "056-unified-yield-management",
   "source_description": "See docs/design/F056_unified_yield_mgmt.md for this feature's input.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XE8YEKG0JWZFEPTN6JW"
 }

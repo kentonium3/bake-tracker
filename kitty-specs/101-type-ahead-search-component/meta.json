@@ -8,5 +8,6 @@
   "source_description": "See docs/func-spec/F101_type_ahead_search_component.md for this feature's inputs. Follow directions in docs/func-spec/claude-pre-implementation-prompt.md.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-10T22:07:20.541482+00:00"
+  "vcs_locked_at": "2026-02-10T22:07:20.541482+00:00",
+  "mission_id": "01KN5R6XFGMGBK9NWQ66WHS23V"
 }

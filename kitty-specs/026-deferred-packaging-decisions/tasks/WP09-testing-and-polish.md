@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Testing & Polish
-lane: done
 dependencies: []
 subtasks:
 - T045
@@ -12,18 +11,24 @@ subtasks:
 - T050
 - T051
 phase: Phase 9 - Testing & Polish
-assignee: claude
-agent: claude
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
 gemini_candidate: true
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/quickstart.md
+- kitty-specs/026-deferred-packaging-decisions/spec.md
+- src/services/import_export_service.py
+- src/services/packaging_service/**
+- src/tests/**
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 - Testing & Polish

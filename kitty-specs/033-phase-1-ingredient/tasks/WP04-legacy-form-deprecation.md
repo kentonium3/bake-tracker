@@ -1,23 +1,26 @@
 ---
 work_package_id: WP04
 title: Legacy Form Deprecation
-lane: done
 dependencies: []
 subtasks:
 - T014
 - T015
 phase: Phase 4 - Cleanup
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '82876'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDMDGJ10P97EJFGY9T6
+owned_files:
+- kitty-specs/033-phase-1-ingredient/plan.md
+- kitty-specs/033-phase-1-ingredient/research.md
+- src/ui/forms/ingredient_form.py
+- src/ui/ingredients_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Legacy Form Deprecation

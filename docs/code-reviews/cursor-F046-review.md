@@ -51,24 +51,24 @@ F046 successfully replaces the post-F045 “zero-cost placeholder” paths by ad
 
 ## Verification Results
 
-Ran outside sandbox from `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly`:
+Ran outside sandbox from `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly`:
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood, Composition, Package; print('Models import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood, Composition, Package; print('Models import OK')"
 ```
 
 Output:
 - `Models import OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood; assert hasattr(FinishedUnit, 'calculate_current_cost'); assert hasattr(FinishedGood, 'calculate_current_cost'); print('New methods exist OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood; assert hasattr(FinishedUnit, 'calculate_current_cost'); assert hasattr(FinishedGood, 'calculate_current_cost'); print('New methods exist OK')"
 ```
 
 Output:
 - `New methods exist OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_assembly_service.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_assembly_service.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 Output:

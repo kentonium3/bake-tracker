@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Deletion & Slug Tests
-lane: done
 dependencies: []
 subtasks:
 - T024
@@ -14,17 +13,21 @@ subtasks:
 - T031
 - T032
 phase: Phase 4 - Testing
-assignee: claude
-agent: claude-reviewer
-shell_pid: '26513'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSE
+owned_files:
+- kitty-specs/035-ingredient-auto-slug/plan.md
+- kitty-specs/035-ingredient-auto-slug/spec.md
+- src/services/ingredient_service/**
+- src/tests/services/test_ingredient_service.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Deletion & Slug Tests

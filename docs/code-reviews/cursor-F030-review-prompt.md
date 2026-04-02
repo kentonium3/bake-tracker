@@ -26,7 +26,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Coordinated Export (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/coordinated_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/coordinated_export_service.py`
   - `ExportManifest` dataclass with export metadata
   - `ExportedFile` dataclass with filename, checksum, record_count
   - `export_complete(output_dir, create_zip)` function
@@ -36,7 +36,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Denormalized Export (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/denormalized_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/denormalized_export_service.py`
   - `ExportResult` dataclass with view_type, record_count, output_path
   - `export_products_view(output_path)` - products with context fields
   - `export_inventory_view(output_path)` - inventory with supplier/ingredient context
@@ -46,7 +46,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - FK Resolver (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/fk_resolver_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/fk_resolver_service.py`
   - `ResolutionChoice` enum (CREATE, MAP, SKIP)
   - `MissingFK` dataclass with entity_type, missing_value, affected_record_count
   - `Resolution` dataclass with choice, created_entity, mapped_id
@@ -58,7 +58,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Enhanced Import (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/enhanced_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/services/enhanced_import_service.py`
   - `EnhancedImportResult` dataclass extending ImportResult
   - `import_view(file_path, mode, dry_run, skip_on_error, resolver, session)` function
   - Merge mode: updates existing records, adds new ones
@@ -70,7 +70,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### CLI Layer - Import/Export CLI (WP03, WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/utils/import_export_cli.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/utils/import_export_cli.py`
   - `export_complete_cmd(output_dir, create_zip)` function
   - `export_view_cmd(view_type, output_path)` function
   - `validate_export_cmd(export_dir)` function
@@ -81,7 +81,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - FK Resolution Dialog (WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/ui/fk_resolution_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/ui/fk_resolution_dialog.py`
   - `FKResolutionDialog` class with create/map/skip options
   - `MapEntityDialog` class with fuzzy search dropdown
   - `CreateEntityDialog` class with entity-specific forms
@@ -91,7 +91,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Import View Dialog (WP08)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/ui/import_export_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/ui/import_export_dialog.py`
   - `ImportViewDialog` class added
   - File selection via file browser
   - Mode selection (merge/skip_existing)
@@ -99,7 +99,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Main Window Integration (WP08)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/ui/main_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/ui/main_window.py`
   - "Import View..." menu item added to File menu
   - `_show_import_view_dialog()` method
   - Integration with UIFKResolver and enhanced_import_service
@@ -107,25 +107,25 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Test Files
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_coordinated_export.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_coordinated_export.py`
   - Tests for manifest generation
   - Tests for checksum validation
   - Tests for ZIP archive creation
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_denormalized_export.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_denormalized_export.py`
   - Tests for products view export
   - Tests for inventory view export
   - Tests for purchases view export
   - Tests for context field inclusion
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_fk_resolver.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_fk_resolver.py`
   - Tests for MissingFK and Resolution dataclasses
   - Tests for CREATE/MAP/SKIP resolution choices
   - Tests for find_similar_entities fuzzy matching
   - Tests for create_entity for each entity type
   - Tests for FKResolverCallback protocol
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_enhanced_import.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/services/test_enhanced_import.py`
   - Tests for EnhancedImportResult
   - Tests for merge mode
   - Tests for skip_existing mode
@@ -133,7 +133,7 @@ You are a senior software engineer performing an independent code review of Feat
   - Tests for skip_on_error mode
   - Tests for FK resolution via slug
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/utils/test_import_export_cli.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/src/tests/utils/test_import_export_cli.py`
   - Tests for export_complete_cmd
   - Tests for export_view_cmd
   - Tests for validate_export_cmd
@@ -142,10 +142,10 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import/kitty-specs/030-enhanced-export-import/tasks.md`
 
 ## Review Checklist
 
@@ -246,10 +246,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/030-enhanced-export-import
+cd /Users/kentgale/repos/bake-tracker/.worktrees/030-enhanced-export-import
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify modules import correctly
 python3 -c "
@@ -380,7 +380,7 @@ class ExportManifest:
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F030-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F030-review.md`
 
 Use this format:
 

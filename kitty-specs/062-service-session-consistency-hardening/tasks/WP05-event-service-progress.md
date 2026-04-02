@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Event Service Progress Operations
-lane: done
 dependencies: [WP01]
 subtasks:
 - T021
@@ -10,17 +9,21 @@ subtasks:
 - T024
 - T025
 phase: Phase 1 - Service Hardening
-assignee: codex
-agent: codex
-shell_pid: '65344'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/services/event_service.py
+- src/tests/test_event_progress.py
+- src/tests/test_services.py
+- src/ui/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Event Service Progress Operations

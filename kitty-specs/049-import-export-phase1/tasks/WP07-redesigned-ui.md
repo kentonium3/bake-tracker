@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Redesigned Import/Export UI
-lane: done
 dependencies: []
 subtasks:
 - T055
@@ -17,17 +16,20 @@ subtasks:
 - T065
 - T066
 phase: Phase 2 - Wave 1
-assignee: claude
-agent: claude
-shell_pid: '13882'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-12T16:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE13JKYW144TE3PXKKE
+owned_files:
+- kitty-specs/049-import-export-phase1/plan.md
+- kitty-specs/049-import-export-phase1/spec.md
+- src/ui/dialogs/import_export_dialog.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Redesigned Import/Export UI

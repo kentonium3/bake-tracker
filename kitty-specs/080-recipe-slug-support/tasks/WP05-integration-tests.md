@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Integration Tests & Validation
-lane: done
 dependencies:
 - WP03
 base_branch: 080-recipe-slug-support-WP04
@@ -13,17 +12,21 @@ subtasks:
 - T028
 - T029
 phase: Phase 2 - Validation
-assignee: ''
-agent: claude-code
-shell_pid: '63764'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEXQQKHVK36YVCMT3H2
+owned_files:
+- kitty-specs/080-recipe-slug-support/plan.md
+- kitty-specs/080-recipe-slug-support/spec.md
+- src/services/**
+- src/tests/test_recipe_slug_integration.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Integration Tests & Validation

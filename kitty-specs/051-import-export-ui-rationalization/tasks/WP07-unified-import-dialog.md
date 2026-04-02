@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Unified Import Dialog with Context-Rich Purpose
-lane: done
 dependencies: []
 subtasks:
 - T043
@@ -14,17 +13,21 @@ subtasks:
 - T050
 - T051
 phase: Phase 2 - Integration
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-13T12:55:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE2J37BC1QGRYHHKE8N
+owned_files:
+- kitty-specs/051-import-export-ui-rationalization/plan.md
+- kitty-specs/051-import-export-ui-rationalization/spec.md
+- src/services/enhanced_import_service.py
+- src/ui/import_export_dialog.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Unified Import Dialog with Context-Rich Purpose

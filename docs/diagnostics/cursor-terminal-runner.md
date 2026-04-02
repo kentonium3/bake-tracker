@@ -52,7 +52,7 @@ This is the most common “it breaks once per review, restart fixes it” patter
 - After merge completes, do a quick reset:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 ```
 
 If you still see runner failures after merge, open a **new** integrated terminal tab (or use “Developer: Reload Window”) to force Cursor to drop any stale `cwd`.

@@ -213,7 +213,7 @@ To restore the production database from the most recent backup:
 # Open app > Import/Export > Backup Restore > Select manifest.json from above directory
 
 # Option 2: Use CLI
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 python -m src.utils.import_export_cli import-backup \
     ~/Documents/BakeTracker/backups/backup_2026-02-07_165341/
 ```

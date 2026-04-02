@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Manual Testing & Cleanup
-lane: done
 dependencies: []
 subtasks:
 - T041
@@ -17,17 +16,24 @@ subtasks:
 - T051
 - T052
 phase: Phase 4 - Validation & Testing
-assignee: claude
-agent: claude
-shell_pid: '35513'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-31T23:59:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW1
+owned_files:
+- docs/bugs/BUG_F031_incomplete_hierarchy_ui.md
+- kitty-specs/032-complete-f031-hierarchy/spec.md
+- src/main.py
+- src/ui/forms/add_product_dialog.py
+- src/ui/ingredients_tab.py
+- src/ui/inventory_tab.py
+- src/ui/products_tab.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Manual Testing & Cleanup

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Production Recording Dialog
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -11,17 +10,22 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - Production Recording
-assignee: ''
-agent: claude
-shell_pid: '45064'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- kitty-specs/014-production-assembly-recording/contracts/ui-components.md
+- kitty-specs/014-production-assembly-recording/research.md
+- src/ui/forms/finished_unit_form.py
+- src/ui/forms/record_production_dialog.py
+- src/ui/service_integration.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Production Recording Dialog

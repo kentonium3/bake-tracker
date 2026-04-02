@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Recipe Import v4.0
-lane: done
 dependencies: []
 subtasks:
 - T006
@@ -11,17 +10,23 @@ subtasks:
 - T010
 - T011
 phase: Phase 1 - Core Schema Upgrade
-assignee: claude
-agent: claude-reviewer
-shell_pid: '89028'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDSX1JRPNAECZJXZPK3
+owned_files:
+- kitty-specs/040-import-export-v4/data-model.md
+- kitty-specs/040-import-export-v4/research.md
+- kitty-specs/040-import-export-v4/spec.md
+- src/services/import_export_service.py
+- src/tests/services/test_import_export_service.py
+- src/tests/services/test_import_export_service.py::TestRecipeImportV4
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Recipe Import v4.0

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP10
 title: DTO Cost Standardization
-lane: done
 dependencies:
 - WP02
 - WP03
@@ -19,11 +18,6 @@ subtasks:
 - T053
 - T054
 phase: Phase 2 - Polish
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '86119'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
@@ -35,6 +29,16 @@ history:
   agent: claude-opus
   shell_pid: '86119'
   action: Review passed, moved to done
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+- src/services/event_service.py
+- src/services/utils.py
+- src/tests/**
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 – DTO Cost Standardization

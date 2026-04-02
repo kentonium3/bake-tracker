@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Refactor UI to Use New Orchestration
-lane: done
 dependencies: [WP02]
 base_branch: 098-auto-generation-finished-goods-WP02
 base_commit: 43b8cbf1f2e412a01bc0443d084ceac8913714ca
@@ -13,17 +12,20 @@ subtasks:
 - T034
 - T035
 phase: Phase 2 - Integration
-assignee: ''
-agent: ''
-shell_pid: '48035'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-08T17:14:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E5
+owned_files:
+- kitty-specs/098-auto-generation-finished-goods/plan.md
+- src/tests/test_recipes_tab.py
+- src/ui/recipes_tab.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Refactor UI to Use New Orchestration

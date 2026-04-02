@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "096-recipe-category-management",
+  "worktree_path": ".worktrees/096-recipe-category-management-WP01",
+  "branch_name": "096-recipe-category-management-WP01",
+  "base_branch": "main",
+  "base_commit": "a8ebe8b9e4b4d52e88ff0925deebde70244ae7d2",
+  "dependencies": [],
+  "created_at": "2026-02-06T04:21:51.024739+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

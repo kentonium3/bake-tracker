@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-13
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/050-supplier-slug-support/kitty-specs/050-supplier-slug-support/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/050-supplier-slug-support/kitty-specs/050-supplier-slug-support/spec.md`
 
 ## Executive Summary
 Adds slug support for suppliers plus slug-based import/export resolution. Core behaviors are partially implemented, but imports currently reject online suppliers and “merge” mode never updates existing suppliers, breaking key acceptance scenarios.
@@ -28,9 +28,9 @@ Adds slug support for suppliers plus slug-based import/export resolution. Core b
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/050-supplier-slug-support
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.supplier_service import generate_supplier_slug; print('Import OK')"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_supplier_service.py::TestSupplierSlugGeneration::test_physical_supplier_slug -v
+cd /Users/kentgale/repos/bake-tracker/.worktrees/050-supplier-slug-support
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.supplier_service import generate_supplier_slug; print('Import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_supplier_service.py::TestSupplierSlugGeneration::test_physical_supplier_slug -v
 ```
 
 **Results:**

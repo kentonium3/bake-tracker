@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: FinishedGood Detail Dialog
-lane: done
 dependencies: []
 subtasks:
 - T029
@@ -13,17 +12,18 @@ subtasks:
 - T035
 - T036
 phase: Phase 3 - Assembly Recording
-assignee: ''
-agent: system
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/forms/finished_good_detail.py/
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- src/ui/forms/finished_good_detail.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - FinishedGood Detail Dialog

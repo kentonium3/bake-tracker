@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Documentation Update
-lane: done
 dependencies: []
 subtasks:
 - T035
@@ -11,17 +10,19 @@ subtasks:
 - T039
 - T040
 phase: Phase 5 - Documentation Update (P3)
-assignee: ''
-agent: ''
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-15T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE533SSPWWZSQVVRXRA
+owned_files:
+- kitty-specs/054-cli-import-export-parity/spec.md
+- src/utils/import_export_cli.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Documentation Update

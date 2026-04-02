@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Context-Rich Aug Commands
-lane: done
 dependencies: []
 subtasks:
 - T010
@@ -14,17 +13,20 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - Context-Rich Aug Commands (P1)
-assignee: ''
-agent: ''
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-15T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE533SSPWWZSQVVRXRA
+owned_files:
+- kitty-specs/054-cli-import-export-parity/plan.md
+- kitty-specs/054-cli-import-export-parity/research.md
+- src/utils/import_export_cli.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Context-Rich Aug Commands

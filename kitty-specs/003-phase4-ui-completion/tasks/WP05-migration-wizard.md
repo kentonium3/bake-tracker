@@ -1,14 +1,11 @@
 ---
+work_package_id: 01KN5R6XKF3VK0Y44AT8CH1FDY
 title: Migration Execution & Wizard
-lane: done
 dependencies:
 - WP01
 - WP02
 - WP03
 - WP04
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -20,14 +17,20 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - migration wizard with dry-run, execution, and results display implemented
+authoritative_surface: src/
 estimate: 10-12 hours
+execution_mode: code_change
 feature: 003-phase4-ui-completion
 id: WP05
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PN
+owned_files:
+- src/**
 priority: P5
 tags:
 - migration
 - wizard
 - data
+wp_code: WP05
 ---
 
 # WP05: Migration Execution & Wizard

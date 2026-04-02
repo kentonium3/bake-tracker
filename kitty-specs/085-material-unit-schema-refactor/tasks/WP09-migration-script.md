@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Migration Transformation Script
-lane: done
 dependencies: [WP06]
 base_branch: 085-material-unit-schema-refactor-WP06
 base_commit: d9c2ca251e85fea7ce79202b8f26d1eacdec9076
@@ -13,17 +12,21 @@ subtasks:
 - T044
 - T045
 phase: Wave 4 - Migration
-assignee: ''
-agent: claude-opus
-shell_pid: '45575'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SW
+owned_files:
+- kitty-specs/085-material-unit-schema-refactor/data-model.md
+- kitty-specs/085-material-unit-schema-refactor/plan.md
+- kitty-specs/085-material-unit-schema-refactor/spec.md
+- src/tests/test_migrate_material_units.py
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 – Migration Transformation Script

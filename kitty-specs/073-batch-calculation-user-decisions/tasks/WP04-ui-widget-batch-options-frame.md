@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI Widget - BatchOptionsFrame
-lane: done
 dependencies:
 - WP02
 base_branch: 073-batch-calculation-user-decisions-WP02
@@ -17,17 +16,21 @@ subtasks:
 - T028
 - T029
 phase: Phase 2 - UI Layer
-assignee: ''
-agent: claude
-shell_pid: '24108'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEQM23DZ45N6YV55ZM3
+owned_files:
+- kitty-specs/073-batch-calculation-user-decisions/data-model.md
+- kitty-specs/073-batch-calculation-user-decisions/quickstart.md
+- src/ui/forms/finished_good_form.py:182-209
+- src/ui/widgets/batch_options_frame.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – UI Widget - BatchOptionsFrame

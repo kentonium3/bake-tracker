@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (independent)
 **Date:** 2026-01-17
-**Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/057-purchase-management-provisional-products/spec.md`
+**Spec:** `/Users/kentgale/repos/bake-tracker/kitty-specs/057-purchase-management-provisional-products/spec.md`
 
 ## Verification
 - Tests: `pytest src/tests/services/test_product_catalog_service.py -v -k "Provisional" --tb=short` ✅

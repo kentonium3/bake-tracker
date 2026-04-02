@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Models Layer
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -10,11 +9,6 @@ subtasks:
 - T004
 - T005
 phase: Phase 1 - Core Snapshot System
-assignee: claude
-agent: claude-reviewer
-shell_pid: '96741'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
@@ -26,6 +20,18 @@ history:
   agent: claude
   shell_pid: '67067'
   action: Started implementation
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/data-model.md
+- kitty-specs/037-recipe-template-snapshot/spec.md
+- src/models/__init__.py
+- src/models/production_run.py
+- src/models/recipe.py
+- src/models/recipe_snapshot.py
+- src/tests/models/test_recipe_snapshot_model.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Models Layer

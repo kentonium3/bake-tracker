@@ -39,5 +39,6 @@
   "mission": "research",
   "slug": "034-cascading-filters-recipe",
   "source_description": "Phase 2 of ingredient hierarchy gap analysis: Fix cascading filters in Product/Inventory tabs and verify/fix recipe integration with L2-only validation",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDMDGJ10P97EJFGY9T7"
 }

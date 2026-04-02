@@ -1,19 +1,24 @@
 ---
 work_package_id: WP01
 title: Model & Service Foundation
-lane: done
 dependencies: []
 subtasks: [T001, T002, T003, T004, T005, T006]
-agent: claude
-shell_pid: '25909'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-17'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 350
+execution_mode: code_change
+mission_id: 01KN5R6XE9BA9X7KYETPX1SM23
+owned_files:
+- src/models/product.py
+- src/services/product_catalog_service.py
+- src/services/product_service.py
+- src/tests/services/test_product_catalog_service.py
+- src/tests/services/test_product_service.py
 priority: P0
+wp_code: WP01
 ---
 
 # WP01: Model & Service Foundation

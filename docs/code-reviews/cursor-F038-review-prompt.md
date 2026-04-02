@@ -34,52 +34,52 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Base Classes (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/base/__init__.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/base/base_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/base/standard_tab_layout.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/base_dashboard.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/base/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/base/base_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/base/standard_tab_layout.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/base_dashboard.py`
 
 ### Mode Manager & Main Window (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/mode_manager.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/main_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/mode_manager.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/main_window.py`
 
 ### Mode Implementations (WP03-WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/__init__.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/catalog_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/observe_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/plan_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/shop_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/produce_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/placeholder_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/catalog_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/observe_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/plan_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/shop_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/produce_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/modes/placeholder_mode.py`
 
 ### Dashboard Implementations
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/__init__.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/catalog_dashboard.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/observe_dashboard.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/plan_dashboard.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/shop_dashboard.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/produce_dashboard.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/catalog_dashboard.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/observe_dashboard.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/plan_dashboard.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/shop_dashboard.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/dashboards/produce_dashboard.py`
 
 ### New Tab Implementations
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/__init__.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/event_status_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/reports_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/planning_workspace_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/shopping_lists_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/purchases_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/assembly_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/packaging_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/event_status_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/reports_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/planning_workspace_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/shopping_lists_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/purchases_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/assembly_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/src/ui/tabs/packaging_tab.py`
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/tasks.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure/kitty-specs/038-ui-mode-restructure/data-model.md`
 
 ## Review Checklist
 
@@ -163,10 +163,10 @@ You are a senior software engineer performing an independent code review of Feat
 **IMPORTANT**: Run these commands outside the sandbox so venv activation will work. If any command fails, STOP and report the blocker before fixing anything.
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/038-ui-mode-restructure
+cd /Users/kentgale/repos/bake-tracker/.worktrees/038-ui-mode-restructure
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all mode modules import correctly
 PYTHONPATH=. python3 -c "
@@ -299,7 +299,7 @@ class BaseDashboard(ctk.CTkFrame):
 ## Output Format
 
 **IMPORTANT**: Write your review to the main repo, NOT the worktree:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F038-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F038-review.md`
 
 Use this format:
 

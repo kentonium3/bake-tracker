@@ -1,15 +1,12 @@
 ---
+work_package_id: 01KN5R6XKP5HHKFYT2CGDCRWQ0
 title: Integration & Cross-Tab Functionality
-lane: done
 dependencies:
 - WP01
 - WP02
 - WP03
 - WP04
 - WP05
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '1'
 history:
 - timestamp: '2025-11-10T18:01:00Z'
   lane: planned
@@ -21,14 +18,20 @@ history:
   agent: Claude Code
   shell_pid: '1'
   action: Work package completed - integration guide created, navigation helpers added, legacy code removed
+authoritative_surface: src/
 estimate: 8-10 hours
+execution_mode: code_change
 feature: 003-phase4-ui-completion
 id: WP06
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PN
+owned_files:
+- src/**
 priority: P6
 tags:
 - integration
 - testing
 - cross-tab
+wp_code: WP06
 ---
 
 # WP06: Integration & Cross-Tab Functionality

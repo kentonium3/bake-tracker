@@ -1,6 +1,6 @@
 ## Code Review: Feature 018 — Event Production Dashboard
 
-**Worktree reviewed**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/018-event-production-dashboard/`
+**Worktree reviewed**: `/Users/kentgale/repos/bake-tracker/.worktrees/018-event-production-dashboard/`
 
 ### Scope / Files Reviewed (in requested order)
 

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Material Inventory Display
-lane: done
 dependencies:
 - WP02
 subtasks:
@@ -13,17 +12,24 @@ subtasks:
 - T023
 - T024
 phase: Wave 1 - Core UI
-assignee: ''
-agent: claude-opus
-shell_pid: '83783'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/research.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/services/material_inventory_service.py
+- src/tests/ui/test_purchases_tab.py
+- src/ui/inventory_tab.py
+- src/ui/tabs/purchases_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Material Inventory Display

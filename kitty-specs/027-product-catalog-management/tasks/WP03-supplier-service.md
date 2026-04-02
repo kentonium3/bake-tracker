@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Supplier Service
-lane: done
 dependencies: []
 subtasks:
 - T016
@@ -17,17 +16,22 @@ subtasks:
 - T026
 - T027
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '50566'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- src/services/__init__.py
+- src/services/exceptions.py
+- src/services/ingredient_service.py
+- src/services/supplier_service.py
+- src/tests/services/test_supplier_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Supplier Service

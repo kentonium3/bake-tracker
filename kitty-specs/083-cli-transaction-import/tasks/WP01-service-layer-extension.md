@@ -1,24 +1,26 @@
 ---
 work_package_id: WP01
 title: Service Layer Extension
-lane: done
 dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 phase: Phase 1 - Foundation
-assignee: ''
-agent: claude
-shell_pid: '30076'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-29T04:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEZAS2ZKEFHJ7EBB45J
+owned_files:
+- kitty-specs/083-cli-transaction-import/research/fk-resolution-analysis.md
+- src/services/transaction_import_service.py
+- src/utils/import_export_cli.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Service Layer Extension

@@ -27,35 +27,35 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer (WP01-WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/purchase_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/purchase_service.py`
   - `get_last_price_at_supplier(product_id, supplier_id, session=None)` - returns most recent purchase price for product at specific supplier
   - `get_last_price_any_supplier(product_id, session=None)` - returns most recent purchase price for product at any supplier (fallback)
   - `record_purchase()` - verify uses `unit_price` field, creates/finds supplier correctly
   - `get_purchase_history()` - verify supplier name filtering uses proper join
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/inventory_item_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/inventory_item_service.py`
   - `add_to_inventory()` - must require `supplier_id: int` and `unit_price: Decimal` parameters
   - Atomic Purchase record creation within same transaction
   - `InventoryItem.unit_cost` set from `unit_price` parameter
   - `InventoryItem.purchase_id` FK linkage to created Purchase
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/recipe_service.py`
   - ValidationError must use list format: `raise ValidationError(["message"])`
 
 ### Model Layer
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/models/purchase.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/models/purchase.py`
   - `unit_cost` property alias for `unit_price` (backward compatibility)
   - `total_cost` computed property (`unit_price * quantity_purchased`)
   - Verify `unit_price` is the stored column, not `unit_cost`
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/models/inventory_item.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/models/inventory_item.py`
   - `purchase_id` FK exists (nullable, ON DELETE RESTRICT)
   - `purchase` relationship to Purchase exists
 
 ### UI Layer (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/ui/inventory_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/ui/inventory_tab.py`
   - Supplier dropdown populated from `get_active_suppliers()`, sorted alphabetically
   - Price entry field with decimal validation
   - Price hint label with dynamic update on supplier selection
@@ -67,64 +67,64 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Migration Scripts (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/migration/f028_migration.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/migration/f028_migration.py`
   - Creates Purchase records for InventoryItems with NULL purchase_id
   - Finds/creates "Unknown" supplier (name='Unknown', state='XX')
   - Links InventoryItem.purchase_id to new Purchase records
   - Sets unit_cost if NULL (0.00 fallback with warning)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/migration/f028_validation.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/services/migration/f028_validation.py`
   - Validates no InventoryItem has NULL purchase_id after migration
   - Validates Purchase.product_id matches InventoryItem.product_id
   - Record count validation
 
 ### Test Files
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_purchase_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_purchase_service.py`
   - Tests for `get_last_price_at_supplier()` and `get_last_price_any_supplier()`
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_inventory_item_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_inventory_item_service.py`
   - Tests for updated `add_to_inventory()` with new signature
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_recipe_service.py`
   - All `add_to_inventory()` calls updated with `supplier_id` and `unit_price`
   - Uses `sample_supplier` fixture
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_production_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_production_service.py`
   - All `add_to_inventory()` calls updated
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_packaging_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_packaging_service.py`
   - All `add_to_inventory()` calls updated
   - `test_supplier` fixture present
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_product_recommendation_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_product_recommendation_service.py`
   - All `add_to_inventory()` calls updated
   - `test_supplier` fixture present
   - Purchase creation uses correct fields (`unit_price`, `supplier_id`)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/test_models.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/test_models.py`
   - `TestPurchaseModel::test_create_purchase` uses new schema (`supplier_id`, `unit_price`)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_import_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/services/test_import_export_service.py`
   - Version assertions updated to "3.5"
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/integration/test_purchase_flow.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/integration/test_purchase_flow.py`
   - Integration tests for purchase workflow
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/integration/test_packaging_flow.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/src/tests/integration/test_packaging_flow.py`
   - Version assertion updated to "3.5"
 
 ### Data Files
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/test_data/sample_data.json`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/test_data/sample_data.json`
   - Version should be "3.5"
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced/kitty-specs/028-purchase-tracking-enhanced/tasks.md`
 
 ## Review Checklist
 
@@ -205,10 +205,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced
+cd /Users/kentgale/repos/bake-tracker/.worktrees/028-purchase-tracking-enhanced
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify modules import correctly
 python3 -c "
@@ -344,7 +344,7 @@ lot = inventory_item_service.add_to_inventory(
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F028-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F028-review.md`
 
 Use this format:
 

@@ -9,7 +9,7 @@
 ## Specification
 
 Read the full specification before examining implementation:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/051-import-export-ui-rationalization/kitty-specs/051-import-export-ui-rationalization/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/051-import-export-ui-rationalization/kitty-specs/051-import-export-ui-rationalization/spec.md`
 
 ## Code Changes
 
@@ -40,13 +40,13 @@ These are the primary changes, but review should extend to any related code, dep
 
 ```bash
 # Navigate to the worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/051-import-export-ui-rationalization
+cd /Users/kentgale/repos/bake-tracker/.worktrees/051-import-export-ui-rationalization
 
 # Verify imports work (uses main repo venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.schema_validation_service import validate_import_data; print('Import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.schema_validation_service import validate_import_data; print('Import OK')"
 
 # Run a quick test to verify environment
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_schema_validation_service.py -v --tb=short -q 2>&1 | head -20
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_schema_validation_service.py -v --tb=short -q 2>&1 | head -20
 ```
 
 If ANY command fails, STOP immediately and report blocker before attempting fixes.
@@ -64,10 +64,10 @@ If ANY command fails, STOP immediately and report blocker before attempting fixe
 
 ## Report Template
 
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 ## Report Output
 
-Write your review report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F051-review.md`
+Write your review report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F051-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.

@@ -41,5 +41,6 @@
   "mission": "research",
   "slug": "031-ingredient-hierarchy-taxonomy",
   "source_description": "Three-tier hierarchical ingredient taxonomy (Root/Mid/Leaf) with self-referential schema, tree traversal services, UI tree widget, and AI-assisted migration of 500+ ingredients. See docs/design/F031_ingredient_hierarchy.md for full design.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDKD9M8CSSJ5AMD2HW0"
 }

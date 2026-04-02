@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: UI Delete Handler Integration
-lane: done
 dependencies: []
 subtasks:
 - T019
@@ -10,17 +9,20 @@ subtasks:
 - T022
 - T023
 phase: Phase 3 - UI Integration
-assignee: claude
-agent: claude-reviewer
-shell_pid: '26418'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSE
+owned_files:
+- kitty-specs/035-ingredient-auto-slug/plan.md
+- kitty-specs/035-ingredient-auto-slug/spec.md
+- src/ui/ingredients_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - UI Delete Handler Integration

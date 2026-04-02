@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Product Catalog Service
-lane: done
 dependencies: []
 subtasks:
 - T028
@@ -16,17 +15,20 @@ subtasks:
 - T037
 - T038
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: system
-shell_pid: '50566'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- kitty-specs/027-product-catalog-management/data-model.md
+- src/services/product_catalog_service.py
+- src/tests/services/test_product_catalog_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Product Catalog Service

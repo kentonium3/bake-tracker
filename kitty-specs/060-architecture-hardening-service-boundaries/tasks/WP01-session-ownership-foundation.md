@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Session Ownership Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,11 +8,6 @@ subtasks:
 - T003
 - T004
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '79653'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-20T20:00:00Z'
   lane: planned
@@ -25,6 +19,19 @@ history:
   agent: claude-opus
   shell_pid: '79653'
   action: Review passed - All 4 subtasks complete
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEBZD5RXB89VEJXAQEV
+owned_files:
+- docs/design/session_management_remediation_spec.md
+- docs/design/session_ownership_pattern.md
+- kitty-specs/060-architecture-hardening-service-boundaries/plan.md
+- kitty-specs/060-architecture-hardening-service-boundaries/research.md
+- src/services/**
+- src/tests/services/test_session_atomicity.py
+- src/tests/utils/test_session_helper.py
+- src/utils/session_helper.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Session Ownership Foundation

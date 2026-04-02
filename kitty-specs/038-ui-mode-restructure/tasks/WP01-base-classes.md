@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Base Classes & Directory Structure
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,23 @@ subtasks:
 - T005
 - T006
 phase: Phase 0 - Setup
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41107'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/data-model.md
+- kitty-specs/038-ui-mode-restructure/research.md
+- src/ui/base/**
+- src/ui/dashboards/**
+- src/ui/modes/**
+- src/ui/tabs/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Base Classes & Directory Structure

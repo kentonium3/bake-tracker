@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Tab Integration and CRUD Wiring
-lane: done
 dependencies:
 - WP01
 - WP02
@@ -9,14 +8,20 @@ dependencies:
 - WP04
 - WP05
 subtasks: [T043, T044, T045, T046, T047, T048, T049, T050, T051]
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 420
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/services/finished_good_service.py
+- src/ui/finished_goods_tab.py
+- src/ui/forms/finished_good_form.py
 priority: P1
+wp_code: WP07
 ---
 
 # WP07: Tab Integration and CRUD Wiring

@@ -1,24 +1,29 @@
 ---
 work_package_id: WP03
 title: Fix Assembly Service Cost Capture
-lane: done
 dependencies: []
 subtasks:
 - T008
 - T009
 - T010
 phase: Phase 2 - Service Layer Fixes
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T07:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDYYXDTKQHMHQQT0T86
+owned_files:
+- docs/known_limitations.md
+- kitty-specs/046-finished-goods-bundles-assembly/research/data-model.md
+- kitty-specs/046-finished-goods-bundles-assembly/research/research.md
+- src/services/assembly_service.py
+- src/services/finished_good_service.py
+- src/tests/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Fix Assembly Service Cost Capture

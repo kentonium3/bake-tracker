@@ -19,5 +19,6 @@
   "friendly_name": "materials management system",
   "mission": "research",
   "slug": "047-materials-management-system",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDZK1N509JXJDJWTA46"
 }

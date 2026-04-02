@@ -9,29 +9,29 @@
 ## Specification
 
 Read the feature specification first to understand requirements:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/kitty-specs/052-ingredient-material-hierarchy-admin/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/kitty-specs/052-ingredient-material-hierarchy-admin/spec.md`
 
 ## Code Changes
 
 The following files were modified or created for this feature:
 
 **New Service Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/services/ingredient_hierarchy_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/services/material_hierarchy_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/services/hierarchy_admin_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/services/ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/services/material_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/services/hierarchy_admin_service.py`
 
 **New UI Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/hierarchy_admin_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/hierarchy_admin_window.py`
 
 **Modified UI Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/ingredients_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/materials_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/main_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/materials_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/ui/main_window.py`
 
 **New Test Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/tests/services/test_ingredient_hierarchy_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/tests/services/test_material_hierarchy_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/tests/services/test_hierarchy_admin_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/tests/services/test_ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/tests/services/test_material_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin/src/tests/services/test_hierarchy_admin_service.py`
 
 These are the primary changes, but review should extend to any related code, dependencies, or callers as needed.
 
@@ -41,13 +41,13 @@ These are the primary changes, but review should extend to any related code, dep
 
 ```bash
 # Navigate to worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin
+cd /Users/kentgale/repos/bake-tracker/.worktrees/052-ingredient-material-hierarchy-admin
 
 # Verify imports work (using main repo venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.ingredient_hierarchy_service import get_ingredient_tree; print('Imports OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.ingredient_hierarchy_service import get_ingredient_tree; print('Imports OK')"
 
 # Run hierarchy service tests
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py src/tests/services/test_material_hierarchy_service.py -v --tb=short 2>&1 | tail -20
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py src/tests/services/test_material_hierarchy_service.py -v --tb=short 2>&1 | tail -20
 ```
 
 If ANY command fails, STOP immediately and report as a blocker before attempting any fixes.
@@ -66,11 +66,11 @@ If ANY command fails, STOP immediately and report as a blocker before attempting
 ## Report Template
 
 Use the template at:
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+- `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output
 
 Write your review report to:
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F052-review.md`
+- `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F052-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.

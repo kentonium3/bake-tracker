@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Verify Cascade Delete Configuration
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -9,17 +8,22 @@ subtasks:
 - T009
 - T010
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '26156'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSE
+owned_files:
+- kitty-specs/035-ingredient-auto-slug/plan.md
+- kitty-specs/035-ingredient-auto-slug/research.md
+- kitty-specs/035-ingredient-auto-slug/spec.md
+- src/models/ingredient_alias.py
+- src/models/ingredient_crosswalk.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Verify Cascade Delete Configuration

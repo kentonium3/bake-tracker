@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: Polish & Integration
-lane: done
 dependencies: []
 subtasks:
 - T058
@@ -13,17 +12,21 @@ subtasks:
 - T064
 - T065
 phase: Phase 4 - Validation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '72129'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T03:09:20Z'
   lane: planned
   agent: claude
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDRS2KVV6QTFHHXTDFZ
+owned_files:
+- kitty-specs/039-planning-workspace/quickstart.md
+- kitty-specs/039-planning-workspace/spec.md
+- src/services/planning/**
+- src/tests/services/planning/**
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 - Polish & Integration

@@ -19,7 +19,7 @@ Severity legend: **Critical** (blocks release), **High** (likely data/behavior b
 
 - **High — Non-atomic FIFO consumption in batch production**
   Ingredient consumption is executed in a different session/transaction (`consume_fifo` opens its own `session_scope` and commits), but the production run, finished unit increment, and ledger creation are in another session. If a later step fails (e.g., DB error creating `ProductionRun`), inventory remains consumed with no production record or finished units added. There is no compensating rollback.
-  ```220:323:/Users/kentgale/Vaults-repos/bake-tracker/src/services/batch_production_service.py
+  ```220:323:/Users/kentgale/repos/bake-tracker/src/services/batch_production_service.py
         # Note: consume_fifo uses its own session_scope, so it commits independently
         for item in aggregated:
             ...
@@ -34,7 +34,7 @@ Severity legend: **Critical** (blocks release), **High** (likely data/behavior b
 
 - **High — Packaging consumption can be partially committed on assembly failure**
   Assembly uses the same pattern: packaging is consumed via `consume_fifo` in a separate transaction before the `AssemblyRun` is persisted. Any failure after packaging consumption (e.g., DB error, validation on a later component) leaves packaging inventory decremented without an assembly record. Tests assert rollback for finished units but never verify packaging inventory.
-  ```265:357:/Users/kentgale/Vaults-repos/bake-tracker/src/services/assembly_service.py
+  ```265:357:/Users/kentgale/repos/bake-tracker/src/services/assembly_service.py
         elif comp.packaging_product_id:
             ...
             result = inventory_item_service.consume_fifo(
@@ -48,7 +48,7 @@ Severity legend: **Critical** (blocks release), **High** (likely data/behavior b
 
 - **High — Mixed timezone-aware and naive timestamps for AssemblyRun**
   `AssemblyRun.assembled_at` is a plain `DateTime`, but the service uses `datetime.now(timezone.utc)` (aware). Other services use `datetime.utcnow()` (naive). SQLAlchemy will emit warnings or fail when inserting aware datetimes into naive columns, and the mix causes inconsistent serialization.
-  ```348:354:/Users/kentgale/Vaults-repos/bake-tracker/src/services/assembly_service.py
+  ```348:354:/Users/kentgale/repos/bake-tracker/src/services/assembly_service.py
         assembly_run = AssemblyRun(
             ...
             assembled_at=assembled_at or datetime.now(timezone.utc),
@@ -56,7 +56,7 @@ Severity legend: **Critical** (blocks release), **High** (likely data/behavior b
 
 - **Medium — No ledger entries for nested FinishedGood components in assemblies**
   When a FinishedGood is used as a component of another FinishedGood, the service decrements inventory and includes the cost, but intentionally skips creating any consumption ledger entry. This breaks auditability for nested assemblies and makes cost reconstruction impossible from ledgers alone.
-  ```293:312:/Users/kentgale/Vaults-repos/bake-tracker/src/services/assembly_service.py
+  ```293:312:/Users/kentgale/repos/bake-tracker/src/services/assembly_service.py
             elif comp.finished_good_id:
                 ...
                 nested_fg.inventory_count -= needed

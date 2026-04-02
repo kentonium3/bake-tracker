@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Type Hints Completion
-lane: done
 dependencies: []
 subtasks:
 - T042
@@ -10,17 +9,18 @@ subtasks:
 - T045
 - T046
 phase: Phase 4 - Type Hints
-assignee: ''
-agent: claude
-shell_pid: '51371'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/services/
+execution_mode: code_change
+mission_id: 01KN5R6XFAY2QEH2GNRHDR7982
+owned_files:
+- src/services/**
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Type Hints Completion

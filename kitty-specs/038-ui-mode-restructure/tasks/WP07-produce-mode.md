@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: PRODUCE Mode
-lane: done
 dependencies: []
 subtasks:
 - T036
@@ -11,17 +10,26 @@ subtasks:
 - T040
 - T041
 phase: Phase 2 - Mode Implementation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41347'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/data-model.md
+- kitty-specs/038-ui-mode-restructure/spec.md
+- src/ui/dashboards/produce_dashboard.py
+- src/ui/modes/produce_mode.py
+- src/ui/production_dashboard_tab.py
+- src/ui/production_tab.py
+- src/ui/recipients_tab.py
+- src/ui/tabs/assembly_tab.py
+- src/ui/tabs/packaging_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - PRODUCE Mode

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP09
 title: UI - Fulfillment Status
-lane: done
 dependencies: []
 subtasks:
 - T050
@@ -9,17 +8,19 @@ subtasks:
 - T052
 - T053
 phase: Phase 7 - UI Fulfillment Status
-assignee: claude
-agent: claude
-shell_pid: '94644'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/spec.md
+- src/ui/event_detail_window.py
+wp_code: WP09
 ---
 
 # Work Package Prompt: WP09 - UI - Fulfillment Status

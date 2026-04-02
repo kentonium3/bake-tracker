@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Integration Tests and Verification
-lane: done
 dependencies: [WP04, WP05, WP06, WP07]
 subtasks:
 - T028
@@ -10,11 +9,6 @@ subtasks:
 - T031
 - T032
 phase: Phase 5 - Testing
-assignee: ''
-agent: claude-opus
-shell_pid: '40128'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-21T19:33:38Z'
   lane: planned
@@ -36,6 +30,15 @@ history:
   agent: claude-opus
   shell_pid: '40128'
   action: Review passed
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEC5876GT8F9D6YC8BF
+owned_files:
+- kitty-specs/061-finished-goods-inventory-service/plan.md
+- src/tests/integration/**
+- src/tests/services/test_assembly_service.py
+- src/tests/services/test_import_export_service.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Integration Tests and Verification

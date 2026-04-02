@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Recency Query Service Methods
-lane: done
 dependencies: []
 subtasks:
 - T012
@@ -12,17 +11,22 @@ subtasks:
 - T017
 - T018
 phase: Phase 0 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- kitty-specs/029-streamlined-inventory-entry/data-model.md
+- kitty-specs/029-streamlined-inventory-entry/plan.md
+- kitty-specs/029-streamlined-inventory-entry/research.md
+- src/services/inventory_item_service.py
+- src/tests/services/test_inventory_item_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Recency Query Service Methods

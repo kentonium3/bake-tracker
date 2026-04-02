@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: AddInventoryDialog - Type-Ahead Integration
-lane: done
 dependencies: []
 subtasks:
 - T034
@@ -12,17 +11,18 @@ subtasks:
 - T039
 - T040
 phase: Phase 2 - Core Integration
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/029-streamlined-inventory-entry/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- kitty-specs/029-streamlined-inventory-entry/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – AddInventoryDialog Type-Ahead Integration

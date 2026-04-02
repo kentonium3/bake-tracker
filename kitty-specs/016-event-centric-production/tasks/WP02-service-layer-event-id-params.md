@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service Layer - Event ID Parameters
-lane: done
 dependencies: []
 subtasks:
 - T010
@@ -9,17 +8,23 @@ subtasks:
 - T012
 - T013
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '83960'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD85ES6K9A2JN0JAD51
+owned_files:
+- kitty-specs/016-event-centric-production/contracts/event-service-contracts.md
+- kitty-specs/016-event-centric-production/data-model.md
+- kitty-specs/016-event-centric-production/spec.md
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+- src/tests/services/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Service Layer - Event ID Parameters

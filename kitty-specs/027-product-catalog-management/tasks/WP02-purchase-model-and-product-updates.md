@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Purchase Model & Product Updates
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -14,17 +13,23 @@ subtasks:
 - T014
 - T015
 phase: Phase 1 - Schema & Models
-assignee: claude
-agent: claude
-shell_pid: '50566'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T14:35:00Z'
   lane: planned
   agent: system
   shell_pid: '50566'
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDF9JBKT9CD12RFR7QC
+owned_files:
+- kitty-specs/027-product-catalog-management/data-model.md
+- src/models/__init__.py
+- src/models/inventory_addition.py
+- src/models/product.py
+- src/models/purchase.py
+- src/tests/**
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Purchase Model & Product Updates

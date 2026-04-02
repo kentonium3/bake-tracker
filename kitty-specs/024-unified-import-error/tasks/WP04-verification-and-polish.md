@@ -1,22 +1,26 @@
 ---
 work_package_id: WP04
 title: Verification and Polish
-lane: done
+dependencies: []
+subtasks:
+- T008
+- T009
+phase: Phase 4 - Unified Import Path Verification
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude-reviewer
-assignee: claude
-phase: Phase 4 - Unified Import Path Verification
-review_status: ''
-reviewed_by: ''
-shell_pid: '78101'
-subtasks:
-- T008
-- T009
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDDYBXQPG4X5S4Y21TD
+owned_files:
+- docs/user_testing/**
+- kitty-specs/024-unified-import-error/plan.md
+- kitty-specs/024-unified-import-error/spec.md
+- src/main.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Verification and Polish
@@ -60,7 +64,7 @@ This is the final verification gate. Feature should not be marked complete until
 
 1. **Launch the application**:
    ```bash
-   cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/024-unified-import-error
+   cd /Users/kentgale/repos/bake-tracker/.worktrees/024-unified-import-error
    source venv/bin/activate
    python src/main.py
    ```

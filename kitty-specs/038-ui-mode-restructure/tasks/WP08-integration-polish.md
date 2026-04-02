@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Integration & Polish
-lane: done
 dependencies: []
 subtasks:
 - T042
@@ -11,17 +10,20 @@ subtasks:
 - T046
 - T047
 phase: Phase 3 - Integration
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41347'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/spec.md
+- src/ui/dialogs/confirm_dialog.py
+- src/ui/main_window.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Integration & Polish

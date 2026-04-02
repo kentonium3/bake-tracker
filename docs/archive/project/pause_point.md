@@ -430,7 +430,7 @@ Optional (future ready):
 
 **Python Environment:**
 ```bash
-cd C:\Users\Kent\Vaults-repos\bake-tracker
+cd C:\Users\Kent\repos\bake-tracker
 venv\Scripts\activate
 ```
 

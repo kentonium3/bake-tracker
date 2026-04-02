@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Planning Tab Integration
-lane: done
 dependencies:
 - WP01
 base_branch: 071-finished-goods-quantity-specification-WP02
@@ -13,17 +12,21 @@ subtasks:
 - T011
 - T012
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '81837'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XENYD8GA71M78PNF1QP
+owned_files:
+- kitty-specs/071-finished-goods-quantity-specification/data-model.md
+- kitty-specs/071-finished-goods-quantity-specification/plan.md
+- kitty-specs/071-finished-goods-quantity-specification/spec.md
+- src/ui/planning_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Planning Tab Integration

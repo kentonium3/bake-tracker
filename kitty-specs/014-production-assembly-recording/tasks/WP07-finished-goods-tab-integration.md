@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: FinishedGoods Tab Integration
-lane: done
 dependencies: []
 subtasks:
 - T037
@@ -10,17 +9,19 @@ subtasks:
 - T040
 - T041
 phase: Phase 3 - Assembly Recording
-assignee: ''
-agent: system
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- src/ui/finished_goods_tab.py
+- src/ui/forms/__init__.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - FinishedGoods Tab Integration

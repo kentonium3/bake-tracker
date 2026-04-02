@@ -26,7 +26,7 @@
 **YOU run these commands** to extract completed code:
 
 ```bash
-cd C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\004-finishedunit-model-refactoring
+cd C:\Users\Kent\repos\bake-tracker\.worktrees\004-finishedunit-model-refactoring
 
 # Create patches directory
 mkdir -p ../../archive/2025-11-feature-004-patches
@@ -54,7 +54,7 @@ git diff main -- src/models/ > ../../archive/2025-11-feature-004-patches/00-all-
 
 ```bash
 # For each patch, create a summary
-cd C:\Users\Kent\Vaults-repos\bake-tracker\archive\2025-11-feature-004-patches
+cd C:\Users\Kent\repos\bake-tracker\archive\2025-11-feature-004-patches
 
 # Example for FinishedUnit patch:
 echo "# FinishedUnit Model Patch
@@ -215,7 +215,7 @@ Based on completed work, here's the proper feature sequence:
 
 ```bash
 # In main repo directory
-cd C:\Users\Kent\Vaults-repos\bake-tracker
+cd C:\Users\Kent\repos\bake-tracker
 
 # Ensure on main branch
 git checkout main
@@ -236,7 +236,7 @@ Once spec-kitty creates the Feature 004A worktree:
 
 ```bash
 # Switch to new 004A worktree
-cd C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\<new-worktree-name>
+cd C:\Users\Kent\repos\bake-tracker\.worktrees\<new-worktree-name>
 
 # Apply the FinishedUnit model patch
 git apply ../../archive/2025-11-feature-004-patches/01-finished-unit-model.patch

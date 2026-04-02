@@ -29,7 +29,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Model Layer - Ingredient Schema (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/models/ingredient.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/models/ingredient.py`
   - `parent_ingredient_id` FK (nullable, self-referential)
   - `hierarchy_level` Integer (default=2 for leaf)
   - `parent` relationship (remote_side pattern)
@@ -40,7 +40,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Hierarchy Core (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/ingredient_hierarchy_service.py`
   - `get_root_ingredients()` - returns level 0 ingredients
   - `get_children(parent_id)` - returns direct children
   - `get_ancestors(ingredient_id)` - returns path to root
@@ -53,7 +53,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Hierarchy Validation (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/ingredient_hierarchy_service.py`
   - `is_leaf(ingredient_id)` - check if ingredient is selectable
   - `validate_hierarchy(ingredient_id, proposed_parent_id)` - validate move
   - `move_ingredient(ingredient_id, new_parent_id)` - change parent
@@ -62,35 +62,35 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Exceptions (WP03/WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/exceptions.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/exceptions.py`
   - `NonLeafIngredientError` exception class
   - `suggestions` attribute with leaf alternatives
   - `HierarchyError` base exception (if added)
 
 ### Service Layer - Validation Updates (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/ingredient_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/ingredient_service.py`
   - `create_ingredient()` - validates parent, calculates level
   - `update_ingredient()` - handles parent change via move_ingredient
   - Defaults hierarchy_level=2 for backwards compatibility
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/recipe_service.py`
   - `create_recipe()` - enforces leaf-only ingredients
   - `add_ingredient_to_recipe()` - enforces leaf-only
   - `update_recipe()` - enforces leaf-only on ingredient changes
   - Raises `NonLeafIngredientError` with suggestions
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/product_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/product_service.py`
   - Enforces leaf-only for product-ingredient links
   - Raises `NonLeafIngredientError` with suggestions
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/product_catalog_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/services/product_catalog_service.py`
   - Enforces leaf-only in catalog operations
   - Handles bulk operations with validation
 
 ### UI Layer - Tree Widget (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/widgets/ingredient_tree_widget.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/widgets/ingredient_tree_widget.py`
   - `IngredientTreeWidget` class (ttk.Treeview based)
   - `on_select_callback` parameter
   - `leaf_only` mode for recipe/product selection
@@ -100,12 +100,12 @@ You are a senior software engineer performing an independent code review of Feat
   - `search()` and `clear_search()` public methods
   - `refresh()` method
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/widgets/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/widgets/__init__.py`
   - Export of `IngredientTreeWidget`
 
 ### UI Layer - Ingredients Tab Integration (WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/ingredients_tab.py`
   - Flat/Tree view toggle (segmented button)
   - `_create_tree_view()` method
   - `_on_view_change()` handler
@@ -120,7 +120,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Recipe Form Integration (WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/forms/recipe_form.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/ui/forms/recipe_form.py`
   - `IngredientSelectionDialog` class (new)
   - Tree widget with `leaf_only=True`
   - `RecipeIngredientRow` updates:
@@ -132,13 +132,13 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Test Files
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/models/test_ingredient.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/models/test_ingredient.py`
   - Tests for `parent_ingredient_id` and `hierarchy_level` fields
   - Tests for `get_ancestors()` and `get_descendants()` methods
   - Tests for `is_leaf` property
   - Tests for self-referential relationship
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_ingredient_hierarchy_service.py`
   - Tests for `get_root_ingredients()`
   - Tests for `get_children()`
   - Tests for `get_ancestors()`
@@ -149,14 +149,14 @@ You are a senior software engineer performing an independent code review of Feat
   - Tests for cycle detection
   - Tests for depth validation
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_ingredient_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_ingredient_service.py`
   - `TestCreateIngredientHierarchy` class
   - `TestUpdateIngredientHierarchy` class
   - Tests for parent validation on create
   - Tests for max depth validation
   - Tests for default leaf level
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_recipe_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_recipe_service.py`
   - `TestLeafOnlyIngredientValidation` class
   - Tests for create with leaf ingredient (success)
   - Tests for create with non-leaf ingredient (fail)
@@ -164,21 +164,21 @@ You are a senior software engineer performing an independent code review of Feat
   - Tests for add ingredient with non-leaf (fail)
   - Tests for error suggestions
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_product_catalog_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/services/test_product_catalog_service.py`
   - `TestLeafOnlyProductCatalogValidation` class
   - Tests for create with leaf (success)
   - Tests for create with non-leaf (fail)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/conftest.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/src/tests/conftest.py`
   - `hierarchy_ingredients` fixture
   - Creates 4-ingredient hierarchy for testing
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/kitty-specs/031-ingredient-hierarchy-taxonomy/tasks.md`
 
 ## Review Checklist
 
@@ -262,10 +262,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy
+cd /Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify model has hierarchy fields
 python3 -c "
@@ -395,7 +395,7 @@ if not ingredient_hierarchy_service.is_leaf(ingredient_id, session=session):
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/docs/code-reviews/cursor-F031-review.md`
+`/Users/kentgale/repos/bake-tracker/.worktrees/031-ingredient-hierarchy-taxonomy/docs/code-reviews/cursor-F031-review.md`
 
 Use this format:
 

@@ -1,0 +1,15 @@
+{
+  "wp_id": "WP04",
+  "feature_slug": "081-snapshot-export-coverage",
+  "worktree_path": ".worktrees/081-snapshot-export-coverage-WP04",
+  "branch_name": "081-snapshot-export-coverage-WP04",
+  "base_branch": "081-snapshot-export-coverage-WP03",
+  "base_commit": "e7bc2958640944d1a1a5555b53a4b774fac3dc75",
+  "dependencies": [
+    "WP02",
+    "WP03"
+  ],
+  "created_at": "2026-01-28T20:29:36.701686+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

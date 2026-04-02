@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Service-Local Exception Fixes
-lane: done
 dependencies: [WP01]
 base_branch: 089-error-handling-foundation-WP01
 base_commit: be5e03b905e93818cd37cfd807cfa896db403337
@@ -15,17 +14,26 @@ subtasks:
 - T012
 - T013
 phase: Phase 1 - Foundation
-assignee: ''
-agent: ''
-shell_pid: '57620'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- kitty-specs/089-error-handling-foundation/data-model.md
+- kitty-specs/089-error-handling-foundation/research.md
+- src/services/assembly_service.py
+- src/services/batch_production_service.py
+- src/services/event_service.py
+- src/services/package_service.py
+- src/services/packaging_service.py
+- src/services/planning/planning_service.py
+- src/services/production_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Service-Local Exception Fixes

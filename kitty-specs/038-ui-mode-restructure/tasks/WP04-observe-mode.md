@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: OBSERVE Mode
-lane: done
 dependencies: []
 subtasks:
 - T022
@@ -10,17 +9,24 @@ subtasks:
 - T025
 - T026
 phase: Phase 1 - Mode Implementation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '41347'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-05'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDQYDEY5XAA2WEVQCXX
+owned_files:
+- kitty-specs/038-ui-mode-restructure/data-model.md
+- kitty-specs/038-ui-mode-restructure/spec.md
+- src/ui/dashboard_tab.py
+- src/ui/dashboards/observe_dashboard.py
+- src/ui/modes/observe_mode.py
+- src/ui/tabs/event_status_tab.py
+- src/ui/tabs/reports_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - OBSERVE Mode

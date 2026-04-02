@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Integration Tests
-lane: done
 dependencies:
 - WP02
 base_branch: 066-recipe-variant-yield-remediation-WP01
@@ -12,17 +11,20 @@ subtasks:
 - T017
 - T018
 phase: Phase 4 - Validation
-assignee: ''
-agent: claude-opus
-shell_pid: '32935'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-25T03:23:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNK
+owned_files:
+- kitty-specs/066-recipe-variant-yield-remediation/plan.md
+- kitty-specs/066-recipe-variant-yield-remediation/spec.md
+- src/tests/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – Integration Tests

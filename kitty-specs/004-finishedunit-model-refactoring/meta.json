@@ -6,5 +6,6 @@
   "mission": "research",
   "slug": "004-finishedunit-model-refactoring",
   "source_description": "Transform the existing FinishedGood model into a two-tier hierarchical system where FinishedUnit represents individual consumable units renamed from FinishedGood and a new FinishedGood model represents assembled items that can contain both FinishedUnits and other FinishedGoods in hierarchical compositions for complex packaging scenarios",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD3DGA4DVQSV36BF4PP"
 }

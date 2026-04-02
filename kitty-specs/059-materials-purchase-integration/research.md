@@ -19,7 +19,7 @@ This research analyzed existing patterns in the Bake Tracker codebase to inform 
 ## 1. Purchase Form Patterns
 
 ### Source File
-`/Users/kentgale/Vaults-repos/bake-tracker/src/ui/dialogs/add_purchase_dialog.py`
+`/Users/kentgale/repos/bake-tracker/src/ui/dialogs/add_purchase_dialog.py`
 
 ### Key Patterns to Reuse
 
@@ -84,8 +84,8 @@ def _on_product_type_change(self):
 ## 2. Inventory Display Patterns
 
 ### Source Files
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/inventory_tab.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/products_tab.py`
+- `/Users/kentgale/repos/bake-tracker/src/ui/inventory_tab.py`
+- `/Users/kentgale/repos/bake-tracker/src/ui/products_tab.py`
 
 ### Key Patterns to Reuse
 
@@ -151,8 +151,8 @@ self.count_label.configure(text=f"{visible_count} items ({hidden_count} hidden)"
 ## 3. Dialog Patterns (CTkToplevel)
 
 ### Source Files
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/widgets/dialogs.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/dialogs/` (multiple)
+- `/Users/kentgale/repos/bake-tracker/src/ui/widgets/dialogs.py`
+- `/Users/kentgale/repos/bake-tracker/src/ui/dialogs/` (multiple)
 
 ### Key Patterns to Reuse
 
@@ -228,7 +228,7 @@ Dialog (450x350px)
 ## 4. CLI Infrastructure
 
 ### Source File
-`/Users/kentgale/Vaults-repos/bake-tracker/src/utils/import_export_cli.py`
+`/Users/kentgale/repos/bake-tracker/src/utils/import_export_cli.py`
 
 ### Key Patterns to Reuse
 
@@ -294,7 +294,7 @@ bt purchase material --name "New Bag Style" --qty 100 --cost 25.00
 ## 5. MaterialUnit UI Patterns
 
 ### Source File
-`/Users/kentgale/Vaults-repos/bake-tracker/src/ui/materials_tab.py` (lines 1304-1562)
+`/Users/kentgale/repos/bake-tracker/src/ui/materials_tab.py` (lines 1304-1562)
 
 ### Current Implementation
 

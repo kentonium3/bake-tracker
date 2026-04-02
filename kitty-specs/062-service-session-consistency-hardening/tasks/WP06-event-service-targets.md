@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Event Service Target & Status Operations
-lane: done
 dependencies: [WP01]
 subtasks:
 - T026
@@ -10,11 +9,6 @@ subtasks:
 - T029
 - T030
 phase: Phase 1 - Service Hardening
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '42843'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
@@ -26,6 +20,12 @@ history:
   agent: claude-opus
   shell_pid: '42843'
   action: Review passed, moved to done
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/ui/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – Event Service Target & Status Operations

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP10
 title: Integration Tests & Validation
-lane: done
 dependencies: []
 subtasks:
 - T039
@@ -10,11 +9,6 @@ subtasks:
 - T042
 - T043
 phase: Phase 5 - Validation
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '29933'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -26,6 +20,15 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: All 2384 tests pass with FIFO integration tests'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/data-model.md
+- kitty-specs/058-materials-fifo-foundation/spec.md
+- src/models/inventory_item.py
+- src/tests/test_material_fifo_integration.py
+wp_code: WP10
 ---
 
 # Work Package Prompt: WP10 – Integration Tests & Validation

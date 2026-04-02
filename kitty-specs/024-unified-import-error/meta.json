@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "024-unified-import-error",
   "source_description": "Standardize error display and logging across Unified Import and Catalog Import systems. Replace CatalogImportDialog messageboxes with ImportResultsDialog pattern, add log file writing to catalog imports, display suggestion field from ImportError dataclass, show relative paths for log locations.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDDYBXQPG4X5S4Y21TD"
 }

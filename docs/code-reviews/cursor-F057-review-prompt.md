@@ -9,7 +9,7 @@
 ## Specification
 
 Read the feature specification first to understand intended behavior:
-- `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/057-purchase-management-provisional-products/spec.md`
+- `/Users/kentgale/repos/bake-tracker/kitty-specs/057-purchase-management-provisional-products/spec.md`
 
 ## Code Changes
 
@@ -38,10 +38,10 @@ The following files were modified or created for this feature. Review should ext
 
 ```bash
 # Verify environment is functional
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/057-purchase-management-provisional-products-WP01
+cd /Users/kentgale/repos/bake-tracker/.worktrees/057-purchase-management-provisional-products-WP01
 
 # Run a quick test to confirm environment works
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_product_catalog_service.py -v -k "Provisional" --tb=short
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_product_catalog_service.py -v -k "Provisional" --tb=short
 
 # If the above command fails, STOP and report blocker before proceeding
 ```
@@ -60,11 +60,11 @@ cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/057-purchase-management-
 ## Report Template
 
 Use the template at:
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+- `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output
 
 Write your review report to:
-- `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F057-review.md`
+- `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F057-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.

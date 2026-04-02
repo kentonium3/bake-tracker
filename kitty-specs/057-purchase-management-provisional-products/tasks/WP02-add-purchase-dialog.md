@@ -1,19 +1,22 @@
 ---
 work_package_id: WP02
 title: Add Purchase Dialog Enhancement
-lane: done
 dependencies: []
 subtasks: [T007, T008, T009, T010, T011, T012]
-agent: claude
-shell_pid: '28735'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-17'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 450
+execution_mode: code_change
+mission_id: 01KN5R6XE9BA9X7KYETPX1SM23
+owned_files:
+- src/services/product_service.py
+- src/ui/dialogs/add_purchase_dialog.py
+- src/ui/products_tab.py
 priority: P1
+wp_code: WP02
 ---
 
 # WP02: Add Purchase Dialog Enhancement

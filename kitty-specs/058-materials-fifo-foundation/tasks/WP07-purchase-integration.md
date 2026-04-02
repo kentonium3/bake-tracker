@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Purchase Integration
-lane: done
 dependencies: [WP01, WP04]
 subtasks:
 - T029
@@ -9,11 +8,6 @@ subtasks:
 - T031
 - T032
 phase: Phase 3 - Integration
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '29058'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -25,6 +19,15 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: MaterialPurchaseService integration with FIFO inventory'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/data-model.md
+- kitty-specs/058-materials-fifo-foundation/spec.md
+- src/services/material_purchase_service.py
+- src/tests/test_material_purchase_integration.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – Purchase Integration

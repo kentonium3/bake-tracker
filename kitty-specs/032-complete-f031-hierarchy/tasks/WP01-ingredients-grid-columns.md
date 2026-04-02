@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Ingredients Grid Columns
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,23 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Ingredients Tab
-assignee: claude
-agent: claude
-shell_pid: '35513'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-31T23:59:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDKD9M8CSSJ5AMD2HW1
+owned_files:
+- docs/bugs/BUG_F031_incomplete_hierarchy_ui.md
+- kitty-specs/032-complete-f031-hierarchy/plan.md
+- kitty-specs/032-complete-f031-hierarchy/quickstart.md
+- kitty-specs/032-complete-f031-hierarchy/spec.md
+- src/ui/forms/add_product_dialog.py
+- src/ui/ingredients_tab.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Ingredients Grid Columns

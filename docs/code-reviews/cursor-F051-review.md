@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-13
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/051-import-export-ui-rationalization/kitty-specs/051-import-export-ui-rationalization/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/051-import-export-ui-rationalization/kitty-specs/051-import-export-ui-rationalization/spec.md`
 
 ## Executive Summary
 The unified Import dialog and new schema/preferences services are wired in, but several critical implementation gaps break catalog import flows (augment mode crashes), supplier merge logic (missing method), and context-rich preprocessing/validation. Preferences storage and catalog export/import UX diverge from spec (directory persistence in app_config, no catalog auto-detect, suppliers checkbox ordering). Schema validation is both incomplete and applied only to context-rich paths, not the required catalog/backup imports.
@@ -28,9 +28,9 @@ The unified Import dialog and new schema/preferences services are wired in, but 
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/051-import-export-ui-rationalization
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.schema_validation_service import validate_import_file; print('Import OK')"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_schema_validation_service.py -v --tb=short -q 2>&1 | head -20
+cd /Users/kentgale/repos/bake-tracker/.worktrees/051-import-export-ui-rationalization
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.schema_validation_service import validate_import_file; print('Import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_schema_validation_service.py -v --tb=short -q 2>&1 | head -20
 ```
 
 **Results:**

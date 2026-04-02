@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Planning Tab Integration
-lane: done
 dependencies: [WP01, WP02]
 base_branch: 069-recipe-selection-for-event-planning-WP02
 base_commit: 49d3dc12c87a5b392c48f27e69bda3334cc50258
@@ -14,17 +13,22 @@ subtasks:
 - T015
 - T016
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude-opus-4-5
-shell_pid: '18836'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T22:57:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEJQNGT3GJBX2HEJXVH
+owned_files:
+- kitty-specs/069-recipe-selection-for-event-planning/plan.md
+- kitty-specs/069-recipe-selection-for-event-planning/research.md
+- src/main.py
+- src/tests/test_recipe_selection.py
+- src/ui/planning_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Planning Tab Integration

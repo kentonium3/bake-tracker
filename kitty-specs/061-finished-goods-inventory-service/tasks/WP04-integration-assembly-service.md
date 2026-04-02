@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Integration - Assembly Service
-lane: done
 dependencies: [WP03]
 subtasks:
 - T012
@@ -9,11 +8,6 @@ subtasks:
 - T014
 - T015
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '17216'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-21T19:33:38Z'
   lane: planned
@@ -35,6 +29,14 @@ history:
   agent: claude-opus
   shell_pid: '17216'
   action: Review passed
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEC5876GT8F9D6YC8BF
+owned_files:
+- kitty-specs/061-finished-goods-inventory-service/plan.md
+- kitty-specs/061-finished-goods-inventory-service/research.md
+- src/services/assembly_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Integration - Assembly Service

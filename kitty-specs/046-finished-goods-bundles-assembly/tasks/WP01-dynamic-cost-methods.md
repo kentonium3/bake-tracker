@@ -1,23 +1,28 @@
 ---
 work_package_id: WP01
 title: Dynamic Cost Calculation Methods
-lane: done
 dependencies: []
 subtasks:
 - T001
 - T002
 phase: Phase 1 - Model Layer Fixes
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T07:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDYYXDTKQHMHQQT0T86
+owned_files:
+- kitty-specs/046-finished-goods-bundles-assembly/plan.md
+- kitty-specs/046-finished-goods-bundles-assembly/research/data-model.md
+- kitty-specs/046-finished-goods-bundles-assembly/spec.md
+- src/models/finished_good.py
+- src/models/finished_unit.py
+- src/tests/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Dynamic Cost Calculation Methods

@@ -24,20 +24,20 @@ You are a senior software engineer performing an independent code review of Feat
 ## Files to Review
 
 ### Model Layer (WP01)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/models/composition.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/models/composition.py`
   - `is_generic` column (Boolean, default False)
   - `assignments` relationship to CompositionAssignment
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/models/composition_assignment.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/models/composition_assignment.py`
   - New model with `composition_id`, `inventory_item_id`, `quantity_assigned`, `assigned_at`
   - Foreign key constraints with proper ON DELETE behavior
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/models/assembly_run.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/models/assembly_run.py`
   - `packaging_bypassed` column (Boolean)
   - `packaging_bypass_notes` column (String)
 
 ### Service Layer (WP02-WP03)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/packaging_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/packaging_service.py`
   - `get_generic_products()` - list distinct product_name values
   - `get_generic_inventory_summary(product_name)` - aggregate inventory by product name
   - `get_estimated_cost(product_name, quantity)` - weighted average cost calculation
@@ -50,48 +50,48 @@ You are a senior software engineer performing an independent code review of Feat
   - `get_actual_cost(composition_id)` - calculate cost from assignments
   - `get_available_inventory_items(product_name)` - list matching inventory
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/composition_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/composition_service.py`
   - `add_packaging_to_assembly()` - updated to accept `is_generic` parameter
   - `add_packaging_to_package()` - updated to accept `is_generic` parameter
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/event_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/event_service.py`
   - `get_event_packaging_needs()` - updated to aggregate generic packaging
   - `PackagingNeed` dataclass - added `is_generic`, `generic_product_name`, `estimated_cost` fields
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/assembly_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/assembly_service.py`
   - `record_assembly()` - accepts `packaging_bypassed` and `packaging_bypass_notes`
   - Skip packaging consumption when `packaging_bypassed=True` (~line 376-378)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/import_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/services/import_export_service.py`
   - `export_compositions_to_json()` - exports `is_generic` and `assignments`
   - `import_compositions_from_json()` - imports `is_generic` and creates assignments
 
 ### UI Layer (WP04-WP08)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/ui/event_detail_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/ui/event_detail_window.py`
   - Shopping list display with generic items and estimated costs
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/ui/forms/record_assembly_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/ui/forms/record_assembly_dialog.py`
   - Bypass prompt for unassigned packaging
   - Options: "Quick Assign", "Assembly Details", "Record Anyway"
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/ui/widgets/event_card.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/ui/widgets/event_card.py`
   - Pending packaging indicator on event cards
 
 ### Test Files
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/tests/services/test_packaging_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/tests/services/test_packaging_service.py`
   - Unit tests for all packaging_service functions (88% coverage target)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/tests/integration/test_deferred_packaging.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/tests/integration/test_deferred_packaging.py`
   - 8 integration tests for full workflow
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/tests/integration/test_packaging_flow.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/src/tests/integration/test_packaging_flow.py`
   - Updated tests for generic packaging export/import
 
 ### Specification Documents
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/quickstart.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions/kitty-specs/026-deferred-packaging-decisions/quickstart.md`
 
 ## Review Checklist
 
@@ -162,7 +162,7 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/026-deferred-packaging-decisions
+cd /Users/kentgale/repos/bake-tracker/.worktrees/026-deferred-packaging-decisions
 
 # Verify modules import correctly
 python3 -c "
@@ -247,7 +247,7 @@ key = f"specific_{product_id}"   # For specific packaging
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F026-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F026-review.md`
 
 Use this format:
 

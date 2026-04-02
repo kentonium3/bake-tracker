@@ -30,7 +30,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Schema Changes (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/models/inventory_snapshot.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/models/inventory_snapshot.py`
   - **WP01**: `ingredient_id` FK changed from `ondelete="RESTRICT"` to `ondelete="SET NULL"`, `nullable=True` (around line 95-97)
   - **WP01**: Added `ingredient_name_snapshot` column (String(200), nullable) (around line 100)
   - **WP01**: Added `parent_l1_name_snapshot` column (String(200), nullable) (around line 101)
@@ -38,28 +38,28 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Cascade Delete Configuration (WP02 - Verification Only)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/models/ingredient_alias.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/models/ingredient_alias.py`
   - **WP02**: Verify `ingredient_id` FK has `ondelete="CASCADE"` (line 32)
   - **WP02**: Verify relationship has `passive_deletes="all"` or similar (line 35-40)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/models/ingredient_crosswalk.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/models/ingredient_crosswalk.py`
   - **WP02**: Verify `ingredient_id` FK has `ondelete="CASCADE"` (line 35)
   - **WP02**: Verify relationship has `passive_deletes="all"` or similar (line 38-43)
 
 ### Deletion Protection Service (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/services/ingredient_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/services/ingredient_service.py`
   - **WP03**: `can_delete_ingredient(ingredient_id, session=None)` function added (after line 517)
   - **WP03**: `_denormalize_snapshot_ingredients(ingredient_id, session)` helper added
   - **WP03**: `delete_ingredient_safe(ingredient_id, session=None)` function added
   - **WP04**: Field normalization in `create_ingredient()` - "name" -> "display_name" (around line 171-174)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/services/exceptions.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/services/exceptions.py`
   - **WP03**: `IngredientInUse` exception updated to expose `details` attribute (line 57-94)
 
 ### UI Integration (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/ui/ingredients_tab.py`
   - **WP05**: Import `delete_ingredient_safe` added (top of file)
   - **WP05**: Import `IngredientNotFound` exception added
   - **WP05**: `_delete_ingredient()` in IngredientsTab updated to use `delete_ingredient_safe(ingredient_id)`
@@ -69,28 +69,28 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Tests (WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/tests/services/test_ingredient_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/tests/services/test_ingredient_service.py`
   - **WP06**: `TestDeletionProtectionAndSlug` test class added with 9 tests (T024-T032)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/tests/conftest.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/src/tests/conftest.py`
   - **WP06**: SQLite `PRAGMA foreign_keys=ON` added to enable CASCADE in tests
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/research.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/research.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/data-model.md`
 
 ### Work Package Prompts (for context)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP01-schema-denormalization-fields.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP02-cascade-delete-config.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP03-deletion-protection-service.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP04-slug-field-mapping.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP05-ui-delete-integration.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP06-deletion-slug-tests.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP01-schema-denormalization-fields.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP02-cascade-delete-config.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP03-deletion-protection-service.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP04-slug-field-mapping.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP05-ui-delete-integration.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug/kitty-specs/035-ingredient-auto-slug/tasks/for_review/WP06-deletion-slug-tests.md`
 
 ## Review Checklist
 
@@ -182,10 +182,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/035-ingredient-auto-slug
+cd /Users/kentgale/repos/bake-tracker/.worktrees/035-ingredient-auto-slug
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all modified modules import correctly
 PYTHONPATH=. python3 -c "
@@ -353,7 +353,7 @@ def create_ingredient(ingredient_data: dict, session=None) -> Ingredient:
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F035-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F035-review.md`
 
 Use this format:
 

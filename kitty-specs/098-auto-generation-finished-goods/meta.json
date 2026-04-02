@@ -8,5 +8,6 @@
   "source_description": "See docs/func-spec/F098_auto_generation_finished_goods.md for this feature inputs. Follow instructions in docs/func-spec/claude-pre-implementation-prompt.md.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-08T17:23:18.832320+00:00"
+  "vcs_locked_at": "2026-02-08T17:23:18.832320+00:00",
+  "mission_id": "01KN5R6XFDQ23AZF443ND9T0E5"
 }

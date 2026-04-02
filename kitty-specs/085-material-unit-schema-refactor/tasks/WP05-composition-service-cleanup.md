@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Composition Service Cleanup
-lane: done
 dependencies: [WP02]
 base_branch: 085-material-unit-schema-refactor-WP02
 base_commit: 96b9a8deef6854c3ee7f4cee16b0c7bc0d577e6d
@@ -12,17 +11,22 @@ subtasks:
 - T025
 - T026
 phase: Wave 2 - Service Layer
-assignee: ''
-agent: claude-opus
-shell_pid: '44233'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SW
+owned_files:
+- kitty-specs/085-material-unit-schema-refactor/plan.md
+- kitty-specs/085-material-unit-schema-refactor/spec.md
+- src/services/composition_service/**
+- src/services/composition_service.py
+- src/tests/test_composition_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Composition Service Cleanup

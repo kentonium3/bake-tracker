@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Tuple Return Elimination
-lane: done
 dependencies: []
 subtasks:
 - T033
@@ -10,17 +9,23 @@ subtasks:
 - T036
 - T037
 phase: Phase 3 - Tuple Elimination
-assignee: ''
-agent: claude
-shell_pid: '51023'
-review_status: has_feedback
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T16:10:45Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XFAY2QEH2GNRHDR7982
+owned_files:
+- src/services/**
+- src/tests/services/test_ingredient_service.py
+- src/tests/services/test_purchase_service.py
+- src/tests/utils/test_validators.py
+- src/ui/**
+- src/utils/validators.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Tuple Return Elimination

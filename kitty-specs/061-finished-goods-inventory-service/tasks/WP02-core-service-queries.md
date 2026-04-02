@@ -1,18 +1,12 @@
 ---
 work_package_id: WP02
 title: Core Service - Query Functions
-lane: done
 dependencies: [WP01]
 subtasks:
 - T006
 - T007
 - T008
 phase: Phase 2 - Core Service
-assignee: ''
-agent: claude-opus
-shell_pid: '3063'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-21T19:33:38Z'
   lane: planned
@@ -34,6 +28,14 @@ history:
   agent: claude-opus
   shell_pid: '3063'
   action: Review passed
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEC5876GT8F9D6YC8BF
+owned_files:
+- kitty-specs/061-finished-goods-inventory-service/plan.md
+- kitty-specs/061-finished-goods-inventory-service/research.md
+- src/services/finished_goods_inventory_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Core Service - Query Functions

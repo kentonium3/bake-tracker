@@ -37,5 +37,6 @@
   "mission": "research",
   "slug": "007-variant-aware-shopping",
   "source_description": "Enhance shopping list to include variant-aware purchase recommendations with preferred variant logic, cost per unit, package size context, and total estimated cost",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XD4DJ166AAY2AE4125M"
 }

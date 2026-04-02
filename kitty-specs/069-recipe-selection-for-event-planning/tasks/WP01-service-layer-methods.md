@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer Methods
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,26 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Service Layer
-assignee: ''
-agent: claude-opus-4-5
-shell_pid: '14143'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T22:57:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEJQNGT3GJBX2HEJXVH
+owned_files:
+- kitty-specs/069-recipe-selection-for-event-planning/data-model.md
+- kitty-specs/069-recipe-selection-for-event-planning/plan.md
+- kitty-specs/069-recipe-selection-for-event-planning/research.md
+- src/models/event_recipe.py
+- src/services/event_service/**
+- src/services/event_service.py
+- src/tests/conftest.py
+- src/tests/test_event_planning.py
+- src/tests/test_recipe_selection.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Service Layer Methods

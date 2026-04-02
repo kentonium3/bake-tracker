@@ -1,19 +1,24 @@
 ---
 work_package_id: WP01
 title: Tab Shell with F087 Layout
-lane: done
 dependencies: []
 subtasks: [T001, T002, T003, T004, T005, T006, T007]
-agent: claude-lead
-shell_pid: '21510'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/ui/
 estimated_lines: 350
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/ui/finished_goods_tab.py
+- src/ui/finished_units_tab.py
+- src/ui/modes/catalog_mode.py
+- src/ui/recipes_tab.py
+- src/ui/widgets/search_bar.py
 priority: P0
+wp_code: WP01
 ---
 
 # WP01: Tab Shell with F087 Layout

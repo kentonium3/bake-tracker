@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: UI Integration
-lane: done
 dependencies: []
 subtasks:
 - T037
@@ -10,17 +9,20 @@ subtasks:
 - T040
 - T041
 phase: Phase 3 - UI Integration
-assignee: claude
-agent: claude
-shell_pid: reviewed
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-25T14:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDJXE26E9VEQ9EQSX8Y
+owned_files:
+- kitty-specs/030-enhanced-export-import/spec.md
+- src/ui/import_export_dialog.py
+- src/ui/main_window.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - UI Integration

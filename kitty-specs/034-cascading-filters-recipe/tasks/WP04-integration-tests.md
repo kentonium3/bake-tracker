@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Integration Tests
-lane: done
 dependencies: []
 subtasks:
 - T023
@@ -12,17 +11,20 @@ subtasks:
 - T028
 - T029
 phase: Phase C - Validation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '3311'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T10:45:22Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDMDGJ10P97EJFGY9T7
+owned_files:
+- kitty-specs/034-cascading-filters-recipe/plan.md
+- kitty-specs/034-cascading-filters-recipe/spec.md
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Integration Tests

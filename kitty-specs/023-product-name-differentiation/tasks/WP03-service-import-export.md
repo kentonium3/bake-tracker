@@ -1,24 +1,26 @@
 ---
 work_package_id: WP03
 title: Service Layer - Import/Export Updates
-lane: done
 dependencies: []
 subtasks:
 - T007
 - T008
 - T009
 phase: Phase 2 - Service Changes
-assignee: claude
-agent: claude-reviewer
-shell_pid: '30803'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDC9ESBEDJZ4RZ8SJWA
+owned_files:
+- kitty-specs/023-product-name-differentiation/research.md
+- kitty-specs/023-product-name-differentiation/spec.md
+- src/services/import_export_service.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Service Layer - Import/Export Updates

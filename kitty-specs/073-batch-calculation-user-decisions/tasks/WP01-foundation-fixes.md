@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Foundation Fixes
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 1826555fcc5313254f73ce3d3eb79c1f2734b750
@@ -16,17 +15,23 @@ subtasks:
 - T007
 - T008
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude
-shell_pid: '18855'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEQM23DZ45N6YV55ZM3
+owned_files:
+- kitty-specs/073-batch-calculation-user-decisions/data-model.md
+- kitty-specs/073-batch-calculation-user-decisions/plan.md
+- src/models/batch_decision.py
+- src/services/database.py
+- src/services/planning_service.py
+- src/tests/test_planning_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Foundation Fixes

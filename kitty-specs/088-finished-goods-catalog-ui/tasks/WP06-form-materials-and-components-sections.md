@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Form Dialog - Materials and Components Sections
-lane: done
 dependencies:
 - WP03
 - WP05
@@ -9,15 +8,21 @@ base_branch: 088-finished-goods-catalog-ui-WP06-merge-base
 base_commit: 5a70a3df344ddb77e8ccb91024698c2a890c767e
 created_at: '2026-01-31T04:54:18.803113+00:00'
 subtasks: [T035, T036, T037, T038, T039, T040, T041, T042]
-shell_pid: '29214'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - date: '2026-01-30'
   action: created
   agent: claude
+authoritative_surface: src/
 estimated_lines: 520
+execution_mode: code_change
+mission_id: 01KN5R6XF4408MN9H7M2T26K8K
+owned_files:
+- src/models/material_unit.py
+- src/services/finished_good_service.py
+- src/services/material_unit_service.py
+- src/ui/forms/finished_good_form.py
 priority: P2
+wp_code: WP06
 ---
 
 # WP06: Form Dialog - Materials and Components Sections

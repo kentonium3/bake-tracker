@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: UI Layer Changes
-lane: done
 dependencies: []
 subtasks:
 - T013
@@ -11,17 +10,20 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - Core Logic
-assignee: claude
-agent: claude
-shell_pid: '83880'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDB2RJJX6XP78WRMVYE
+owned_files:
+- kitty-specs/021-field-naming-consistency/spec.md
+- src/ui/**
+- src/utils/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - UI Layer Changes

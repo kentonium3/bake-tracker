@@ -1,0 +1,15 @@
+{
+  "wp_id": "WP03",
+  "feature_slug": "077-plan-state-management",
+  "worktree_path": ".worktrees/077-plan-state-management-WP03",
+  "branch_name": "077-plan-state-management-WP03",
+  "base_branch": "077-plan-state-management-WP02",
+  "base_commit": "a6cfd406f35e89c0d0f113dbe562f6cfcab55113",
+  "dependencies": [
+    "WP01",
+    "WP02"
+  ],
+  "created_at": "2026-01-27T22:44:48.031371+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

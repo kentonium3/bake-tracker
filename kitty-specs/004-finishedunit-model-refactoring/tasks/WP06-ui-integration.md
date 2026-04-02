@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: UI Integration & Compatibility
-lane: in_progress
 dependencies: []
 subtasks:
 - T023
@@ -9,9 +8,6 @@ subtasks:
 - T025
 - T026
 phase: Phase 6 - User Interface Integration
-assignee: ''
-agent: claude
-shell_pid: '27379'
 history:
 - timestamp: '2025-11-14T17:30:00Z'
   lane: planned
@@ -23,6 +19,17 @@ history:
   agent: claude
   shell_pid: '27379'
   action: Started implementation
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PP
+owned_files:
+- docs/ui_service_integration.md
+- src/services/ui_compatibility_service.py
+- src/ui/ingredients_tab.py
+- src/ui/main_window.py
+- src/utils/deprecation_warnings.py
+- tests/ui/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – UI Integration & Compatibility

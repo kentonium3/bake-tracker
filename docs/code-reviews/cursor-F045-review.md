@@ -78,17 +78,17 @@ The branch makes meaningful progress on â€œcosts on instances, not definitionsâ€
 
 ## Verification Results
 
-Ran outside sandbox from `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/045-cost-architecture-refactor`:
+Ran outside sandbox from `/Users/kentgale/repos/bake-tracker/.worktrees/045-cost-architecture-refactor`:
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood; print('Models import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood; print('Models import OK')"
 ```
 
 Output:
 - `Models import OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_assembly_service.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_assembly_service.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 Output:

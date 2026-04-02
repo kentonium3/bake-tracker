@@ -19,5 +19,6 @@
   "friendly_name": "supplier slug support",
   "mission": "research",
   "slug": "050-supplier-slug-support",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XE13JKYW144TE3PXKKF"
 }

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Product Import
-lane: done
 dependencies: []
 subtasks:
 - T008
@@ -10,17 +9,24 @@ subtasks:
 - T011
 - T012
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-reviewer
-shell_pid: '63528'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3M
+owned_files:
+- kitty-specs/020-enhanced-catalog-import/data-model.md
+- kitty-specs/020-enhanced-catalog-import/spec.md
+- src/models/product.py
+- src/services/catalog_import_service.py
+- src/tests/test_catalog_import_service.py
+- src/tests/test_catalog_import_service.py::test_import_products_add_mode
+- src/tests/test_catalog_import_service.py::test_import_products_fk_validation
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Product Import

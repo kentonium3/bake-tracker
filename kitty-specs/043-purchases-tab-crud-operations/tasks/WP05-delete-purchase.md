@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Delete Purchase
-lane: done
 dependencies: []
 subtasks:
 - T034
@@ -11,17 +10,19 @@ subtasks:
 - T038
 - T039
 phase: Phase 3 - Secondary Features
-assignee: ''
-agent: ''
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-08T22:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDWDSX5EHMS3WBKAK2M
+owned_files:
+- kitty-specs/043-purchases-tab-crud-operations/data-model.md
+- src/ui/tabs/purchases_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Delete Purchase

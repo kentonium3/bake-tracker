@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-08
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/042-ui-polish-layout/kitty-specs/042-ui-polish-layout/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/042-ui-polish-layout/kitty-specs/042-ui-polish-layout/spec.md`
 
 ## Executive Summary
 F042 aims to make the app usable on real datasets by reclaiming vertical space, fixing incorrect “0” stats, making inventory hierarchy readable, standardizing hierarchy filters, and renaming confusing modes. The direction is good and tests pass, but there are several **UI-wiring gaps** that likely prevent the new compact header + inline stats from working as intended, plus some **spec compliance misses** (sortable hierarchy columns, rename propagation).
@@ -35,7 +35,7 @@ F042 aims to make the app usable on real datasets by reclaiming vertical space, 
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 source venv/bin/activate && python -m pytest src/tests -v -q 2>&1 | tail -20
 ```
 

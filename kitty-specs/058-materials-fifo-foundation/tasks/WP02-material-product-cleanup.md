@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Schema Changes - MaterialProduct Cleanup
-lane: done
 dependencies: [WP01]
 subtasks:
 - T005
@@ -9,11 +8,6 @@ subtasks:
 - T007
 - T008
 phase: Phase 1 - Foundation
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '26146'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -25,6 +19,19 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: Deprecated fields removed from MaterialProduct'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/data-model.md
+- kitty-specs/058-materials-fifo-foundation/plan.md
+- kitty-specs/058-materials-fifo-foundation/research.md
+- src/models/material_product.py
+- src/services/denormalized_export_service.py
+- src/services/material_catalog_service.py
+- src/services/material_purchase_service.py
+- src/ui/materials_tab.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Schema Changes - MaterialProduct Cleanup

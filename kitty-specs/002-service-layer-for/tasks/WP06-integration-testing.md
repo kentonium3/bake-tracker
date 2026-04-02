@@ -1,13 +1,9 @@
 ---
 work_package_id: WP06
 title: Integration Testing & Documentation
-lane: done
 dependencies: []
 subtasks: [T070, T071, T072, T073, T074, T075]
 phase: Phase 3 - Validation & Polish
-assignee: Claude Code
-agent: Claude Code
-shell_pid: '4504'
 history:
 - timestamp: '2025-11-09T03:08:51Z'
   lane: planned
@@ -19,6 +15,18 @@ history:
   agent: Claude Code
   shell_pid: '4504'
   action: Work package completed - all tasks implemented and integration tests passing
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD2PFRX3GZ16BFAE66E
+owned_files:
+- docs/services/README.md
+- docs/services/api-reference.md
+- docs/services/examples.md
+- kitty-specs/002-service-layer-for/contracts/**
+- kitty-specs/002-service-layer-for/spec.md
+- src/services/**
+- src/tests/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – Integration Testing & Documentation

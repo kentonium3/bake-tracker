@@ -16,26 +16,26 @@ You are a senior software engineer performing an independent code review. You ar
 5. Add "All" checkbox to select/deselect all entities at once
 
 ## Specification File
-Full spec at: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/spec.md`
+Full spec at: `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/spec.md`
 
 Work packages:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/tasks/WP01-service-layer-refactoring.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/tasks/WP02-service-layer-new-exports.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/tasks/WP03-ui-layer-multi-select.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/tasks/WP01-service-layer-refactoring.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/tasks/WP02-service-layer-new-exports.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/tasks/WP03-ui-layer-multi-select.md`
 
 ## Primary Files Modified
 
 **Service Layer:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/services/denormalized_export_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/services/enhanced_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/services/denormalized_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/services/enhanced_import_service.py`
 
 **UI Layer:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/ui/import_export_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/ui/import_export_dialog.py`
 
 **Tests:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_denormalized_export.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_enhanced_import.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/integration/test_import_export_roundtrip.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_denormalized_export.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_enhanced_import.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/integration/test_import_export_roundtrip.py`
 
 **Note:** These are the primary changes. Review should extend to any related code, dependencies, or callers as needed.
 
@@ -45,10 +45,10 @@ Work packages:
 
 ```bash
 # Navigate to worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes
+cd /Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes
 
 # Verify imports work (use main repo's venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.services.denormalized_export_service import (
     export_products_context_rich,
     export_material_products_context_rich,
@@ -62,7 +62,7 @@ print('All imports successful')
 "
 
 # Run a subset of tests to verify environment
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_denormalized_export.py -v -k "test_export_empty" 2>&1 | head -30
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest /Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_denormalized_export.py -v -k "test_export_empty" 2>&1 | head -30
 ```
 
 **If ANY verification command fails, STOP immediately and report the blocker before proceeding.**
@@ -79,10 +79,10 @@ print('All imports successful')
 8. **Write report** - Use template format and write to specified location
 
 ## Report Template
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 ## Report Output Location
-Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F053-review.md`
+Write your report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F053-review.md`
 
 **Important:** Write to `docs/code-reviews/` directory in the MAIN repo, NOT in the worktree.
 

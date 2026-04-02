@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: FinishedUnits Tab Integration
-lane: done
 dependencies: []
 subtasks:
 - T018
@@ -10,17 +9,19 @@ subtasks:
 - T021
 - T022
 phase: Phase 2 - Production Recording
-assignee: ''
-agent: claude
-shell_pid: '45064'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XD7MH4KJTJ5QZB34CXC
+owned_files:
+- src/ui/finished_units_tab.py
+- src/ui/forms/__init__.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - FinishedUnits Tab Integration

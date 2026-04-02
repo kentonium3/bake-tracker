@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Deletion Protection Validation
-lane: done
 dependencies: []
 subtasks:
 - T013
@@ -11,17 +10,22 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - Manual Testing
-assignee: claude
-agent: claude
-shell_pid: '35839'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSF
+owned_files:
+- kitty-specs/036-ingredient-hierarchy-comprehensive/research.md
+- kitty-specs/036-ingredient-hierarchy-comprehensive/spec.md
+- src/main.py
+- src/services/ingredient_service.py
+- src/ui/ingredients_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Deletion Protection Validation

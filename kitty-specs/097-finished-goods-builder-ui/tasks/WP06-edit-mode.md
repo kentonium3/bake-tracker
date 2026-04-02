@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Edit Mode
-lane: done
 dependencies: [WP05]
 base_branch: 097-finished-goods-builder-ui-WP05
 base_commit: 0995392f6b9db5523c2fc8732fa0100c560713fb
@@ -13,17 +12,18 @@ subtasks:
 - T030
 - T031
 phase: Phase C - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '33322'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/builders/finished_good_builder.py/
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E4
+owned_files:
+- src/ui/builders/finished_good_builder.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 -- Edit Mode

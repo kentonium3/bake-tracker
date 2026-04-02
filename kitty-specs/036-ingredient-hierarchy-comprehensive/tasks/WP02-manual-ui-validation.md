@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Manual UI Validation - Cascading Selectors
-lane: done
 dependencies: []
 subtasks:
 - T007
@@ -11,17 +10,25 @@ subtasks:
 - T011
 - T012
 phase: Phase 2 - Manual Testing
-assignee: claude
-agent: claude
-shell_pid: '35839'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSF
+owned_files:
+- kitty-specs/036-ingredient-hierarchy-comprehensive/plan.md
+- kitty-specs/036-ingredient-hierarchy-comprehensive/research.md
+- kitty-specs/036-ingredient-hierarchy-comprehensive/spec.md
+- src/main.py
+- src/ui/forms/product_detail_dialog.py
+- src/ui/forms/recipe_form.py
+- src/ui/inventory_tab.py
+- src/ui/products_tab.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Manual UI Validation - Cascading Selectors

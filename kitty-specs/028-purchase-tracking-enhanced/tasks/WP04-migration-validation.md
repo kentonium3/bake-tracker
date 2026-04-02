@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Migration and Validation Scripts
-lane: done
 dependencies: []
 subtasks:
 - T015
@@ -10,17 +9,22 @@ subtasks:
 - T018
 - T019
 phase: Phase 3 - Migration
-assignee: claude
-agent: claude
-shell_pid: reconciled
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDGV3D1KMCMMEA4MAM6
+owned_files:
+- docs/design/F027_product_catalog_management.md
+- kitty-specs/028-purchase-tracking-enhanced/plan.md
+- kitty-specs/028-purchase-tracking-enhanced/spec.md
+- src/services/migration/**
+- src/tests/services/test_f028_migration.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Migration and Validation Scripts

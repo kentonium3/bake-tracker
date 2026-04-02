@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: UI Layer Updates
-lane: done
 dependencies: [WP07]
 subtasks:
 - T035
@@ -10,17 +9,21 @@ subtasks:
 - T038
 - T039
 phase: Phase 5 - UI Updates
-assignee: ''
-agent: claude-opus
-shell_pid: '780'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNJ
+owned_files:
+- kitty-specs/065-production-plan-snapshot-refactor/plan.md
+- kitty-specs/065-production-plan-snapshot-refactor/spec.md
+- src/tests/ui/**
+- src/ui/**
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 – UI Layer Updates

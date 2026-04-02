@@ -32,10 +32,10 @@ kitty-specs/040-import-export-v4/data-model.md
 
 ## Verification Commands
 
-Run from worktree: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/040-import-export-v4`
+Run from worktree: `/Users/kentgale/repos/bake-tracker/.worktrees/040-import-export-v4`
 
 ```bash
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Imports
 PYTHONPATH=. python3 -c "
@@ -69,7 +69,7 @@ Focus on:
 
 ## Report Template
 
-Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F040-review.md`
+Write your report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F040-review.md`
 
 ```markdown
 # Code Review Report: F040 - Import/Export v4.0 Upgrade

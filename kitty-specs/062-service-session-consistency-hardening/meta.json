@@ -7,5 +7,6 @@
   "mission": "software-dev",
   "slug": "service-session-consistency-hardening",
   "source_description": "See docs/func-spec/F062_service_session_consistency_hardening.md for specs on this feature.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XEDBWJATJDFSN5WHTQD"
 }

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Provisional Product UI Indicators
-lane: done
 dependencies:
 - WP01
 subtasks:
@@ -10,17 +9,24 @@ subtasks:
 - T039
 - T040
 phase: Wave 2 - Extended Features
-assignee: ''
-agent: claude-opus
-shell_pid: '13641'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/data-model.md
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/services/material_catalog_service.py
+- src/tests/ui/test_materials_tab.py
+- src/ui/dialogs/material_product_dialog.py
+- src/ui/materials_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Provisional Product UI Indicators

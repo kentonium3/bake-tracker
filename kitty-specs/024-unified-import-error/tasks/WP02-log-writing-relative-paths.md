@@ -1,23 +1,28 @@
 ---
 work_package_id: WP02
 title: Log Writing - Relative Path Support
-lane: done
 dependencies: []
 subtasks:
 - T002
 - T003
 phase: Phase 2 - Log Writing Generalization
-assignee: claude
-agent: claude-reviewer
-shell_pid: '77765'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDDYBXQPG4X5S4Y21TD
+owned_files:
+- docs/...
+- docs/user_testing/import_...
+- docs/user_testing/import_2025-12-19_143022.log
+- kitty-specs/024-unified-import-error/plan.md
+- kitty-specs/024-unified-import-error/spec.md
+- src/ui/import_export_dialog.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Log Writing - Relative Path Support

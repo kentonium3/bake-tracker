@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Production-Aware Feasibility
-lane: done
 dependencies: [WP01]
 base_branch: 079-production-aware-planning-calculations-WP01
 base_commit: 2ef43f9ed9781cb38411cbfbb17660c86a9c15e8
@@ -12,17 +11,22 @@ subtasks:
 - T007
 - T008
 phase: Phase 2 - Core Features
-assignee: ''
-agent: claude-lead
-shell_pid: '27552'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T06:03:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEWR0TPS4CA4V1SQ62K
+owned_files:
+- kitty-specs/079-production-aware-planning-calculations/plan.md
+- kitty-specs/079-production-aware-planning-calculations/spec.md
+- src/services/planning/feasibility/**
+- src/services/planning/feasibility.py
+- src/tests/planning/test_feasibility.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Production-Aware Feasibility

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: TypeAheadComboBox Widget
-lane: done
 dependencies: []
 subtasks:
 - T019
@@ -13,17 +12,23 @@ subtasks:
 - T025
 - T026
 phase: Phase 1 - Widgets
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- docs/design/F029_streamlined_inventory_entry.md
+- kitty-specs/029-streamlined-inventory-entry/plan.md
+- kitty-specs/029-streamlined-inventory-entry/research.md
+- src/tests/ui/test_type_ahead_combobox.py
+- src/ui/widgets/__init__.py
+- src/ui/widgets/type_ahead_combobox.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – TypeAheadComboBox Widget

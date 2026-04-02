@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Event Service Remaining Operations
-lane: done
 dependencies: [WP01]
 subtasks:
 - T031
@@ -10,17 +9,18 @@ subtasks:
 - T034
 - T035
 phase: Phase 1 - Service Hardening
-assignee: codex
-agent: codex
-shell_pid: '65344'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-22T15:30:43Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/ui/
+execution_mode: code_change
+mission_id: 01KN5R6XEDBWJATJDFSN5WHTQD
+owned_files:
+- src/ui/**
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – Event Service Remaining Operations

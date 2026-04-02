@@ -27,7 +27,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Session State (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/session_state.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/session_state.py`
   - `SessionState` class as singleton
   - `get_last_category()`, `get_last_supplier_id()` methods
   - `update_category(category)`, `update_supplier(supplier_id)` methods
@@ -36,7 +36,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Utils Layer - Category Defaults (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/utils/category_defaults.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/utils/category_defaults.py`
   - `CATEGORY_UNIT_DEFAULTS` dict mapping categories to default units
   - `get_default_unit_for_category(category)` function
   - `get_default_unit_for_ingredient(ingredient)` function
@@ -44,7 +44,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer - Recency Queries (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/services/inventory_item_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/services/inventory_item_service.py`
   - `get_recent_products(ingredient_id, session=None)` - products added within 30 days OR 3+ times in 90 days
   - `get_recent_ingredients(category, session=None)` - ingredients used recently
   - Both functions follow `session=None` pattern per CLAUDE.md
@@ -52,7 +52,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Type-Ahead Widget (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/widgets/type_ahead_combobox.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/widgets/type_ahead_combobox.py`
   - `TypeAheadComboBox` class extending CTkFrame
   - Word-boundary matching prioritized over contains-only
   - Case-insensitive filtering
@@ -61,7 +61,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Dropdown Builders (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/widgets/dropdown_builders.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/widgets/dropdown_builders.py`
   - `build_product_dropdown_values(ingredient_id, session)` - returns list with starred recent items first
   - `build_ingredient_dropdown_values(category, session)` - returns list with starred recent items first
   - `SEPARATOR` constant (Unicode line: "─────────────────────────────")
@@ -71,7 +71,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Dialog Integration (WP06, WP07, WP08)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/inventory_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/ui/inventory_tab.py`
   - `AddInventoryDialog` class with type-ahead dropdowns
   - Category/Ingredient/Product cascade (downstream clears on upstream change)
   - Session memory pre-selection with visual indicators
@@ -83,32 +83,32 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Test Files
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/ui/test_session_state.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/ui/test_session_state.py`
   - Tests for SessionState singleton behavior
   - Tests for category/supplier memory
   - Tests for reset functionality
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/utils/test_category_defaults.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/utils/test_category_defaults.py`
   - Tests for category-to-unit mappings
   - Tests for fallback behavior
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/ui/test_type_ahead_combobox.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/ui/test_type_ahead_combobox.py`
   - Tests for word-boundary matching
   - Tests for case-insensitive filtering
   - Tests for minimum character threshold
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/ui/test_dropdown_builders.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/ui/test_dropdown_builders.py`
   - Tests for product dropdown with recency markers
   - Tests for ingredient dropdown with recency markers
   - Tests for separator and create-new option handling
   - Tests for helper functions
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/services/test_inventory_item_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/services/test_inventory_item_service.py`
   - Tests for `get_recent_products()`
   - Tests for `get_recent_ingredients()`
   - Tests for recency criteria (30 days OR 3+ times in 90 days)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/integration/test_add_inventory_dialog_f029.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/src/tests/integration/test_add_inventory_dialog_f029.py`
   - Integration tests for session memory
   - Integration tests for dropdown builders
   - Integration tests for category defaults
@@ -117,10 +117,10 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/data-model.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry/kitty-specs/029-streamlined-inventory-entry/tasks.md`
 
 ## Review Checklist
 
@@ -254,10 +254,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry
+cd /Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify modules import correctly
 python3 -c "
@@ -413,7 +413,7 @@ def get_default_unit_for_category(category: str) -> str:
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F029-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F029-review.md`
 
 Use this format:
 

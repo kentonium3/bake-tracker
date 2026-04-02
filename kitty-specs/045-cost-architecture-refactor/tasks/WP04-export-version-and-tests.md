@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Export Version Bump and Test Updates
-lane: done
 dependencies: []
 subtasks:
 - T017
@@ -10,17 +9,22 @@ subtasks:
 - T020
 - T021
 phase: Phase 3 - Polish
-assignee: claude
-agent: claude
-shell_pid: '29997'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-09T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDXQ9ZQXF1P3GAKWE02
+owned_files:
+- kitty-specs/045-cost-architecture-refactor/plan.md
+- kitty-specs/045-cost-architecture-refactor/research.md
+- kitty-specs/045-cost-architecture-refactor/spec.md
+- src/services/import_export_service.py
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Export Version Bump and Test Updates

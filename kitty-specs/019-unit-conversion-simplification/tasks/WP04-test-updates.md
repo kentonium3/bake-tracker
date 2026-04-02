@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Test Updates & Validation
-lane: done
 dependencies: []
 subtasks:
 - T019
@@ -10,17 +9,20 @@ subtasks:
 - T022
 - T023
 phase: Phase 3 - Testing
-assignee: claude
-agent: claude
-shell_pid: '24271'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3K
+owned_files:
+- kitty-specs/019-unit-conversion-simplification/plan.md
+- kitty-specs/019-unit-conversion-simplification/spec.md
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Test Updates & Validation

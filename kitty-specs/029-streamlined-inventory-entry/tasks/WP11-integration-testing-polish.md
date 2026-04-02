@@ -1,7 +1,6 @@
 ---
 work_package_id: WP11
 title: Integration Testing & Polish
-lane: done
 dependencies: []
 subtasks:
 - T075
@@ -14,17 +13,20 @@ subtasks:
 - T082
 - T083
 phase: Phase 4 - Polish
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- kitty-specs/029-streamlined-inventory-entry/quickstart.md
+- kitty-specs/029-streamlined-inventory-entry/spec.md
+- src/tests/**
+wp_code: WP11
 ---
 
 # Work Package Prompt: WP11 – Integration Testing & Polish

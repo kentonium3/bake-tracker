@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Nested Bundle Support
-lane: done
 dependencies: [WP01]
 base_branch: 072-recipe-decomposition-aggregation-WP01
 base_commit: f0556ed2280479fb06fd6f005a5cde6bd1642677
@@ -12,17 +11,21 @@ subtasks:
 - T009
 - T010
 phase: Phase 2 - Nested Bundles
-assignee: ''
-agent: claude
-shell_pid: '157'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-27T16:30:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEPCDTEJMHKWP5QQAQC
+owned_files:
+- kitty-specs/072-recipe-decomposition-aggregation/plan.md
+- kitty-specs/072-recipe-decomposition-aggregation/research.md
+- kitty-specs/072-recipe-decomposition-aggregation/spec.md
+- src/tests/test_planning_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Nested Bundle Support

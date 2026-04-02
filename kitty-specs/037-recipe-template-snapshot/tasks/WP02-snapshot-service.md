@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Snapshot Service
-lane: done
 dependencies: []
 subtasks:
 - T006
@@ -9,17 +8,21 @@ subtasks:
 - T008
 - T009
 phase: Phase 1 - Core Snapshot System
-assignee: claude
-agent: claude-reviewer
-shell_pid: '96946'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-03T06:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDPTMFB7BP0NHBYBHPD
+owned_files:
+- kitty-specs/037-recipe-template-snapshot/research.md
+- src/services/recipe_service.py
+- src/services/recipe_snapshot_service.py
+- src/tests/services/test_recipe_snapshot_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Snapshot Service

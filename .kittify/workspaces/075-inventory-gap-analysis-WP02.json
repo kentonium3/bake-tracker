@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP02",
+  "feature_slug": "075-inventory-gap-analysis",
+  "worktree_path": ".worktrees/075-inventory-gap-analysis-WP02",
+  "branch_name": "075-inventory-gap-analysis-WP02",
+  "base_branch": "075-inventory-gap-analysis-WP01",
+  "base_commit": "9c0f60588e0d360d00f6370886cb7a8c3047efd5",
+  "dependencies": [],
+  "created_at": "2026-01-27T21:28:32.415382+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

@@ -9,8 +9,8 @@ You are a senior software engineer performing an independent code review. This i
 
 ## Specification
 Read the full spec before examining code:
-- `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/071-finished-goods-quantity-specification/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/071-finished-goods-quantity-specification/plan.md`
+- `/Users/kentgale/repos/bake-tracker/kitty-specs/071-finished-goods-quantity-specification/spec.md`
+- `/Users/kentgale/repos/bake-tracker/kitty-specs/071-finished-goods-quantity-specification/plan.md`
 
 ## Code Changes
 These are the primary files modified for this feature. Your review should extend to any related code, dependencies, or callers as needed.
@@ -33,7 +33,7 @@ These are the primary files modified for this feature. Your review should extend
 
 ```bash
 # Navigate to project
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 
 # Verify venv and service imports work
 ./venv/bin/python -c "from src.services.event_service import get_event_fg_quantities, set_event_fg_quantities; print('Service imports OK')"
@@ -67,11 +67,11 @@ If ANY command fails, STOP immediately and report as a blocker before attempting
 
 ## Report Template
 Use the template at:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output
 Write your review report to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F071-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F071-review.md`
 
 **Important**: Write to the `docs/code-reviews/` directory, NOT in any worktree.
 

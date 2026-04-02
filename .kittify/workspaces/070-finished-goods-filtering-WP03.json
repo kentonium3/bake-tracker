@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP03",
+  "feature_slug": "070-finished-goods-filtering",
+  "worktree_path": ".worktrees/070-finished-goods-filtering-WP03",
+  "branch_name": "070-finished-goods-filtering-WP03",
+  "base_branch": "070-finished-goods-filtering-WP02",
+  "base_commit": "687d77aee3d684bc4073df548f9db8093524f42c",
+  "dependencies": [
+    "WP01"
+  ],
+  "created_at": "2026-01-27T01:28:53.309541+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

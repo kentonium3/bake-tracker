@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model Layer - Add product_name Column
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,22 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Model Changes
-assignee: claude
-agent: claude-reviewer
-shell_pid: '30408'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDC9ESBEDJZ4RZ8SJWA
+owned_files:
+- kitty-specs/023-product-name-differentiation/data-model.md
+- kitty-specs/023-product-name-differentiation/plan.md
+- kitty-specs/023-product-name-differentiation/spec.md
+- src/models/product.py
+- src/models/recipe.py:375
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Model Layer - Add product_name Column

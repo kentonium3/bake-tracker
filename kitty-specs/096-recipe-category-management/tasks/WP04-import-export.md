@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Import/Export Support
-lane: done
 dependencies: [WP01]
 base_branch: 096-recipe-category-management-WP01
 base_commit: b7f26a5b07ecebc9cf4d303370df518cc846377d
@@ -13,17 +12,22 @@ subtasks:
 - T021
 - T022
 phase: Phase 3 - User Story 4 (Data Portability)
-assignee: ''
-agent: gemini-wp04
-shell_pid: '96752'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T04:30:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFCQ7XH14582WR2W2FF
+owned_files:
+- kitty-specs/096-recipe-category-management/plan.md
+- kitty-specs/096-recipe-category-management/spec.md
+- src/services/catalog_import_service.py
+- src/services/import_export_service.py
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 -- Import/Export Support

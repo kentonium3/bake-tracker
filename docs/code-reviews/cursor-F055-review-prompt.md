@@ -10,29 +10,29 @@ You are a senior software engineer discovering this feature for the first time. 
 
 ## Specification Files
 Read these first to understand intended behavior BEFORE examining implementation:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/kitty-specs/055-workflow-aligned-navigation-cleanup/plan.md`
 
 ## Files Modified
 These are the primary changes, but your review should extend to any related code, dependencies, or callers as needed:
 
 **Mode Navigation:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/mode_manager.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/main_window.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/modes/deliver_mode.py` (NEW)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/mode_manager.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/main_window.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/modes/deliver_mode.py` (NEW)
 
 **Catalog Restructure:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/modes/catalog_mode.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/ingredients_group_tab.py` (NEW)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/recipes_group_tab.py` (NEW)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/packaging_group_tab.py` (NEW)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/modes/catalog_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/ingredients_group_tab.py` (NEW)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/recipes_group_tab.py` (NEW)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/packaging_group_tab.py` (NEW)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/tabs/__init__.py`
 
 **Purchase Mode:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/modes/purchase_mode.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/modes/purchase_mode.py`
 
 **Tree View Removal:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup/src/ui/ingredients_tab.py`
 
 ## Environment Verification
 
@@ -40,13 +40,13 @@ These are the primary changes, but your review should extend to any related code
 
 ```bash
 # Change to worktree directory
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup
+cd /Users/kentgale/repos/bake-tracker/.worktrees/055-workflow-aligned-navigation-cleanup
 
 # Verify Python imports work (uses main repo venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.ui.mode_manager import ModeManager; from src.ui.modes.deliver_mode import DeliverMode; print('Imports OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.ui.mode_manager import ModeManager; from src.ui.modes.deliver_mode import DeliverMode; print('Imports OK')"
 
 # Verify tests run (a few seconds max)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_service.py -v --ignore=src/tests/migration -x 2>&1 | head -20
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_service.py -v --ignore=src/tests/migration -x 2>&1 | head -20
 ```
 
 If ANY command fails, STOP immediately and report as a blocker before attempting any fixes.
@@ -63,9 +63,9 @@ If ANY command fails, STOP immediately and report as a blocker before attempting
 8. **Write report** - Use template format and write to specified location
 
 ## Report Template
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output
-Write your review report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F055-review.md`
+Write your review report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F055-review.md`
 
 **Important:** Write to the docs/code-reviews/ directory in the MAIN repo, NOT in the worktree.

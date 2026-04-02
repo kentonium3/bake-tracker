@@ -3,7 +3,7 @@
 **Reviewer:** Cursor
 **Date:** 2026-01-10
 **Commit Range:** main..047-materials-management-system
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/047-materials-management-system/kitty-specs/047-materials-management-system/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/047-materials-management-system/kitty-specs/047-materials-management-system/spec.md`
 
 ## Executive Summary
 F047 is a substantial, well-structured addition: it introduces a dedicated materials hierarchy, weighted-average inventory, and assembly-time material consumption with denormalized history snapshots. Verification commands passed, but there are a few **spec compliance gaps** (notably multi-product assignment during assembly and material purchases export) plus a concrete correctness bug in `MaterialConsumption.to_dict()` when including relationships.
@@ -76,24 +76,24 @@ F047 is a substantial, well-structured addition: it introduces a dedicated mater
 
 ## Verification Results
 
-Ran outside sandbox from `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/047-materials-management-system`:
+Ran outside sandbox from `/Users/kentgale/repos/bake-tracker/.worktrees/047-materials-management-system`:
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import MaterialCategory, MaterialSubcategory, Material, MaterialProduct, MaterialUnit, MaterialPurchase, MaterialConsumption; print('Material models import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import MaterialCategory, MaterialSubcategory, Material, MaterialProduct, MaterialUnit, MaterialPurchase, MaterialConsumption; print('Material models import OK')"
 ```
 
 Output:
 - `Material models import OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, material_consumption_service; print('Material services import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services import material_catalog_service, material_purchase_service, material_unit_service, material_consumption_service; print('Material services import OK')"
 ```
 
 Output:
 - `Material services import OK`
 
 ```bash
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_catalog_service.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_material_catalog_service.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 Output:

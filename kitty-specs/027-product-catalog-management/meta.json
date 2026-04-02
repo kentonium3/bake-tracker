@@ -36,5 +36,6 @@
   "mission": "research",
   "slug": "027-product-catalog-management",
   "source_description": "Foundation feature for product catalog CRUD, supplier tracking, and purchase history",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDF9JBKT9CD12RFR7QC"
 }

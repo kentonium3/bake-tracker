@@ -1,6 +1,6 @@
 ## Code Review: Feature 019 — Unit Conversion Simplification
 
-**Worktree reviewed**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/019-unit-conversion-simplification/`
+**Worktree reviewed**: `/Users/kentgale/repos/bake-tracker/.worktrees/019-unit-conversion-simplification/`
 
 ### Feature intent (from prompt)
 Feature 019 removes the `UnitConversion` model and removes `Ingredient.recipe_unit`, replacing it with a **4-field density model** on `Ingredient`.

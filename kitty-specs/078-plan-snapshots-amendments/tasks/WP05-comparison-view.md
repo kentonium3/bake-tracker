@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Comparison View & Integration
-lane: done
 dependencies: [WP02, WP03, WP04]
 base_branch: 078-plan-snapshots-amendments-WP04
 base_commit: 0474335093934e3aef6864ac6b3f0ec45d45f65b
@@ -14,17 +13,23 @@ subtasks:
 - T025
 - T026
 phase: Phase 2 - Polish
-assignee: ''
-agent: gemini
-shell_pid: '86660'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T03:25:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEVD4P2GRENSDCXQ38D
+owned_files:
+- kitty-specs/078-plan-snapshots-amendments/plan.md
+- kitty-specs/078-plan-snapshots-amendments/spec.md
+- src/services/plan_snapshot_service.py
+- src/tests/test_plan_snapshot_service.py
+- src/tests/test_plan_snapshot_service.py::TestFullWorkflowIntegration
+- src/ui/planning_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Comparison View & Integration

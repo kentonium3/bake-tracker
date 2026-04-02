@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Import/Export & Support Services
-lane: done
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -14,17 +13,28 @@ subtasks:
 - T033
 - T034
 phase: Phase 2 - Documentation
-assignee: ''
-agent: codex-wp08
-shell_pid: '44524'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF7M2WKV1HXTK6TVV5Z
+owned_files:
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP01-service-inventory-templates.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP03-crud-product-supplier.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP04-inventory-purchasing.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP05-production-assembly.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP06-planning-event.md
+- src/services/catalog_import_service.py
+- src/services/coordinated_export_service.py
+- src/services/denormalized_export_service.py
+- src/services/enhanced_import_service.py
+- src/services/import_export_service.py
+- src/services/transaction_import_service.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 – Import/Export & Support Services

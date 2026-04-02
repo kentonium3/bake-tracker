@@ -1,25 +1,28 @@
 ---
 work_package_id: WP04
 title: User Story 3 - Handle Partial Pantry Inventory
-lane: done
 dependencies: []
 subtasks:
 - T018
 - T019
 - T020
 phase: Phase 2 - Enhancement
-assignee: claude
-agent: claude
-shell_pid: '82990'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD3DGA4DVQSV36BF4PQ
+owned_files:
+- kitty-specs/005-recipe-fifo-cost/plan.md
+- kitty-specs/005-recipe-fifo-cost/spec.md
+- src/services/recipe_service.py
+- src/tests/test_recipe_service.py
 reviewer_shell_pid: '84323'
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – User Story 3 - Handle Partial Pantry Inventory

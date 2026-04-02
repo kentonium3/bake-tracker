@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Integration Testing
-lane: done
 dependencies: []
 subtasks:
 - T067
@@ -14,17 +13,22 @@ subtasks:
 - T074
 - T075
 phase: Phase 4 - Final
-assignee: claude
-agent: claude
-shell_pid: '13882'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-12T16:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE13JKYW144TE3PXKKE
+owned_files:
+- kitty-specs/049-import-export-phase1/plan.md
+- kitty-specs/049-import-export-phase1/spec.md
+- src/services/**
+- src/tests/fixtures/**
+- src/tests/integration/test_import_export_roundtrip.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Integration Testing

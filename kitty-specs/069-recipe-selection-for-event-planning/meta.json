@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F069_recipe_selection_ui.md for the feature inputs.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-26T23:23:30.806086+00:00"
+  "vcs_locked_at": "2026-01-26T23:23:30.806086+00:00",
+  "mission_id": "01KN5R6XEJQNGT3GJBX2HEJXVH"
 }

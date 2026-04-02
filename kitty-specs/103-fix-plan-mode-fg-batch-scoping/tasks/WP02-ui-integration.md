@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: UI Integration
-lane: done
 dependencies: [WP01]
 base_branch: 103-fix-plan-mode-fg-batch-scoping-WP01
 base_commit: f8eb27c4e90fcf5073e82aca88610f9e25e44a88
@@ -11,17 +10,21 @@ subtasks:
 - T007
 - T008
 phase: Phase 2 - UI Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '30464'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-03-15T04:45:47Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFK0J69FPFVFD440R49
+owned_files:
+- kitty-specs/103-fix-plan-mode-fg-batch-scoping/plan.md
+- kitty-specs/103-fix-plan-mode-fg-batch-scoping/spec.md
+- src/main.py
+- src/ui/components/fg_selection_frame.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 -- UI Integration

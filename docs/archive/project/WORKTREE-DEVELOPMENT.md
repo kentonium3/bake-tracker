@@ -40,12 +40,12 @@ Install the package in development mode for direct imports:
 
 ```bash
 cd .worktrees/your-worktree-name
-C:\Users\Kent\Vaults-repos\bake-tracker\venv\Scripts\pip.exe install -e .
+C:\Users\Kent\repos\bake-tracker\venv\Scripts\pip.exe install -e .
 ```
 
 After this, you can use Python directly:
 ```bash
-C:\Users\Kent\Vaults-repos\bake-tracker\venv\Scripts\python.exe -c "from src.services.migration_service import MigrationService; print('works!')"
+C:\Users\Kent\repos\bake-tracker\venv\Scripts\python.exe -c "from src.services.migration_service import MigrationService; print('works!')"
 ```
 
 ### Solution 3: Manual PYTHONPATH Setup
@@ -55,13 +55,13 @@ Set environment variables manually:
 #### Windows
 ```cmd
 set PYTHONPATH=.;%PYTHONPATH%
-C:\Users\Kent\Vaults-repos\bake-tracker\venv\Scripts\python.exe your_script.py
+C:\Users\Kent\repos\bake-tracker\venv\Scripts\python.exe your_script.py
 ```
 
 #### Linux/Mac/WSL
 ```bash
 export PYTHONPATH=".:$PYTHONPATH"
-C:/Users/Kent/Vaults-repos/bake-tracker/venv/Scripts/python.exe your_script.py
+C:/Users/Kent/repos/bake-tracker/venv/Scripts/python.exe your_script.py
 ```
 
 ## For Claude Code (Bash Tool)
@@ -70,7 +70,7 @@ When using Claude Code with the Bash tool, use one of these patterns:
 
 ### Method 1: Direct command (current working method)
 ```bash
-cd "C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\004-finishedunit" && "C:\Users\Kent\Vaults-repos\bake-tracker\venv\Scripts\python.exe" -c "
+cd "C:\Users\Kent\repos\bake-tracker\.worktrees\004-finishedunit" && "C:\Users\Kent\repos\bake-tracker\venv\Scripts\python.exe" -c "
 import sys
 sys.path.insert(0, '.')
 from src.services.migration_service import MigrationService
@@ -81,12 +81,12 @@ print(f'Ready: {result[\"is_ready\"]}')
 
 ### Method 2: Using worktree scripts (after setup)
 ```bash
-cd "C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\004-finishedunit" && ./python-dev.sh -c "from src.services.migration_service import MigrationService; print('works!')"
+cd "C:\Users\Kent\repos\bake-tracker\.worktrees\004-finishedunit" && ./python-dev.sh -c "from src.services.migration_service import MigrationService; print('works!')"
 ```
 
 ### Method 3: After development installation
 ```bash
-cd "C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\004-finishedunit" && "C:\Users\Kent\Vaults-repos\bake-tracker\venv\Scripts\python.exe" -c "from src.services.migration_service import MigrationService; print('works!')"
+cd "C:\Users\Kent\repos\bake-tracker\.worktrees\004-finishedunit" && "C:\Users\Kent\repos\bake-tracker\venv\Scripts\python.exe" -c "from src.services.migration_service import MigrationService; print('works!')"
 ```
 
 ## Quick Setup for New Worktrees

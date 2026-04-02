@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Material Unit Converter
-lane: done
 dependencies: []
 subtasks:
 - T012
@@ -10,11 +9,6 @@ subtasks:
 - T015
 - T016
 phase: Phase 2 - Services
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '27987'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -26,6 +20,15 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: material_unit_converter service with metric base units'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/plan.md
+- kitty-specs/058-materials-fifo-foundation/research.md
+- src/services/material_unit_converter.py
+- src/tests/test_material_unit_converter.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Material Unit Converter

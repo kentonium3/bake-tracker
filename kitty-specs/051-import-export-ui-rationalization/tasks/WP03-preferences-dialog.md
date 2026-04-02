@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Preferences Dialog
-lane: done
 dependencies: []
 subtasks:
 - T015
@@ -12,17 +11,22 @@ subtasks:
 - T020
 - T021
 phase: Phase 1 - Dependent Services
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-13T12:55:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE2J37BC1QGRYHHKE8N
+owned_files:
+- kitty-specs/051-import-export-ui-rationalization/plan.md
+- kitty-specs/051-import-export-ui-rationalization/spec.md
+- src/ui/import_export_dialog.py
+- src/ui/main_window.py
+- src/ui/preferences_dialog.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Preferences Dialog

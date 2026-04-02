@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: MaterialUnit & FinishedUnit Snapshot Import
-lane: "done"
 dependencies: [WP02, WP03]
 base_branch: 081-snapshot-export-coverage-WP03
 base_commit: e7bc2958640944d1a1a5555b53a4b774fac3dc75
@@ -12,17 +11,18 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - Import Functions
-assignee: ''
-agent: "claude"
-shell_pid: "78693"
-review_status: "approved"
-reviewed_by: "Kent Gale"
 history:
 - timestamp: '2026-01-28T18:40:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/services/coordinated_export_service.py/
+execution_mode: code_change
+mission_id: 01KN5R6XEYGTB43187DGEXEGG1
+owned_files:
+- src/services/coordinated_export_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – MaterialUnit & FinishedUnit Snapshot Import
@@ -336,7 +336,7 @@ with tempfile.TemporaryDirectory() as export_dir:
 
 2. **Run the test**:
    ```bash
-   cd /Users/kentgale/Vaults-repos/bake-tracker
+   cd /Users/kentgale/repos/bake-tracker
    source venv/bin/activate
    python -c "exec(open('smoke_test_snapshots.py').read())"
    ```

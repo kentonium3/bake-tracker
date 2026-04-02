@@ -1,24 +1,26 @@
 ---
 work_package_id: WP02
 title: EventService Shopping List Integration
-lane: done
 dependencies: []
 subtasks:
 - T005
 - T006
 - T007
 phase: Phase 2 - Service Integration
-assignee: claude
-agent: claude
-shell_pid: '35768'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-04'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125M
+owned_files:
+- src/services/event_service.py
+- src/services/variant_service.py
+- src/tests/test_event_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - EventService Shopping List Integration

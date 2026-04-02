@@ -14,7 +14,7 @@
 ### 1. Activate the Feature Worktree
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/029-streamlined-inventory-entry
+cd /Users/kentgale/repos/bake-tracker/.worktrees/029-streamlined-inventory-entry
 source venv/bin/activate
 ```
 

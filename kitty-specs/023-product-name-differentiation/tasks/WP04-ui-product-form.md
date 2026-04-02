@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI Layer - ProductFormDialog Updates
-lane: done
 dependencies: []
 subtasks:
 - T010
@@ -9,17 +8,20 @@ subtasks:
 - T012
 - T013
 phase: Phase 3 - UI Changes
-assignee: claude
-agent: claude-reviewer
-shell_pid: '30994'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-19T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDC9ESBEDJZ4RZ8SJWA
+owned_files:
+- kitty-specs/023-product-name-differentiation/research.md
+- kitty-specs/023-product-name-differentiation/spec.md
+- src/ui/ingredients_tab.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - UI Layer - ProductFormDialog Updates

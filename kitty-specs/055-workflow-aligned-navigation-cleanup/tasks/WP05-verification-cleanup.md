@@ -1,11 +1,15 @@
 ---
+work_package_id: 01KN5R70BK6YH7NVKJ8P5YEVE7
 title: Verification and Cleanup
-lane: done
 dependencies: []
 created_at: 2026-01-15
-agent:
-review_status:
+authoritative_surface: kitty-specs/055-workflow-aligned-navigation-cleanup/
+execution_mode: planning_artifact
 id: WP05
+mission_id: 01KN5R6XE7PP9DJV34XG3E2SBM
+owned_files:
+- kitty-specs/055-workflow-aligned-navigation-cleanup/**
+wp_code: WP05
 ---
 
 # WP05: Verification and Cleanup

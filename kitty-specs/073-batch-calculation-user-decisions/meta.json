@@ -8,5 +8,6 @@
   "source_description": "see docs/func-spec/F073_batch_calculation_user_decisions.md for the feature's inputs",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T19:19:17.105776+00:00"
+  "vcs_locked_at": "2026-01-27T19:19:17.105776+00:00",
+  "mission_id": "01KN5R6XEQM23DZ45N6YV55ZM3"
 }

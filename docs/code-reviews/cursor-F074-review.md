@@ -8,7 +8,7 @@
 Ingredient aggregation scales recipe ingredients by batch decisions and aggregates across recipes with unit-preserving keys. Tests exercise single/multi-recipe scenarios, unit separation, precision handling, and empty cases; all pass. Implementation aligns with the spec: no conversion between units, three-decimal precision preserved, and validation for missing events.
 
 ## Verification Results
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_ingredient_aggregation_service.py -v --tb=short`: **PASS** (10 tests; known teardown SAWarnings)
+- `/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_ingredient_aggregation_service.py -v --tb=short`: **PASS** (10 tests; known teardown SAWarnings)
 
 ## Findings
 

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Ingredient Service Packaging Extensions
-lane: done
 dependencies: []
 subtasks:
 - T012
@@ -13,17 +12,21 @@ subtasks:
 - T018
 - T019
 phase: Phase 1 - Foundation
-assignee: claude
-agent: claude-opus-4-5
-shell_pid: review
-review_status: approved after changes
-reviewed_by: claude-opus-4-5
 history:
 - timestamp: '2025-12-08T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YC
+owned_files:
+- kitty-specs/011-packaging-bom-foundation/contracts/ingredient_service.md
+- src/services/ingredient_service/**
+- src/services/ingredient_service.py
+- src/tests/**
+wp_code: WP02
 ---
 
 ## Review Feedback

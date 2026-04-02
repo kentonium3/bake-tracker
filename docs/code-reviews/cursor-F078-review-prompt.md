@@ -13,29 +13,29 @@ You are a senior software engineer performing an independent code review. You ar
 ## Specification
 
 Read the full spec before examining any code:
-`/Users/kentgale/Vaults-repos/bake-tracker/kitty-specs/078-plan-snapshots-amendments/spec.md`
+`/Users/kentgale/repos/bake-tracker/kitty-specs/078-plan-snapshots-amendments/spec.md`
 
 ## Code Changes
 
 The following files were modified or created for this feature:
 
 **Models:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/models/plan_snapshot.py` (new)
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/models/__init__.py` (modified)
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/models/event.py` (modified)
+- `/Users/kentgale/repos/bake-tracker/src/models/plan_snapshot.py` (new)
+- `/Users/kentgale/repos/bake-tracker/src/models/__init__.py` (modified)
+- `/Users/kentgale/repos/bake-tracker/src/models/event.py` (modified)
 
 **Services:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/services/plan_snapshot_service.py` (new)
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/services/plan_amendment_service.py` (new)
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/services/plan_state_service.py` (modified)
+- `/Users/kentgale/repos/bake-tracker/src/services/plan_snapshot_service.py` (new)
+- `/Users/kentgale/repos/bake-tracker/src/services/plan_amendment_service.py` (new)
+- `/Users/kentgale/repos/bake-tracker/src/services/plan_state_service.py` (modified)
 
 **UI:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/ui/planning_tab.py` (modified)
+- `/Users/kentgale/repos/bake-tracker/src/ui/planning_tab.py` (modified)
 
 **Tests:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/tests/test_plan_snapshot_model.py` (new)
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/tests/test_plan_snapshot_service.py` (new)
-- `/Users/kentgale/Vaults-repos/bake-tracker/src/tests/test_plan_amendment_service.py` (new)
+- `/Users/kentgale/repos/bake-tracker/src/tests/test_plan_snapshot_model.py` (new)
+- `/Users/kentgale/repos/bake-tracker/src/tests/test_plan_snapshot_service.py` (new)
+- `/Users/kentgale/repos/bake-tracker/src/tests/test_plan_amendment_service.py` (new)
 
 **Note**: These are the primary changes, but your review should extend to any related code, dependencies, or callers as needed.
 
@@ -46,7 +46,7 @@ The following files were modified or created for this feature:
 Cursor's sandbox cannot activate virtual environments. All verification commands must be run in the terminal outside the sandbox to avoid activation failures.
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker
+cd /Users/kentgale/repos/bake-tracker
 
 # Activate virtual environment
 source venv/bin/activate
@@ -74,7 +74,7 @@ If ANY of these commands fail, STOP immediately and report the blocker before at
 ## Report Output
 
 Write your review report to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F078-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F078-review.md`
 
 **Important**: Write to the `docs/code-reviews/` directory, NOT in any worktree.
 

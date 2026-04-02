@@ -23,5 +23,6 @@
   "mission": "research",
   "slug": "038-ui-mode-restructure",
   "source_description": "Restructure application UI from flat 11-tab navigation to 5-mode workflow architecture (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE) with consistent tab layouts, mode-specific dashboards, and clear navigation.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XDQYDEY5XAA2WEVQCXX"
 }

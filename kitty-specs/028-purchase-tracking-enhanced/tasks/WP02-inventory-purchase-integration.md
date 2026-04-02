@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Inventory-Purchase Service Integration
-lane: done
 dependencies: []
 subtasks:
 - T004
@@ -9,17 +8,25 @@ subtasks:
 - T006
 - T007
 phase: Phase 1 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: reconciled
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-22T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDGV3D1KMCMMEA4MAM6
+owned_files:
+- kitty-specs/028-purchase-tracking-enhanced/data-model.md
+- kitty-specs/028-purchase-tracking-enhanced/plan.md
+- kitty-specs/028-purchase-tracking-enhanced/spec.md
+- src/models/inventory_item.py
+- src/models/purchase.py
+- src/services/inventory_item_service/**
+- src/services/inventory_item_service.py
+- src/tests/services/test_inventory_item_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Inventory-Purchase Service Integration

@@ -78,7 +78,7 @@ Creating a dedicated requirements directory to separate business requirements (W
 
 ```bash
 # Create requirements directory (DONE)
-mkdir -p /Users/kentgale/Vaults-repos/bake-tracker/docs/requirements
+mkdir -p /Users/kentgale/repos/bake-tracker/docs/requirements
 
 # Move and rename files
 mv /docs/requirements.md /docs/requirements/req_application.md

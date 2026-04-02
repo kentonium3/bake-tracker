@@ -22,7 +22,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Service Layer (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/services/ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/services/ingredient_hierarchy_service.py`
   - **WP01**: `get_child_count(ingredient_id, session=None) -> int`
   - **WP01**: `get_product_count(ingredient_id, session=None) -> int`
   - **WP01**: `can_change_parent(ingredient_id, new_parent_id, session=None) -> Dict[str, Any]`
@@ -32,7 +32,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Test Layer (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/tests/services/test_ingredient_hierarchy_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/tests/services/test_ingredient_hierarchy_service.py`
   - **WP01**: `test_db_with_products` fixture with Product model instances
   - **WP01**: `TestGetChildCount` class (4 tests)
   - **WP01**: `TestGetProductCount` class (4 tests)
@@ -41,7 +41,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Ingredients Tab (WP02, WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/ui/ingredients_tab.py`
   - **WP02**: `ingredient_level_dropdown` and `ingredient_level_var` REMOVED
   - **WP02**: `_on_ingredient_level_change()` method REMOVED
   - **WP02**: `_update_hierarchy_visibility()` method REMOVED
@@ -63,7 +63,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Forms Layer - Legacy Deprecation (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/ui/forms/ingredient_form.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/src/ui/forms/ingredient_form.py`
   - **WP04**: Module-level deprecation docstring with `.. deprecated::` directive
   - **WP04**: Class-level deprecation docstring on `IngredientFormDialog`
   - **WP04**: `import warnings` added
@@ -72,11 +72,11 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/tasks.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/research.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/research.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient/kitty-specs/033-phase-1-ingredient/data-model.md`
 
 ## Review Checklist
 
@@ -182,10 +182,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/033-phase-1-ingredient
+cd /Users/kentgale/repos/bake-tracker/.worktrees/033-phase-1-ingredient
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all modified modules import correctly
 PYTHONPATH=. python3 -c "
@@ -233,13 +233,13 @@ grep -n "_build_hierarchy_path_cache\|_hierarchy_path_cache" src/ui/ingredients_
 grep -n "warnings.warn\|DeprecationWarning\|stacklevel" src/ui/forms/ingredient_form.py
 
 # Run ALL tests to verify no regressions
-PYTHONPATH=. /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests -v --tb=short 2>&1 | tail -50
+PYTHONPATH=. /Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests -v --tb=short 2>&1 | tail -50
 
 # Run specific WP01 tests
-PYTHONPATH=. /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py -v --tb=short -k "TestGetChildCount or TestGetProductCount or TestCanChangeParent"
+PYTHONPATH=. /Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py -v --tb=short -k "TestGetChildCount or TestGetProductCount or TestCanChangeParent"
 
 # Count new tests
-PYTHONPATH=. /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py --collect-only 2>&1 | grep "test session starts" -A 5
+PYTHONPATH=. /Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_ingredient_hierarchy_service.py --collect-only 2>&1 | grep "test session starts" -A 5
 ```
 
 ## Key Implementation Patterns
@@ -338,7 +338,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F033-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F033-review.md`
 
 Use this format:
 

@@ -115,7 +115,7 @@ The next work packages to implement in Feature 004: ProductionRun Core Architect
 1. **Restart in PowerShell** (resolve path issues)
 2. **Navigate to working directory**:
    ```powershell
-   cd "C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\004-finishedunit-model-refactoring"
+   cd "C:\Users\Kent\repos\bake-tracker\.worktrees\004-finishedunit-model-refactoring"
    ```
 3. **Continue implementation**:
    ```

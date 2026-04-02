@@ -1,11 +1,17 @@
 ---
+work_package_id: 01KN5R70B3NGQABFGP7GT6BNWG
 title: Mode Navigation Reorder
-lane: done
 dependencies: []
 created_at: 2026-01-15
-agent:
-review_status:
+authoritative_surface: src/ui/
+execution_mode: code_change
 id: WP01
+mission_id: 01KN5R6XE7PP9DJV34XG3E2SBM
+owned_files:
+- src/ui/main_window.py
+- src/ui/mode_manager.py
+- src/ui/modes/deliver_mode.py
+wp_code: WP01
 ---
 
 # WP01: Mode Navigation Reorder

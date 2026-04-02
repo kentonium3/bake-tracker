@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Dropdown Builder Functions
-lane: done
 dependencies: []
 subtasks:
 - T027
@@ -12,17 +11,22 @@ subtasks:
 - T032
 - T033
 phase: Phase 1 - Widgets
-assignee: claude
-agent: claude
-shell_pid: '33920'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-24T23:15:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDHY5S8868BMDBNJ512
+owned_files:
+- docs/design/F029_streamlined_inventory_entry.md
+- kitty-specs/029-streamlined-inventory-entry/plan.md
+- kitty-specs/029-streamlined-inventory-entry/research.md
+- src/tests/**
+- src/ui/widgets/dropdown_builders.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Dropdown Builder Functions

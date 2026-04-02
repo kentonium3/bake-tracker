@@ -8,7 +8,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 1. **Run verification commands outside the sandbox** - venv activation will fail inside sandbox
 2. **If any verification command fails, STOP and report the blocker** - do not attempt fixes
-3. **Write the report to** `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F039-review.md` (NOT in the worktree)
+3. **Write the report to** `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F039-review.md` (NOT in the worktree)
 
 ## Feature Summary
 
@@ -33,20 +33,20 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Model Layer (WP01)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/models/production_plan_snapshot.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/models/production_plan_snapshot.py`
   - ProductionPlanSnapshot model with event_id, calculated_at, is_stale, shopping_complete
   - Timestamp fields for staleness: requirements_updated_at, recipes_updated_at, bundles_updated_at
   - calculation_results JSON blob (recipe_batches, aggregated_ingredients, shopping_list)
   - Helper methods: get_recipe_batches(), get_shopping_list(), mark_stale()
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/models/event.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/models/event.py`
   - OutputMode enum (BUNDLED, BULK_COUNT)
   - Event.output_mode field
   - production_plan_snapshots relationship
 
 ### Batch Calculation Service (WP02)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/batch_calculation.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/batch_calculation.py`
   - calculate_batches(units_needed, yield_per_batch) - ALWAYS rounds UP
   - calculate_waste(units_needed, batches, yield_per_batch) - returns (waste_units, waste_percent)
   - explode_bundle_requirements(finished_good_id, bundle_quantity, session) - recursive bundle explosion
@@ -55,7 +55,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Shopping List Service (WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/shopping_list.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/shopping_list.py`
   - ShoppingListItem dataclass (ingredient_id, needed, in_stock, to_buy, is_sufficient)
   - calculate_purchase_gap(needed, in_stock) - returns max(0, needed - in_stock)
   - get_shopping_list(event_id, session) - generates shopping list from event
@@ -64,7 +64,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Feasibility Service (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/feasibility.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/feasibility.py`
   - FeasibilityStatus enum (CAN_ASSEMBLE, PARTIAL, CANNOT_ASSEMBLE, AWAITING_PRODUCTION)
   - FeasibilityResult dataclass
   - check_production_feasibility(event_id, session) - wraps batch_production_service
@@ -73,7 +73,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Progress Service (WP05)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/progress.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/progress.py`
   - ProductionProgress dataclass (recipe_id, target_batches, completed_batches, progress_percent)
   - AssemblyProgress dataclass (finished_good_id, target_quantity, assembled_quantity)
   - get_production_progress(event_id, session)
@@ -82,7 +82,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Planning Service Facade (WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/planning_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/planning_service.py`
   - calculate_plan(event_id, force_recalculate, session) - main orchestration
   - check_staleness(event_id, session) - timestamp-based detection
   - get_plan_summary(event_id, session) - returns PlanSummary with phase statuses
@@ -92,32 +92,32 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Module Init
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/__init__.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/services/planning/__init__.py`
   - Exports all public functions and classes from submodules
 
 ### Tests
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_batch_calculation.py` (28 tests)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_shopping_list.py` (25 tests)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_feasibility.py` (18 tests)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_progress.py` (29 tests)
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_planning_service.py` (27 tests)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_batch_calculation.py` (28 tests)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_shopping_list.py` (25 tests)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_feasibility.py` (18 tests)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_progress.py` (29 tests)
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/src/tests/services/planning/test_planning_service.py` (27 tests)
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/data-model.md`
 
 ### Work Package Prompts (for context)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP01-model-foundation.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP02-batch-calculation-service.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP03-shopping-list-service.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP04-feasibility-service.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP05-progress-service.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP06-planning-service-facade.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP01-model-foundation.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP02-batch-calculation-service.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP03-shopping-list-service.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP04-feasibility-service.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP05-progress-service.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace/kitty-specs/039-planning-workspace/tasks/for_review/WP06-planning-service-facade.md`
 
 ## Review Checklist
 
@@ -194,10 +194,10 @@ You are a senior software engineer performing an independent code review of Feat
 **IMPORTANT: Run these commands outside the sandbox to ensure venv activation works. If any command fails, STOP and report the blocker.**
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace
+cd /Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace
 
 # Activate virtual environment (use main repo venv)
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all planning modules import correctly
 PYTHONPATH=. python3 -c "
@@ -315,7 +315,7 @@ def _check_staleness_impl(event_id: int, session: Session) -> Tuple[bool, Option
 ## Output Format
 
 Write your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F039-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F039-review.md`
 
 Use this format:
 

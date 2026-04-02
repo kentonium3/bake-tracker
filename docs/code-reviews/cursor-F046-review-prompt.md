@@ -13,23 +13,23 @@
 4. Fixed assembly_service to capture actual costs at assembly time instead of zeros
 
 **Specification Files:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/research/research.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/research/data-model.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/research/research.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/kitty-specs/046-finished-goods-bundles-assembly/research/data-model.md`
 
 ## Code Changes
 
 The following files were modified as part of this feature. These are the primary changes, but review should extend to any related code, dependencies, or callers as needed.
 
 **Models:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/finished_unit.py` - Added `calculate_current_cost()` method
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/finished_good.py` - Added `calculate_current_cost()` method
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/composition.py` - Fixed `get_component_cost()` to use `calculate_current_cost()`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/package.py` - Fixed `calculate_cost()`, `get_cost_breakdown()`, `get_line_cost()`, and `to_dict()`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/finished_unit.py` - Added `calculate_current_cost()` method
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/finished_good.py` - Added `calculate_current_cost()` method
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/composition.py` - Fixed `get_component_cost()` to use `calculate_current_cost()`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/models/package.py` - Fixed `calculate_cost()`, `get_cost_breakdown()`, `get_line_cost()`, and `to_dict()`
 
 **Services:**
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/services/assembly_service.py` - Fixed `_record_assembly_impl()` to capture actual costs
+- `/Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly/src/services/assembly_service.py` - Fixed `_record_assembly_impl()` to capture actual costs
 
 ## Environment Setup
 
@@ -37,16 +37,16 @@ The following files were modified as part of this feature. These are the primary
 
 ```bash
 # Navigate to the worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly
+cd /Users/kentgale/repos/bake-tracker/.worktrees/046-finished-goods-bundles-assembly
 
 # Verify Python environment (use main repo's venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood, Composition, Package; print('Models import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood, Composition, Package; print('Models import OK')"
 
 # Verify new methods exist
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood; assert hasattr(FinishedUnit, 'calculate_current_cost'); assert hasattr(FinishedGood, 'calculate_current_cost'); print('New methods exist OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models import FinishedUnit, FinishedGood; assert hasattr(FinishedUnit, 'calculate_current_cost'); assert hasattr(FinishedGood, 'calculate_current_cost'); print('New methods exist OK')"
 
 # Verify tests run (quick sanity check)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_assembly_service.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_assembly_service.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 If ANY verification command fails, STOP immediately and report the failure as a blocker before attempting any fixes.
@@ -65,7 +65,7 @@ If ANY verification command fails, STOP immediately and report the failure as a 
 ## Report Output
 
 Write your review report to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F046-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F046-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.
 

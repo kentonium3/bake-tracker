@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Schema Changes - MaterialInventoryItem Model
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,11 +8,6 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Foundation
-assignee: claude-opus
-agent: claude-opus
-shell_pid: '25073'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T18:06:18Z'
   lane: planned
@@ -25,6 +19,19 @@ history:
   agent: claude-opus
   shell_pid: ''
   action: 'Review passed: MaterialInventoryItem model complete'
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDJZ
+owned_files:
+- kitty-specs/058-materials-fifo-foundation/data-model.md
+- kitty-specs/058-materials-fifo-foundation/plan.md
+- kitty-specs/058-materials-fifo-foundation/research.md
+- src/models/__init__.py
+- src/models/inventory_item.py
+- src/models/material_inventory_item.py
+- src/models/material_product.py
+- src/models/material_purchase.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Schema Changes - MaterialInventoryItem Model

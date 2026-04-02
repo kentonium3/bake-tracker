@@ -9,9 +9,9 @@
 ## Specification
 
 Read the full specification before examining implementation:
-- **Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/spec.md`
-- **Data Model:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/data-model.md`
-- **Plan:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/plan.md`
+- **Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/spec.md`
+- **Data Model:** `/Users/kentgale/repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/data-model.md`
+- **Plan:** `/Users/kentgale/repos/bake-tracker/.worktrees/056-unified-yield-management/kitty-specs/056-unified-yield-management/plan.md`
 
 ## Code Changes
 
@@ -40,13 +40,13 @@ These are the primary changes, but review should extend to any related code, dep
 
 ```bash
 # Navigate to worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/056-unified-yield-management
+cd /Users/kentgale/repos/bake-tracker/.worktrees/056-unified-yield-management
 
 # Verify imports work (use main repo's venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.models.finished_unit import FinishedUnit, YieldMode; print('Imports OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.models.finished_unit import FinishedUnit, YieldMode; print('Imports OK')"
 
 # Verify tests run
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_coordinated_export.py -v --tb=short -q 2>&1 | tail -5
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/services/test_coordinated_export.py -v --tb=short -q 2>&1 | tail -5
 ```
 
 If ANY command fails, STOP immediately and report the failure as a blocker before attempting any fixes.
@@ -64,10 +64,10 @@ If ANY command fails, STOP immediately and report the failure as a blocker befor
 
 ## Report Template
 
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_cursor_report.md`
 
 ## Report Output
 
-Write your review report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F056-review.md`
+Write your review report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F056-review.md`
 
 **Important:** Write to the `docs/code-reviews/` directory in the main repo, NOT in the worktree.

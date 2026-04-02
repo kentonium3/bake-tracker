@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Documentation and Sample Data
-lane: done
 dependencies: []
 subtasks:
 - T037
@@ -17,17 +16,18 @@ subtasks:
 - T047
 - T048
 phase: Phase 3 - Validation
-assignee: claude
-agent: system
-shell_pid: automated
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/021-field-naming-consistency/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XDB2RJJX6XP78WRMVYE
+owned_files:
+- kitty-specs/021-field-naming-consistency/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Documentation and Sample Data

@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-15
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/kitty-specs/053-context-rich-export-fixes/spec.md`
 
 ## Executive Summary
 Multi-select UI and `aug_` naming largely implemented. However, context-rich import cannot handle the newly added export types (finished_units/finished_goods/material_products) because export_type mapping was not updated. The “export all” helper still includes legacy inventory/purchases and returns 9 files while tests assert 6, leaving the newly added exports unverified and spec alignment unclear. No automated tests cover the new exports or the “All” checkbox multi-select flow, so regressions could slip through.
@@ -23,8 +23,8 @@ Multi-select UI and `aug_` naming largely implemented. However, context-rich imp
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+cd /Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.services.denormalized_export_service import (
     export_products_context_rich,
     export_material_products_context_rich,
@@ -36,7 +36,7 @@ from src.services.denormalized_export_service import (
 from src.ui.import_export_dialog import ExportDialog
 print('All imports successful')
 "
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_denormalized_export.py -v -k "test_export_empty" 2>&1 | head -30
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest /Users/kentgale/repos/bake-tracker/.worktrees/053-context-rich-export-fixes/src/tests/services/test_denormalized_export.py -v -k "test_export_empty" 2>&1 | head -30
 ```
 
 **Results:**

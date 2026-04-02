@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Material Units Service - User Story 3
-lane: done
 dependencies: []
 subtasks:
 - T024
@@ -11,17 +10,23 @@ subtasks:
 - T028
 - T029
 phase: Phase 1 - Core Services
-assignee: ''
-agent: claude
-shell_pid: ''
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-10T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDZK1N509JXJDJWTA46
+owned_files:
+- kitty-specs/047-materials-management-system/contracts/material_unit_service.md
+- kitty-specs/047-materials-management-system/data-model.md
+- kitty-specs/047-materials-management-system/spec.md
+- src/services/__init__.py
+- src/services/material_unit_service.py
+- src/tests/test_material_unit_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Material Units Service - User Story 3

@@ -1,24 +1,29 @@
 ---
 work_package_id: WP01
 title: Fix Material Units Tab Query
-lane: done
 dependencies: []
 subtasks:
 - T001
 - T002
 - T003
 phase: Phase 1 - Bug Fixes
-assignee: ''
-agent: claude-opus
-shell_pid: '74395'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T22:39:29Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF1VZYTBSEQ40NRP719
+owned_files:
+- kitty-specs/086-fix-material-unit-management-ux/plan.md
+- kitty-specs/086-fix-material-unit-management-ux/spec.md
+- src/models/material_product.py
+- src/models/material_unit.py
+- src/services/material_unit_service.py
+- src/ui/materials_tab.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 – Fix Material Units Tab Query

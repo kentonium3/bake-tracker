@@ -1,24 +1,26 @@
 ---
 work_package_id: WP04
 title: Validation and Polish
-lane: done
+dependencies: []
+subtasks:
+- T013
+- T014
+- T015
+- T016
+phase: Phase 4 - Validation
 history:
 - timestamp: '2025-12-04'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
-agent: claude
-assignee: claude
-phase: Phase 4 - Validation
-review_status: approved
-reviewed_by: claude
-shell_pid: '39738'
-subtasks:
-- T013
-- T014
-- T015
-- T016
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125M
+owned_files:
+- src/services/**
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Validation and Polish
@@ -196,7 +198,7 @@ THEN: Still show minimum packages (1) with full package size context
 
 1. Run all tests:
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/007-variant-aware-shopping
+cd /Users/kentgale/repos/bake-tracker/.worktrees/007-variant-aware-shopping
 source venv/bin/activate
 pytest src/tests -v
 ```
@@ -233,7 +235,7 @@ pytest src/tests -v -k "event" or pytest src/tests -v -k "shopping"
 
 1. Run black formatter:
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/007-variant-aware-shopping
+cd /Users/kentgale/repos/bake-tracker/.worktrees/007-variant-aware-shopping
 black src/
 ```
 

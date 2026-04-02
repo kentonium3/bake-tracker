@@ -6,5 +6,6 @@
   "mission": "software-dev",
   "slug": "061-finished-goods-inventory-service",
   "source_description": "Service layer for finished goods inventory tracking with session-aware operations, validation, and integration primitives for production/assembly workflows",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XEC5876GT8F9D6YC8BF"
 }

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Auto-Generation in MaterialProduct Service
-lane: done
 dependencies: [WP01, WP03]
 base_branch: 085-material-unit-schema-refactor-WP03
 base_commit: 8175cc9090e816bdaae4a24c51e036817c6199a0
@@ -13,17 +12,23 @@ subtasks:
 - T021
 - T022
 phase: Wave 2 - Service Layer
-assignee: ''
-agent: claude-opus
-shell_pid: '43970'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-30T17:11:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF0X9XP56ASSM8YZ6SW
+owned_files:
+- kitty-specs/085-material-unit-schema-refactor/data-model.md
+- kitty-specs/085-material-unit-schema-refactor/plan.md
+- kitty-specs/085-material-unit-schema-refactor/spec.md
+- src/services/material_product_service/**
+- src/services/material_product_service.py
+- src/tests/test_material_product_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Auto-Generation in MaterialProduct Service

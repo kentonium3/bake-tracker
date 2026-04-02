@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Service Layer Cleanup
-lane: done
 dependencies: []
 subtasks:
 - T011
@@ -13,17 +12,21 @@ subtasks:
 - T017
 - T018
 phase: Phase 2 - Service Updates
-assignee: claude
-agent: claude
-shell_pid: '23019'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3K
+owned_files:
+- kitty-specs/019-unit-conversion-simplification/plan.md
+- kitty-specs/019-unit-conversion-simplification/research.md
+- kitty-specs/019-unit-conversion-simplification/spec.md
+- src/services/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Service Layer Cleanup

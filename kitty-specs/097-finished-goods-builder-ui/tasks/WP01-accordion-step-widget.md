@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: AccordionStep Widget
-lane: done
 dependencies: []
 base_branch: main
 base_commit: e16f536c3b9ac0cbab64ca424daa36776536ed63
@@ -12,17 +11,21 @@ subtasks:
 - T003
 - T004
 phase: Phase A - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '23922'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T23:51:59Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFDQ23AZF443ND9T0E4
+owned_files:
+- kitty-specs/097-finished-goods-builder-ui/plan.md
+- src/tests/test_accordion_step.py
+- src/ui/dialogs/add_purchase_dialog.py
+- src/ui/widgets/accordion_step.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- AccordionStep Widget

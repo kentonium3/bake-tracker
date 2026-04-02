@@ -1,0 +1,14 @@
+{
+  "wp_id": "WP03",
+  "feature_slug": "097-finished-goods-builder-ui",
+  "worktree_path": ".worktrees/097-finished-goods-builder-ui-WP03",
+  "branch_name": "097-finished-goods-builder-ui-WP03",
+  "base_branch": "097-finished-goods-builder-ui-WP02",
+  "base_commit": "2ee0f735330f610e0e5a20f50351289422a882a6",
+  "dependencies": [
+    "WP02"
+  ],
+  "created_at": "2026-02-07T00:19:41.778791+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

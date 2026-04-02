@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Deprecate Production Service
-lane: done
 dependencies: [WP01]
 subtasks:
 - T033
@@ -10,11 +9,6 @@ subtasks:
 - T036
 - T037
 phase: Phase 2 - Parallel Track
-assignee: ''
-agent: claude-opus
-shell_pid: '29946'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-20T20:00:00Z'
   lane: planned
@@ -26,6 +20,20 @@ history:
   agent: claude-opus
   shell_pid: '29946'
   action: Review passed - Production service deprecated
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEBZD5RXB89VEJXAQEV
+owned_files:
+- kitty-specs/060-architecture-hardening-service-boundaries/plan.md
+- kitty-specs/060-architecture-hardening-service-boundaries/research.md
+- src/services/__init__.py
+- src/services/production_service.py
+- src/tests/services/test_batch_production_service.py
+- src/tests/services/test_production_service.py
+- src/tests/ui/test_production_tab.py
+- src/ui/forms/record_production_dialog.py
+- src/ui/production_tab.py
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 – Deprecate Production Service

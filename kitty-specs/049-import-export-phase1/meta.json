@@ -19,5 +19,6 @@
   "friendly_name": "import export phase1",
   "mission": "software-dev",
   "slug": "049-import-export-phase1",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XE13JKYW144TE3PXKKE"
 }

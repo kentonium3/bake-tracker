@@ -1,7 +1,6 @@
 ---
 work_package_id: WP07
 title: Validation & Polish
-lane: done
 dependencies: []
 subtasks:
 - T028
@@ -12,17 +11,18 @@ subtasks:
 - T033
 - T034
 phase: Phase 4 - Integration & Polish
-assignee: claude
-agent: claude
-shell_pid: '62373'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-04T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/008-production-tracking/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2R
+owned_files:
+- kitty-specs/008-production-tracking/**
+wp_code: WP07
 ---
 
 # Work Package Prompt: WP07 - Validation & Polish

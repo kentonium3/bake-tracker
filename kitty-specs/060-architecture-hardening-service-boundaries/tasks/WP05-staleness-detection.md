@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Staleness Detection Enhancements
-lane: done
 dependencies: [WP01]
 subtasks:
 - T022
@@ -11,11 +10,6 @@ subtasks:
 - T026
 - T027
 phase: Phase 2 - Parallel Track
-assignee: ''
-agent: claude-opus
-shell_pid: '16433'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-20T20:00:00Z'
   lane: planned
@@ -27,6 +21,20 @@ history:
   agent: claude-opus
   shell_pid: '16433'
   action: Review passed - Staleness detection enhanced
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEBZD5RXB89VEJXAQEV
+owned_files:
+- docs/migrations/.
+- docs/migrations/060-composition-updated-at.md
+- kitty-specs/060-architecture-hardening-service-boundaries/data-model.md
+- kitty-specs/060-architecture-hardening-service-boundaries/plan.md
+- kitty-specs/060-architecture-hardening-service-boundaries/research.md
+- src/models/composition.py
+- src/services/planning/planning_service.py
+- src/tests/models/test_composition.py
+- src/tests/services/planning/test_planning_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Staleness Detection Enhancements

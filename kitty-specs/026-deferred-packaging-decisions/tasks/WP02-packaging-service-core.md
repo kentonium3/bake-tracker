@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Packaging Service Core
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -14,17 +13,24 @@ subtasks:
 - T012
 - T013
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '94728'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2025-12-21T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDEF705BE8ZVRB3GSQX
+owned_files:
+- kitty-specs/026-deferred-packaging-decisions/data-model.md
+- kitty-specs/026-deferred-packaging-decisions/plan.md
+- kitty-specs/026-deferred-packaging-decisions/quickstart.md
+- kitty-specs/026-deferred-packaging-decisions/research.md
+- src/services/packaging_service/**
+- src/services/packaging_service.py
+- src/tests/services/test_packaging_service.py
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 - Packaging Service Core

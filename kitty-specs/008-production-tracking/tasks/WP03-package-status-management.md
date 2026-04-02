@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Package Status Management
-lane: done
 dependencies: []
 subtasks:
 - T011
@@ -9,17 +8,18 @@ subtasks:
 - T013
 - T014
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '58999'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-04T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/008-production-tracking/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2R
+owned_files:
+- kitty-specs/008-production-tracking/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Package Status Management

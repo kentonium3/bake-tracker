@@ -113,7 +113,7 @@ def _show_errors(self, errors):
 - **Do not** write to user's Documents directory (future UI-configurable setting)
 - Display **relative path** in dialog, not absolute path
   - Good: `docs/user_testing/import_2025-12-19_135927.log`
-  - Bad: `/Users/kentgale/Vaults-repos/bake-tracker/docs/user_testing/import_2025-12-19_135927.log`
+  - Bad: `/Users/kentgale/repos/bake-tracker/docs/user_testing/import_2025-12-19_135927.log`
 
 **Log Format Requirements:**
 
@@ -130,7 +130,7 @@ Match the format from unified import (see example below). Include:
 Import Log - 2025-12-19T13:59:27.457897
 ============================================================
 
-Source file: /Users/kentgale/Vaults-repos/bake-tracker/test_data/sample_data.json
+Source file: /Users/kentgale/repos/bake-tracker/test_data/sample_data.json
 Import mode: augment
 
 Results:

@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Centralized Error Handler
-lane: done
 dependencies: [WP01, WP02]
 base_branch: 089-error-handling-foundation-WP02
 base_commit: 482779c0655df9df1b3be0466d69bb983d32d5ee
@@ -13,17 +12,20 @@ subtasks:
 - T017
 - T018
 phase: Phase 1 - Foundation
-assignee: ''
-agent: ''
-shell_pid: '59805'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF5GX5Z0NYT6X2WNVJK
+owned_files:
+- kitty-specs/089-error-handling-foundation/data-model.md
+- src/tests/unit/test_error_handler.py
+- src/ui/utils/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 – Centralized Error Handler

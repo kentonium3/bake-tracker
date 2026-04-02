@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Verification and Validation
-lane: done
 dependencies: []
 subtasks:
 - T049
@@ -10,17 +9,23 @@ subtasks:
 - T052
 - T057
 phase: Phase 4 - Final Validation
-assignee: claude
-agent: system
-shell_pid: automated
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDB2RJJX6XP78WRMVYE
+owned_files:
+- docs/,/**
+- docs/design/**
+- kitty-specs/021-field-naming-consistency/quickstart.md
+- kitty-specs/021-field-naming-consistency/spec.md
+- src/main.py
+- src/tests/**
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 - Verification and Validation

@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-15
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity/kitty-specs/054-cli-import-export-parity/spec.md`
 
 ## Executive Summary
 CLI commands are added, but several parity gaps remain: catalog export/import cannot round-trip (exports a directory, import/validate expect a single file and only add/augment modes), aug-export “all” produces extra non-spec files, and aug-import/validate rely on a service mapping that still cannot handle the new entity types (material-products/finished-units/finished-goods). Restore lacks mode/interactive options required by the spec and always performs replace. These break key user stories for aug/catalog workflows and restore safety.
@@ -22,15 +22,15 @@ CLI commands are added, but several parity gaps remain: catalog export/import ca
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/054-cli-import-export-parity
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python src/utils/import_export_cli.py --help 2>&1 | grep -E "backup|restore|aug-|catalog-"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+cd /Users/kentgale/repos/bake-tracker/.worktrees/054-cli-import-export-parity
+/Users/kentgale/repos/bake-tracker/venv/bin/python src/utils/import_export_cli.py --help 2>&1 | grep -E "backup|restore|aug-|catalog-"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.utils.import_export_cli import (
     backup_cmd, restore_cmd, backup_list_cmd, backup_validate_cmd,
     aug_export_cmd, aug_import_cmd, aug_validate_cmd,
     catalog_export_cmd, catalog_import_cmd, catalog_validate_cmd,
 ); print('All CLI function imports successful')"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.services.coordinated_export_service import export_complete, import_complete, validate_export
 from src.services.denormalized_export_service import export_products_context_rich
 from src.services.enhanced_import_service import import_context_rich_export, detect_format

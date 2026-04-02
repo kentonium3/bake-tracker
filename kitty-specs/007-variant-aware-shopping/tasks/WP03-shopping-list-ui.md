@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Shopping List UI Enhancement
-lane: done
 dependencies: []
 subtasks:
 - T008
@@ -10,17 +9,19 @@ subtasks:
 - T011
 - T012
 phase: Phase 3 - UI Layer
-assignee: claude
-agent: claude
-shell_pid: '37274'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2025-12-04'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: src/
+execution_mode: code_change
+mission_id: 01KN5R6XD4DJ166AAY2AE4125M
+owned_files:
+- src/services/event_service.py
+- src/ui/event_planning_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Shopping List UI Enhancement

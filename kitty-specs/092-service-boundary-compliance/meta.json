@@ -6,5 +6,6 @@
   "mission": "software-dev",
   "slug": "092-service-boundary-compliance",
   "source_description": "F092 Service Boundary Compliance - Refactor purchase_service to delegate Product and Supplier operations to their respective owning services, following F091 transaction boundary patterns.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XF8DHKN604XWGE3YW65"
 }

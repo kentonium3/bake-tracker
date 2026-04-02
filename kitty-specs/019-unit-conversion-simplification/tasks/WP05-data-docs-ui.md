@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Data Files, Documentation & UI Cleanup
-lane: done
 dependencies: []
 subtasks:
 - T024
@@ -13,17 +12,25 @@ subtasks:
 - T030
 - T031
 phase: Phase 4 - Finalization
-assignee: claude
-agent: claude-opus-4-5-20251101
-shell_pid: '25000'
-review_status: has_feedback
-reviewed_by: claude-opus-4-5-20251101
 history:
 - timestamp: '2025-12-14T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDAEVKAKZ2ZABJHCB3K
+owned_files:
+- docs/catalog_import_status.md
+- docs/feature_proposal_catalog_import.md
+- docs/import_export_specification.md
+- kitty-specs/019-unit-conversion-simplification/plan.md
+- kitty-specs/019-unit-conversion-simplification/spec.md
+- src/ui/event_detail_window.py
+- src/ui/forms/recipe_form.py
+- src/ui/inventory_tab.py
+wp_code: WP05
 ---
 
 ## Review Feedback

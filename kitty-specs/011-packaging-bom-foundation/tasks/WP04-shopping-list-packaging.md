@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Event Service Shopping List Extensions
-lane: done
 dependencies: []
 subtasks:
 - T030
@@ -14,17 +13,22 @@ subtasks:
 - T037
 - T038
 phase: Phase 2 - User Stories
-assignee: claude
-agent: claude-opus-4-5
-shell_pid: review
-review_status: approved without changes
-reviewed_by: claude-opus-4-5
 history:
 - timestamp: '2025-12-08T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD6FPM8BYNQ9YHNJ9YC
+owned_files:
+- kitty-specs/011-packaging-bom-foundation/contracts/event_service.md
+- kitty-specs/011-packaging-bom-foundation/research.md
+- src/services/event_service/**
+- src/services/event_service.py
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Event Service Shopping List Extensions

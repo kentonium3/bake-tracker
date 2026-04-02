@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Integration & Import/Export
-lane: done
 dependencies:
 - WP03
 base_branch: 068-event-management-planning-data-model-WP03
@@ -14,17 +13,27 @@ subtasks:
 - T030
 - T031
 phase: Phase 3 - Integration
-assignee: ''
-agent: claude-opus
-shell_pid: '4029'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-26T19:16:03Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEH7HGBK3RMJMMG5SC5
+owned_files:
+- kitty-specs/068-event-management-planning-data-model/data-model.md
+- kitty-specs/068-event-management-planning-data-model/plan.md
+- kitty-specs/068-event-management-planning-data-model/spec.md
+- src/main.py
+- src/services/import_export_service.py
+- src/tests/integration/test_planning_integration.py
+- src/tests/test_import_export_planning.py
+- src/ui/forms/event_planning_form.py
+- src/ui/main_window.py
+- src/ui/planning_tab.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Integration & Import/Export

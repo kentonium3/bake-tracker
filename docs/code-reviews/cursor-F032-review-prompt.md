@@ -26,7 +26,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Ingredients Tab (WP01, WP02, WP03)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/ingredients_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/ingredients_tab.py`
   - **WP01**: Grid columns changed from "Category" to "Root (L0)", "Subcategory (L1)", "Name"
   - **WP01**: `_build_hierarchy_cache()` method for N+1 query avoidance
   - **WP01**: `_hierarchy_cache` instance variable
@@ -45,7 +45,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Products Tab (WP04)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/products_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/products_tab.py`
   - Grid column changed from "category" to "hierarchy_path"
   - `_hierarchy_path_cache` instance variable
   - `_build_hierarchy_path_cache()` method
@@ -57,7 +57,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### UI Layer - Inventory Tab (WP05, WP06)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/inventory_tab.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/inventory_tab.py`
   - **WP05**: Cascading L0 -> L1 -> L2 filter dropdowns
   - **WP05**: `_l0_map`, `_l1_map`, `_l2_map` for filter state
   - **WP05**: `_build_hierarchy_path_cache()` method
@@ -73,7 +73,7 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Forms Layer - Add Product Dialog (WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/forms/add_product_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/forms/add_product_dialog.py`
   - Import added for `ingredient_hierarchy_service`
   - `_load_data()` uses `get_leaf_ingredients()` instead of `get_all_ingredients()`
   - `ingredients_map` keyed by `display_name`
@@ -83,19 +83,19 @@ You are a senior software engineer performing an independent code review of Feat
 
 ### Forms Layer - Recipe Form (WP07)
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/forms/recipe_form.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/src/ui/forms/recipe_form.py`
   - Uses `ingredient_hierarchy_service.get_leaf_ingredients()` directly
   - Queries Ingredient model with leaf IDs for compatibility with existing code
 
 ### Specification Documents
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/kitty-specs/032-complete-f031-hierarchy/spec.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/kitty-specs/032-complete-f031-hierarchy/plan.md`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/kitty-specs/032-complete-f031-hierarchy/tasks.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/kitty-specs/032-complete-f031-hierarchy/spec.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/kitty-specs/032-complete-f031-hierarchy/plan.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/kitty-specs/032-complete-f031-hierarchy/tasks.md`
 
 ### Bug Specification
 
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/docs/bugs/BUG_F031_incomplete_hierarchy_ui.md`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy/docs/bugs/BUG_F031_incomplete_hierarchy_ui.md`
 
 ## Review Checklist
 
@@ -190,10 +190,10 @@ You are a senior software engineer performing an independent code review of Feat
 Run these commands to verify the implementation:
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/032-complete-f031-hierarchy
+cd /Users/kentgale/repos/bake-tracker/.worktrees/032-complete-f031-hierarchy
 
 # Activate virtual environment
-source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
+source /Users/kentgale/repos/bake-tracker/venv/bin/activate
 
 # Verify all modified UI modules import correctly
 python3 -c "
@@ -341,7 +341,7 @@ def _build_hierarchy_path_cache(self):
 ## Output Format
 
 Please output your findings to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F032-review.md`
+`/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F032-review.md`
 
 Use this format:
 

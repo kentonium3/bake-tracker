@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: Phase View Components
-lane: done
 dependencies: []
 subtasks:
 - T049
@@ -14,17 +13,22 @@ subtasks:
 - T056
 - T057
 phase: Phase 3 - UI
-assignee: claude
-agent: claude-reviewer
-shell_pid: '71965'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-06T03:09:20Z'
   lane: planned
   agent: claude
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDRS2KVV6QTFHHXTDFZ
+owned_files:
+- kitty-specs/039-planning-workspace/contracts/planning_service.py
+- kitty-specs/039-planning-workspace/quickstart.md
+- kitty-specs/039-planning-workspace/spec.md
+- src/main.py
+- src/ui/planning/**
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - Phase View Components

@@ -6,5 +6,6 @@
   "mission": "software-dev",
   "slug": "059-materials-purchase-integration",
   "source_description": "See docs/design/F059_materials_purchase_integration.md for this feature's input.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XEA6531ADFQMPBBHDK0"
 }

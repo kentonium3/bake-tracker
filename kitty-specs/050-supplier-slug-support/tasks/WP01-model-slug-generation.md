@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Model & Slug Generation Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,26 @@ subtasks:
 - T005
 - T006
 phase: Phase 0 - Foundation
-assignee: claude
-agent: claude
-shell_pid: '59105'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-12T23:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XE13JKYW144TE3PXKKF
+owned_files:
+- kitty-specs/050-supplier-slug-support/data-model.md
+- kitty-specs/050-supplier-slug-support/plan.md
+- kitty-specs/050-supplier-slug-support/research.md
+- src/models/ingredient.py
+- src/models/supplier.py
+- src/services/supplier_service.py
+- src/tests/test_supplier_service.py
+- src/utils/slug_utils.py
+- src/utils/slug_utils.py:30-143
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Model & Slug Generation Foundation

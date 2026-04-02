@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-13
-**Feature Spec:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/051-import-export-ui-rationalization/kitty-specs/051-import-export-ui-rationalization/spec.md`
+**Feature Spec:** `/Users/kentgale/repos/bake-tracker/.worktrees/051-import-export-ui-rationalization/kitty-specs/051-import-export-ui-rationalization/spec.md`
 
 ## Executive Summary
 Re-review after fixes: core blockers are resolved (catalog augment mode now works via `import_catalog`; supplier import/merge no longer crashes; context-rich preprocessing/validation added; schema validation runs before catalog imports). Remaining gaps are around directory preference storage/usage and catalog schema validation coverage for non-core entities. No test updates were required; targeted suites pass.
@@ -25,10 +25,10 @@ Re-review after fixes: core blockers are resolved (catalog augment mode now work
 
 **Commands (outside sandbox):**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/051-import-export-ui-rationalization
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.schema_validation_service import validate_import_file; print('Import OK')"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_schema_validation_service.py -v --tb=short -q 2>&1 | head -20
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -m pytest src/tests/test_preferences_service.py -v --tb=short -q 2>&1 | head -40
+cd /Users/kentgale/repos/bake-tracker/.worktrees/051-import-export-ui-rationalization
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.schema_validation_service import validate_import_file; print('Import OK')"
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_schema_validation_service.py -v --tb=short -q 2>&1 | head -20
+/Users/kentgale/repos/bake-tracker/venv/bin/python -m pytest src/tests/test_preferences_service.py -v --tb=short -q 2>&1 | head -40
 ```
 
 **Results:** All commands succeeded; schema validation tests (51) and preferences tests (27) passed.

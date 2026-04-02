@@ -1,7 +1,6 @@
 ---
 work_package_id: WP02
 title: Transformation Script
-lane: done
 dependencies: []
 subtasks:
 - T005
@@ -9,17 +8,21 @@ subtasks:
 - T007
 - T008
 phase: Phase 2 - Transformation Script
-assignee: claude
-agent: claude
-shell_pid: N/A
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-16T22:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/056-unified-yield-management/
+execution_mode: code_change
+mission_id: 01KN5R6XE8YEKG0JWZFEPTN6JW
+owned_files:
+- kitty-specs/056-unified-yield-management/data-model.md
+- kitty-specs/056-unified-yield-management/plan.md
+- kitty-specs/056-unified-yield-management/research.md
+- kitty-specs/056-unified-yield-management/spec.md
+wp_code: WP02
 ---
 
 # Work Package Prompt: WP02 – Transformation Script

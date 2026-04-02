@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Test Updates
-lane: done
 dependencies: []
 subtasks:
 - T019
@@ -27,17 +26,20 @@ subtasks:
 - T055
 - T056
 phase: Phase 3 - Validation
-assignee: claude
-agent: claude
-shell_pid: '83880'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-15T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: automated
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDB2RJJX6XP78WRMVYE
+owned_files:
+- kitty-specs/021-field-naming-consistency/research.md
+- kitty-specs/021-field-naming-consistency/spec.md
+- src/tests/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Test Updates

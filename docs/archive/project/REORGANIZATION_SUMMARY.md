@@ -39,7 +39,7 @@
 
 Run these commands:
 ```bash
-cd C:\Users\Kent\Vaults-repos\bake-tracker\.worktrees\004-finishedunit-model-refactoring
+cd C:\Users\Kent\repos\bake-tracker\.worktrees\004-finishedunit-model-refactoring
 
 mkdir -p ../../archive/2025-11-feature-004-patches
 
@@ -65,7 +65,7 @@ Questions to ask:
 **3. Start Feature 004A: FinishedUnit Model**
 
 ```bash
-cd C:\Users\Kent\Vaults-repos\bake-tracker
+cd C:\Users\Kent\repos\bake-tracker
 git checkout main
 
 /spec-kitty.specify

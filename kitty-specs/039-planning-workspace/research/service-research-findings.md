@@ -4,7 +4,7 @@
 
 This document summarizes research on existing services in `src/services/` to support planning a new PlanningService facade with modules for batch calculation, shopping list generation, feasibility checking, and progress tracking.
 
-**Working Directory:** `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/039-planning-workspace`
+**Working Directory:** `/Users/kentgale/repos/bake-tracker/.worktrees/039-planning-workspace`
 
 ---
 

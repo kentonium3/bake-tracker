@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer Foundation
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -11,17 +10,22 @@ subtasks:
 - T005
 - T006
 phase: Phase 1 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '30686'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-11T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD9ESY7QPGZ1DJEM2MP
+owned_files:
+- kitty-specs/017-event-reporting-production/data-model.md
+- kitty-specs/017-event-reporting-production/plan.md
+- kitty-specs/017-event-reporting-production/spec.md
+- src/services/event_service.py
+- src/tests/**
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Service Layer Foundation

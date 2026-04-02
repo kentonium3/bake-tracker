@@ -1,7 +1,6 @@
 ---
 work_package_id: WP03
 title: Document Pattern and Audit Enums
-lane: done
 dependencies: [WP02]
 base_branch: 095-enum-display-pattern-standardization-WP02
 base_commit: dd9d627382a65d538ce5b9226f034ee499be70cd
@@ -12,17 +11,23 @@ subtasks:
 - T012
 - T013
 phase: Phase 3 - Documentation & Audit
-assignee: ''
-agent: claude-opus
-shell_pid: '84863'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-06T01:55:28Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFBPCCR9G8DRXN60JZ7
+owned_files:
+- docs/func-spec/F095_enum_display_pattern_standardization.md
+- docs/inspections/hardcoded_maps_categories_summary.md
+- kitty-specs/095-enum-display-pattern-standardization/plan.md
+- kitty-specs/095-enum-display-pattern-standardization/spec.md
+- src/models/**
+- src/ui/**
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 -- Document Pattern and Audit Enums

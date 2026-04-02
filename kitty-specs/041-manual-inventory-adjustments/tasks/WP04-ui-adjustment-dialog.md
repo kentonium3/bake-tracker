@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: UI Adjustment Dialog
-lane: done
 dependencies: []
 subtasks:
 - T017
@@ -12,15 +11,22 @@ subtasks:
 - T022
 - T023
 phase: Phase 2 - UI Layer (Gemini)
-assignee: gemini
-agent: claude-reviewer
-shell_pid: '49926'
 history:
 - timestamp: '2026-01-07T12:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDT9VHN4V8WF9AVEAW7
+owned_files:
+- docs/design/_F041_manual_inventory_adjust.md
+- kitty-specs/041-manual-inventory-adjustments/quickstart.md
+- kitty-specs/041-manual-inventory-adjustments/spec.md
+- src/ui/dialogs/__init__.py
+- src/ui/dialogs/adjustment_dialog.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - UI Adjustment Dialog

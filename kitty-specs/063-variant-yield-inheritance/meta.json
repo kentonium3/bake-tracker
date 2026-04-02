@@ -6,5 +6,6 @@
   "mission": "software-dev",
   "slug": "063-variant-yield-inheritance",
   "source_description": "See docs/func-spec/F063_recipe_variant_yield_inheritance.md for the feature inputs.",
-  "target_branch": "main"
+  "target_branch": "main",
+  "mission_id": "01KN5R6XEDBWJATJDFSN5WHTQE"
 }

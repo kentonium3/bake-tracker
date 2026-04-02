@@ -10,30 +10,30 @@
 
 Read these to understand requirements BEFORE examining implementation:
 
-- **Primary Spec**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/kitty-specs/049-import-export-phase1/spec.md`
-- **Implementation Plan**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/kitty-specs/049-import-export-phase1/plan.md`
-- **Updated Documentation**: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/docs/design/spec_import_export.md`
+- **Primary Spec**: `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/kitty-specs/049-import-export-phase1/spec.md`
+- **Implementation Plan**: `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/kitty-specs/049-import-export-phase1/plan.md`
+- **Updated Documentation**: `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/docs/design/spec_import_export.md`
 
 ## Code Changes
 
 These are the primary implementation files. Review should extend to any related code, dependencies, or callers as needed.
 
 **Services (Core Implementation)**:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/coordinated_export_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/denormalized_export_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/enhanced_import_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/transaction_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/coordinated_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/denormalized_export_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/enhanced_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/services/transaction_import_service.py`
 
 **UI Layer**:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/ui/import_export_dialog.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/ui/import_export_dialog.py`
 
 **Test Files**:
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_coordinated_export.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_denormalized_export.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_enhanced_import.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_transaction_import_service.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_catalog_import_materials.py`
-- `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/integration/test_import_export_roundtrip.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_coordinated_export.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_denormalized_export.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_enhanced_import.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_transaction_import_service.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/services/test_catalog_import_materials.py`
+- `/Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/src/tests/integration/test_import_export_roundtrip.py`
 
 ## Environment Verification
 
@@ -41,10 +41,10 @@ These are the primary implementation files. Review should extend to any related 
 
 ```bash
 # Navigate to worktree
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1
+cd /Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1
 
 # Verify imports work (use main repo venv)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "
 from src.services.coordinated_export_service import export_complete
 from src.services.denormalized_export_service import export_ingredients_view
 from src.services.enhanced_import_service import detect_format
@@ -54,18 +54,18 @@ print('All imports successful')
 "
 
 # Run tests (abbreviated - full suite has 286 tests)
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_transaction_import_service.py -v --tb=short -q 2>&1 | tail -20
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_transaction_import_service.py -v --tb=short -q 2>&1 | tail -20
 ```
 
 If ANY command fails, STOP immediately and report as a blocker before attempting fixes.
 
 ## Report Template
 
-Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
+Use the template at: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
 ## Report Output Location
 
-Write your review report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F049-review.md`
+Write your review report to: `/Users/kentgale/repos/bake-tracker/docs/code-reviews/cursor-F049-review.md`
 
 **Important**: Write to the `docs/code-reviews/` directory in the MAIN repo, NOT in the worktree.
 

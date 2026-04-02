@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Import/Export Updates
-lane: done
 dependencies: []
 subtasks:
 - T018
@@ -9,17 +8,21 @@ subtasks:
 - T020
 - T021
 phase: Phase 3 - Import/Export
-assignee: claude
-agent: claude-reviewer
-shell_pid: '13874'
-review_status: approved
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2025-12-04T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XD5VPYBB6ESP5AZZG2T
+owned_files:
+- kitty-specs/010-user-friendly-ingredient/data-model.md
+- kitty-specs/010-user-friendly-ingredient/spec.md
+- src/services/import_export_service.py
+- src/tests/services/test_import_export_service.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Import/Export Updates

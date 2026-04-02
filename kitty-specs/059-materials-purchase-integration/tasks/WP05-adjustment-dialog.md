@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Manual Adjustment Dialog
-lane: done
 dependencies:
 - WP02
 subtasks:
@@ -13,17 +12,23 @@ subtasks:
 - T030
 - T031
 phase: Wave 1 - Core UI
-assignee: ''
-agent: claude-opus
-shell_pid: '89938'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/research.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/services/material_inventory_service.py
+- src/tests/ui/dialogs/test_material_adjustment_dialog.py
+- src/ui/dialogs/**
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 - Manual Adjustment Dialog

@@ -8,7 +8,7 @@
 Batch calculation now produces floor/ceil options per FinishedUnit with shortfall awareness, and batch decisions persist via a dedicated service and model. Tests cover option generation, validation, session threading, and CRUD, all passing. A minor robustness gap remains: `batch_decision_service.save_batch_decision` doesn’t dedupe concurrent requests or enforce uniqueness beyond the DB constraint; defensive upsert logic could be tightened.
 
 ## Verification Results
-- `/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/test_batch_calculation.py src/tests/test_batch_decision_service.py -v --tb=short`: **PASS** (49 tests; only existing SAWarnings on test teardown)
+- `/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/test_batch_calculation.py src/tests/test_batch_decision_service.py -v --tb=short`: **PASS** (49 tests; only existing SAWarnings on test teardown)
 
 ## Findings
 

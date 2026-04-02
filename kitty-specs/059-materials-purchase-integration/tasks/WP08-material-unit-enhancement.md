@@ -1,7 +1,6 @@
 ---
 work_package_id: WP08
 title: MaterialUnit UI Enhancement
-lane: done
 dependencies: []
 subtasks:
 - T041
@@ -10,17 +9,22 @@ subtasks:
 - T044
 - T045
 phase: Wave 2 - Extended Features
-assignee: ''
-agent: claude-opus
-shell_pid: '13142'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-18T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEA6531ADFQMPBBHDK0
+owned_files:
+- kitty-specs/059-materials-purchase-integration/plan.md
+- kitty-specs/059-materials-purchase-integration/research.md
+- kitty-specs/059-materials-purchase-integration/spec.md
+- src/tests/ui/test_materials_tab.py
+- src/ui/materials_tab.py
+wp_code: WP08
 ---
 
 # Work Package Prompt: WP08 - MaterialUnit UI Enhancement

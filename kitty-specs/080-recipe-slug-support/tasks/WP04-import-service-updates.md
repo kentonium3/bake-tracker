@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Import Service Updates
-lane: done
 dependencies: [WP02]
 base_branch: 080-recipe-slug-support-WP02
 base_commit: 61d5b75fb0427629d1d27c3bebc919877fdb2e39
@@ -15,17 +14,23 @@ subtasks:
 - T024
 - T025
 phase: Phase 1 - Export/Import
-assignee: ''
-agent: claude-code
-shell_pid: '60473'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-28T07:45:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEXQQKHVK36YVCMT3H2
+owned_files:
+- kitty-specs/080-recipe-slug-support/data-model.md
+- kitty-specs/080-recipe-slug-support/plan.md
+- kitty-specs/080-recipe-slug-support/research.md
+- src/services/catalog_import_service.py
+- src/services/coordinated_export_service.py
+- src/tests/test_import*.py
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 – Import Service Updates

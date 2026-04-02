@@ -1,7 +1,6 @@
 ---
 work_package_id: WP06
 title: Planning & Event Services
-lane: done
 dependencies: [WP01]
 base_branch: 091-transaction-boundary-documentation-WP01
 base_commit: ea54478c184557f13c16ab46b637a8903d9343c6
@@ -13,17 +12,28 @@ subtasks:
 - T022
 - T023
 phase: Phase 2 - Documentation
-assignee: ''
-agent: codex-wp06
-shell_pid: '44371'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-03T04:37:19Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XF7M2WKV1HXTK6TVV5Z
+owned_files:
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP01-service-inventory-templates.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP04-inventory-purchasing.md
+- kitty-specs/091-transaction-boundary-documentation/tasks/WP05-production-assembly.md
+- src/services/event_service.py
+- src/services/plan_snapshot_service.py
+- src/services/plan_state_service.py
+- src/services/planning/batch_calculation.py
+- src/services/planning/feasibility.py
+- src/services/planning/planning_service.py
+- src/services/planning/progress.py
+- src/services/planning/shopping_list.py
+wp_code: WP06
 ---
 
 # Work Package Prompt: WP06 – Planning & Event Services

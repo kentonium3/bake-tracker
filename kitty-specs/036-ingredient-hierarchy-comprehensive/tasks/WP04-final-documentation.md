@@ -1,7 +1,6 @@
 ---
 work_package_id: WP04
 title: Final Documentation & Gap Update
-lane: done
 dependencies: []
 subtasks:
 - T019
@@ -10,17 +9,18 @@ subtasks:
 - T022
 - T023
 phase: Phase 3 - Documentation
-assignee: claude
-agent: claude
-shell_pid: '35839'
-review_status: ''
-reviewed_by: ''
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: kitty-specs/036-ingredient-hierarchy-comprehensive/
+execution_mode: planning_artifact
+mission_id: 01KN5R6XDNX5TM2A8XSWDNMZSF
+owned_files:
+- kitty-specs/036-ingredient-hierarchy-comprehensive/**
+wp_code: WP04
 ---
 
 # Work Package Prompt: WP04 - Final Documentation & Gap Update

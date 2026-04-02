@@ -1,24 +1,32 @@
 ---
 work_package_id: WP03
 title: Service Layer Cost Reference Updates
-lane: done
 dependencies: []
 subtasks:
 - T014
 - T015
 - T016
 phase: Phase 2 - Service Layer
-assignee: claude
-agent: claude
-shell_pid: '29997'
-review_status: approved
-reviewed_by: claude
 history:
 - timestamp: '2026-01-09T18:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDXQ9ZQXF1P3GAKWE02
+owned_files:
+- kitty-specs/045-cost-architecture-refactor/plan.md
+- kitty-specs/045-cost-architecture-refactor/research.md
+- kitty-specs/045-cost-architecture-refactor/spec.md
+- src/services/finished_good_service.py
+- src/services/finished_unit_service.py
+- src/ui/*.py
+- src/ui/finished_goods_tab.py
+- src/ui/finished_units_tab.py
+- src/ui/recipes_tab.py
+wp_code: WP03
 ---
 
 # Work Package Prompt: WP03 - Service Layer Cost Reference Updates

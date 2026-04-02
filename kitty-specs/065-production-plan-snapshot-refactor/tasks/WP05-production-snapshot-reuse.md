@@ -1,7 +1,6 @@
 ---
 work_package_id: WP05
 title: Production Service Snapshot Reuse
-lane: done
 dependencies: [WP02]
 subtasks:
 - T021
@@ -9,17 +8,21 @@ subtasks:
 - T023
 - T024
 phase: Phase 3 - Service Layer - Snapshot Reuse
-assignee: ''
-agent: claude-opus
-shell_pid: '87525'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-01-24T19:47:15Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XEFQP1EJ6XE805WDQNJ
+owned_files:
+- kitty-specs/065-production-plan-snapshot-refactor/plan.md
+- kitty-specs/065-production-plan-snapshot-refactor/research.md
+- src/services/batch_production_service.py
+- src/tests/unit/test_batch_production_service.py
+wp_code: WP05
 ---
 
 # Work Package Prompt: WP05 – Production Service Snapshot Reuse

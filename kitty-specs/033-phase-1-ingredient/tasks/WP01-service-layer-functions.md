@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer Functions
-lane: done
 dependencies: []
 subtasks:
 - T001
@@ -9,17 +8,21 @@ subtasks:
 - T003
 - T004
 phase: Phase 1 - Foundational
-assignee: claude
-agent: claude-reviewer
-shell_pid: '80081'
-review_status: approved without changes
-reviewed_by: claude-reviewer
 history:
 - timestamp: '2026-01-02T00:00:00Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XDMDGJ10P97EJFGY9T6
+owned_files:
+- kitty-specs/033-phase-1-ingredient/data-model.md
+- kitty-specs/033-phase-1-ingredient/plan.md
+- src/services/ingredient_hierarchy_service.py
+- src/tests/services/test_ingredient_hierarchy_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 - Service Layer Functions

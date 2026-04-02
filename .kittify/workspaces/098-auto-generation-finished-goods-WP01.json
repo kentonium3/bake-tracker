@@ -1,0 +1,12 @@
+{
+  "wp_id": "WP01",
+  "feature_slug": "098-auto-generation-finished-goods",
+  "worktree_path": ".worktrees/098-auto-generation-finished-goods-WP01",
+  "branch_name": "098-auto-generation-finished-goods-WP01",
+  "base_branch": "main",
+  "base_commit": "76e546c87bd9242af1b5f6190504ce51d009b99a",
+  "dependencies": [],
+  "created_at": "2026-02-08T17:23:22.124336+00:00",
+  "created_by": "implement-command",
+  "vcs_backend": "git"
+}

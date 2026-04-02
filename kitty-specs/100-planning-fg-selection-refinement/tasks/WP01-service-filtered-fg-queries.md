@@ -1,7 +1,6 @@
 ---
 work_package_id: WP01
 title: Service Layer - Filtered FG Queries
-lane: done
 dependencies: []
 base_branch: main
 base_commit: 999b93111f5aba3ee46c2e633469cd4c0d06fa18
@@ -12,17 +11,24 @@ subtasks:
 - T003
 - T004
 phase: Phase 0 - Foundation
-assignee: ''
-agent: claude-opus
-shell_pid: '22118'
-review_status: approved
-reviewed_by: Kent Gale
 history:
 - timestamp: '2026-02-09T21:25:52Z'
   lane: planned
   agent: system
   shell_pid: ''
   action: Prompt generated via /spec-kitty.tasks
+authoritative_surface: ''
+execution_mode: code_change
+mission_id: 01KN5R6XFFGK25P26CHK2622DE
+owned_files:
+- kitty-specs/100-planning-fg-selection-refinement/data-model.md
+- kitty-specs/100-planning-fg-selection-refinement/plan.md
+- kitty-specs/100-planning-fg-selection-refinement/research.md
+- kitty-specs/100-planning-fg-selection-refinement/spec.md
+- src/services/event_service.py
+- src/services/event_service.py:435
+- src/tests/services/test_event_service.py
+wp_code: WP01
 ---
 
 # Work Package Prompt: WP01 -- Service Layer - Filtered FG Queries

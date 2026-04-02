@@ -2,7 +2,7 @@
 
 **Reviewer:** Cursor (Independent Review)
 **Date:** 2026-01-12
-**Feature Spec:** /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1/kitty-specs/049-import-export-phase1/spec.md
+**Feature Spec:** /Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1/kitty-specs/049-import-export-phase1/spec.md
 
 ## Executive Summary
 Phase 1 extends backup/restore, catalog imports (incl. materials), context-rich exports/imports, and transaction imports. Verification commands passed, but two spec-critical gaps remain: the UI “Backup Restore” flow cannot restore the new coordinated backup format, and the context-rich importer updates fields marked readonly/computed. Adjustment imports also reject a required reason code and are case-sensitive. Needs revision before release.
@@ -25,9 +25,9 @@ Phase 1 extends backup/restore, catalog imports (incl. materials), context-rich 
 
 **Setup Process:**
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/049-import-export-phase1
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/python -c "from src.services.coordinated_export_service import export_complete; from src.services.denormalized_export_service import export_ingredients_view; from src.services.enhanced_import_service import detect_format; from src.services.transaction_import_service import import_purchases, import_adjustments; from src.ui.import_export_dialog import ImportDialog, ExportDialog; print('All imports successful')"
-/Users/kentgale/Vaults-repos/bake-tracker/venv/bin/pytest src/tests/services/test_transaction_import_service.py -v --tb=short -q 2>&1 | tail -20
+cd /Users/kentgale/repos/bake-tracker/.worktrees/049-import-export-phase1
+/Users/kentgale/repos/bake-tracker/venv/bin/python -c "from src.services.coordinated_export_service import export_complete; from src.services.denormalized_export_service import export_ingredients_view; from src.services.enhanced_import_service import detect_format; from src.services.transaction_import_service import import_purchases, import_adjustments; from src.ui.import_export_dialog import ImportDialog, ExportDialog; print('All imports successful')"
+/Users/kentgale/repos/bake-tracker/venv/bin/pytest src/tests/services/test_transaction_import_service.py -v --tb=short -q 2>&1 | tail -20
 ```
 
 **Results:**
