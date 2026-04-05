@@ -82,7 +82,8 @@ kitty-specs/    # Feature specifications (Spec-Kitty workflow)
     spec.md     # Feature specification
     plan.md     # Implementation plan
     tasks.md    # Task tracking
-    tasks/      # Individual work packages (flat structure, lane in frontmatter)
+    tasks/      # Individual work packages (flat structure; lane state in status.events.jsonl)
+    status.events.jsonl  # Event log — sole authority for lane/review state (spec-kitty 3.0+)
 docs/           # Documentation
 .kittify/       # Spec-Kitty templates and constitution
 ```
@@ -196,7 +197,7 @@ The `/spec-kitty.*` skills contain up-to-date command syntax and workflow guidan
 
 ### NEVER Manually:
 
-- Edit task frontmatter fields (`lane`, `agent`, `review_status`, etc.)
+- Write to `status.events.jsonl` or edit task frontmatter fields that spec-kitty manages (e.g., `agent`, `subtasks`, `dependencies`) — the event log is the sole authority for lane/review state in spec-kitty 3.0+
 - Move files between task directories
 - **Create lane subdirectories** (`planned/`, `doing/`, `for_review/`, `done/`) - these are DEPRECATED
 - Run `git worktree` commands outside of `/spec-kitty.merge`
@@ -227,7 +228,7 @@ spec-kitty agent tasks mark-status <TASK_ID> --status done|pending
 spec-kitty agent tasks list-tasks [--lane <lane>]
 ```
 
-**Important:** Feature slug is auto-detected from git branch. Always run from the feature worktree. Use `--help` on any command to see current options.
+**Important:** Feature slug must be passed explicitly with `--feature <slug>` (spec-kitty 3.0.0 removed git-branch auto-detection; explicit `--feature` is required in multi-feature repos). Use `--help` on any command to see current options.
 
 ### Session Start Checklist
 
@@ -250,8 +251,8 @@ NEVER create or use these directories:
 
 The CORRECT pattern is:
 - All WP files remain in `tasks/` (flat structure)
-- Lane state is tracked ONLY in YAML frontmatter: `lane: "planned"`, `lane: "doing"`, etc.
-- Lane transitions are done via `spec-kitty agent tasks move-task` command
+- Lane state is tracked in `status.events.jsonl` (event log is the sole authority since spec-kitty 3.0.0)
+- Lane transitions are done via `spec-kitty agent tasks move-task` command, which writes to the event log
 
 #### Why This Matters
 
