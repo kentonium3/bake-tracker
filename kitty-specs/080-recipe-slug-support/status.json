@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "080-recipe-slug-support",
   "last_event_id": "01KMKK2AD8CB4Y37M82SGSHGCV",
-  "materialized_at": "2026-03-25T22:50:38.748699+00:00",
+  "materialized_at": "2026-01-28T07:45:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

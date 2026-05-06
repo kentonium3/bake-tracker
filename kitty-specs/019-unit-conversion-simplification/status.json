@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "019-unit-conversion-simplification",
   "last_event_id": "01KMKK28TTRZSME1EADXM65E9M",
-  "materialized_at": "2026-03-25T22:50:29.938911+00:00",
+  "materialized_at": "2025-12-14T12:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

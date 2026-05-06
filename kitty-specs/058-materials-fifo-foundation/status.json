@@ -2,7 +2,7 @@
   "event_count": 10,
   "feature_slug": "058-materials-fifo-foundation",
   "last_event_id": "01KMKK29V57CB3634R3R921QPW",
-  "materialized_at": "2026-03-25T22:50:35.651288+00:00",
+  "materialized_at": "2026-01-18T21:30:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

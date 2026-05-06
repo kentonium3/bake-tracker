@@ -2,7 +2,7 @@
   "event_count": 9,
   "feature_slug": "065-production-plan-snapshot-refactor",
   "last_event_id": "01KMKK2A3H459PH05C62KAETFZ",
-  "materialized_at": "2026-03-25T22:50:36.976114+00:00",
+  "materialized_at": "2026-01-24T19:47:15Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

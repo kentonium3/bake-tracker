@@ -2,7 +2,7 @@
   "event_count": 24,
   "feature_slug": "061-finished-goods-inventory-service",
   "last_event_id": "01KMKK29ZCKKB91AD988NS7MY9",
-  "materialized_at": "2026-03-25T22:50:36.283892+00:00",
+  "materialized_at": "2026-01-22T04:15:46Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

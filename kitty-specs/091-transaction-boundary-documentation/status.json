@@ -2,7 +2,7 @@
   "event_count": 12,
   "feature_slug": "091-transaction-boundary-documentation",
   "last_event_id": "01KMKK2AQJFZ92EF3D2NMCJXA8",
-  "materialized_at": "2026-03-25T22:50:40.439605+00:00",
+  "materialized_at": "2026-02-03T04:37:19Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

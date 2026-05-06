@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "101-type-ahead-search-component",
   "last_event_id": "01KMKK2B0T5NGQY366M5M85XPV",
-  "materialized_at": "2026-03-25T22:50:41.750504+00:00",
+  "materialized_at": "2026-02-10T21:59:40Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

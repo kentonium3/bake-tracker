@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "057-purchase-management-provisional-products",
   "last_event_id": "01KMKK29SK0H190AXHBS3SP5KC",
-  "materialized_at": "2026-03-25T22:50:35.481301+00:00",
+  "materialized_at": "2026-03-25T22:50:25.971536+00:00",
   "summary": {
     "approved": 0,
     "blocked": 0,

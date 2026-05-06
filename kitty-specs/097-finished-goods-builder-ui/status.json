@@ -2,7 +2,7 @@
   "event_count": 7,
   "feature_slug": "097-finished-goods-builder-ui",
   "last_event_id": "01KMKK2AXMEVP316DM2A8KQYBD",
-  "materialized_at": "2026-03-25T22:50:41.201092+00:00",
+  "materialized_at": "2026-02-06T23:51:59Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 1,
   "feature_slug": "082-product-composite-slug-multi-tenant",
   "last_event_id": "01KMKK2AE4VCQND9M9VQ4QRVSZ",
-  "materialized_at": "2026-03-25T22:50:39.030318+00:00",
+  "materialized_at": "2026-03-25T22:50:26.628487+00:00",
   "summary": {
     "approved": 0,
     "blocked": 0,

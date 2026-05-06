@@ -2,7 +2,7 @@
   "event_count": 7,
   "feature_slug": "043-purchases-tab-crud-operations",
   "last_event_id": "01KMKK29FD9956NKQSNS43KJ36",
-  "materialized_at": "2026-03-25T22:50:33.582989+00:00",
+  "materialized_at": "2026-01-08T22:30:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 10,
   "feature_slug": "006-event-planning-restoration",
   "last_event_id": "01KMKK28GQKEXF66NZKKY3FZCT",
-  "materialized_at": "2026-03-25T22:50:28.136135+00:00",
+  "materialized_at": "2025-12-03",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "096-recipe-category-management",
   "last_event_id": "01KMKK2ATT21DJVGSET0RF6H4W",
-  "materialized_at": "2026-03-25T22:50:41.050998+00:00",
+  "materialized_at": "2026-02-06T04:30:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

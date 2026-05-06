@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "076-assembly-feasibility-single-screen-planning",
   "last_event_id": "01KMKK2AAB0H97B90A4664S5KV",
-  "materialized_at": "2026-03-25T22:50:38.258734+00:00",
+  "materialized_at": "2026-01-27T15:30:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "068-event-management-planning-data-model",
   "last_event_id": "01KMKK2A5SZ83732R6Q6WBGMXC",
-  "materialized_at": "2026-03-25T22:50:37.383186+00:00",
+  "materialized_at": "2026-01-26T19:16:03Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

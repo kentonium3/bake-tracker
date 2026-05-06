@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "079-production-aware-planning-calculations",
   "last_event_id": "01KMKK2ACEC8M92HC38X8829M1",
-  "materialized_at": "2026-03-25T22:50:38.619386+00:00",
+  "materialized_at": "2026-01-28T06:03:15Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

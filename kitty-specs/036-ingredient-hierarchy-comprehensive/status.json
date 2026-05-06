@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "036-ingredient-hierarchy-comprehensive",
   "last_event_id": "01KMKK299GCWSN5CWJXSZ22V8B",
-  "materialized_at": "2026-03-25T22:50:32.526717+00:00",
+  "materialized_at": "2026-01-02T00:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 9,
   "feature_slug": "059-materials-purchase-integration",
   "last_event_id": "01KMKK29WF492RR0E5ST9PR12T",
-  "materialized_at": "2026-03-25T22:50:35.843699+00:00",
+  "materialized_at": "2026-01-18T00:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

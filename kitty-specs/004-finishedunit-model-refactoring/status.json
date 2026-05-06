@@ -2,7 +2,7 @@
   "event_count": 10,
   "feature_slug": "004-finishedunit-model-refactoring",
   "last_event_id": "01KMKK28EVJDDMY5A28C3RRXJ6",
-  "materialized_at": "2026-03-25T22:50:27.829168+00:00",
+  "materialized_at": "2026-04-02T00:06:54.665185+00:00",
   "summary": {
     "approved": 0,
     "blocked": 0,

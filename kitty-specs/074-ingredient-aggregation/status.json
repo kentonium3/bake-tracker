@@ -2,7 +2,7 @@
   "event_count": 2,
   "feature_slug": "074-ingredient-aggregation",
   "last_event_id": "01KMKK2A99QYGK2E676D2H33G4",
-  "materialized_at": "2026-03-25T22:50:38.058066+00:00",
+  "materialized_at": "2026-01-27T20:19:43Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "028-purchase-tracking-enhanced",
   "last_event_id": "01KMKK292PKCN221MQ5ZH9D49C",
-  "materialized_at": "2026-03-25T22:50:31.328455+00:00",
+  "materialized_at": "2025-12-22T00:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "078-plan-snapshots-amendments",
   "last_event_id": "01KMKK2ABNJK54HTD8F8ZSYQJS",
-  "materialized_at": "2026-03-25T22:50:38.493205+00:00",
+  "materialized_at": "2026-01-28T03:25:47Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

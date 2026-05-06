@@ -2,7 +2,7 @@
   "event_count": 11,
   "feature_slug": "062-service-session-consistency-hardening",
   "last_event_id": "01KMKK2A12F7CW5ZG26E4VVS86",
-  "materialized_at": "2026-03-25T22:50:36.532253+00:00",
+  "materialized_at": "2026-01-22T23:22:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

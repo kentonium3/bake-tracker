@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "081-snapshot-export-coverage",
   "last_event_id": "01KMKK2AE0KEE07F5937FNBAPC",
-  "materialized_at": "2026-03-25T22:50:38.934857+00:00",
+  "materialized_at": "2026-01-28T18:40:28Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

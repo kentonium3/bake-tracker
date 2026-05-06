@@ -2,7 +2,7 @@
   "event_count": 8,
   "feature_slug": "047-materials-management-system",
   "last_event_id": "01KMKK29J78THM2XCXKSHQ1F6V",
-  "materialized_at": "2026-03-25T22:50:34.128681+00:00",
+  "materialized_at": "2026-01-10T00:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

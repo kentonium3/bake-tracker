@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "070-finished-goods-filtering",
   "last_event_id": "01KMKK2A725XM0FDG2EJ5CC0J5",
-  "materialized_at": "2026-03-25T22:50:37.618781+00:00",
+  "materialized_at": "2026-01-26T19:45:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

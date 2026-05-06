@@ -2,7 +2,7 @@
   "event_count": 3,
   "feature_slug": "071-finished-goods-quantity-specification",
   "last_event_id": "01KMKK2A7KS43Y157Q2XJPXXAT",
-  "materialized_at": "2026-03-25T22:50:37.726804+00:00",
+  "materialized_at": "2026-01-27T12:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

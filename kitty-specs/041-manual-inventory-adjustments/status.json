@@ -2,7 +2,7 @@
   "event_count": 5,
   "feature_slug": "041-manual-inventory-adjustments",
   "last_event_id": "01KMKK29EFGWXFK9MRJN3YE0WW",
-  "materialized_at": "2026-03-25T22:50:33.397534+00:00",
+  "materialized_at": "2026-01-07T12:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

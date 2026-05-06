@@ -2,7 +2,7 @@
   "event_count": 2,
   "feature_slug": "075-inventory-gap-analysis",
   "last_event_id": "01KMKK2A9MCKG3V51R7S21Q5GH",
-  "materialized_at": "2026-03-25T22:50:38.146084+00:00",
+  "materialized_at": "2026-01-27T23:30:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

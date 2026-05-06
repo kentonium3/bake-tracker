@@ -2,7 +2,7 @@
   "event_count": 8,
   "feature_slug": "031-ingredient-hierarchy-taxonomy",
   "last_event_id": "01KMKK2963Z98YTVJK84Z2DHRG",
-  "materialized_at": "2026-03-25T22:50:31.825955+00:00",
+  "materialized_at": "2025-12-30T12:00:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

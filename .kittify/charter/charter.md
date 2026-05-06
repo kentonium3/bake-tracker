@@ -7,12 +7,12 @@ Sync Impact Report:
   - Added "Transaction boundary section in docstring" with reference to transaction_patterns_guide.md in New Service Function Checklist
 - Based on: F091 Transaction Boundary Documentation (2026-02-03)
 - Templates requiring updates:
-  ✅ spec-template.md - No changes needed (references constitution dynamically)
-  ✅ plan-template.md - No changes needed (Constitution Check gates are generic)
+  ✅ spec-template.md - No changes needed (references charter dynamically)
+  ✅ plan-template.md - No changes needed (Charter Check gates are generic)
 - Follow-up TODOs: None
 -->
 
-# Bake Tracker Constitution
+# Bake Tracker Charter
 
 ## Core Principles
 
@@ -699,7 +699,7 @@ def create_ingredient_endpoint(ingredient: IngredientCreate):
 **Web Phase (Future):**
 - Re-evaluate migration strategy when multi-user is implemented
 - Consider Alembic or similar migration tooling
-- Document migration requirements in web phase constitution amendment
+- Document migration requirements in web phase charter amendment
 
 **Rationale:** For a single-user desktop application with robust import/export capability, the export/reset/import cycle is simpler, more reliable, and eliminates an entire category of migration-related bugs. Migration tooling becomes necessary only when multiple users have independent databases that must be upgraded in place.
 
@@ -840,7 +840,7 @@ When making architectural choices, ask:
 - Track "Web Migration Cost" in complexity justifications
 - Note where desktop implementation makes web-hostile assumptions
 
-#### Phase-Specific Constitution Checks
+#### Phase-Specific Charter Checks
 
 **Desktop Phase (Now - Q2 2025):**
 - Does this design block web deployment? → Must be NO or have documented path
@@ -899,11 +899,11 @@ When making architectural choices, ask:
 
 ## Governance
 
-**The constitution guides all development decisions and must be respected.**
+**The charter guides all development decisions and must be respected.**
 
 ### Amendment Process
 
-- Constitution amendments MUST be proposed with clear rationale
+- Charter amendments MUST be proposed with clear rationale
 - Version MUST be incremented according to semantic versioning:
   - **MAJOR:** Backward incompatible principle removals or redefinitions
   - **MINOR:** New principles added or material guidance expansions
@@ -913,16 +913,16 @@ When making architectural choices, ask:
 
 ### Compliance Review
 
-- Feature plans MUST pass Constitution Check gate before implementation
+- Feature plans MUST pass Charter Check gate before implementation
 - Principle violations MUST be explicitly justified in Complexity Tracking table
 - "Simpler alternative rejected because" MUST be documented for violations
 - Unjustified complexity MUST be rejected and simplified
 
 ### Living Documentation
 
-- This constitution supersedes ad-hoc decisions and undocumented practices
-- Questions about architecture or approach MUST consult constitution first
-- Conflicts between constitution and existing code MUST be resolved in favor of constitution
+- This charter supersedes ad-hoc decisions and undocumented practices
+- Questions about architecture or approach MUST consult charter first
+- Conflicts between charter and existing code MUST be resolved in favor of charter
 - Runtime guidance for AI agents found in `.kittify/AGENTS.md`
 
 **Version**: 1.6.1 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-02-03

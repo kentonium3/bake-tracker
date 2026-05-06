@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "083-cli-transaction-import",
   "last_event_id": "01KMKK2AEPVEZC5DC67199EXMQ",
-  "materialized_at": "2026-03-25T22:50:39.128165+00:00",
+  "materialized_at": "2026-01-29T04:45:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,

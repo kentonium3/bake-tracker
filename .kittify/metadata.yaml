@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 3.1.0a6
+  version: 3.1.5
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-04-06T14:55:06.915061'
+  last_upgraded_at: '2026-05-06T13:39:00.135462'
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -480,3 +480,146 @@ migrations:
     result: success
     notes: Relinked 10 canonical skill(s) for 4 agent(s) (112 managed files); Updated
       .kittify/skills-manifest.json for global canonical skill links
+  - id: 3.1.1_charter_rename
+    applied_at: '2026-05-06T13:38:59.287819'
+    result: success
+    notes: Renamed .kittify/constitution/ -> .kittify/charter/; Renamed charter/constitution.md
+      -> charter/charter.md; Rewrote content in .kittify/charter/charter.md; Rewrote
+      content in .kittify/charter/directives.yaml; Rewrote content in .kittify/charter/governance.yaml;
+      Rewrote content in .kittify/charter/metadata.yaml; Rewrote content in .claude/commands/spec-kitty.analyze.md;
+      Rewrote content in .claude/commands/spec-kitty.constitution.md; Rewrote content
+      in .claude/commands/spec-kitty.plan.md; Rewrote content in .claude/commands/spec-kitty.specify.md;
+      Rewrote content in .cursor/commands/spec-kitty.analyze.md; Rewrote content in
+      .cursor/commands/spec-kitty.constitution.md; Rewrote content in .cursor/commands/spec-kitty.plan.md;
+      Rewrote content in .cursor/commands/spec-kitty.specify.md; Renamed .claude/commands/spec-kitty.constitution.md
+      -> spec-kitty.charter.md; Renamed .cursor/commands/spec-kitty.constitution.md
+      -> spec-kitty.charter.md
+  - id: 3.1.1_direct_canonical_commands
+    applied_at: '2026-05-06T13:38:59.520909'
+    result: success
+    notes: 'Regenerated: .claude/commands/spec-kitty.accept.md; Regenerated: .claude/commands/spec-kitty.dashboard.md;
+      Regenerated: .claude/commands/spec-kitty.implement.md; Regenerated: .claude/commands/spec-kitty.merge.md;
+      Regenerated: .claude/commands/spec-kitty.review.md; Regenerated: .claude/commands/spec-kitty.status.md;
+      Regenerated: .claude/commands/spec-kitty.tasks-finalize.md; Regenerated: .cursor/commands/spec-kitty.accept.md;
+      Regenerated: .cursor/commands/spec-kitty.dashboard.md; Regenerated: .cursor/commands/spec-kitty.implement.md;
+      Regenerated: .cursor/commands/spec-kitty.merge.md; Regenerated: .cursor/commands/spec-kitty.review.md;
+      Regenerated: .cursor/commands/spec-kitty.status.md; Regenerated: .cursor/commands/spec-kitty.tasks-finalize.md;
+      Regenerated: .gemini/commands/spec-kitty.accept.md; Regenerated: .gemini/commands/spec-kitty.dashboard.md;
+      Regenerated: .gemini/commands/spec-kitty.implement.md; Regenerated: .gemini/commands/spec-kitty.merge.md;
+      Regenerated: .gemini/commands/spec-kitty.review.md; Regenerated: .gemini/commands/spec-kitty.status.md;
+      Regenerated: .gemini/commands/spec-kitty.tasks-finalize.md; Regenerated: .claude/commands/spec-kitty.analyze.md;
+      Regenerated: .claude/commands/spec-kitty.charter.md; Regenerated: .claude/commands/spec-kitty.checklist.md;
+      Regenerated: .claude/commands/spec-kitty.plan.md; Regenerated: .claude/commands/spec-kitty.research.md;
+      Regenerated: .claude/commands/spec-kitty.specify.md; Regenerated: .claude/commands/spec-kitty.tasks-outline.md;
+      Regenerated: .claude/commands/spec-kitty.tasks-packages.md; Regenerated: .claude/commands/spec-kitty.tasks.md;
+      Regenerated: .cursor/commands/spec-kitty.analyze.md; Regenerated: .cursor/commands/spec-kitty.charter.md;
+      Regenerated: .cursor/commands/spec-kitty.checklist.md; Regenerated: .cursor/commands/spec-kitty.plan.md;
+      Regenerated: .cursor/commands/spec-kitty.research.md; Regenerated: .cursor/commands/spec-kitty.specify.md;
+      Regenerated: .cursor/commands/spec-kitty.tasks-outline.md; Regenerated: .cursor/commands/spec-kitty.tasks-packages.md;
+      Regenerated: .cursor/commands/spec-kitty.tasks.md; Regenerated: .gemini/commands/spec-kitty.analyze.toml;
+      Regenerated: .gemini/commands/spec-kitty.charter.toml; Regenerated: .gemini/commands/spec-kitty.checklist.toml;
+      Regenerated: .gemini/commands/spec-kitty.plan.toml; Regenerated: .gemini/commands/spec-kitty.research.toml;
+      Regenerated: .gemini/commands/spec-kitty.specify.toml; Regenerated: .gemini/commands/spec-kitty.tasks-outline.toml;
+      Regenerated: .gemini/commands/spec-kitty.tasks-packages.toml; Regenerated: .gemini/commands/spec-kitty.tasks.toml;
+      Deleted stale: .gemini/commands/spec-kitty.constitution.toml'
+  - id: 3.1.1_event_log_merge_driver
+    applied_at: '2026-05-06T13:38:59.651033'
+    result: success
+    notes: 'Added .gitattributes entry: kitty-specs/**/status.events.jsonl merge=spec-kitty-event-log;
+      Configured git merge.spec-kitty-event-log.name; Configured git merge.spec-kitty-event-log.driver'
+  - id: 3.1.1_normalize_status_json
+    applied_at: '2026-05-06T13:39:00.020780'
+    result: success
+    notes: '002-service-layer-for: normalised status.json; 003-phase4-ui-completion:
+      normalised status.json; 004-finishedunit-model-refactoring: normalised status.json;
+      005-recipe-fifo-cost: normalised status.json; 006-event-planning-restoration:
+      normalised status.json; 007-variant-aware-shopping: normalised status.json;
+      008-production-tracking: normalised status.json; 009-ui-import-export: normalised
+      status.json; 010-user-friendly-ingredient: normalised status.json; 011-packaging-bom-foundation:
+      normalised status.json; 012-nested-recipes: normalised status.json; 013-production-inventory-tracking:
+      normalised status.json; 014-production-assembly-recording: normalised status.json;
+      016-event-centric-production: normalised status.json; 017-event-reporting-production:
+      normalised status.json; 018-event-production-dashboard: normalised status.json;
+      019-unit-conversion-simplification: normalised status.json; 020-enhanced-catalog-import:
+      normalised status.json; 021-field-naming-consistency: normalised status.json;
+      022-unit-reference-table: normalised status.json; 023-product-name-differentiation:
+      normalised status.json; 024-unified-import-error: normalised status.json; 025-production-loss-tracking:
+      normalised status.json; 026-deferred-packaging-decisions: normalised status.json;
+      027-product-catalog-management: normalised status.json; 028-purchase-tracking-enhanced:
+      normalised status.json; 029-streamlined-inventory-entry: normalised status.json;
+      030-enhanced-export-import: normalised status.json; 031-ingredient-hierarchy-taxonomy:
+      normalised status.json; 032-complete-f031-hierarchy: normalised status.json;
+      033-phase-1-ingredient: normalised status.json; 034-cascading-filters-recipe:
+      normalised status.json; 035-ingredient-auto-slug: normalised status.json; 036-ingredient-hierarchy-comprehensive:
+      normalised status.json; 037-recipe-template-snapshot: normalised status.json;
+      038-ui-mode-restructure: normalised status.json; 039-planning-workspace: normalised
+      status.json; 040-import-export-v4: normalised status.json; 041-manual-inventory-adjustments:
+      normalised status.json; 043-purchases-tab-crud-operations: normalised status.json;
+      044-finished-units-yield-type-management: normalised status.json; 045-cost-architecture-refactor:
+      normalised status.json; 046-finished-goods-bundles-assembly: normalised status.json;
+      047-materials-management-system: normalised status.json; 049-import-export-phase1:
+      normalised status.json; 050-supplier-slug-support: normalised status.json; 051-import-export-ui-rationalization:
+      normalised status.json; 052-ingredient-material-hierarchy-admin: normalised
+      status.json; 053-context-rich-export-fixes: normalised status.json; 054-cli-import-export-parity:
+      normalised status.json; 055-workflow-aligned-navigation-cleanup: normalised
+      status.json; 056-unified-yield-management: normalised status.json; 057-purchase-management-provisional-products:
+      normalised status.json; 058-materials-fifo-foundation: normalised status.json;
+      059-materials-purchase-integration: normalised status.json; 060-architecture-hardening-service-boundaries:
+      normalised status.json; 061-finished-goods-inventory-service: normalised status.json;
+      062-service-session-consistency-hardening: normalised status.json; 063-variant-yield-inheritance:
+      normalised status.json; 064-finishedgoods-snapshot-architecture: normalised
+      status.json; 065-production-plan-snapshot-refactor: normalised status.json;
+      066-recipe-variant-yield-remediation: normalised status.json; 067-recipe-ui-polish-yield-variants:
+      normalised status.json; 068-event-management-planning-data-model: normalised
+      status.json; 069-recipe-selection-for-event-planning: normalised status.json;
+      070-finished-goods-filtering: normalised status.json; 071-finished-goods-quantity-specification:
+      normalised status.json; 072-recipe-decomposition-aggregation: normalised status.json;
+      073-batch-calculation-user-decisions: normalised status.json; 074-ingredient-aggregation:
+      normalised status.json; 075-inventory-gap-analysis: normalised status.json;
+      076-assembly-feasibility-single-screen-planning: normalised status.json; 077-plan-state-management:
+      normalised status.json; 078-plan-snapshots-amendments: normalised status.json;
+      079-production-aware-planning-calculations: normalised status.json; 080-recipe-slug-support:
+      normalised status.json; 081-snapshot-export-coverage: normalised status.json;
+      082-product-composite-slug-multi-tenant: normalised status.json; 083-cli-transaction-import:
+      normalised status.json; 084-dual-yield-recipe-output-support: normalised status.json;
+      085-material-unit-schema-refactor: normalised status.json; 086-fix-material-unit-management-ux:
+      normalised status.json; 087-catalog-tab-layout-standardization: normalised status.json;
+      088-finished-goods-catalog-ui: normalised status.json; 089-error-handling-foundation:
+      normalised status.json; 090-configuration-management-enhancement: normalised
+      status.json; 091-transaction-boundary-documentation: normalised status.json;
+      092-service-boundary-compliance: normalised status.json; 093-pagination-dtos-foundation:
+      normalised status.json; 094-core-api-standardization: normalised status.json;
+      095-enum-display-pattern-standardization: normalised status.json; 096-recipe-category-management:
+      normalised status.json; 097-finished-goods-builder-ui: normalised status.json;
+      098-auto-generation-finished-goods: normalised status.json; 099-fg-builder-filter-first-refinement:
+      normalised status.json; 100-planning-fg-selection-refinement: normalised status.json;
+      101-type-ahead-search-component: normalised status.json; 102-planning-selection-persistence-display:
+      normalised status.json; 103-fix-plan-mode-fg-batch-scoping: normalised status.json'
+  - id: 3.1.2_globalize_commands
+    applied_at: '2026-05-06T13:39:00.098720'
+    result: success
+    notes: 'Removed: .claude/commands/spec-kitty.accept.md; Removed: .claude/commands/spec-kitty.analyze.md;
+      Removed: .claude/commands/spec-kitty.charter.md; Removed: .claude/commands/spec-kitty.checklist.md;
+      Removed: .claude/commands/spec-kitty.dashboard.md; Removed: .claude/commands/spec-kitty.implement.md;
+      Removed: .claude/commands/spec-kitty.merge.md; Removed: .claude/commands/spec-kitty.plan.md;
+      Removed: .claude/commands/spec-kitty.research.md; Removed: .claude/commands/spec-kitty.review.md;
+      Removed: .claude/commands/spec-kitty.specify.md; Removed: .claude/commands/spec-kitty.status.md;
+      Removed: .claude/commands/spec-kitty.tasks-finalize.md; Removed: .claude/commands/spec-kitty.tasks-outline.md;
+      Removed: .claude/commands/spec-kitty.tasks-packages.md; Removed: .claude/commands/spec-kitty.tasks.md;
+      Removed: .gemini/commands/spec-kitty.accept.md; Removed: .gemini/commands/spec-kitty.analyze.toml;
+      Removed: .gemini/commands/spec-kitty.charter.toml; Removed: .gemini/commands/spec-kitty.checklist.toml;
+      Removed: .gemini/commands/spec-kitty.dashboard.md; Removed: .gemini/commands/spec-kitty.implement.md;
+      Removed: .gemini/commands/spec-kitty.merge.md; Removed: .gemini/commands/spec-kitty.plan.toml;
+      Removed: .gemini/commands/spec-kitty.research.toml; Removed: .gemini/commands/spec-kitty.review.md;
+      Removed: .gemini/commands/spec-kitty.specify.toml; Removed: .gemini/commands/spec-kitty.status.md;
+      Removed: .gemini/commands/spec-kitty.tasks-finalize.md; Removed: .gemini/commands/spec-kitty.tasks-outline.toml;
+      Removed: .gemini/commands/spec-kitty.tasks-packages.toml; Removed: .gemini/commands/spec-kitty.tasks.toml;
+      Removed empty directory: .gemini/commands; Removed: .cursor/commands/spec-kitty.accept.md;
+      Removed: .cursor/commands/spec-kitty.analyze.md; Removed: .cursor/commands/spec-kitty.charter.md;
+      Removed: .cursor/commands/spec-kitty.checklist.md; Removed: .cursor/commands/spec-kitty.dashboard.md;
+      Removed: .cursor/commands/spec-kitty.implement.md; Removed: .cursor/commands/spec-kitty.merge.md;
+      Removed: .cursor/commands/spec-kitty.plan.md; Removed: .cursor/commands/spec-kitty.research.md;
+      Removed: .cursor/commands/spec-kitty.review.md; Removed: .cursor/commands/spec-kitty.specify.md;
+      Removed: .cursor/commands/spec-kitty.status.md; Removed: .cursor/commands/spec-kitty.tasks-finalize.md;
+      Removed: .cursor/commands/spec-kitty.tasks-outline.md; Removed: .cursor/commands/spec-kitty.tasks-packages.md;
+      Removed: .cursor/commands/spec-kitty.tasks.md'

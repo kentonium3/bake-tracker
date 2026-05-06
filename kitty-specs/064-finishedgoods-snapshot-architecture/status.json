@@ -2,7 +2,7 @@
   "event_count": 4,
   "feature_slug": "064-finishedgoods-snapshot-architecture",
   "last_event_id": "01KMKK2A29FSP7WRVBGM1N0D66",
-  "materialized_at": "2026-03-25T22:50:36.812431+00:00",
+  "materialized_at": "2025-01-24T05:30:00Z",
   "summary": {
     "approved": 0,
     "blocked": 0,
