@@ -1,13 +1,13 @@
 {
   "created_at": "2026-02-06T04:00:00Z",
-  "feature_number": "096",
-  "feature_slug": "096-recipe-category-management",
   "friendly_name": "Recipe Category Management",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XFCQ7XH14582WR2W2FF",
+  "mission_number": 96,
+  "mission_slug": "096-recipe-category-management",
+  "mission_type": "software-dev",
   "slug": "096-recipe-category-management",
   "source_description": "docs/func-spec/F096_recipe_category_management_v2.md",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-06T04:21:47.513269+00:00",
-  "mission_id": "01KN5R6XFCQ7XH14582WR2W2FF"
+  "vcs_locked_at": "2026-02-06T04:21:47.513269+00:00"
 }

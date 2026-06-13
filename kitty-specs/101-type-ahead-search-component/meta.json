@@ -1,13 +1,13 @@
 {
   "created_at": "2026-02-10T00:00:00Z",
-  "feature_number": "101",
-  "feature_slug": "101-type-ahead-search-component",
   "friendly_name": "Type-Ahead Search Component",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XFGMGBK9NWQ66WHS23V",
+  "mission_number": 101,
+  "mission_slug": "101-type-ahead-search-component",
+  "mission_type": "software-dev",
   "slug": "101-type-ahead-search-component",
   "source_description": "See docs/func-spec/F101_type_ahead_search_component.md for this feature's inputs. Follow directions in docs/func-spec/claude-pre-implementation-prompt.md.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-10T22:07:20.541482+00:00",
-  "mission_id": "01KN5R6XFGMGBK9NWQ66WHS23V"
+  "vcs_locked_at": "2026-02-10T22:07:20.541482+00:00"
 }

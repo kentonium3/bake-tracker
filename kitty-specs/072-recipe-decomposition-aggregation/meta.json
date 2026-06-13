@@ -1,13 +1,13 @@
 {
   "created_at": "2026-01-27T18:45:00Z",
-  "feature_number": "072",
-  "feature_slug": "072-recipe-decomposition-aggregation",
   "friendly_name": "Recipe Decomposition & Aggregation",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XEPCDTEJMHKWP5QQAQC",
+  "mission_number": 72,
+  "mission_slug": "072-recipe-decomposition-aggregation",
+  "mission_type": "software-dev",
   "slug": "072-recipe-decomposition-aggregation",
   "source_description": "see docs/func-spec/F072_recipe_decomposition_aggregation.md for feature inputs.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T16:49:50.651146+00:00",
-  "mission_id": "01KN5R6XEPCDTEJMHKWP5QQAQC"
+  "vcs_locked_at": "2026-01-27T16:49:50.651146+00:00"
 }

@@ -1,13 +1,13 @@
 {
   "created_at": "2026-02-06T00:00:00Z",
-  "feature_number": "097",
-  "feature_slug": "097-finished-goods-builder-ui",
   "friendly_name": "Finished Goods Builder UI",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XFDQ23AZF443ND9T0E4",
+  "mission_number": 97,
+  "mission_slug": "097-finished-goods-builder-ui",
+  "mission_type": "software-dev",
   "slug": "097-finished-goods-builder-ui",
   "source_description": "See docs/func-spec/F097_finished_goods_builder_ui.md for feature inputs. See docs/func-spec/claude-pre-implementation-prompt.md for direction.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-07T00:00:04.192769+00:00",
-  "mission_id": "01KN5R6XFDQ23AZF443ND9T0E4"
+  "vcs_locked_at": "2026-02-07T00:00:04.192769+00:00"
 }

@@ -1,13 +1,13 @@
 {
   "created_at": "2026-01-27T00:00:00Z",
-  "feature_number": "071",
-  "feature_slug": "071-finished-goods-quantity-specification",
   "friendly_name": "Finished Goods Quantity Specification",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XENYD8GA71M78PNF1QP",
+  "mission_number": 71,
+  "mission_slug": "071-finished-goods-quantity-specification",
+  "mission_type": "software-dev",
   "slug": "071-finished-goods-quantity-specification",
   "source_description": "see docs/func-spec/F071_quantity_specification.md for feature inputs",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T14:23:46.931102+00:00",
-  "mission_id": "01KN5R6XENYD8GA71M78PNF1QP"
+  "vcs_locked_at": "2026-01-27T14:23:46.931102+00:00"
 }

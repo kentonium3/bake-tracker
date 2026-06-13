@@ -18,12 +18,12 @@
   "accepted_by": "claude",
   "accepted_from_commit": "7a5f51648709216b9517b0ef184a3de81e4229e9",
   "created_at": "2026-01-15T13:00:00Z",
-  "feature_number": "053",
-  "feature_slug": "053-context-rich-export-fixes",
   "friendly_name": "Context-Rich Export Fixes",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XE4HH17MDJTHTD283A8",
+  "mission_number": 53,
+  "mission_slug": "053-context-rich-export-fixes",
+  "mission_type": "software-dev",
   "slug": "053-context-rich-export-fixes",
   "source_description": "See docs/design/F053_context_rich_export_fixes.md for this feature's input.",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XE4HH17MDJTHTD283A8"
+  "target_branch": "main"
 }

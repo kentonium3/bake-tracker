@@ -17,12 +17,12 @@
   "accepted_by": "claude",
   "accepted_from_commit": "d5fcaadda5026bb44eba5f94cbeafd9c1046051c",
   "created_at": "2025-12-10T19:32:18Z",
-  "feature_number": "016",
-  "feature_slug": "016-event-centric-production",
   "friendly_name": "Event-Centric Production Model",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XD85ES6K9A2JN0JAD51",
+  "mission_number": 16,
+  "mission_slug": "016-event-centric-production",
+  "mission_type": "software-dev",
   "slug": "016-event-centric-production",
   "source_description": "Add event_id FK to ProductionRun and AssemblyRun, create EventProductionTarget and EventAssemblyTarget tables, add fulfillment_status to EventRecipientPackage, with service methods for target management and progress calculation",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XD85ES6K9A2JN0JAD51"
+  "target_branch": "main"
 }

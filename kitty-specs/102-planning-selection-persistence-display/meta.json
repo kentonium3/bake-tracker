@@ -14,14 +14,14 @@
   "accepted_by": "claude-opus",
   "accepted_from_commit": "61ed9d2a89490a1b4d8e096b249918edd1ae274a",
   "created_at": "2026-03-01T14:01:04.074675+00:00",
-  "feature_number": "102",
-  "feature_slug": "102-planning-selection-persistence-display",
   "friendly_name": "Planning Selection Persistence Display",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XFJMVD1ZKGZCRT2X0F3",
+  "mission_number": 102,
+  "mission_slug": "102-planning-selection-persistence-display",
+  "mission_type": "software-dev",
   "slug": "102-planning-selection-persistence-display",
   "source_description": "docs/func-spec/F102_planning_selection_persistence_display.md",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-03-01T14:29:03.110051+00:00",
-  "mission_id": "01KN5R6XFJMVD1ZKGZCRT2X0F3"
+  "vcs_locked_at": "2026-03-01T14:29:03.110051+00:00"
 }

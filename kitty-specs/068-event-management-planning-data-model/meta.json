@@ -6,8 +6,6 @@
   "accepted_by": null,
   "accepted_from_commit": null,
   "created_at": "2026-01-26T13:55:00Z",
-  "feature_number": "068",
-  "feature_slug": "068-event-management-planning-data-model",
   "friendly_name": "Event Management & Planning Data Model",
   "merge_history": [],
   "merged_at": null,
@@ -16,11 +14,13 @@
   "merged_into": null,
   "merged_push": null,
   "merged_strategy": null,
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XEH7HGBK3RMJMMG5SC5",
+  "mission_number": 68,
+  "mission_slug": "068-event-management-planning-data-model",
+  "mission_type": "software-dev",
   "slug": "068-event-management-planning-data-model",
   "source_description": "Foundation feature for event-based planning: data model extensions for recipe selection, quantity specification, and batch decisions",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-26T19:52:05.860671+00:00",
-  "mission_id": "01KN5R6XEH7HGBK3RMJMMG5SC5"
+  "vcs_locked_at": "2026-01-26T19:52:05.860671+00:00"
 }

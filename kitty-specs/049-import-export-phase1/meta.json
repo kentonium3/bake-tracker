@@ -14,11 +14,11 @@
   "accepted_by": "kentgale",
   "accepted_from_commit": "c1674d3669c19dbf103a93c92d4bb11393e238ad",
   "created_at": "2026-01-12T22:58:15.966889+00:00",
-  "feature_number": "049",
-  "feature_slug": "049-import-export-phase1",
   "friendly_name": "import export phase1",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XE13JKYW144TE3PXKKE",
+  "mission_number": 49,
+  "mission_slug": "049-import-export-phase1",
+  "mission_type": "software-dev",
   "slug": "049-import-export-phase1",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XE13JKYW144TE3PXKKE"
+  "target_branch": "main"
 }

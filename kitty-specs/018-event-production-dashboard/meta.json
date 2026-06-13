@@ -19,12 +19,12 @@
   "accepted_by": "claude",
   "accepted_from_commit": "9155b938f4e740e4a520c11e40e1d1f356d01a29",
   "created_at": "2025-12-12T17:59:37Z",
-  "feature_number": "018",
-  "feature_slug": "018-event-production-dashboard",
   "friendly_name": "Event Production Dashboard",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XD9ESY7QPGZ1DJEM2MQ",
+  "mission_number": 18,
+  "mission_slug": "018-event-production-dashboard",
+  "mission_type": "software-dev",
   "slug": "018-event-production-dashboard",
   "source_description": "Event Production Dashboard - Mission control view showing production status at a glance",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XD9ESY7QPGZ1DJEM2MQ"
+  "target_branch": "main"
 }

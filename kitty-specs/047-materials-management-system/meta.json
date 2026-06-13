@@ -14,11 +14,11 @@
   "accepted_by": "claude",
   "accepted_from_commit": "93e74f7d2ef533d0c1f5b8a399ec2415dd97aa2f",
   "created_at": "2026-01-11T01:19:12.551186+00:00",
-  "feature_number": "047",
-  "feature_slug": "047-materials-management-system",
   "friendly_name": "materials management system",
-  "mission": "research",
+  "mission_id": "01KN5R6XDZK1N509JXJDJWTA46",
+  "mission_number": 47,
+  "mission_slug": "047-materials-management-system",
+  "mission_type": "research",
   "slug": "047-materials-management-system",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XDZK1N509JXJDJWTA46"
+  "target_branch": "main"
 }

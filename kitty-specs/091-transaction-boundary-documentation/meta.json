@@ -1,13 +1,13 @@
 {
   "created_at": "2026-02-03T00:00:00Z",
-  "feature_number": "091",
-  "feature_slug": "091-transaction-boundary-documentation",
   "friendly_name": "Transaction Boundary Documentation",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XF7M2WKV1HXTK6TVV5Z",
+  "mission_number": 91,
+  "mission_slug": "091-transaction-boundary-documentation",
+  "mission_type": "software-dev",
   "slug": "091-transaction-boundary-documentation",
   "source_description": "F091 Transaction Boundary Documentation - Add comprehensive transaction boundary documentation to all service functions, audit multi-step operations for atomicity, and create a transaction patterns guide. Based on docs/func-spec/F091_transaction_boundary_documentation.md",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-02-03T04:50:31.739842+00:00",
-  "mission_id": "01KN5R6XF7M2WKV1HXTK6TVV5Z"
+  "vcs_locked_at": "2026-02-03T04:50:31.739842+00:00"
 }

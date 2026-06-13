@@ -1,13 +1,13 @@
 {
-  "feature_number": "103",
-  "slug": "103-fix-plan-mode-fg-batch-scoping",
-  "feature_slug": "103-fix-plan-mode-fg-batch-scoping",
+  "created_at": "2026-03-15T04:30:58.551610+00:00",
   "friendly_name": "Fix Plan Mode FG and Batch Scoping",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XFK0J69FPFVFD440R49",
+  "mission_number": 103,
+  "mission_slug": "103-fix-plan-mode-fg-batch-scoping",
+  "mission_type": "software-dev",
+  "slug": "103-fix-plan-mode-fg-batch-scoping",
   "source_description": "Plan mode FG availability and batch options are not correctly scoped to event recipe selections. Two bugs: (1) FG selection only shows FGs where ALL component recipes are selected, but should show FGs whose recipe is among the selected recipes - a single-recipe FG should appear if its recipe is selected. (2) Batch options section shows recipes/FGs from EventFinishedGood records that are stale - if a recipe was deselected, its FGs and batch options should no longer appear.",
   "target_branch": "main",
-  "created_at": "2026-03-15T04:30:58.551610+00:00",
   "vcs": "git",
-  "vcs_locked_at": "2026-03-15T04:48:47.066298+00:00",
-  "mission_id": "01KN5R6XFK0J69FPFVFD440R49"
+  "vcs_locked_at": "2026-03-15T04:48:47.066298+00:00"
 }

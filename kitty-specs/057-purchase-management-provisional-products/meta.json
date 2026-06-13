@@ -18,12 +18,12 @@
   "accepted_by": "claude",
   "accepted_from_commit": "86ba29387d04d18e1beea992bb7a02376444f40c",
   "created_at": "2026-01-17T22:45:00Z",
-  "feature_number": "057",
-  "feature_slug": "057-purchase-management-provisional-products",
   "friendly_name": "Purchase Management with Provisional Products",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XE9BA9X7KYETPX1SM23",
+  "mission_number": 57,
+  "mission_slug": "057-purchase-management-provisional-products",
+  "mission_type": "software-dev",
   "slug": "057-purchase-management-provisional-products",
   "source_description": "See docs/design/_F0XX_purchase_management_refactored.md for input on the next feature.",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XE9BA9X7KYETPX1SM23"
+  "target_branch": "main"
 }

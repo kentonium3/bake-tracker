@@ -17,14 +17,14 @@
   "accepted_by": "claude",
   "accepted_from_commit": "57a2e26d52e8ea48fcef965227448ff127acf8e7",
   "created_at": "2026-01-28T18:30:00Z",
-  "feature_number": "081",
-  "feature_slug": "081-snapshot-export-coverage",
   "friendly_name": "Snapshot Export Coverage",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XEYGTB43187DGEXEGG1",
+  "mission_number": 81,
+  "mission_slug": "081-snapshot-export-coverage",
+  "mission_type": "software-dev",
   "slug": "081-snapshot-export-coverage",
   "source_description": "F081 Snapshot Export Coverage - Add export/import support for RecipeSnapshot, FinishedGoodSnapshot, MaterialUnitSnapshot, and FinishedUnitSnapshot entities. Critical for preserving cost history audit trail during data migrations. Includes 4 export methods, 4 import methods, and orchestration updates.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-28T18:48:36.889653+00:00",
-  "mission_id": "01KN5R6XEYGTB43187DGEXEGG1"
+  "vcs_locked_at": "2026-01-28T18:48:36.889653+00:00"
 }

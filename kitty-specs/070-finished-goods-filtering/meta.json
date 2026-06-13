@@ -1,13 +1,13 @@
 {
   "created_at": "2026-01-26T19:15:00Z",
-  "feature_number": "070",
-  "feature_slug": "070-finished-goods-filtering",
   "friendly_name": "Finished Goods Filtering for Event Planning",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XEK3YBGBCM1KMCD8JWZ",
+  "mission_number": 70,
+  "mission_slug": "070-finished-goods-filtering",
+  "mission_type": "software-dev",
   "slug": "070-finished-goods-filtering",
   "source_description": "see docs/func-spec/F070_finished_goods_filtering.md for the feature inputs.",
   "target_branch": "main",
   "vcs": "git",
-  "vcs_locked_at": "2026-01-27T01:21:01.443952+00:00",
-  "mission_id": "01KN5R6XEK3YBGBCM1KMCD8JWZ"
+  "vcs_locked_at": "2026-01-27T01:21:01.443952+00:00"
 }

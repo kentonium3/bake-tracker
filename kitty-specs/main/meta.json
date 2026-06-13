@@ -1,10 +1,10 @@
 {
   "created_at": "2025-11-20T14:21:31.854030+00:00",
-  "feature_number": "",
-  "feature_slug": "main",
   "friendly_name": "main",
-  "mission": "software-dev",
+  "mission_id": "01KN5R6XFPYN5DG1AKPMAJNFCK",
+  "mission_number": null,
+  "mission_slug": "main",
+  "mission_type": "software-dev",
   "slug": "main",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XFPYN5DG1AKPMAJNFCK"
+  "target_branch": "main"
 }

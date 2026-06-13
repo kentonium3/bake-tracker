@@ -31,12 +31,12 @@
   "accepted_by": "claude",
   "accepted_from_commit": "24e79a613aabbf78ebc43f979a604befad4efcfb",
   "created_at": "2025-12-04T05:25:51Z",
-  "feature_number": "007",
-  "feature_slug": "007-variant-aware-shopping",
   "friendly_name": "Variant-Aware Shopping List Recommendations",
-  "mission": "research",
+  "mission_id": "01KN5R6XD4DJ166AAY2AE4125M",
+  "mission_number": 7,
+  "mission_slug": "007-variant-aware-shopping",
+  "mission_type": "research",
   "slug": "007-variant-aware-shopping",
   "source_description": "Enhance shopping list to include variant-aware purchase recommendations with preferred variant logic, cost per unit, package size context, and total estimated cost",
-  "target_branch": "main",
-  "mission_id": "01KN5R6XD4DJ166AAY2AE4125M"
+  "target_branch": "main"
 }
