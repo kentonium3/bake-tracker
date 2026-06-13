@@ -1,8 +1,10 @@
 {
   "event_count": 10,
-  "feature_slug": "016-event-centric-production",
   "last_event_id": "01KMKK28RP14J46X0406W64CKW",
   "materialized_at": "2025-12-10T00:00:00Z",
+  "mission_number": "16",
+  "mission_slug": "016-event-centric-production",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 10,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

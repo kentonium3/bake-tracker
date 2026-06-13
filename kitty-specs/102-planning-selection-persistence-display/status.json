@@ -1,8 +1,10 @@
 {
   "event_count": 1,
-  "feature_slug": "102-planning-selection-persistence-display",
   "last_event_id": "01KMKK2B10N74K1153G23N2W3C",
   "materialized_at": "2026-03-01T14:25:50Z",
+  "mission_number": "102",
+  "mission_slug": "102-planning-selection-persistence-display",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 1,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

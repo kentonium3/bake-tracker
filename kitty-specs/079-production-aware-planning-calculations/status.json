@@ -1,8 +1,10 @@
 {
   "event_count": 5,
-  "feature_slug": "079-production-aware-planning-calculations",
   "last_event_id": "01KMKK2ACEC8M92HC38X8829M1",
   "materialized_at": "2026-01-28T06:03:15Z",
+  "mission_number": "79",
+  "mission_slug": "079-production-aware-planning-calculations",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 5,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

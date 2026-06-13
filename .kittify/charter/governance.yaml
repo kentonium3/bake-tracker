@@ -22,6 +22,7 @@ branch_strategy:
 doctrine:
   selected_paradigms: []
   selected_directives: []
+  selected_tactics: []
   available_tools: []
   template_set:
 enforcement: {}

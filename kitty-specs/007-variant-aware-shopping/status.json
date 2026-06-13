@@ -1,8 +1,10 @@
 {
   "event_count": 4,
-  "feature_slug": "007-variant-aware-shopping",
   "last_event_id": "01KMKK28HANDGD3N88VG37G3C7",
   "materialized_at": "2025-12-04",
+  "mission_number": "7",
+  "mission_slug": "007-variant-aware-shopping",
+  "mission_type": "research",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 4,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

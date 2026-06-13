@@ -113,3 +113,4 @@ bake-tracker/
 kitty-specs/**/.kittify/dossiers/
 .kittify/derived/
 .kittify/.migration-backup/
+.kittify/sync-state.json

@@ -3,9 +3,10 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 3.1.8
+  version: 3.2.0rc43
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-05-12T12:59:47.170193'
+  last_upgraded_at: '2026-06-13T16:28:37.217638'
+  schema_version: 3
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -623,3 +624,234 @@ migrations:
       Removed: .cursor/commands/spec-kitty.status.md; Removed: .cursor/commands/spec-kitty.tasks-finalize.md;
       Removed: .cursor/commands/spec-kitty.tasks-outline.md; Removed: .cursor/commands/spec-kitty.tasks-packages.md;
       Removed: .cursor/commands/spec-kitty.tasks.md'
+  - id: 3.2.0a4_normalize_mission_lifecycle
+    applied_at: '2026-06-13T16:28:33.458200'
+    result: success
+    notes: '002-service-layer-for: Regenerated canonical status/progress/lifecycle
+      views; 003-phase4-ui-completion: Regenerated canonical status/progress/lifecycle
+      views; 004-finishedunit-model-refactoring: Regenerated canonical status/progress/lifecycle
+      views; 005-recipe-fifo-cost: Regenerated canonical status/progress/lifecycle
+      views; 006-event-planning-restoration: Regenerated canonical status/progress/lifecycle
+      views; 007-variant-aware-shopping: Regenerated canonical status/progress/lifecycle
+      views; 008-production-tracking: Regenerated canonical status/progress/lifecycle
+      views; 009-ui-import-export: Regenerated canonical status/progress/lifecycle
+      views; 010-user-friendly-ingredient: Regenerated canonical status/progress/lifecycle
+      views; 011-packaging-bom-foundation: Regenerated canonical status/progress/lifecycle
+      views; 012-nested-recipes: Regenerated canonical status/progress/lifecycle views;
+      013-production-inventory-tracking: Regenerated canonical status/progress/lifecycle
+      views; 014-production-assembly-recording: Regenerated canonical status/progress/lifecycle
+      views; 016-event-centric-production: Regenerated canonical status/progress/lifecycle
+      views; 017-event-reporting-production: Regenerated canonical status/progress/lifecycle
+      views; 018-event-production-dashboard: Regenerated canonical status/progress/lifecycle
+      views; 019-unit-conversion-simplification: Regenerated canonical status/progress/lifecycle
+      views; 020-enhanced-catalog-import: Regenerated canonical status/progress/lifecycle
+      views; 021-field-naming-consistency: Regenerated canonical status/progress/lifecycle
+      views; 022-unit-reference-table: Regenerated canonical status/progress/lifecycle
+      views; 023-product-name-differentiation: Regenerated canonical status/progress/lifecycle
+      views; 024-unified-import-error: Regenerated canonical status/progress/lifecycle
+      views; 025-production-loss-tracking: Regenerated canonical status/progress/lifecycle
+      views; 026-deferred-packaging-decisions: Regenerated canonical status/progress/lifecycle
+      views; 027-product-catalog-management: Regenerated canonical status/progress/lifecycle
+      views; 028-purchase-tracking-enhanced: Regenerated canonical status/progress/lifecycle
+      views; 029-streamlined-inventory-entry: Regenerated canonical status/progress/lifecycle
+      views; 030-enhanced-export-import: Regenerated canonical status/progress/lifecycle
+      views; 031-ingredient-hierarchy-taxonomy: Regenerated canonical status/progress/lifecycle
+      views; 032-complete-f031-hierarchy: Regenerated canonical status/progress/lifecycle
+      views; 033-phase-1-ingredient: Regenerated canonical status/progress/lifecycle
+      views; 034-cascading-filters-recipe: Regenerated canonical status/progress/lifecycle
+      views; 035-ingredient-auto-slug: Regenerated canonical status/progress/lifecycle
+      views; 036-ingredient-hierarchy-comprehensive: Regenerated canonical status/progress/lifecycle
+      views; 037-recipe-template-snapshot: Regenerated canonical status/progress/lifecycle
+      views; 038-ui-mode-restructure: Regenerated canonical status/progress/lifecycle
+      views; 039-planning-workspace: Regenerated canonical status/progress/lifecycle
+      views; 040-import-export-v4: Regenerated canonical status/progress/lifecycle
+      views; 041-manual-inventory-adjustments: Regenerated canonical status/progress/lifecycle
+      views; 042-ui-polish-layout: Regenerated canonical status/progress/lifecycle
+      views; 043-purchases-tab-crud-operations: Regenerated canonical status/progress/lifecycle
+      views; 044-finished-units-yield-type-management: Regenerated canonical status/progress/lifecycle
+      views; 045-cost-architecture-refactor: Regenerated canonical status/progress/lifecycle
+      views; 046-finished-goods-bundles-assembly: Regenerated canonical status/progress/lifecycle
+      views; 047-materials-management-system: Regenerated canonical status/progress/lifecycle
+      views; 048-materials-ui-rebuild: Backfilled missing WP identity fields; 048-materials-ui-rebuild:
+      Rebuilt status.events.jsonl (0 synthetic events, 0 corrected); 048-materials-ui-rebuild:
+      Regenerated canonical status/progress/lifecycle views; 049-import-export-phase1:
+      Regenerated canonical status/progress/lifecycle views; 050-supplier-slug-support:
+      Regenerated canonical status/progress/lifecycle views; 051-import-export-ui-rationalization:
+      Regenerated canonical status/progress/lifecycle views; 052-ingredient-material-hierarchy-admin:
+      Regenerated canonical status/progress/lifecycle views; 053-context-rich-export-fixes:
+      Regenerated canonical status/progress/lifecycle views; 054-cli-import-export-parity:
+      Regenerated canonical status/progress/lifecycle views; 055-workflow-aligned-navigation-cleanup:
+      Regenerated canonical status/progress/lifecycle views; 056-unified-yield-management:
+      Regenerated canonical status/progress/lifecycle views; 057-purchase-management-provisional-products:
+      Regenerated canonical status/progress/lifecycle views; 058-materials-fifo-foundation:
+      Regenerated canonical status/progress/lifecycle views; 059-materials-purchase-integration:
+      Regenerated canonical status/progress/lifecycle views; 060-architecture-hardening-service-boundaries:
+      Regenerated canonical status/progress/lifecycle views; 061-finished-goods-inventory-service:
+      Regenerated canonical status/progress/lifecycle views; 062-service-session-consistency-hardening:
+      Regenerated canonical status/progress/lifecycle views; 063-variant-yield-inheritance:
+      Regenerated canonical status/progress/lifecycle views; 064-finishedgoods-snapshot-architecture:
+      Regenerated canonical status/progress/lifecycle views; 065-production-plan-snapshot-refactor:
+      Regenerated canonical status/progress/lifecycle views; 066-recipe-variant-yield-remediation:
+      Regenerated canonical status/progress/lifecycle views; 067-recipe-ui-polish-yield-variants:
+      Regenerated canonical status/progress/lifecycle views; 068-event-management-planning-data-model:
+      Regenerated canonical status/progress/lifecycle views; 069-recipe-selection-for-event-planning:
+      Regenerated canonical status/progress/lifecycle views; 070-finished-goods-filtering:
+      Regenerated canonical status/progress/lifecycle views; 071-finished-goods-quantity-specification:
+      Regenerated canonical status/progress/lifecycle views; 072-recipe-decomposition-aggregation:
+      Regenerated canonical status/progress/lifecycle views; 073-batch-calculation-user-decisions:
+      Regenerated canonical status/progress/lifecycle views; 074-ingredient-aggregation:
+      Regenerated canonical status/progress/lifecycle views; 075-inventory-gap-analysis:
+      Regenerated canonical status/progress/lifecycle views; 076-assembly-feasibility-single-screen-planning:
+      Regenerated canonical status/progress/lifecycle views; 077-plan-state-management:
+      Regenerated canonical status/progress/lifecycle views; 078-plan-snapshots-amendments:
+      Regenerated canonical status/progress/lifecycle views; 079-production-aware-planning-calculations:
+      Regenerated canonical status/progress/lifecycle views; 080-recipe-slug-support:
+      Regenerated canonical status/progress/lifecycle views; 081-snapshot-export-coverage:
+      Regenerated canonical status/progress/lifecycle views; 082-product-composite-slug-multi-tenant:
+      Regenerated canonical status/progress/lifecycle views; 083-cli-transaction-import:
+      Regenerated canonical status/progress/lifecycle views; 084-dual-yield-recipe-output-support:
+      Regenerated canonical status/progress/lifecycle views; 085-material-unit-schema-refactor:
+      Regenerated canonical status/progress/lifecycle views; 086-fix-material-unit-management-ux:
+      Regenerated canonical status/progress/lifecycle views; 087-catalog-tab-layout-standardization:
+      Regenerated canonical status/progress/lifecycle views; 088-finished-goods-catalog-ui:
+      Regenerated canonical status/progress/lifecycle views; 089-error-handling-foundation:
+      Regenerated canonical status/progress/lifecycle views; 090-configuration-management-enhancement:
+      Regenerated canonical status/progress/lifecycle views; 091-transaction-boundary-documentation:
+      Regenerated canonical status/progress/lifecycle views; 092-service-boundary-compliance:
+      Regenerated canonical status/progress/lifecycle views; 093-pagination-dtos-foundation:
+      Regenerated canonical status/progress/lifecycle views; 094-core-api-standardization:
+      Regenerated canonical status/progress/lifecycle views; 095-enum-display-pattern-standardization:
+      Regenerated canonical status/progress/lifecycle views; 096-recipe-category-management:
+      Regenerated canonical status/progress/lifecycle views; 097-finished-goods-builder-ui:
+      Regenerated canonical status/progress/lifecycle views; 098-auto-generation-finished-goods:
+      Regenerated canonical status/progress/lifecycle views; 099-fg-builder-filter-first-refinement:
+      Regenerated canonical status/progress/lifecycle views; 100-planning-fg-selection-refinement:
+      Regenerated canonical status/progress/lifecycle views; 101-type-ahead-search-component:
+      Regenerated canonical status/progress/lifecycle views; 102-planning-selection-persistence-display:
+      Regenerated canonical status/progress/lifecycle views; 103-fix-plan-mode-fg-batch-scoping:
+      Regenerated canonical status/progress/lifecycle views; WEB-000-web-migration:
+      Regenerated canonical status/progress/lifecycle views; WEB-001-web-foundation:
+      Regenerated canonical status/progress/lifecycle views; main: Regenerated canonical
+      status/progress/lifecycle views'
+  - id: 3.2.0a4_safe_globalize_commands
+    applied_at: '2026-06-13T16:28:33.529399'
+    result: success
+    notes: 'Removed: .codex/prompts/spec-kitty.accept.md; Removed: .codex/prompts/spec-kitty.analyze.md;
+      Removed: .codex/prompts/spec-kitty.checklist.md; Preserved: .codex/prompts/spec-kitty.constitution.md
+      (no global equivalent at ~/.codex/prompts/spec-kitty.constitution.md); Removed:
+      .codex/prompts/spec-kitty.dashboard.md; Removed: .codex/prompts/spec-kitty.implement.md;
+      Removed: .codex/prompts/spec-kitty.merge.md; Removed: .codex/prompts/spec-kitty.plan.md;
+      Removed: .codex/prompts/spec-kitty.research.md; Removed: .codex/prompts/spec-kitty.review.md;
+      Removed: .codex/prompts/spec-kitty.specify.md; Removed: .codex/prompts/spec-kitty.status.md;
+      Preserved: .codex/prompts/spec-kitty.tasks-finalize.md (no global equivalent
+      at ~/.codex/prompts/spec-kitty.tasks-finalize.md); Removed: .codex/prompts/spec-kitty.tasks.md;
+      Removed: .codex/prompts/spec-kitty.tasks_outline.md; Removed: .codex/prompts/spec-kitty.tasks_packages.md'
+  - id: 3.2.0rc28_github_diff_attributes
+    applied_at: '2026-06-13T16:28:33.573241'
+    result: success
+    notes: 'Added .gitattributes entry: kitty-specs/**/status.json linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/status.events.jsonl linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/lanes.json linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/mission-events.jsonl linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/snapshot-latest.json linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/acceptance-matrix.json linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/occurrence_map.yaml linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/tasks/** linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/research/evidence-log.csv linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/research/source-register.csv linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/test-transcripts/** linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/baseline/** linguist-generated=true;
+      Added .gitattributes entry: kitty-specs/**/canary-evidence/** linguist-generated=true;
+      Added .gitattributes entry: .kittify/workspaces/** linguist-generated=true;
+      Added .gitattributes entry: .kittify/workspaces/** -diff; Added .gitattributes
+      entry: .kittify/migrations/** linguist-generated=true; Added .gitattributes
+      entry: .kittify/migrations/** -diff'
+  - id: 3.2.0rc30_fix_runtime_next_result_default
+    applied_at: '2026-06-13T16:28:33.618493'
+    result: skipped
+    notes: Not applicable
+  - id: 3.2.0rc35_activate_builtin_mission_types
+    applied_at: '2026-06-13T16:28:33.667744'
+    result: success
+    notes: 'Added mission_type_activations: [''software-dev'', ''documentation'',
+      ''research'', ''plan'']'
+  - id: 3.2.0rc35_charter_bundle_v2
+    applied_at: '2026-06-13T16:28:33.721292'
+    result: success
+    notes: /Users/kentgale/repos/bake-tracker/.kittify/charter/metadata.yaml
+  - id: 3.2.0rc35_charter_manifest_defaults_repair
+    applied_at: '2026-06-13T16:28:33.765729'
+    result: skipped
+    notes: Not applicable
+  - id: 3.2.0rc35_codex_to_skills
+    applied_at: '2026-06-13T16:28:33.860689'
+    result: success
+    notes: Installed 11 Codex skill packages under .agents/skills/; Moved 1 superseded
+      Codex prompt(s) from .codex/prompts/ to .codex/prompts.superseded/ (new skill
+      packages live in .agents/skills/)
+  - id: 3.2.0rc35_default_charter_pack
+    applied_at: '2026-06-13T16:28:33.953556'
+    result: success
+    notes: activated_directives; activated_tactics; activated_styleguides; activated_toolguides;
+      activated_paradigms; activated_procedures; activated_agent_profiles; activated_mission_step_contracts;
+      activated_kinds
+  - id: 3.2.0rc35_fix_prompt_file_workaround
+    applied_at: '2026-06-13T16:28:33.997641'
+    result: skipped
+    notes: Not applicable
+  - id: 3.2.0rc35_kittify_profile_handoff
+    applied_at: '2026-06-13T16:28:34.041988'
+    result: skipped
+    notes: Not applicable
+  - id: 3.2.0rc35_pi_letta_agent_backfill
+    applied_at: '2026-06-13T16:28:34.099676'
+    result: skipped
+    notes: Not applicable
+  - id: 3.2.0rc35_repository_root_checkout_terminology
+    applied_at: '2026-06-13T16:28:34.157692'
+    result: skipped
+    notes: Not applicable
+  - id: 3.2.0rc35_spk_skill_pack
+    applied_at: '2026-06-13T16:28:35.050037'
+    result: success
+    notes: Installed 37 spk skill(s) for 4 agent(s) (296 managed files); Updated .kittify/skills-manifest.json
+      with spk skill entries
+  - id: 3.2.0rc35_strip_selection_config
+    applied_at: '2026-06-13T16:28:35.178528'
+    result: success
+    notes: 'Removed: agents.selection'
+  - id: 3.2.0rc35_kittify_runtime_git_hygiene
+    applied_at: '2026-06-13T16:28:35.459271'
+    result: success
+    notes: Added .kittify/sync-state.json to .gitignore
+  - id: 3.2.0rc35_unified_bundle
+    applied_at: '2026-06-13T16:28:36.576066'
+    result: success
+    notes: '{"applied": true, "bundle_validation": {"missing_derived": [], "missing_tracked":
+      [], "passed": true, "unexpected": [".kittify/charter/backups/charter-2026-06-13T16-28-33.md"]},
+      "charter_present": true, "chokepoint_refreshed": true, "duration_ms": 1033,
+      "errors": [], "migration_id": "3.2.0rc35_unified_bundle", "target_version":
+      "3.2.0rc35"}'
+  - id: 3.2.0rc35_update_planning_templates
+    applied_at: '2026-06-13T16:28:36.663749'
+    result: skipped
+    notes: Not applicable
+  - id: 3_2_0rc39_refresh_orientation_block
+    applied_at: '2026-06-13T16:28:36.831946'
+    result: skipped
+    notes: Not applicable
+  - id: 3_3_0_session_presence_all_harnesses
+    applied_at: '2026-06-13T16:28:36.987835'
+    result: success
+    notes: 'Wrote session presence orientation for harness: codex; Wrote session presence
+      orientation for harness: gemini; Wrote session presence orientation for harness:
+      cursor'
+  - id: 3_3_0_session_presence_claude_code
+    applied_at: '2026-06-13T16:28:37.125244'
+    result: success
+    notes: Wrote spec-kitty orientation to .claude/CLAUDE.md; Registered spec-kitty
+      session-start SessionStart hook; Registered spec-kitty session-stop Stop hook
+  - id: 3_3_0_op_record_schema_v2
+    applied_at: '2026-06-13T16:28:37.172322'
+    result: skipped
+    notes: Not applicable

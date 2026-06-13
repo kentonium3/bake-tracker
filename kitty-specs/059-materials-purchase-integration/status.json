@@ -1,8 +1,10 @@
 {
   "event_count": 9,
-  "feature_slug": "059-materials-purchase-integration",
   "last_event_id": "01KMKK29WF492RR0E5ST9PR12T",
   "materialized_at": "2026-01-18T00:00:00Z",
+  "mission_number": "59",
+  "mission_slug": "059-materials-purchase-integration",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 9,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

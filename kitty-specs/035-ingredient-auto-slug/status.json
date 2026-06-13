@@ -1,8 +1,10 @@
 {
   "event_count": 6,
-  "feature_slug": "035-ingredient-auto-slug",
   "last_event_id": "01KMKK29910YD9PP74GB6JSNAX",
   "materialized_at": "2026-01-02T12:00:00Z",
+  "mission_number": "35",
+  "mission_slug": "035-ingredient-auto-slug",
+  "mission_type": "research",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 6,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

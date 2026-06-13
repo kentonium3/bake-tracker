@@ -1,8 +1,10 @@
 {
   "event_count": 8,
-  "feature_slug": "031-ingredient-hierarchy-taxonomy",
   "last_event_id": "01KMKK2963Z98YTVJK84Z2DHRG",
   "materialized_at": "2025-12-30T12:00:00Z",
+  "mission_number": "31",
+  "mission_slug": "031-ingredient-hierarchy-taxonomy",
+  "mission_type": "research",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 8,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

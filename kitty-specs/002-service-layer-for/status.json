@@ -1,8 +1,10 @@
 {
   "event_count": 6,
-  "feature_slug": "002-service-layer-for",
   "last_event_id": "01KMKK28CYDSH1839SM2NE1H7S",
   "materialized_at": "2025-11-09T07:58:47Z",
+  "mission_number": "2",
+  "mission_slug": "002-service-layer-for",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 6,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

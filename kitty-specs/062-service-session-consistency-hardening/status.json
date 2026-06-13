@@ -1,8 +1,10 @@
 {
   "event_count": 11,
-  "feature_slug": "062-service-session-consistency-hardening",
   "last_event_id": "01KMKK2A12F7CW5ZG26E4VVS86",
   "materialized_at": "2026-01-22T23:22:00Z",
+  "mission_number": "62",
+  "mission_slug": "062-service-session-consistency-hardening",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 11,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

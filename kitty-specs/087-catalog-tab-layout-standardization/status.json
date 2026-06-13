@@ -1,8 +1,10 @@
 {
   "event_count": 4,
-  "feature_slug": "087-catalog-tab-layout-standardization",
   "last_event_id": "01KMKK2AJ40EG20THWN40V1PZA",
   "materialized_at": "2026-01-31T02:38:50Z",
+  "mission_number": "87",
+  "mission_slug": "087-catalog-tab-layout-standardization",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 4,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

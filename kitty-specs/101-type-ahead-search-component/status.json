@@ -1,8 +1,10 @@
 {
   "event_count": 4,
-  "feature_slug": "101-type-ahead-search-component",
   "last_event_id": "01KMKK2B0T5NGQY366M5M85XPV",
   "materialized_at": "2026-02-10T21:59:40Z",
+  "mission_number": "101",
+  "mission_slug": "101-type-ahead-search-component",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 4,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

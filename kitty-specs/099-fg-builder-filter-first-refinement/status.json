@@ -1,8 +1,10 @@
 {
   "event_count": 2,
-  "feature_slug": "099-fg-builder-filter-first-refinement",
   "last_event_id": "01KMKK2AZBT7D6JEQ9YQK0TZFX",
   "materialized_at": "2026-02-08T23:13:33Z",
+  "mission_number": "99",
+  "mission_slug": "099-fg-builder-filter-first-refinement",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 2,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

@@ -1,8 +1,10 @@
 {
   "event_count": 8,
-  "feature_slug": "098-auto-generation-finished-goods",
   "last_event_id": "01KMKK2AYZ26MS9FG5VANJ1BTK",
   "materialized_at": "2026-02-08T17:14:59Z",
+  "mission_number": "98",
+  "mission_slug": "098-auto-generation-finished-goods",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 8,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

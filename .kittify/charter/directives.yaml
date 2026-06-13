@@ -1,4 +1,28 @@
 # Auto-generated from charter.md — do not edit directly.
 # Run 'spec-kitty charter sync' to regenerate.
 
-directives: []
+directives:
+- id: DIR-001
+  title: '**Language:** Python 3.10+ (minimum version for ty'
+  description: '**Language:** Python 3.10+ (minimum version for type hints and syntax features)'
+  severity: warn
+- id: DIR-002
+  title: '**UI Framework:** CustomTkinter (modern appearance'
+  description: '**UI Framework:** CustomTkinter (modern appearance, cross-platform, desktop-native)'
+  severity: warn
+- id: DIR-003
+  title: '**Database:** SQLite with WAL mode (portable, no s'
+  description: '**Database:** SQLite with WAL mode (portable, no server, excellent Python integration)'
+  severity: warn
+- id: DIR-004
+  title: '**ORM:** SQLAlchemy 2.x (type safety, relationship'
+  description: '**ORM:** SQLAlchemy 2.x (type safety, relationship management, migration support)'
+  severity: warn
+- id: DIR-005
+  title: '**Testing:** pytest (de facto standard for Python,'
+  description: '**Testing:** pytest (de facto standard for Python, excellent fixtures and plugins)'
+  severity: warn
+- id: DIR-006
+  title: '**Packaging:** PyInstaller (single executable for '
+  description: '**Packaging:** PyInstaller (single executable for Windows distribution)'
+  severity: warn

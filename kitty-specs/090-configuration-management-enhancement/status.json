@@ -1,8 +1,10 @@
 {
   "event_count": 2,
-  "feature_slug": "090-configuration-management-enhancement",
   "last_event_id": "01KMKK2ANN95K43JKZMYX29RR6",
   "materialized_at": "2026-02-03T02:58:47Z",
+  "mission_number": "90",
+  "mission_slug": "090-configuration-management-enhancement",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 2,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

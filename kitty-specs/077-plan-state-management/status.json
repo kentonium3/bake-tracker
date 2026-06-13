@@ -1,8 +1,10 @@
 {
   "event_count": 3,
-  "feature_slug": "077-plan-state-management",
   "last_event_id": "01KMKK2AAVQR2F0A9A8YV82FVX",
   "materialized_at": "2026-01-28T00:00:00Z",
+  "mission_number": "77",
+  "mission_slug": "077-plan-state-management",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 3,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

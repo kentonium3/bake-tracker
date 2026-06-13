@@ -1,8 +1,10 @@
 {
   "event_count": 2,
-  "feature_slug": "103-fix-plan-mode-fg-batch-scoping",
   "last_event_id": "01KMKK2B1EMCTJ0DTEJ7ZEZ576",
   "materialized_at": "2026-03-15T04:45:47Z",
+  "mission_number": "103",
+  "mission_slug": "103-fix-plan-mode-fg-batch-scoping",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 2,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {

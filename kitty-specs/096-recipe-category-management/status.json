@@ -1,8 +1,10 @@
 {
   "event_count": 4,
-  "feature_slug": "096-recipe-category-management",
   "last_event_id": "01KMKK2ATT21DJVGSET0RF6H4W",
   "materialized_at": "2026-02-06T04:30:00Z",
+  "mission_number": "96",
+  "mission_slug": "096-recipe-category-management",
+  "mission_type": "software-dev",
   "summary": {
     "approved": 0,
     "blocked": 0,
@@ -11,6 +13,7 @@
     "done": 4,
     "for_review": 0,
     "in_progress": 0,
+    "in_review": 0,
     "planned": 0
   },
   "work_packages": {
