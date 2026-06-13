@@ -1,0 +1,56 @@
+{
+  "cli_version": "3.2.0rc43",
+  "command_args": [
+    "doctor",
+    "mission-state",
+    "--fix",
+    "--mission",
+    "048-materials-ui-rebuild",
+    "--allow-dirty"
+  ],
+  "generated_ids": [
+    "284db55326921e09"
+  ],
+  "manifest_path": ".kittify/migrations/mission-state/284db55326921e09.json",
+  "missions": [
+    {
+      "file_changes": [],
+      "mission_id": "01KN5R6XE0R0ARPM4NHDXY7YWD",
+      "mission_slug": "048-materials-ui-rebuild",
+      "quarantined_rows": 0,
+      "row_transformations": [],
+      "status": "unchanged",
+      "validation_errors": []
+    }
+  ],
+  "policy": {
+    "ignored": [
+      "*.pyc",
+      ".git/",
+      ".worktrees/",
+      "__pycache__/"
+    ],
+    "optional": [
+      "kitty-specs/*/status.json"
+    ],
+    "tracked": [
+      ".kittify/migrations/mission-state/*.json",
+      "kitty-specs/*/meta.json",
+      "kitty-specs/*/status.events.jsonl",
+      "kitty-specs/*/status.json"
+    ]
+  },
+  "repo_head": "589b2757a6a31831d6254d38732e69d44e5a35b4",
+  "run_id": "284db55326921e09",
+  "schema_version": "1.0.0",
+  "summary": {
+    "missions_error": 0,
+    "missions_total": 1,
+    "missions_unchanged": 1,
+    "missions_updated": 0,
+    "quarantined_rows": 0
+  },
+  "target_missions": [
+    "048-materials-ui-rebuild"
+  ]
+}
