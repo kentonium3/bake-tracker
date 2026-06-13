@@ -1,0 +1,55 @@
+{
+  "cli_version": "3.2.0rc43",
+  "command_args": [
+    "doctor",
+    "mission-state",
+    "--fix",
+    "--mission",
+    "042-ui-polish-layout"
+  ],
+  "generated_ids": [
+    "0569a7ddd323427b"
+  ],
+  "manifest_path": ".kittify/migrations/mission-state/0569a7ddd323427b.json",
+  "missions": [
+    {
+      "file_changes": [],
+      "mission_id": "01KN5R6XDVE7CPH6RZBVJ35F7G",
+      "mission_slug": "042-ui-polish-layout",
+      "quarantined_rows": 0,
+      "row_transformations": [],
+      "status": "unchanged",
+      "validation_errors": []
+    }
+  ],
+  "policy": {
+    "ignored": [
+      "*.pyc",
+      ".git/",
+      ".worktrees/",
+      "__pycache__/"
+    ],
+    "optional": [
+      "kitty-specs/*/status.json"
+    ],
+    "tracked": [
+      ".kittify/migrations/mission-state/*.json",
+      "kitty-specs/*/meta.json",
+      "kitty-specs/*/status.events.jsonl",
+      "kitty-specs/*/status.json"
+    ]
+  },
+  "repo_head": "ab4e06984e5cef991b58c01e8e0bf9d42cf7696f",
+  "run_id": "0569a7ddd323427b",
+  "schema_version": "1.0.0",
+  "summary": {
+    "missions_error": 0,
+    "missions_total": 1,
+    "missions_unchanged": 1,
+    "missions_updated": 0,
+    "quarantined_rows": 0
+  },
+  "target_missions": [
+    "042-ui-polish-layout"
+  ]
+}
