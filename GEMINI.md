@@ -113,8 +113,7 @@ Key rules:
 This is a personal project. Issues and suggestions are welcome via GitHub. The project acknowledges assistance from Claude Code in its development.
 
 <!-- spec-kitty:orientation -->
-**Spec Kitty v3.2.0rc43** — project: unknown (migration-required)
-⚠ Project migration required — run `spec-kitty upgrade` before using missions.
+**Spec Kitty v3.2.0rc43** — project: unknown (healthy)
 
 Two usage patterns:
 - **Full mission** (spec → plan → tasks → implement → review → merge):
