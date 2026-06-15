@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 3.2.0rc44
+  version: 3.2.0rc45
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-06-14T20:22:25.737894'
+  last_upgraded_at: '2026-06-15T16:39:48.028953'
   schema_version: 3
 environment:
   python_version: 3.13.11
@@ -855,3 +855,7 @@ migrations:
     applied_at: '2026-06-13T16:28:37.172322'
     result: skipped
     notes: Not applicable
+  - id: 0_9_3_surface_repair_wiring
+    applied_at: '2026-06-15T16:39:47.978153'
+    result: success
+    notes: 'surface_repair_wiring: probed 405 tool surface(s)'
