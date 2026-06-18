@@ -1,9 +1,9 @@
 {
-  "cli_version": "3.2.0rc44",
+  "cli_version": "3.2.1",
   "command_args": [
-    "upgrade",
-    "--project",
-    "--yes"
+    "doctor",
+    "mission-state",
+    "--fix"
   ],
   "generated_ids": [
     "1259ac3b1daf3766"
@@ -964,7 +964,7 @@
       "kitty-specs/*/status.json"
     ]
   },
-  "repo_head": "92bdf6d55a2fe23d5f34fee59f85fc591709174d",
+  "repo_head": "3695190131257f5e3009835a80444af524361981",
   "run_id": "1259ac3b1daf3766",
   "schema_version": "1.0.0",
   "summary": {
