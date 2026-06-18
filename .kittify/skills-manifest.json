@@ -1,7 +1,7 @@
 {
   "version": 1,
   "created_at": "2026-06-13T20:28:34.255396+00:00",
-  "updated_at": "2026-06-13T20:28:35.045451+00:00",
+  "updated_at": "2026-06-18T15:19:04.769550+00:00",
   "spec_kitty_version": "3.2.0rc35",
   "entries": [
     {
@@ -302,16 +302,6 @@
       "agent_key": "codex",
       "content_hash": "sha256:0af4323f4cc121dc8ffa5997d0b98edca8401f2c4076ef5fbde9ac1d7cdffc74",
       "installed_at": "2026-06-13T20:28:34.324162+00:00",
-      "delivery_mode": "symlink"
-    },
-    {
-      "skill_name": "spec-kitty.advise",
-      "source_file": "SKILL.md",
-      "installed_path": ".agents/skills/spec-kitty.advise/SKILL.md",
-      "installation_class": "shared-root-capable",
-      "agent_key": "codex",
-      "content_hash": "sha256:a94746ebd64d1ff024334ed2ba540b9410f19dd949d1da1881de0dc275552918",
-      "installed_at": "2026-06-13T20:28:34.326642+00:00",
       "delivery_mode": "symlink"
     },
     {
@@ -1015,16 +1005,6 @@
       "delivery_mode": "symlink"
     },
     {
-      "skill_name": "spec-kitty.advise",
-      "source_file": "SKILL.md",
-      "installed_path": ".agents/skills/spec-kitty.advise/SKILL.md",
-      "installation_class": "shared-root-capable",
-      "agent_key": "gemini",
-      "content_hash": "sha256:a94746ebd64d1ff024334ed2ba540b9410f19dd949d1da1881de0dc275552918",
-      "installed_at": "2026-06-13T20:28:34.480136+00:00",
-      "delivery_mode": "symlink"
-    },
-    {
       "skill_name": "spk-admin-agent-config",
       "source_file": "SKILL.md",
       "installed_path": ".agents/skills/spk-admin-agent-config/SKILL.md",
@@ -1725,16 +1705,6 @@
       "delivery_mode": "symlink"
     },
     {
-      "skill_name": "spec-kitty.advise",
-      "source_file": "SKILL.md",
-      "installed_path": ".agents/skills/spec-kitty.advise/SKILL.md",
-      "installation_class": "shared-root-capable",
-      "agent_key": "cursor",
-      "content_hash": "sha256:a94746ebd64d1ff024334ed2ba540b9410f19dd949d1da1881de0dc275552918",
-      "installed_at": "2026-06-13T20:28:34.686743+00:00",
-      "delivery_mode": "symlink"
-    },
-    {
       "skill_name": "spk-admin-agent-config",
       "source_file": "SKILL.md",
       "installed_path": ".agents/skills/spk-admin-agent-config/SKILL.md",
@@ -2432,16 +2402,6 @@
       "agent_key": "claude",
       "content_hash": "sha256:0af4323f4cc121dc8ffa5997d0b98edca8401f2c4076ef5fbde9ac1d7cdffc74",
       "installed_at": "2026-06-13T20:28:34.877064+00:00",
-      "delivery_mode": "symlink"
-    },
-    {
-      "skill_name": "spec-kitty.advise",
-      "source_file": "SKILL.md",
-      "installed_path": ".claude/skills/spec-kitty.advise/SKILL.md",
-      "installation_class": "native-root-required",
-      "agent_key": "claude",
-      "content_hash": "sha256:a94746ebd64d1ff024334ed2ba540b9410f19dd949d1da1881de0dc275552918",
-      "installed_at": "2026-06-13T20:28:34.881920+00:00",
       "delivery_mode": "symlink"
     },
     {
