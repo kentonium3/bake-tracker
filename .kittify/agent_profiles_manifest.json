@@ -45,6 +45,17 @@
       "tool_key": "claude"
     },
     {
+      "file_hash": "097fb87e2464b80f2e3f4ae449d18794c6ffc13d91587bb72f94a9fe34bc356c",
+      "format": "claude-agent",
+      "output_path": "/Users/kentgale/repos/bake-tracker/.claude/agents/doctrine-daphne.md",
+      "profile_urn": "agent_profile:doctrine-daphne",
+      "projection_version": 1,
+      "source_hash": "74cfa3be38947e24458f7f8788a406fe078f45a6ff58efcd2f31ab8f846ff007",
+      "source_layer": "builtin",
+      "source_path": "/Users/kentgale/.local/pipx/venvs/spec-kitty-cli/lib/python3.13/site-packages/doctrine/agent_profiles/built-in/doctrine-daphne.agent.yaml",
+      "tool_key": "claude"
+    },
+    {
       "file_hash": "c1b9cffbf3bdffafae644af7c3367be2e8402332dd842b21257b59b2c9181c88",
       "format": "claude-agent",
       "output_path": "/Users/kentgale/repos/bake-tracker/.claude/agents/frontend-freddy.md",
@@ -218,6 +229,17 @@
       "source_hash": "1428bfeabd57c8cd636d72d587b11799b84a0f4d325aea24880f6d8e4083f6c7",
       "source_layer": "builtin",
       "source_path": "/Users/kentgale/.local/pipx/venvs/spec-kitty-cli/lib/python3.13/site-packages/doctrine/agent_profiles/built-in/designer-dagmar.agent.yaml",
+      "tool_key": "codex"
+    },
+    {
+      "file_hash": "e1ebd710966ecca5502014f8d98d389718931865eb944a296298dbf19a4e3d73",
+      "format": "codex-agent",
+      "output_path": "/Users/kentgale/repos/bake-tracker/.codex/agents/doctrine-daphne.toml",
+      "profile_urn": "agent_profile:doctrine-daphne",
+      "projection_version": 1,
+      "source_hash": "74cfa3be38947e24458f7f8788a406fe078f45a6ff58efcd2f31ab8f846ff007",
+      "source_layer": "builtin",
+      "source_path": "/Users/kentgale/.local/pipx/venvs/spec-kitty-cli/lib/python3.13/site-packages/doctrine/agent_profiles/built-in/doctrine-daphne.agent.yaml",
       "tool_key": "codex"
     },
     {
