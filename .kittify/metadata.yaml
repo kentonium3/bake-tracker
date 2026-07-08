@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 3.2.4
+  version: 3.2.5
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-07-05T14:48:45.823690'
+  last_upgraded_at: '2026-07-08T13:33:41.610788'
   schema_version: 3
 environment:
   python_version: 3.13.11
@@ -877,3 +877,11 @@ migrations:
     applied_at: '2026-07-05T14:48:45.757744'
     result: skipped
     notes: Not applicable
+  - id: 3.2.4_runtime_dirs_gitignore_backfill
+    applied_at: '2026-07-08T13:33:41.506910'
+    result: success
+    notes: 'Added gitignore entries: .kittify/migrations/, .kittify/logs/'
+  - id: 3.2.5_agents_skills_gitignore_backfill
+    applied_at: '2026-07-08T13:33:41.555095'
+    result: success
+    notes: 'Added gitignore entry: .agents/skills/; Added gitignore entry: .kittify/skills-manifest.json'
