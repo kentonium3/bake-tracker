@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 3.2.5
+  version: 3.2.6
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-07-08T13:33:41.610788'
+  last_upgraded_at: '2026-07-10T13:39:25.401424'
   schema_version: 3
 environment:
   python_version: 3.13.11
