@@ -179,7 +179,7 @@ Body sections (in order):
    - **Steps**: numbered, with specific file paths and implementation details
    - **Files**: what to create/modify, approximate size
    - **Validation**: how to verify it works
-4. `## Definition of Done` — verifiable checklist covering all subtasks
+4. `## Definition of Done` — verifiable criteria covering all subtasks; per-subtask completion evidence is a `spec-kitty agent tasks mark-status <Txxx> --status done` record (event-sourced), not a ticked checkbox
 5. `## Risks` — known risks and mitigations
 6. `## Reviewer Guidance` — what reviewers should focus on
 
@@ -268,7 +268,11 @@ List available profiles:
 spec-kitty agent profile list --json
 ```
 
-> If this command is unavailable, look for profiles under `src/doctrine/agent_profiles/built-in/` and any user-defined profiles in `.kittify/agent_profiles/` or equivalent.
+> Only a read-only harness that cannot invoke the CLI may inspect profiles under
+> `packs/built-in/agent_profiles/` and any user-defined profile directory.
+> This degraded fallback can diverge because organization/project overlays,
+> `specializes_from` lineage, and `enhances`/`overrides` semantics are not applied;
+> state that limitation when selecting a profile this way.
 
 For each WP, select the best-matching profile based on `task_type`, `authoritative_surface`, `owned_files`, and subtask content. Then update the WP prompt file's frontmatter **in place** with:
 - `agent_profile`: the profile identifier (e.g., `"implementer-ivan"`, `"architect-alphonso"`, `"curator-carla"`)

@@ -102,9 +102,9 @@ via the paired fetch command and apply.
 
 **Guaranteed authority pointers** (path + when-doing conditional):
 
-- `glossary/contexts/` — canonical terminology. Consult when the diff
+- `docs/context/` — canonical terminology. Consult when the diff
   introduces or renames a domain term.
-- `architecture/3.x/adr/` — architectural intent. Consult when the diff
+- `docs/adr/3.x/` — architectural intent. Consult when the diff
   changes a structural boundary (package layout, public API surface,
   dependency edges).
 - Any additional paths declared in the charter's `authority_paths:` block are
@@ -159,12 +159,59 @@ The WP frontmatter should already have `agent_profile` set to a reviewer profile
 `for_review`. If `agent_profile` is still set to an implementer profile, load the
 implementer profile anyway and note the oversight in your review comments.
 
+
+### REASONS Canvas Comparison (active for this project)
+
+This project's charter selected the SPDD/REASONS doctrine pack. Use the
+mission's REASONS canvas as a comparison surface for this work package.
+
+**1. Load the canvas.** Read `kitty-specs/<mission>/reasons-canvas.md`. If it
+is missing, invoke the `spec-kitty-spdd-reasons` skill to author it before
+completing review. Do not auto-approve in the absence of a canvas.
+
+**2. Trace the diff.**
+
+- For each Requirement and Operation in the canvas, find concrete evidence in
+  the diff or note its absence.
+- Detect entities, files, or surfaces touched by the diff that do not appear
+  in canvas Structure or Approach.
+- Verify Norms (testing, observability, style) and Safeguards (hard
+  constraints, security, performance limits, things not to break).
+
+**3. Classify the divergence.** Choose ONE outcome:
+
+| Outcome | When | Action |
+|---|---|---|
+| approved | No divergence OR all divergences match Deviations entries. | APPROVE |
+| approved_with_deviation | Divergence is acceptable; reviewer adds a Deviations entry. | APPROVE + canvas update |
+| canvas_update_needed | Code reality reveals the canvas was wrong. | APPROVE conditionally; open canvas update task |
+| glossary_update_needed | Term drift surfaced. | APPROVE conditionally; open glossary update task |
+| charter_follow_up | Charter selection should change. | APPROVE conditionally; open charter follow-up |
+| follow_up_mission | Out-of-scope work surfaced. | APPROVE current scope; open follow-up mission |
+| scope_drift_block | Out-of-bounds undocumented work. | REJECT |
+| safeguard_violation_block | Safeguard rule violated. | REJECT |
+
+**4. Charter precedence.** If a charter directive conflicts with the canvas,
+follow the directive and add a deviation note to the canvas.
+
+**5. Record the outcome.** Reviewer should explicitly name the chosen outcome
+in the review summary so downstream automation can route the WP correctly.
+
+
 ### 3. Verify Implementation
 
 For each subtask:
 1. Confirm the subtask has been implemented as specified
 2. Check that tests exist and pass (for code_change subtasks)
 3. Verify any files modified outside `owned_files` are small, justified, and carry a one-line rationale (do not reject a well-justified, rationale-logged crossing)
+
+### 3a. Supply-Chain Security Evidence Check (dependency changes)
+
+If the diff adds, upgrades, or removes a dependency (any ecosystem), verify the implementer's evidence trail against the `supply-chain-install-safety` tactic and the `051-supply-chain-install-safety` directive — this mirrors the `supply_chain_security_review` step already present in the `review` step contract:
+
+- Registry authenticity, package freshness, lifecycle-script disposition (deny-by-default), Node Active LTS posture, and incident/IoC posture are each documented, not assumed or waved through.
+- Any adversarial-squad or reviewer challenge to a supply-chain finding has an explicit disposition — `accepted`, `changed`, or `deferred_with_rationale` — traceable to an evidence location, per `contracts/adversarial-evidence-contract.md`. Do not approve a WP that silently drops a contested finding.
+- This check is advisory in v1 (it does not add a new fail-closed transition gate — the `in_progress->for_review` gate above is unchanged), but missing or unexamined evidence for a dependency change is a review gap to call out, not something to wave through because the mission is otherwise advisory.
 
 ### 4. Check Quality
 

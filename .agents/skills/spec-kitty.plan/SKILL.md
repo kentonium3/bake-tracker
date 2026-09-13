@@ -42,6 +42,17 @@ In non-interactive hosts, choose `not_now` and continue.
 
 **Version**: 0.11.0+
 
+
+### REASONS Guidance — Plan
+
+While composing the plan, fill or update:
+
+- **Approach** — chosen strategy and rejected alternatives with rationale.
+- **Structure** — code surfaces, components, dependencies, ownership boundaries.
+
+Link to source artifacts (spec, contracts) instead of duplicating them.
+
+
 ## 📍 WORKING DIRECTORY: Stay in the repository root checkout
 
 **IMPORTANT**: Plan works in the repository root checkout. NO worktrees created.
@@ -90,9 +101,19 @@ gates pass:
 
 2. **Exit gate.** `plan.md` is only auto-committed when its Technical Context
    section contains a real `Language/Version` value (and at least one peer
-   field) — not the `[e.g., …]` / `[NEEDS CLARIFICATION …]` placeholders. If
-   the plan is left as scaffold, it stays untracked on disk and the CLI
-   returns `phase_complete=false` with a substantive-plan `blocked_reason`.
+   field) — not the `[e.g., …]` / `[NEEDS CLARIFICATION …]` placeholders.
+
+   - The FIRST `setup-plan` call after the entry gate passes scaffolds
+     `plan.md` from the template. This is a **non-error** state: the CLI
+     returns `result: "success"` with `scaffold_only: true` and
+     `phase_complete: false` — it means "plan.md is ready for you to
+     populate", not a failure. Do **not** treat this call as blocked; proceed
+     to fill in the Technical Context.
+   - Once `plan.md` has been edited but its Technical Context is still not
+     substantive, the CLI returns `result: "blocked"` with
+     `phase_complete: false` and a populated-but-insufficient
+     `blocked_reason` naming the missing field(s) — populate the section and
+     re-run.
 
 Section presence is the only signal — adding arbitrary prose without the
 required structural rows does **not** count as substantive (no byte-length
@@ -124,6 +145,17 @@ spec-kitty charter context --action plan --json
 
 - If JSON `mode` is `bootstrap`, apply JSON `text` as first-run governance context and follow referenced docs as needed.
 - If JSON `mode` is `compact`, continue with condensed governance context.
+
+## Visual Communication (recommended)
+
+Apply the visual doctrine for non-trivial architecture, data/control flow,
+boundaries, migrations, or risky interactions. Load `spk-doctrine-show-me` and
+use the smallest diagram
+that materially reduces prose. Prefer Mermaid in Markdown; use PlantUML when
+richer layout, mature C4 support, or its DSL earns the added rendering cost.
+Apply C4 progressive zoom for architecture and stop at the first level that
+answers the planning question. Text contracts and plan decisions remain
+authoritative; do not generate speculative diagrams.
 
 ## Location Check (0.11.0+)
 
@@ -252,6 +284,14 @@ the first WP.
 
 If the mission is not a bulk edit, skip this step.
 
+## Supply-Chain Security & Adversarial Evidence (Planning)
+
+Apply this section whenever the plan adds, upgrades, or removes a dependency, in any ecosystem (npm/yarn/pnpm, pip/uv, Maven/Gradle, etc.).
+
+- **Security checks**: Reference the `051-supply-chain-install-safety` directive and the `supply-chain-install-safety` tactic. Planning output (Technical Context and/or `research.md`) must surface registry authenticity, package freshness, lifecycle-script discipline (deny-by-default `preinstall`/`install`/`postinstall`), and Node Active LTS awareness for any dependency decision — this mirrors the `supply_chain_security_check` step already present in the `plan` step contract.
+- **Advisory posture**: This is advisory in v1 — it does not add a new blocking gate to the Commit Boundary gates above — but an unexamined default is a gap in the plan, not a pass. Silence is not compliance.
+- **Adversarial evidence (mandatory for plan/research)**: When a security-impacting dependency decision is made, run (or explicitly document deferral of) an adversarial-squad challenge pass before claiming plan readiness. Record each contested finding's disposition — `accepted`, `changed`, or `deferred_with_rationale` — in `research.md`, per `contracts/adversarial-evidence-contract.md`. No contested finding may be silently dropped.
+
 ## Outline
 
 1. **Check planning discovery status**:
@@ -264,8 +304,9 @@ If the mission is not a bulk edit, skip this step.
    - Resolve the handle first: `spec-kitty agent context resolve --action plan --mission <handle> --json`, then pass the resolved slug to `setup-plan`
    - If the context resolve call returns an ambiguity error with `available_missions`, stop and pick one explicit mission slug before continuing
 
-3. **Setup**: If step 2 did not already return a successful setup payload, run `spec-kitty agent mission setup-plan --mission <mission-slug> --json` from the repository root and parse JSON for:
+3. **Setup**: Run `spec-kitty agent mission setup-plan --mission <mission-slug> --json` from the repository root and parse JSON for:
    - `result`: "success" or error message
+   - `scaffold_only`: `true` only on the first happy-path scaffold write (plan.md freshly copied from the template, untouched). This is `result: "success"` and NOT an error — populate the Technical Context and re-run `setup-plan` to commit. `phase_complete` stays `false` until then.
    - `mission_slug`: Resolved feature slug
    - `spec_file`: Absolute path to resolved spec.md
    - `plan_file`: Absolute path to the created plan.md

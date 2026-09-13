@@ -42,6 +42,27 @@ In non-interactive hosts, choose `not_now` and continue.
 
 **Version**: 0.12.0+
 
+
+### REASONS Guidance — Implement WP<id>
+
+Before coding, load the WP-scoped REASONS section from
+`kitty-specs/<mission>/reasons-canvas.md`:
+
+- Requirements (WP-scoped)
+- Entities (WP-relevant)
+- Approach (chosen strategy for this WP)
+- Structure (files this WP owns)
+- Operations (ordered steps)
+- Norms (testing, observability, style)
+- Safeguards (hard constraints — what not to break)
+
+If the canvas is missing, invoke the `spec-kitty-spdd-reasons` skill to
+generate it before continuing.
+
+Do not invent files, entities, or scope outside the canvas without recording a
+deviation.
+
+
 ## Purpose
 
 Execute the implementation of a work package according to its prompt file.
@@ -101,9 +122,9 @@ WP frontmatter selects an `agent_profile`):
 
 **Guaranteed authority pointers** (path + when-doing conditional):
 
-- `glossary/contexts/` — canonical terminology. Consult when you encounter a
+- `docs/context/` — canonical terminology. Consult when you encounter a
   domain term in the diff or are about to introduce a new one.
-- `architecture/3.x/adr/` — architectural intent. Consult when you change a
+- `docs/adr/3.x/` — architectural intent. Consult when you change a
   structural boundary (package layout, public API surface, dependency edges).
 - Any additional paths declared in the charter's `authority_paths:` block are
   emitted alongside these defaults.
@@ -169,6 +190,18 @@ Work through each subtask in order:
 2. Write tests first (TDD) when the subtask involves code changes
 3. Implement the code to pass the tests
 4. Verify tests pass before moving to the next subtask
+
+### 4a. Supply-Chain Security Check (dependency changes)
+
+If this WP adds, upgrades, or removes a dependency (any ecosystem — npm/yarn/pnpm, pip/uv, Maven/Gradle, etc.), run the `supply-chain-install-safety` tactic checklist before the quality gate — this mirrors the `supply_chain_security_check` step already present in the `implement` step contract:
+
+- **Registry authenticity**: confirm the resolved package/version comes from the approved official registry, not an unexpected mirror or namespace.
+- **Package freshness**: record first-publish/latest-publish timestamps; flag a suspiciously new version for operator acknowledgment instead of accepting it silently.
+- **Lifecycle-script discipline (deny-by-default)**: never auto-approve `preinstall`/`install`/`postinstall` scripts. If a legitimate native build genuinely needs one, add an explicit, justified allowlist entry — never a blanket script-safety bypass.
+- **Node Active LTS awareness**: check the project's declared/runtime Node version against current Active LTS; disclose any skew with a documented rationale rather than leaving it unacknowledged.
+- **Risk disclosure**: record what was checked and the resulting decision (per the `051-supply-chain-install-safety` directive) in the WP implementation notes or commit message, so a reviewer does not have to re-derive the analysis.
+
+This is advisory in v1 — it does not add a new fail-closed gate — but skipping the checklist for a dependency change is a gap the reviewer will flag, not a neutral outcome.
 
 ### 5. Self-Check
 

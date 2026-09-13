@@ -42,6 +42,18 @@ In non-interactive hosts, choose `not_now` and continue.
 
 **Version**: 0.11.0+
 
+
+### REASONS Guidance — Tasks
+
+While translating implementation concerns from plan.md into executable work packages, capture:
+
+- **Operations** — ordered implementation and test steps per WP.
+- **WP boundaries** — explicit `owned_files` and `authoritative_surface` for each WP, plus what each WP must NOT touch (Safeguards subset).
+
+If multiple WPs are proposed for the same surface, surface that as a Safeguard
+rather than dividing it implicitly.
+
+
 ## ⚠️ CRITICAL: THIS IS THE MOST IMPORTANT PLANNING WORK
 
 **You are creating the blueprint for implementation**. The quality of work packages determines:
@@ -149,23 +161,27 @@ Prompts do not rediscover feature context. Commands do.
 
    ### Task Tracking Format
 
-   Use **checkbox format** for all per-WP task tracking rows in `tasks.md`:
+   Per-WP subtask rows in `tasks.md` are **reference rows**, not checkboxes. Subtask
+   completion is **solely event-sourced** — the reduced event-log snapshot is the
+   authority (#2816 IC-10 / FR-016); there is **no `- [ ]` box to tick**. Emit each
+   `Txxx` as a plain reference row under its work package:
 
    ```markdown
-   - [ ] T001 Description of task (WP01)
-   - [ ] T002 Another task (WP01)
+   T001 Description of task (WP01)
+   T002 Another task (WP01)
    ```
 
-   Do **not** use pipe-table format for tracking rows in work-package sections.
-   `mark-status` targets these per-WP checkbox rows; it also supports pipe-table
-   rows for backward compatibility, but new generation must use checkboxes exclusively.
+   Record completion with `spec-kitty agent tasks mark-status T001 T002 --status done`
+   (single or batch). `mark-status` writes the completion into the event log; it does
+   **not** flip a markdown checkbox. Do **not** use pipe-table format for tracking rows
+   in work-package sections.
 
-   **Important distinction — Subtask Index vs. tracking rows**:
+   **Important distinction — Subtask Index vs. reference rows**:
    The top-level **Subtask Index** pipe-table (e.g. `| T001 | desc | WP | Parallel |`) is
-   a **reference table** only — it is not a tracking surface.  The `[P]` marker in its
-   "Parallel" column indicates parallelism, not task status.  `mark-status` tracks
-   progress via the per-WP checkbox rows (`- [ ] T001 …`) below each work-package
-   heading, not via the index table.
+   a **reference table** only — it is not a tracking surface. The `[P]` marker in its
+   "Parallel" column indicates parallelism, not task status. `mark-status` records
+   completion in the reduced event-log snapshot keyed by the `Txxx` id, never by
+   editing a markdown row.
 
 5. **Roll subtasks into work packages** (IDs `WP01`, `WP02`, ...):
 
@@ -197,10 +213,10 @@ Prompts do not rediscover feature context. Commands do.
    - Populate the Work Package sections (setup, foundational, per-story, polish) with the `WPxx` entries
    - Under each work package include:
      - Summary (goal, priority, independent test)
-     - Included subtasks (checkbox list referencing `Txxx`)
+     - Included subtasks (reference list of `Txxx` ids, tracked via `mark-status`)
      - Implementation sketch (high-level sequence)
      - Parallel opportunities, dependencies, and risks
-   - Preserve the checklist style so implementers can mark progress
+   - Keep the reference-list style; implementers record progress with `spec-kitty agent tasks mark-status`, not by ticking boxes
 
 7. **Generate prompt files (one per work package)**:
    - **CRITICAL PATH RULE**: All work package files MUST be created in a FLAT `feature_dir/tasks/` directory, NOT in subdirectories!
@@ -229,13 +245,16 @@ Prompts do not rediscover feature context. Commands do.
 
    **OWNERSHIP METADATA (required by finalize-tasks)**:
    Each WP MUST declare these fields in frontmatter. If omitted, the finalizer infers them (often incorrectly, causing validation failures):
-   - `execution_mode`: Either `"code_change"` (source code) or `"planning_artifact"` (kitty-specs docs)
-   - `owned_files`: List of glob patterns for files this WP touches. Example: `["src/myapp/auth/**", "tests/myapp/test_auth.py"]`
+   - `execution_mode`: Either `"code_change"` (source code) or `"planning_artifact"` (deliverables confined to planning surfaces — every `owned_files` entry under `kitty-specs/` or `docs/`)
+   - `owned_files`: List of glob patterns for files this WP touches. Example: `["src/myapp/auth/**", "tests/myapp/test_auth.py"]`. A `code_change` WP must never list a `kitty-specs/` path here (see Ownership rules below).
    - `authoritative_surface`: Path prefix that must be a prefix of at least one owned_files entry. Example: `"src/myapp/auth/"`
+   - `create_intent`: List of repo-root-relative literal paths this WP will create. Use this when an `owned_files` entry names a planned-new file that does not exist yet, so finalize-tasks treats the zero-match as an intentional planned-new-file instead of a validation failure. Example: `["tests/myapp/test_new_auth.py"]`. Keep a single `create_intent` key; if a stub `create_intent: []` already exists, replace it instead of adding a duplicate block.
 
    **Ownership rules**:
    - No two WPs may have overlapping `owned_files`.
    - Use specific paths, not broad globs like `src/**`.
+   - **kitty-specs ownership ban**: a `code_change` WP must NOT list any `kitty-specs/` path in `owned_files` — `finalize-tasks --validate-only` rejects it with `INVALID_WP_OWNED_FILES_KITTY_SPECS`. The exemption is a `planning_artifact` WP whose **every** `owned_files` entry is confined to `kitty-specs/` or `docs/` — a planning WP that also owns a `src/`/`tests/` (or any other non-planning) path is not exempt and is rejected the same way.
+   - **Where per-WP design notes go**: design notes, plan-marker edits, and other `kitty-specs/` deliverables a work package must produce belong in their own confined `planning_artifact` WP (all `owned_files` under `kitty-specs/`/`docs/`) — never inside a code WP's `owned_files`. Split a mixed WP into a planning WP plus a code WP rather than mixing the two ownership kinds.
    - Agents working on a WP should prefer to stay within their `owned_files` list; a small, well-justified out-of-map edit is acceptable when recorded with a one-line rationale (the no-overlap rule above is the real guard against parallel-WP collisions).
    - Run `spec-kitty agent mission finalize-tasks --validate-only --mission <mission-slug> --json` to check ownership before committing.
 
@@ -528,7 +547,7 @@ For each cohesive unit of work:
 
 Create work package sections with:
 - Summary (goal, priority, test criteria)
-- Included subtasks (checkbox list)
+- Included subtasks (reference list of `Txxx` ids, tracked via `mark-status`)
 - Implementation notes
 - Parallel opportunities
 - Dependencies
@@ -568,7 +587,11 @@ List available profiles:
 spec-kitty agent profile list --json
 ```
 
-> If this command is unavailable, look for profiles under `src/doctrine/agent_profiles/built-in/` and any user-defined profiles in `.kittify/agent_profiles/` or equivalent.
+> Only a read-only harness that cannot invoke the CLI may inspect profiles under
+> `packs/built-in/agent_profiles/` and any user-defined profile directory.
+> This degraded fallback can diverge because organization/project overlays,
+> `specializes_from` lineage, and `enhances`/`overrides` semantics are not applied;
+> state that limitation when selecting a profile this way.
 
 For each work package, select the best-matching profile based on:
 - `task_type` (implement / review / plan / specify / research)
@@ -598,11 +621,11 @@ After reporting, ask the user directly:
 > **Should I use the `/spec-kitty-implement-review` skill to fully implement all WPs until completion?**
 > This will dispatch implementing and reviewing agents for every WP, handle rejection cycles, and merge all lanes when done.
 >
-> Optional quality control gate before implementation: run `/spec-kitty.analyze` first to persist an `analysis-report.md` and review spec/plan/task consistency before any WP implementation starts.
+> **Required pre-implementation gate:** `/spec-kitty.analyze` must run before any WP implementation. It persists an `analysis-report.md` and reviews spec/plan/task consistency; the implement gate refuses to start (`analysis_report_required`) until that report exists. This is not optional — it is the readiness gate `/spec-kitty.implement` enforces.
 
-- If the user says **yes**: invoke the `spec-kitty-implement-review` skill with the mission slug. The user may also specify which agents to use for implementation and review (e.g., "yes, use sonnet for implementing and opus for reviewing").
-- If the user says **no** or wants to do it manually: end here and let them run `/spec-kitty.implement` at their own pace.
-- If the user wants the optional quality gate first: run `/spec-kitty.analyze --mission <mission-slug>` and wait for the user's decision on whether to address findings before invoking implementation.
+- If the user says **yes**: first ensure `/spec-kitty.analyze` has been run for this mission (run it now if `analysis-report.md` is missing — implementation cannot claim a WP without it), then invoke the `spec-kitty-implement-review` skill with the mission slug. The user may also specify which agents to use for implementation and review (e.g., "yes, use sonnet for implementing and opus for reviewing").
+- If the user says **no** or wants to do it manually: end here and let them run `/spec-kitty.implement` at their own pace — reminding them that `/spec-kitty.analyze` is a required prerequisite the implement gate enforces.
+- If the user wants to review consistency findings first: run `/spec-kitty.analyze --mission <mission-slug>` (also the required gate) and wait for the user's decision on whether to address findings before invoking implementation.
 - If the user asks for a subset (e.g., "just WP01 and WP02 for now"): invoke the skill with that scope.
 
 This handoff is the natural transition from planning to execution. Do NOT skip the question — always offer it explicitly so the user can choose their execution strategy.
