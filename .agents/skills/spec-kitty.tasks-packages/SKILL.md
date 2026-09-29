@@ -75,11 +75,11 @@ spec-kitty agent context resolve --action tasks_packages --mission <mission-slug
 ```
 
 Then execute the returned `check_prerequisites` command and capture
-`feature_dir`. All paths must be absolute.
+`mission_dir`. All paths must be absolute.
 
 ### 2. Load `wps.yaml`
 
-Read `feature_dir/wps.yaml`. This is the manifest written in the previous step.
+Read `mission_dir/wps.yaml`. This is the manifest written in the previous step.
 Each entry defines a WP with its `id`, `title`, `dependencies`, and partial metadata.
 
 Parse all work package entries. The YAML structure is:
@@ -101,11 +101,11 @@ Parse all WP definitions from `wps.yaml`. Each WP prompt file is independent —
 dispatch one sub-agent per WP in a **single message** so they run concurrently
 rather than generating all WP content in one serial response.
 
-**CRITICAL PATH RULE**: All WP files MUST be created in a FLAT `feature_dir/tasks/`
+**CRITICAL PATH RULE**: All WP files MUST be created in a FLAT `mission_dir/tasks/`
 directory, NOT in subdirectories!
 
-- Correct: `feature_dir/tasks/WPxx-slug.md` (flat, no subdirectories)
-- WRONG: `feature_dir/tasks/planned/`, `feature_dir/tasks/doing/`, or ANY status subdirectories
+- Correct: `mission_dir/tasks/WPxx-slug.md` (flat, no subdirectories)
+- WRONG: `mission_dir/tasks/planned/`, `mission_dir/tasks/doing/`, or ANY status subdirectories
 
 **Batching for large missions**: If there are more than 6 WPs, dispatch in groups
 of 4. Send all agents in a group in one message, wait for all to complete, then
@@ -118,19 +118,19 @@ start the next group.
 You are writing a single Work Package prompt file for the spec-kitty planning
 pipeline. Write exactly one file and return the filename and final line count.
 
-**Feature directory**: `{feature_dir}` (absolute path)
-**Write to**: `{feature_dir}/tasks/{wp_id}-{slug}.md`
+**Mission directory**: `{mission_dir}` (absolute path)
+**Write to**: `{mission_dir}/tasks/{wp_id}-{slug}.md`
 
 **Work Package** (from wps.yaml):
 - id: `{wp_id}`
 - title: `{title}`
 - dependencies: `{dependencies}`
 - owned_files: `{owned_files}`
-- execution_mode: derive from `owned_files` (`planning_artifact` for kitty-specs/docs-only WPs, otherwise `code_change`)
+- execution_mode: derive from `owned_files` (`planning_artifact` only when every entry is confined to `kitty-specs/` or `docs/`, otherwise `code_change`; see Ownership rules below)
 - requirement_refs: `{requirement_refs}`
 - subtasks: `{subtasks}`
 
-**Read for context** (all from `feature_dir`):
+**Read for context** (all from `mission_dir`):
 - `plan.md` (required — tech architecture, stack)
 - `spec.md` (required — user stories, acceptance criteria)
 - `data-model.md`, `research.md` (read if present)
@@ -256,7 +256,9 @@ Include the correct implementation command:
 **Ownership rules**:
 - `owned_files`: List of glob patterns for files this WP touches — no two WPs may overlap.
 - `authoritative_surface`: Path prefix that must be a prefix of at least one `owned_files` entry.
-- `execution_mode`: `"code_change"` for source code changes, `"planning_artifact"` for kitty-specs docs.
+- `execution_mode`: `"code_change"` for source code changes, `"planning_artifact"` only for work confined to planning surfaces.
+- **kitty-specs ownership ban**: a `code_change` WP must NOT list any `kitty-specs/` path in `owned_files` — `finalize-tasks --validate-only` rejects it with `INVALID_WP_OWNED_FILES_KITTY_SPECS`. The exemption is a `planning_artifact` WP whose **every** `owned_files` entry is confined to `kitty-specs/` or `docs/` — a planning WP that also owns a `src/`, `tests/`, or any other non-planning path is not exempt and is rejected the same way.
+- **Where per-WP design notes go**: design notes, plan-marker edits, and other `kitty-specs/` deliverables belong in their own separate confined `planning_artifact` WP, with every `owned_files` entry under `kitty-specs/` or `docs/`. Split a mixed WP into a planning WP plus a code WP rather than mixing the two ownership kinds.
 - Agents working on a WP should prefer to stay within their `owned_files` list; a small, well-justified out-of-map edit is acceptable when recorded with a one-line rationale (the no-overlap rule above is the real guard against parallel-WP collisions).
 
 ### 4a. Assign Agent Profiles
@@ -295,9 +297,9 @@ After all sub-agents complete, verify each generated prompt:
 ## Output
 
 After completing this step:
-- `feature_dir/tasks/WP*.md` prompt files exist for all work packages
+- `mission_dir/tasks/WP*.md` prompt files exist for all work packages
 - Each has proper frontmatter with `work_package_id`, `dependencies`, `owned_files`, `authoritative_surface`, `execution_mode`
-- `feature_dir/wps.yaml` is fully populated: all `owned_files`, `requirement_refs`, `subtasks`, and `prompt_file` fields are set
+- `mission_dir/wps.yaml` is fully populated: all `owned_files`, `requirement_refs`, `subtasks`, and `prompt_file` fields are set
 
 **Next step**: `spec-kitty next --agent <name>` will advance to finalization.
 

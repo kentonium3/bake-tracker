@@ -153,7 +153,7 @@ spec-kitty charter sync [--force] [--json]
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--force` | FLAG | off | Force sync even if charter is not stale |
+| `--force` | FLAG | off | Accepted for compatibility; has no effect |
 | `--json` | FLAG | off | Output JSON |
 
 **Output files:** none. `sync` writes nothing — `governance`/`directives` are
@@ -164,7 +164,9 @@ consumer; there is nothing left to derive.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `success` | bool | Always `false` (`result.synced` is always `False`) |
+| `result` | string | `"noop"` — the inert outcome (`"success"` only under a hypothetical future repair-mode `sync()`) |
+| `success` | bool | `true` for the inert no-op (`result.error is None`); `false` only when the call genuinely errored (#4679) |
+| `message` | string | Human-readable statement of the outcome — the no-op explanation, or `"Charter synced"` under a future repair mode (#4679) |
 | `stale_before` | bool | Legacy field, retained for shape stability |
 | `files_written` | list | Always `[]` |
 | `extraction_mode` | string | Legacy field, retained for shape stability |

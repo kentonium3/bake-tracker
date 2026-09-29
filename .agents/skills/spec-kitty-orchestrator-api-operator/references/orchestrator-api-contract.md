@@ -337,23 +337,39 @@ spec-kitty orchestrator-api accept-mission --mission TEXT --actor TEXT
 
 | Code | Cause |
 |------|-------|
-| `MISSION_NOT_READY` | One or more WPs are not `approved` or `done` |
+| `MISSION_NOT_READY` | One or more WPs are not `approved` or `done`, OR (contract >= 1.7.0) the host readiness verdict (`collect_feature_summary(..., strict_metadata=True).ok`) is `False` -- a pending/failing acceptance matrix, missing/corrupt `lanes.json`, target-branch mismatch, unmet path convention, dirty working tree, etc. |
+
+**Error data (readiness-verdict refusal, contract >= 1.7.0):**
+
+| Field | Type | Description |
+|-------|------|--------------|
+| `outstanding` | `dict[str, list[string]]` | `AcceptanceSummary.outstanding()`'s buckets |
+| `activity_issues` | `list[string]` | Human-readable readiness issues |
+| `skipped_checks` | `list[{check, detail}]` | Gates never reached |
+| `blocked_checks` | `list[{check, detail}]` | Gates that stopped readiness (e.g. `check: "lanes_manifest"` for a missing `lanes.json`) |
+
+No acceptance is recorded on this refusal (no `accepted_at` /
+`acceptance_mode`, HEAD unchanged; the readiness gate may still update the
+matrix rows it judged in the working tree). Acceptance is recorded only inside the same FR-010 locked
+pre-stamp verdict re-check the host `accept` CLI uses -- a verdict committed
+between the readiness check and the write, or a lock-acquisition timeout, is
+still refused with `MISSION_NOT_READY`.
 
 **Usage notes:**
 
 - Always call `mission-state` first to verify every WP is in `approved` or `done`
-- This is a guard-protected operation; it will reject if any WP is not `approved` or `done`
+- This is a guard-protected operation; it will reject if any WP is not `approved` or `done`, or if the host readiness verdict is not passing
 - `accept-mission` does not move WPs from `approved` to `done`; merge owns that transition
 
 
 ---
 
-## 9. merge-mission
+## 9. consolidate-mission
 
 Merge all work packages for a mission into the target branch.
 
 ```bash
-spec-kitty orchestrator-api merge-mission \
+spec-kitty orchestrator-api consolidate-mission \
   --mission TEXT [--target TEXT] [--strategy merge|squash|rebase] [--push]
 ```
 
@@ -450,7 +466,7 @@ spec-kitty orchestrator-api specify \
 | Code | Cause |
 |------|-------|
 | `POLICY_METADATA_REQUIRED` | `--policy` missing |
-| `MISSION_ALREADY_EXISTS` | The delegate mission-creation call failed with a duplicate/no-op-commit signature |
+| `MISSION_ALREADY_EXISTS` | The delegate mission-creation call refused a duplicate (typed `MissionAlreadyExistsError` signal, #3861) |
 | `MISSION_CREATE_FAILED` | Mission creation failed for any other reason (or the delegate's own typed `error_code`, passed through verbatim when present) |
 
 **Usage notes:**
@@ -857,8 +873,7 @@ transition — it never invokes the WP-loop or `next` engines.
 |------------|----------|-------------|
 | `CONTRACT_VERSION_MISMATCH` | contract-version | Provider version too old |
 | `MISSION_NOT_FOUND` | mission-state, list-ready | Unknown mission slug |
-| `MISSION_NOT_READY` | accept-mission | Not all WPs are approved or done |
-| `WORKFLOW_EVIDENCE_REQUIRED` | accept-mission | Workflow files changed without runner proof |
+| `MISSION_NOT_READY` | accept-mission | Not all WPs are approved/done, or (contract >= 1.7.0) the host readiness verdict is not passing |
 | `POLICY_METADATA_REQUIRED` | start-implementation, start-review, transition | Missing or incomplete policy JSON |
 | `POLICY_VALIDATION_FAILED` | start-implementation, start-review, transition | Policy JSON invalid or contains secret-like values |
 | `USAGE_ERROR` | all commands | CLI usage error or missing required arguments |
@@ -875,8 +890,8 @@ transition — it never invokes the WP-loop or `next` engines.
 | `SAFE_COMMIT_RECOVERY_FAILED` | append-history | Safe commit created or attempted a commit but could not restore caller staging |
 | `TRANSITION_REJECTED` | start-implementation, start-review, transition | Guard failure or invalid transition |
 | `WP_ALREADY_CLAIMED` | start-implementation, start-review | Another actor owns the WP |
-| `MISSION_ALREADY_EXISTS` | specify | Delegate mission-creation call failed with a duplicate/no-op-commit signature |
-| `MISSION_CREATE_FAILED` | specify | Mission creation failed for a reason other than a detected duplicate |
+| `MISSION_ALREADY_EXISTS` | specify | Delegate mission-creation call refused a duplicate (typed `MissionAlreadyExistsError` signal, #3861) |
+| `MISSION_CREATE_FAILED` | specify | Mission creation failed for a reason other than a typed duplicate signal |
 | `PLAN_SETUP_FAILED` | plan | Delegate plan-scaffold call failed with no more specific typed `error_code` of its own |
 | `TASKS_FINALIZE_FAILED` | tasks | Delegate finalize-tasks call failed with no more specific typed `error_code` of its own |
 | `CHECK_PREREQUISITES_FAILED` | check-prerequisites | Delegate validation call failed with no more specific typed `error_code` of its own |
@@ -901,8 +916,8 @@ transition — it never invokes the WP-loop or `next` engines.
 | `DECISION_OPERATION_FAILED` | open-decision, resolve-decision, defer-decision, cancel-decision | A decision-ledger operation failed for a reason without a more specific registered code |
 | `DESIGN_STATUS_EVENT_LOG_UNREADABLE` | design-status | `status.events.jsonl` could not be read cleanly (torn/truncated line, or a detected drift against `status.json`) while deriving the tasks-finalized signal |
 | `WP_NOT_FOUND` | resolve-workspace, start-implementation, start-review, transition, append-history | Work package ID does not exist in the mission |
-| `PREFLIGHT_FAILED` | merge-mission | Preflight checks failed before merge (target-branch/git-state errors, or a `RuntimeError` from the lane-consolidation step) |
-| `UNSUPPORTED_STRATEGY` | merge-mission | Requested `--strategy` is not one of `merge`, `squash`, `rebase` |
+| `PREFLIGHT_FAILED` | consolidate-mission | Preflight checks failed before merge (target-branch/git-state errors, or a `RuntimeError` from the lane-consolidation step) |
+| `UNSUPPORTED_STRATEGY` | consolidate-mission | Requested `--strategy` is not one of `merge`, `squash`, `rebase` |
 | `LANE_ALLOCATION_FAILED` | start-implementation, transition | Lane worktree allocation failed (dirty reuse, a dependency-lane consolidation conflict, or an unhonorable base) |
 | `ANCESTRY_NOT_ESTABLISHED` | start-implementation, transition | The recorded planning commit or an approved dependency lane's tip is not (yet) a git ancestor of the claimed workspace's HEAD, even after self-heal re-ran the reuse-path merges |
 | `SAFE_COMMIT_PATH_POLICY` | append-history | Safe commit refused to stage a path under `.worktrees/` from the primary repo root before mutating the index |
@@ -949,5 +964,5 @@ spec-kitty orchestrator-api transition \
 
 # 9. When all WPs are approved or done, accept and merge
 spec-kitty orchestrator-api accept-mission --mission 017-my-mission --actor "ci-bot"
-spec-kitty orchestrator-api merge-mission --mission 017-my-mission --strategy squash --push
+spec-kitty orchestrator-api consolidate-mission --mission 017-my-mission --strategy squash --push
 ```

@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 4.0.0rc1
+  version: 4.0.0rc5
   initialized_at: '2026-01-19T10:58:28.686235'
-  last_upgraded_at: '2026-09-13T20:36:26.928204+00:00'
+  last_upgraded_at: '2026-09-29T02:38:38.881637+00:00'
   schema_version: 3
 environment:
   python_version: 3.13.11
@@ -885,3 +885,11 @@ migrations:
     applied_at: '2026-07-08T13:33:41.555095'
     result: success
     notes: 'Added gitignore entry: .agents/skills/; Added gitignore entry: .kittify/skills-manifest.json'
+  - id: 4_0_0rc5_heal_template_set_provenance
+    applied_at: '2026-09-29T02:38:38.798795+00:00'
+    result: skipped
+    notes: Not applicable
+  - id: 4_0_0rc5_hosted_endpoint_session_backfill
+    applied_at: '2026-09-29T02:38:38.842279+00:00'
+    result: skipped
+    notes: Not applicable

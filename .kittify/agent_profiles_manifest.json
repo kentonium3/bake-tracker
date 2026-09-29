@@ -17,7 +17,7 @@
       "output_path": ".claude/agents/architect-alphonso.md",
       "profile_urn": "agent_profile:architect-alphonso",
       "projection_version": 1,
-      "source_hash": "97be12624a998dfae064529a4fac959cb25e2d61cff1eefe6e206f31e78014ff",
+      "source_hash": "b7b1ce2a3c8ce665e2a18ceba4987d696c177256ed0f69786764ed2b1ebcd07e",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/architect-alphonso.agent.yaml",
       "tool_key": "claude"
@@ -83,18 +83,29 @@
       "output_path": ".claude/agents/doctrine-daphne.md",
       "profile_urn": "agent_profile:doctrine-daphne",
       "projection_version": 1,
-      "source_hash": "1f6357cd142813f497c96abf951a7c25fb99d056af31dbd5d7f0282b48ec86cf",
+      "source_hash": "6c1779acaa8c11438846a30f347bb636dae1a4521bf1297b038e3349ad3f54d9",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/doctrine-daphne.agent.yaml",
       "tool_key": "claude"
     },
     {
-      "file_hash": "c1b9cffbf3bdffafae644af7c3367be2e8402332dd842b21257b59b2c9181c88",
+      "file_hash": "a0337cd1e459b583345c57c0a9bbfea3098e651b65919f356902fc3de0ae954a",
+      "format": "claude-agent",
+      "output_path": ".claude/agents/drupal-dries.md",
+      "profile_urn": "agent_profile:drupal-dries",
+      "projection_version": 1,
+      "source_hash": "a8a63c6d77f813e54a03cf1b487173de7865a338dae17b8099c6a82ddaa32d27",
+      "source_layer": "builtin",
+      "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/drupal-dries.agent.yaml",
+      "tool_key": "claude"
+    },
+    {
+      "file_hash": "3fc3010f5fe2498a164c0d4130200f93898865e1e0fad04ceb8e4ee4880c144f",
       "format": "claude-agent",
       "output_path": ".claude/agents/frontend-freddy.md",
       "profile_urn": "agent_profile:frontend-freddy",
       "projection_version": 1,
-      "source_hash": "3d437f143eac5062673f67cd5b2f0e1ff61114cab12af342f5a26127b9b36c70",
+      "source_hash": "6ba3f319690688c7816c528db5c61093820df736bcd418e3f7d5315a5d45530d",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/frontend-freddy.agent.yaml",
       "tool_key": "claude"
@@ -116,7 +127,7 @@
       "output_path": ".claude/agents/implementer-ivan.md",
       "profile_urn": "agent_profile:implementer-ivan",
       "projection_version": 1,
-      "source_hash": "173864c3da2d192565a14b473a984a4d23f07ced08474e7dd077d8fd18c1666f",
+      "source_hash": "594a504aa0fb2c708d2aff7365d5458110800f2439e850d824b95a1fd5dc6a75",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/implementer-ivan.agent.yaml",
       "tool_key": "claude"
@@ -144,14 +155,14 @@
       "tool_key": "claude"
     },
     {
-      "file_hash": "925323a4d7d49c43b42843c79be98b16f0068ca6ad024d3ab191cc6795f4ea2c",
+      "file_hash": "196981239ccdad4bf39ba8d54f83b7216a90e2f895ee2a37233151111cbccd12",
       "format": "claude-agent",
-      "output_path": ".claude/agents/minutes-maker-mahad.md",
-      "profile_urn": "agent_profile:minutes-maker-mahad",
+      "output_path": ".claude/agents/minutes-mahad.md",
+      "profile_urn": "agent_profile:minutes-mahad",
       "projection_version": 1,
-      "source_hash": "b7a1b0305d1fdfa826a3d1fb2d8d0c37022ddb3fba0c62c89bd0dde78ead98f9",
+      "source_hash": "7247e61f9768e6d0f9ea8936aeaeff152600e6e5d0902545894de156598298ca",
       "source_layer": "builtin",
-      "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/minutes-maker-mahad.agent.yaml",
+      "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/minutes-mahad.agent.yaml",
       "tool_key": "claude"
     },
     {
@@ -182,7 +193,7 @@
       "output_path": ".claude/agents/planner-priti.md",
       "profile_urn": "agent_profile:planner-priti",
       "projection_version": 1,
-      "source_hash": "ff91fb7d097934f17e9b2d3fb8b782c2fdc7afde8aef0f96648c2efe10394d41",
+      "source_hash": "1fa915e4c9874cd8135d9a324d95ae55686f68895f7b827858cc98bf49db86d4",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/planner-priti.agent.yaml",
       "tool_key": "claude"
@@ -193,7 +204,7 @@
       "output_path": ".claude/agents/python-pedro.md",
       "profile_urn": "agent_profile:python-pedro",
       "projection_version": 1,
-      "source_hash": "133b6b21db718b4826497372999d4fd0a1ada38e406036bbf9417e3e2ec1b4aa",
+      "source_hash": "be446235b46f934a8a68071a91d1d1e047aa7d6d6d32231a550e33dcc79b9b96",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/python-pedro.agent.yaml",
       "tool_key": "claude"
@@ -248,7 +259,7 @@
       "output_path": ".claude/agents/scribe-sally.md",
       "profile_urn": "agent_profile:scribe-sally",
       "projection_version": 1,
-      "source_hash": "351cc3f66935bc681e347e89ead3d7bce80912a176311d6bd2ba0ca85da22d63",
+      "source_hash": "6600c3d6ff7c1cfa57abc5bd03a94bd93154408dbd59d8a52f124361728bba5c",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/scribe-sally.agent.yaml",
       "tool_key": "claude"
@@ -281,7 +292,7 @@
       "output_path": ".codex/agents/architect-alphonso.toml",
       "profile_urn": "agent_profile:architect-alphonso",
       "projection_version": 1,
-      "source_hash": "97be12624a998dfae064529a4fac959cb25e2d61cff1eefe6e206f31e78014ff",
+      "source_hash": "b7b1ce2a3c8ce665e2a18ceba4987d696c177256ed0f69786764ed2b1ebcd07e",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/architect-alphonso.agent.yaml",
       "tool_key": "codex"
@@ -347,9 +358,20 @@
       "output_path": ".codex/agents/doctrine-daphne.toml",
       "profile_urn": "agent_profile:doctrine-daphne",
       "projection_version": 1,
-      "source_hash": "1f6357cd142813f497c96abf951a7c25fb99d056af31dbd5d7f0282b48ec86cf",
+      "source_hash": "6c1779acaa8c11438846a30f347bb636dae1a4521bf1297b038e3349ad3f54d9",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/doctrine-daphne.agent.yaml",
+      "tool_key": "codex"
+    },
+    {
+      "file_hash": "7080a88c886c0c6a02e6818fa9b974df66544d54f9aae85b4bf740211708df0f",
+      "format": "codex-agent",
+      "output_path": ".codex/agents/drupal-dries.toml",
+      "profile_urn": "agent_profile:drupal-dries",
+      "projection_version": 1,
+      "source_hash": "a8a63c6d77f813e54a03cf1b487173de7865a338dae17b8099c6a82ddaa32d27",
+      "source_layer": "builtin",
+      "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/drupal-dries.agent.yaml",
       "tool_key": "codex"
     },
     {
@@ -358,7 +380,7 @@
       "output_path": ".codex/agents/frontend-freddy.toml",
       "profile_urn": "agent_profile:frontend-freddy",
       "projection_version": 1,
-      "source_hash": "3d437f143eac5062673f67cd5b2f0e1ff61114cab12af342f5a26127b9b36c70",
+      "source_hash": "6ba3f319690688c7816c528db5c61093820df736bcd418e3f7d5315a5d45530d",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/frontend-freddy.agent.yaml",
       "tool_key": "codex"
@@ -380,7 +402,7 @@
       "output_path": ".codex/agents/implementer-ivan.toml",
       "profile_urn": "agent_profile:implementer-ivan",
       "projection_version": 1,
-      "source_hash": "173864c3da2d192565a14b473a984a4d23f07ced08474e7dd077d8fd18c1666f",
+      "source_hash": "594a504aa0fb2c708d2aff7365d5458110800f2439e850d824b95a1fd5dc6a75",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/implementer-ivan.agent.yaml",
       "tool_key": "codex"
@@ -408,14 +430,14 @@
       "tool_key": "codex"
     },
     {
-      "file_hash": "fa5f7f6becdcc656d3a91c0cb6bdbcaf86cca6168c00e977de3f84b9497ae256",
+      "file_hash": "b4e2afc7aefa76fe1841aa95232a8ab77d22d968269955c94537e090f3c6ea0d",
       "format": "codex-agent",
-      "output_path": ".codex/agents/minutes-maker-mahad.toml",
-      "profile_urn": "agent_profile:minutes-maker-mahad",
+      "output_path": ".codex/agents/minutes-mahad.toml",
+      "profile_urn": "agent_profile:minutes-mahad",
       "projection_version": 1,
-      "source_hash": "b7a1b0305d1fdfa826a3d1fb2d8d0c37022ddb3fba0c62c89bd0dde78ead98f9",
+      "source_hash": "7247e61f9768e6d0f9ea8936aeaeff152600e6e5d0902545894de156598298ca",
       "source_layer": "builtin",
-      "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/minutes-maker-mahad.agent.yaml",
+      "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/minutes-mahad.agent.yaml",
       "tool_key": "codex"
     },
     {
@@ -446,7 +468,7 @@
       "output_path": ".codex/agents/planner-priti.toml",
       "profile_urn": "agent_profile:planner-priti",
       "projection_version": 1,
-      "source_hash": "ff91fb7d097934f17e9b2d3fb8b782c2fdc7afde8aef0f96648c2efe10394d41",
+      "source_hash": "1fa915e4c9874cd8135d9a324d95ae55686f68895f7b827858cc98bf49db86d4",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/planner-priti.agent.yaml",
       "tool_key": "codex"
@@ -457,7 +479,7 @@
       "output_path": ".codex/agents/python-pedro.toml",
       "profile_urn": "agent_profile:python-pedro",
       "projection_version": 1,
-      "source_hash": "133b6b21db718b4826497372999d4fd0a1ada38e406036bbf9417e3e2ec1b4aa",
+      "source_hash": "be446235b46f934a8a68071a91d1d1e047aa7d6d6d32231a550e33dcc79b9b96",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/python-pedro.agent.yaml",
       "tool_key": "codex"
@@ -512,7 +534,7 @@
       "output_path": ".codex/agents/scribe-sally.toml",
       "profile_urn": "agent_profile:scribe-sally",
       "projection_version": 1,
-      "source_hash": "351cc3f66935bc681e347e89ead3d7bce80912a176311d6bd2ba0ca85da22d63",
+      "source_hash": "6600c3d6ff7c1cfa57abc5bd03a94bd93154408dbd59d8a52f124361728bba5c",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/scribe-sally.agent.yaml",
       "tool_key": "codex"
