@@ -893,3 +893,21 @@ migrations:
     applied_at: '2026-09-29T02:38:38.842279+00:00'
     result: skipped
     notes: Not applicable
+  - id: 4_0_0rc5_install_lane_tip_recorder
+    applied_at: '2026-10-02T12:17:29.277046+00:00'
+    result: success
+    notes: 'installed lane-tip recorder hook: post-commit; installed lane-tip recorder
+      hook: post-rewrite'
+  - id: 4.0.0rc5_retire_bundled_dashboard
+    applied_at: '2026-10-02T12:17:29.364402+00:00'
+    result: success
+    notes: Removed retired .kittify/.dashboard
+  - id: 4.0.0rc5_retire_single_owner_doctrine_ids
+    applied_at: '2026-10-02T12:17:29.890416+00:00'
+    result: success
+    notes: Removed bug-fixing-checklist from .kittify/config.yaml (activated_tactics);
+      Removed locality-of-change from .kittify/config.yaml (activated_tactics); Removed
+      boring-code-review from .kittify/config.yaml (activated_tactics); Activated
+      successor boring-code-review in .kittify/config.yaml (activated_styleguides);
+      Removed behavior-driven-development from .kittify/config.yaml (activated_tactics);
+      Activated successor bdd-scenario-formulation in .kittify/config.yaml (activated_tactics)

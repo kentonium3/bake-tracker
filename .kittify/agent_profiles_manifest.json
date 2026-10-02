@@ -17,7 +17,7 @@
       "output_path": ".claude/agents/architect-alphonso.md",
       "profile_urn": "agent_profile:architect-alphonso",
       "projection_version": 1,
-      "source_hash": "b7b1ce2a3c8ce665e2a18ceba4987d696c177256ed0f69786764ed2b1ebcd07e",
+      "source_hash": "4bb8d2478259d776b3b9c94ffca4eaae64f46f8ebe971a42e25196b88ed6279a",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/architect-alphonso.agent.yaml",
       "tool_key": "claude"
@@ -50,7 +50,7 @@
       "output_path": ".claude/agents/debugger-debbie.md",
       "profile_urn": "agent_profile:debugger-debbie",
       "projection_version": 1,
-      "source_hash": "e22df3c8a040fea35dd2a03509b8b21da117fa66a412aa274439b5b93b2474cb",
+      "source_hash": "84485d9915b7b090cfc644e13dc82ef8fc253c3da7ee1847e566ada767a03ad0",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/debugger-debbie.agent.yaml",
       "tool_key": "claude"
@@ -94,7 +94,7 @@
       "output_path": ".claude/agents/drupal-dries.md",
       "profile_urn": "agent_profile:drupal-dries",
       "projection_version": 1,
-      "source_hash": "a8a63c6d77f813e54a03cf1b487173de7865a338dae17b8099c6a82ddaa32d27",
+      "source_hash": "4abc5883bfa67fa88ee24e852f7aa1ea004246209394d156bce021b69741bc72",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/drupal-dries.agent.yaml",
       "tool_key": "claude"
@@ -105,7 +105,7 @@
       "output_path": ".claude/agents/frontend-freddy.md",
       "profile_urn": "agent_profile:frontend-freddy",
       "projection_version": 1,
-      "source_hash": "6ba3f319690688c7816c528db5c61093820df736bcd418e3f7d5315a5d45530d",
+      "source_hash": "5a709fbefe06f192a12f829f76ebe6e65460b5105b830caca6ec4b8ad8472d3a",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/frontend-freddy.agent.yaml",
       "tool_key": "claude"
@@ -127,7 +127,7 @@
       "output_path": ".claude/agents/implementer-ivan.md",
       "profile_urn": "agent_profile:implementer-ivan",
       "projection_version": 1,
-      "source_hash": "594a504aa0fb2c708d2aff7365d5458110800f2439e850d824b95a1fd5dc6a75",
+      "source_hash": "d31147245e98b300125d966ea32f9ba411de0bab683774b4d4c0b190c70f99b2",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/implementer-ivan.agent.yaml",
       "tool_key": "claude"
@@ -138,7 +138,7 @@
       "output_path": ".claude/agents/java-jenny.md",
       "profile_urn": "agent_profile:java-jenny",
       "projection_version": 1,
-      "source_hash": "da07e2c52a6c730b83ca9935a4976c831f1972538702b2aa91709940201b34d1",
+      "source_hash": "5fe490e66479990ff03f6b66a5f4a2b8f07bd76fd191685df303088fbf4d824f",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/java-jenny.agent.yaml",
       "tool_key": "claude"
@@ -171,7 +171,7 @@
       "output_path": ".claude/agents/node-norris.md",
       "profile_urn": "agent_profile:node-norris",
       "projection_version": 1,
-      "source_hash": "8bc673d323d963598b30e46d941d4cbe3151de4d509445d945b63e2a9c9cf674",
+      "source_hash": "0a7b5f6f138902466487b243de4d6c19e9f3f72193163d2c176ee354a5b26654",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/node-norris.agent.yaml",
       "tool_key": "claude"
@@ -182,7 +182,7 @@
       "output_path": ".claude/agents/paula-patterns.md",
       "profile_urn": "agent_profile:paula-patterns",
       "projection_version": 1,
-      "source_hash": "9a77e5bc10ecda6fff4464f7ed3dab08ad25a8db7d94a70981699d17358ca9ab",
+      "source_hash": "0926d47d576bdbe8dd8e9ad794209ad29e360832a570333382271d3f6c8450cc",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/paula-patterns.agent.yaml",
       "tool_key": "claude"
@@ -204,7 +204,7 @@
       "output_path": ".claude/agents/python-pedro.md",
       "profile_urn": "agent_profile:python-pedro",
       "projection_version": 1,
-      "source_hash": "be446235b46f934a8a68071a91d1d1e047aa7d6d6d32231a550e33dcc79b9b96",
+      "source_hash": "7184286bd3a7e781c593940a235fd4171647f89c60dfd201c3498bc48e1328ea",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/python-pedro.agent.yaml",
       "tool_key": "claude"
@@ -248,7 +248,7 @@
       "output_path": ".claude/agents/reviewer-renata.md",
       "profile_urn": "agent_profile:reviewer-renata",
       "projection_version": 1,
-      "source_hash": "6ed595685f47c86596a7a7ed3c1dae26b0408193813c1104b78e54d59ac01c4e",
+      "source_hash": "9ae3b1c8fe9f97506a67b69ecc4e681fa6d6c8fb7e3e82b13031c5058328ad17",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/reviewer-renata.agent.yaml",
       "tool_key": "claude"
@@ -292,7 +292,7 @@
       "output_path": ".codex/agents/architect-alphonso.toml",
       "profile_urn": "agent_profile:architect-alphonso",
       "projection_version": 1,
-      "source_hash": "b7b1ce2a3c8ce665e2a18ceba4987d696c177256ed0f69786764ed2b1ebcd07e",
+      "source_hash": "4bb8d2478259d776b3b9c94ffca4eaae64f46f8ebe971a42e25196b88ed6279a",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/architect-alphonso.agent.yaml",
       "tool_key": "codex"
@@ -325,7 +325,7 @@
       "output_path": ".codex/agents/debugger-debbie.toml",
       "profile_urn": "agent_profile:debugger-debbie",
       "projection_version": 1,
-      "source_hash": "e22df3c8a040fea35dd2a03509b8b21da117fa66a412aa274439b5b93b2474cb",
+      "source_hash": "84485d9915b7b090cfc644e13dc82ef8fc253c3da7ee1847e566ada767a03ad0",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/debugger-debbie.agent.yaml",
       "tool_key": "codex"
@@ -369,7 +369,7 @@
       "output_path": ".codex/agents/drupal-dries.toml",
       "profile_urn": "agent_profile:drupal-dries",
       "projection_version": 1,
-      "source_hash": "a8a63c6d77f813e54a03cf1b487173de7865a338dae17b8099c6a82ddaa32d27",
+      "source_hash": "4abc5883bfa67fa88ee24e852f7aa1ea004246209394d156bce021b69741bc72",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/drupal-dries.agent.yaml",
       "tool_key": "codex"
@@ -380,7 +380,7 @@
       "output_path": ".codex/agents/frontend-freddy.toml",
       "profile_urn": "agent_profile:frontend-freddy",
       "projection_version": 1,
-      "source_hash": "6ba3f319690688c7816c528db5c61093820df736bcd418e3f7d5315a5d45530d",
+      "source_hash": "5a709fbefe06f192a12f829f76ebe6e65460b5105b830caca6ec4b8ad8472d3a",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/frontend-freddy.agent.yaml",
       "tool_key": "codex"
@@ -402,7 +402,7 @@
       "output_path": ".codex/agents/implementer-ivan.toml",
       "profile_urn": "agent_profile:implementer-ivan",
       "projection_version": 1,
-      "source_hash": "594a504aa0fb2c708d2aff7365d5458110800f2439e850d824b95a1fd5dc6a75",
+      "source_hash": "d31147245e98b300125d966ea32f9ba411de0bab683774b4d4c0b190c70f99b2",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/implementer-ivan.agent.yaml",
       "tool_key": "codex"
@@ -413,7 +413,7 @@
       "output_path": ".codex/agents/java-jenny.toml",
       "profile_urn": "agent_profile:java-jenny",
       "projection_version": 1,
-      "source_hash": "da07e2c52a6c730b83ca9935a4976c831f1972538702b2aa91709940201b34d1",
+      "source_hash": "5fe490e66479990ff03f6b66a5f4a2b8f07bd76fd191685df303088fbf4d824f",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/java-jenny.agent.yaml",
       "tool_key": "codex"
@@ -446,7 +446,7 @@
       "output_path": ".codex/agents/node-norris.toml",
       "profile_urn": "agent_profile:node-norris",
       "projection_version": 1,
-      "source_hash": "8bc673d323d963598b30e46d941d4cbe3151de4d509445d945b63e2a9c9cf674",
+      "source_hash": "0a7b5f6f138902466487b243de4d6c19e9f3f72193163d2c176ee354a5b26654",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/node-norris.agent.yaml",
       "tool_key": "codex"
@@ -457,7 +457,7 @@
       "output_path": ".codex/agents/paula-patterns.toml",
       "profile_urn": "agent_profile:paula-patterns",
       "projection_version": 1,
-      "source_hash": "9a77e5bc10ecda6fff4464f7ed3dab08ad25a8db7d94a70981699d17358ca9ab",
+      "source_hash": "0926d47d576bdbe8dd8e9ad794209ad29e360832a570333382271d3f6c8450cc",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/paula-patterns.agent.yaml",
       "tool_key": "codex"
@@ -479,7 +479,7 @@
       "output_path": ".codex/agents/python-pedro.toml",
       "profile_urn": "agent_profile:python-pedro",
       "projection_version": 1,
-      "source_hash": "be446235b46f934a8a68071a91d1d1e047aa7d6d6d32231a550e33dcc79b9b96",
+      "source_hash": "7184286bd3a7e781c593940a235fd4171647f89c60dfd201c3498bc48e1328ea",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/python-pedro.agent.yaml",
       "tool_key": "codex"
@@ -523,7 +523,7 @@
       "output_path": ".codex/agents/reviewer-renata.toml",
       "profile_urn": "agent_profile:reviewer-renata",
       "projection_version": 1,
-      "source_hash": "6ed595685f47c86596a7a7ed3c1dae26b0408193813c1104b78e54d59ac01c4e",
+      "source_hash": "9ae3b1c8fe9f97506a67b69ecc4e681fa6d6c8fb7e3e82b13031c5058328ad17",
       "source_layer": "builtin",
       "source_path": "${SPEC_KITTY_PACKS_ROOT}/built-in/agent_profiles/reviewer-renata.agent.yaml",
       "tool_key": "codex"
