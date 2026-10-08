@@ -57,6 +57,11 @@ allocated by `spec-kitty agent action review WPxx --agent <name>`. Prefer to sta
 your `owned_files` boundaries; any out-of-map change must be small, justified, and carry a
 one-line rationale in the commit message.
 
+**One writer per checkout.** Do not edit files in a checkout another actor is implementing in; on
+`single_branch` the repository root checkout has one writer at a time, and `agent action review`
+warns, naming them, when another actor works there. Review from your own checkout (a lane worktree,
+or a harness-isolated worktree) instead.
+
 **In repos with multiple missions, always pass `--mission <handle>` to every spec-kitty command.** The `<handle>` can be the mission's `mission_id` (ULID), `mid8` (first 8 chars of the ULID), or `mission_slug`. The resolver disambiguates by `mission_id` and returns a structured `MISSION_AMBIGUOUS_SELECTOR` error on ambiguity — there is no silent fallback.
 
 ## User Input

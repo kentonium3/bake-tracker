@@ -74,7 +74,14 @@ guardrails for bulk operations.
 ## Working Directory
 
 **IMPORTANT**: This step works inside the execution workspace (worktree)
-allocated by `spec-kitty agent action implement WPxx --agent <name>`. For a `single_branch` mission the WP instead runs in the repository root checkout, which must be on the mission's write branch and clean, and only one WP may be in progress at a time. Prefer to stay within
+allocated by `spec-kitty agent action implement WPxx --agent <name>`. For a `single_branch` mission the WP instead runs in the repository root checkout, which must be on the mission's write branch and clean, and only one WP may be in progress at a time.
+
+**One writer per checkout.** Concurrent implementers and reviewers each work in their own checkout
+(a lane worktree, or a harness-isolated worktree). On `single_branch` the repository root checkout has
+one writer at a time: `implement` refuses a second claim there (`WRITE_CHECKOUT_OCCUPIED`) while
+`agent action implement` and `agent action review` warn when another actor is working in it.
+
+Prefer to stay within
 your `owned_files` boundaries. If a small, well-justified change to a file outside the map is
 genuinely needed to deliver the WP (e.g. a one-line prerequisite or a stale assertion that
 pins a now-deleted internal), make it and record a one-line rationale in the commit message —
