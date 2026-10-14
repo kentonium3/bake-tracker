@@ -112,6 +112,20 @@ This creates `research.md`, `data-model.md`, `research/evidence-log.csv`, and
 never overwrites an existing, non-empty file unless you pass `--force`, and it
 never creates an empty file when no template exists for the mission type.
 
+If this Mission is an **owned single-branch checkout** (created with
+`--owned-checkout`), scaffold into the owned checkout, never the primary:
+
+```bash
+# Owned single-branch checkouts only; do not run this for a Mission without one.
+spec-kitty research --mission <handle> --owned-checkout <owned-checkout-path>
+```
+
+Run from inside the owned checkout the selector is optional — `research`
+auto-adopts it — but passing `--owned-checkout` explicitly is safe from any
+working directory. Not every authoring command auto-adopts; one that does not
+resolves the primary checkout, so always render the ownership selector for the
+authoring commands an owned run invokes.
+
 ---
 
 ## Success Criteria

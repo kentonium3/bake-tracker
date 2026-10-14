@@ -45,7 +45,7 @@ In non-interactive hosts, choose `not_now` and continue.
 
 ### REASONS Guidance — Specify
 
-This project's charter selected the SPDD/REASONS doctrine pack. While capturing
+This project's active charter includes the SPDD/REASONS artifacts. While capturing
 the spec, populate or update these REASONS canvas sections:
 
 - **Requirements** — problem statement, acceptance criteria, definition of done.
@@ -288,8 +288,6 @@ Workflow:
    as complete; otherwise it returns `phase_complete=false` with a
    `blocked_reason` mentioning "committed AND substantive".
 
-Reference: `kitty-specs/charter-e2e-827-followups-01KQAJA0/contracts/specify-plan-commit-boundary.md`.
-
 ## DO NOT
 
 - Do not mix functional, non-functional, and constraint requirements in one list.
@@ -323,7 +321,7 @@ spec-kitty charter context --action specify --json
 ## Visual Communication (recommended)
 
 Apply the visual doctrine when a non-trivial actor flow, domain lifecycle,
-rule, or concept boundary is clearer visually. Load `spk-doctrine-show-me` and
+rule, or concept boundary is clearer visually. Load `spk-practice-show-me` and
 add the smallest useful diagram. Prefer an inline Mermaid diagram; use PlantUML
 only when its richer layout or DSL materially helps. Keep the visual focused on
 product intent—do not introduce implementation architecture into the
@@ -493,13 +491,13 @@ planning, you **must** conduct or verify a structured discovery interview.
 
 - If the user provides no initial description (empty command), stay in **Interactive Interview Mode**: keep probing with one question at a time.
 
-- **Conversational cadence**: After each user reply, decide if you have ENOUGH context for this feature's complexity level. For trivial features, 1-2 questions is sufficient. Only continue asking if truly necessary for the scope.
+- **Conversational cadence**: After each user reply, decide if you have ENOUGH context for this mission's complexity level. For trivial features, 1-2 questions is sufficient. Only continue asking if truly necessary for the scope.
 
-Discovery requirements (scale to feature complexity):
+Discovery requirements (scale to complexity):
 
-1. Maintain a **Discovery Questions** table internally covering questions appropriate to the feature's complexity (1-2 for trivial, up to 5+ for complex). Track columns `#`, `Question`, `Why it matters`, and `Current insight`. Do **not** render this table to the user.
+1. Maintain a **Discovery Questions** table internally covering questions appropriate to the mission's complexity (1-2 for trivial, up to 5+ for complex). Track columns `#`, `Question`, `Why it matters`, and `Current insight`. Do **not** render this table to the user.
 2. For trivial features, reasonable defaults are acceptable. Only probe if truly ambiguous.
-3. When you have sufficient context for the feature's scope, paraphrase into an **Intent Summary** and confirm. For trivial features, this can be very brief. For non-trivial features, include the primary actor, trigger/success outcome, key constraint, and any explicit assumptions or deferred decisions.
+3. When you have sufficient context for the mission's scope, paraphrase into an **Intent Summary** and confirm. For trivial features, this can be very brief. For non-trivial features, include the primary actor, trigger/success outcome, key constraint, and any explicit assumptions or deferred decisions.
 4. Before leaving the interview loop, do a short playback of the primary scenario, the main exception or edge case, and any rule that must always hold.
 5. If user explicitly asks to skip questions or says "just testing", acknowledge and proceed with minimal discovery.
 
@@ -514,7 +512,7 @@ Typical shapes: "rename X to Y", "the Blue feature is now the Red feature",
 "change the terminology from X to Y", "move package A to package B", "replace
 ACME with GlobalCorp everywhere in docs and UI".
 
-**If yes or uncertain**: load the `spec-kitty-bulk-edit-classification` skill
+**If yes or uncertain**: load the `spk-practice-bulk-edit` skill
 and follow it. You will set `change_mode: bulk_edit` in `meta.json` after
 `mission create` and produce an `occurrence_map.yaml` during plan. The user
 does not need to know these field names — the skill teaches you the workflow.
@@ -534,7 +532,7 @@ breakage that DIRECTIVE_035 exists to prevent.
 2. Commits creation metadata; `spec.md` remains untracked until it is substantive and explicitly committed
 3. No worktree created during specify
 
-**Worktrees created later**: After `/spec-kitty.tasks` finishes, run: `spec-kitty next --agent <agent> --mission <handle>`. The `--mission` handle can be the mission's `mission_id` (ULID), `mid8` (first 8 chars), or `mission_slug`; the resolver disambiguates by `mission_id` and returns a structured error on ambiguity (no silent fallback). Your agent will call `spec-kitty agent action implement WP## --agent <name>` for each WP. Each lane gets exactly one worktree, for example `.worktrees/<human-slug>-<mid8>-lane-a/` (e.g. `.worktrees/checkout-upsell-flow-01J6XW9K-lane-a/`).
+**Worktrees created later**: After `/spec-kitty.tasks` finishes, run: `spec-kitty next --agent <agent> --mission <handle>`. The `--mission` handle can be the mission's `mission_id` (ULID), `mid8` (first 8 chars), or `mission_slug`; the resolver disambiguates by `mission_id` and returns a structured error on ambiguity (no silent fallback). On a software-dev mission `next` issues the `/spec-kitty.analyze` step first (the required analysis gate), and only once the analysis report is current does it hand out `spec-kitty agent action implement WP## --agent <name>` for each WP. Each lane gets exactly one worktree, for example `.worktrees/<human-slug>-<mid8>-lane-a/` (e.g. `.worktrees/checkout-upsell-flow-01J6XW9K-lane-a/`).
 
 ## Location
 
@@ -847,13 +845,13 @@ When creating this spec from a user prompt:
 1. **Make informed guesses**: Use context, industry standards, and common patterns to fill gaps
 2. **Document assumptions**: Record reasonable defaults in the Assumptions section
 3. **Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers - use only for critical decisions that:
-   - Significantly impact feature scope or user experience
+   - Significantly impact mission scope or user experience
    - Have multiple reasonable interpretations with different implications
    - Lack any reasonable default
 4. **Prioritize clarifications**: scope > security/privacy > user experience > technical details
 5. **Think like a tester**: Every vague requirement should fail the "testable and unambiguous" checklist item
 6. **Common areas needing clarification** (only if no reasonable default exists):
-   - Feature scope and boundaries (include/exclude specific use cases)
+   - Scope and boundaries (include/exclude specific use cases)
    - User types and permissions (if multiple conflicting interpretations possible)
    - Security/compliance requirements (when legally/financially significant)
 

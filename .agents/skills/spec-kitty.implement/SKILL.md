@@ -56,7 +56,7 @@ Before coding, load the WP-scoped REASONS section from
 - Norms (testing, observability, style)
 - Safeguards (hard constraints — what not to break)
 
-If the canvas is missing, invoke the `spec-kitty-spdd-reasons` skill to
+If the canvas is missing, invoke the `spk-charter-spdd-reasons` skill to
 generate it before continuing.
 
 Do not invent files, entities, or scope outside the canvas without recording a
@@ -89,7 +89,7 @@ that is better than a convoluted in-bounds workaround or a duplicated local re-i
 The finalize ownership-overlap gate remains the guard against *parallel* WPs colliding on the
 same file.
 
-**In repos with multiple missions, always pass `--mission <handle>` to every spec-kitty command.** The `<handle>` can be the mission's `mission_id` (ULID), `mid8` (first 8 chars of the ULID), or `mission_slug`. The resolver disambiguates by `mission_id` and returns a structured `MISSION_AMBIGUOUS_SELECTOR` error on ambiguity — there is no silent fallback.
+**In repos with multiple missions, pass `--mission <handle>` to every command that accepts `--mission`.** The `<handle>` can be the mission's `mission_id` (ULID), `mid8` (first 8 chars of the ULID), or `mission_slug`. The resolver disambiguates by `mission_id` and returns a structured `MISSION_AMBIGUOUS_SELECTOR` error on ambiguity — there is no silent fallback.
 
 ## User Input
 
@@ -129,12 +129,10 @@ WP frontmatter selects an `agent_profile`):
 
 **Guaranteed authority pointers** (path + when-doing conditional):
 
-- `docs/context/` — canonical terminology. Consult when you encounter a
-  domain term in the diff or are about to introduce a new one.
-- `docs/adr/3.x/` — architectural intent. Consult when you change a
-  structural boundary (package layout, public API surface, dependency edges).
-- Any additional paths declared in the charter's `authority_paths:` block are
-  emitted alongside these defaults.
+- Any paths declared in the charter's `authority_paths:` block are emitted,
+  each with a when-doing conditional describing when to consult it (for
+  example canonical-terminology or architectural-intent directories the
+  project configures).
 
 **Fetch commands** (the prompt may substitute these for bodies that exceed the
 token budget; whenever a fetch command appears, the accompanying
@@ -145,6 +143,14 @@ token budget; whenever a fetch command appears, the accompanying
 - `spec-kitty charter context --include section:<slug>`
 
 ## Execution Steps
+
+> **Analysis-report gate (software-dev).** `spec-kitty implement` (and
+> `spec-kitty agent action implement`) refuses to claim a work package until a
+> current analysis report exists — it fails with `analysis_report_required`
+> otherwise. Run `/spec-kitty.analyze` and record the report first; if the
+> spec, plan, tasks or charter changed after the recorded `analysis-report.md`
+> it is stale and must be re-run. `spec-kitty next` issues the analyze step
+> before implement for exactly this reason.
 
 ### 1. Setup
 
@@ -180,7 +186,7 @@ Parse frontmatter for:
 
 ### 2a. Load Agent Profile
 
-Before proceeding, load the agent profile from the WP frontmatter using the `/ad-hoc-profile-load` skill (or `spec-kitty agent profile list` to find user-defined profiles). Apply the profile's guidance for the rest of this implementation session.
+Before proceeding, load the agent profile from the WP frontmatter using the `/spk-charter-profile-load` skill (or `spec-kitty agent profile list` to find user-defined profiles). Apply the profile's guidance for the rest of this implementation session.
 
 If `agent_profile` is empty, run `spec-kitty agent profile list` and select the best
 available profile for the WP's `task_type` and `authoritative_surface`.
@@ -212,22 +218,28 @@ After all subtasks are complete:
 - All tests pass
 - Any files modified outside `owned_files` are small, justified, and have a one-line rationale in the commit message
 - Code follows project conventions (run linter if configured)
-- **Diff-scoped ruff sweep (MANDATORY before moving to `for_review`)** —
-  catches lint regressions before they reach the cycle-1 reviewer. The WP06
-  cycle-1 `textwrap` F401 in `tests/specify_cli/doctrine/test_missing_pack_policy.py`
-  would have been caught by this step. Scope is the diff only so the implementer
-  does not drown in pre-existing warnings owned by other WPs.
+- **Diff-scoped lint/format sweep (MANDATORY before moving to `for_review`)** —
+  catches lint regressions before they reach the cycle-1 reviewer. Run the
+  project's own lint and format commands over the changed files only, using the
+  project's own tool configuration and execution environment, so the
+  implementer does not drown in pre-existing warnings owned by other work
+  packages.
   ```bash
-  CHANGED_PY=$(git diff --name-only --diff-filter=AMR HEAD | grep -E '[.]py$' || true)
-  if [ -n "$CHANGED_PY" ]; then
-    .venv/bin/ruff check $CHANGED_PY
+  CHANGED=$(git diff --name-only --diff-filter=AMR HEAD || true)
+  if [ -n "$CHANGED" ]; then
+    # Run the project's configured lint and format checks over $CHANGED.
+    echo "$CHANGED"
   fi
   ```
-  - The command MUST exit 0. If it does not, fix or `ruff check --fix` and re-run.
-  - Paste the final command + exit code into your handoff note
-    (e.g. `"ruff diff-scoped check: 0 issues, exit 0"`).
-  - On cycle-N re-implementation, diff against the WP's planning base instead
-    of `HEAD`: `git diff --name-only $(git merge-base HEAD main)`.
+  - The project's own lint and format commands MUST pass. If they do not, fix
+    (or auto-fix) introduced findings and re-run the check.
+  - Paste the final commands, their exit codes, and any findings into your
+    handoff note (e.g. `"diff-scoped lint: 0 issues"`).
+  - On cycle-N re-implementation, diff against the WP's planning base — the
+    mission's target branch from the setup JSON — instead of `HEAD`, so earlier
+    cycle changes are included:
+    `git diff --name-only "$(git merge-base HEAD "$TARGET_BRANCH")"`, where
+    `$TARGET_BRANCH` is the mission's `target_branch`/`merge_target_branch`.
 
 ---
 
@@ -319,16 +331,22 @@ After completing bulk renames:
    - **Missed rename**: Fix it
    - **New occurrence**: Introduced by parallel work -- rename if appropriate
 
-3. **Search command template and agent directories** explicitly:
+3. **Search the template source directories** explicitly. Command templates now
+   live as step prompts under `packs/built-in/missions/mission-steps/`; edit
+   those SOURCE files, never the generated agent copies:
    ```bash
-   grep -rn "old_term" src/specify_cli/missions/*/command-templates/
-   grep -rn "old_term" .claude/commands/ .agents/skills/ .opencode/command/
-   grep -rn "old_term" .github/prompts/ .gemini/commands/ .cursor/commands/
-   grep -rn "old_term" .qwen/commands/ .kilocode/workflows/ .windsurf/workflows/
-   grep -rn "old_term" .augment/commands/ .roo/commands/ .amazonq/prompts/
+   grep -rn "old_term" packs/built-in/missions/mission-steps/
    ```
 
-4. **Produce a verification report**:
+4. **Search the configured agent directories** explicitly. Resolve the agent
+   command/skill directories this project actually has with
+   `spec-kitty agent config list`, then grep each one for the old term, for
+   example:
+   ```bash
+   grep -rn "old_term" .claude/commands/ .agents/skills/
+   ```
+
+5. **Produce a verification report**:
    - Total occurrences found: N
    - Intentionally preserved: M (with reasons for each)
    - Missed renames fixed: K
@@ -378,7 +396,7 @@ the orchestrator opens the draft PR:
 4. Only after the orchestrator confirms the recorded evidence does the WP move
    to `for_review`.
 
-The reviewer will then use `/ad-hoc-profile-load` with the reviewer profile and apply
+The reviewer will then use `/spk-charter-profile-load` with the reviewer profile and apply
 its self-review gates automatically.
 
 ---
@@ -390,4 +408,4 @@ After completing implementation:
 - Bulk edit classification and verification reports (if applicable)
 - Commit changes with a descriptive message
 
-**Next step**: `spec-kitty next --agent <name>` will advance to review.
+**Next step**: `spec-kitty next --agent <name> --mission <handle>` will advance to review.
