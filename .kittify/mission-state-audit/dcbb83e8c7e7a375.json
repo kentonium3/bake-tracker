@@ -1,0 +1,69 @@
+{
+  "cli_version": "4.0.0rc9",
+  "command_args": [
+    "doctor",
+    "mission-state",
+    "--fix",
+    "--mission",
+    "004-finishedunit-model-refactoring"
+  ],
+  "generated_ids": [
+    "dcbb83e8c7e7a375"
+  ],
+  "manifest_path": ".kittify/mission-state-audit/dcbb83e8c7e7a375.json",
+  "missions": [
+    {
+      "file_changes": [
+        {
+          "new_sha256": "c8476310281c2e750d0d25fd18e1823d9b0c44d9cd85b17b916c3ace8a8b9e97",
+          "new_size": 3934,
+          "old_sha256": null,
+          "old_size": null,
+          "path": "kitty-specs/004-finishedunit-model-refactoring/lanes.json"
+        }
+      ],
+      "meta_actions": [
+        "lanes_rebuilt_from_event_log"
+      ],
+      "mission_id": "01KN5R6XD3DGA4DVQSV36BF4PP",
+      "mission_slug": "004-finishedunit-model-refactoring",
+      "quarantine_written": false,
+      "quarantined_rows": 0,
+      "row_transformations": [],
+      "status": "updated",
+      "validation_errors": []
+    }
+  ],
+  "policy": {
+    "ignored": [
+      "*.pyc",
+      ".git/",
+      ".worktrees/",
+      "__pycache__/"
+    ],
+    "optional": [
+      "kitty-specs/*/status.json"
+    ],
+    "tracked": [
+      ".kittify/mission-state-audit/*.json",
+      "kitty-specs/*/meta.json",
+      "kitty-specs/*/status.events.jsonl",
+      "kitty-specs/*/status.json"
+    ]
+  },
+  "quarantine_root_path": null,
+  "repo_head": "d4a14a4d207d5155c45f27caa39f8db156aa41ef",
+  "residue_directories": [],
+  "run_id": "dcbb83e8c7e7a375",
+  "schema_version": "1.0.0",
+  "summary": {
+    "missions_error": 0,
+    "missions_total": 1,
+    "missions_unchanged": 0,
+    "missions_updated": 1,
+    "quarantined_rows": 0
+  },
+  "target_missions": [
+    "004-finishedunit-model-refactoring"
+  ]
+}

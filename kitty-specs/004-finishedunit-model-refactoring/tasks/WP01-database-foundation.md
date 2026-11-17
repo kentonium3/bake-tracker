@@ -42,6 +42,13 @@ owned_files:
 reviewer: claude
 reviewer_shell_pid: '36008'
 wp_code: WP01
+# Residue cleanup 2026-11-17 (Kent Gale's ruling): these owned_files paths no longer exist on main
+# (moved or deleted after the mission). Declared here only so 'spec-kitty doctor mission-state --fix'
+# can rebuild lanes.json and the mission can be closed; no file will be created.
+create_intent:
+  - tests/fixtures/migration_test_data.py
+  - tests/integration/test_migration_workflow.py
+  - tests/unit/test_migration_service.py
 ---
 
 # Work Package Prompt: WP01 – Database Foundation & Migration Infrastructure
