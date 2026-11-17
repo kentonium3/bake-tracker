@@ -2,6 +2,7 @@
   "created_at": "2026-01-22T00:00:00Z",
   "decimal_format": "2_decimal_places",
   "friendly_name": "Service Session Consistency Hardening",
+  "merged_at": "2026-01-22T23:22:00+00:00",
   "mission_id": "01KN5R6XEDBWJATJDFSN5WHTQD",
   "mission_number": 62,
   "mission_slug": "service-session-consistency-hardening",

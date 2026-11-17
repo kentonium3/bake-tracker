@@ -4,8 +4,3 @@ agents:
   - gemini
   - cursor
   - claude
-mission_type_activations:
-- software-dev
-- documentation
-- research
-- plan
