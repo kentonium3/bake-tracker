@@ -86,6 +86,21 @@ test_data/exported_data.json
 # AI Agents (credentials and state)
 .claude/
 ai-agents/
+# Local agent state and credentials: keep whole directories ignored.
+# Restored 2026-11-17: the spec-kitty 06af0c52e upgrade replaced these
+# blanket rules with per-file entries, which exposed local Codex/Cursor
+# config, logs and tmp files. Already-tracked files stay tracked.
+.codex/
+.opencode/
+.windsurf/
+.gemini/
+.cursor/
+.qwen/
+.kilocode/
+.augment/
+.roo/
+.amazonq/
+.agents/skills/
 
 # Added by Spec Kitty CLI (auto-managed)
 docs/.obsidian/
