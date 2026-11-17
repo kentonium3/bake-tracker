@@ -337,7 +337,7 @@ spec-kitty orchestrator-api accept-mission --mission TEXT --actor TEXT
 
 | Code | Cause |
 |------|-------|
-| `MISSION_NOT_READY` | One or more WPs are not `approved` or `done`, OR (contract >= 1.7.0) the host readiness verdict (`collect_feature_summary(..., strict_metadata=True).ok`) is `False` -- a pending/failing acceptance matrix, missing/corrupt `lanes.json`, target-branch mismatch, unmet path convention, dirty working tree, etc. |
+| `MISSION_NOT_READY` | One or more WPs are not `approved` or `done`, OR (contract >= 1.7.0) the host readiness verdict (`collect_feature_summary(..., strict_metadata=True).ok`) is `False` -- a pending/failing acceptance matrix, missing/corrupt `lanes.json`, target-branch mismatch, unmet path convention, dirty working tree, etc., OR (contract >= 1.21.0) an approved WP has no implementation evidence or no independent review (codes in `data.evidence_error_codes`, below) |
 
 **Error data (readiness-verdict refusal, contract >= 1.7.0):**
 
@@ -347,6 +347,28 @@ spec-kitty orchestrator-api accept-mission --mission TEXT --actor TEXT
 | `activity_issues` | `list[string]` | Human-readable readiness issues |
 | `skipped_checks` | `list[{check, detail}]` | Gates never reached |
 | `blocked_checks` | `list[{check, detail}]` | Gates that stopped readiness (e.g. `check: "lanes_manifest"` for a missing `lanes.json`) |
+
+**Error data (implementation-evidence refusal, contract >= 1.21.0):** checked before the
+readiness verdict, with the same predicate the host `accept` and `consolidate` run, on every
+topology. The message is in `data.errors`; the readiness fields above are absent.
+
+| Field | Type | Description |
+|-------|------|--------------|
+| `evidence_error_codes` | `list[string]` | Every distinct code the refusal names, in order |
+
+| Code | Meaning | What to do |
+|------|---------|------------|
+| `IMPLEMENTATION_MISSING` | The WP's evidence window holds no change to its `owned_files` (Mission files the CLI writes itself never count) | Commit the change and have it reviewed and approved again; for a WP that owes none, the host `accept` / `consolidate --attest-no-implementation <WP> --attest-reason "<why>"` |
+| `REVIEW_NOT_INDEPENDENT` | The approver is not provably another identity than the implementer: same tool and no model or profile recorded on both sides that differs, or an identity not recorded (a `user` placeholder included) | A reviewer with another identity approves it (`--agent <tool>:<model>:<profile>`); no attestation lifts it |
+| `IMPLEMENTATION_UNREADABLE` | The evidence window cannot be diffed (a lane branch or the planning commit is gone). An absent lane branch is reported as absent, with its own cause | Restore or fetch actual recorded lane history and the planning commit where they existed. Local refs, including sibling presence, do not prove the missing lane ever existed; never manufacture its window from target-branch work. No local lane refs is also consistent with target-branch execution, pruning or an incomplete fetch. The verified PR-merge route (`accept --mode pr --merge-commit <sha>`) stays available under its existing checks. Without that landing or a lane window to restore, escalate [#7120](https://github.com/spec-kitty/spec-kitty/issues/7120) instead of retrying that window. |
+| `EVIDENCE_WINDOW_UNCOMPUTABLE` | `lanes.json` records no planning commit, or the WP is in no lane | Re-run `spec-kitty agent mission finalize-tasks` |
+| `OWNERSHIP_UNRESOLVED` | (contract >= 1.23.0) The WP's `owned_files` cannot be read: its task file or the `tasks/` directory is missing or unreadable (an authored empty list is not this case) | Restore the task file or run from the owning checkout, re-run; no attestation lifts it |
+
+A `single_branch` Mission keeps emitting the `SINGLE_BRANCH_*` aliases of the same meaning
+(`SINGLE_BRANCH_IMPLEMENTATION_MISSING`, `SINGLE_BRANCH_REVIEW_NOT_INDEPENDENT`,
+`SINGLE_BRANCH_EVIDENCE_UNREADABLE`, `SINGLE_BRANCH_EVIDENCE_WINDOW_UNCOMPUTABLE`, `SINGLE_BRANCH_OWNERSHIP_UNRESOLVED`).
+`consolidate-mission` refuses the same codes with `PREFLIGHT_FAILED`, in
+`data.preflight_error_code` / `data.preflight_error_codes`, before it merges its first lane.
 
 No acceptance is recorded on this refusal (no `accepted_at` /
 `acceptance_mode`, HEAD unchanged; the readiness gate may still update the
@@ -700,7 +722,7 @@ spec-kitty orchestrator-api resolve-decision \
 | `status` | string | Resulting decision status |
 | `terminal_outcome` | string | Terminal outcome recorded |
 | `idempotent` | bool | `true` if this call matched an already-terminal entry with the SAME outcome/payload |
-| `event_lamport` | int | Lamport clock of the recorded event |
+| `event_lamport` | int \| null | Lamport clock of the recorded event. On an idempotent retry (contract >= 1.17.0) it is the lamport of the terminal event the retry re-wrote when it was missing, and null when the event was already present |
 
 **Error codes:**
 
@@ -709,6 +731,9 @@ spec-kitty orchestrator-api resolve-decision \
 | `POLICY_METADATA_REQUIRED` | `--policy` missing |
 | `DECISION_NOT_FOUND` | `--decision-id` is not present in the mission's ledger |
 | `DECISION_TERMINAL_CONFLICT` | The decision is already terminal with a DIFFERENT outcome/payload than requested |
+| `DECISION_EVENT_REPAIR_FAILED` | Idempotent terminal path (contract >= 1.17.0): the missing `DecisionPointResolved` event could not be re-written; any call (contract >= 1.19.0): a missing `DecisionPointOpened` event (an interrupted open) could not be recorded before the terminal event |
+| `DECISION_LOCK_TIMEOUT` | Contract >= 1.19.0: the decisions lock stayed held past the bounded wait; nothing was written, retry the call |
+| `DESIGN_STATUS_EVENT_LOG_UNREADABLE` | `decisions/index.json` or (contract >= 1.17.0, idempotent retry) `status.events.jsonl` could not be read cleanly |
 
 ---
 
@@ -743,6 +768,9 @@ spec-kitty orchestrator-api defer-decision \
 | `DECISION_MISSING_STEP_OR_SLOT` | `--rationale` is empty or whitespace-only |
 | `DECISION_NOT_FOUND` | `--decision-id` is not present in the mission's ledger |
 | `DECISION_TERMINAL_CONFLICT` | The decision is already terminal with a DIFFERENT outcome/payload than requested |
+| `DECISION_EVENT_REPAIR_FAILED` | Idempotent terminal path (contract >= 1.17.0): the missing terminal event could not be re-written; any call (contract >= 1.19.0): a missing `DecisionPointOpened` event (an interrupted open) could not be recorded before the terminal event |
+| `DECISION_LOCK_TIMEOUT` | Contract >= 1.19.0: the decisions lock stayed held past the bounded wait; nothing was written, retry the call |
+| `DESIGN_STATUS_EVENT_LOG_UNREADABLE` | `decisions/index.json` or (contract >= 1.17.0, idempotent retry) `status.events.jsonl` could not be read cleanly |
 
 ---
 
@@ -807,6 +835,7 @@ spec-kitty orchestrator-api answer-decision \
 | `is_query` | bool | `true` when `kind == query` |
 | `preview_step` | string or null | Preview of the next step |
 | `answered_decision_id` | string | The `decision_id` this call persisted an answer against — this verb's own field name for the CLI's terser `answered` key. `data` carries NO `answer` echo key: the submitted value is intentionally omitted (the host already has it) |
+| `warnings` | list of strings | Present (contract >= 1.16.0) **only when** the Step-1 decision-log `safe_commit` was refused — byte-identical to the host `next --answer --json` surface. Absent on a clean commit. A `warnings` entry means the answer event is in `decisions.events.jsonl` but not committed to git, so the committed decision record may be stale (#6222) |
 
 **Error codes:**
 
@@ -869,11 +898,15 @@ transition — it never invokes the WP-loop or `next` engines.
 
 ## Error Code Summary
 
+<!-- orchestrator-error-codes:begin -->
+
 | Error Code | Commands | Description |
 |------------|----------|-------------|
 | `CONTRACT_VERSION_MISMATCH` | contract-version | Provider version too old |
+| `INVALID_MISSION` | all mission-scoped commands | `--mission` is not a safe path segment (`..`, a separator, a leading dot, non-ASCII); refused before any path join |
 | `MISSION_NOT_FOUND` | mission-state, list-ready | Unknown mission slug |
-| `MISSION_NOT_READY` | accept-mission | Not all WPs are approved/done, or (contract >= 1.7.0) the host readiness verdict is not passing |
+| `MISSION_NOT_READY` | accept-mission | Not all WPs are approved/done, or (contract >= 1.7.0) the host readiness verdict is not passing, or (contract >= 1.21.0) the implementation-evidence check refuses (`data.evidence_error_codes`) |
+| `WORKFLOW_EVIDENCE_REQUIRED` | transition | A terminal transition lacks its required structured workflow evidence; the current host derives those facts instead of returning this code, but the contract registers it |
 | `POLICY_METADATA_REQUIRED` | start-implementation, start-review, transition | Missing or incomplete policy JSON |
 | `POLICY_VALIDATION_FAILED` | start-implementation, start-review, transition | Policy JSON invalid or contains secret-like values |
 | `USAGE_ERROR` | all commands | CLI usage error or missing required arguments |
@@ -889,6 +922,7 @@ transition — it never invokes the WP-loop or `next` engines.
 | `SAFE_COMMIT_PROTECTED_BRANCH` | append-history | Safe commit refused a protected branch |
 | `SAFE_COMMIT_RECOVERY_FAILED` | append-history | Safe commit created or attempted a commit but could not restore caller staging |
 | `TRANSITION_REJECTED` | start-implementation, start-review, transition | Guard failure or invalid transition |
+| `BOOKKEEPING_FAILED` | start-implementation, start-review, transition | The transactional status write refused; `data.bookkeeping_error_code` carries the refusal's own code (`BOOKKEEPING_LOCK_TIMEOUT` is retryable, `BOOKKEEPING_POLICY_REFUSED` / `COORD_STATUS_SURFACE_DIVERGED` need an operator) |
 | `WP_ALREADY_CLAIMED` | start-implementation, start-review | Another actor owns the WP |
 | `MISSION_ALREADY_EXISTS` | specify | Delegate mission-creation call refused a duplicate (typed `MissionAlreadyExistsError` signal, #3861) |
 | `MISSION_CREATE_FAILED` | specify | Mission creation failed for a reason other than a typed duplicate signal |
@@ -905,28 +939,60 @@ transition — it never invokes the WP-loop or `next` engines.
 | `INVALID_ORIGIN_FLOW` | open-decision | `--origin` is outside `{charter, specify, plan}` |
 | `DECISION_MISSING_STEP_OR_SLOT` | open-decision, defer-decision, cancel-decision | Neither `--step-id` nor `--slot-key` supplied (open-decision); or an empty `--rationale` (defer-decision, cancel-decision) |
 | `DECISION_ALREADY_CLOSED` | open-decision | A matching logical-key entry already exists in a terminal state |
-| `DECISION_EVENT_REPAIR_FAILED` | open-decision | Idempotent-open path: the missing `DecisionPointOpened` event could not be re-emitted |
+| `DECISION_EVENT_REPAIR_FAILED` | open-decision, resolve-decision, defer-decision, cancel-decision | Idempotent-open path: the missing `DecisionPointOpened` event could not be re-emitted; idempotent terminal path (contract >= 1.17.0): the missing `DecisionPointResolved` event could not be re-written |
 | `DECISION_NOT_FOUND` | resolve-decision, defer-decision, cancel-decision | `--decision-id` is not present in the mission's ledger |
 | `DECISION_TERMINAL_CONFLICT` | resolve-decision, defer-decision, cancel-decision | The decision is already terminal with a DIFFERENT outcome/payload than requested |
+| `DECISION_LOCK_TIMEOUT` | resolve-decision, defer-decision, cancel-decision | Contract >= 1.19.0: the decisions lock stayed held past the bounded wait; nothing was written, retry the call |
 | `RESULT_REQUIRED` | answer-decision | `--result` is required alongside `--answer` |
 | `INVALID_RESULT` | answer-decision | `--result` is not one of `success`, `failed`, `blocked` |
 | `NO_PENDING_DECISION` | answer-decision | No pending decisions to answer |
 | `AMBIGUOUS_PENDING_DECISION` | answer-decision | More than one pending decision and `--decision-id` was omitted |
 | `DECISION_NOT_PENDING` | answer-decision | `--decision-id` does not match any entry in the current run's pending decisions |
 | `DECISION_OPERATION_FAILED` | open-decision, resolve-decision, defer-decision, cancel-decision | A decision-ledger operation failed for a reason without a more specific registered code |
-| `DESIGN_STATUS_EVENT_LOG_UNREADABLE` | design-status | `status.events.jsonl` could not be read cleanly (torn/truncated line, or a detected drift against `status.json`) while deriving the tasks-finalized signal |
+| `DESIGN_STATUS_EVENT_LOG_UNREADABLE` | design-status, open-decision, resolve-decision, defer-decision, cancel-decision, plan, artifact-submit | `status.events.jsonl` could not be read cleanly (torn/truncated line, or a detected drift against `status.json`) while deriving the tasks-finalized signal (design-status), or on an idempotent decision retry (open-decision; resolve/defer/cancel-decision since contract 1.17.0); all four decision write verbs also return it for an unreadable `decisions/index.json` |
+| `DESIGN_ARTIFACT_UNSUPPORTED` | artifact-read, artifact-submit | Artifact name invalid, undeclared by the Mission type, or not an authoring capability |
+| `DESIGN_BOUNDS_EXCEEDED` | artifact-read, artifact-submit, design-validate | An artifact, request or batch exceeds the documented byte bound |
+| `DESIGN_COMMIT_FAILED` | artifact-submit | Content materialized but the host commit did not complete; inspect the reported effect state and commit outcome before retrying |
+| `DESIGN_CONTEXT_FAILED` | design-context, interview-record, artifact-submit, design-validate | The resolved design context cannot be built: an undeclared design stage, host content over the inline limit, or an activated Mission with no template mapping |
+| `DESIGN_CONTEXT_STALE` | artifact-submit, design-validate, tasks | The template or governance context changed since the content was authored; re-read `design-context` and resubmit |
+| `DESIGN_FINALIZED` | plan, artifact-submit | An API-authored Mission whose native task board is finalized refuses plan scaffolding and design writes; native reconciliation applies instead |
+| `DESIGN_INTERVIEW_FAILED` | design-context, interview-record, artifact-submit, design-validate | The interview ledger could not be read, or a requested answer could not be recorded; the failure carries the decision IDs already applied, if any, and asks for reconciliation before retrying |
+| `DESIGN_INTERVIEW_INCOMPLETE` | artifact-submit, design-validate, tasks | Required interview answers are still pending, deferred or canceled; `interview-record` reports that state as `data.interview.complete: false` rather than refusing |
+| `DESIGN_INTERVIEW_INVALID` | interview-record | The answers are not bounded UTF-8 JSON, the mapping is empty, or the actor identity is missing |
+| `DESIGN_IO_FAILED` | artifact-read, artifact-submit, design-validate | The host could not read or persist design content |
+| `DESIGN_LOCK_TIMEOUT` | artifact-read, artifact-submit, tasks | The Mission authoring lock stayed busy past its bound; nothing was written, retry |
+| `DESIGN_PARENT_STALE` | artifact-submit, design-validate, tasks | An accepted parent artifact is missing or changed, or accepted content changed outside its authoring receipt |
+| `DESIGN_PATH_REFUSED` | artifact-read, artifact-submit | An artifact identifier or location is not a single safe basename or a declared destination |
+| `DESIGN_PREREQUISITES_FAILED` | artifact-read, artifact-submit, design-validate, tasks | Open decisions, missing accepted provenance, an invalid outline, or an invalid bounded package graph |
+| `DESIGN_RECEIPT_UNREADABLE` | artifact-submit, design-validate | API authoring provenance is missing or corrupt while the API-enabled marker stands, or a post-commit receipt write failed; reconcile the effects |
+| `DESIGN_REQUEST_INVALID` | artifact-read, artifact-submit, design-validate | The request is not bounded UTF-8 JSON, carries unknown fields, supplies runtime or status authority, names an unknown stage, or selects an identifier the kind does not take |
+| `DESIGN_REVISION_CONFLICT` | artifact-submit | The artifact revision changed since its `expected_sha256` was read; re-read and resubmit |
 | `WP_NOT_FOUND` | resolve-workspace, start-implementation, start-review, transition, append-history | Work package ID does not exist in the mission |
-| `PREFLIGHT_FAILED` | consolidate-mission | Preflight checks failed before merge (target-branch/git-state errors, or a `RuntimeError` from the lane-consolidation step) |
+| `PREFLIGHT_FAILED` | consolidate-mission | Preflight checks failed before merge (target-branch/git-state errors, or a `RuntimeError` from the lane-consolidation step); an approval-bound or (contract >= 1.21.0) implementation-evidence refusal carries its codes in `data.preflight_error_code` / `data.preflight_error_codes` |
 | `UNSUPPORTED_STRATEGY` | consolidate-mission | Requested `--strategy` is not one of `merge`, `squash`, `rebase` |
 | `LANE_ALLOCATION_FAILED` | start-implementation, transition | Lane worktree allocation failed (dirty reuse, a dependency-lane consolidation conflict, or an unhonorable base) |
 | `ANCESTRY_NOT_ESTABLISHED` | start-implementation, transition | The recorded planning commit or an approved dependency lane's tip is not (yet) a git ancestor of the claimed workspace's HEAD, even after self-heal re-ran the reuse-path merges |
 | `STATUS_LOCK_HELD` | start-implementation | The single_branch write-checkout claim lock stayed held by another claimant past its bound (contract 1.13.0); retry |
 | `SAFE_COMMIT_PATH_POLICY` | append-history | Safe commit refused to stage a path under `.worktrees/` from the primary repo root before mutating the index |
+| `SAFE_COMMIT_DIRECTORY_ARGUMENT` | append-history | Safe commit refused a directory path before writing anything — it commits an exact file set, so the request takes the expanded files or fails whole, and `data.offending_path` names the path (contract 1.22.0) |
 | `SAFE_COMMIT_PATH_LOOP` | append-history | Safe commit refused a requested path that is, or sits under, a symlink loop, before mutating the index (contract 1.14.0) |
 | `SAFE_COMMIT_INDEX_DELETION_CONFLICT` | append-history | Safe commit refused a path that was both requested for commit and listed as an index deletion, before committing (contract 1.14.0) |
 | `SAFE_COMMIT_INDEX_RESIDUE` | append-history | An index-deletion commit DID land (`commit_sha`), but the real index still stages a committed path; a `SAFE_COMMIT_RECOVERY_FAILED` refinement (contract 1.14.0) |
+| `SAFE_COMMIT_STAGED_TREE_UNCHANGED` | append-history | The staged tree scoped to the requested paths matches HEAD, so the safe commit has nothing to record |
 | `SAFE_COMMIT_UNREQUESTED_PATHS` | append-history | A pre-commit hook that re-stages every modified tracked file swept the operator's other modified tracked files into the commit, which DID land (`commit_sha`), so it carries paths the operation never requested; the real index is re-synced for those paths before the refusal; a `SAFE_COMMIT_RECOVERY_FAILED` refinement (contract 1.15.0) |
 | `STATUS_READ_PATH_NOT_FOUND` | all mission-scoped commands | Coord topology with a stale/unaddressable primary surface (fail-closed read-path guard fired; carries coord/primary candidates) |
+| `RUNTIME_BLOCKED` | next | The native runtime reported a blocked outcome; the typed payload explains why and the exit code is nonzero |
+| `RUNTIME_NEXT_FAILED` | next | The native step, prompt or request was refused; the exit code is nonzero |
+| `UNSUPPORTED_CAPABILITY` | contract-version | `--require-capability` names a capability the Python delivery profile does not register; `data.capability` names it |
+
+<!-- orchestrator-error-codes:end -->
+
+The table between the markers is the complete enumeration of
+`allowed_error_codes`; `tests/contract/test_orchestrator_api.py::TestProseErrorCodeEnumerations`
+compares it with the contract, so a newly registered code is added here in the same
+change that registers it. `design-context`, `interview-record`, `artifact-read`,
+`artifact-submit`, `design-validate` and `next` are the Python delivery profile's
+governed planning verbs; `docs/api/orchestrator-api.md` documents each of them.
 
 ---
 
