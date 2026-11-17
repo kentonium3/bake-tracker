@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "mission_slug": "004-finishedunit-model-refactoring",
+  "mission_id": "01KN5R6XD3DGA4DVQSV36BF4PP",
+  "mission_branch": "kitty/mission-finishedunit-model-refactoring-01KN5R6X",
+  "target_branch": "main",
+  "lanes": [
+    {
+      "lane_id": "lane-a",
+      "wp_ids": [
+        "WP01",
+        "WP02",
+        "WP03",
+        "WP04",
+        "WP05"
+      ],
+      "write_scope": [
+        "src/migrations/__init__.py",
+        "src/migrations/migration_orchestrator.py",
+        "src/models/__init__.py",
+        "src/models/assembly_type.py",
+        "src/models/composition.py",
+        "src/models/finished_good.py",
+        "src/models/finished_unit.py",
+        "src/services/__init__.py",
+        "src/services/composition_service.py",
+        "src/services/finished_good_service.py",
+        "src/services/finished_unit_service.py",
+        "src/services/migration_service.py",
+        "src/utils/__init__.py",
+        "src/utils/backup_validator.py",
+        "tests/compliance/**",
+        "tests/fixtures/assembly_fixtures.py",
+        "tests/fixtures/finished_unit_fixtures.py",
+        "tests/fixtures/hierarchy_fixtures.py",
+        "tests/fixtures/migration_test_data.py",
+        "tests/fixtures/production_data_fixtures.py",
+        "tests/integration/**",
+        "tests/integration/test_finished_unit_migration.py",
+        "tests/integration/test_hierarchy_operations.py",
+        "tests/integration/test_migration_workflow.py",
+        "tests/performance/**",
+        "tests/performance/test_hierarchy_benchmarks.py",
+        "tests/unit/models/**",
+        "tests/unit/services/test_composition_service.py",
+        "tests/unit/services/test_finished_good_service.py",
+        "tests/unit/services/test_finished_unit_service.py",
+        "tests/unit/test_migration_service.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "legacy-cleanup",
+        "tests"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    },
+    {
+      "lane_id": "lane-b",
+      "wp_ids": [
+        "WP06"
+      ],
+      "write_scope": [
+        "docs/ui_service_integration.md",
+        "src/services/ui_compatibility_service.py",
+        "src/ui/ingredients_tab.py",
+        "src/ui/main_window.py",
+        "src/utils/deprecation_warnings.py",
+        "tests/ui/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "legacy-cleanup",
+        "tests"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    }
+  ],
+  "computed_at": "2026-11-17T16:47:25.197815+00:00",
+  "computed_from": "dependency_graph+ownership",
+  "planning_artifact_wps": [],
+  "planning_commit_sha": "5f97841a97a49966ba52254a9a16e716dd93f5e8",
+  "collapse_report": {
+    "events": [
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP02",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'src/migrations/migration_orchestrator.py' vs 'src/migrations/migration_orchestrator.py', 'src/services/__init__.py' vs 'src/services/__init__.py'"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP03",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'src/models/finished_good.py' vs 'src/models/finished_good.py', 'src/services/__init__.py' vs 'src/services/__init__.py'"
+      },
+      {
+        "wp_a": "WP01",
+        "wp_b": "WP05",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'tests/integration/test_migration_workflow.py' vs 'tests/integration/**'"
+      },
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP04",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'src/services/composition_service.py' vs 'src/services/composition_service.py', 'src/services/finished_good_service.py' vs 'src/services/finished_good_service.py'"
+      }
+    ],
+    "total_merges": 4,
+    "independent_wps_collapsed": 4,
+    "by_rule": {
+      "write_scope_overlap": 4
+    }
+  }
+}

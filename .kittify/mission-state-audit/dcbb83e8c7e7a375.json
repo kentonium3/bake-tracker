@@ -13,17 +13,25 @@
   "manifest_path": ".kittify/mission-state-audit/dcbb83e8c7e7a375.json",
   "missions": [
     {
-      "file_changes": [],
-      "meta_actions": [],
+      "file_changes": [
+        {
+          "new_sha256": "c8476310281c2e750d0d25fd18e1823d9b0c44d9cd85b17b916c3ace8a8b9e97",
+          "new_size": 3934,
+          "old_sha256": null,
+          "old_size": null,
+          "path": "kitty-specs/004-finishedunit-model-refactoring/lanes.json"
+        }
+      ],
+      "meta_actions": [
+        "lanes_rebuilt_from_event_log"
+      ],
       "mission_id": "01KN5R6XD3DGA4DVQSV36BF4PP",
       "mission_slug": "004-finishedunit-model-refactoring",
       "quarantine_written": false,
       "quarantined_rows": 0,
       "row_transformations": [],
-      "status": "error",
-      "validation_errors": [
-        "Cannot rebuild lanes.json for mission '004-finishedunit-model-refactoring': literal-path owned_files entries match zero files in the repository (WP01: owned_files path 'tests/fixtures/migration_test_data.py' is a literal file path that matches zero files in the repository. Did you mean 'tests/fixtures/production_data_fixtures.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - tests/fixtures/migration_test_data.py; WP01: owned_files path 'tests/integration/test_migration_workflow.py' is a literal file path that matches zero files in the repository. Did you mean 'tests/integration/test_complete_workflows.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - tests/integration/test_migration_workflow.py; WP01: owned_files path 'tests/unit/test_migration_service.py' is a literal file path that matches zero files in the repository. Did you mean 'tests/unit/__init__.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - tests/unit/test_migration_service.py; WP06: owned_files path 'docs/ui_service_integration.md' is a literal file path that matches zero files in the repository. Did you mean 'docs/web_migration_notes.md'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - docs/ui_service_integration.md). Fix the paths in the WP frontmatter, then re-run 'spec-kitty doctor mission-state --fix'."
-      ]
+      "status": "updated",
+      "validation_errors": []
     }
   ],
   "policy": {
@@ -44,15 +52,15 @@
     ]
   },
   "quarantine_root_path": null,
-  "repo_head": "ca0579c5c4865bdf1ef1a24e61638e4cef1c9e84",
+  "repo_head": "d4a14a4d207d5155c45f27caa39f8db156aa41ef",
   "residue_directories": [],
   "run_id": "dcbb83e8c7e7a375",
   "schema_version": "1.0.0",
   "summary": {
-    "missions_error": 1,
+    "missions_error": 0,
     "missions_total": 1,
     "missions_unchanged": 0,
-    "missions_updated": 0,
+    "missions_updated": 1,
     "quarantined_rows": 0
   },
   "target_missions": [
